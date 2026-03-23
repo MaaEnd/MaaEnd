@@ -9,7 +9,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 func dataDirFromResourceBase() string {
@@ -33,6 +32,14 @@ func getLocaleFromState(st *RunState) string {
 
 func reportFocusByKey(ctx *maa.Context, st *RunState, key string, args ...any) {
 	maafocus.NodeActionStarting(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...))
+}
+
+func reportSimpleByKey(ctx *maa.Context, st *RunState, key string, args ...any) {
+	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...))
+}
+
+func reportColoredByKey(ctx *maa.Context, st *RunState, color string, key string, args ...any) {
+	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...), color)
 }
 
 func buildMatchOptions(st *RunState) matchapi.EssenceFilterOptions {
@@ -131,30 +138,22 @@ func buildInitViewModel(st *RunState) InitViewModel {
 	return vm
 }
 
-func reportInitDataLoaded(ctx *maa.Context, st *RunState) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.data_loaded"))
-}
-
-func reportInitNoEssenceType(ctx *maa.Context, st *RunState) {
-	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.no_essence_type"), "#ff0000")
-}
-
 func reportInitSelection(ctx *maa.Context, st *RunState, weaponRarity []int, essenceTypes []EssenceMeta) {
 	if len(weaponRarity) == 0 {
-		LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.no_weapon_rarity"))
+		reportSimpleByKey(ctx, st, "focus.init.no_weapon_rarity")
 	} else {
-		LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.selected_rarity", rarityListToString(weaponRarity)))
+		reportSimpleByKey(ctx, st, "focus.init.selected_rarity", rarityListToString(weaponRarity))
 	}
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.selected_essence", essenceListToString(essenceTypes)))
+	reportSimpleByKey(ctx, st, "focus.init.selected_essence", essenceListToString(essenceTypes))
 }
 
 func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.WeaponData) {
 	if len(weapons) == 0 {
-		LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.filtered_count_ext_only"))
-		LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.no_weapon_list"))
+		reportSimpleByKey(ctx, st, "focus.init.filtered_count_ext_only")
+		reportSimpleByKey(ctx, st, "focus.init.no_weapon_list")
 		return
 	}
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.filtered_count", len(weapons)))
+	reportSimpleByKey(ctx, st, "focus.init.filtered_count", len(weapons))
 	var b strings.Builder
 	const columns = 3
 	b.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
@@ -174,7 +173,7 @@ func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.Weapon
 func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string) {
 	total := len(slotSkills[0]) + len(slotSkills[1]) + len(slotSkills[2])
 	if total == 0 {
-		LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.no_skill_list"))
+		reportSimpleByKey(ctx, st, "focus.init.no_skill_list")
 		return
 	}
 
@@ -203,10 +202,6 @@ func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string)
 	LogMXUHTML(ctx, b.String())
 }
 
-func reportInventoryCountWithVersion(ctx *maa.Context, st *RunState, count int) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.inventory.count", count))
-}
-
 func reportDataVersionNotice(ctx *maa.Context, st *RunState) {
 	if st == nil || st.MatchEngine == nil {
 		return
@@ -218,40 +213,16 @@ func reportDataVersionNotice(ctx *maa.Context, st *RunState) {
 	LogMXUHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.data_version.notice", v))
 }
 
-func reportRowAllMarked(ctx *maa.Context, st *RunState, row int) {
-	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.row.all_marked", row), "#11cf00")
-}
-
-func reportRowTailScanDone(ctx *maa.Context, st *RunState) {
-	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.row.tail_scan_done"), "#1a01fd")
-}
-
-func reportRowEnterFinalScan(ctx *maa.Context, st *RunState) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.row.enter_final_scan"))
-}
-
-func reportRowPendingFinalSwipe(ctx *maa.Context, st *RunState, remaining int, threshold int, total int, rowsDone int) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.row.pending_final_swipe", remaining, threshold, total, rowsDone))
-}
-
-func reportRowSwipeTo(ctx *maa.Context, st *RunState, row int) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.row.swipe_to", row))
-}
-
-func reportFinishSummary(ctx *maa.Context, st *RunState) {
-	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.finish.summary", st.VisitedCount, st.MatchedCount), "#11cf00")
-}
-
 func reportFinishExtRuleStats(ctx *maa.Context, st *RunState) {
 	if st == nil {
 		return
 	}
 	po := &st.PipelineOpts
 	if po.KeepFuturePromising {
-		LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.finish.ext_future", st.ExtFuturePromisingCount), "#064d7c")
+		reportColoredByKey(ctx, st, "#064d7c", "focus.finish.ext_future", st.ExtFuturePromisingCount)
 	}
 	if po.KeepSlot3Level3Practical {
-		LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.finish.ext_practical", st.ExtSlot3PracticalCount), "#064d7c")
+		reportColoredByKey(ctx, st, "#064d7c", "focus.finish.ext_practical", st.ExtSlot3PracticalCount)
 	}
 }
 
@@ -297,11 +268,6 @@ func runUnifiedSkillDecision(
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
 		st.MatchedCount++
-		weaponNames := make([]string, 0, len(matchResult.Weapons))
-		for _, w := range matchResult.Weapons {
-			weaponNames = append(weaponNames, w.ChineseName)
-		}
-		log.Info().Str("component", "EssenceFilter").Strs("weapons", weaponNames).Strs("skills", skills).Ints("skill_ids", matchResult.SkillIDs).Int("matched_count", st.MatchedCount).Msg("match ok, lock next")
 		reportMatchedWeapons(ctx, engine, matchResult.Weapons)
 
 		key := skillCombinationKey(matchResult.SkillIDs)
@@ -323,40 +289,24 @@ func runUnifiedSkillDecision(
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		if matchResult.Kind == matchapi.MatchFuturePromising {
 			st.ExtFuturePromisingCount++
-			log.Info().Str("component", "EssenceFilter").Str("rule", "MatchFuturePromising").Strs("skills", skills).Ints("levels", st.CurrentSkillLevels[:]).Msg("keep future promising essence")
 		} else {
 			st.ExtSlot3PracticalCount++
-			log.Info().Str("component", "EssenceFilter").Str("rule", "MatchSlot3Level3Practical").Str("slot3_skill", matchResult.SkillsChinese[2]).Ints("levels", st.CurrentSkillLevels[:]).Msg("keep practical essence")
 		}
 
 		if matchResult.ShouldLock {
 			st.MatchedCount++
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
 			reportExtRule(ctx, engine, extendedReason, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
 			reportExtRule(ctx, engine, extendedReason, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 
 	case matchapi.MatchNone:
 		if matchResult.ShouldDiscard {
-			log.Info().
-				Str("component", "EssenceFilter").
-				Str("locale", engine.Locale()).
-				Str("reason", matchResult.Reason).
-				Strs("skills", skills).
-				Msg("not matched, discard item")
 			reportNoMatch(ctx, engine, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
 		} else {
-			log.Info().
-				Str("component", "EssenceFilter").
-				Str("locale", engine.Locale()).
-				Str("reason", matchResult.Reason).
-				Strs("skills", skills).
-				Msg("not matched, skip to next item")
 			reportNoMatch(ctx, engine, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}

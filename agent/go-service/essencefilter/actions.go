@@ -32,8 +32,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	inputLocale := matchapi.NormalizeInputLocale(opts.InputLanguage)
 
 	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
-	reportInitDataLoaded(ctx, nil)
-	logSkillPools(engine)
+	reportSimpleByKey(ctx, nil, "focus.init.data_loaded")
 	var weaponRarity []int
 	if opts.Rarity6Weapon {
 		weaponRarity = append(weaponRarity, 6)
@@ -53,7 +52,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 	if len(essenceTypes) == 0 {
 		log.Error().Str("component", "EssenceFilter").Str("step", "ValidatePresets").Msg("no essence type selected")
-		reportInitNoEssenceType(ctx, nil)
+		reportColoredByKey(ctx, nil, "#ff0000", "focus.init.no_essence_type")
 		return false
 	}
 
@@ -69,18 +68,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.EssenceTypes = essenceTypes
 	setRunState(st)
 	reportInitSelection(ctx, st, weaponRarity, essenceTypes)
-
-	// Build filtered skill stats for logging/UI.
-	for i := range st.FilteredSkillStats {
-		st.FilteredSkillStats[i] = make(map[int]int)
-	}
-	for _, combo := range st.TargetSkillCombinations {
-		for slotIdx, id := range combo.SkillIDs {
-			if slotIdx >= 0 && slotIdx < 3 {
-				st.FilteredSkillStats[slotIdx][id]++
-			}
-		}
-	}
 
 	names := make([]string, 0, len(st.TargetSkillCombinations))
 	for _, combo := range st.TargetSkillCombinations {
@@ -123,10 +110,10 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", essenceMaxSinglePageInventory).Str("raw", text).Msg("total parsed")
 	if st := getRunState(); st != nil {
-		reportInventoryCountWithVersion(ctx, st, n)
+		reportSimpleByKey(ctx, st, "focus.inventory.count", n)
 		st.TotalCount = n
 	} else {
-		reportInventoryCountWithVersion(ctx, nil, n)
+		reportSimpleByKey(ctx, nil, "focus.inventory.count", n)
 	}
 	if n <= essenceMaxSinglePageInventory {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
@@ -167,10 +154,6 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	if st == nil {
 		log.Error().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("no run state")
 		return false
-	}
-	if !st.StatsLogged {
-		logFilteredSkillStats()
-		st.StatsLogged = true
 	}
 	if params.Slot < 1 || params.Slot > 3 {
 		log.Error().Str("component", "EssenceFilter").Int("slot", params.Slot).Msg("invalid slot param")
@@ -370,7 +353,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").Int("len_results", len(results)).Int("valid_boxes", len(st.RowBoxes)).Msg("color match done")
 
 	if skipMarked && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
-		reportRowAllMarked(ctx, st, st.CurrentRow)
+		reportColoredByKey(ctx, st, "#11cf00", "focus.row.all_marked", st.CurrentRow)
 	}
 
 	isFallbackScan := arg.CurrentTaskName == "EssenceDetectFinal"
@@ -378,7 +361,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	if isFallbackScan && !st.FinalLargeScanUsed {
 		st.FinalLargeScanUsed = true
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-		reportRowTailScanDone(ctx, st)
+		reportColoredByKey(ctx, st, "#1a01fd", "focus.row.tail_scan_done")
 		return true
 	}
 	if (st.PhysicalItemCount > st.MaxItemsPerRow) && !isFallbackScan {
@@ -406,7 +389,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		st.PendingFinalScan = false
 		st.InFinalScan = true
 		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
-		reportRowEnterFinalScan(ctx, st)
+		reportSimpleByKey(ctx, st, "focus.row.enter_final_scan")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
 		return true
 	}
@@ -416,7 +399,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
 			if st.TotalCount > 0 && remaining <= essenceMaxSinglePageInventory {
 				st.PendingFinalScan = true
-				reportRowPendingFinalSwipe(ctx, st, remaining, essenceMaxSinglePageInventory, st.TotalCount, rowsDone)
+				reportSimpleByKey(ctx, st, "focus.row.pending_final_swipe", remaining, essenceMaxSinglePageInventory, st.TotalCount, rowsDone)
 			}
 			nextNode := "EssenceFilterSwipeNext"
 			if !st.FirstRowSwipeDone {
@@ -432,7 +415,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				}
 			}
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}})
-			reportRowSwipeTo(ctx, st, st.CurrentRow+1)
+			reportSimpleByKey(ctx, st, "focus.row.swipe_to", st.CurrentRow+1)
 			st.CurrentRow++
 			return true
 		}
@@ -462,7 +445,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	st := getRunState()
 	if st != nil {
 		log.Info().Str("component", "EssenceFilter").Int("matched_total", st.MatchedCount).Msg("locked items")
-		reportFinishSummary(ctx, st)
+		reportColoredByKey(ctx, st, "#11cf00", "focus.finish.summary", st.VisitedCount, st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
 	}

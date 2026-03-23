@@ -117,20 +117,6 @@ func formatWeaponNamesColoredHTML(weapons []matchapi.WeaponData) string {
 	return b.String()
 }
 
-func logSkillPools(engine *matchapi.Engine) {
-	return
-}
-
-func logFilteredSkillStats() {
-	st := getRunState()
-	if st == nil {
-		return
-	}
-	if st.MatchEngine == nil {
-		return
-	}
-}
-
 // --- 预刻写方案推荐（同上 case）---
 
 type calcPlan struct {

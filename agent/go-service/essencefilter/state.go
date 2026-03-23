@@ -19,8 +19,6 @@ type RunState struct {
 	MatchedCount            int
 	ExtFuturePromisingCount int
 	ExtSlot3PracticalCount  int
-	FilteredSkillStats      [3]map[int]int
-	StatsLogged             bool
 
 	// Target combinations and match summary
 	MatchEngine *matchapi.Engine
@@ -65,10 +63,6 @@ func (s *RunState) Reset() {
 	s.MatchedCount = 0
 	s.ExtFuturePromisingCount = 0
 	s.ExtSlot3PracticalCount = 0
-	for i := range s.FilteredSkillStats {
-		s.FilteredSkillStats[i] = nil
-	}
-	s.StatsLogged = false
 	s.TargetSkillCombinations = nil
 	s.MatchedCombinationSummary = nil
 	s.MatchEngine = nil

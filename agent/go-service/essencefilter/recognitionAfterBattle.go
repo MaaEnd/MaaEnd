@@ -12,10 +12,6 @@ type essenceAfterBattleNthParams struct {
 	RecognitionNodeName string `json:"recognitionNodeName"`
 }
 
-// EssenceFilterAfterBattleNthRecognition
-//   - 缓存为空时：扫描一次，覆盖填充 Filtered 结果到 RowBoxes，返回第 0 个
-//   - 缓存不为空时：返回 RowBoxes[RowIndex]，RowIndex++
-//   - RowIndex 超过上限：返回 false
 type EssenceFilterAfterBattleNthRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &EssenceFilterAfterBattleNthRecognition{}
@@ -43,7 +39,6 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 		return nil, false
 	}
 
-	// 缓存不为空：返回当前结果，RowIndex++
 	if st.RowIndex < len(st.RowBoxes) {
 		box := st.RowBoxes[st.RowIndex]
 		st.RowIndex++
@@ -53,10 +48,8 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 		}, true
 	}
 
-	// 缓存为空：识别一次，覆盖填充 Filtered 结果
 	detail, err := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
 	if err != nil || detail == nil || !detail.Hit || detail.Results == nil || detail.Results.Filtered == nil {
-		log.Info().Str("component", "EssenceFilter").Str("recognition", "AfterBattleNthEssence").Str("node", params.RecognitionNodeName).Err(err).Msg("scan failed")
 		return nil, false
 	}
 
@@ -70,13 +63,10 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 		st.RowBoxes = append(st.RowBoxes, [4]int{b.X(), b.Y(), b.Width(), b.Height()})
 	}
 
-	// RowIndex 超过上限：返回 false
 	if st.RowIndex >= len(st.RowBoxes) {
-		log.Info().Str("component", "EssenceFilter").Str("recognition", "AfterBattleNthEssence").Int("row_index", st.RowIndex).Int("boxes", len(st.RowBoxes)).Msg("out of range")
 		return nil, false
 	}
 
-	// 返回第 0 个，RowIndex++
 	box := st.RowBoxes[st.RowIndex]
 	st.RowIndex++
 	return &maa.CustomRecognitionResult{
