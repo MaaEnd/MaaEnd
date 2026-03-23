@@ -1,4 +1,34 @@
 {
+    "__AutoEssenceAltKeyUp": {
+        "desc": "释放键盘 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "DoNothing"
+    },
+    "AutoEssenceClickTriggerButtonPre": {
+        "desc": "准备点击激发的大世界按钮，先按下 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "DoNothing"
+    },
+    "AutoEssenceClickTriggerButtonFailedPre": {
+        "desc": "未能识别到激发的大世界按钮，先释放 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "DoNothing"
+    },
+    "AutoEssenceClickObtainButtonPre": {
+        "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，先按下 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "DoNothing"
+    },
+    "AutoEssenceClickObtainButtonFailedPre": {
+        "desc": "未能识别到领取奖励（或放弃奖励）的大世界按钮，先释放 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "DoNothing"
+    },
     "AutoEssenceClickTriggerButton": {
         "desc": "正式识别并点击激发的大世界按钮（ADB）",
         "recognition": {
