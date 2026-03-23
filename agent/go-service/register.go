@@ -8,6 +8,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
@@ -34,6 +35,7 @@ func registerAll() {
 	puzzle.Register()
 	essencefilter.Register()
 	dailyrewards.Register()
+	creditshopping.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
