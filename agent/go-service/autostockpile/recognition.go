@@ -131,16 +131,23 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 
 	stockBillAmount := 0
 	stockBillAvailable := false
-	if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
-		stockBillAmount = amount
-		stockBillAvailable = true
+	if cfg.ReserveStockBill > 0 {
+		if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
+			stockBillAmount = amount
+			stockBillAvailable = true
+		} else {
+			log.Warn().
+				Str("component", autoStockpileComponent).
+				Str("step", "stock_bill_ocr").
+				Str("abort_reason", string(AbortReasonStockBillUnavailableWarn)).
+				Msg("stock bill ocr unavailable")
+			return buildAbortedRecognitionResult(arg, AbortReasonStockBillUnavailableWarn)
+		}
 	} else {
-		log.Warn().
+		log.Info().
 			Str("component", autoStockpileComponent).
-			Str("step", "stock_bill_ocr").
-			Str("abort_reason", string(AbortReasonStockBillUnavailableWarn)).
-			Msg("stock bill ocr unavailable")
-		return buildAbortedRecognitionResult(arg, AbortReasonStockBillUnavailableWarn)
+			Int("reserve_stock_bill", cfg.ReserveStockBill).
+			Msg("stock bill ocr skipped because reserve threshold is disabled")
 	}
 
 	if shouldAbortForInsufficientFunds(stockBillAvailable, stockBillAmount, cfg.ReserveStockBill) {
