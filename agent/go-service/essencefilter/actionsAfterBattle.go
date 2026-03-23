@@ -1,13 +1,8 @@
 package essencefilter
 
 import (
-	"fmt"
-	"path/filepath"
-
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 type EssenceFilterAfterBattleSkillDecisionAction struct{}
@@ -19,6 +14,7 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 	// 获取当前运行状态，如果状态为空则无法继续，直接返回
 	st := getRunState()
 	if st == nil {
+		reportFocusByKey(ctx, nil, "focus.error.no_run_state")
 		return false
 	}
 
@@ -28,58 +24,13 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		Levels: [3]int{st.CurrentSkillLevels[0], st.CurrentSkillLevels[1], st.CurrentSkillLevels[2]}, // 对应等级（1..6）
 	}
 
-	// 从 Context 中获取用户配置的选项（如是否开启未来可期等），若获取不到则使用默认配置
-
-	attachs, _ := getOptionsFromAttach(ctx, "EssenceFilterAfterBattleInit")
-	if attachs == nil {
-		def := defaultEssenceFilterOptions()
-		attachs = &def
-	}
-	locale := matchapi.NormalizeInputLocale(attachs.InputLanguage)
-
-	opts := matchapi.EssenceFilterOptions{
-		// exact 精确匹配只在你选择了稀有度时才启用
-		Rarity6Weapon: attachs.Rarity6Weapon,
-
-		KeepFuturePromising:      attachs.KeepFuturePromising,
-		KeepSlot3Level3Practical: attachs.KeepSlot3Level3Practical,
-
-		DiscardUnmatched: attachs.DiscardUnmatched,
-	}
-
-	base := getResourceBase()
-	if base == "" {
-		base = "data"
-	}
-	dataDir := filepath.Join(base, "EssenceFilter")
-	engine, err := matchapi.NewEngineFromDirWithLocale(dataDir, locale)
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "AfterBattleSkillDecision").Str("data_dir", dataDir).Msg("load match engine failed")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("战后基质筛选初始化失败：%s", err.Error()))
+	if st.MatchEngine == nil {
+		reportFocusByKey(ctx, st, "focus.error.no_match_engine")
 		return false
 	}
-
-	res, err := engine.MatchOCR(ocr, opts)
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "AfterBattleSkillDecision").Msg("match failed")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("战后基质筛选匹配失败：%s", err.Error()))
-		return false
-	}
-
-	report := res.Reason
-
-	if res.ShouldLock {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleLockItemLog"}})
-	} else if res.ShouldDiscard {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleDiscardItemLog"}})
-	} else {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleCloseDetail"}})
-	}
-
-	maafocus.NodeActionStarting(ctx, report)
-
-	// 清空当前识别缓存，准备处理下一个掉落物
-	st.CurrentSkills = [3]string{}
-	st.CurrentSkillLevels = [3]int{}
-	return true
+	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
+		Lock:    "EssenceFilterAfterBattleLockItemLog",
+		Discard: "EssenceFilterAfterBattleDiscardItemLog",
+		Skip:    "EssenceFilterAfterBattleCloseDetail",
+	})
 }

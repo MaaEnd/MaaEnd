@@ -11,6 +11,7 @@ type i18nCatalog map[string]map[string]string
 
 //go:embed i18n_messages.json
 var embeddedI18nMessages []byte
+var embeddedCatalog = loadI18nCatalog("")
 
 func loadI18nCatalog(_ string) i18nCatalog {
 	var raw i18nCatalog
@@ -63,6 +64,16 @@ func lookupI18nText(c i18nCatalog, locale string, key string) string {
 		}
 	}
 	return key
+}
+
+// FormatMessage returns a localized template string filled with args.
+// It uses embedded matchapi i18n messages and does not require an Engine instance.
+func FormatMessage(locale string, key string, args ...any) string {
+	text := lookupI18nText(embeddedCatalog, locale, key)
+	if len(args) == 0 {
+		return text
+	}
+	return fmt.Sprintf(text, args...)
 }
 
 func joinByLocale(locale string, names []string) string {
