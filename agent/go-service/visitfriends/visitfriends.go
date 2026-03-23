@@ -320,7 +320,7 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 			break
 		}
 
-		message := "该好友不满足条件，缺少"
+		message := "该好友缺少"
 		if missClueExchange {
 			message += "线索交换 "
 		}
