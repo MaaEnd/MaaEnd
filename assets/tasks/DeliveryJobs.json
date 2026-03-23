@@ -9,9 +9,12 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem",
-                "DeliveryJobsAcceptJobOnly"
+                "DeliveryJobsAcceptJobOnly",
+                "DeliveryJobsPackCargoOnly"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -324,6 +327,66 @@
                         "DeliveryJobsBackToDepot": {
                             "next": [
                                 "DeliveryJobsAcceptJobOnly"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "DeliveryJobsPackCargoOnly": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.PackCargoOnly.label",
+            "description": "$task.DeliveryJobs.PackCargoOnly.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsInCargoRedistributionBid": {
+                            "next": [
+                                "DeliveryJobsBackToDepotFromBid"
+                            ]
+                        },
+                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsCheckOriginLodespringCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsCheckPowerPlateauCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsCheckWulingCityCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
                             ]
                         }
                     }

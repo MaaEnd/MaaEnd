@@ -365,5 +365,20 @@
         "next": [
             "[Anchor]DeliveryJobsGoToDepot"
         ]
+    },
+    "DeliveryJobsBackToDepotFromBid": {
+        "desc": "从调度申请界面回到本地仓储界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InLocalDepotNode"
+        ]
     }
 }

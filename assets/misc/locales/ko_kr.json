@@ -287,6 +287,8 @@
     "task.DeliveryJobs.OngoingDelivery": "운송 대기 중인 화물이 있습니다. 먼저 배송을 완료한 뒤 작업을 다시 실행해 주세요.",
     "task.DeliveryJobs.label": "🚚배달 임무 전달",
     "task.DeliveryJobs.description": "배달 임무를 수락하고 전달합니다.\n활성화할 지역을 선택하세요:",
+    "task.DeliveryJobs.PackCargoOnly.label": "화물 포장만",
+    "task.DeliveryJobs.PackCargoOnly.description": "활성화하면 화물 자동 포장만 수행하고 임무를 수락하지 않습니다.",
     "task.ClaimSimulationRewards.label": "📦시뮬레이션 공간 보상 수령",
     "task.ClaimSimulationRewards.error_not_found": "[시뮬레이션 공간] 화면을 찾을 수 없습니다. 수동으로 전환해 주세요.",
     "task.ClaimSimulationRewards.success_finished": "시뮬레이션 공간 보상 수령 완료.",

@@ -287,6 +287,8 @@
     "task.DeliveryJobs.OngoingDelivery": "有待運送的貨物，請先完成送貨，再重新執行任務",
     "task.DeliveryJobs.label": "🚚轉交送貨任務",
     "task.DeliveryJobs.description": "接取並轉交送貨任務。\n請選擇需要啟用的地區：",
+    "task.DeliveryJobs.PackCargoOnly.label": "僅裝箱貨物",
+    "task.DeliveryJobs.PackCargoOnly.description": "啟用後僅會自動裝箱貨物，不會接取任務。",
     "task.ClaimSimulationRewards.label": "📦領取模擬空間獎勵",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
     "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",

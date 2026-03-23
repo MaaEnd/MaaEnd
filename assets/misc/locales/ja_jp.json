@@ -287,6 +287,8 @@
     "task.DeliveryJobs.OngoingDelivery": "配達待ちの貨物があります。先に配達を完了してから、タスクを再実行してください",
     "task.DeliveryJobs.label": "🚚配達任務の転送",
     "task.DeliveryJobs.description": "配達任務を受注・転送します。\n有効にする地域を選択してください：",
+    "task.DeliveryJobs.PackCargoOnly.label": "貨物パッキングのみ",
+    "task.DeliveryJobs.PackCargoOnly.description": "有効にすると、貨物の自動パッキングのみを行い、依頼の受注は行いません。",
     "task.ClaimSimulationRewards.label": "📦模擬空間報酬受取",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
     "task.ClaimSimulationRewards.success_finished": "模擬空間報酬の受取が完了しました。",

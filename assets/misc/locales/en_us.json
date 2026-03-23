@@ -326,6 +326,8 @@
     "task.DeliveryJobs.OngoingDelivery": "There are pending goods to deliver. Please complete the delivery first, then rerun the task.",
     "task.DeliveryJobs.label": "🚚Delivery Jobs",
     "task.DeliveryJobs.description": "Accept and hand over delivery jobs.\nPlease select the regions to enable:",
+    "task.DeliveryJobs.PackCargoOnly.label": "Pack Cargo Only",
+    "task.DeliveryJobs.PackCargoOnly.description": "When enabled, it only automatically packs cargo and does not accept jobs.",
     "task.ClaimSimulationRewards.label": "📦Claim Simulation Rewards",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
     "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",

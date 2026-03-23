@@ -287,6 +287,8 @@
     "task.DeliveryJobs.OngoingDelivery": "有待运送的货物，请先完成送货，再重新运行任务",
     "task.DeliveryJobs.label": "🚚转交送货任务",
     "task.DeliveryJobs.description": "接取并转交送货任务。\n请选择需要启用的地区：",
+    "task.DeliveryJobs.PackCargoOnly.label": "仅装箱货物",
+    "task.DeliveryJobs.PackCargoOnly.description": "开启后仅会自动装箱货物，不会接取任务。",
     "task.ClaimSimulationRewards.label": "📦领取模拟空间奖励",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
     "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
