@@ -1,8 +1,6 @@
 package essencefilter
 
 import (
-	"fmt"
-
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
