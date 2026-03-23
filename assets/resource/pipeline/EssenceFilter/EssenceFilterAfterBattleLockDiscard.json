@@ -169,7 +169,45 @@
         }
     },
     "EssenceFilterAfterBattleCloseDetail": {
-        "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡",
+        "desc": "关闭详情页后继续处理下一个基质（Skip路径专用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ]
+    },
+    "EssenceFilterAfterBattleCloseDetailJumpback": {
+        "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡（JumpBack专用）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -206,7 +244,7 @@
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleNthRecognition",
             "EssenceFilterAfterBattleExit"
         ]
