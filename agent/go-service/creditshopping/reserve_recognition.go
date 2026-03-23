@@ -14,10 +14,6 @@ var _ maa.CustomRecognitionRunner = &reserveCreditRecognition{}
 
 type reserveCreditRecognition struct{}
 
-type reserveCreditRecognitionParam struct {
-	Threshold int `json:"threshold"`
-}
-
 // Run checks whether current credits are below the configured reserve threshold.
 func (r *reserveCreditRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	threshold, err := parseReserveCreditThreshold(arg.CustomRecognitionParam)

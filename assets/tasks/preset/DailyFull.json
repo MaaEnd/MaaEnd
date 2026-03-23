@@ -24,7 +24,9 @@
                     "option": {
                         "AutoGetCredits": "Yes",
                         "CreditShoppingForce": "IgnoreBlackList",
-                        "CreditShoppingReserve": "No",
+                        "CreditShoppingReserve": {
+                            "ReserveCreditThreshold": "300"
+                        },
                         "CreditShoppingOtherItems": "No"
                     }
                 },
