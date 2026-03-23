@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsReadyText"
         ],
         "pre_delay": 0,
@@ -26,29 +27,43 @@
         "expected": [
             "室内作物",
             "室內作物",
-            "(?i)Indoor\\s*Crops",
+            "Indoor Crops",
             "室内の作物",
             "실내 작물"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckIndoorCropsIcon": {
+        "desc": "检查室内作物文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckIndoorCropsReadyText": {
         "desc": "检查室内作物委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -57,17 +72,17 @@
     "CheckIndoorCropsJob": {
         "desc": "检查室内作物委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -75,17 +90,17 @@
     "CheckIndoorCropsGoToMissionText": {
         "desc": "检查室内作物委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "임무로 이동하기"
         ]

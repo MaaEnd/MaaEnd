@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
             "CheckCisternOriginiumSlugsReadyText"
         ],
         "pre_delay": 0,
@@ -26,29 +27,43 @@
         "expected": [
             "蓄水源石虫",
             "蓄水源石蟲",
-            "(?i)Cistern\\s*Originium\\s*Slugs",
+            "Cistern Originium Slugs",
             "貯水オリジムシ",
             "저수 원석충"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckCisternOriginiumSlugsIcon": {
+        "desc": "检查蓄水源石虫文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckCisternOriginiumSlugsText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckCisternOriginiumSlugsReadyText": {
         "desc": "检查蓄水源石虫委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCisternOriginiumSlugsText",
+        "roi": "CheckCisternOriginiumSlugsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -57,17 +72,17 @@
     "CheckCisternOriginiumSlugsJob": {
         "desc": "检查蓄水源石虫委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCisternOriginiumSlugsText",
+        "roi": "CheckCisternOriginiumSlugsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -75,17 +90,17 @@
     "CheckCisternOriginiumSlugsGoToMissionText": {
         "desc": "检查蓄水源石虫委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCisternOriginiumSlugsText",
+        "roi": "CheckCisternOriginiumSlugsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +117,7 @@
         "expected": [
             "蓄水源石虫",
             "蓄水源石蟲",
-            "(?i)Cistern\\s*Originium\\s*Slugs",
+            "Cistern Originium Slugs",
             "貯水オリジムシ",
             "저수 원석충"
         ]

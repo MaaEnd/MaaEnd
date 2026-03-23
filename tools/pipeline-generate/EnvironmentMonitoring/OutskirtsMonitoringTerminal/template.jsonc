@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}ReadyText"
         ],
         "pre_delay": 0,
@@ -23,17 +24,31 @@
             1158,
             71
         ],
-        "expected": "${ExpectedText}"
+        "expected": "${ExpectedText}",
+        "order_by": "Vertical"
+    },
+    "Check${Id}Icon": {
+        "desc": "检查${Name}文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ]
     },
     "Check${Id}ReadyText": {
         "desc": "检查${Name}委托是否准备好",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -51,12 +66,12 @@
     "Check${Id}Job": {
         "desc": "检查${Name}委托是否可以接取",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -69,12 +84,12 @@
     "Check${Id}GoToMissionText": {
         "desc": "检查${Name}委托是否可以前往",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",

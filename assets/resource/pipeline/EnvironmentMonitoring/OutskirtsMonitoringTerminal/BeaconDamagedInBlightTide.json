@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideReadyText"
         ],
         "pre_delay": 0,
@@ -26,29 +27,43 @@
         "expected": [
             "侵蚀潮中损坏的信标",
             "侵蝕潮中損壞的信標",
-            "(?i)Beacon\\s*Damaged\\s*in\\s*the\\s*Blight\\s*Tide",
+            "Beacon Damaged in the Blight Tide",
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckBeaconDamagedInBlightTideIcon": {
+        "desc": "检查侵蚀潮中损坏的信标文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckBeaconDamagedInBlightTideReadyText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -57,17 +72,17 @@
     "CheckBeaconDamagedInBlightTideJob": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "(?i)Accept\\s*Job",
+            "Accept Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -75,17 +90,17 @@
     "CheckBeaconDamagedInBlightTideGoToMissionText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
+            "Go to Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +117,7 @@
         "expected": [
             "侵蚀潮中损坏的信标",
             "侵蝕潮中損壞的信標",
-            "(?i)Beacon\\s*Damaged\\s*in\\s*the\\s*Blight\\s*Tide",
+            "Beacon Damaged in the Blight Tide",
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
         ]
