@@ -628,8 +628,23 @@
             "type": "select",
             "label": "$option.CreditShoppingForce.label",
             "description": "$option.CreditShoppingForce.description",
-            "default_case": "IgnoreBlackList",
+            "default_case": "Exit",
             "cases": [
+                {
+                    "name": "Exit",
+                    "label": "$option.CreditShoppingForce.cases.Exit.label",
+                    "pipeline_override": {
+                        "CreditShoppingBuyBlacklist": {
+                            "enabled": false //不购买黑名单物品
+                        },
+                        "RefreshItem": {
+                            "enabled": false //不刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": false //不进入刷新的无法购买流程
+                        }
+                    }
+                },
                 {
                     "name": "IgnoreBlackList",
                     "label": "$option.CreditShoppingForce.cases.IgnoreBlackList.label",
@@ -692,7 +707,7 @@
             "type": "switch",
             "label": "$option.CreditShoppingOtherItems.label",
             "description": "$option.CreditShoppingOtherItems.description",
-            "default_case": "No",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -718,7 +733,7 @@
         "DiscountValue": {
             "type": "select",
             "label": "$option.DiscountValue.label",
-            "default_case": "Any",
+            "default_case": "-95%",
             "cases": [
                 {
                     "name": "Any",
