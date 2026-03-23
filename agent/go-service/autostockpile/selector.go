@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	swipeMaxNodeName    = "AutoStockpileSwipeMax"
-	noCandidateNodeName = "AutoStockpileNoCandidate"
+	swipeMaxNodeName = "AutoStockpileSwipeMax"
+	skipNodeName     = "AutoStockpileSkip"
 )
 
 type candidateGoods struct {
@@ -78,8 +78,8 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if shouldStopTask(result.AbortReason) {
 		return stopTaskWithFocus(ctx, result.AbortReason, nil)
 	}
-	if shouldRouteNoCandidate(result.AbortReason) {
-		return routeNoCandidateWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, "识别阶段提前终止，跳过本次购买")
+	if shouldRouteSkip(result.AbortReason) {
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, "识别阶段提前结束")
 	}
 
 	data := result.Data
@@ -116,14 +116,14 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Str("component", "autostockpile").
 			Str("reason", selection.Reason).
 			Msg("no qualifying product selected")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("未找到符合条件的物资 (原因: %s)", selection.Reason))
-		if err := overrideNoCandidateBranch(ctx, arg.CurrentTaskName); err != nil {
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("未找到符合条件的商品 (%s)", selection.Reason))
+		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", "autostockpile").
 				Str("node", arg.CurrentTaskName).
-				Str("next", noCandidateNodeName).
-				Msg("failed to short-circuit to no-candidate branch")
+				Str("next", skipNodeName).
+				Msg("failed to short-circuit to skip branch")
 			return false
 		}
 		return true
@@ -131,9 +131,9 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	quantityDecision, err := resolveQuantityDecision(selection, *data, cfg)
 	if err != nil {
-		return routeNoCandidateWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, "已命中商品，但最终跳过购买")
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, "已命中商品，但最终跳过购买")
 	}
-	if quantityDecision.Mode == quantityModeNoCandidate {
+	if quantityDecision.Mode == quantityModeSkip {
 		log.Info().
 			Str("component", "autostockpile").
 			Str("selection_mode", formatSelectionMode(selection, *data, cfg)).
@@ -143,15 +143,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Int("quota_current", data.Quota.Current).
 			Int("quota_overflow", data.Quota.Overflow).
 			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Msg("quantity decision requested no-candidate short-circuit")
+			Msg("quantity decision requested skip short-circuit")
 		maafocus.NodeActionStarting(ctx, fmt.Sprintf("已命中商品，但最终不购买（%s）", quantityDecision.Reason))
-		if err := overrideNoCandidateBranch(ctx, arg.CurrentTaskName); err != nil {
+		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", "autostockpile").
 				Str("node", arg.CurrentTaskName).
-				Str("next", noCandidateNodeName).
-				Msg("failed to short-circuit quantity no-candidate branch")
+				Str("next", skipNodeName).
+				Msg("failed to short-circuit quantity skip branch")
 			return false
 		}
 		return true
@@ -262,7 +262,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	}
 }
 
-func shouldRouteNoCandidate(reason AbortReason) bool {
+func shouldRouteSkip(reason AbortReason) bool {
 	switch reason {
 	case AbortReasonQuotaZero,
 		AbortReasonInsufficientFunds,
@@ -300,7 +300,7 @@ func lookupAbortReasonText(reason AbortReason) string {
 	return reasonText
 }
 
-func routeNoCandidateWithAbortReason(ctx *maa.Context, currentTaskName string, reason AbortReason, err error, focusPrefix string) bool {
+func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason AbortReason, err error, focusPrefix string) bool {
 	reasonText := lookupAbortReasonText(reason)
 
 	logEvent := log.Info()
@@ -314,16 +314,20 @@ func routeNoCandidateWithAbortReason(ctx *maa.Context, currentTaskName string, r
 	if err != nil {
 		logEvent = logEvent.Err(err)
 	}
-	logEvent.Msg("routing current cycle to no-candidate branch")
+	logEvent.Msg("routing current cycle to skip branch")
 
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("%s（%s）", focusPrefix, reasonText))
-	if err := overrideNoCandidateBranch(ctx, currentTaskName); err != nil {
+	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
+		fmt.Printf("<span style=\"color:orange\">⚠️%s（%s）</span>\n", focusPrefix, reasonText)
+	} else {
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("%s（%s）", focusPrefix, reasonText))
+	}
+	if err := overrideSkipBranch(ctx, currentTaskName); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", "autostockpile").
 			Str("node", currentTaskName).
-			Str("next", noCandidateNodeName).
-			Msg("failed to route abort path to no-candidate branch")
+			Str("next", skipNodeName).
+			Msg("failed to route abort path to skip branch")
 		return false
 	}
 
@@ -342,7 +346,8 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	}
 	logEvent.Msg("stopping task due to fatal abort reason")
 
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别阶段发生严重错误，已停止任务（%s）", reasonText))
+	fmt.Printf("<span style=\"color:red\">🚨发生严重错误，已停止任务（%s）</span>\n", reasonText)
+
 	if ctx == nil || ctx.GetTasker() == nil {
 		log.Error().
 			Str("component", "autostockpile").
@@ -350,23 +355,24 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 			Msg("tasker is unavailable for fatal stop")
 		return false
 	}
+	// TODO 由于SubTask中的子Task错误时不能全部停止，此处使用PostStop强制停止，代价是会抛出一部分报错
 	ctx.GetTasker().PostStop()
 	return false
 }
 
-func overrideNoCandidateBranch(ctx *maa.Context, currentTaskName string) error {
-	if err := ctx.OverridePipeline(buildNoCandidateResetOverride()); err != nil {
-		return fmt.Errorf("reset no-candidate pipeline state: %w", err)
+func overrideSkipBranch(ctx *maa.Context, currentTaskName string) error {
+	if err := ctx.OverridePipeline(buildSkipResetOverride()); err != nil {
+		return fmt.Errorf("reset skip pipeline state: %w", err)
 	}
 
-	if err := ctx.OverrideNext(currentTaskName, buildNoCandidateNextItems()); err != nil {
-		return fmt.Errorf("override next for no-candidate branch: %w", err)
+	if err := ctx.OverrideNext(currentTaskName, buildSkipNextItems()); err != nil {
+		return fmt.Errorf("override next for skip branch: %w", err)
 	}
 
 	return nil
 }
 
-func buildNoCandidateResetOverride() map[string]any {
+func buildSkipResetOverride() map[string]any {
 	return map[string]any{
 		selectedGoodsClickNodeName: map[string]any{
 			"enabled": false,
@@ -380,8 +386,8 @@ func buildNoCandidateResetOverride() map[string]any {
 	}
 }
 
-func buildNoCandidateNextItems() []maa.NextItem {
-	return []maa.NextItem{{Name: noCandidateNodeName}}
+func buildSkipNextItems() []maa.NextItem {
+	return []maa.NextItem{{Name: skipNodeName}}
 }
 
 func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {

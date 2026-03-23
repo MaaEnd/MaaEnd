@@ -92,20 +92,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileSelectedGoodsClick",
-            "AutoStockpileNoCandidate"
+            "AutoStockpileSkip"
         ]
-    },
-    "AutoStockpileNoCandidate": {
-        "desc": "决策未找到合格商品时的兜底节点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "无合格商品，跳过本次购买"
-        }
     },
     "AutoStockpileEnterStore": {
         "desc": "进入物资调度界面",
@@ -331,6 +319,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockpileDevSkipBuy",
             "AutoStockpileBuy"
         ]
     },
@@ -342,7 +331,10 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileRelayNode"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "Dev: 跳过滑动"
+        }
     },
     "AutoStockpileCheckBuyResult": {
         "desc": "确认购买是否成功",
@@ -623,5 +615,30 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoStockpileDevSkipBuy": {
+        "desc": "开发时启用，跳过购买",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCancelBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "Dev: 跳过购买"
+        }
+    },
+    "AutoStockpileSkip": {
+        "desc": "决策未找到合格商品或提前结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileBackToRegionalConstruction"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "跳过本次购买"
+        }
     }
 }

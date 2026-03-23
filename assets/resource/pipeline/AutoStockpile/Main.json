@@ -10,8 +10,7 @@
                     "sub": [
                         "AutoStockpileValleyIV",
                         "AutoStockpileWuling"
-                    ],
-                    "continue": true
+                    ]
                 }
             }
         },

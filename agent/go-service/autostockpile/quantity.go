@@ -12,7 +12,7 @@ import (
 type quantityMode string
 
 const (
-	quantityModeNoCandidate           quantityMode = "NoCandidate"
+	quantityModeSkip                  quantityMode = "Skip"
 	quantityModeSwipeMax              quantityMode = "SwipeMax"
 	quantityModeSwipeSpecificQuantity quantityMode = "SwipeSpecificQuantity"
 )
@@ -61,7 +61,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 
 	if upperBound.CappedQuantity <= 0 {
 		return quantityDecision{
-			Mode:   quantityModeNoCandidate,
+			Mode:   quantityModeSkip,
 			MaxBuy: upperBound.MaxBuy,
 			Reason: "保留调度券限制后可购买数量为 0",
 		}
@@ -92,7 +92,7 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 	if !upperBound.ConstraintApplied {
 		if overflowTarget <= 0 {
 			return quantityDecision{
-				Mode:   quantityModeNoCandidate,
+				Mode:   quantityModeSkip,
 				MaxBuy: upperBound.MaxBuy,
 				Reason: "防溢出目标数量无效",
 			}
@@ -109,7 +109,7 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 	target := min(overflowTarget, upperBound.CappedQuantity)
 	if target <= 0 {
 		return quantityDecision{
-			Mode:   quantityModeNoCandidate,
+			Mode:   quantityModeSkip,
 			MaxBuy: upperBound.MaxBuy,
 			Reason: "保留调度券限制后防溢出购买数量为 0",
 		}
