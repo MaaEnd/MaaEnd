@@ -2,10 +2,12 @@ package essencefilter
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 type EssenceFilterAfterBattleSkillDecisionAction struct{}
@@ -45,18 +47,23 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		DiscardUnmatched: attachs.DiscardUnmatched,
 	}
 
-	dataDir, err := matchapi.FindDefaultDataDir()
-	if err != nil {
-		panic(fmt.Errorf("essencefilter data dir: %w", err))
+	base := getResourceBase()
+	if base == "" {
+		base = "data"
 	}
+	dataDir := filepath.Join(base, "EssenceFilter")
 	engine, err := matchapi.NewEngineFromDirWithLocale(dataDir, locale)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "AfterBattleSkillDecision").Str("data_dir", dataDir).Msg("load match engine failed")
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("战后基质筛选初始化失败：%s", err.Error()))
+		return false
 	}
 
 	res, err := engine.MatchOCR(ocr, opts)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "AfterBattleSkillDecision").Msg("match failed")
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("战后基质筛选匹配失败：%s", err.Error()))
+		return false
 	}
 
 	report := res.Reason

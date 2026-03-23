@@ -58,8 +58,8 @@ func (e *Engine) Locations() []Location {
 	return e.data.Locations
 }
 
-// NewDefaultEngine loads built-in EssenceFilter data from repo's assets directory.
-// It may require the caller to run with a working directory where assets can be resolved.
+// NewDefaultEngine loads built-in EssenceFilter data from data/EssenceFilter.
+// It may require the caller to run with a working directory where data can be resolved.
 func NewDefaultEngine() (*Engine, error) {
 	dataDir, err := findDefaultDataDir()
 	if err != nil {

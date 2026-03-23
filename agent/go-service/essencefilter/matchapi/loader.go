@@ -22,12 +22,10 @@ var weaponTypeToID = map[string]int{
 
 func findDefaultDataDir() (string, error) {
 	if v := strings.TrimSpace(os.Getenv("MAAEND_ESSENCEFILTER_DATA_DIR")); v != "" {
-		if fileExists(filepath.Join(v, "matcher_config.json")) &&
-			fileExists(filepath.Join(v, "skill_pools.json")) &&
-			fileExists(filepath.Join(v, "weapons_output.json")) &&
-			fileExists(filepath.Join(v, "locations.json")) {
+		if hasEssenceFilterFiles(v) {
 			return v, nil
 		}
+		return "", errors.New("MAAEND_ESSENCEFILTER_DATA_DIR is set but invalid (missing EssenceFilter data files)")
 	}
 
 	// Try from working directory and its parents.
@@ -35,7 +33,7 @@ func findDefaultDataDir() (string, error) {
 	if err == nil {
 		base := wd
 		for i := 0; i < 8; i++ {
-			cand := filepath.Join(base, "assets", "data", "EssenceFilter")
+			cand := filepath.Join(base, "data", "EssenceFilter")
 			if hasEssenceFilterFiles(cand) {
 				return cand, nil
 			}
@@ -51,7 +49,7 @@ func findDefaultDataDir() (string, error) {
 	if exePath, err2 := os.Executable(); err2 == nil {
 		base := filepath.Dir(exePath)
 		for i := 0; i < 8; i++ {
-			cand := filepath.Join(base, "assets", "data", "EssenceFilter")
+			cand := filepath.Join(base, "data", "EssenceFilter")
 			if hasEssenceFilterFiles(cand) {
 				return cand, nil
 			}
@@ -63,7 +61,7 @@ func findDefaultDataDir() (string, error) {
 		}
 	}
 
-	return "", errors.New("cannot resolve default EssenceFilter data dir; set MAAEND_ESSENCEFILTER_DATA_DIR")
+	return "", errors.New("cannot resolve default EssenceFilter data dir (expected data/EssenceFilter with matcher_config.json, skill_pools.json, weapons_output.json, locations.json)")
 }
 
 // FindDefaultDataDir resolves the EssenceFilter data directory (same rules as NewDefaultEngine).
