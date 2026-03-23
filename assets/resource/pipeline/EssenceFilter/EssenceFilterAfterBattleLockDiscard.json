@@ -131,6 +131,7 @@
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
         "post_wait_freezes": 300,
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
