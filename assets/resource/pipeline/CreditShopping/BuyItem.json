@@ -13,12 +13,18 @@
             "购买商品"
         ],
         "next": [
-            "CreditShoppingBuyFirstItemOCR_Oroberyl",
             "CreditShoppingBuyFirstItemOCR_ArsenalTicket",
+            "CreditShoppingBuyFirstItemOCR_Oroberyl",
             "CreditShoppingBuyFirstItemOCR_TCreds",
+            "CreditShoppingBuyFirstItemOCR_ElementaryCombatRecord",
+            "CreditShoppingBuyFirstItemOCR_IntermediateCombatRecord",
             "CreditShoppingBuyFirstItemOCR_ElementaryCognitiveCarrier",
             "CreditShoppingBuyFirstItemOCR_ArmsInspector",
             "CreditShoppingBuyFirstItemOCR_ArmsINSPKit",
+            "CreditShoppingBuyFirstItemOCR_CastDie",
+            "CreditShoppingBuyFirstItemOCR_HeavyCastDie",
+            "CreditShoppingBuyFirstItemOCR_Protodisk",
+            "CreditShoppingBuyFirstItemOCR_Protoset",
             "CreditShoppingBuyFirstItemOCR_Protoprism",
             "CreditShoppingBuyFirstItemOCR_Protohedron"
         ]
@@ -36,12 +42,18 @@
             "购买商品"
         ],
         "next": [
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ArsenalTicket",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl",
             "CreditShoppingBuyNormalItemWithDiscountOCR_TCreds",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCombatRecord",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_IntermediateCombatRecord",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCognitiveCarrier",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsInspector",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsINSPKit",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_CastDie",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_HeavyCastDie",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protodisk",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoset",
             "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism",
             "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron"
         ]
@@ -59,12 +71,18 @@
             "购买商品"
         ],
         "next": [
-            "CreditShoppingBuyBlacklistItemOCR_Oroberyl",
             "CreditShoppingBuyBlacklistItemOCR_ArsenalTicket",
+            "CreditShoppingBuyBlacklistItemOCR_Oroberyl",
             "CreditShoppingBuyBlacklistItemOCR_TCreds",
+            "CreditShoppingBuyBlacklistItemOCR_ElementaryCombatRecord",
+            "CreditShoppingBuyBlacklistItemOCR_IntermediateCombatRecord",
             "CreditShoppingBuyBlacklistItemOCR_ElementaryCognitiveCarrier",
             "CreditShoppingBuyBlacklistItemOCR_ArmsInspector",
             "CreditShoppingBuyBlacklistItemOCR_ArmsINSPKit",
+            "CreditShoppingBuyBlacklistItemOCR_CastDie",
+            "CreditShoppingBuyBlacklistItemOCR_HeavyCastDie",
+            "CreditShoppingBuyBlacklistItemOCR_Protodisk",
+            "CreditShoppingBuyBlacklistItemOCR_Protoset",
             "CreditShoppingBuyBlacklistItemOCR_Protoprism",
             "CreditShoppingBuyBlacklistItemOCR_Protohedron"
         ]
