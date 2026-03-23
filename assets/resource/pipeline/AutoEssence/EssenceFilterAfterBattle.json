@@ -36,7 +36,7 @@
             "EssenceFilterAfterBattleInit"
         ],
         "focus": {
-            "Node.Recognition.Successed": "识别到基质，开始筛选并锁定有用的"
+            "Node.Recognition.Successed": "$task.AutoEssence.focus.essence_filter_after_battle_start"
         }
     },
     "EssenceFilterAfterBattleInit": {
@@ -62,7 +62,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "初始化完成"
+            "Node.Action.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_init_succeeded"
         },
         //默认配置
         "attach": {

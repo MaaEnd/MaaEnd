@@ -118,6 +118,8 @@
     "option.AutoEssenceChallengeMode.description": "## TIPS:\n- Walk mode only relies on turrets for output. Please **place as many turrets as possible** at the accumulation point, but do not place them too close to the trigger point.\n- Walk mode does not involve automatic combat. Please switch the foreground character to **one with strong survivability** and configure sufficient **health recovery items**.\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "Walk",
     "option.AutoEssenceChallengeMode.cases.AutoFight.label": "Auto Combat",
+    "task.AutoEssence.focus.essence_filter_after_battle_start": "Essence detected. Start filtering and locking useful ones.",
+    "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "Initialization completed.",
     "task.PuzzleSolver.label": "🧩 Solve Puzzle",
     "task.PuzzleSolver.description": "Automatically solve puzzle mini-games for you. No need to think anymore!",
     "option.PuzzleSolverMode.label": "Mode",

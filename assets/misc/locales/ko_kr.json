@@ -118,6 +118,8 @@
     "option.AutoEssenceChallengeMode.description": "## 팁:\n- 걷기 모드는 포탑 출력에만 의존합니다. 축적 지점에 **가능한 한 많은 포탑을 배치**하되, 트리거 지점과 너무 가깝게 배치하지 마십시오.\n- 걷기 모드는 자동 전투를 포함하지 않습니다. 전방 캐릭터를 **생존력이 강한 캐릭터**로 교체하고 충분한 **회복 아이템**을 구성하십시오.\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "걷기",
     "option.AutoEssenceChallengeMode.cases.AutoFight.label": "자동 전투",
+    "task.AutoEssence.focus.essence_filter_after_battle_start": "기질을 인식했습니다. 유효한 기질 필터링 및 잠금을 시작합니다.",
+    "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "초기화가 완료되었습니다.",
     "task.PuzzleSolver.label": "🧩 퍼즐 해결",
     "task.PuzzleSolver.description": "퍼즐 미니게임을 자동으로 해결해 줍니다. 더 이상 생각할 필요가 없습니다!",
     "option.PuzzleSolverMode.label": "모드",

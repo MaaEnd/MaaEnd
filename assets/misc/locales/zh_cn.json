@@ -118,6 +118,8 @@
     "option.AutoEssenceChallengeMode.description": "## 提示：\n- 走路模式仅依赖炮台进行输出，请在淤积点 **放置尽可能多的炮台**，但不要放得太靠近激发点。\n- 走路模式不涉及自动战斗，请将前台角色切换到 **抗伤能力较强的角色** 并配置足够的 **生命恢复类道具**。\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "走路",
     "option.AutoEssenceChallengeMode.cases.AutoFight.label": "自动战斗",
+    "task.AutoEssence.focus.essence_filter_after_battle_start": "识别到基质，开始筛选并锁定有用的",
+    "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "初始化完成",
     "task.PuzzleSolver.label": "🧩解拼图",
     "task.PuzzleSolver.description": "自动帮你通关拼图小游戏，太好了不用自己动脑子了.jpg",
     "option.PuzzleSolverMode.label": "模式",
