@@ -58,14 +58,7 @@ func reportMatchedWeapons(ctx *maa.Context, engine *matchapi.Engine, weapons []m
 	if engine == nil {
 		return
 	}
-	var weaponsHTML strings.Builder
-	for i, w := range weapons {
-		if i > 0 {
-			weaponsHTML.WriteString("、")
-		}
-		weaponsHTML.WriteString(fmt.Sprintf(`<span style="color: %s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName)))
-	}
-	LogMXUHTML(ctx, engine.FocusMatchedWeapons(weaponsHTML.String()))
+	LogMXUHTML(ctx, engine.FocusMatchedWeapons(weaponListHTML(weapons)))
 }
 
 func reportExtRule(ctx *maa.Context, engine *matchapi.Engine, reason string, shouldLock bool) {
@@ -148,20 +141,19 @@ func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.Weapon
 		return
 	}
 	reportSimpleByKey(ctx, st, "focus.init.filtered_count", len(weapons))
-	var b strings.Builder
 	const columns = 3
-	b.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
+	var rows [][]weaponColorView
+	var row []weaponColorView
 	for i, w := range weapons {
-		if i%columns == 0 {
-			b.WriteString("<tr>")
-		}
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; color: %s; font-size: 11px;">%s</td>`, getColorForRarity(w.Rarity), w.ChineseName))
-		if i%columns == columns-1 || i == len(weapons)-1 {
-			b.WriteString("</tr>")
+		row = append(row, weaponColorView{Name: w.ChineseName, Color: getColorForRarity(w.Rarity)})
+		if (i+1)%columns == 0 || i == len(weapons)-1 {
+			rows = append(rows, row)
+			row = nil
 		}
 	}
-	b.WriteString("</table>")
-	LogMXUHTML(ctx, b.String())
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.init_weapons", map[string]any{
+		"Rows": rows,
+	}))
 }
 
 func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string) {
@@ -173,27 +165,38 @@ func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string)
 
 	const columns = 3
 	slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"}
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`<div style="color: #00bfff; font-weight: 900;">%s</div>`, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.skill_list_title")))
+	locale := getLocaleFromState(st)
+	type slotView struct {
+		Color  string
+		Label  string
+		Skills []string
+		Rows   [][]string
+	}
+	var slots []slotView
 	for i := 0; i < 3; i++ {
 		if len(slotSkills[i]) == 0 {
 			continue
 		}
-		slotColor := slotColors[i]
-		b.WriteString(fmt.Sprintf(`<div style="color: %s; font-weight: 700;">%s</div>`, slotColor, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.slot_label", i+1)))
-		b.WriteString(fmt.Sprintf(`<table style="width: 100%%; color: %s; border-collapse: collapse;">`, slotColor))
+		var rows [][]string
+		var row []string
 		for j, name := range slotSkills[i] {
-			if j%columns == 0 {
-				b.WriteString("<tr>")
-			}
-			b.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; font-size: 12px;">%s</td>`, name))
-			if j%columns == columns-1 || j == len(slotSkills[i])-1 {
-				b.WriteString("</tr>")
+			row = append(row, name)
+			if (j+1)%columns == 0 || j == len(slotSkills[i])-1 {
+				rows = append(rows, row)
+				row = nil
 			}
 		}
-		b.WriteString("</table>")
+		slots = append(slots, slotView{
+			Color:  slotColors[i],
+			Label:  matchapi.FormatMessage(locale, "focus.init.slot_label", i+1),
+			Skills: slotSkills[i],
+			Rows:   rows,
+		})
 	}
-	LogMXUHTML(ctx, b.String())
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.init_skills", map[string]any{
+		"Title": matchapi.FormatMessage(locale, "focus.init.skill_list_title"),
+		"Slots": slots,
+	}))
 }
 
 func reportDataVersionNotice(ctx *maa.Context, st *RunState) {

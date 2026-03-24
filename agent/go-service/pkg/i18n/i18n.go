@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,6 +35,11 @@ var htmlTemplates = map[string]string{
 	"maptracker.navigation_finished":  "HTML/navigation-finished.html",
 	"maptracker.inference_finished":   "HTML/inference-finished.html",
 	"maptracker.inference_failed":     "HTML/inference-failed.html",
+	"essencefilter.loot_summary":      "HTML/essencefilter-loot-summary.html",
+	"essencefilter.init_weapons":      "HTML/essencefilter-init-weapons.html",
+	"essencefilter.init_skills":       "HTML/essencefilter-init-skills.html",
+	"essencefilter.plan_recommend":    "HTML/essencefilter-plan-recommend.html",
+	"essencefilter.plan_card":         "HTML/essencefilter-plan-card.html",
 }
 
 var (
@@ -178,7 +184,11 @@ func RenderHTML(key string, data map[string]any) string {
 		return v
 	}
 
-	tmpl, err := template.New(fileName).Funcs(template.FuncMap{"t": tFunc}).Parse(content)
+	tmpl, err := template.New(fileName).Funcs(template.FuncMap{
+		"t":          tFunc,
+		"escapeHTML": html.EscapeString,
+		"separator":  Separator,
+	}).Parse(content)
 	if err != nil {
 		log.Warn().Err(err).Str("key", key).Msg("failed to parse HTML template")
 		return key
