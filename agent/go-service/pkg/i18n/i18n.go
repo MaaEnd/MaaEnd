@@ -20,11 +20,21 @@ const (
 	LangJaJP = "ja_jp"
 	LangKoKR = "ko_kr"
 
-	DefaultLang    = LangZhCN
-	envKey         = "PI_CLIENT_LANGUAGE"
-	localeRelDir   = "misc/locales/go-service"
-	fileRefPrefix  = "@"
+	DefaultLang  = LangZhCN
+	envKey       = "PI_CLIENT_LANGUAGE"
+	localeRelDir = "locales/go-service"
 )
+
+var htmlTemplates = map[string]string{
+	"tasker.process_warning":          "HTML/process-warning.html",
+	"tasker.hdr_warning":              "HTML/hdr-warning.html",
+	"tasker.aspect_ratio_warning":     "HTML/aspect-ratio-warning.html",
+	"maptracker.emergency_stop":       "HTML/emergency-stop.html",
+	"maptracker.navigation_moving":    "HTML/navigation-moving.html",
+	"maptracker.navigation_finished":  "HTML/navigation-finished.html",
+	"maptracker.inference_finished":   "HTML/inference-finished.html",
+	"maptracker.inference_failed":     "HTML/inference-failed.html",
+}
 
 var (
 	currentLang string
@@ -96,48 +106,14 @@ func Lang() string {
 	return currentLang
 }
 
-// T returns a localized string.
-//   - Text values: applies fmt.Sprintf when args are provided.
-//   - File references (@filename.html): returns the resolved file path.
-//     To get formatted file content instead, use TF.
+// T returns a localized string, applying fmt.Sprintf when args are provided.
 func T(key string, args ...any) string {
 	mu.RLock()
 	val, ok := messages[key]
-	lang := currentLang
 	mu.RUnlock()
 
 	if !ok {
 		return key
-	}
-
-	if strings.HasPrefix(val, fileRefPrefix) {
-		return resolveFilePath(strings.TrimPrefix(val, fileRefPrefix), lang)
-	}
-
-	if len(args) > 0 {
-		return fmt.Sprintf(val, args...)
-	}
-	return val
-}
-
-// TF returns localized content; for @-file references it reads the file,
-// applies fmt.Sprintf with args, and returns the rendered content.
-func TF(key string, args ...any) string {
-	mu.RLock()
-	val, ok := messages[key]
-	lang := currentLang
-	mu.RUnlock()
-
-	if !ok {
-		return key
-	}
-
-	if strings.HasPrefix(val, fileRefPrefix) {
-		content := readFileContent(strings.TrimPrefix(val, fileRefPrefix), lang)
-		if len(args) > 0 {
-			return fmt.Sprintf(content, args...)
-		}
-		return content
 	}
 
 	if len(args) > 0 {
@@ -176,30 +152,16 @@ func Separator() string {
 	return "、"
 }
 
-func resolveFilePath(fileName, lang string) string {
-	mu.RLock()
-	dir := localeDir
-	mu.RUnlock()
-
-	ext := filepath.Ext(fileName)
-	base := strings.TrimSuffix(fileName, ext)
-	return filepath.Join(dir, base+"-"+lang+ext)
-}
-
 // RenderHTML renders a localized HTML template.
-// The key must reference a @template.html file in the locale JSON.
+// The key must be registered in htmlTemplates.
 // Templates support {{t "suffix"}} for i18n lookups (resolved as key.suffix)
 // and {{.Field}} / {{printf ...}} for runtime data.
 func RenderHTML(key string, data map[string]any) string {
-	mu.RLock()
-	val, ok := messages[key]
-	mu.RUnlock()
-
-	if !ok || !strings.HasPrefix(val, fileRefPrefix) {
+	fileName, ok := htmlTemplates[key]
+	if !ok {
 		return key
 	}
 
-	fileName := strings.TrimPrefix(val, fileRefPrefix)
 	content := readTemplateFile(fileName)
 	if content == "" {
 		return key
@@ -257,30 +219,3 @@ func readTemplateFile(fileName string) string {
 	return content
 }
 
-func readFileContent(fileName, lang string) string {
-	path := resolveFilePath(fileName, lang)
-
-	fileCacheMu.RLock()
-	if content, ok := fileCache[path]; ok {
-		fileCacheMu.RUnlock()
-		return content
-	}
-	fileCacheMu.RUnlock()
-
-	data, err := os.ReadFile(path)
-	if err != nil && lang != DefaultLang {
-		fallback := resolveFilePath(fileName, DefaultLang)
-		data, err = os.ReadFile(fallback)
-		path = fallback
-	}
-	if err != nil {
-		log.Warn().Err(err).Str("file", fileName).Msg("failed to read i18n file")
-		return fileName
-	}
-
-	content := string(data)
-	fileCacheMu.Lock()
-	fileCache[path] = content
-	fileCacheMu.Unlock()
-	return content
-}

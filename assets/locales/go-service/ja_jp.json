@@ -75,7 +75,6 @@
     "essencefilter.rarity_join_3": "%d、%d と %d",
     "essencefilter.rarity_join_4": "%d、%d、%d と %d",
 
-    "tasker.process_warning": "@process-warning.html",
     "tasker.process_warning.title": "⚠️ 警告：ブラックリストのプロセスが実行中です",
     "tasker.process_warning.detected": "🔍 検出されたプロセス：",
     "tasker.process_warning.impact": "💡 これらのプロセスは画像認識に影響を与える可能性があります",
@@ -83,7 +82,6 @@
     "tasker.process_warning.recommend_1": "  • 上記のプロセスを終了してからタスクを実行してください",
     "tasker.process_warning.note": "ℹ️ タスクは続行されますが、失敗する可能性があります",
 
-    "tasker.hdr_warning": "@hdr-warning.html",
     "tasker.hdr_warning.title": "⚠️ 警告：HDR または「アプリの色を自動的に管理する」が有効です",
     "tasker.hdr_warning.desc": "🖥️ HDR または自動色管理によりスクリーンショットの色が異なり、認識精度に影響する場合があります",
     "tasker.hdr_warning.recommend_title": "💡 推奨：",
@@ -92,35 +90,29 @@
     "tasker.hdr_warning.recommend_3": "  • またはグラフィックドライバの設定で HDR をオフにする",
     "tasker.hdr_warning.note": "ℹ️ タスクは続行されますが、認識の問題が発生する可能性があります",
 
-    "tasker.aspect_ratio_warning": "@aspect-ratio-warning.html",
     "tasker.aspect_ratio_warning.title": "🚨 警告：解像度のアスペクト比が一致しません！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 タスクを強制停止しました",
     "tasker.aspect_ratio_warning.desc": "💡 MaaEnd は現時点で <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 のみ</span> をサポートしています。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 次の解像度に変更してください：",
     "tasker.aspect_ratio_warning.future": "🚀 今後、より多くのアスペクト比に対応予定です。お楽しみに！",
 
-    "maptracker.emergency_stop": "@emergency-stop.html",
     "maptracker.emergency_stop.title": "🚨 緊急停止",
     "maptracker.emergency_stop.desc": "ナビゲーションを中止しました。",
     "maptracker.emergency_stop.cause_header": "考えられる原因：",
     "maptracker.emergency_stop.cause_1": "カメラの回転に失敗した；",
     "maptracker.emergency_stop.cause_2": "ルートが塞がれている、または進行が止まった。",
 
-    "maptracker.navigation_moving": "@navigation-moving.html",
     "maptracker.navigation_moving.waypoint": "次のウェイポイント",
     "maptracker.navigation_moving.current": "現在：",
     "maptracker.navigation_moving.target": "目標：",
 
-    "maptracker.navigation_finished": "@navigation-finished.html",
     "maptracker.navigation_finished.complete": "ナビゲーション完了",
     "maptracker.navigation_finished.current": "現在：",
 
-    "maptracker.inference_finished": "@inference-finished.html",
     "maptracker.inference_finished.loc": "Loc: ",
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
 
-    "maptracker.inference_failed": "@inference-failed.html",
     "maptracker.inference_failed.title": "位置不明",
     "maptracker.inference_failed.reason": "（信頼度が低すぎます）"
 }
