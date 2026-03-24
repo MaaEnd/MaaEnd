@@ -6,15 +6,16 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoaltclick"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/autoaltclick"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/charactercontroller"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/clearhitcount"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/subtask"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/quantizedsliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
@@ -35,11 +36,12 @@ func registerAll() {
 	// General Custom
 	subtask.Register()
 	clearhitcount.Register()
+	expressionrecognition.Register()
 	autoaltclick.Register()
+	charactercontroller.Register()
 
 	// Business Custom
 	blueprintimport.Register()
-	charactercontroller.Register()
 	resell.Register()
 	puzzle.Register()
 	quantizedsliding.Register()

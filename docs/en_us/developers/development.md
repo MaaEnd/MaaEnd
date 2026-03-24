@@ -116,7 +116,7 @@ The following are reusable nodes based on `Custom`. They are more business-speci
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
-- [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
+- [Custom Action and Recognition Reference](./custom.md): Invoke custom actions and custom recognitions in go-service via the `Custom` node.
 - [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.
 - [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a target.
 - [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.

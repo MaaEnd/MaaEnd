@@ -371,5 +371,5 @@ If you need to follow the implementation further, review in this order:
 
 ## Related documents
 
-- [Custom Action Reference Document](./custom-action.md): Learn the general calling convention of `Custom` actions.
+- [Custom Action and Recognition Reference](./custom.md): Learn the general calling convention of `Custom` actions and recognitions.
 - [Development Guide](./development.md): Learn the overall development conventions for Pipeline and Go Service.

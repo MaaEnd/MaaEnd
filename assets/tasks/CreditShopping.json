@@ -675,10 +675,83 @@
                         }
                     },
                     "option": [
-                        "RefreshGetCredits"
+                        "RefreshGetCredits",
+                        "PrudentRefresh"
                     ]
                 }
             ]
+        },
+        "PrudentRefresh": {
+            "type": "switch",
+            "label": "$option.PrudentRefresh.label",
+            "description": "$option.PrudentRefresh.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "PrudentRefreshThreshold"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "PrudentRefreshThreshold": {
+            "type": "input",
+            "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+            "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+            "inputs": [
+                {
+                    "name": "PrudentRefreshThreshold",
+                    "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+                    "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "400"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingPrudentRefresh": {
+                    "recognition": {
+                        "param": {
+                            "all_of": [
+                                {
+                                    "recognition": {
+                                        "param": {
+                                            "custom_recognition_param": {
+                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{PrudentRefreshThreshold}"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "recognition": {
+                                        "param": {
+                                            "all_of": [
+                                                "CreditIcon",
+                                                "NotSoldOut",
+                                                "CanAfford"
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         },
         "RefreshGetCredits": {
             "type": "switch",
@@ -735,6 +808,39 @@
             "label": "$option.DiscountValue.label",
             "default_case": "-95%",
             "cases": [
+                {
+                    "name": "Ignore",
+                    "label": "$option.DiscountValue.cases.Ignore.label",
+                    "pipeline_override": {
+                        "IsDiscount": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BlacklistOCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        }
+                    }
+                },
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
@@ -834,7 +940,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "threshold": "{ReserveCreditThreshold}"
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
                             }
                         }
                     }
