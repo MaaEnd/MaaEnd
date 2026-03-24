@@ -40,6 +40,15 @@ var htmlTemplates = map[string]string{
 	"essencefilter.init_skills":       "HTML/essencefilter-init-skills.html",
 	"essencefilter.plan_recommend":    "HTML/essencefilter-plan-recommend.html",
 	"essencefilter.plan_card":         "HTML/essencefilter-plan-card.html",
+	"essencefilter.simple_message":    "HTML/essencefilter-simple-message.html",
+	"essencefilter.inventory_count":   "HTML/essencefilter-inventory-count.html",
+	"essencefilter.matched_weapons":   "HTML/essencefilter-matched-weapons.html",
+	"essencefilter.ext_rule_lock":     "HTML/essencefilter-ext-rule-lock.html",
+	"essencefilter.ext_rule_noop":     "HTML/essencefilter-ext-rule-noop.html",
+	"essencefilter.no_match_discard":  "HTML/essencefilter-no-match-discard.html",
+	"essencefilter.data_version_notice": "HTML/essencefilter-data-version-notice.html",
+	"autostockpile.warning_skip":      "HTML/autostockpile-warning-skip.html",
+	"autostockpile.fatal_error":       "HTML/autostockpile-fatal-error.html",
 }
 
 var (
@@ -128,31 +137,12 @@ func T(key string, args ...any) string {
 	return val
 }
 
-// ToMatchAPILocale maps the current PI language code to essencefilter/matchapi
-// locale codes (CN, TC, EN, JP, KR).
-func ToMatchAPILocale() string {
-	mu.RLock()
-	defer mu.RUnlock()
-	switch currentLang {
-	case LangZhTW:
-		return "TC"
-	case LangEnUS:
-		return "EN"
-	case LangJaJP:
-		return "JP"
-	case LangKoKR:
-		return "KR"
-	default:
-		return "CN"
-	}
-}
-
 // Separator returns the locale-appropriate list separator ("、" for CJK, ", " for others).
 func Separator() string {
 	mu.RLock()
 	lang := currentLang
 	mu.RUnlock()
-	if lang == LangEnUS {
+	if lang == LangEnUS || lang == LangKoKR {
 		return ", "
 	}
 	return "、"
@@ -188,6 +178,9 @@ func RenderHTML(key string, data map[string]any) string {
 		"t":          tFunc,
 		"escapeHTML": html.EscapeString,
 		"separator":  Separator,
+		"spanColor": func(color, text string) string {
+			return fmt.Sprintf(`<span style="color:%s;">%s</span>`, color, text)
+		},
 	}).Parse(content)
 	if err != nil {
 		log.Warn().Err(err).Str("key", key).Msg("failed to parse HTML template")

@@ -12,7 +12,6 @@ import (
 type Engine struct {
 	locale            string
 	cfg               MatcherConfig
-	i18n              i18nCatalog
 	data              EngineData
 	slotIdx           [3]slotIndex
 	matchTraceEnabled bool
@@ -101,7 +100,6 @@ func NewEngineFromDirWithLocale(dataDir string, locale string) (*Engine, error) 
 	return &Engine{
 		locale: loc,
 		cfg:    cfg,
-		i18n:   loadI18nCatalog(dataDir),
 		data: EngineData{
 			SkillPools: pools,
 			Weapons:    weapons,
@@ -143,7 +141,6 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			SkillIDs:      exact.SkillIDs,
 			SkillsChinese: exact.SkillsChinese,
 			Weapons:       exact.Weapons,
-			Reason:        e.exactMatchReason(exact.Weapons),
 			ShouldLock:    true,
 			ShouldDiscard: false,
 		}, nil
@@ -152,13 +149,13 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 	// 2) Future Promising extension rule.
 	if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
 		if e.matchFuturePromising(ocrSkills, ocrLevels, opts.FuturePromisingMinTotal) {
-			sum := ocrLevels[0] + ocrLevels[1] + ocrLevels[2]
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
 				SkillIDs:      []int{0, 0, 0},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
-				Reason:        e.reasonFuturePromising(sum, opts.FuturePromisingMinTotal),
+				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
+				ExtMinTotal:   opts.FuturePromisingMinTotal,
 				ShouldLock:    opts.LockFuturePromising,
 				ShouldDiscard: false,
 			}, nil
@@ -178,7 +175,8 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      match.SkillIDs,
 				SkillsChinese: match.SkillsChinese,
 				Weapons:       match.Weapons,
-				Reason:        e.reasonSlot3Practical(match.SkillsChinese[2], slot3Lv, minLv),
+				ExtSlot3Lv:    slot3Lv,
+				ExtMinLevel:   minLv,
 				ShouldLock:    opts.LockSlot3Practical,
 				ShouldDiscard: false,
 			}, nil
@@ -191,7 +189,6 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		SkillIDs:      []int{},
 		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 		Weapons:       []WeaponData{},
-		Reason:        e.reasonNoMatch(),
 		ShouldLock:    false,
 		ShouldDiscard: opts.DiscardUnmatched,
 	}, nil

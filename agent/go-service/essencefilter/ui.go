@@ -1,7 +1,6 @@
 package essencefilter
 
 import (
-	"fmt"
 	"html"
 	"sort"
 	"strings"
@@ -37,8 +36,10 @@ func LogMXUHTML(ctx *maa.Context, htmlText string) {
 
 // LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
 func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) {
-	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
-	LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.simple_message", map[string]any{
+		"Text":  text,
+		"Color": color,
+	}))
 }
 
 // LogMXUSimpleHTML logs a simple styled span with a default color.
@@ -115,21 +116,17 @@ type calcPlan struct {
 	matched    []matchapi.WeaponData
 }
 
-func spanColor(color, text string) string {
-	return fmt.Sprintf(`<span style="color:%s;">%s</span>`, color, text)
-}
-
 func planCardHTML(borderColor string, idx int, p calcPlan, fixedSlotLabel [4]string) string {
 	return i18n.RenderHTML("essencefilter.plan_card", map[string]any{
 		"BorderColor":    borderColor,
 		"PlanIndex":      idx,
-		"Slot1HTML":      spanColor("#47b5ff", escapeHTML(strings.Join(p.slot1Names[:], i18n.Separator()))),
+		"Slot1Text":      escapeHTML(strings.Join(p.slot1Names[:], i18n.Separator())),
 		"FixedSlotLabel": fixedSlotLabel[p.fixedSlot],
-		"FixedNameHTML":  spanColor("#e877fe", escapeHTML(p.fixedName)),
+		"FixedName":      escapeHTML(p.fixedName),
 		"NeedsCount":     len(p.needs),
 		"MatchedCount":   len(p.matched),
-		"NeedsHTML":      weaponListHTML(p.needs),
-		"MatchedHTML":    weaponListHTML(p.matched),
+		"Needs":          weaponsToViews(p.needs),
+		"Matched":        weaponsToViews(p.matched),
 	})
 }
 
@@ -147,15 +144,12 @@ func buildSkillIndex(allTargets []matchapi.SkillCombination, slotIdx int) skillI
 	return idx
 }
 
-func weaponListHTML(weapons []matchapi.WeaponData) string {
-	if len(weapons) == 0 {
-		return i18n.T("essencefilter.no_weapons_list")
-	}
-	parts := make([]string, len(weapons))
+func weaponsToViews(weapons []matchapi.WeaponData) []weaponColorView {
+	views := make([]weaponColorView, len(weapons))
 	for i, w := range weapons {
-		parts[i] = fmt.Sprintf(`<span style="color:%s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName))
+		views[i] = weaponColorView{Name: w.ChineseName, Color: getColorForRarity(w.Rarity)}
 	}
-	return strings.Join(parts, "，")
+	return views
 }
 
 func logCalculatorResult(ctx *maa.Context) {
@@ -313,8 +307,8 @@ func logCalculatorResult(ctx *maa.Context) {
 		sections = append(sections, planSectionView{Cards: cards})
 	}
 	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.plan_recommend", map[string]any{
-		"UngraduatedCount": len(ungraduated),
-		"WeaponListHTML":   weaponListHTML(ungraduatedWeapons),
-		"Sections":         sections,
+		"UngraduatedCount":   len(ungraduated),
+		"UngraduatedWeapons": weaponsToViews(ungraduatedWeapons),
+		"Sections":           sections,
 	}))
 }

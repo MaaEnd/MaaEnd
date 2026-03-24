@@ -109,9 +109,11 @@ type MatchResult struct {
 	SkillsChinese []string
 	Weapons       []WeaponData
 
-	// Reason is always set for logging/UI and localized by engine locale (CN|TC|EN|JP|KR).
-	// Templates are loaded from matchapi/i18n_messages.json.
-	Reason string
+	// Extension rule detail — only populated for the corresponding Kind.
+	ExtLevelSum int // MatchFuturePromising: sum of three slot levels
+	ExtMinTotal int // MatchFuturePromising: required minimum
+	ExtSlot3Lv  int // MatchSlot3Level3Practical: matched slot-3 level
+	ExtMinLevel int // MatchSlot3Level3Practical: required minimum
 
 	// Final directives for pipeline.
 	ShouldLock    bool

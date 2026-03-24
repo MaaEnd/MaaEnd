@@ -324,7 +324,10 @@ func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason A
 	logEvent.Msg("routing current cycle to skip branch")
 
 	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
-		maafocus.NodeActionStarting(ctx, i18n.T("autostockpile.warning_skip", focusPrefix, reasonText))
+		maafocus.NodeActionStarting(ctx, i18n.RenderHTML("autostockpile.warning_skip", map[string]any{
+			"Prefix": focusPrefix,
+			"Reason": reasonText,
+		}))
 	} else {
 		maafocus.NodeActionStarting(ctx, i18n.T("autostockpile.abort_info", focusPrefix, reasonText))
 	}
@@ -353,7 +356,9 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	}
 	logEvent.Msg("stopping task due to fatal abort reason")
 
-	maafocus.NodeActionStarting(ctx, i18n.T("autostockpile.fatal_error", reasonText))
+	maafocus.NodeActionStarting(ctx, i18n.RenderHTML("autostockpile.fatal_error", map[string]any{
+		"Reason": reasonText,
+	}))
 	if ctx == nil || ctx.GetTasker() == nil {
 		log.Error().
 			Str("component", "autostockpile").
