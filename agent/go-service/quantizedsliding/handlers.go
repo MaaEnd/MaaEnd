@@ -132,15 +132,8 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 	}
 
 	a.maxQuantity = maxQuantity
-	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target, a.ClampTargetToMax)
-	if err != nil {
-		a.logger.Error().
-			Int("max_quantity", a.maxQuantity).
-			Int("target", a.Target).
-			Msg("max quantity lower than target")
-		return false
-	}
 
+	// 先钳制 Target，再计算 nextNode，避免 maxQuantity==1 时的除零问题
 	if a.ClampTargetToMax && a.maxQuantity < a.Target {
 		originalTarget := a.Target
 		a.Target = a.maxQuantity
@@ -149,6 +142,15 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 			Int("clamped_target", a.Target).
 			Int("max_quantity", a.maxQuantity).
 			Msg("target clamped to max quantity")
+	}
+
+	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)
+	if err != nil {
+		a.logger.Error().
+			Int("max_quantity", a.maxQuantity).
+			Int("target", a.Target).
+			Msg("max quantity lower than target")
+		return false
 	}
 	if nextNode != "" {
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
@@ -421,11 +423,8 @@ func (a *QuantizedSlidingAction) resetState() {
 	a.maxQuantity = 0
 }
 
-func resolveMaxQuantityNext(maxQuantity int, target int, clampTargetToMax bool) (string, error) {
+func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
 	if maxQuantity < target {
-		if clampTargetToMax {
-			return "", nil
-		}
 		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
 	}
 	if maxQuantity == 1 && target == 1 {
