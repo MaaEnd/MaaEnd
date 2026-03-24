@@ -32,7 +32,7 @@
         "rate_limit": 0
     },
     "__CloseButtonType1": {
-        "desc": "通用关闭按钮常用变体1：圆形白底黑色 X，优先匹配,适配Hover",
+        "desc": "通用关闭按钮常用变体1：圆形白底黑色 X，优先匹配，适配 Hover",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
