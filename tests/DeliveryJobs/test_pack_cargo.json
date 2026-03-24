@@ -47,11 +47,15 @@
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_竞价中.png",
-            "hits": ["DeliveryJobsCargoBid"]
+            "hits": [
+                "DeliveryJobsCargoBid"
+            ]
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
-            "hits": ["DeliveryJobsInCargoRedistributionBid"]
+            "hits": [
+                "DeliveryJobsInCargoRedistributionBid"
+            ]
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_有待运送的货物.png",
@@ -62,11 +66,15 @@
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_开始运送后动画.png",
-            "hits": ["DeliveryJobsDeliverQuickly"]
+            "hits": [
+                "DeliveryJobsDeliverQuickly"
+            ]
         },
         {
             "image": "帝江号_大世界.png",
-            "hits": ["DeliveryJobsBackToDepot"]
+            "hits": [
+                "DeliveryJobsBackToDepot"
+            ]
         }
     ]
 }
