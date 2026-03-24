@@ -9,9 +9,7 @@
                 "Win32-Front"
             ],
             "option": [
-                "AutoCollectRoute1",
-                "AutoCollectRoute2",
-                "AutoCollectRoute3"
+                "AutoCollectRoutes"
             ],
             "group": [
                 "foreground"
@@ -19,12 +17,18 @@
         }
     ],
     "option": {
-        "AutoCollectRoute1": {
-            "type": "switch",
-            "label": "$option.AutoCollectRoute1.label",
+        "AutoCollectRoutes": {
+            "type": "checkbox",
+            "label": "$option.AutoCollectRoutes.label",
+            "default_case": [
+                "Route1",
+                "Route2",
+                "Route3"
+            ],
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Route1",
+                    "label": "$option.AutoCollectRoute1.label",
                     "pipeline_override": {
                         "AutoCollectRoute1Sub": {
                             "enabled": true
@@ -32,21 +36,8 @@
                     }
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoCollectRoute1Sub": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoCollectRoute2": {
-            "type": "switch",
-            "label": "$option.AutoCollectRoute2.label",
-            "cases": [
-                {
-                    "name": "Yes",
+                    "name": "Route2",
+                    "label": "$option.AutoCollectRoute2.label",
                     "pipeline_override": {
                         "AutoCollectRoute2Sub": {
                             "enabled": true
@@ -54,32 +45,11 @@
                     }
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoCollectRoute2Sub": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoCollectRoute3": {
-            "type": "switch",
-            "label": "$option.AutoCollectRoute3.label",
-            "cases": [
-                {
-                    "name": "Yes",
+                    "name": "Route3",
+                    "label": "$option.AutoCollectRoute3.label",
                     "pipeline_override": {
                         "AutoCollectRoute3Sub": {
                             "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoCollectRoute3Sub": {
-                            "enabled": false
                         }
                     }
                 }
