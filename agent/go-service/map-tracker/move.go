@@ -21,6 +21,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -727,7 +728,7 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 }
 
 func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
-	mapPath := mt.FindResource(filepath.ToSlash(filepath.Join(mt.MAP_DIR, mapName+".png")))
+	mapPath := resource.FindResource(filepath.ToSlash(filepath.Join(mt.MAP_DIR, mapName+".png")))
 	if mapPath == "" {
 		return nil, fmt.Errorf("map image not found")
 	}
