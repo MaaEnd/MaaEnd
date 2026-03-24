@@ -53,7 +53,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 任务入口、节点名、控制器限制先看 MaaEnd 仓库。
     - Pipeline 运行语义不确定时查 MaaFramework 文档。
     - MXU 行为或日志分层不确定时，先查 MXU README / 文档；只有文档不足或证据已指向实现层时才看源码。
-    - 输出给用户时，如果提到任务入口、任务说明、选项名、提示文案，先到 `assets/misc/locales/zh_cn.json` 查中文文案，不要直接把 `task id` / `option id` 当成最终展示文本。
+    - 输出给用户时，如果提到任务入口、任务说明、选项名、提示文案，先到 `assets/locales/interface/zh_cn.json` 查中文文案，不要直接把 `task id` / `option id` 当成最终展示文本。
 
 7. 只有在满足条件时才下钻第三方仓库。
 
@@ -279,7 +279,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 ## Localized Copy
 
-- 总结任务、选项、界面提示时，优先使用 `assets/misc/locales/zh_cn.json` 中的中文文案。
+- 总结任务、选项、界面提示时，优先使用 `assets/locales/interface/zh_cn.json` 中的中文文案。
 - 常见查找顺序：
     - 任务名：`task.<TaskId>.label`
     - 任务描述：`task.<TaskId>.description`
@@ -324,7 +324,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 - issue：`#1234`
 - 版本 / 控制器：优先写 `zh_cn` 中文任务名，必要时补 task id
-- 任务 / 相关选项：优先写 `assets/misc/locales/zh_cn.json` 中的中文 `label` / `description`
+- 任务 / 相关选项：优先写 `assets/locales/interface/zh_cn.json` 中的中文 `label` / `description`
 - 用户现象：
 
 ## 关键证据
@@ -388,7 +388,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 <details><summary>Click here to expand</summary>
 
-Translate the complete conclusion directly into English and paste it here. Note that the English text is in `assets/misc/locales/en_us.json`.
+Translate the complete conclusion directly into English and paste it here. Note that the English text is in `assets/locales/interface/en_us.json`.
 
 </details>
 
@@ -402,7 +402,7 @@ Translate the complete conclusion directly into English and paste it here. Note 
 - 如果 issue 版本很旧，要明确区分“当时的根因”和“当前分支是否已修复”。
 - 如果用户日志与当前代码不一致，先按用户版本 tag 复核；若确认已修，再看修复是否已进入 tag / release：已发版建议升级，未发版建议等待 release。
 - 如果结论是“功能不支持”，必须给出代码级依据，例如任务控制器白名单、无效的 ADB pipeline、缺失的控制器分支或文档限制。
-- 如果回答里出现任务名、任务描述、选项名、提示文案，优先使用 `assets/misc/locales/zh_cn.json` 的中文文案；必要时才在括号里补原始 id。
+- 如果回答里出现任务名、任务描述、选项名、提示文案，优先使用 `assets/locales/interface/zh_cn.json` 的中文文案；必要时才在括号里补原始 id。
 - 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，不要给本地路径加行号。
 - 如果日志和 issue 文字描述不一致，必须显式说明“证据未复现”还是“证据已复现但用户表述不精确”。
 - 如果证据表明问题已在新版本修复，明确建议用户升级；如果怀疑安装包、资源文件或配置损坏，明确建议重新下载或重建；如果判断为真实代码缺陷且暂无 workaround，明确建议等待开发者修复。

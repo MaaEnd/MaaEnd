@@ -20,7 +20,7 @@ AutoStockpile 的核心维护点如下：
 | 囤货主流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Task.json`   | 执行识别、点击、购买等流程                       |
 | 识别节点默认配置    | `assets/resource/pipeline/AutoStockpile/Helper.json` | 溢出检测、商品 OCR、模板匹配等识别节点的默认参数 |
 | Go 识别/决策逻辑    | `agent/go-service/autostockpile/`                    | 运行时覆盖识别节点、解析结果、应用阈值           |
-| 多语言文案          | `assets/misc/locales/*.json`                         | AutoStockpile 任务与选项文案                     |
+| 多语言文案          | `assets/locales/interface/*.json`                         | AutoStockpile 任务与选项文案                     |
 
 ## 命名规则
 
@@ -154,7 +154,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 1. 在 `assets/tasks/AutoStockpile.json` 中补充对应地区的 `price_limits_{Region}.Tier{N}` 输入与 `pipeline_override.attach` 键。
 2. 在 `agent/go-service/autostockpile/thresholds.go` 的 `autoStockpileDefaultPriceLimits` 中补充该档位默认值。
-3. 在 `assets/misc/locales/*.json` 中补充新档位的 label / description。
+3. 在 `assets/locales/interface/*.json` 中补充新档位的 label / description。
 
 如果新档位没有配置专属阈值，运行时会按“当前地区最小正阈值 -> `defaultFallbackBuyThreshold` (800)”的顺序回退；流程可以继续，但购买结果不一定符合预期。
 
@@ -199,7 +199,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 6. 国际化
 
-- 在 `assets/misc/locales/` 下补齐所有新增选项的 label 和 description。
+- 在 `assets/locales/interface/` 下补齐所有新增选项的 label 和 description。
 
 ## 自检清单
 
@@ -208,8 +208,8 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 1. `item_map.json` 中的 value 是否是 `{Region}/{BaseName}.Tier{N}`，且与图片文件名一致。
 2. 模板图是否放在 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下。
 3. `assets/tasks/AutoStockpile.json` 中的键名是否为 `price_limits_{Region}.Tier{N}`；若启用保留调度券，对应 `reserve_stock_bill_{Region}` 是否也已补齐。
-4. 新增档位时，`agent/go-service/autostockpile/thresholds.go` 与 `assets/misc/locales/*.json` 是否同步修改。
-5. 新增地区时，`Main.json`、`recognition.go`、`assets/tasks/AutoStockpile.json`、`assets/misc/locales/*.json` 是否同步修改。
+4. 新增档位时，`agent/go-service/autostockpile/thresholds.go` 与 `assets/locales/interface/*.json` 是否同步修改。
+5. 新增地区时，`Main.json`、`recognition.go`、`assets/tasks/AutoStockpile.json`、`assets/locales/interface/*.json` 是否同步修改。
 
 ## 常见坑
 

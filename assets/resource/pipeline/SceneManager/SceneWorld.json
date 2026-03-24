@@ -109,13 +109,14 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 0
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 9 // Tab
+                "custom_action": "AutoAltClickAction"
             }
         },
         "next": [

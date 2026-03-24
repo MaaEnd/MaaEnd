@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -19,27 +20,16 @@ func dataDirFromResourceBase() string {
 	return filepath.Join(base, "EssenceFilter")
 }
 
-func getLocaleFromState(st *RunState) string {
-	if st == nil {
-		return matchapi.LocaleCN
-	}
-	loc := matchapi.NormalizeInputLocale(st.InputLanguage)
-	if loc == "" {
-		return matchapi.LocaleCN
-	}
-	return loc
+func reportFocusByKey(ctx *maa.Context, _ *RunState, key string, args ...any) {
+	maafocus.Print(ctx, i18n.T("essencefilter."+key, args...))
 }
 
-func reportFocusByKey(ctx *maa.Context, st *RunState, key string, args ...any) {
-	maafocus.NodeActionStarting(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...))
+func reportSimpleByKey(ctx *maa.Context, _ *RunState, key string, args ...any) {
+	LogMXUSimpleHTML(ctx, i18n.T("essencefilter."+key, args...))
 }
 
-func reportSimpleByKey(ctx *maa.Context, st *RunState, key string, args ...any) {
-	LogMXUSimpleHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...))
-}
-
-func reportColoredByKey(ctx *maa.Context, st *RunState, color string, key string, args ...any) {
-	LogMXUSimpleHTMLWithColor(ctx, matchapi.FormatMessage(getLocaleFromState(st), key, args...), color)
+func reportColoredByKey(ctx *maa.Context, _ *RunState, color string, key string, args ...any) {
+	LogMXUSimpleHTMLWithColor(ctx, i18n.T("essencefilter."+key, args...), color)
 }
 
 func buildMatchOptions(st *RunState) matchapi.EssenceFilterOptions {
@@ -49,51 +39,40 @@ func buildMatchOptions(st *RunState) matchapi.EssenceFilterOptions {
 	return matchOptsFromPipeline(&st.PipelineOpts)
 }
 
-func reportOCRSkills(ctx *maa.Context, engine *matchapi.Engine, skills []string, levels [3]int, matched bool) {
-	if engine == nil {
-		return
-	}
+func reportOCRSkills(ctx *maa.Context, skills []string, levels [3]int, matched bool) {
 	color := "#00bfff"
 	if matched {
 		color = "#064d7c"
 	}
-	LogMXUSimpleHTMLWithColor(ctx, engine.FocusOCRSkills(skills, levels), color)
+	text := i18n.T("essencefilter.focus.ocr_skills",
+		skills[0], levels[0], skills[1], levels[1], skills[2], levels[2])
+	LogMXUSimpleHTMLWithColor(ctx, text, color)
 }
 
-func reportMatchedWeapons(ctx *maa.Context, engine *matchapi.Engine, weapons []matchapi.WeaponData) {
-	if engine == nil {
-		return
-	}
-	var weaponsHTML strings.Builder
-	for i, w := range weapons {
-		if i > 0 {
-			weaponsHTML.WriteString("、")
-		}
-		weaponsHTML.WriteString(fmt.Sprintf(`<span style="color: %s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName)))
-	}
-	LogMXUHTML(ctx, engine.FocusMatchedWeapons(weaponsHTML.String()))
+func reportMatchedWeapons(ctx *maa.Context, weapons []matchapi.WeaponData) {
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.matched_weapons", map[string]any{
+		"Weapons": weaponsToViews(weapons),
+	}))
 }
 
-func reportExtRule(ctx *maa.Context, engine *matchapi.Engine, reason string, shouldLock bool) {
-	if engine == nil {
-		return
-	}
+func reportExtRule(ctx *maa.Context, reason string, shouldLock bool) {
 	if shouldLock {
-		LogMXUHTML(ctx, engine.FocusExtRuleLock(escapeHTML(reason)))
+		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.ext_rule_lock", map[string]any{
+			"Reason": escapeHTML(reason),
+		}))
 		return
 	}
-	LogMXUHTML(ctx, engine.FocusExtRuleNoop(escapeHTML(reason)))
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.ext_rule_noop", map[string]any{
+		"Reason": escapeHTML(reason),
+	}))
 }
 
-func reportNoMatch(ctx *maa.Context, engine *matchapi.Engine, shouldDiscard bool) {
-	if engine == nil {
-		return
-	}
+func reportNoMatch(ctx *maa.Context, shouldDiscard bool) {
 	if shouldDiscard {
-		LogMXUHTML(ctx, engine.FocusNoMatchDiscard())
+		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.no_match_discard", nil))
 		return
 	}
-	LogMXUSimpleHTML(ctx, engine.FocusNoMatchSkip())
+	LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.no_match_skip"))
 }
 
 type InitViewModel struct {
@@ -154,20 +133,19 @@ func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.Weapon
 		return
 	}
 	reportSimpleByKey(ctx, st, "focus.init.filtered_count", len(weapons))
-	var b strings.Builder
 	const columns = 3
-	b.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
+	var rows [][]weaponColorView
+	var row []weaponColorView
 	for i, w := range weapons {
-		if i%columns == 0 {
-			b.WriteString("<tr>")
-		}
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; color: %s; font-size: 11px;">%s</td>`, getColorForRarity(w.Rarity), w.ChineseName))
-		if i%columns == columns-1 || i == len(weapons)-1 {
-			b.WriteString("</tr>")
+		row = append(row, weaponColorView{Name: w.ChineseName, Color: getColorForRarity(w.Rarity)})
+		if (i+1)%columns == 0 || i == len(weapons)-1 {
+			rows = append(rows, row)
+			row = nil
 		}
 	}
-	b.WriteString("</table>")
-	LogMXUHTML(ctx, b.String())
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.init_weapons", map[string]any{
+		"Rows": rows,
+	}))
 }
 
 func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string) {
@@ -179,27 +157,37 @@ func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string)
 
 	const columns = 3
 	slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"}
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`<div style="color: #00bfff; font-weight: 900;">%s</div>`, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.skill_list_title")))
+	type slotView struct {
+		Color  string
+		Label  string
+		Skills []string
+		Rows   [][]string
+	}
+	var slots []slotView
 	for i := 0; i < 3; i++ {
 		if len(slotSkills[i]) == 0 {
 			continue
 		}
-		slotColor := slotColors[i]
-		b.WriteString(fmt.Sprintf(`<div style="color: %s; font-weight: 700;">%s</div>`, slotColor, matchapi.FormatMessage(getLocaleFromState(st), "focus.init.slot_label", i+1)))
-		b.WriteString(fmt.Sprintf(`<table style="width: 100%%; color: %s; border-collapse: collapse;">`, slotColor))
+		var rows [][]string
+		var row []string
 		for j, name := range slotSkills[i] {
-			if j%columns == 0 {
-				b.WriteString("<tr>")
-			}
-			b.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; font-size: 12px;">%s</td>`, name))
-			if j%columns == columns-1 || j == len(slotSkills[i])-1 {
-				b.WriteString("</tr>")
+			row = append(row, name)
+			if (j+1)%columns == 0 || j == len(slotSkills[i])-1 {
+				rows = append(rows, row)
+				row = nil
 			}
 		}
-		b.WriteString("</table>")
+		slots = append(slots, slotView{
+			Color:  slotColors[i],
+			Label:  i18n.T("essencefilter.focus.init.slot_label", i+1),
+			Skills: slotSkills[i],
+			Rows:   rows,
+		})
 	}
-	LogMXUHTML(ctx, b.String())
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.init_skills", map[string]any{
+		"Title": i18n.T("essencefilter.focus.init.skill_list_title"),
+		"Slots": slots,
+	}))
 }
 
 func reportDataVersionNotice(ctx *maa.Context, st *RunState) {
@@ -210,7 +198,9 @@ func reportDataVersionNotice(ctx *maa.Context, st *RunState) {
 	if v == "" {
 		return
 	}
-	LogMXUHTML(ctx, matchapi.FormatMessage(getLocaleFromState(st), "focus.data_version.notice", v))
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.data_version_notice", map[string]any{
+		"Version": v,
+	}))
 }
 
 func reportFinishExtRuleStats(ctx *maa.Context, st *RunState) {
@@ -262,13 +252,12 @@ func runUnifiedSkillDecision(
 		return false
 	}
 
-	extendedReason := matchResult.Reason
-	reportOCRSkills(ctx, engine, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
+	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
 		st.MatchedCount++
-		reportMatchedWeapons(ctx, engine, matchResult.Weapons)
+		reportMatchedWeapons(ctx, matchResult.Weapons)
 
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
@@ -287,27 +276,32 @@ func runUnifiedSkillDecision(
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
+		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
 			st.ExtFuturePromisingCount++
+			reason = i18n.T("essencefilter.reason.future_promising",
+				matchResult.ExtLevelSum, matchResult.ExtMinTotal)
 		} else {
 			st.ExtSlot3PracticalCount++
+			reason = i18n.T("essencefilter.reason.slot3_practical",
+				matchResult.SkillsChinese[2], matchResult.ExtSlot3Lv, matchResult.ExtMinLevel)
 		}
 
 		if matchResult.ShouldLock {
 			st.MatchedCount++
-			reportExtRule(ctx, engine, extendedReason, true)
+			reportExtRule(ctx, reason, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {
-			reportExtRule(ctx, engine, extendedReason, false)
+			reportExtRule(ctx, reason, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 
 	case matchapi.MatchNone:
 		if matchResult.ShouldDiscard {
-			reportNoMatch(ctx, engine, true)
+			reportNoMatch(ctx, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
 		} else {
-			reportNoMatch(ctx, engine, false)
+			reportNoMatch(ctx, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 	}

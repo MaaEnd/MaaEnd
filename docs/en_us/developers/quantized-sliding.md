@@ -94,15 +94,16 @@ Pass `custom_action_param` as a JSON object directly.
 
 `custom_action_param` should be passed as a JSON object directly. The commonly used fields are:
 
-| Field               | Type                    | Required | Description                                                                                               |
-| ------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
-| `Target`            | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.                                          |
-| `QuantityBox`       | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                   |
-| `QuantityFilter`    | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy. |
-| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.                                                |
-| `IncreaseButton`    | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.                                    |
-| `DecreaseButton`    | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.                                    |
-| `CenterPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                    |
+| Field               | Type                    | Required | Description                                                                                                                                                                             |
+| ------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`            | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.                                                                                                                        |
+| `QuantityBox`       | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                                                                                                 |
+| `QuantityFilter`    | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                               |
+| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.                                                                                                                              |
+| `IncreaseButton`    | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.                                                                                                                  |
+| `DecreaseButton`    | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.                                                                                                                  |
+| `CenterPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                  |
+| `ClampTargetToMax`  | `bool`                  | No       | If `true`, when `Target` exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately). |
 
 `CenterPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
 
@@ -302,7 +303,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Task.json`
 - The slider start point can be recognized;
 - It can be dragged to the maximum value successfully;
 - OCR can read both the maximum value and the current value;
-- The target value `Target` is not greater than the maximum value;
+- The target value `Target` is not greater than the maximum value, or `ClampTargetToMax` is `true` (in which case `Target` is clamped to `maxQuantity`);
 - After the proportional click and fine-tuning, the current value finally equals `Target`.
 
 ### Common failure conditions
@@ -310,7 +311,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Task.json`
 - `QuantityBox` is not a 4-tuple `[x, y, w, h]`;
 - `Direction` is not one of `left/right/up/down`;
 - OCR does not read any digits;
-- The maximum value `maxQuantity` is smaller than `Target`;
+- The maximum value `maxQuantity` is smaller than `Target`, and `ClampTargetToMax` is `false` (default);
 - The maximum value is less than or equal to `1`, so the ratio cannot be calculated;
 - The increase/decrease buttons cannot be recognized or clicked;
 - Too many fine-tuning attempts still do not converge.
@@ -342,7 +343,7 @@ This is much faster than relying only on repeated button clicks, and much more s
 - **Making `QuantityBox` too tight**: OCR easily fails when digits move or outlines change.
 - **Using only button coordinates without a recognition fallback**: small UI shifts can make clicks miss.
 - **Assuming the slider template is universally reusable**: the shared template may fail if different screens use different slider styles.
-- **Using a target value above the limit**: `Target > maxQuantity` fails immediately and does not automatically fall back to the maximum value.
+- **Using a target value above the limit**: `Target > maxQuantity` fails immediately by default. Set `ClampTargetToMax: true` to automatically clamp to the maximum value instead of failing, but note that the actual final quantity will be `maxQuantity`, not the original `Target`.
 - **Adding extra hard waits without thinking**: this shared flow already uses `post_wait_freezes`, so business integration should not stack many more hard delays on top.
 
 ## Self-checklist
@@ -354,7 +355,8 @@ After integration, check at least the following:
 3. Whether `Direction` matches the direction where the maximum value lies.
 4. Whether `IncreaseButton` / `DecreaseButton` use template paths whenever possible.
 5. Whether `Target` can exceed the maximum value allowed by the current scenario.
-6. Whether the failure branch has a clear handling strategy, such as a prompt, skip, or canceling the current task.
+6. If `ClampTargetToMax` is enabled, whether the caller can handle the case where the actual final quantity may be less than the original `Target`.
+7. Whether the failure branch has a clear handling strategy, such as a prompt, skip, or canceling the current task.
 
 ## Code references
 

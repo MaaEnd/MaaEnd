@@ -20,7 +20,7 @@ The core maintenance points of AutoStockpile are as follows:
 | Main stockpiling Pipeline     | `assets/resource/pipeline/AutoStockpile/Task.json`   | Executes recognition, clicking, and purchasing flows                                |
 | Recognition node defaults     | `assets/resource/pipeline/AutoStockpile/Helper.json` | Default parameters for overflow detection, goods OCR, template matching, etc.       |
 | Go recognition/decision logic | `agent/go-service/autostockpile/`                    | Applies runtime recognition overrides, parses results, and applies thresholds       |
-| Multilingual copy             | `assets/misc/locales/*.json`                         | UI text for AutoStockpile tasks and options                                         |
+| Multilingual copy             | `assets/locales/interface/*.json`                         | UI text for AutoStockpile tasks and options                                         |
 
 ## Naming Conventions
 
@@ -153,7 +153,7 @@ To support a new general tier in the task configuration (e.g., adding `Tier3` in
 
 1. **Task Options**: Add the `price_limits_{Region}.Tier{N}` input and `pipeline_override.attach` key in `assets/tasks/AutoStockpile.json`.
 2. **Default Thresholds**: Update `autoStockpileDefaultPriceLimits` in `agent/go-service/autostockpile/thresholds.go`.
-3. **Localization**: Add labels and descriptions for the new tier in `assets/misc/locales/*.json`.
+3. **Localization**: Add labels and descriptions for the new tier in `assets/locales/interface/*.json`.
 
 If no specific threshold is configured for a new tier, it will fall back following the "minimum positive region threshold -> 800" order. The task will continue, but purchase decisions might not be ideal.
 
@@ -196,7 +196,7 @@ File: `agent/go-service/autostockpile/thresholds.go`
 
 ### 6. Internationalization
 
-- Add labels and descriptions for all new options in `assets/misc/locales/`.
+- Add labels and descriptions for all new options in `assets/locales/interface/`.
 
 ## Self-Checklist
 

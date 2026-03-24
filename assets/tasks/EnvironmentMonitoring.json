@@ -6,9 +6,12 @@
             "entry": "EnvironmentMonitoringMain",
             "description": "$task.EnvironmentMonitoring.description",
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "ADB"
             ],
-            "group": ["foreground"]
+            "group": [
+                "foreground"
+            ]
         }
     ]
 }

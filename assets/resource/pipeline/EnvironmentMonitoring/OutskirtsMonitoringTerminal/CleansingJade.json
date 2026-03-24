@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeReadyText"
         ],
         "pre_delay": 0,
@@ -26,20 +27,34 @@
         "expected": [
             "漱玉",
             "漱玉",
-            "Cleansing Jade",
+            "(?i)Cleansing\\s*Jade",
             "漱玉",
             "수옥"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckCleansingJadeIcon": {
+        "desc": "检查漱玉文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckCleansingJadeReadyText": {
         "desc": "检查漱玉委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckCleansingJadeIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckCleansingJadeJob": {
         "desc": "检查漱玉委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckCleansingJadeIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckCleansingJadeGoToMissionText": {
         "desc": "检查漱玉委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckCleansingJadeIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -102,7 +117,7 @@
         "expected": [
             "漱玉",
             "漱玉",
-            "Cleansing Jade",
+            "(?i)Cleansing\\s*Jade",
             "漱玉",
             "수옥"
         ]
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToCleansingJadeMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "CleansingJadeTrackOrGoTo"

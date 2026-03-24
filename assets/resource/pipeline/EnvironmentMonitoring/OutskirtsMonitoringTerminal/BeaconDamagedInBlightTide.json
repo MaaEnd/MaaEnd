@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Beacon\\s*Damaged\\s*in\\s*the\\s*Blight\\s*Tide",
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckBeaconDamagedInBlightTideIcon": {
+        "desc": "检查侵蚀潮中损坏的信标文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckBeaconDamagedInBlightTideReadyText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckBeaconDamagedInBlightTideJob": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckBeaconDamagedInBlightTideGoToMissionText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi": "CheckBeaconDamagedInBlightTideIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToBeaconDamagedInBlightTideMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "BeaconDamagedInBlightTideTrackOrGoTo"

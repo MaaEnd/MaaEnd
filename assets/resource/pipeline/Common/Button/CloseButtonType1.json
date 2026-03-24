@@ -32,22 +32,7 @@
         "rate_limit": 0
     },
     "__CloseButtonType1": {
-        "desc": "通用关闭按钮常用变体1：圆形白底黑色 X，优先匹配",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "__CloseButtonType1Stable",
-                    "__CloseButtonType1Hover"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__CloseButtonType1Stable": {
-        "desc": "通用关闭按钮常用变体1的稳定版本：圆形白底黑色 X，优先匹配，适当缩小识别区域以提升稳定性",
+        "desc": "通用关闭按钮常用变体1：圆形白底黑色 X，优先匹配，适配 Hover",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -60,28 +45,8 @@
                 "template": [
                     "Common/Button/CloseButtonType1.png"
                 ],
-                "threshold": 0.8
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__CloseButtonType1Hover": {
-        "desc": "通用关闭按钮常用变体1的悬浮版本：圆形白底黑色 X，优先匹配，适当缩小识别区域以提升稳定性，适用于鼠标悬浮时按钮状态发生变化的场景",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1186,
-                    1,
-                    94,
-                    78
-                ],
-                "template": [
-                    "Common/Button/CloseButtonType1Hover.png"
-                ],
-                "threshold": 0.8
+                "threshold": 0.7,
+                "green_mask": true
             }
         },
         "pre_delay": 0,

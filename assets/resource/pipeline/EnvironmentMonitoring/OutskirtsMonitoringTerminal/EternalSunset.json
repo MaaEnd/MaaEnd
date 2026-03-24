@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
             "CheckEternalSunsetReadyText"
         ],
         "pre_delay": 0,
@@ -26,20 +27,34 @@
         "expected": [
             "栖霞驻影",
             "棲霞駐影",
-            "Eternal Sunset",
+            "(?i)Eternal\\s*Sunset",
             "棲霞留影",
             "노을의 그림자"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckEternalSunsetIcon": {
+        "desc": "检查栖霞驻影文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckEternalSunsetText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckEternalSunsetReadyText": {
         "desc": "检查栖霞驻影委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckEternalSunsetText",
+        "roi": "CheckEternalSunsetIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckEternalSunsetJob": {
         "desc": "检查栖霞驻影委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckEternalSunsetText",
+        "roi": "CheckEternalSunsetIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckEternalSunsetGoToMissionText": {
         "desc": "检查栖霞驻影委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckEternalSunsetText",
+        "roi": "CheckEternalSunsetIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -102,7 +117,7 @@
         "expected": [
             "栖霞驻影",
             "棲霞駐影",
-            "Eternal Sunset",
+            "(?i)Eternal\\s*Sunset",
             "棲霞留影",
             "노을의 그림자"
         ]
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
             "CheckEternalSunsetJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToEternalSunsetMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
             "CheckEternalSunsetGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "EternalSunsetTrackOrGoTo"

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -24,7 +25,7 @@ type autoEcoFarmFindNearestRecognitionResult struct{}
 func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 
 	if debugmode {
-		maafocus.NodeActionStarting(ctx, "函数正常开始")
+		maafocus.Print(ctx, "函数正常开始")
 	}
 
 	var params = autoEcoFarmFindNearestRecognitionResultParams{
@@ -43,34 +44,34 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	}
 
 	if params.RecognitionNodeName == "" || params.XRatio < 0 || params.XRatio > 1 || params.YRatio < 0 || params.YRatio > 1 {
-		maafocus.NodeActionStarting(ctx, "非法参数")
+		maafocus.Print(ctx, i18n.T("autoecofarm.invalid_params"))
 		return nil, false
 	}
 
 	if debugmode {
 		msg1 := fmt.Sprintf("传入参数确认,节点名:“%s”,x比例:%.2f,y比例:%.2f", params.RecognitionNodeName, params.XRatio, params.YRatio)
 
-		maafocus.NodeActionStarting(ctx, msg1)
+		maafocus.Print(ctx, msg1)
 	}
 	//调用外部识别函数并提取识别结果
 	detail, err := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
 	if detail == nil || err != nil {
 		log.Error().Err(err).Msg("调用识别节点识别失败")
 		if debugmode {
-			maafocus.NodeActionStarting(ctx, "调用识别节点识别失败")
+			maafocus.Print(ctx, "调用识别节点识别失败")
 		}
 		return nil, false
 	}
 
 	recdetails := detail.DetailJson
 	if debugmode {
-		maafocus.NodeActionStarting(ctx, "下面是json详细内容：")
-		maafocus.NodeActionStarting(ctx, recdetails)
+		maafocus.Print(ctx, "下面是json详细内容：")
+		maafocus.Print(ctx, recdetails)
 	}
 	results := detail.Results.Filtered
 
 	if len(results) == 0 {
-		maafocus.NodeActionStarting(ctx, "未识别到结果")
+		maafocus.Print(ctx, i18n.T("autoecofarm.no_results"))
 		return nil, false
 	}
 
@@ -84,7 +85,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	if result1 == nil || isTemplateMatch == false {
 		log.Error().Msg("读取初始节点失败")
 		if debugmode {
-			maafocus.NodeActionStarting(ctx, "读取初始节点失败")
+			maafocus.Print(ctx, "读取初始节点失败")
 		}
 		return nil, false
 	}
@@ -95,7 +96,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	maxY = result1.Box.Y()
 	if debugmode {
 		msg2 := fmt.Sprintf("初始边界为（%d,%d）,（%d，%d）", minX, minY, maxX, maxY)
-		maafocus.NodeActionStarting(ctx, msg2)
+		maafocus.Print(ctx, msg2)
 	}
 	//先循环算出边界
 	for idx, res := range results {
@@ -105,7 +106,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 		Yn := resultn.Box.Y()
 		if debugmode {
 			msgn := fmt.Sprintf("第%d个点（%d,%d）", idx+1, Xn, Yn)
-			maafocus.NodeActionStarting(ctx, msgn)
+			maafocus.Print(ctx, msgn)
 		}
 		if Xn < minX {
 			minX = Xn
@@ -122,7 +123,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	}
 	if debugmode {
 		msg3 := fmt.Sprintf("边界为（%d,%d）,（%d，%d）", minX, minY, maxX, maxY)
-		maafocus.NodeActionStarting(ctx, msg3)
+		maafocus.Print(ctx, msg3)
 	}
 
 	//计算目标点
@@ -137,7 +138,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 
 	if debugmode {
 		msg4 := fmt.Sprintf("目标点为（%.2f,%.2f）", targetX, targetY)
-		maafocus.NodeActionStarting(ctx, msg4)
+		maafocus.Print(ctx, msg4)
 	}
 
 	//初始化最小值为第一个值
@@ -175,13 +176,13 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 
 		if debugmode {
 			msgn2 := fmt.Sprintf("第%d个点[%.2f,%.2f,%.2f,%.2f],欧几里得距离平方是%.2f,目前最小距离是%.2f,对应坐标[%d,%d,%d,%d]", idx+1, fXn, fYn, fWn, fHn, distance2, mindistance2, realutX, realutY, realutW, realutH)
-			maafocus.NodeActionStarting(ctx, msgn2)
+			maafocus.Print(ctx, msgn2)
 		}
 	}
 
 	if debugmode {
 		msg3 := fmt.Sprintf("最终的最小距离是%.2f,对应坐标[%d,%d,%d,%d]", mindistance2, realutX, realutY, realutW, realutH)
-		maafocus.NodeActionStarting(ctx, msg3)
+		maafocus.Print(ctx, msg3)
 	}
 
 	targetbox := maa.Rect{realutX, realutY, realutW, realutH}

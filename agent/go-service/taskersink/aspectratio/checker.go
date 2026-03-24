@@ -1,11 +1,11 @@
 package aspectratio
 
 import (
-	_ "embed"
 	"fmt"
 	"math"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -16,9 +16,6 @@ const (
 	// Tolerance for aspect ratio comparison (±2%)
 	tolerance = 0.02
 )
-
-//go:embed warning_message.html
-var aspectRatioWarningHTML string
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
 type AspectRatioChecker struct{}
@@ -91,7 +88,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
 			Msg("Resolution is not 16:9! Task will be stopped.")
-		fmt.Println(aspectRatioWarningHTML)
+		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", nil))
 
 		// Stop the task
 		tasker.PostStop()

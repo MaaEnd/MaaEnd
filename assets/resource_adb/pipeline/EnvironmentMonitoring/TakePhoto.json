@@ -1,0 +1,29 @@
+{
+    "EnvironmentMonitoringEnterCameraMode": {
+        "action": "Click"
+    },
+    "EnterCameraModeClick": {
+        "action": "Click"
+    },
+    "EnterCameraModeLongPress": {
+        "action": "TouchDown",
+        "target": [
+            1163,
+            269,
+            23,
+            20
+        ]
+    },
+    "EnterCameraModeChooseCamera": {
+        "action": "TouchMove",
+        "target": [
+            1117,
+            214,
+            25,
+            23
+        ]
+    },
+    "EnterCameraModeKeyDown": {
+        "action": "TouchUp"
+    }
+}

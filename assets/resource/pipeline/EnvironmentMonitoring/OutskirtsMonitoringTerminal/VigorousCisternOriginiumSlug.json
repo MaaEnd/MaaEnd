@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckVigorousCisternOriginiumSlugText",
+            "CheckVigorousCisternOriginiumSlugIcon",
             "CheckVigorousCisternOriginiumSlugReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Vigorous\\s*Cistern\\s*Originium\\s*Slug",
             "活発になっている貯水オリジムシ",
             "활기찬 저수 원석충"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckVigorousCisternOriginiumSlugIcon": {
+        "desc": "检查充满活力的蓄水源石虫文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckVigorousCisternOriginiumSlugText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckVigorousCisternOriginiumSlugReadyText": {
         "desc": "检查充满活力的蓄水源石虫委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckVigorousCisternOriginiumSlugText",
+        "roi": "CheckVigorousCisternOriginiumSlugIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckVigorousCisternOriginiumSlugJob": {
         "desc": "检查充满活力的蓄水源石虫委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckVigorousCisternOriginiumSlugText",
+        "roi": "CheckVigorousCisternOriginiumSlugIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckVigorousCisternOriginiumSlugGoToMissionText": {
         "desc": "检查充满活力的蓄水源石虫委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckVigorousCisternOriginiumSlugText",
+        "roi": "CheckVigorousCisternOriginiumSlugIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckVigorousCisternOriginiumSlugText",
+            "CheckVigorousCisternOriginiumSlugIcon",
             "CheckVigorousCisternOriginiumSlugJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToVigorousCisternOriginiumSlugMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckVigorousCisternOriginiumSlugText",
+            "CheckVigorousCisternOriginiumSlugIcon",
             "CheckVigorousCisternOriginiumSlugGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "VigorousCisternOriginiumSlugTrackOrGoTo"
@@ -179,7 +196,7 @@
                 {
                     "map_name": "map02_lv002",
                     "target": [
-                        422,
+                        422.0,
                         577.7,
                         4,
                         4
@@ -237,7 +254,7 @@
                 ],
                 [
                     451.8,
-                    711
+                    711.0
                 ]
             ]
         },

@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Rainbow\\s*Fin",
             "七色鱗獣",
             "무지개 린수"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckRainbowFinIcon": {
+        "desc": "检查七彩鳞文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckRainbowFinReadyText": {
         "desc": "检查七彩鳞委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckRainbowFinJob": {
         "desc": "检查七彩鳞委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckRainbowFinGoToMissionText": {
         "desc": "检查七彩鳞委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToRainbowFinMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "RainbowFinTrackOrGoTo"

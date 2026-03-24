@@ -264,16 +264,16 @@ jobs:
 
           # Prepare Icon
           mkdir MaaEnd.iconset
-          sips -z 16 16     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16.png
-          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16@2x.png
-          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32.png
-          sips -z 64 64     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32@2x.png
-          sips -z 128 128   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128.png
-          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128@2x.png
-          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256.png
-          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256@2x.png
-          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512.png
-          sips -z 1024 1024 assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512@2x.png
+          sips -z 16 16     assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16.png
+          sips -z 32 32     assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32.png
+          sips -z 64 64     assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128.png
+          sips -z 256 256   assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256.png
+          sips -z 512 512   assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/locales/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512@2x.png
           iconutil -c icns MaaEnd.iconset -o maaend.icns
 
           # Prepare App Bundle
@@ -362,7 +362,7 @@ jobs:
           choco install imagemagick -y
           # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
           for size in 512 256 128 64 48 32 24 16; do
-            magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
+            magick assets/locales/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
           done
           magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
 

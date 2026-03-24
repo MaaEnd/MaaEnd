@@ -3,6 +3,7 @@
         "desc": "从任意界面进入帝江号地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapDijiang",
             "[JumpBack]SceneEnterMapAny"
@@ -12,6 +13,7 @@
         "desc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterWorldDijiang",
             "[JumpBack]SceneEnterMapAny"
@@ -29,6 +31,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang0Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"
@@ -46,6 +49,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang1Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"
@@ -63,6 +67,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang2Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"

@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
+            "CheckInflatedAndGlowingBugspittingLankybeastIcon",
             "CheckInflatedAndGlowingBugspittingLankybeastReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Inflated\\s*and\\s*Glowing\\s*Bugspitting\\s*Lankybeast",
             "腹が膨らんで光る虫吐き長脚獣",
             "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckInflatedAndGlowingBugspittingLankybeastIcon": {
+        "desc": "检查肚子鼓气后发光的吐虫长股兽文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckInflatedAndGlowingBugspittingLankybeastText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckInflatedAndGlowingBugspittingLankybeastReadyText": {
         "desc": "检查肚子鼓气后发光的吐虫长股兽委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckInflatedAndGlowingBugspittingLankybeastText",
+        "roi": "CheckInflatedAndGlowingBugspittingLankybeastIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckInflatedAndGlowingBugspittingLankybeastJob": {
         "desc": "检查肚子鼓气后发光的吐虫长股兽委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckInflatedAndGlowingBugspittingLankybeastText",
+        "roi": "CheckInflatedAndGlowingBugspittingLankybeastIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckInflatedAndGlowingBugspittingLankybeastGoToMissionText": {
         "desc": "检查肚子鼓气后发光的吐虫长股兽委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckInflatedAndGlowingBugspittingLankybeastText",
+        "roi": "CheckInflatedAndGlowingBugspittingLankybeastIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
+            "CheckInflatedAndGlowingBugspittingLankybeastIcon",
             "CheckInflatedAndGlowingBugspittingLankybeastJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToInflatedAndGlowingBugspittingLankybeastMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
+            "CheckInflatedAndGlowingBugspittingLankybeastIcon",
             "CheckInflatedAndGlowingBugspittingLankybeastGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "InflatedAndGlowingBugspittingLankybeastTrackOrGoTo"
@@ -213,14 +230,14 @@
             "path": [
                 [
                     290.5,
-                    585
+                    585.0
                 ],
                 [
                     300.4,
-                    575
+                    575.0
                 ],
                 [
-                    303,
+                    303.0,
                     562.5
                 ],
                 [
@@ -229,7 +246,7 @@
                 ],
                 [
                     297.9,
-                    545
+                    545.0
                 ],
                 [
                     287.9,

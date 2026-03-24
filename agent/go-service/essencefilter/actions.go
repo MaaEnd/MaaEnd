@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -110,10 +111,10 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", essenceMaxSinglePageInventory).Str("raw", text).Msg("total parsed")
 	if st := getRunState(); st != nil {
-		reportSimpleByKey(ctx, st, "focus.inventory.count", n)
+		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.inventory_count", map[string]any{"Count": n}))
 		st.TotalCount = n
 	} else {
-		reportSimpleByKey(ctx, nil, "focus.inventory.count", n)
+		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.inventory_count", map[string]any{"Count": n}))
 	}
 	if n <= essenceMaxSinglePageInventory {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})

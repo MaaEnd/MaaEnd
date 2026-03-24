@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
             "CheckCollapsedTianshiPillarReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Collapsed\\s*Tianshi\\s*Pillar",
             "倒れた天師杭",
             "무너진 천사장"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckCollapsedTianshiPillarIcon": {
+        "desc": "检查倒塌的天师桩文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckCollapsedTianshiPillarReadyText": {
         "desc": "检查倒塌的天师桩委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCollapsedTianshiPillarText",
+        "roi": "CheckCollapsedTianshiPillarIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckCollapsedTianshiPillarJob": {
         "desc": "检查倒塌的天师桩委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCollapsedTianshiPillarText",
+        "roi": "CheckCollapsedTianshiPillarIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckCollapsedTianshiPillarGoToMissionText": {
         "desc": "检查倒塌的天师桩委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCollapsedTianshiPillarText",
+        "roi": "CheckCollapsedTianshiPillarIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
             "CheckCollapsedTianshiPillarJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToCollapsedTianshiPillarMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
             "CheckCollapsedTianshiPillarGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "CollapsedTianshiPillarTrackOrGoTo"

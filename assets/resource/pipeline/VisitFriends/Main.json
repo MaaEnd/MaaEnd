@@ -25,6 +25,15 @@
                 "threshold": 0.8
             }
         },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -100,
+                300,
+                300
+            ]
+        },
         "next": [
             "VisitFriendsMenuScan"
         ]

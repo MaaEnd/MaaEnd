@@ -1,25 +1,45 @@
 package essencefilter
 
 import (
-	"fmt"
 	"html"
 	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+// View types for HTML templates.
+type (
+	weaponColorView struct {
+		Name  string
+		Color string
+	}
+	lootSummaryRow struct {
+		Weapons []weaponColorView
+		Skills  []string
+		Count   int
+	}
+	planSectionView struct {
+		Name  string
+		Color string
+		Cards []string
+	}
+)
+
 func LogMXUHTML(ctx *maa.Context, htmlText string) {
 	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
-	maafocus.NodeActionStarting(ctx, htmlText)
+	maafocus.Print(ctx, htmlText)
 }
 
 // LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
 func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) {
-	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
-	LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.simple_message", map[string]any{
+		"Text":  text,
+		"Color": color,
+	}))
 }
 
 // LogMXUSimpleHTML logs a simple styled span with a default color.
@@ -48,25 +68,13 @@ func escapeHTML(s string) string {
 	return html.EscapeString(s)
 }
 
-// formatWeaponNames - 将多把武器名格式化为展示字符串（UI 层负责拼接与本地化）
-func formatWeaponNames(weapons []matchapi.WeaponData) string {
-	if len(weapons) == 0 {
-		return ""
-	}
-	names := make([]string, 0, len(weapons))
-	for _, w := range weapons {
-		names = append(names, w.ChineseName)
-	}
-	return strings.Join(names, "、")
-}
-
 // --- 战利品摘要与预刻写方案（同一 case：本次运行的结果展示）---
 
 // logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
 func logMatchSummary(ctx *maa.Context) {
 	st := getRunState()
 	if st == nil || len(st.MatchedCombinationSummary) == 0 {
-		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_locked"))
 		return
 	}
 	summary := st.MatchedCombinationSummary
@@ -80,41 +88,21 @@ func logMatchSummary(ctx *maa.Context) {
 	}
 	sort.Slice(items, func(i, j int) bool { return items[i].Key < items[j].Key })
 
-	var b strings.Builder
-	b.WriteString(`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">战利品摘要：</div>`)
-	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
-	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
+	rows := make([]lootSummaryRow, 0, len(items))
 	for _, item := range items {
-		weaponText := formatWeaponNamesColoredHTML(item.Weapons)
+		weapons := make([]weaponColorView, 0, len(item.Weapons))
+		for _, w := range item.Weapons {
+			weapons = append(weapons, weaponColorView{Name: w.ChineseName, Color: getColorForRarity(w.Rarity)})
+		}
 		skillSource := item.OCRSkills
 		if len(skillSource) == 0 {
 			skillSource = item.SkillsChinese
 		}
-		formattedSkills := make([]string, len(skillSource))
-		for i, s := range skillSource {
-			formattedSkills[i] = fmt.Sprintf(`<span style="color: #064d7c;">%s</span>`, escapeHTML(s))
-		}
-		b.WriteString("<tr>")
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td><td style="padding: 2px 4px;">%s</td><td style="padding: 2px 4px; text-align: right;">%d</td>`,
-			weaponText, strings.Join(formattedSkills, " | "), item.Count))
-		b.WriteString("</tr>")
+		rows = append(rows, lootSummaryRow{Weapons: weapons, Skills: skillSource, Count: item.Count})
 	}
-	b.WriteString(`</table>`)
-	LogMXUHTML(ctx, b.String())
-}
-
-func formatWeaponNamesColoredHTML(weapons []matchapi.WeaponData) string {
-	if len(weapons) == 0 {
-		return ""
-	}
-	var b strings.Builder
-	for i, w := range weapons {
-		if i > 0 {
-			b.WriteString("、")
-		}
-		b.WriteString(fmt.Sprintf(`<span style="color: %s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName)))
-	}
-	return b.String()
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.loot_summary", map[string]any{
+		"Items": rows,
+	}))
 }
 
 // --- 预刻写方案推荐（同上 case）---
@@ -128,20 +116,18 @@ type calcPlan struct {
 	matched    []matchapi.WeaponData
 }
 
-func spanColor(color, text string) string {
-	return fmt.Sprintf(`<span style="color:%s;">%s</span>`, color, text)
-}
-
 func planCardHTML(borderColor string, idx int, p calcPlan, fixedSlotLabel [4]string) string {
-	return fmt.Sprintf(
-		`<div style="margin-top:3px;border-left:3px solid %s;padding-left:6px;">%s 基础属性：%s | 选择%s：%s<br>满足 <b>%d</b> 个需求 / 匹配 <b>%d</b> 件目标武器<br>满足的需求：%s<br>匹配的武器：%s</div>`,
-		borderColor,
-		spanColor("#98c379", fmt.Sprintf("方案 %d", idx)),
-		spanColor("#47b5ff", escapeHTML(strings.Join(p.slot1Names[:], "，"))),
-		fixedSlotLabel[p.fixedSlot], spanColor("#e877fe", escapeHTML(p.fixedName)),
-		len(p.needs), len(p.matched),
-		weaponListHTML(p.needs), weaponListHTML(p.matched),
-	)
+	return i18n.RenderHTML("essencefilter.plan_card", map[string]any{
+		"BorderColor":    borderColor,
+		"PlanIndex":      idx,
+		"Slot1Text":      escapeHTML(strings.Join(p.slot1Names[:], i18n.Separator())),
+		"FixedSlotLabel": fixedSlotLabel[p.fixedSlot],
+		"FixedName":      escapeHTML(p.fixedName),
+		"NeedsCount":     len(p.needs),
+		"MatchedCount":   len(p.matched),
+		"Needs":          weaponsToViews(p.needs),
+		"Matched":        weaponsToViews(p.matched),
+	})
 }
 
 type skillIndex map[int]map[int][]matchapi.WeaponData
@@ -158,15 +144,12 @@ func buildSkillIndex(allTargets []matchapi.SkillCombination, slotIdx int) skillI
 	return idx
 }
 
-func weaponListHTML(weapons []matchapi.WeaponData) string {
-	if len(weapons) == 0 {
-		return "（无）"
-	}
-	parts := make([]string, len(weapons))
+func weaponsToViews(weapons []matchapi.WeaponData) []weaponColorView {
+	views := make([]weaponColorView, len(weapons))
 	for i, w := range weapons {
-		parts[i] = fmt.Sprintf(`<span style="color:%s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName))
+		views[i] = weaponColorView{Name: w.ChineseName, Color: getColorForRarity(w.Rarity)}
 	}
-	return strings.Join(parts, "，")
+	return views
 }
 
 func logCalculatorResult(ctx *maa.Context) {
@@ -189,7 +172,7 @@ func logCalculatorResult(ctx *maa.Context) {
 		return
 	}
 	if len(st.TargetSkillCombinations) == 0 {
-		LogMXUSimpleHTML(ctx, "未选择武器目标，不生成预刻写方案。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_weapon_target"))
 		return
 	}
 	graduated := make(map[string]bool)
@@ -215,7 +198,7 @@ func logCalculatorResult(ctx *maa.Context) {
 		}
 	}
 	if len(ungraduated) == 0 {
-		LogMXUSimpleHTML(ctx, "所有目标武器本次均已命中，无需推荐预刻写方案。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.all_graduated"))
 		return
 	}
 
@@ -224,7 +207,7 @@ func logCalculatorResult(ctx *maa.Context) {
 	slot3Pool := st.MatchEngine.SkillPools().Slot3
 	n1 := len(slot1Pool)
 	const maxPlansPerLocation = 2
-	fixedSlotLabel := [4]string{"", "", "附加属性", "技能属性"}
+	fixedSlotLabel := [4]string{"", "", i18n.T("essencefilter.slot_fixed_label_2"), i18n.T("essencefilter.slot_fixed_label_3")}
 	idx2 := buildSkillIndex(allTargets, 1)
 	idx3 := buildSkillIndex(allTargets, 2)
 
@@ -270,17 +253,12 @@ func logCalculatorResult(ctx *maa.Context) {
 		return plans
 	}
 
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`<div style="color:#00bfff;font-weight:900;margin-top:8px;">预刻写方案推荐（%d 个未毕业需求）：</div>`, len(ungraduated)))
-	b.WriteString(weaponListHTML(func() []matchapi.WeaponData {
-		ws := make([]matchapi.WeaponData, 0, len(ungraduated))
-		for _, c := range ungraduated {
-			ws = append(ws, c.Weapon)
-		}
-		return ws
-	}()))
-	b.WriteString(`<br>`)
+	ungraduatedWeapons := make([]matchapi.WeaponData, 0, len(ungraduated))
+	for _, c := range ungraduated {
+		ungraduatedWeapons = append(ungraduatedWeapons, c.Weapon)
+	}
 
+	var sections []planSectionView
 	if len(st.MatchEngine.Locations()) > 0 {
 		for _, loc := range st.MatchEngine.Locations() {
 			slot2Set := make(map[int]bool)
@@ -306,14 +284,15 @@ func logCalculatorResult(ctx *maa.Context) {
 			if len(plans) == 0 {
 				continue
 			}
-			b.WriteString(fmt.Sprintf(`<div style="color:#c8960c;font-weight:900;margin-top:6px;">%s</div>`, escapeHTML(loc.Name)))
 			show := maxPlansPerLocation
 			if len(plans) < show {
 				show = len(plans)
 			}
+			cards := make([]string, show)
 			for idx, p := range plans[:show] {
-				b.WriteString(planCardHTML("#c8960c", idx+1, p, fixedSlotLabel))
+				cards[idx] = planCardHTML("#c8960c", idx+1, p, fixedSlotLabel)
 			}
+			sections = append(sections, planSectionView{Name: loc.Name, Color: "#c8960c", Cards: cards})
 		}
 	} else {
 		plans := enumPlans(slot2Pool, slot3Pool)
@@ -321,9 +300,15 @@ func logCalculatorResult(ctx *maa.Context) {
 		if len(plans) < show {
 			show = len(plans)
 		}
+		cards := make([]string, show)
 		for idx, p := range plans[:show] {
-			b.WriteString(planCardHTML("#00bfff", idx+1, p, fixedSlotLabel))
+			cards[idx] = planCardHTML("#00bfff", idx+1, p, fixedSlotLabel)
 		}
+		sections = append(sections, planSectionView{Cards: cards})
 	}
-	LogMXUHTML(ctx, b.String())
+	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.plan_recommend", map[string]any{
+		"UngraduatedCount":   len(ungraduated),
+		"UngraduatedWeapons": weaponsToViews(ungraduatedWeapons),
+		"Sections":           sections,
+	}))
 }

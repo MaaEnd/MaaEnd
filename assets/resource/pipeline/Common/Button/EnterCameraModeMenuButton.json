@@ -3,9 +3,9 @@
         "desc": "进入拍照按钮，位于交互菜单",
         "recognition": "TemplateMatch",
         "roi": [
-            755,
+            718,
             387,
-            310,
+            347,
             178
         ],
         "template": "Common/Button/EnterCameraModeMenuButton.png",

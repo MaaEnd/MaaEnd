@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckEcologyNearTheFieldLogisticsDepotText",
+            "CheckEcologyNearTheFieldLogisticsDepotIcon",
             "CheckEcologyNearTheFieldLogisticsDepotReadyText"
         ],
         "pre_delay": 0,
@@ -29,17 +30,31 @@
             "(?i)Ecology\\s*Near\\s*the\\s*Field\\s*Logistics\\s*Depot",
             "備蓄施設周辺の生態環境",
             "보급소 주변의 생태 환경"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckEcologyNearTheFieldLogisticsDepotIcon": {
+        "desc": "检查储备站周围的生态环境文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "CheckEcologyNearTheFieldLogisticsDepotText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
         ]
     },
     "CheckEcologyNearTheFieldLogisticsDepotReadyText": {
         "desc": "检查储备站周围的生态环境委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckEcologyNearTheFieldLogisticsDepotText",
+        "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -57,12 +72,12 @@
     "CheckEcologyNearTheFieldLogisticsDepotJob": {
         "desc": "检查储备站周围的生态环境委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckEcologyNearTheFieldLogisticsDepotText",
+        "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
@@ -75,12 +90,12 @@
     "CheckEcologyNearTheFieldLogisticsDepotGoToMissionText": {
         "desc": "检查储备站周围的生态环境委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckEcologyNearTheFieldLogisticsDepotText",
+        "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEcologyNearTheFieldLogisticsDepotText",
+            "CheckEcologyNearTheFieldLogisticsDepotIcon",
             "CheckEcologyNearTheFieldLogisticsDepotJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepotMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEcologyNearTheFieldLogisticsDepotText",
+            "CheckEcologyNearTheFieldLogisticsDepotIcon",
             "CheckEcologyNearTheFieldLogisticsDepotGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "EcologyNearTheFieldLogisticsDepotTrackOrGoTo"
@@ -181,7 +198,7 @@
                     "target": [
                         689.6,
                         917.3,
-                        6,
+                        6.0,
                         5.5
                     ]
                 }
