@@ -592,5 +592,6 @@
     "resource/image/SceneManager/MenuExpandRight": "44c7b6fb5c1f17bd483c41af6ae37b1c6175ecd24a86a065b901aadb9bc96df3",
     "resource/image/SceneManager/WorldMenuOperationalManual": "3c115fc3fafc5cae93b407c5fa16bd1f0d3b22ff2f21d35b530e426d5a1a8a3f",
     "resource/image/SceneManager/WordMenuBackpack": "45b65506a5b614f543fad43d4bd2c2898c8f75abbcc32be8bc949167aaa31be0",
-    "resource/image/SceneManager/WorldMenuEvent": "fb282f23eaf9f02caacbb588e8746bfc134600ecddd6556537a35b5e0b664f60"
+    "resource/image/SceneManager/WorldMenuEvent": "fb282f23eaf9f02caacbb588e8746bfc134600ecddd6556537a35b5e0b664f60",
+    "resource/image/DailyRewards/TaskClaimSingleReward": "a23127cf84e5bc9bc059c73738686c51edff8a575ea81e10bf39a1edea7eda07"
 }
