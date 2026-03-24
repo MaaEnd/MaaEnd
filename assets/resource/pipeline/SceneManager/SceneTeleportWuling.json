@@ -1,6 +1,6 @@
 {
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城核心区)",
         "recognition": "And",
         "all_of": [
             {
@@ -55,7 +55,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城核心区)",
         "recognition": "And",
         "all_of": [
             {
@@ -110,7 +110,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城核心区)",
         "recognition": "And",
         "all_of": [
             {
@@ -165,7 +165,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-观测站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -198,7 +198,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-观测站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -231,7 +231,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-观测站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -264,7 +264,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-界石坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -297,7 +297,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-界石坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -330,7 +330,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-界石坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -363,7 +363,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -396,7 +396,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -429,7 +429,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -462,7 +462,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-方兴衢)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -495,7 +495,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-方兴衢)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -528,7 +528,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-方兴衢)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -561,7 +561,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天师府学院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -594,7 +594,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天师府学院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -627,7 +627,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天师府学院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -660,7 +660,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天井院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -693,7 +693,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天井院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -726,7 +726,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-天井院)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -759,7 +759,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -792,7 +792,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -825,7 +825,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -858,7 +858,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -891,7 +891,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -924,7 +924,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -957,7 +957,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -990,7 +990,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1023,7 +1023,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1056,7 +1056,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-踩道)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1089,7 +1089,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-踩道)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1122,7 +1122,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-踩道)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1155,7 +1155,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟外)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1188,7 +1188,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟外)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1221,7 +1221,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟外)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1254,7 +1254,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1287,7 +1287,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1320,7 +1320,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1353,7 +1353,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1386,7 +1386,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1419,7 +1419,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1452,7 +1452,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1485,7 +1485,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1518,7 +1518,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1551,7 +1551,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1584,7 +1584,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1617,7 +1617,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1650,7 +1650,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1683,7 +1683,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1716,7 +1716,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1749,7 +1749,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1782,7 +1782,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1815,7 +1815,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1848,7 +1848,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-南山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1881,7 +1881,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-南山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1914,7 +1914,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-南山)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1947,7 +1947,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try1": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -1980,7 +1980,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try2": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -2013,7 +2013,7 @@
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try3": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
         "recognition": "TemplateMatch",
         "roi": [
             100,
@@ -2046,7 +2046,7 @@
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10Try0": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
         "recognition": "And",
         "all_of": [
             "InMapWulingJingyuValley"
@@ -2058,7 +2058,7 @@
             "map_name": "map02_lv001",
             "target": [
                 125,
-                827
+                824
             ],
             "on_find": "Click"
         },
@@ -2081,7 +2081,7 @@
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley11Try0": {
-        "desc": "在地图界面找锚点",
+        "desc": "在地图界面找锚点 (武陵城-储备站右下)",
         "recognition": "And",
         "all_of": [
             "InMapWulingWulingCity"
@@ -2094,6 +2094,286 @@
             "target": [
                 694,
                 914
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley0Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                338,
+                123
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley2Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟外大世界)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                316,
+                312
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley4Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001_tier_277",
+            "target": [
+                265,
+                403
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley7Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                280,
+                586
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley8Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                212,
+                646
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0Try0": {
+        "desc": "在地图界面找锚点 (武陵城-观测站)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                642,
+                258
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity3Try0": {
+        "desc": "在地图界面找锚点 (武陵城-方兴衢)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                423.7,
+                575.6
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity4Try0": {
+        "desc": "在地图界面找锚点 (武陵城-天师府学院)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                245.1,
+                697.3
             ],
             "on_find": "Click"
         },
