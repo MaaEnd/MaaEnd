@@ -159,10 +159,10 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Int("overflow_amount", overflowAmount).
 			Int("stock_bill_amount", stockBillAmount).
 			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Str("abort_reason", string(AbortReasonInsufficientFunds)).
+			Str("abort_reason", string(AbortReasonInsufficientFundsSkip)).
 			Msg("stock bill below reserve threshold, aborting recognition before goods scan")
 
-		return buildAbortedRecognitionResult(arg, AbortReasonInsufficientFunds)
+		return buildAbortedRecognitionResult(arg, AbortReasonInsufficientFundsSkip)
 	}
 
 	itemMap := GetItemMap()
@@ -518,7 +518,7 @@ func resolveOverflow(current int, max int, plus int) (overflowDetected bool, ove
 
 func resolveAbortReasonFromOverflowCurrent(current int) AbortReason {
 	if current == 0 {
-		return AbortReasonQuotaZero
+		return AbortReasonQuotaZeroSkip
 	}
 
 	return AbortReasonNone

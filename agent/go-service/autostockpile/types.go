@@ -26,8 +26,8 @@ type AbortReason string
 
 const (
 	AbortReasonNone                        AbortReason = "None"
-	AbortReasonQuotaZero                   AbortReason = "QuotaZero"
-	AbortReasonInsufficientFunds           AbortReason = "InsufficientFunds"
+	AbortReasonQuotaZeroSkip               AbortReason = "QuotaZeroSkip"
+	AbortReasonInsufficientFundsSkip       AbortReason = "InsufficientFundsSkip"
 	AbortReasonRegionResolveFailedFatal    AbortReason = "RegionResolveFailedFatal"
 	AbortReasonSelectionConfigInvalidFatal AbortReason = "SelectionConfigInvalidFatal"
 	AbortReasonThresholdConfigInvalidFatal AbortReason = "ThresholdConfigInvalidFatal"
@@ -37,10 +37,16 @@ const (
 	AbortReasonQuotaUnavailableWarn        AbortReason = "QuotaUnavailableWarn"
 )
 
+const (
+	abortReasonFatalSuffix = "Fatal"
+	abortReasonWarnSuffix  = "Warn"
+	abortReasonSkipSuffix  = "Skip"
+)
+
 var knownAbortReasons = []AbortReason{
 	AbortReasonNone,
-	AbortReasonQuotaZero,
-	AbortReasonInsufficientFunds,
+	AbortReasonQuotaZeroSkip,
+	AbortReasonInsufficientFundsSkip,
 	AbortReasonRegionResolveFailedFatal,
 	AbortReasonSelectionConfigInvalidFatal,
 	AbortReasonThresholdConfigInvalidFatal,
@@ -48,6 +54,18 @@ var knownAbortReasons = []AbortReason{
 	AbortReasonStockBillUnavailableWarn,
 	AbortReasonGoodsOCRUnavailableWarn,
 	AbortReasonQuotaUnavailableWarn,
+}
+
+func (r AbortReason) isFatal() bool {
+	return strings.HasSuffix(string(r), abortReasonFatalSuffix)
+}
+
+func (r AbortReason) isWarn() bool {
+	return strings.HasSuffix(string(r), abortReasonWarnSuffix)
+}
+
+func (r AbortReason) isSkip() bool {
+	return strings.HasSuffix(string(r), abortReasonSkipSuffix)
 }
 
 // RecognitionResult 表示识别阶段输出的最终传输契约。
