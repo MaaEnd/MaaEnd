@@ -88,7 +88,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
 			Msg("Resolution is not 16:9! Task will be stopped.")
-		fmt.Println(i18n.TF("tasker.aspect_ratio_warning"))
+		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", nil))
 
 		// Stop the task
 		tasker.PostStop()

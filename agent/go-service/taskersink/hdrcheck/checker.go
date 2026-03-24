@@ -42,7 +42,7 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 		log.Warn().Msg("HDR is enabled! This may cause issues with image recognition.")
 
 		// Print warning message (HTML formatted for MXU display)
-		fmt.Println(i18n.TF("tasker.hdr_warning"))
+		fmt.Println(i18n.RenderHTML("tasker.hdr_warning", nil))
 
 		// Mark as warned to avoid repeated warnings
 		c.warned = true

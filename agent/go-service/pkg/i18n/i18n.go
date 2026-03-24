@@ -1,12 +1,14 @@
 package i18n
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"text/template"
 
 	"github.com/rs/zerolog/log"
 )
@@ -182,6 +184,77 @@ func resolveFilePath(fileName, lang string) string {
 	ext := filepath.Ext(fileName)
 	base := strings.TrimSuffix(fileName, ext)
 	return filepath.Join(dir, base+"-"+lang+ext)
+}
+
+// RenderHTML renders a localized HTML template.
+// The key must reference a @template.html file in the locale JSON.
+// Templates support {{t "suffix"}} for i18n lookups (resolved as key.suffix)
+// and {{.Field}} / {{printf ...}} for runtime data.
+func RenderHTML(key string, data map[string]any) string {
+	mu.RLock()
+	val, ok := messages[key]
+	mu.RUnlock()
+
+	if !ok || !strings.HasPrefix(val, fileRefPrefix) {
+		return key
+	}
+
+	fileName := strings.TrimPrefix(val, fileRefPrefix)
+	content := readTemplateFile(fileName)
+	if content == "" {
+		return key
+	}
+
+	tFunc := func(suffix string) string {
+		fullKey := key + "." + suffix
+		mu.RLock()
+		v, found := messages[fullKey]
+		mu.RUnlock()
+		if !found {
+			return fullKey
+		}
+		return v
+	}
+
+	tmpl, err := template.New(fileName).Funcs(template.FuncMap{"t": tFunc}).Parse(content)
+	if err != nil {
+		log.Warn().Err(err).Str("key", key).Msg("failed to parse HTML template")
+		return key
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		log.Warn().Err(err).Str("key", key).Msg("failed to render HTML template")
+		return key
+	}
+	return buf.String()
+}
+
+func readTemplateFile(fileName string) string {
+	mu.RLock()
+	dir := localeDir
+	mu.RUnlock()
+
+	path := filepath.Join(dir, fileName)
+
+	fileCacheMu.RLock()
+	if content, ok := fileCache[path]; ok {
+		fileCacheMu.RUnlock()
+		return content
+	}
+	fileCacheMu.RUnlock()
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Warn().Err(err).Str("file", fileName).Msg("failed to read template file")
+		return ""
+	}
+
+	content := string(data)
+	fileCacheMu.Lock()
+	fileCache[path] = content
+	fileCacheMu.Unlock()
+	return content
 }
 
 func readFileContent(fileName, lang string) string {

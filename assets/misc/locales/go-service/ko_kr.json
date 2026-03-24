@@ -76,12 +76,51 @@
     "essencefilter.rarity_join_4": "%d, %d, %d 및 %d",
 
     "tasker.process_warning": "@process-warning.html",
+    "tasker.process_warning.title": "⚠️ 경고: 블랙리스트에 등록된 프로세스가 실행 중입니다",
+    "tasker.process_warning.detected": "🔍 감지된 프로세스: ",
+    "tasker.process_warning.impact": "💡 이러한 프로세스는 이미지 인식을 방해할 수 있습니다",
+    "tasker.process_warning.recommend_title": "👇 권장 사항:",
+    "tasker.process_warning.recommend_1": "  • 위 프로세스를 종료한 뒤 작업을 실행하세요",
+    "tasker.process_warning.note": "ℹ️ 작업은 계속되지만 실패할 수 있습니다",
+
     "tasker.hdr_warning": "@hdr-warning.html",
+    "tasker.hdr_warning.title": "⚠️ 경고: HDR 또는「앱이 색상을 자동으로 관리」가 켜져 있습니다",
+    "tasker.hdr_warning.desc": "🖥️ HDR 또는「앱이 색상을 자동으로 관리」로 인해 스크린샷 색상이 어긋나 이미지 인식 정확도에 영향을 줄 수 있습니다",
+    "tasker.hdr_warning.recommend_title": "💡 권장 사항:",
+    "tasker.hdr_warning.recommend_1": "  • Windows 설정 → 시스템 → 디스플레이 →「HDR」끄기",
+    "tasker.hdr_warning.recommend_2": "  • Windows 설정 → 시스템 → 디스플레이 → 색상 프로필 →「앱이 색상을 자동으로 관리」끄기",
+    "tasker.hdr_warning.recommend_3": "  • 또는 그래픽 드라이버 설정에서 HDR 끄기",
+    "tasker.hdr_warning.note": "ℹ️ 작업은 계속되지만 인식 문제가 발생할 수 있습니다",
+
     "tasker.aspect_ratio_warning": "@aspect-ratio-warning.html",
+    "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도 비율이 일치하지 않습니다! 🚨",
+    "tasker.aspect_ratio_warning.stopped": "🚫 작업이 강제로 중지되었습니다",
+    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd는 현재 <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 비율만</span> 지원합니다.",
+    "tasker.aspect_ratio_warning.recommend_title": "👇 다음 해상도로 조정하세요:",
+    "tasker.aspect_ratio_warning.future": "🚀 향후 더 많은 비율을 지원할 예정입니다. 기대해 주세요!",
 
     "maptracker.emergency_stop": "@emergency-stop.html",
+    "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
+    "maptracker.emergency_stop.desc": "경로 탐색이 중단되었습니다.",
+    "maptracker.emergency_stop.cause_header": "가능한 원인:",
+    "maptracker.emergency_stop.cause_1": "시야 방향 전환 실패;",
+    "maptracker.emergency_stop.cause_2": "경로가 막히거나 끼임.",
+
     "maptracker.navigation_moving": "@navigation-moving.html",
+    "maptracker.navigation_moving.waypoint": "다음 경유점",
+    "maptracker.navigation_moving.current": "현재: ",
+    "maptracker.navigation_moving.target": "목표: ",
+
     "maptracker.navigation_finished": "@navigation-finished.html",
+    "maptracker.navigation_finished.complete": "내비게이션 완료",
+    "maptracker.navigation_finished.current": "현재: ",
+
     "maptracker.inference_finished": "@inference-finished.html",
-    "maptracker.inference_failed": "@inference-failed.html"
+    "maptracker.inference_finished.loc": "Loc: ",
+    "maptracker.inference_finished.rot": "Rot: ",
+    "maptracker.inference_finished.map": "Map: ",
+
+    "maptracker.inference_failed": "@inference-failed.html",
+    "maptracker.inference_failed.title": "알 수 없는 위치",
+    "maptracker.inference_failed.reason": "(신뢰도 부족)"
 }

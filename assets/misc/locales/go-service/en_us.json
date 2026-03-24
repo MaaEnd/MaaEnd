@@ -76,12 +76,51 @@
     "essencefilter.rarity_join_4": "%d, %d, %d and %d",
 
     "tasker.process_warning": "@process-warning.html",
+    "tasker.process_warning.title": "⚠️ Warning: Blacklisted process detected",
+    "tasker.process_warning.detected": "🔍 Detected: ",
+    "tasker.process_warning.impact": "💡 These processes may interfere with image recognition",
+    "tasker.process_warning.recommend_title": "👇 Recommendations:",
+    "tasker.process_warning.recommend_1": "  • Close the above processes before running tasks",
+    "tasker.process_warning.note": "ℹ️ The task will continue but may fail",
+
     "tasker.hdr_warning": "@hdr-warning.html",
+    "tasker.hdr_warning.title": "⚠️ Warning: HDR or \"Automatically manage color for apps\" is enabled",
+    "tasker.hdr_warning.desc": "🖥️ HDR or automatic color management may distort screenshots and hurt recognition accuracy",
+    "tasker.hdr_warning.recommend_title": "💡 Recommendations:",
+    "tasker.hdr_warning.recommend_1": "  • Windows Settings → System → Display → Turn off \"HDR\"",
+    "tasker.hdr_warning.recommend_2": "  • Windows Settings → System → Display → Color profile → Turn off \"Automatically manage color for apps\"",
+    "tasker.hdr_warning.recommend_3": "  • Or disable HDR in your graphics driver settings",
+    "tasker.hdr_warning.note": "ℹ️ The task will continue but recognition issues may occur",
+
     "tasker.aspect_ratio_warning": "@aspect-ratio-warning.html",
+    "tasker.aspect_ratio_warning.title": "🚨 Warning: Aspect ratio mismatch! 🚨",
+    "tasker.aspect_ratio_warning.stopped": "🚫 Task has been force-stopped",
+    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd currently supports <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 only</span>.",
+    "tasker.aspect_ratio_warning.recommend_title": "👇 Please set your resolution to:",
+    "tasker.aspect_ratio_warning.future": "🚀 More aspect ratios will be supported in the future—stay tuned!",
 
     "maptracker.emergency_stop": "@emergency-stop.html",
+    "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
+    "maptracker.emergency_stop.desc": "Navigation aborted.",
+    "maptracker.emergency_stop.cause_header": " Possible causes:",
+    "maptracker.emergency_stop.cause_1": "Camera rotation failed;",
+    "maptracker.emergency_stop.cause_2": "Route blocked or stuck.",
+
     "maptracker.navigation_moving": "@navigation-moving.html",
+    "maptracker.navigation_moving.waypoint": "Next waypoint",
+    "maptracker.navigation_moving.current": "Current: ",
+    "maptracker.navigation_moving.target": "Target: ",
+
     "maptracker.navigation_finished": "@navigation-finished.html",
+    "maptracker.navigation_finished.complete": "Navigation complete",
+    "maptracker.navigation_finished.current": "Current: ",
+
     "maptracker.inference_finished": "@inference-finished.html",
-    "maptracker.inference_failed": "@inference-failed.html"
+    "maptracker.inference_finished.loc": "Loc: ",
+    "maptracker.inference_finished.rot": "Rot: ",
+    "maptracker.inference_finished.map": "Map: ",
+
+    "maptracker.inference_failed": "@inference-failed.html",
+    "maptracker.inference_failed.title": "Unknown location",
+    "maptracker.inference_failed.reason": "(Confidence too low)"
 }

@@ -486,7 +486,7 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 func doEmergencyStop(ca control.ControlAdaptor, noPrint bool) {
 	log.Warn().Msg("Emergency stop triggered")
 	if !noPrint {
-		maafocus.NodeActionStarting(ca.Ctx(), i18n.TF("maptracker.emergency_stop"))
+		maafocus.NodeActionStarting(ca.Ctx(), i18n.RenderHTML("maptracker.emergency_stop", nil))
 	}
 	ca.PlayerStop()
 	ca.Ctx().GetTasker().PostStop()
@@ -598,15 +598,15 @@ func (a *MapTrackerMove) buildNavigationMovingHTML(
 ) string {
 	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
 
-	return i18n.TF("maptracker.navigation_moving",
-		targetIndex+1,
-		len(param.Path),
-		currentX,
-		currentY,
-		targetX,
-		targetY,
-		previewImageURL,
-	)
+	return i18n.RenderHTML("maptracker.navigation_moving", map[string]any{
+		"CurrentIdx": targetIndex + 1,
+		"Total":      len(param.Path),
+		"CurX":       currentX,
+		"CurY":       currentY,
+		"TgtX":       targetX,
+		"TgtY":       targetY,
+		"PreviewURL": previewImageURL,
+	})
 }
 
 func (a *MapTrackerMove) buildNavigationFinishedHTML(param *MapTrackerMoveParam, currentX, currentY float64) string {
@@ -620,13 +620,13 @@ func (a *MapTrackerMove) buildNavigationFinishedHTML(param *MapTrackerMoveParam,
 
 	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
 
-	return i18n.TF("maptracker.navigation_finished",
-		len(param.Path),
-		len(param.Path),
-		currentX,
-		currentY,
-		previewImageURL,
-	)
+	return i18n.RenderHTML("maptracker.navigation_finished", map[string]any{
+		"CurrentIdx": len(param.Path),
+		"Total":      len(param.Path),
+		"CurX":       currentX,
+		"CurY":       currentY,
+		"PreviewURL": previewImageURL,
+	})
 }
 
 func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName string, currentX, currentY, targetX, targetY float64) string {

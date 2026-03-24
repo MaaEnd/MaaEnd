@@ -280,7 +280,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	if !finalHit {
 		log.Info().Bool("finalLocHit", finalLoc != nil).Bool("finalRotHit", finalRot != nil).Msg("Map tracking inference did not hit")
 		if param.Print {
-			maafocus.NodeActionStarting(ctx, i18n.TF("maptracker.inference_failed"))
+			maafocus.NodeActionStarting(ctx, i18n.RenderHTML("maptracker.inference_failed", nil))
 		}
 
 		// Return as not hit
@@ -322,7 +322,12 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	if param.Print {
 		maafocus.NodeActionStarting(
 			ctx,
-			i18n.TF("maptracker.inference_finished", finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName),
+			i18n.RenderHTML("maptracker.inference_finished", map[string]any{
+				"X":       finalLoc.x,
+				"Y":       finalLoc.y,
+				"Rot":     result.Rot,
+				"MapName": finalLoc.mapName,
+			}),
 		)
 	}
 

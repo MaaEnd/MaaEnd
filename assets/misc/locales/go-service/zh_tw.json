@@ -76,12 +76,51 @@
     "essencefilter.rarity_join_4": "%d、%d、%d 和 %d",
 
     "tasker.process_warning": "@process-warning.html",
+    "tasker.process_warning.title": "⚠️ 警告：偵測到黑名單進程正在執行",
+    "tasker.process_warning.detected": "🔍 偵測到的進程：",
+    "tasker.process_warning.impact": "💡 這些進程會干擾圖像識別",
+    "tasker.process_warning.recommend_title": "👇 建議：",
+    "tasker.process_warning.recommend_1": "  • 關閉上述進程後再執行任務",
+    "tasker.process_warning.note": "ℹ️ 任務將繼續執行，但可能會失敗",
+
     "tasker.hdr_warning": "@hdr-warning.html",
+    "tasker.hdr_warning.title": "⚠️ 警告：偵測到 HDR 或「自動管理應用的顏色」已開啟",
+    "tasker.hdr_warning.desc": "🖥️ HDR 或「自動管理應用的顏色」可能導致截圖色彩異常，影響圖像識別準確性",
+    "tasker.hdr_warning.recommend_title": "💡 建議：",
+    "tasker.hdr_warning.recommend_1": "  • Windows 設定 → 系統 → 顯示器 → 關閉「HDR」",
+    "tasker.hdr_warning.recommend_2": "  • Windows 設定 → 系統 → 顯示器 → 色彩設定檔 → 關閉「自動管理應用的顏色」",
+    "tasker.hdr_warning.recommend_3": "  • 或在顯示卡驅動設定中關閉 HDR",
+    "tasker.hdr_warning.note": "ℹ️ 任務將繼續執行，但可能出現識別問題",
+
     "tasker.aspect_ratio_warning": "@aspect-ratio-warning.html",
+    "tasker.aspect_ratio_warning.title": "🚨 警告：解析度比例不相符！🚨",
+    "tasker.aspect_ratio_warning.stopped": "🚫 任務已強制停止",
+    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd 目前 <span style=\"text-decoration: underline; font-size: 1.1em;\">僅支援 16:9</span> 比例。",
+    "tasker.aspect_ratio_warning.recommend_title": "👇 請將解析度調整為：",
+    "tasker.aspect_ratio_warning.future": "🚀 未來將適配更多比例，敬請期待！",
 
     "maptracker.emergency_stop": "@emergency-stop.html",
+    "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
+    "maptracker.emergency_stop.desc": "尋路已中止。",
+    "maptracker.emergency_stop.cause_header": "可能原因：",
+    "maptracker.emergency_stop.cause_1": "視角轉向失敗；",
+    "maptracker.emergency_stop.cause_2": "路線阻擋或卡住。",
+
     "maptracker.navigation_moving": "@navigation-moving.html",
+    "maptracker.navigation_moving.waypoint": "下一個路徑點",
+    "maptracker.navigation_moving.current": "當前：",
+    "maptracker.navigation_moving.target": "目標：",
+
     "maptracker.navigation_finished": "@navigation-finished.html",
+    "maptracker.navigation_finished.complete": "導航完成",
+    "maptracker.navigation_finished.current": "當前：",
+
     "maptracker.inference_finished": "@inference-finished.html",
-    "maptracker.inference_failed": "@inference-failed.html"
+    "maptracker.inference_finished.loc": "Loc: ",
+    "maptracker.inference_finished.rot": "Rot: ",
+    "maptracker.inference_finished.map": "Map: ",
+
+    "maptracker.inference_failed": "@inference-failed.html",
+    "maptracker.inference_failed.title": "未知位置",
+    "maptracker.inference_failed.reason": "（置信度過低）"
 }

@@ -7,8 +7,8 @@
       display: none !important;
     }
   </style>
-  <div style="font-size:1.0em; font-weight:700; color:#2b62c0;">下一个路径点（%d/%d）</div>
-  <div style="font-size:0.88em; margin-top:6px; color:#333333;">当前：%.1f, %.1f</div>
-  <div style="font-size:0.88em; color:#333333;">目标：%.1f, %.1f</div>
-  <img src="%s" alt="preview" style="display:block; width:128px; height:128px; margin-top:8px; border-radius:6px; background:#f7fbff;" />
+  <div style="font-size:1.0em; font-weight:700; color:#2b62c0;">{{t "waypoint"}} ({{.CurrentIdx}}/{{.Total}})</div>
+  <div style="font-size:0.88em; margin-top:6px; color:#333333;">{{t "current"}}{{printf "%.1f" .CurX}}, {{printf "%.1f" .CurY}}</div>
+  <div style="font-size:0.88em; color:#333333;">{{t "target"}}{{printf "%.1f" .TgtX}}, {{printf "%.1f" .TgtY}}</div>
+  <img src="{{.PreviewURL}}" alt="preview" style="display:block; width:128px; height:128px; margin-top:8px; border-radius:6px; background:#f7fbff;" />
 </div>
