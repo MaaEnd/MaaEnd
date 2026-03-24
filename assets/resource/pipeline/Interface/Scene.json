@@ -2,6 +2,9 @@
     // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 __ScenePrivate 节点
     "SceneAnyEnterWorld": {
         "desc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
@@ -16,6 +19,7 @@
         "desc": "从任意界面进入任意一个地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateWorldEnterMapAny",
             "[JumpBack]SceneAnyEnterWorld"
@@ -25,6 +29,7 @@
         "desc": "从任意界面进入大世界工厂模式",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterWorldFactorySuccess",
             "__ScenePrivateWorldFactoryDisableEnterFactoryActive",

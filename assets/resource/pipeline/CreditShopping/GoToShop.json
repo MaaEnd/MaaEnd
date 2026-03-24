@@ -77,7 +77,7 @@
             580,
             83
         ],
-        "template": "SceneManager/Expand.png",
+        "template": "SceneManager/MenuExpandRight.png",
         "green_mask": true,
         "threshold": 0.8,
         "action": "ClickKey",

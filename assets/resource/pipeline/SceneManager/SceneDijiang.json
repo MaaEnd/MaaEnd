@@ -172,15 +172,14 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 73 // I
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
         },
         "next": [
             "__ScenePrivateWorldEnterMenuControlNexusSuccess"
@@ -204,7 +203,19 @@
                     "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
-        }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateMapDijiangEnterWorldAnchor": {
         "desc": "在帝江号地图，进入[锚点]大世界",

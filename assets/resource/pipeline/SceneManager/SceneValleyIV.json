@@ -7,6 +7,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVTheHubEnterTeleport",
             "[JumpBack]__ScenePrivateMapAnyEnterMapValleyIVTheHub"
@@ -20,6 +21,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVTheHub",
@@ -34,6 +36,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVValleyPass",
@@ -48,6 +51,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark",
@@ -62,6 +66,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry",
@@ -76,6 +81,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring",
@@ -90,6 +96,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess",
             "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau",

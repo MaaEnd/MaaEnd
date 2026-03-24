@@ -17,20 +17,20 @@
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 27 // ESC
+                "custom_action": "AutoAltClickAction",
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
             }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                420,
-                -100,
-                450,
-                100
-            ]
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuListSuccess"
         ]
@@ -52,7 +52,61 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 1500 // 3D动画菜单会一直动无法用wait_freeze
+    },
+    "__ScenePrivateWorldMenuLeftExpand": {
+        "desc": "打开大世界界面左侧展开的菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MenuExpandLeft.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 200,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
+    },
+    "__ScenePrivateWorldMenuRightExpand": {
+        "desc": "打开大世界界面右侧展开的菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -600,
+                    0,
+                    600,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MenuExpandRight.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 200,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
     },
     "__ScenePrivateWorldEnterMenuRegionalDevelopment": {
         "desc": "从大世界进入地区建设菜单",
@@ -64,47 +118,32 @@
                 ]
             }
         },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 89 // Y
-            }
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+            "__ScenePrivateWorldEnterMenuRegionalDevelopmentClick",
+            "[JumpBack]__ScenePrivateWorldMenuLeftExpand"
         ]
     },
-    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
-        "desc": "从菜单列表进入地区建设菜单",
+    "__ScenePrivateWorldEnterMenuRegionalDevelopmentClick": {
+        "desc": "从大世界点击进入地区建设菜单",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    -400,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "地区建设",
-                    "地區建設",
-                    "(?i)Regional\\s*Development",
-                    "地域建設",
-                    "지역 건설"
+                "all_of": [
+                    "RegionalDevelopmentButton"
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
@@ -121,75 +160,60 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuEvent": {
         "desc": "从大世界进入活动菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 118 // F7
-            }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateAnyEnterMenuEventSuccess"
-        ]
-    },
-    "__ScenePrivateMenuListEnterMenuEvent": {
-        "desc": "从菜单列表进入活动菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "活动",
-                    "活動",
-                    "(?i)Events",
-                    "イベント",
-                    "이벤트"
+                "all_of": [
+                    "InWorld"
                 ]
             }
         },
-        "action": {
-            "type": "Click"
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEventClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuEventClick": {
+        "desc": "从大世界点击进入活动菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -600,
+                    0,
+                    600,
+                    100
+                ],
+                "template": [
+                    "SceneManager/WorldMenuEvent.png"
+                ],
+                "threshold": 0.9
+            }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
         "next": [
             "__ScenePrivateAnyEnterMenuEventSuccess"
@@ -216,7 +240,16 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuValuables": {
         "desc": "从大世界进入贵重品库菜单",
@@ -238,11 +271,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuEntryValuables",
-            "[JumpBack]__ScenePrivateWorldEnterMenuCheckMainUI"
+            "__ScenePrivateWorldEnterMenuValuablesClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
         ]
     },
-    "__ScenePrivateWorldEnterMenuEntryValuables": {
+    "__ScenePrivateWorldEnterMenuValuablesClick": {
         "desc": "进入贵重品库菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -258,20 +291,14 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 78 // N
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
         },
         "next": [
             "__ScenePrivateValuablesItemsExpired",
@@ -304,45 +331,10 @@
             "YellowConfirmButtonType1"
         ],
         "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateAnyEnterMenuValuablesSuccess"
-        ]
-    },
-    "__ScenePrivateMenuListEnterMenuValuables": {
-        "desc": "从菜单列表进入贵重品库菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -400,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "贵重品库",
-                    "Valuables",
-                    "貴重品倉庫",
-                    "귀중품 창고",
-                    "貴重品庫"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
+            "time": 100,
             "target": [
                 0,
                 0,
@@ -377,75 +369,60 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuOperationalManual": {
+        "desc": "从大世界进入行动手册菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperationalManualClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuOperationalManualClick": {
         "desc": "从大世界进入行动手册菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -200,
+                    -600,
                     0,
-                    200,
-                    200
+                    600,
+                    100
                 ],
                 "template": [
-                    "SceneManager/WorldMenu.png"
+                    "SceneManager/WorldMenuOperationalManual.png"
                 ],
-                "green_mask": true
+                "threshold": 0.9
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 119 // F8
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
-        ]
-    },
-    "__ScenePrivateMenuListEnterMenuOperationalManual": {
-        "desc": "从菜单列表进入行动手册菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -400,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "行动手册",
-                    "行動手冊",
-                    "(?i)Operational\\s*Manual",
-                    "案内所",
-                    "작전 매뉴얼"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
@@ -472,76 +449,61 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuProtocolPass": {
+        "desc": "从大世界进入通行证菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuProtocolPassClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuProtocolPassClick": {
         "desc": "从大世界进入通行证菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -200,
+                    -600,
                     0,
-                    200,
-                    200
+                    600,
+                    100
                 ],
                 "template": [
-                    "SceneManager/WorldMenu.png"
+                    "SceneManager/WorldMenuProtocolPass.png"
                 ],
                 "green_mask": true
             }
         },
+        "pre_delay": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 117 // F6
+                "custom_action": "AutoAltClickAction"
             }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateAnyEnterMenuProtocolPassSuccess"
-        ]
-    },
-    "__ScenePrivateMenuListEnterMenuProtocolPass": {
-        "desc": "从菜单列表进入通行证菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -400,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "通行证",
-                    "通行證",
-                    "(?i)Protocol\\s*Pass",
-                    "通行証",
-                    "프로토콜 패스"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuProtocolPassSuccess"
         ]
@@ -565,27 +527,30 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuFriends": {
         "desc": "从大世界进入好友菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuListEnterMenuFriends",
             "[JumpBack]__ScenePrivateWorldEnterMenuList"
@@ -633,17 +598,14 @@
             }
         ],
         "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
         },
         "next": [
             "__ScenePrivateAnyEnterMenuFriendsSuccess"
@@ -669,23 +631,25 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuWiki": {
         "desc": "从大世界进入百科菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "pre_delay": 0,
@@ -715,17 +679,14 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuWikiSuccess"
         ]
@@ -752,27 +713,30 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuGearAssembly": {
         "desc": "从大世界进入装备加工界面",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuListEnterMenuGearAssembly",
             "[JumpBack]__ScenePrivateWorldEnterMenuList"
@@ -799,16 +763,10 @@
             }
         },
         "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
         },
         "next": [
             "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
@@ -833,7 +791,16 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuEmail": {
         "desc": "从大世界进入邮箱菜单",
@@ -857,15 +824,6 @@
             "param": {
                 "key": 75 // K
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                500,
-                50
-            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuEmailSuccess"
@@ -892,7 +850,16 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldFactoryEnterMenuBluePrint": {
         "desc": "从大世界工厂模式进入蓝图菜单",
@@ -906,42 +873,8 @@
                 "key": 112 // F1
             }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
         "next": [
             "__ScenePrivateAnyEnterMenuBluePrintSuccess"
-        ]
-    },
-    "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
-        "desc": "从大世界工厂模式进入装备加工界面",
-        "recognition": "And",
-        "all_of": [
-            "InWorldFactory"
-        ],
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 76 // L
-            }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
         ]
     },
     "__ScenePrivateAnyEnterMenuBluePrintSuccess": {
@@ -964,40 +897,63 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateWorldEnterMenuBackpack": {
+        "desc": "从任意大世界进入包含仓库的背包界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBackpackClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuBackpackClick": {
         "desc": "从任意大世界进入包含仓库的背包界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -200,
+                    -600,
                     0,
-                    200,
-                    200
+                    600,
+                    100
                 ],
                 "template": [
-                    "SceneManager/WorldMenu.png"
+                    "SceneManager/WordMenuBackpack.png",
+                    "SceneManager/WordMenuBackpack2.png",
+                    "SceneManager/Backpack.png"
                 ],
-                "green_mask": true
+                "threshold": 0.9
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 66 // B
+                "custom_action": "AutoAltClickAction"
             }
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                900,
-                100,
-                250,
-                160
-            ]
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
@@ -1059,7 +1015,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 0
             }
         },
         "pre_wait_freezes": {
@@ -1071,20 +1028,14 @@
                 160
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 66 // B
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                900,
-                100,
-                250,
-                160
-            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuBackpackSuccess"
@@ -1124,20 +1075,14 @@
             "Baker/BakerIcon.png",
             "Baker/BakerIcon2.png"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 72 // H
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuBakerSuccess"
@@ -1160,7 +1105,16 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     },
     "__ScenePrivateMenuListScrollToBottom": {
         "desc": "菜单列表滚动到最底部",
@@ -1241,7 +1195,8 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": 200
     },
     "__ScenePrivateWorldEnterMenuShop": {
         "desc": "从大世界进入商店菜单",
@@ -1262,39 +1217,13 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuEntryShop",
-            "[JumpBack]__ScenePrivateWorldEnterMenuCheckMainUI"
+            "__ScenePrivateWorldEnterMenuEntryShopClick",
+            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
         ]
     },
-    "__ScenePrivateWorldEnterMenuCheckMainUI": {
-        "desc": "检测主界面（未展开），点击 ` 展开",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    700,
-                    0,
-                    580,
-                    83
-                ],
-                "template": "SceneManager/Expand.png",
-                "green_mask": true,
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 192 // `
-            }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 1000
-        }
-    },
-    "__ScenePrivateWorldEnterMenuEntryShop": {
+    "__ScenePrivateWorldEnterMenuEntryShopClick": {
         "desc": "进入商店",
         "recognition": {
             "type": "TemplateMatch",
@@ -1308,20 +1237,14 @@
                 "template": "SceneManager/ShoppingEntry.png"
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 116 // F5
+                "custom_action": "AutoAltClickAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuShopSuccess"
@@ -1353,6 +1276,15 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
     }
 }
