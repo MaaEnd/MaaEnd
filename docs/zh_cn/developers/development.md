@@ -116,7 +116,7 @@ python tools/setup_workspace.py
 
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [MapNavigator 参考文档](./map-navigator.md)：路径录制工具与 `MapNavigateAction` 自动导航节点。
-- [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
+- [Custom 动作与识别参考文档](./custom.md)：通过 `Custom` 节点调用 go-service 中的自定义动作与自定义识别逻辑。
 - [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [CharacterController 参考文档](./character-controller.md)：角色视角旋转、移动及朝向目标自动移动等控制节点。
 - [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。

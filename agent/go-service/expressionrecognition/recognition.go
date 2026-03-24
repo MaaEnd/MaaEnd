@@ -1,4 +1,4 @@
-package creditshopping
+package expressionrecognition
 
 import (
 	"encoding/json"
@@ -14,138 +14,35 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var _ maa.CustomRecognitionRunner = &reserveCreditRecognition{}
+var _ maa.CustomRecognitionRunner = &Recognition{}
 
-type reserveCreditRecognition struct{}
+type Recognition struct{}
 
-type reserveRecognitionConfig struct {
-	Threshold  *int
-	Expression string
+type Params struct {
+	Expression string `json:"expression"`
 }
 
 var expressionNodePattern = regexp.MustCompile(`\{([^{}]+)\}`)
 
-// Run checks whether current credits are below the configured reserve threshold,
-// or evaluates a boolean expression composed from node OCR results.
-func (r *reserveCreditRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	config, err := parseReserveRecognitionConfig(arg.CustomRecognitionParam)
+// Run evaluates a boolean expression composed of numeric recognition nodes.
+func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	params, err := parseParams(arg.CustomRecognitionParam)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("component", "CreditShopping").
+			Str("component", "ExpressionRecognition").
 			Str("custom_recognition_param", arg.CustomRecognitionParam).
-			Msg("failed to parse reserve recognition config")
+			Msg("failed to parse expression recognition params")
 		return nil, false
 	}
 
-	if strings.TrimSpace(config.Expression) != "" {
-		return runReserveExpressionRecognition(ctx, arg, config.Expression)
-	}
-
-	threshold := 300
-	if config.Threshold != nil {
-		threshold = *config.Threshold
-	}
-
-	if threshold <= 0 {
-		log.Debug().
-			Str("component", "CreditShopping").
-			Int("reserve_credit_threshold", threshold).
-			Msg("reserve threshold disabled")
-		return nil, false
-	}
-
-	credit, err := runNumericRecognition(ctx, arg, "CreditShoppingReserveCreditOCRInternal")
+	resolvedExpression, values, err := resolveExpressionValues(ctx, arg, params.Expression)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("component", "CreditShopping").
-			Msg("failed to run reserve credit ocr")
-		return nil, false
-	}
-
-	action := "pass"
-	if credit >= threshold {
-		action = "ignore"
-	}
-
-	log.Info().
-		Str("component", "CreditShopping").
-		Int("credit", credit).
-		Int("reserve_credit_threshold", threshold).
-		Str("result", action).
-		Msgf("识别到%d,目标%d,%s", credit, threshold, action)
-
-	if action == "ignore" {
-		return nil, false
-	}
-
-	detailJSON, _ := json.Marshal(map[string]int{
-		"credit":    credit,
-		"threshold": threshold,
-	})
-
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(detailJSON),
-	}, true
-}
-
-func parseReserveRecognitionConfig(raw string) (reserveRecognitionConfig, error) {
-	defaultThreshold := 300
-	config := reserveRecognitionConfig{
-		Threshold: &defaultThreshold,
-	}
-
-	if strings.TrimSpace(raw) == "" {
-		return config, nil
-	}
-
-	var params map[string]any
-	if err := json.Unmarshal([]byte(raw), &params); err != nil {
-		return reserveRecognitionConfig{}, err
-	}
-
-	if expressionRaw, ok := params["expression"]; ok {
-		expression, ok := expressionRaw.(string)
-		if !ok {
-			return reserveRecognitionConfig{}, fmt.Errorf("expression: unsupported type %T", expressionRaw)
-		}
-		expression = strings.TrimSpace(expression)
-		if expression == "" {
-			return reserveRecognitionConfig{}, fmt.Errorf("expression: must not be empty")
-		}
-		return reserveRecognitionConfig{
-			Expression: expression,
-		}, nil
-	}
-
-	value, ok := params["threshold"]
-	if !ok {
-		return config, nil
-	}
-
-	threshold, err := parseFlexibleInt(value)
-	if err != nil {
-		return reserveRecognitionConfig{}, fmt.Errorf("threshold: %w", err)
-	}
-
-	if threshold < 0 {
-		return reserveRecognitionConfig{}, fmt.Errorf("must be non-negative")
-	}
-
-	config.Threshold = &threshold
-	return config, nil
-}
-
-func runReserveExpressionRecognition(ctx *maa.Context, arg *maa.CustomRecognitionArg, expression string) (*maa.CustomRecognitionResult, bool) {
-	resolvedExpression, values, err := resolveExpressionValues(ctx, arg, expression)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "CreditShopping").
-			Str("expression", expression).
-			Msg("failed to resolve reserve expression")
+			Str("component", "ExpressionRecognition").
+			Str("expression", params.Expression).
+			Msg("failed to resolve expression values")
 		return nil, false
 	}
 
@@ -153,38 +50,38 @@ func runReserveExpressionRecognition(ctx *maa.Context, arg *maa.CustomRecognitio
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("component", "CreditShopping").
-			Str("expression", expression).
+			Str("component", "ExpressionRecognition").
+			Str("expression", params.Expression).
 			Str("resolved_expression", resolvedExpression).
-			Msg("failed to evaluate reserve expression")
+			Msg("failed to evaluate expression")
 		return nil, false
 	}
 
 	matched, ok := result.(bool)
 	if !ok {
 		log.Error().
-			Str("component", "CreditShopping").
-			Str("expression", expression).
+			Str("component", "ExpressionRecognition").
+			Str("expression", params.Expression).
 			Str("resolved_expression", resolvedExpression).
 			Interface("result", result).
-			Msg("reserve expression must evaluate to bool")
+			Msg("expression result must be boolean")
 		return nil, false
 	}
 
 	log.Info().
-		Str("component", "CreditShopping").
-		Str("expression", expression).
+		Str("component", "ExpressionRecognition").
+		Str("expression", params.Expression).
 		Str("resolved_expression", resolvedExpression).
 		Interface("values", values).
 		Bool("matched", matched).
-		Msg("evaluated reserve expression")
+		Msg("expression evaluated")
 
 	if !matched {
 		return nil, false
 	}
 
 	detailJSON, _ := json.Marshal(map[string]any{
-		"expression":          expression,
+		"expression":          params.Expression,
 		"resolved_expression": resolvedExpression,
 		"values":              values,
 		"matched":             matched,
@@ -194,6 +91,24 @@ func runReserveExpressionRecognition(ctx *maa.Context, arg *maa.CustomRecognitio
 		Box:    arg.Roi,
 		Detail: string(detailJSON),
 	}, true
+}
+
+func parseParams(raw string) (*Params, error) {
+	if strings.TrimSpace(raw) == "" {
+		return nil, fmt.Errorf("expression is required")
+	}
+
+	var params Params
+	if err := json.Unmarshal([]byte(raw), &params); err != nil {
+		return nil, err
+	}
+
+	params.Expression = strings.TrimSpace(params.Expression)
+	if params.Expression == "" {
+		return nil, fmt.Errorf("expression is required")
+	}
+
+	return &params, nil
 }
 
 func resolveExpressionValues(ctx *maa.Context, arg *maa.CustomRecognitionArg, expression string) (string, map[string]int, error) {
@@ -446,25 +361,4 @@ func parseOCRNumericValue(text string) (int, error) {
 	}
 
 	return value, nil
-}
-
-func parseFlexibleInt(value any) (int, error) {
-	switch v := value.(type) {
-	case float64:
-		return int(v), nil
-	case int:
-		return v, nil
-	case int32:
-		return int(v), nil
-	case int64:
-		return int(v), nil
-	case string:
-		parsed, err := strconv.Atoi(strings.TrimSpace(v))
-		if err != nil {
-			return 0, err
-		}
-		return parsed, nil
-	default:
-		return 0, fmt.Errorf("unsupported type %T", value)
-	}
 }

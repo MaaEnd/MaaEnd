@@ -11,6 +11,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
@@ -33,6 +34,7 @@ func registerAll() {
 	// General Custom
 	subtask.Register()
 	clearhitcount.Register()
+	expressionrecognition.Register()
 
 	// Business Custom
 	blueprintimport.Register()

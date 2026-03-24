@@ -122,9 +122,9 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "CreditShoppingReserveRecognition",
+                "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "threshold": 300
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}<300"
                 }
             }
         },

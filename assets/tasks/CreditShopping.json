@@ -892,7 +892,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "threshold": "{ReserveCreditThreshold}"
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
                             }
                         }
                     }
