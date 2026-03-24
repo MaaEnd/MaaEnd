@@ -239,7 +239,7 @@
             "NotSoldOut",
             "CanAfford"
         ],
-        "box_index": 3,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "CreditShoppingBuyBlacklistItem"
