@@ -259,8 +259,10 @@
         "desc": "[会客室·赠送线索] 关闭线索收集侧边栏",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoomCollectionClues",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click",
@@ -381,17 +383,16 @@
         ]
     },
     "ReceptionRoomReceiveExit": {
-        "desc": "[会客室·线索] 关闭领取界面",
+        "desc": "[会客室·线索] 关闭接收线索界面",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoomReceiveClues",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_wait_freezes": {
             "time": 200,
@@ -582,10 +583,7 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -700,10 +698,7 @@
         ],
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -901,8 +896,10 @@
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoom",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click"
