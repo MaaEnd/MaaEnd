@@ -258,7 +258,7 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -350,
+                    -450,
                     -150,
                     350,
                     150
