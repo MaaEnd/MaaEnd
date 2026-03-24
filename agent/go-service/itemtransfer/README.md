@@ -176,9 +176,3 @@ assets/data/ItemTransfer/
 | `tooltipOffsetY`  | 0   | `types.go`      | tooltip 相对悬停点的 Y 偏移 |
 | `tooltipWidth`    | 155 | `types.go`      | tooltip OCR 区域宽度        |
 | `tooltipHeight`   | 70  | `types.go`      | tooltip OCR 区域高度        |
-
-## 环境变量
-
-| 变量                           | 说明                                                                                                 |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `MAAEND_ITEMTRANSFER_DATA_DIR` | 手动指定 `item_order.json` 所在目录；未设置时自动从 cwd / exe 向上搜索 `assets/data/ItemTransfer/`。 |
