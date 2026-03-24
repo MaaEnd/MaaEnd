@@ -528,7 +528,7 @@
     "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
-    "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md",
+    "contact.file": "locales/interface/CONTACT/CONTACT.ja_jp.md",
     "operator.Perlica": "ペリカ",
     "operator.Yvonne": "イヴォンヌ",
     "operator.Ardelia": "アルデリア",

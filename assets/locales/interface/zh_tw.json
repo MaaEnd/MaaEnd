@@ -528,7 +528,7 @@
     "option.DailyTaskAssemble.desc": "自動製造一次最低等級的裝備以獲取活躍度",
     "option.DailyTaskCreation.label": "簡易製作",
     "option.DailyTaskCreation.desc": "自動進行一次簡易製作以獲取活躍度",
-    "contact.file": "misc/locales/CONTACT/CONTACT.zh_tw.md",
+    "contact.file": "locales/interface/CONTACT/CONTACT.zh_tw.md",
     "operator.Perlica": "佩麗卡",
     "operator.Yvonne": "伊馮",
     "operator.Ardelia": "艾爾黛拉",

@@ -528,7 +528,7 @@
     "controller.Win32-Front.description": "Foreground control. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
-    "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md",
+    "contact.file": "locales/interface/CONTACT/CONTACT.en_us.md",
     "operator.Perlica": "Perlica",
     "operator.Yvonne": "Yvonne",
     "operator.Ardelia": "Ardelia",

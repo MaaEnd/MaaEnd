@@ -15,7 +15,7 @@
 - [`assets/resource/pipeline/`](assets/resource/pipeline/): 所有的 Pipeline 任务逻辑。
 - [`assets/resource/image/`](assets/resource/image/): 识别所需的图片资源（基准分辨率 720p）。
 - [`agent/go-service/`](agent/go-service/): 自定义 Go Service 源码。
-- [`assets/misc/locales/`](assets/misc/locales/): 国际化本地化文件（任务名称、UI 文本等）。
+- [`assets/locales/`](assets/locales/): 国际化本地化文件（任务名称、UI 文本等）。
 - [`docs/en_us/developers/development.md`](docs/en_us/developers/development.md): 核心开发手册，包含环境配置与规范。
 
 ## 编码规范
@@ -37,16 +37,16 @@
 ### 3. 资源维护与任务新增
 
 - **接口定义合规性**：`assets/interface.json` 必须符合 MaaFramework 项目接口 V2（见下方相关文档链接） 规范。
-- **国际化同步**：新增任务时，必须在 `assets/misc/locales/` 下的相关语言 JSON 文件中添加对应的任务名称及描述。
+- **国际化同步**：新增任务时，必须在 `assets/locales/` 下的相关语言 JSON 文件中添加对应的任务名称及描述。
 - **配置同步**：`assets/interface.json` 的修改需要手动从 `install` 目录同步回源码（如果是通过工具修改）。
 
 ### 4. 代码格式化规范
 
 - **Prettier 约束**：所有 JSON、YAML 文件必须遵循 `.prettierrc` 的配置。
 - **关键规则**：
-    - 缩进宽度以 `.prettierrc` 为唯一准则，通常是 4 个空格。
-    - 数组格式受 `prettier-plugin-multiline-arrays` 插件影响，数组元素必须换行排列（阈值为 1）。
-    - 提交前请务必执行格式化，确保代码风格统一。
+  - 缩进宽度以 `.prettierrc` 为唯一准则，通常是 4 个空格。
+  - 数组格式受 `prettier-plugin-multiline-arrays` 插件影响，数组元素必须换行排列（阈值为 1）。
+  - 提交前请务必执行格式化，确保代码风格统一。
 
 ## 审查重点
 
@@ -57,7 +57,7 @@
 - **截图效率**：检查 `next` 列表是否足够完善。理想情况下，应能覆盖当前操作后所有可能的预期画面，实现“一次心跳，立即命中”。
 - **坐标合法性**：所有新定义的 `roi` 或 `target` 坐标必须基于 **1280x720** 分辨率。
 - **代码格式化**：确保代码符合 `.prettierrc` 规范，特别是 JSON 中的缩进格式。
-- **国际化缺失**：检查新增任务是否在 `assets/misc/locales/` 文件夹中配置了多语言文本。
+- **国际化缺失**：检查新增任务是否在 `assets/locales/` 文件夹中配置了多语言文本。
 - **逻辑边界**：检查 Pipeline 是否处理了异常情况（如弹窗阻断）。每一步点击后都应有相应的识别验证。
 - **Go 职责界限**：审查 Go Service 中的代码是否包含本应由 Pipeline 处理的业务逻辑。确保 Go 仅作为“工具”被 Pipeline 调用。
 - **配置文件同步**：若修改了任务列表，务必确认 `assets/interface.json` 已正确更新。
