@@ -298,7 +298,7 @@
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label": "最低保留信用点",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description": "请输入非负整数，低于该值时停止购买非白名单物品。",
     "option.PrudentRefresh.label": "稳健模式刷新",
-    "option.PrudentRefresh.description": "开启后，当当前信用点扣除刷新花费后低于 400 时，会优先购买商品而不是执行刷新。",
+    "option.PrudentRefresh.description": "开启后，在当前信用点扣除刷新花费后低于 400 时，会优先购买商品而不是执行刷新。",
     "option.AutoGetCredits.label": "获取信用点",
     "option.AutoGetCredits.description": "基建联动功能,在信用点不足时自动去帝江号会客室收取信用",
     "task.ImportBluePrints.label": "📐一键导入蓝图",
