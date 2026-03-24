@@ -116,7 +116,9 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	} else {
 		log.Warn().
 			Str("component", autoStockpileComponent).
-			Msg("overflow detail unavailable")
+			Str("abort_reason", string(AbortReasonQuotaUnavailableWarn)).
+			Msg("overflow detail unavailable, aborting with warning")
+		return buildAbortedRecognitionResult(arg, AbortReasonQuotaUnavailableWarn)
 	}
 
 	if overflowAbortReason != AbortReasonNone {
@@ -451,7 +453,11 @@ func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max i
 		return 0, 0, 0, false
 	}
 
-	plus = runOverflowQuotaAdditionOCR(ctx, img)
+	plus, ok = runOverflowQuotaAdditionOCR(ctx, img)
+	if !ok {
+		return 0, 0, 0, false
+	}
+
 	return current, max, plus, true
 }
 
@@ -469,7 +475,7 @@ func parseOverflowCurrentMax(texts []string) (current int, max int, ok bool) {
 	return 0, 0, false
 }
 
-func runOverflowQuotaAdditionOCR(ctx *maa.Context, img image.Image) int {
+func runOverflowQuotaAdditionOCR(ctx *maa.Context, img image.Image) (plus int, ok bool) {
 	detail, err := ctx.RunRecognition(overflowQuotaAdditionNodeName, img, nil)
 	if err != nil {
 		log.Warn().
@@ -477,23 +483,32 @@ func runOverflowQuotaAdditionOCR(ctx *maa.Context, img image.Image) int {
 			Str("component", autoStockpileComponent).
 			Str("step", "overflow_quota_addition_ocr").
 			Msg("failed to run overflow quota addition ocr")
-		return 0
+		return 0, false
 	}
 
-	return parseOverflowPlus(extractOCRTexts(detail))
+	plus, ok = parseOverflowPlus(extractOCRTexts(detail))
+	if !ok {
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("step", "overflow_quota_addition_ocr_parse").
+			Msg("failed to parse overflow quota addition")
+		return 0, false
+	}
+
+	return plus, true
 }
 
-func parseOverflowPlus(texts []string) int {
+func parseOverflowPlus(texts []string) (int, bool) {
 	for _, text := range texts {
 		if match := overflowPlusRe.FindStringSubmatch(text); len(match) == 2 {
 			plusValue, parseErr := strconv.Atoi(match[1])
 			if parseErr == nil {
-				return plusValue
+				return plusValue, true
 			}
 		}
 	}
 
-	return 0
+	return 0, false
 }
 
 func resolveOverflow(current int, max int, plus int) (overflowDetected bool, overflowAmount int) {

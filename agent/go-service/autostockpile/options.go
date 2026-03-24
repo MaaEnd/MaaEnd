@@ -3,6 +3,7 @@ package autostockpile
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -143,17 +144,14 @@ func collectRegionReserveStockBill(attach map[string]json.RawMessage, region str
 		return 0, false, nil
 	}
 
-	// 使用 parsePriceLimitValue 解析 int 或 string 格式
-	parsedValue, err := parsePriceLimitValue(rawValue)
+	parsedValue, err := parsePositiveThresholdValue(key, rawValue)
 	if err != nil {
-		return 0, true, fmt.Errorf("%s: %w", key, err)
+		return 0, true, err
 	}
 
-	// 如果值 ≤ 0，返回 0
-	if parsedValue <= 0 {
-		return 0, true, nil
+	if parsedValue > math.MaxInt/10000 {
+		return 0, true, newThresholdConfigError(key, fmt.Errorf("value %d too large (max %d)", parsedValue, math.MaxInt/10000))
 	}
 
-	// 将用户输入（"万"单位）转换为实际数值，乘以 10000
 	return parsedValue * 10000, true, nil
 }

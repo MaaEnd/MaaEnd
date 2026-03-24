@@ -29,17 +29,67 @@ func parseStockBillAmount(texts []string) (int, bool) {
 		if len(match) < 2 {
 			continue
 		}
-		val, err := strconv.ParseFloat(match[1], 64)
-		if err != nil {
+
+		beforeSlash := strings.SplitN(match[0], "/", 2)[0]
+		amount, ok := parseStockBillNumeric(match[1], strings.Contains(beforeSlash, "万"))
+		if !ok {
 			continue
 		}
-		beforeSlash := strings.SplitN(match[0], "/", 2)[0]
-		if strings.Contains(beforeSlash, "万") {
-			return int(val * 10000), true
-		}
-		return int(val), true
+
+		return amount, true
 	}
 	return 0, false
+}
+
+func parseStockBillNumeric(raw string, inWanUnit bool) (int, bool) {
+	if inWanUnit {
+		parts := strings.SplitN(raw, ".", 2)
+		intPart, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, false
+		}
+		if intPart > math.MaxInt/10000 {
+			return 0, false
+		}
+
+		amount := intPart * 10000
+		if len(parts) == 1 || parts[1] == "" {
+			return amount, true
+		}
+
+		fracText := parts[1]
+		if len(fracText) > 4 {
+			fracText = fracText[:4]
+		}
+		for len(fracText) < 4 {
+			fracText += "0"
+		}
+
+		fracValue, err := strconv.Atoi(fracText)
+		if err != nil {
+			return 0, false
+		}
+		if amount > math.MaxInt-fracValue {
+			return 0, false
+		}
+
+		return amount + fracValue, true
+	}
+
+	intPartText := raw
+	if dot := strings.Index(raw, "."); dot >= 0 {
+		intPartText = raw[:dot]
+	}
+	if intPartText == "" {
+		return 0, false
+	}
+
+	intPart, err := strconv.Atoi(intPartText)
+	if err != nil {
+		return 0, false
+	}
+
+	return intPart, true
 }
 
 func runStockBillOCR(ctx *maa.Context, img image.Image) (int, bool) {

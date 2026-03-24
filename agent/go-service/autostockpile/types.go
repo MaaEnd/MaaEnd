@@ -34,6 +34,7 @@ const (
 	AbortReasonGoodsTierInvalidFatal       AbortReason = "GoodsTierInvalidFatal"
 	AbortReasonStockBillUnavailableWarn    AbortReason = "StockBillUnavailableWarn"
 	AbortReasonGoodsOCRUnavailableWarn     AbortReason = "GoodsOCRUnavailableWarn"
+	AbortReasonQuotaUnavailableWarn        AbortReason = "QuotaUnavailableWarn"
 )
 
 var knownAbortReasons = []AbortReason{
@@ -46,6 +47,7 @@ var knownAbortReasons = []AbortReason{
 	AbortReasonGoodsTierInvalidFatal,
 	AbortReasonStockBillUnavailableWarn,
 	AbortReasonGoodsOCRUnavailableWarn,
+	AbortReasonQuotaUnavailableWarn,
 }
 
 // RecognitionResult 表示识别阶段输出的最终传输契约。

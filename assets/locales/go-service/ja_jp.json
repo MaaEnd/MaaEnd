@@ -47,6 +47,7 @@
     "autostockpile.abort.None": "なし",
     "autostockpile.abort.InsufficientFunds": "配送券が指定数量を下回っています",
     "autostockpile.abort.QuotaZero": "残り購入可能数量は0です",
+    "autostockpile.abort.QuotaUnavailableWarn": "残り購入可能数量の認識に失敗しました",
     "autostockpile.abort.RegionResolveFailedFatal": "現在の拠点エリアを特定できません",
     "autostockpile.abort.SelectionConfigInvalidFatal": "購入設定の読み込みに失敗しました",
     "autostockpile.abort.StockBillUnavailableWarn": "配送券数量の認識に失敗しました",

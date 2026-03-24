@@ -47,6 +47,7 @@
     "autostockpile.abort.None": "None",
     "autostockpile.abort.InsufficientFunds": "Insufficient funds",
     "autostockpile.abort.QuotaZero": "Remaining purchase quota is 0",
+    "autostockpile.abort.QuotaUnavailableWarn": "Quota OCR unavailable",
     "autostockpile.abort.RegionResolveFailedFatal": "Cannot determine current outpost region",
     "autostockpile.abort.SelectionConfigInvalidFatal": "Purchase config read failed",
     "autostockpile.abort.StockBillUnavailableWarn": "Dispatch ticket recognition failed",

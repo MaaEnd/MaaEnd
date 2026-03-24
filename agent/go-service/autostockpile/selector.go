@@ -274,7 +274,8 @@ func shouldRouteSkip(reason AbortReason) bool {
 	case AbortReasonQuotaZero,
 		AbortReasonInsufficientFunds,
 		AbortReasonStockBillUnavailableWarn,
-		AbortReasonGoodsOCRUnavailableWarn:
+		AbortReasonGoodsOCRUnavailableWarn,
+		AbortReasonQuotaUnavailableWarn:
 		return true
 	default:
 		return false
@@ -311,7 +312,7 @@ func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason A
 	reasonText := lookupAbortReasonText(reason)
 
 	logEvent := log.Info()
-	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
+	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn || reason == AbortReasonQuotaUnavailableWarn {
 		logEvent = log.Warn()
 	}
 	logEvent = logEvent.
@@ -323,7 +324,7 @@ func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason A
 	}
 	logEvent.Msg("routing current cycle to skip branch")
 
-	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
+	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn || reason == AbortReasonQuotaUnavailableWarn {
 		maafocus.Print(ctx, i18n.RenderHTML("autostockpile.warning_skip", map[string]any{
 			"Prefix": focusPrefix,
 			"Reason": reasonText,
