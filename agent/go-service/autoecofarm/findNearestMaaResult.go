@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -43,7 +44,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	}
 
 	if params.RecognitionNodeName == "" || params.XRatio < 0 || params.XRatio > 1 || params.YRatio < 0 || params.YRatio > 1 {
-		maafocus.NodeActionStarting(ctx, "非法参数")
+		maafocus.NodeActionStarting(ctx, i18n.T("autoecofarm.invalid_params"))
 		return nil, false
 	}
 
@@ -70,7 +71,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	results := detail.Results.Filtered
 
 	if len(results) == 0 {
-		maafocus.NodeActionStarting(ctx, "未识别到结果")
+		maafocus.NodeActionStarting(ctx, i18n.T("autoecofarm.no_results"))
 		return nil, false
 	}
 

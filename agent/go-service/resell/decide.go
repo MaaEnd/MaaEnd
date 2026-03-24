@@ -3,6 +3,7 @@ package resell
 import (
 	"fmt"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -16,7 +17,7 @@ func (a *ResellDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 
 	if len(records) == 0 {
 		log.Info().Msg("[Resell]库存已售罄，无可购买商品")
-		maafocus.NodeActionStarting(ctx, "⚠️ 库存已售罄，无可购买商品")
+		maafocus.NodeActionStarting(ctx, i18n.T("resell.stock_empty"))
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "ChangeNextRegionPrepare"}})
 		return true
 	}
@@ -47,9 +48,7 @@ func (a *ResellDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	if overflowAmount > 0 {
 		log.Info().Msgf("[Resell]配额溢出：建议购买%d件，推荐第%d行第%d列（利润：%d）",
 			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
-		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
-			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
-		maafocus.NodeActionStarting(ctx, message)
+		maafocus.NodeActionStarting(ctx, i18n.T("resell.quota_overflow", overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit))
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "ChangeNextRegionPrepare"}})
 		return true
 	}
@@ -58,11 +57,9 @@ func (a *ResellDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		MinimumProfit, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 	var message string
 	if MinimumProfit >= 999999 {
-		message = fmt.Sprintf("💡 已禁用自动购买/出售\n推荐购买: 第%d行第%d列 (利润: %d)",
-			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
+		message = i18n.T("resell.auto_buy_disabled", showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 	} else {
-		message = fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
-			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
+		message = i18n.T("resell.below_min_profit", showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 	}
 	maafocus.NodeActionStarting(ctx, message)
 	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "ChangeNextRegionPrepare"}})

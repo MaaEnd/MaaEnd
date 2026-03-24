@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -19,15 +20,8 @@ func dataDirFromResourceBase() string {
 	return filepath.Join(base, "EssenceFilter")
 }
 
-func getLocaleFromState(st *RunState) string {
-	if st == nil {
-		return matchapi.LocaleCN
-	}
-	loc := matchapi.NormalizeInputLocale(st.InputLanguage)
-	if loc == "" {
-		return matchapi.LocaleCN
-	}
-	return loc
+func getLocaleFromState(_ *RunState) string {
+	return i18n.ToMatchAPILocale()
 }
 
 func reportFocusByKey(ctx *maa.Context, st *RunState, key string, args ...any) {

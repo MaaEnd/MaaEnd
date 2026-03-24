@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -57,7 +58,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 			Mode:              quantityModeSwipeMax,
 			MaxBuy:            upperBound.MaxBuy,
 			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            "未启用保留调度券",
+			Reason:            i18n.T("autostockpile.qty_reserve_disabled"),
 		}
 	}
 
@@ -66,7 +67,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 			Mode:              quantityModeSkip,
 			MaxBuy:            upperBound.MaxBuy,
 			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            "保留调度券限制后可购买数量为 0",
+			Reason:            i18n.T("autostockpile.qty_reserve_zero"),
 		}
 	}
 
@@ -75,7 +76,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 			Mode:              quantityModeSwipeMax,
 			MaxBuy:            upperBound.MaxBuy,
 			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            "保留调度券约束允许全量购买",
+			Reason:            i18n.T("autostockpile.qty_reserve_allows_all"),
 		}
 	}
 
@@ -84,7 +85,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 		Target:            upperBound.CappedQuantity,
 		MaxBuy:            upperBound.MaxBuy,
 		ConstraintApplied: upperBound.ConstraintApplied,
-		Reason:            "保留调度券限制购买数量",
+		Reason:            i18n.T("autostockpile.qty_reserve_limited"),
 	}
 }
 
@@ -100,7 +101,7 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 				Mode:              quantityModeSkip,
 				MaxBuy:            upperBound.MaxBuy,
 				ConstraintApplied: upperBound.ConstraintApplied,
-				Reason:            "防溢出目标数量无效",
+				Reason:            i18n.T("autostockpile.qty_overflow_invalid"),
 			}
 		}
 
@@ -109,7 +110,7 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 			Target:            overflowTarget,
 			MaxBuy:            upperBound.MaxBuy,
 			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            "按防溢出数量购买",
+			Reason:            i18n.T("autostockpile.qty_overflow_buy"),
 		}
 	}
 
@@ -119,13 +120,13 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 			Mode:              quantityModeSkip,
 			MaxBuy:            upperBound.MaxBuy,
 			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            "保留调度券限制后防溢出购买数量为 0",
+			Reason:            i18n.T("autostockpile.qty_overflow_reserve_zero"),
 		}
 	}
 
-	reason := "按防溢出数量购买"
+	reason := i18n.T("autostockpile.qty_overflow_buy")
 	if target < overflowTarget {
-		reason = "保留调度券限制防溢出购买数量"
+		reason = i18n.T("autostockpile.qty_overflow_reserve_limited")
 	}
 
 	return quantityDecision{
@@ -167,7 +168,7 @@ func buildSelectionPipelineOverride(ctx *maa.Context, selection SelectionResult,
 func formatQuantityText(decision quantityDecision) string {
 	switch decision.Mode {
 	case quantityModeSwipeMax:
-		return "全部"
+		return i18n.T("autostockpile.quantity_all")
 	case quantityModeSwipeSpecificQuantity:
 		return strconv.Itoa(decision.Target)
 	default:

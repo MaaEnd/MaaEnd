@@ -2,8 +2,9 @@ package visitfriends
 
 import (
 	"encoding/json"
-	"fmt"
+	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -320,20 +321,20 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 			break
 		}
 
-		message := "该好友缺少"
+		var missParts []string
 		if missClueExchange {
-			message += "线索交换 "
+			missParts = append(missParts, i18n.T("visitfriends.clue_exchange"))
 		}
 		if missControlNexusAssist {
-			message += "助力总控中枢 "
+			missParts = append(missParts, i18n.T("visitfriends.control_nexus_assist"))
 		}
 		if missMFGCabinAssist {
-			message += "助力制造舱 "
+			missParts = append(missParts, i18n.T("visitfriends.mfg_cabin_assist"))
 		}
 		if missGrowthChamberAssist {
-			message += "助力生长舱 "
+			missParts = append(missParts, i18n.T("visitfriends.growth_chamber_assist"))
 		}
-
+		message := i18n.T("visitfriends.friend_missing", strings.Join(missParts, i18n.Separator()))
 		maafocus.NodeActionStarting(ctx, message)
 	}
 
@@ -375,20 +376,25 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 		return false
 	}
 
-	message := "找到目标好友"
+	var canParts []string
 	if result.ClueExchange {
-		message += "，可以线索交换"
+		canParts = append(canParts, i18n.T("visitfriends.can_clue_exchange"))
 	}
 	if result.ControlNexusAssist {
-		message += "，可以助力总控中枢"
+		canParts = append(canParts, i18n.T("visitfriends.can_control_nexus"))
 	}
 	if result.MFGCabinAssist {
-		message += "，可以助力制造舱"
+		canParts = append(canParts, i18n.T("visitfriends.can_mfg_cabin"))
 	}
 	if result.GrowthChamberAssist {
-		message += "，可以助力生长舱"
+		canParts = append(canParts, i18n.T("visitfriends.can_growth_chamber"))
 	}
-	maafocus.NodeActionStarting(ctx, message)
+	if len(canParts) > 0 {
+		message := i18n.T("visitfriends.found_target_with", strings.Join(canParts, i18n.Separator()))
+		maafocus.NodeActionStarting(ctx, message)
+	} else {
+		maafocus.NodeActionStarting(ctx, i18n.T("visitfriends.found_target"))
+	}
 
 	override := map[string]any{
 		"VisitFriendsEnterShip": map[string]any{
@@ -517,7 +523,7 @@ func (r *VisitFriendsMenuScanScrollFullRecognition) Run(ctx *maa.Context, arg *m
 	}
 
 	if !result {
-		message := fmt.Sprintf("当前助力次数：%d，线索交换次数：%d", currentAssistCount, currentClueExchangeCount)
+		message := i18n.T("visitfriends.current_counts", currentAssistCount, currentClueExchangeCount)
 		maafocus.NodeActionStarting(ctx, message)
 		return nil, false
 	}

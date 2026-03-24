@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -369,7 +370,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("abort_reason", string(resultPayload.AbortReason)).
 		Int("goods_count", len(resultPayload.Data.Goods)).
 		Msg("custom recognition finished")
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别完成，共识别到 %d 个商品", len(resultPayload.Data.Goods)))
+	maafocus.NodeActionStarting(ctx, i18n.T("autostockpile.recognition_done", len(resultPayload.Data.Goods)))
 
 	return result, true
 }

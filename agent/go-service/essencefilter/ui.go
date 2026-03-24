@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -66,7 +67,7 @@ func formatWeaponNames(weapons []matchapi.WeaponData) string {
 func logMatchSummary(ctx *maa.Context) {
 	st := getRunState()
 	if st == nil || len(st.MatchedCombinationSummary) == 0 {
-		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_locked"))
 		return
 	}
 	summary := st.MatchedCombinationSummary
@@ -81,9 +82,10 @@ func logMatchSummary(ctx *maa.Context) {
 	sort.Slice(items, func(i, j int) bool { return items[i].Key < items[j].Key })
 
 	var b strings.Builder
-	b.WriteString(`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">战利品摘要：</div>`)
+	b.WriteString(fmt.Sprintf(`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">%s</div>`, i18n.T("essencefilter.loot_summary_title")))
 	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
-	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
+	b.WriteString(fmt.Sprintf(`<tr><th style="text-align:left; padding: 2px 4px;">%s</th><th style="text-align:left; padding: 2px 4px;">%s</th><th style="text-align:right; padding: 2px 4px;">%s</th></tr>`,
+		i18n.T("essencefilter.weapon_col"), i18n.T("essencefilter.skill_combo_col"), i18n.T("essencefilter.lock_count_col")))
 	for _, item := range items {
 		weaponText := formatWeaponNamesColoredHTML(item.Weapons)
 		skillSource := item.OCRSkills
@@ -133,11 +135,10 @@ func spanColor(color, text string) string {
 }
 
 func planCardHTML(borderColor string, idx int, p calcPlan, fixedSlotLabel [4]string) string {
-	return fmt.Sprintf(
-		`<div style="margin-top:3px;border-left:3px solid %s;padding-left:6px;">%s 基础属性：%s | 选择%s：%s<br>满足 <b>%d</b> 个需求 / 匹配 <b>%d</b> 件目标武器<br>满足的需求：%s<br>匹配的武器：%s</div>`,
+	return i18n.T("essencefilter.plan_card",
 		borderColor,
-		spanColor("#98c379", fmt.Sprintf("方案 %d", idx)),
-		spanColor("#47b5ff", escapeHTML(strings.Join(p.slot1Names[:], "，"))),
+		spanColor("#98c379", i18n.T("essencefilter.plan_title", idx)),
+		spanColor("#47b5ff", escapeHTML(strings.Join(p.slot1Names[:], i18n.Separator()))),
 		fixedSlotLabel[p.fixedSlot], spanColor("#e877fe", escapeHTML(p.fixedName)),
 		len(p.needs), len(p.matched),
 		weaponListHTML(p.needs), weaponListHTML(p.matched),
@@ -160,7 +161,7 @@ func buildSkillIndex(allTargets []matchapi.SkillCombination, slotIdx int) skillI
 
 func weaponListHTML(weapons []matchapi.WeaponData) string {
 	if len(weapons) == 0 {
-		return "（无）"
+		return i18n.T("essencefilter.no_weapons_list")
 	}
 	parts := make([]string, len(weapons))
 	for i, w := range weapons {
@@ -189,7 +190,7 @@ func logCalculatorResult(ctx *maa.Context) {
 		return
 	}
 	if len(st.TargetSkillCombinations) == 0 {
-		LogMXUSimpleHTML(ctx, "未选择武器目标，不生成预刻写方案。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_weapon_target"))
 		return
 	}
 	graduated := make(map[string]bool)
@@ -215,7 +216,7 @@ func logCalculatorResult(ctx *maa.Context) {
 		}
 	}
 	if len(ungraduated) == 0 {
-		LogMXUSimpleHTML(ctx, "所有目标武器本次均已命中，无需推荐预刻写方案。")
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.all_graduated"))
 		return
 	}
 
@@ -224,7 +225,7 @@ func logCalculatorResult(ctx *maa.Context) {
 	slot3Pool := st.MatchEngine.SkillPools().Slot3
 	n1 := len(slot1Pool)
 	const maxPlansPerLocation = 2
-	fixedSlotLabel := [4]string{"", "", "附加属性", "技能属性"}
+	fixedSlotLabel := [4]string{"", "", i18n.T("essencefilter.slot_fixed_label_2"), i18n.T("essencefilter.slot_fixed_label_3")}
 	idx2 := buildSkillIndex(allTargets, 1)
 	idx3 := buildSkillIndex(allTargets, 2)
 
@@ -271,7 +272,7 @@ func logCalculatorResult(ctx *maa.Context) {
 	}
 
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`<div style="color:#00bfff;font-weight:900;margin-top:8px;">预刻写方案推荐（%d 个未毕业需求）：</div>`, len(ungraduated)))
+	b.WriteString(fmt.Sprintf(`<div style="color:#00bfff;font-weight:900;margin-top:8px;">%s</div>`, i18n.T("essencefilter.plan_recommend_title", len(ungraduated))))
 	b.WriteString(weaponListHTML(func() []matchapi.WeaponData {
 		ws := make([]matchapi.WeaponData, 0, len(ungraduated))
 		for _, c := range ungraduated {

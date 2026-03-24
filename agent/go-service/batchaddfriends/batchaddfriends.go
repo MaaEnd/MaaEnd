@@ -2,11 +2,11 @@ package batchaddfriends
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -186,7 +186,7 @@ func (a *BatchAddFriendsUIDOnAddAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		Msg("[BatchAddFriends]已点击添加好友")
 	maafocus.NodeActionStarting(
 		ctx,
-		fmt.Sprintf("UID %s：已发送好友申请（%d/%d）", state.uidCurrent, state.uidSuccess, state.uidTotal),
+		i18n.T("batchaddfriends.uid_sent", state.uidCurrent, state.uidSuccess, state.uidTotal),
 	)
 	return true
 }
@@ -231,7 +231,7 @@ func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.Cus
 	state.strangersProcessed++
 	maafocus.NodeActionStarting(
 		ctx,
-		fmt.Sprintf("添加好友进度 [%d/%d]", state.strangersProcessed, state.strangersMaxCount),
+		i18n.T("batchaddfriends.strangers_progress", state.strangersProcessed, state.strangersMaxCount),
 	)
 	return true
 }
