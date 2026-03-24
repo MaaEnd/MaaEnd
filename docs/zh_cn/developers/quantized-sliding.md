@@ -92,15 +92,16 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 `custom_action_param` 请直接传入一个 JSON 对象。常用字段如下：
 
-| 字段                | 类型                    | 必填 | 说明                                                                |
-| ------------------- | ----------------------- | ---- | ------------------------------------------------------------------- |
-| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                    |
-| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                      |
-| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。 |
-| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                   |
-| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                          |
-| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                          |
-| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                   |
+| 字段                | 类型                    | 必填 | 说明                                                                                                                                              |
+| ------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                                                                                                  |
+| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                    |
+| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                               |
+| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                                                                                                 |
+| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
+| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
+| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                 |
+| `ClampTargetToMax`  | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
 
 `CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
@@ -291,7 +292,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 能识别到滑块起点；
 - 能成功拖到最大值；
 - 能 OCR 出最大值与当前值；
-- 目标值 `Target` 不大于最大值；
+- 目标值 `Target` 不大于最大值，或 `ClampTargetToMax` 为 `true`（此时 `Target` 会被钳制为 `maxQuantity`）；
 - 经过精确点击与微调后，当前值最终等于 `Target`。
 
 ### 常见失败条件
@@ -299,7 +300,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - `QuantityBox` 不是 `[x, y, w, h]` 四元组；
 - `Direction` 不是 `left/right/up/down` 之一；
 - OCR 没有读到数字；
-- 最大值 `maxQuantity` 小于 `Target`；
+- 最大值 `maxQuantity` 小于 `Target`，且 `ClampTargetToMax` 为 `false`（默认值）；
 - 最大值小于等于 `1`，无法计算比例；
 - 加减按钮无法识别或无法点击；
 - 微调次数过多仍未收敛。
@@ -331,7 +332,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - **`QuantityBox` 截得太紧**：数字跳动或描边变化时 OCR 容易失败。
 - **只给按钮坐标，不做识别兜底**：界面轻微偏移后就可能点歪。
 - **滑块模板不通用**：不同界面滑块样式不一致时，公共模板可能失效。
-- **目标值超过上限**：`Target > maxQuantity` 会直接失败，不会自动回退到最大值。
+- **目标值超过上限**：`Target > maxQuantity` 默认会直接失败。设置 `ClampTargetToMax: true` 可自动将目标值钳制为最大值继续执行，但需注意最终实际数量为 `maxQuantity`，而非原始 `Target`。
 - **没有考虑冻结等待**：该公共流程内部已经使用了 `post_wait_freezes`，业务接入时不要再额外叠很多硬延迟。
 
 ## 自检清单
@@ -343,7 +344,8 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 3. `Direction` 是否与“最大值所在方向”一致。
 4. `IncreaseButton` / `DecreaseButton` 是否优先使用模板路径。
 5. `Target` 是否有可能大于当前场景允许的最大值。
-6. 失败分支是否有明确处理，例如提示、跳过或取消当前任务。
+6. 若启用了 `ClampTargetToMax`，调用方是否能处理"实际数量可能小于原始 `Target`"的情况。
+7. 失败分支是否有明确处理，例如提示、跳过或取消当前任务。
 
 ## 代码定位
 

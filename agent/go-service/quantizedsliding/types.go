@@ -13,6 +13,7 @@ type quantizedSlidingParam struct {
 	IncreaseButton    any                  `json:"IncreaseButton"`
 	DecreaseButton    any                  `json:"DecreaseButton"`
 	CenterPointOffset any                  `json:"CenterPointOffset"`
+	ClampTargetToMax  bool                 `json:"ClampTargetToMax"`
 }
 
 // quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
@@ -33,6 +34,8 @@ type quantityFilterParam struct {
 //   - Direction: 滑动方向 (left/right/up/down)
 //   - IncreaseButton: 增加数量按钮的坐标
 //   - DecreaseButton: 减少数量按钮的坐标
+//   - CenterPointOffset: 滑动条中心点坐标偏移量
+//   - ClampTargetToMax: 为 true 时，若 Target 超过 maxQuantity，自动将 Target 钳制为 maxQuantity 并继续（默认 false 时直接失败）
 type QuantizedSlidingAction struct {
 	Target            int
 	QuantityBox       []int
@@ -41,6 +44,7 @@ type QuantizedSlidingAction struct {
 	IncreaseButton    buttonTarget
 	DecreaseButton    buttonTarget
 	CenterPointOffset [2]int
+	ClampTargetToMax  bool
 
 	startBox    []int
 	endBox      []int

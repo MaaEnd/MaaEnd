@@ -132,13 +132,23 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 	}
 
 	a.maxQuantity = maxQuantity
-	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)
+	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target, a.ClampTargetToMax)
 	if err != nil {
 		a.logger.Error().
 			Int("max_quantity", a.maxQuantity).
 			Int("target", a.Target).
 			Msg("max quantity lower than target")
 		return false
+	}
+
+	if a.ClampTargetToMax && a.maxQuantity < a.Target {
+		originalTarget := a.Target
+		a.Target = a.maxQuantity
+		a.logger.Warn().
+			Int("original_target", originalTarget).
+			Int("clamped_target", a.Target).
+			Int("max_quantity", a.maxQuantity).
+			Msg("target clamped to max quantity")
 	}
 	if nextNode != "" {
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
@@ -343,7 +353,9 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 }
 
 func (a *QuantizedSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg) bool {
-	a.logger.Info().Msg("quantity adjustment completed")
+	a.logger.Info().
+		Int("target", a.Target).
+		Msg("quantity adjustment completed")
 	return true
 }
 
@@ -409,8 +421,11 @@ func (a *QuantizedSlidingAction) resetState() {
 	a.maxQuantity = 0
 }
 
-func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
+func resolveMaxQuantityNext(maxQuantity int, target int, clampTargetToMax bool) (string, error) {
 	if maxQuantity < target {
+		if clampTargetToMax {
+			return "", nil
+		}
 		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
 	}
 	if maxQuantity == 1 && target == 1 {

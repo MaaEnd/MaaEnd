@@ -15,6 +15,7 @@ type parsedQuantizedSlidingParams struct {
 	increaseButton    buttonTarget
 	decreaseButton    buttonTarget
 	centerPointOffset [2]int
+	clampTargetToMax  bool
 }
 
 func parseQuantizedSlidingParam(customActionParam string) (quantizedSlidingParam, error) {
@@ -94,6 +95,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		increaseButton:    increaseButton,
 		decreaseButton:    decreaseButton,
 		centerPointOffset: centerPointOffset,
+		clampTargetToMax:  params.ClampTargetToMax,
 	}, true
 }
 
@@ -105,6 +107,7 @@ func (a *QuantizedSlidingAction) applyActionParams(params parsedQuantizedSliding
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
 	a.CenterPointOffset = params.centerPointOffset
+	a.ClampTargetToMax = params.clampTargetToMax
 }
 
 func (a *QuantizedSlidingAction) logParsedActionParams() {
@@ -115,7 +118,8 @@ func (a *QuantizedSlidingAction) logParsedActionParams() {
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]})
+		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
+		Bool("clamp_target_to_max", a.ClampTargetToMax)
 
 	if a.QuantityFilter != nil {
 		parseLog = parseLog.
