@@ -1189,7 +1189,7 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley11Try0": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8Try0": {
         "desc": "在地图界面找锚点 (武陵城-储备站右下)",
         "recognition": "And",
         "all_of": [
