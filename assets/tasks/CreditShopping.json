@@ -689,6 +689,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "PrudentRefreshThreshold"
+                    ],
                     "pipeline_override": {
                         "CreditShoppingPrudentRefresh": {
                             "enabled": true
@@ -704,6 +707,51 @@
                     }
                 }
             ]
+        },
+        "PrudentRefreshThreshold": {
+            "type": "input",
+            "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+            "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+            "inputs": [
+                {
+                    "name": "PrudentRefreshThreshold",
+                    "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+                    "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "400"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingPrudentRefresh": {
+                    "recognition": {
+                        "param": {
+                            "all_of": [
+                                {
+                                    "recognition": {
+                                        "param": {
+                                            "custom_recognition_param": {
+                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{PrudentRefreshThreshold}"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "recognition": {
+                                        "param": {
+                                            "all_of": [
+                                                "CreditIcon",
+                                                "NotSoldOut",
+                                                "CanAfford"
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         },
         "RefreshGetCredits": {
             "type": "switch",

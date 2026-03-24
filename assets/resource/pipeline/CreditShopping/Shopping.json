@@ -247,7 +247,7 @@
         ]
     },
     "CreditShoppingPrudentRefresh": {
-        "desc": "稳健模式刷新，当前信用点-刷新花费<400时触发",
+        "desc": "稳健模式刷新，当前信用点-刷新花费低于阈值时触发",
         "recognition": {
             "type": "And",
             "param": {
