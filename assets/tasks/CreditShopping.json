@@ -736,6 +736,39 @@
             "default_case": "-95%",
             "cases": [
                 {
+                    "name": "Ignore",
+                    "label": "$option.DiscountValue.cases.Ignore.label",
+                    "pipeline_override": {
+                        "IsDiscount": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BlacklistOCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
