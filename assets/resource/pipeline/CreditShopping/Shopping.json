@@ -71,6 +71,7 @@
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "CreditShoppingReserveCredit",
+            "CreditShoppingPrudentRefresh",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -211,7 +212,7 @@
             -8
         ],
         "next": [
-            "CreditShoppingBuyFirstItem"
+            "CreditShoppingBuyItem"
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
@@ -228,7 +229,7 @@
         "box_index": 4,
         "action": "Click",
         "next": [
-            "CreditShoppingBuyNormalItemWithDiscount"
+            "CreditShoppingBuyItem"
         ]
     },
     "CreditShoppingBuyBlacklist": {
@@ -242,8 +243,51 @@
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CreditShoppingBuyBlacklistItem"
+            "CreditShoppingBuyItem"
         ]
+    },
+    "CreditShoppingPrudentRefresh": {
+        "desc": "稳健模式刷新，当前信用点-刷新花费<400时触发",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "Custom",
+                            "param": {
+                                "custom_recognition": "CreditShoppingReserveRecognition",
+                                "custom_recognition_param": {
+                                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "CreditIcon",
+                                    "NotSoldOut",
+                                    "CanAfford"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingBuyItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前信用点扣除刷新花费后低于 400，触发稳健模式刷新"
+        }
     },
     "CreditShoppingNothingToBuy": {
         "desc": "没有合适的东西可以买了",

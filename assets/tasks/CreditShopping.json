@@ -675,8 +675,33 @@
                         }
                     },
                     "option": [
-                        "RefreshGetCredits"
+                        "RefreshGetCredits",
+                        "PrudentRefresh"
                     ]
+                }
+            ]
+        },
+        "PrudentRefresh": {
+            "type": "switch",
+            "label": "$option.PrudentRefresh.label",
+            "description": "$option.PrudentRefresh.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },

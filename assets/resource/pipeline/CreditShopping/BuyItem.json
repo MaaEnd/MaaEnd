@@ -1,7 +1,7 @@
 {
     // 在商店中购买物品的节点
-    "CreditShoppingBuyFirstItem": {
-        "desc": "识别购买商品(优先购买)",
+    "CreditShoppingBuyItem": {
+        "desc": "识别购买商品",
         "recognition": "OCR",
         "roi": [
             146,
@@ -13,78 +13,20 @@
             "购买商品"
         ],
         "next": [
-            "CreditShoppingBuyFirstItemOCR_ArsenalTicket",
-            "CreditShoppingBuyFirstItemOCR_Oroberyl",
-            "CreditShoppingBuyFirstItemOCR_TCreds",
-            "CreditShoppingBuyFirstItemOCR_ElementaryCombatRecord",
-            "CreditShoppingBuyFirstItemOCR_IntermediateCombatRecord",
-            "CreditShoppingBuyFirstItemOCR_ElementaryCognitiveCarrier",
-            "CreditShoppingBuyFirstItemOCR_ArmsInspector",
-            "CreditShoppingBuyFirstItemOCR_ArmsINSPKit",
-            "CreditShoppingBuyFirstItemOCR_CastDie",
-            "CreditShoppingBuyFirstItemOCR_HeavyCastDie",
-            "CreditShoppingBuyFirstItemOCR_Protodisk",
-            "CreditShoppingBuyFirstItemOCR_Protoset",
-            "CreditShoppingBuyFirstItemOCR_Protoprism",
-            "CreditShoppingBuyFirstItemOCR_Protohedron"
-        ]
-    },
-    "CreditShoppingBuyNormalItemWithDiscount": {
-        "desc": "识别购买商品(有折扣)",
-        "recognition": "OCR",
-        "roi": [
-            146,
-            69,
-            241,
-            150
-        ],
-        "expected": [
-            "购买商品"
-        ],
-        "next": [
-            "CreditShoppingBuyNormalItemWithDiscountOCR_ArsenalTicket",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_TCreds",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCombatRecord",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_IntermediateCombatRecord",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCognitiveCarrier",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsInspector",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsINSPKit",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_CastDie",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_HeavyCastDie",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protodisk",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoset",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron"
-        ]
-    },
-    "CreditShoppingBuyBlacklistItem": {
-        "desc": "识别购买商品(黑名单)",
-        "recognition": "OCR",
-        "roi": [
-            146,
-            69,
-            241,
-            150
-        ],
-        "expected": [
-            "购买商品"
-        ],
-        "next": [
-            "CreditShoppingBuyBlacklistItemOCR_ArsenalTicket",
-            "CreditShoppingBuyBlacklistItemOCR_Oroberyl",
-            "CreditShoppingBuyBlacklistItemOCR_TCreds",
-            "CreditShoppingBuyBlacklistItemOCR_ElementaryCombatRecord",
-            "CreditShoppingBuyBlacklistItemOCR_IntermediateCombatRecord",
-            "CreditShoppingBuyBlacklistItemOCR_ElementaryCognitiveCarrier",
-            "CreditShoppingBuyBlacklistItemOCR_ArmsInspector",
-            "CreditShoppingBuyBlacklistItemOCR_ArmsINSPKit",
-            "CreditShoppingBuyBlacklistItemOCR_CastDie",
-            "CreditShoppingBuyBlacklistItemOCR_HeavyCastDie",
-            "CreditShoppingBuyBlacklistItemOCR_Protodisk",
-            "CreditShoppingBuyBlacklistItemOCR_Protoset",
-            "CreditShoppingBuyBlacklistItemOCR_Protoprism",
-            "CreditShoppingBuyBlacklistItemOCR_Protohedron"
+            "CreditShoppingBuyItemOCR_ArsenalTicket",
+            "CreditShoppingBuyItemOCR_Oroberyl",
+            "CreditShoppingBuyItemOCR_TCreds",
+            "CreditShoppingBuyItemOCR_ElementaryCombatRecord",
+            "CreditShoppingBuyItemOCR_IntermediateCombatRecord",
+            "CreditShoppingBuyItemOCR_ElementaryCognitiveCarrier",
+            "CreditShoppingBuyItemOCR_ArmsInspector",
+            "CreditShoppingBuyItemOCR_ArmsINSPKit",
+            "CreditShoppingBuyItemOCR_CastDie",
+            "CreditShoppingBuyItemOCR_HeavyCastDie",
+            "CreditShoppingBuyItemOCR_Protodisk",
+            "CreditShoppingBuyItemOCR_Protoset",
+            "CreditShoppingBuyItemOCR_Protoprism",
+            "CreditShoppingBuyItemOCR_Protohedron"
         ]
     },
     "CreditShoppingBuyFailed": {
