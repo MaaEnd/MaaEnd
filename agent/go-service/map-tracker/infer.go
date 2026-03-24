@@ -146,23 +146,14 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
 	t0 := time.Now()
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	var loc *InferLocationRawResult
-	var rot *InferRotationRawResult
+	ch := make(chan *InferLocationRawResult, 1)
 
 	go func() {
-		defer wg.Done()
-		loc = i.inferLocation(ctrlType, screenImg, mapNameRegex, param)
+		ch <- i.inferLocation(ctrlType, screenImg, mapNameRegex, param)
 	}()
 
-	go func() {
-		defer wg.Done()
-		rot = i.inferRotation(ctrlType, screenImg, rotStep)
-	}()
-
-	wg.Wait()
+	rot := i.inferRotation(ctrlType, screenImg, rotStep)
+	loc := <-ch
 
 	// Determine if recognition hit natively
 	internalLocHit := loc != nil && loc.conf > param.Threshold
