@@ -275,6 +275,7 @@
     "task.CreditShopping.auto_get_credits": "信用點不足，嘗試從帝江號會客室取得",
     "task.CreditShopping.prudent_refresh_triggered": "當前信用點扣除刷新花費後低於閾值，觸發穩健模式刷新",
     "task.CreditShopping.RefreshCountReached_triggered": "今日刷新次數已用盡，直接購買剩餘物品",
+    "task.CreditShopping.nothing_to_buy": "沒有符合條件的物品，退出任務",
     "option.CreditShoppingForce.label": "沒有可購買物品時",
     "option.CreditShoppingForce.description": "- 退出：無可購買物品時直接結束任務\n- 購買黑名單物品：無可購買物品時會忽視黑名單\n- 執行刷新：無可購買物品時會執行刷新；若今日刷新次數已用盡，會直接購買剩餘可購買物品\n\n注意！執行刷新模式若遇信用點不足以購買目標物品時，會直接退出，即使當前可能仍高於 300 信用點",
     "option.CreditShoppingForce.cases.Exit.label": "退出",
