@@ -44,33 +44,6 @@
             "AutoStockpileCheckBuyResult"
         ]
     },
-    "AutoStockpileRegionUnavailable": {
-        "desc": "检查物资调度是否解锁",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    900,
-                    325,
-                    100,
-                    100
-                ],
-                "template": [
-                    "AutoStockpile/RegionalDevelopmentFunctionLocked.png"
-                ],
-                "green_mask": true,
-                "threshold": [
-                    0.8
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "该地区未解锁物资调度，跳过该地区"
-        }
-    },
     "AutoStockpileDecision": {
         "desc": "统一识别与决策：CustomRecognition识别商品，CustomAction选择购买",
         "recognition": {
@@ -218,8 +191,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnsureInRegionalDevelopment",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "AutoStockpileElasticGoodsButton",
+            "AutoStockpileCheckInStore"
         ]
     },
     "EnsureInRegionalDevelopment": {
@@ -233,35 +206,15 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockpileChangeRegionTask"
-                    ]
-                }
-            }
-        },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileEnterStore",
-            "AutoStockpileRegionUnavailable"
+            "AutoStockpileEnterStore"
         ],
         "focus": {
             "Node.Action.Failed": "进入地区失败，该地区可能未解锁"
         }
-    },
-    "AutoStockpileChangeRegionTask": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]AutoStockpileGotoTargetRegion"
-        ]
     },
     "AutoStockpileMoveMouse": {
         "desc": "避免鼠标遮挡",

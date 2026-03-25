@@ -22,7 +22,18 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoStockpileGotoTargetRegion": "GoToValleyIV"
+            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+                    ]
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -38,7 +49,18 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoStockpileGotoTargetRegion": "GoToWuling"
+            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+                    ]
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,

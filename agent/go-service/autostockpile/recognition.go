@@ -532,9 +532,9 @@ func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string, err err
 	}
 
 	switch anchor {
-	case "GoToValleyIV":
+	case "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution":
 		return "ValleyIV", anchor, nil
-	case "GoToWuling":
+	case "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution":
 		return "Wuling", anchor, nil
 	default:
 		return "", anchor, fmt.Errorf("unexpected anchor value %q", anchor)
