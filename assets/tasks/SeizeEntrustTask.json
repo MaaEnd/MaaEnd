@@ -6,10 +6,11 @@
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
-                "SeizeEntrustTaskisSwipeMiddle",
                 "SeizeEntrustTaskisGoDepotNodeWorld"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -63,79 +64,6 @@
             ],
             "controller": [
                 "Win32-Front"
-            ]
-        },
-        "SeizeEntrustTaskisSwipeMiddle": {
-            "type": "switch",
-            "label": "$task.SeizeEntrustTaskisSwipeMiddle.label",
-            "description": "$task.SeizeEntrustTaskisSwipeMiddle.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "SeizeEntrustTaskisSwipeALL"
-                    ],
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskSwipeDown": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskSwipeDown": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeEntrustTaskisSwipeALL": {
-            "type": "switch",
-            "label": "$task.SeizeEntrustTaskisSwipeALL.label",
-            "description": "$task.SeizeEntrustTaskisSwipeALL.description",
-            "cases": [
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": true
-                        }
-                    }
-                }
             ]
         }
     }
