@@ -29,7 +29,6 @@ func (s *CursorMoveSink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		return
 	}
 
-	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Warn().Err(err).Msg("[cursormove] failed to get cached image for size")

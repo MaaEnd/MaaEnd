@@ -13,7 +13,7 @@ var (
 
 // Register adds the cursor-move sinks when the controller is Win32.
 func Register() {
-	if pienv.ControllerType() != "Win32" {
+	if pienv.ControllerName() != "Win32-Front" {
 		return
 	}
 
