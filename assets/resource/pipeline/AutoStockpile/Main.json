@@ -21,9 +21,6 @@
         "desc": "自动囤货四号谷地节点",
         "enabled": false,
         "pre_delay": 0,
-        "anchor": {
-            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
-        },
         "action": {
             "type": "Custom",
             "param": {
@@ -34,6 +31,9 @@
                     ]
                 }
             }
+        },
+        "anchor": {
+            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -48,9 +48,6 @@
         "desc": "自动囤货武陵节点",
         "enabled": false,
         "pre_delay": 0,
-        "anchor": {
-            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
-        },
         "action": {
             "type": "Custom",
             "param": {
@@ -61,6 +58,9 @@
                     ]
                 }
             }
+        },
+        "anchor": {
+            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
         },
         "post_delay": 0,
         "rate_limit": 0,

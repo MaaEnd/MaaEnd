@@ -51,10 +51,7 @@
                     }
                 },
                 {
-                    "name": "SeizeEntrustTask",
-                    "option": {
-                        "SeizeEntrustTaskisSwipeMiddle": "Yes"
-                    }
+                    "name": "SeizeEntrustTask"
                 }
             ]
         }
