@@ -9,7 +9,7 @@ description: MaaEnd Pipeline JSON 编写指南。基于 MaaFramework Pipeline �
 
 1. **状态驱动**：遵循"识别 → 操作 → 识别"循环。每次操作必须基于识别结果，禁止假设操作后画面状态。
 2. **高命中率**：扩充 `next` 列表，覆盖当前操作后所有可能画面，力争一次截图命中。
-3. **避免硬延迟**：尽量不用 `pre_delay` / `post_delay` / `timeout`，用中间识别节点或 `pre_wait_freezes` / `post_wait_freezes` 替代。
+3. **避免硬延迟**：尽量不用 `pre_delay` / `post_delay` / `timeout`，用中间识别节点或 `pre_wait_freezes` / `post_wait_freezes` 替代；当确实不需要延迟时，要在节点上显式将 `rate_limit` / `pre_delay` / `post_delay` 设为 0（协议默认 `rate_limit=1000ms`、`pre_delay/post_delay=200ms`，省略字段会引入隐式等待；仓库的 `tools/add_node_defaults.py` 会为 Common 节点补齐这些 0 值字段）。
 4. **720p 基准**：所有坐标、ROI、图片必须基于 **1280×720**。
 5. **格式化**：JSON 遵循 `.prettierrc`（4 空格缩进，数组元素换行）。
 
