@@ -196,6 +196,37 @@
             "Node.Action.Succeeded": "没有应急理智加强剂，结束任务"
         }
     },
+    "AutoUseSpMedicationCloseDetailNotExpSoon": {
+        "desc": "关闭详情页（非过期药误匹配），尝试应急药剂",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1084,
+                    203,
+                    33,
+                    31
+                ]
+            }
+        },
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationChooseEmergencySanityBooster",
+            "AutoUseSpMedicationUseNoEmergencySanityBooster"
+        ]
+    },
+    "AutoUseSpMedicationSkipRegular": {
+        "desc": "用户选择不使用应急药剂，静默结束"
+    },
     "AutoUseSpMedicationAdd": {
         "desc": "点击添加按钮",
         "recognition": {

@@ -1,4 +1,4 @@
-{
+﻿{
     "global.region.ValleyIV": "四號谷地",
     "global.region.Wuling": "武陵",
     "global.region.OriginiumSciencePark": "源石研究園",
@@ -358,7 +358,9 @@
     "task.AutoUseSpMedication.description": "自動使用一次應急理智加強劑(+40理智)",
     "task.AutoUseSpMedication.label": "💊應急理智加強劑",
     "option.UseAllExpireSoonMedication.label": "使用所有即將過期的應急理智強化劑",
-    "option.UseAllExpireSoonMedication.description": "使用所有時限小於三天的應急理智強化劑，即時限變紅的應急理智藥",
+    "option.UseAllExpireSoonMedication.description": "開啟後吃完所有時限小於三天的應急理智強化劑（時限變紅）；關閉則跳過過期藥",
+    "option.UseRegularSpMedication.label": "使用應急理智加強劑",
+    "option.UseRegularSpMedication.description": "預設開啟，找到普通應急理智加強劑時使用一顆；關閉後跳過普通藥",
     "task.AutoCollect.description": "自動採集野外資源（需一直保持前台，不要亂動滑鼠）\n注意，作物沒有完全生長齊的時候作物會隨機生長，會導致收集不齊的情況。\n受限於識別精度即使齊了也會有個別無法收集",
     "task.AutoCollect.label": "🧺自動採集資源",
     "option.AutoCollectRoutes.label": "採集路線",

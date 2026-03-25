@@ -5,13 +5,41 @@
             "entry": "AutoUseSpMedicationEntry",
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
-            "group": ["utility"],
+            "group": [
+                "utility"
+            ],
             "option": [
+                "UseRegularSpMedication",
                 "UseAllExpireSoonSpMedication"
             ]
         }
     ],
     "option": {
+        "UseRegularSpMedication": {
+            "type": "switch",
+            "description": "$option.UseRegularSpMedication.description",
+            "label": "$option.UseRegularSpMedication.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
+                            "action": "DoNothing",
+                            "focus": {
+                                "Node.Action.Starting": "未选择使用应急药剂，跳过"
+                            },
+                            "next": [
+                                "AutoUseSpMedicationSkipRegular"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         "UseAllExpireSoonSpMedication": {
             "type": "switch",
             "description": "$option.UseAllExpireSoonMedication.description",
@@ -21,10 +49,12 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-                            "next": [
-                                "AutoUseSpMedicationUseEmergencySpBooster"
-                            ]
+                        "AutoUseSpMedicationEntry": {
+                            "anchor": {
+                                "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBooster",
+                                "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationUseNoEmergencySanityBooster",
+                                "ValuableStashValuablesTabInNext3": "AutoUseSpMedicationUseNoEmergencySanityBooster"
+                            }
                         }
                     }
                 },
@@ -34,7 +64,7 @@
                         "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
                             "next": [
                                 "AutoUseSpMedicationIfExpireSoon",
-                                "AutoUseSpMedicationUseEmergencySpBooster"
+                                "AutoUseSpMedicationCloseDetailNotExpSoon"
                             ]
                         }
                     }

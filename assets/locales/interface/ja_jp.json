@@ -1,4 +1,4 @@
-{
+﻿{
     "global.region.ValleyIV": "第4谷地 (Valley IV)",
     "global.region.Wuling": "武陵 (Wuling)",
     "global.region.OriginiumSciencePark": "源石研究パーク",
@@ -512,7 +512,9 @@
     "task.AutoUseSpMedication.description": "緊急理智強化剤を1つ自動で使用する（+40理智）",
     "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
     "option.UseAllExpireSoonMedication.label": "期限切れ間近の緊急理智強化剤をすべて使用",
-    "option.UseAllExpireSoonMedication.description": "残り3日未満（タイマーが赤くなる）の緊急理智強化剤をすべて使用します。",
+    "option.UseAllExpireSoonMedication.description": "有効にすると、残り3日未満（タイマーが赤くなる）の緊急理智強化剤をすべて使用します。無効にすると期限切れ間近の強化剤はスキップされます。",
+    "option.UseRegularSpMedication.label": "通常の緊急理智強化剤を使用",
+    "option.UseRegularSpMedication.description": "デフォルトで有効。通常の緊急理智強化剤が見つかった場合に1つ使用します。無効にすると通常の強化剤はスキップされます。",
     "task.AutoCollect.description": "フィールド資源を自動採集します（ゲームを常に前面に表示し、マウスを動かさないでください）。\n注意：作物が完全に成長していない場合、作物がランダムに成長し、採集漏れが発生することがあります。\n認識精度の制限により、成長済みでも一部採集できない場合があります。",
     "task.AutoCollect.label": "🧺資源自動収集",
     "option.AutoCollectRoutes.label": "採集ルート",
