@@ -299,7 +299,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
             "EnvironmentMonitoringAdjustCamera": "AncientTreeAdjustCamera"
         },
         "next": [

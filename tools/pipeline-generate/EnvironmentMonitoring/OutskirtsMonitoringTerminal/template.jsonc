@@ -213,7 +213,7 @@
             "path": "${MapPath}"
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
         },
         "next": [

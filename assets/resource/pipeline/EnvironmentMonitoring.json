@@ -1,30 +1,11 @@
 {
     "EnvironmentMonitoringMain": {
-        "desc": "环境监测",
-        "next": [
-            "EnvironmentMonitoringLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
-        ]
-    },
-    "EnvironmentMonitoringLoop": {
-        "desc": "主循环，确保在地区建设界面",
-        "recognition": "And",
-        "all_of": [
-            "InRegionalDevelopment"
-        ],
-        "next": [
-            "EnvironmentMonitoringOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringFinish"
-        ]
-    },
-    "EnvironmentMonitoringOutskirtsMonitoringTerminal": {
         "desc": "城郊监测终端任务",
-        "max_hit": 1,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+                "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
             ]
         },
         "next": [
@@ -42,19 +23,7 @@
             "[JumpBack]BeaconDamagedInBlightTideJob",
             "[JumpBack]RainbowFinJob",
             "[JumpBack]CleansingJadeJob",
-            "EnvironmentMonitoringBackToRegionalDevelopment"
-        ]
-    },
-    "EnvironmentMonitoringBackToRegionalDevelopment": {
-        "desc": "完成城郊监测终端后返回地区建设界面",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1",
-            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
-        ],
-        "action": "Click",
-        "next": [
-            "EnvironmentMonitoringLoop"
+            "EnvironmentMonitoringFinish"
         ]
     },
     "EnvironmentMonitoringFinish": {

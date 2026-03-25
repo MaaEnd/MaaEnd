@@ -251,7 +251,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
             "EnvironmentMonitoringAdjustCamera": "CisternOriginiumSlugsAdjustCamera"
         },
         "next": [

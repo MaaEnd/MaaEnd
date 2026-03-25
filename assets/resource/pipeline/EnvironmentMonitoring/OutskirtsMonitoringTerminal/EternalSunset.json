@@ -239,7 +239,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
             "EnvironmentMonitoringAdjustCamera": "EternalSunsetAdjustCamera"
         },
         "next": [

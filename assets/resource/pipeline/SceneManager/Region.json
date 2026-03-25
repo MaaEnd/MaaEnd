@@ -350,5 +350,38 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
+        "desc": "检查是否在城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
+    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
+        "desc": "检查城郊监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            65,
+            57,
+            184,
+            85
+        ],
+        "expected": [
+            "城郊监测终端",
+            "城郊監測終端",
+            "(?i)Outskirts\\s*Monitoring\\s*Terminal",
+            "郊外観測端末",
+            "교외 관측 단말기"
+        ]
     }
 }
