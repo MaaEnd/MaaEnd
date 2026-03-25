@@ -41,18 +41,17 @@
     },
     "CreditShoppingClaimConfirm": {
         "desc": "获取信用点或物品后的通用确认节点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            560,
-            586,
-            161,
-            134
-        ],
-        "template": [
-            "Common/Button/CloseRewardButton.png",
-            "Common/Button/CloseRewardButtonHover.png"
-        ],
-        "action": "Click",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "CreditShoppingShopping",
             "CreditShoppingClaimConfirm"

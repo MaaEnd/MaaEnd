@@ -31,6 +31,7 @@
     },
     "CreditShoppingBuyFailed": {
         "desc": "购买失败（已售罄/信用点不足）",
+        "max_hit": 1,
         "recognition": "ColorMatch",
         "roi": [
             571,
@@ -55,34 +56,31 @@
     },
     "CreditShoppingCloseDialog": {
         "desc": "关闭对话框",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1066,
-            63,
-            148,
-            97
-        ],
-        "template": "Common/Button/CloseButtonType2.png",
-        "action": "Click",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
         "next": [
-            "CreditShoppingCloseDialog"
+            "CreditShoppingScanItem"
         ]
     },
     "CreditShoppingBuyConfirm": {
         "desc": "购买确认",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1050,
-            559,
-            168,
-            113
-        ],
-        "template": [
-            "Common/Button/YellowConfirmButtonType1.png",
-            "Common/Button/YellowConfirmButtonType1Hover.png"
-        ],
-        "threshold": 0.8,
-        "action": "Click",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "CreditShoppingClaimConfirm",
             "CreditShoppingBuyFailed",
