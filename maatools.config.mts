@@ -30,6 +30,17 @@ const customActTaskRef: PropSelector = (name, param, utils) => {
       }
     }
   }
+  if (name === 'ClearHitCount') {
+    for (const [key, obj] of utils.parseObject(param)) {
+      if (key === 'nodes') {
+        for (const task of utils.parseArray(obj)) {
+          if (utils.isString(task)) {
+            result.push(task)
+          }
+        }
+      }
+    }
+  }
   return result
 }
 
