@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"math/rand"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -30,6 +32,8 @@ const (
 	goodsPriceNodeName            = "AutoStockpileGetGoods"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
 	MAX_DISTANCE = 120
+
+	testPricesEnvVar = "MAAEND_AUTOSTOCKPILE_RECOGNITION_TEST_PRICES"
 )
 
 var (
@@ -337,6 +341,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("recognized goods contains invalid tier")
 		return buildAbortedRecognitionResult(arg, AbortReasonGoodsTierInvalidFatal)
 	}
+
+	applyTestPricesIfEnabled(resultGoods)
 
 	resultPayload := RecognitionResult{
 		Data: &RecognitionData{
@@ -834,6 +840,78 @@ func validateRecognizedGoodsTiers(goods []GoodsItem) error {
 	}
 
 	return nil
+}
+
+func applyTestPricesIfEnabled(goods []GoodsItem) {
+	if os.Getenv(testPricesEnvVar) == "" {
+		return
+	}
+
+	if len(goods) == 0 {
+		return
+	}
+
+	if len(goods) == 1 {
+		goods[0].Price = 200
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Str("goods_id", goods[0].ID).
+			Str("goods_name", goods[0].Name).
+			Int("new_price", 200).
+			Msg("test price rewrite applied (1 item)")
+		return
+	}
+
+	indices := make([]int, len(goods))
+	for i := range indices {
+		indices[i] = i
+	}
+
+	rand.Shuffle(len(indices), func(i, j int) {
+		indices[i], indices[j] = indices[j], indices[i]
+	})
+
+	targetCount100 := 2
+	targetCount200 := 1
+
+	if len(goods) == 2 {
+		targetCount100 = 1
+		targetCount200 = 1
+	} else if len(goods) >= 3 {
+		targetCount100 = 2
+		targetCount200 = 1
+	}
+
+	count100 := 0
+	for i := 0; i < len(indices) && count100 < targetCount100; i++ {
+		goods[indices[i]].Price = 100
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Str("goods_id", goods[indices[i]].ID).
+			Str("goods_name", goods[indices[i]].Name).
+			Int("new_price", 100).
+			Msg("test price rewrite applied (100)")
+		count100++
+	}
+
+	count200 := 0
+	for i := targetCount100; i < len(indices) && count200 < targetCount200; i++ {
+		goods[indices[i]].Price = 200
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Str("goods_id", goods[indices[i]].ID).
+			Str("goods_name", goods[indices[i]].Name).
+			Int("new_price", 200).
+			Msg("test price rewrite applied (200)")
+		count200++
+	}
+
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Int("total_goods", len(goods)).
+		Int("modified_count_100", count100).
+		Int("modified_count_200", count200).
+		Msg("test price rewrite finished")
 }
 
 func overrideGoodsPriceROI(ctx *maa.Context, goodsROI []int) error {

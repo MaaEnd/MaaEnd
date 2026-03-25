@@ -21,6 +21,7 @@
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最终不购买（%s）",
     "autostockpile.product_selected": "【%s】%s (价格 %d, 阈值 %d, 数量 %s)",
+    "autostockpile.reconcile_price_corrected": "检测到商品价格出错，已修正 (%d -> %d)",
     "autostockpile.recognition_early_end": "识别阶段提前结束",
     "autostockpile.hit_skip_purchase": "已命中商品，但最终跳过购买",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",

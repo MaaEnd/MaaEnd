@@ -111,7 +111,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Msg("allow all goods mode enabled")
 	}
 
-	selection := SelectBestProduct(*data, cfg, bypassThresholdFilter)
+	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -130,7 +130,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	quantityDecision, err := resolveQuantityDecision(selection, *data, cfg)
 	if err != nil {
 		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, i18n.T("autostockpile.hit_skip_purchase"))
 	}
@@ -178,6 +177,16 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Msg("failed to override selector pipeline")
 		return false
 	}
+
+	setDecisionState(&DecisionState{
+		Region:             region,
+		EffectiveConfig:    cfg,
+		RawRecognitionData: *data,
+		CurrentDecision: currentDecision{
+			Selection:        selection,
+			QuantityDecision: quantityDecision,
+		},
+	})
 
 	selectionMode := formatSelectionMode(selection, *data, cfg)
 	quantityLog := log.Info().

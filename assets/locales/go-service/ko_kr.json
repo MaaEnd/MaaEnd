@@ -21,6 +21,7 @@
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.hit_but_skip": "상품이 일치했지만 최종적으로 구매하지 않습니다 (%s)",
     "autostockpile.product_selected": "【%s】%s (가격 %d, 임계값 %d, 수량 %s)",
+    "autostockpile.reconcile_price_corrected": "상품 가격 이상을 감지하여 수정했습니다 (%d -> %d)",
     "autostockpile.recognition_early_end": "인식 단계가 조기 종료되었습니다",
     "autostockpile.hit_skip_purchase": "상품이 일치했지만 최종 구매를 건너뜁니다",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",

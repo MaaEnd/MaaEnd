@@ -21,6 +21,7 @@
     "autostockpile.no_qualifying_product": "No qualifying items found (%s)",
     "autostockpile.hit_but_skip": "Item matched but not purchasing (%s)",
     "autostockpile.product_selected": "[%s] %s (Price %d, Threshold %d, Qty %s)",
+    "autostockpile.reconcile_price_corrected": "Detected item price mismatch, corrected (%d -> %d)",
     "autostockpile.recognition_early_end": "Recognition ended early",
     "autostockpile.hit_skip_purchase": "Item matched but purchase skipped",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",

@@ -589,9 +589,131 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileBackToRegionalConstruction"
-        ],
+        ]
+    },
+    "AutoStockpileRelayNodeDecision": {
+        "desc": "限制复核重试次数",
+        "max_hit": 4,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileSelectedGoodsClick",
+            "AutoStockpileSkip"
+        ]
+    },
+    "AutoStockpileClearDecisionHitCount": {
+        "desc": "清除中继节点MaxHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoStockpileRelayNodeDecision"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeDecision"
+        ]
+    },
+    "AutoStockpileDecisionFailed": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "跳过本次购买"
-        }
+            "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
+        },
+        "next": [
+            "AutoStockpileBackToRegionalConstruction"
+        ]
+    },
+    "AutoStockpileReconcileDecision": {
+        "desc": "根据详情页价格校正并重算决策",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    990,
+                    485,
+                    70,
+                    35
+                ],
+                "expected": [
+                    "^\\d{3,4}$"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockpile.ReconcileDecision"
+            }
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeDecisionReady",
+            "AutoStockpileBackToSelection"
+        ]
+    },
+    "AutoStockpileBackToSelection": {
+        "desc": "返回选择界面，准备下一轮决策",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeDecision",
+            "AutoStockpileDecisionFailed"
+        ]
+    },
+    "AutoStockpileEnsureDetailFrameStable": {
+        "desc": "确保详情页已经加载完成",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileReconcileDecision"
+        ]
+    },
+    "AutoStockpileRelayNodeDecisionReady": {
+        "desc": "当前决策已校正，可进入购买链",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCheckBuy",
+            "AutoStockpileCheckQuota"
+        ]
     }
 }

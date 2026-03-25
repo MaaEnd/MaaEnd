@@ -15,5 +15,6 @@ func Register() {
 	}
 
 	maa.AgentServerRegisterCustomAction("AutoStockpile.SelectItem", &SelectItemAction{})
+	maa.AgentServerRegisterCustomAction("AutoStockpile.ReconcileDecision", &ReconcileDecisionAction{})
 	maa.AgentServerRegisterCustomRecognition("AutoStockpile.Recognition", &ItemValueChangeRecognition{})
 }
