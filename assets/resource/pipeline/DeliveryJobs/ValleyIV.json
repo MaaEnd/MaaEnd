@@ -1,16 +1,17 @@
 {
     "DeliveryJobsValleyIVLoop": {
         "desc": "四号谷地运送委托主循环",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "DeliveryJobsEnterValleyIVDepot"
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
             ]
         },
         "anchor": {
-            "DeliveryJobsGoToDepot": "DeliveryJobsGoToValleyIVDepot"
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -19,7 +20,7 @@
             "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
             "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
             "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
-            "DeliveryJobsBackToRegionalConstruction"
+            "DeliveryJobsTaskFinish"
         ]
     },
     "DeliveryJobsInValleyIVLocalDepotNode": {

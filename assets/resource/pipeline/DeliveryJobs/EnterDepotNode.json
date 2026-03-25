@@ -99,20 +99,5 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "DeliveryJobsBackToRegionalConstruction": {
-        "desc": "返回地区建设界面",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1",
-            "InLocalDepotNode"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsLoop"
-        ]
     }
 }

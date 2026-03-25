@@ -398,5 +398,10 @@
         "next": [
             "InLocalDepotNode"
         ]
+    },
+    "DeliveryJobsTaskFinish": {
+        "desc": "任务完成",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
