@@ -6,11 +6,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	_ maa.ContextEventSink = &CursorMoveSink{}
-	_ maa.TaskerEventSink  = &CursorMoveSink{}
-)
-
 // Register adds the cursor-move sinks when the controller is Win32.
 func Register() {
 	if pienv.ControllerName() != "Win32-Front" {
@@ -21,6 +16,7 @@ func Register() {
 	maa.AgentServerAddContextSink(sink)
 	maa.AgentServerAddTaskerSink(sink)
 	log.Info().
+		Str("component", "cursormove").
 		Str("controller", pienv.ControllerName()).
-		Msg("[cursormove] sinks registered for Win32 controller")
+		Msg("sinks registered for Win32 controller")
 }

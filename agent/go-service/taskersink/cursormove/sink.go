@@ -5,6 +5,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	_ maa.ContextEventSink = &CursorMoveSink{}
+	_ maa.TaskerEventSink  = &CursorMoveSink{}
+)
+
 // CursorMoveSink moves the cursor to the bottom-right corner before the next
 // recognition cycle when the previous action repositioned the cursor.
 // This prevents the cursor from occluding game UI elements during Win32 screencap.
@@ -25,13 +30,13 @@ func (s *CursorMoveSink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 
 	ctrl := tasker.GetController()
 	if ctrl == nil {
-		log.Warn().Msg("[cursormove] failed to get controller from tasker")
+		log.Warn().Str("component", "cursormove").Msg("failed to get controller from tasker")
 		return
 	}
 
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
-		log.Warn().Err(err).Msg("[cursormove] failed to get cached image for size")
+		log.Warn().Err(err).Str("component", "cursormove").Msg("failed to get cached image for size")
 		return
 	}
 
@@ -39,9 +44,10 @@ func (s *CursorMoveSink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 	s.imgW = int32(bounds.Dx())
 	s.imgH = int32(bounds.Dy())
 	log.Info().
+		Str("component", "cursormove").
 		Int32("width", s.imgW).
 		Int32("height", s.imgH).
-		Msg("[cursormove] captured image size")
+		Msg("captured image size")
 
 	s.moveCursor(ctrl)
 }
@@ -74,7 +80,7 @@ func (s *CursorMoveSink) OnNodeNextList(ctx *maa.Context, event maa.EventStatus,
 
 	ctrl := ctx.GetTasker().GetController()
 	if ctrl == nil {
-		log.Warn().Msg("[cursormove] failed to get controller from context")
+		log.Warn().Str("component", "cursormove").Msg("failed to get controller from context")
 		return
 	}
 
