@@ -81,6 +81,64 @@
             "SeizeEntrustTaskFoundTarget"
         ],
         "focus": {
+            "Node.Recognition.Failed": "不对不对！",
+            "Node.Recognition.Starting": "再看一眼",
+            "Node.Recognition.Succeeded": "对的对的！"
+        }
+    },
+    "SeizeEntrustTaskFindTargetF1": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "798w",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    841,
+                                    177,
+                                    48,
+                                    424
+                                ],
+                                "expected": [
+                                    "7.98",
+                                    "798",
+                                    "98",
+                                    "79.8"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "798w",
+                                "roi_offset": [
+                                    -234,
+                                    -39,
+                                    57,
+                                    17
+                                ],
+                                "expected": [
+                                    "武陵城",
+                                    "Wuling City",
+                                    "무릉성"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "post_wait_freezes": 1000,
+        "next": [
+            "SeizeEntrustTaskFindTarget",
+            "SeizeEntrustTaskNews"
+        ],
+        "focus": {
             "Node.Recognition.Succeeded": "找到武陵城7.98万订单！"
         }
     },
@@ -454,7 +512,7 @@
             }
         },
         "next": [
-            "[JumpBack]SeizeEntrustTaskFindTarget",
+            "[JumpBack]SeizeEntrustTaskFindTargetF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
@@ -663,7 +721,7 @@
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
-            "[JumpBack]SeizeEntrustTaskFindTarget",
+            "[JumpBack]SeizeEntrustTaskFindTargetF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
