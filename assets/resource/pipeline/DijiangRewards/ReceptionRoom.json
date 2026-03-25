@@ -204,10 +204,10 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesClueCollectionFull",
-            "ReceptionRoomSendCluesClueCollectionClose"
+            "ReceptionRoomSendCluesClueCollectionCollect"
         ]
     },
-    "ReceptionRoomSendCluesClueCollectionClose": {
+    "ReceptionRoomSendCluesClueCollectionCollect": {
         "desc": "[会客室·收集线索] 收集线索没满，开始收集线索",
         "recognition": {
             "type": "And",
@@ -356,11 +356,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomReceiveLoadding",
+            "[JumpBack]ReceptionRoomReceiveLoading",
             "ReceptionRoomReceiveClickReceive"
         ]
     },
-    "ReceptionRoomReceiveLoadding": {
+    "ReceptionRoomReceiveLoading": {
         "recognition": {
             "type": "OCR",
             "param": {
