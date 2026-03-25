@@ -137,8 +137,6 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			},
 		})
 
-		maafocus.Print(ctx, i18n.T("autostockpile.product_selected", formatSelectionMode(newSelection, updatedData, state.EffectiveConfig), newSelection.ProductName, newSelection.CurrentPrice, newSelection.Threshold, formatQuantityText(newQuantityDecision)))
-
 		log.Info().
 			Str("component", "autostockpile").
 			Str("product_id", state.CurrentDecision.Selection.ProductID).
@@ -165,9 +163,12 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			CurrentDecision:    currentDecision{},
 		})
 
+		maafocus.Print(ctx, i18n.T("autostockpile.no_qualifying_product", newSelection.Reason))
+
 		log.Info().
 			Str("component", "autostockpile").
 			Str("product_id", state.CurrentDecision.Selection.ProductID).
+			Str("reason", newSelection.Reason).
 			Int("price", price).
 			Msg("reconcile found no qualifying product, retry path selected")
 		return true
