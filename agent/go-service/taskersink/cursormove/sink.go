@@ -1,17 +1,41 @@
 package cursormove
 
 import (
+	"sync/atomic"
+
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// CursorMoveSink resets the cursor to (0,0) on every Node.NextList.Starting
-// event. This prevents the Win32 controller's SendMessage-based mouse input
-// from being blocked by the physical cursor sitting inside the game window.
-type CursorMoveSink struct{}
+// CursorMoveSink moves the cursor to (0,0) before the next recognition cycle
+// when the previous action repositioned the cursor. This prevents the cursor
+// from occluding game UI elements during Win32 screencap.
+type CursorMoveSink struct {
+	dirty atomic.Bool
+}
+
+func (s *CursorMoveSink) OnNodeAction(ctx *maa.Context, event maa.EventStatus, detail maa.NodeActionDetail) {
+	if event != maa.EventStatusSucceeded && event != maa.EventStatusFailed {
+		return
+	}
+
+	ad, err := ctx.GetTasker().GetActionDetail(int64(detail.ActionID))
+	if err != nil || ad == nil {
+		return
+	}
+
+	switch ad.Action {
+	case "Click", "Swipe", "Scroll", "Custom":
+		s.dirty.Store(true)
+	}
+}
 
 func (s *CursorMoveSink) OnNodeNextList(ctx *maa.Context, event maa.EventStatus, _ maa.NodeNextListDetail) {
 	if event != maa.EventStatusStarting {
+		return
+	}
+
+	if !s.dirty.CompareAndSwap(true, false) {
 		return
 	}
 
@@ -34,7 +58,4 @@ func (s *CursorMoveSink) OnNodeActionNode(_ *maa.Context, _ maa.EventStatus, _ m
 }
 
 func (s *CursorMoveSink) OnNodeRecognition(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionDetail) {
-}
-
-func (s *CursorMoveSink) OnNodeAction(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionDetail) {
 }
