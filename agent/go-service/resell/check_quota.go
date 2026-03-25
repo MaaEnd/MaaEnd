@@ -27,6 +27,8 @@ func extractRecoDetailJson(rd *maa.RecognitionDetail) string {
 // ResellCheckQuotaAction 根据 custom reco 的识别结果计算溢出量，跳转到扫描第一个商品
 type ResellCheckQuotaAction struct{}
 
+var _ maa.CustomActionRunner = &ResellCheckQuotaAction{}
+
 func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	overflowAmount := 0
 	detailJSON := extractRecoDetailJson(arg.RecognitionDetail)

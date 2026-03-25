@@ -12,6 +12,8 @@ import (
 // ResellDecideAction 根据记录、溢出、最低利润决策下一步
 type ResellDecideAction struct{}
 
+var _ maa.CustomActionRunner = &ResellDecideAction{}
+
 func (a *ResellDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	records, overflowAmount, MinimumProfit := getState()
 

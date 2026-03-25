@@ -15,9 +15,9 @@ type quotaRecoResult struct {
 }
 
 // ResellCheckQuotaRecognition 执行配额 OCR，将解析结果通过 Detail 传给后续 Action（使用 pipeline 传入的 arg.Img）
-var _ maa.CustomRecognitionRunner = &ResellCheckQuotaRecognition{}
-
 type ResellCheckQuotaRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &ResellCheckQuotaRecognition{}
 
 func (r *ResellCheckQuotaRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	log.Info().Msg("[Resell]检查配额溢出状态…")

@@ -20,6 +20,8 @@ type ProfitRecord struct {
 // ResellInitAction 解析参数、清空状态，跳转到配额检查
 type ResellInitAction struct{}
 
+var _ maa.CustomActionRunner = &ResellInitAction{}
+
 func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[Resell]开始倒卖流程")
 	var params struct {

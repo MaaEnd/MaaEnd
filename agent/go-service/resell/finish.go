@@ -8,6 +8,8 @@ import (
 // ResellFinishAction - Finish Resell task custom action
 type ResellFinishAction struct{}
 
+var _ maa.CustomActionRunner = &ResellFinishAction{}
+
 func (a *ResellFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[Resell]运行结束")
 	return true

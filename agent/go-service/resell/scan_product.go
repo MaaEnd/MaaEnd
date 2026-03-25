@@ -12,6 +12,8 @@ import (
 // ResellScanAction 入口：解析 row/col，OverrideNext 到 Step1
 type ResellScanAction struct{}
 
+var _ maa.CustomActionRunner = &ResellScanAction{}
+
 func (a *ResellScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rowIdx, col := 1, 1
 	if arg.CustomActionParam != "" {
@@ -44,6 +46,8 @@ func (a *ResellScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 // ResellScanCostAction Step2 确认成本价：从 RecognitionDetail 提取并存储详情页成本
 type ResellScanCostAction struct{}
 
+var _ maa.CustomActionRunner = &ResellScanCostAction{}
+
 func (a *ResellScanCostAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	text := extractOCRText(arg.RecognitionDetail)
 	if text != "" {
@@ -60,6 +64,8 @@ func (a *ResellScanCostAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 
 // ResellScanFriendPriceAction Step3：从 RecognitionDetail 提取好友出售价、追加利润记录（识别由 Pipeline Or ResellROIFriendSalePrice 完成）
 type ResellScanFriendPriceAction struct{}
+
+var _ maa.CustomActionRunner = &ResellScanFriendPriceAction{}
 
 func (a *ResellScanFriendPriceAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rowIdx, col := getScanPos()
@@ -89,6 +95,8 @@ func (a *ResellScanFriendPriceAction) Run(ctx *maa.Context, arg *maa.CustomActio
 // ResellScanSkipEmptyAction Step1 识别失败（无商品）时跳过当前格
 type ResellScanSkipEmptyAction struct{}
 
+var _ maa.CustomActionRunner = &ResellScanSkipEmptyAction{}
+
 func (a *ResellScanSkipEmptyAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rowIdx, col := getScanPos()
 	log.Info().Int("行", rowIdx).Int("列", col).Msg("[Resell]位置无数字，无商品，跳下一格")
@@ -98,6 +106,8 @@ func (a *ResellScanSkipEmptyAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 // ResellScanNextAction 跳下一格或进入决策（OverrideNext）
 type ResellScanNextAction struct{}
+
+var _ maa.CustomActionRunner = &ResellScanNextAction{}
 
 func (a *ResellScanNextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rowIdx, col := getScanPos()
