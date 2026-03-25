@@ -40,6 +40,8 @@
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingRefreshCountReached",
+            "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
@@ -67,17 +69,18 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingRefreshCountReached",
+            "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
-            "CreditShoppingReserveCredit",
-            "CreditShoppingPrudentRefresh",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
     },
     "CreditShippingCanNotToBuy": {
-        "desc": "刷新流程中无法购买",
+        "desc": "刷新流程中无法购买（选项：没有可购买物品时=执行刷新）",
         "enabled": false,
         "recognition": "Or",
         "any_of": [
@@ -92,7 +95,7 @@
         }
     },
     "RefreshItem": {
-        "desc": "刷新商品",
+        "desc": "刷新商品（选项：没有可购买物品时=执行刷新）",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -118,7 +121,7 @@
         }
     },
     "CreditShoppingReserveCredit": {
-        "desc": "信用点低于保留阈值",
+        "desc": "信用点低于保留阈值（选项：保留信用点阈值）",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -168,7 +171,7 @@
         }
     },
     "AutoGetCredits": {
-        "desc": "额度不足时候自动去基建获取",
+        "desc": "白名单物品买不起时自动去基建获取（选项：获取信用点）",
         "max_hit": 1,
         "recognition": "Or",
         "any_of": [
@@ -195,7 +198,7 @@
         "box_index": 3
     },
     "CreditShoppingBuyFirst": {
-        "desc": "优先购买",
+        "desc": "优先购买（选项：白名单）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -217,7 +220,7 @@
     },
     "CreditShoppingBuyNormalWithDiscount": {
         //"enabled": false,
-        "desc": "普通购买",
+        "desc": "普通购买（选项：可购买非白名单物品、折扣比例、黑名单设置）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -233,7 +236,7 @@
         ]
     },
     "CreditShoppingBuyBlacklist": {
-        "desc": "忽略黑名单",
+        "desc": "忽略黑名单购买（选项：没有可购买物品时=购买黑名单物品）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -247,7 +250,7 @@
         ]
     },
     "CreditShoppingPrudentRefresh": {
-        "desc": "稳健模式刷新，当前信用点-刷新花费低于阈值时触发",
+        "desc": "稳健模式下改为直接购买（选项：稳健模式刷新、稳健刷新阈值）",
         "recognition": {
             "type": "And",
             "param": {
@@ -287,6 +290,54 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
+        }
+    },
+    "CreditShoppingRefreshCountReached": {
+        "desc": "刷新次数已用尽时直接购买（选项：没有可购买物品时=执行刷新）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    885,
+                                    535,
+                                    395,
+                                    185
+                                ],
+                                "expected": [
+                                    "今日刷新次数已用尽"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "CreditIcon",
+                                    "NotSoldOut",
+                                    "CanAfford"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingBuyItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.RefreshCountReached_triggered"
         }
     },
     "CreditShoppingNothingToBuy": {
