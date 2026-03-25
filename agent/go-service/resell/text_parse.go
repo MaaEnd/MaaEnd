@@ -2,7 +2,7 @@ package resell
 
 import "strconv"
 
-// extractIntegerFromText 从文本中提取所有连续的数字字符，并转换为整数。
+// extractIntegerFromText 从文本中提取所有数字字符，按顺序拼接后转换为整数。
 // 返回提取到的整数和是否成功转换。
 func extractIntegerFromText(text string) (int, bool) {
 	digitsOnly := make([]byte, 0, len(text))
