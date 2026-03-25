@@ -40,7 +40,7 @@
         "desc": "自动选择四号谷地售卖流程",
         "recognition": "And",
         "all_of": [
-            "InValleyIVRegionalDevelopment"
+            "InRegionalDevelopmentValleyIV"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -54,7 +54,7 @@
         "desc": "自动选择武陵售卖流程",
         "recognition": "And",
         "all_of": [
-            "InWulingRegionalDevelopment"
+            "InRegionalDevelopmentWuling"
         ],
         "pre_delay": 0,
         "post_delay": 0,

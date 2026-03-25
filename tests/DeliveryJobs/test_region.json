@@ -11,13 +11,15 @@
         {
             "name": "大世界主页",
             "image": "帝江号_大世界.png",
-            "hits": ["InWorld"]
+            "hits": [
+                "InWorld"
+            ]
         },
         {
             "name": "在四号谷地的地区建设",
             "image": "四号谷地_地区建设.png",
             "hits": [
-                "InValleyIVRegionalDevelopment",
+                "InRegionalDevelopmentValleyIV",
                 "InRegionalDevelopment"
             ]
         },
@@ -25,19 +27,23 @@
             "name": "在武陵的地区建设",
             "image": "武陵_地区建设.png",
             "hits": [
-                "InWulingRegionalDevelopment",
+                "InRegionalDevelopmentWuling",
                 "InRegionalDevelopment"
             ]
         },
         {
             "name": "在四号谷地的仓储节点",
             "image": "四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱.png",
-            "hits": ["DeliveryJobsInValleyIVLocalDepotNode"]
+            "hits": [
+                "DeliveryJobsInValleyIVLocalDepotNode"
+            ]
         },
         {
             "name": "在武陵的仓储节点",
             "image": "武陵_地区建设_仓储节点_货物装箱.png",
-            "hits": ["DeliveryJobsInWulingLocalDepotNode"]
+            "hits": [
+                "DeliveryJobsInWulingLocalDepotNode"
+            ]
         }
     ]
 }

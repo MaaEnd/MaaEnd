@@ -37,7 +37,7 @@
         "recognition": "And",
         "all_of": [
             "EnvironmentMonitoringButton",
-            "InWulingRegionalDevelopment"
+            "InRegionalDevelopmentWuling"
         ],
         "action": "Click",
         "next": [

@@ -169,7 +169,7 @@
         "recognition": "And",
         "all_of": [
             "SellProductCheckOutpostManagementText",
-            "InValleyIVRegionalDevelopment"
+            "InRegionalDevelopmentValleyIV"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -184,7 +184,7 @@
         "recognition": "And",
         "all_of": [
             "SellProductCheckOutpostManagementText",
-            "InWulingRegionalDevelopment"
+            "InRegionalDevelopmentWuling"
         ],
         "pre_delay": 0,
         "action": "Click",

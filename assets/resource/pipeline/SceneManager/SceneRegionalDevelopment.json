@@ -1,0 +1,424 @@
+{
+    "__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment": {
+        "desc": "从地区建设二级菜单退出到地区建设菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentView2",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentValleyIV": {
+        "desc": "在地区建设菜单界面，进入四号谷地地区建设界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "anchor": {
+            "__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor": "__ScenePrivateMenuRegionalDevelopmentSelectRegionValleyIV",
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentRegionAnchorSuccess": "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess",
+            "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentRegionChange"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentWuling": {
+        "desc": "在地区建设菜单界面，进入武陵地区建设界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "anchor": {
+            "__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor": "__ScenePrivateMenuRegionalDevelopmentSelectRegionWuling",
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentRegionAnchorSuccess": "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess",
+            "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentRegionChange"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentRegionChange": {
+        "desc": "在地区建设菜单界面，进入更改地区界面",
+        "recognition": "And",
+        "all_of": [
+            "ChangeRegionButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentSelectRegionValleyIV": {
+        "desc": "选择四号谷地",
+        "recognition": "OCR",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "(?i)Valley\\s*IV",
+            "4번 협곡",
+            "Valley"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentChangeRegionConfirm"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentSelectRegionWuling": {
+        "desc": "选择武陵",
+        "recognition": "OCR",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "武陵",
+            "(?i)Wuling",
+            "무릉"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentChangeRegionConfirm"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentChangeRegionConfirm": {
+        "desc": "确认更改至选定地区",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1",
+            "CheckChangeRegionConfirmText"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__ScenePrivateAnyEnterMenuRegionalDevelopmentRegionAnchorSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess": {
+        "desc": "在地区建设菜单界面，进入四号谷地地区建设界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess": {
+        "desc": "在地区建设菜单界面，进入武陵地区建设界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetOutpostManagement": {
+        "desc": "在武陵地区建设界面，进入据点管理界面",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckOutpostManagementText",
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingOutpostManagementSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingOutpostManagementSuccess": {
+        "desc": "在武陵地区建设界面，进入据点管理界面成功",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckSkyKingFlatsTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetOutpostManagement": {
+        "desc": "在四号谷地地区建设界面，进入据点管理界面",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckOutpostManagementText",
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVOutpostManagementSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVOutpostManagementSuccess": {
+        "desc": "在四号谷地地区建设界面，进入据点管理界面成功",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetStockRedistribution": {
+        "desc": "在四号谷地地区建设界面，进入物资调度界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    900,
+                    325,
+                    100,
+                    100
+                ],
+                "template": [
+                    "AutoStockpile/StockRedistributionButton.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            },
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVStockRedistributionSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVStockRedistributionSuccess": {
+        "desc": "在四号谷地地区建设界面，进入物资调度界面成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            340,
+            55,
+            60,
+            70
+        ],
+        "template": [
+            "AutoStockpile/ElasticGoodsButton.png",
+            "AutoStockpile/ElasticGoodsButtonSelected.png"
+        ],
+        "threshold": [
+            0.8
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetStockRedistribution": {
+        "desc": "在武陵地区建设界面，进入物资调度界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    900,
+                    325,
+                    100,
+                    100
+                ],
+                "template": [
+                    "AutoStockpile/StockRedistributionButton.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            },
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingStockRedistributionSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingStockRedistributionSuccess": {
+        "desc": "在武陵地区建设界面，进入物资调度界面成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            340,
+            55,
+            60,
+            70
+        ],
+        "template": [
+            "AutoStockpile/ElasticGoodsButton.png",
+            "AutoStockpile/ElasticGoodsButtonSelected.png"
+        ],
+        "threshold": [
+            0.8
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetDepotNode": {
+        "desc": "在四号谷地地区建设界面，进入仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVDepotNodeSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVDepotNodeSuccess": {
+        "desc": "在四号谷地地区建设界面，进入仓储节点界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText"
+        ],
+        // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetDepotNode": {
+        "desc": "在武陵地区建设界面，进入仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeSuccess": {
+        "desc": "在武陵地区建设界面，进入仓储节点界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeWulingCityText"
+        ],
+        // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetEnvironmentMonitoring": {
+        "desc": "在武陵地区建设界面，进入环境监测界面",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringButton",
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingEnvironmentMonitoringSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingEnvironmentMonitoringSuccess": {
+        "desc": "在武陵地区建设界面，进入环境监测界面成功",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    }
+}

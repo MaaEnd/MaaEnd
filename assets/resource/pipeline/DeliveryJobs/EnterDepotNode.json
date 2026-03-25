@@ -60,7 +60,7 @@
         "recognition": "And",
         "all_of": [
             "DepotButton",
-            "InValleyIVRegionalDevelopment"
+            "InRegionalDevelopmentValleyIV"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -75,7 +75,7 @@
         "recognition": "And",
         "all_of": [
             "DepotButton",
-            "InWulingRegionalDevelopment"
+            "InRegionalDevelopmentWuling"
         ],
         "pre_delay": 0,
         "action": "Click",

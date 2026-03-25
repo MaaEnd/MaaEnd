@@ -11,7 +11,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "InValleyIVRegionalDevelopment",
+            "InRegionalDevelopmentValleyIV",
             "RegionalDevelopmentChangeToValleyIV"
         ]
     },
@@ -25,7 +25,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "InWulingRegionalDevelopment",
+            "InRegionalDevelopmentWuling",
             "RegionalDevelopmentChangeToWuling"
         ]
     },
@@ -34,7 +34,7 @@
         "pre_delay": 0,
         "anchor": {
             "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectValleyIV",
-            "RegionalDevelopmentInDestinationRegion": "InValleyIVRegionalDevelopment"
+            "RegionalDevelopmentInDestinationRegion": "InRegionalDevelopmentValleyIV"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -47,7 +47,7 @@
         "pre_delay": 0,
         "anchor": {
             "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectWuling",
-            "RegionalDevelopmentInDestinationRegion": "InWulingRegionalDevelopment"
+            "RegionalDevelopmentInDestinationRegion": "InRegionalDevelopmentWuling"
         },
         "post_delay": 0,
         "rate_limit": 0,

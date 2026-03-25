@@ -1,0 +1,94 @@
+{
+    "SceneEnterMenuRegionalDevelopmentValleyIV": {
+        "desc": "进入地区建设-四号谷地",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentValleyIV",
+            "[JumpBack]__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement": {
+        "desc": "进入地区建设-四号谷地-据点管理",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetOutpostManagement",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution": {
+        "desc": "进入地区建设-四号谷地-物资调度",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetStockRedistribution",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode": {
+        "desc": "进入地区建设-四号谷地-仓储节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetDepotNode",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentWuling": {
+        "desc": "进入地区建设-武陵",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentWuling",
+            "[JumpBack]__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement": {
+        "desc": "进入地区建设-武陵-据点管理",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetOutpostManagement",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution": {
+        "desc": "进入地区建设-武陵-物资调度",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetStockRedistribution",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentWulingDepotNode": {
+        "desc": "进入地区建设-武陵-仓储节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetDepotNode",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring": {
+        "desc": "进入地区建设-武陵-环境监测",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetEnvironmentMonitoring",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    }
+}

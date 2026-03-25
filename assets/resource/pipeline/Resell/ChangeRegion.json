@@ -15,7 +15,7 @@
         "desc": "已切换到四号谷地",
         "recognition": "Or",
         "any_of": [
-            "InValleyIVRegionalDevelopment"
+            "InRegionalDevelopmentValleyIV"
         ],
         "action": "DoNothing",
         "next": [
@@ -102,7 +102,7 @@
         "desc": "切换到武陵继续售卖",
         "recognition": "Or",
         "any_of": [
-            "InValleyIVRegionalDevelopment"
+            "InRegionalDevelopmentValleyIV"
         ],
         "action": "DoNothing",
         "next": [
@@ -114,7 +114,7 @@
         "desc": "已切换到武陵",
         "recognition": "Or",
         "any_of": [
-            "InWulingRegionalDevelopment"
+            "InRegionalDevelopmentWuling"
         ],
         "action": "DoNothing",
         "next": [
