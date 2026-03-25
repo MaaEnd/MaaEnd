@@ -455,10 +455,6 @@ deps
 config
 debug
 
-# Claude
-.claude/
-!.claude/skills/
-
 # macOS
 .DS_Store
 .AppleDouble
