@@ -26,7 +26,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DeliveryJobsValleyIV": {
+                        "DeliveryJobsValleyIVLoop": {
                             "enabled": true
                         }
                     },
@@ -39,7 +39,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DeliveryJobsValleyIV": {
+                        "DeliveryJobsValleyIVLoop": {
                             "enabled": false
                         }
                     }
@@ -123,7 +123,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DeliveryJobsWuling": {
+                        "DeliveryJobsWulingLoop": {
                             "enabled": true
                         }
                     },
@@ -134,7 +134,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DeliveryJobsWuling": {
+                        "DeliveryJobsWulingLoop": {
                             "enabled": false
                         }
                     }
