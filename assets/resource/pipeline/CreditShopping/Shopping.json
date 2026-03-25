@@ -274,7 +274,8 @@
                                     "CreditIcon",
                                     "NotSoldOut",
                                     "CanAfford"
-                                ]
+                                ],
+                                "box_index": 2
                             }
                         }
                     }
@@ -322,7 +323,8 @@
                                     "CreditIcon",
                                     "NotSoldOut",
                                     "CanAfford"
-                                ]
+                                ],
+                                "box_index": 2
                             }
                         }
                     }
