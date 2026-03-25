@@ -1,17 +1,12 @@
-import { ParserConfig, PropSelector, PropSelectorResult } from '@nekosu/maa-tools/pm'
+import type { ParserConfig, PropSelector, PropSelectorResult } from '@nekosu/maa-tools/pm'
+import { tryAddTask, tryAddTaskArray, tryAddTemplate } from './utils'
 
 const customRecoParser: PropSelector = (name, param, utils) => {
   const result: PropSelectorResult[] = []
   if (name === 'autoEcoFarmFindNearestRecognitionResult') {
     for (const [key, obj] of utils.parseObject(param)) {
       if (key === 'RecognitionNodeName') {
-        if (utils.isString(obj)) {
-          result.push({
-            node: obj,
-            type: 'taskRef',
-            missingPolicy: 'error',
-          })
-        }
+        tryAddTask(utils, result, obj)
       }
     }
   }
@@ -24,40 +19,20 @@ const customActParser: PropSelector = (name, param, utils) => {
     for (const [key, obj] of utils.parseObject(param)) {
       if (key === 'sub') {
         for (const task of utils.parseArray(obj)) {
-          if (utils.isString(task)) {
-            result.push({
-              node: task,
-              type: 'taskRef',
-              missingPolicy: 'error',
-            })
-          }
+          tryAddTask(utils, result, task)
         }
       }
     }
   } else if (name === 'ClearHitCount') {
     for (const [key, obj] of utils.parseObject(param)) {
       if (key === 'nodes') {
-        for (const task of utils.parseArray(obj)) {
-          if (utils.isString(task)) {
-            result.push({
-              node: task,
-              type: 'taskRef',
-              missingPolicy: 'ignore',
-            })
-          }
-        }
+        tryAddTaskArray(utils, result, obj, 'ignore')
       }
     }
   } else if (name === 'QuantizedSliding') {
     for (const [key, obj] of utils.parseObject(param)) {
       if (key === 'IncreaseButton' || key === 'DecreaseButton') {
-        if (utils.isString(obj)) {
-          result.push({
-            node: obj,
-            type: 'template',
-            missingPolicy: 'error',
-          })
-        }
+        tryAddTemplate(utils, result, obj)
       }
     }
   }
