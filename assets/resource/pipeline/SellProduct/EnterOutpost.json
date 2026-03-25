@@ -35,45 +35,6 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductGoToOutpost": {
-        "desc": "前往据点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]SellProductInOutpost",
-            "[Anchor]SellProductEnterOutpost",
-            "[JumpBack][Anchor]SellProductGoToRegion"
-        ]
-    },
-    "SellProductGoToValleyIVOutpost": {
-        "desc": "前往四号谷地据点",
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductInOutpost": "SellProductInValleyIVOutpost",
-            "SellProductEnterOutpost": "SellProductEnterValleyIVOutpost",
-            "SellProductGoToRegion": "GoToValleyIV"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductGoToOutpost"
-        ]
-    },
-    "SellProductGoToWulingOutpost": {
-        "desc": "前往武陵据点",
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductInOutpost": "SellProductInWulingOutpost",
-            "SellProductEnterOutpost": "SellProductEnterWulingOutpost",
-            "SellProductGoToRegion": "GoToWuling"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductGoToOutpost"
-        ]
-    },
     "SellProductCheckOutpostText": {
         "desc": "检查左上角据点文本",
         "recognition": "OCR",
@@ -137,61 +98,5 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "SellProductEnterOutpostLocked": {
-        "desc": "识别据点管理是否未解锁",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1178,
-                    185,
-                    35,
-                    48
-                ],
-                "template": [
-                    "SellProduct/SellProductDevelopmentLocked.png"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            // "SellProductAtDevelopment"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "据点管理未解锁"
-        }
-    },
-    "SellProductEnterValleyIVOutpost": {
-        "desc": "进入四号谷地据点管理",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckOutpostManagementText",
-            "InRegionalDevelopmentValleyIV"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductInValleyIVOutpost"
-        ]
-    },
-    "SellProductEnterWulingOutpost": {
-        "desc": "进入武陵据点管理",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckOutpostManagementText",
-            "InRegionalDevelopmentWuling"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductInWulingOutpost"
-        ]
     }
 }
