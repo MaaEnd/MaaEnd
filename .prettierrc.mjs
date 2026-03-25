@@ -47,6 +47,7 @@ export default {
                 trailingComma: "all",
                 bracketSpacing: true,
                 singleQuote: true,
+                multilineArraysWrapThreshold: -1,
             },
         },
     ],

@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@nekosu/maa-tools':
-        specifier: 1.0.19
-        version: 1.0.19
+        specifier: 1.0.20
+        version: 1.0.20
       '@nekosu/prettier-plugin-maafw-sort':
         specifier: 1.0.4
         version: 1.0.4
@@ -77,14 +77,14 @@ packages:
   '@nekosu/maa-locale@1.0.2':
     resolution: {integrity: sha512-h09IQIN6iKt3OmwiCD7O36QOkmfL8lFO4nAAj+cXOuQfXYbWv4kLDzApzfURhGezjpm4+9gPaksYY9xK9LLkOA==}
 
-  '@nekosu/maa-pipeline-manager@1.0.7':
-    resolution: {integrity: sha512-2CEGLcp/a1o32jlHACbwD8QZbkhozIzObG9MFZYvsRstO5fkdybYHbvsv5bcQz5d3zxg8sGe0hsBDZylWGC5nQ==}
+  '@nekosu/maa-pipeline-manager@1.0.8':
+    resolution: {integrity: sha512-E9xg/v/9c4MvEBGPl7KyIX8FbDVuG1JrAw+LGiFE54AUemcfqxXQDKqNA/fpMoIpWUyHxqZNkB2nzjXcK2OV5A==}
 
   '@nekosu/maa-tasker@1.0.0':
     resolution: {integrity: sha512-p5SaBJGvAMr5J2uk6imoiK7eIF7yA67HndWyfxddAHHdoyliai2dkHqBhTmDDuRmmAJ/ly4INg5Hnx8CI7Po3A==}
 
-  '@nekosu/maa-tools@1.0.19':
-    resolution: {integrity: sha512-VWaV1yhWbgNezGmBDsuDaCE3IoyngxPfVzs5eKqsCaQhr7ci7j/NcyBcMbpGMd+FeBJM2NJLTwy88+fS9Cp65g==}
+  '@nekosu/maa-tools@1.0.20':
+    resolution: {integrity: sha512-MdXo1cSZYxPnECk0ryLBy2i50qVBEvhG3LZRUd2ard7LQMH210aTMq83zMsOE0KKjF6kcMze+AsS90W4nopX/A==}
     hasBin: true
 
   '@nekosu/maa-version-manager@1.0.2':
@@ -645,7 +645,7 @@ snapshots:
 
   '@nekosu/maa-locale@1.0.2': {}
 
-  '@nekosu/maa-pipeline-manager@1.0.7':
+  '@nekosu/maa-pipeline-manager@1.0.8':
     dependencies:
       '@nekosu/maa-locale': 1.0.2
       '@nekosu/maa-tasker': 1.0.0
@@ -656,11 +656,11 @@ snapshots:
     dependencies:
       '@nekosu/simple-parser': 1.0.0
 
-  '@nekosu/maa-tools@1.0.19':
+  '@nekosu/maa-tools@1.0.20':
     dependencies:
       '@actions/core': 3.0.0
       '@nekosu/maa-locale': 1.0.2
-      '@nekosu/maa-pipeline-manager': 1.0.7
+      '@nekosu/maa-pipeline-manager': 1.0.8
       '@nekosu/maa-version-manager': 1.0.2
       chalk: 5.6.2
       jiti: 2.6.1
