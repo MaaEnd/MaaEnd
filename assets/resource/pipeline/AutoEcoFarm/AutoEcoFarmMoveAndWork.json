@@ -302,14 +302,9 @@
                 "key": 18 //alt键
             }
         },
-        //每次操作后休息30秒等队友完成工作
-        "post_delay": 30000,
         "next": [
-            "_AutoEcoFarmFindMenuLoop"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
-        }
+            "AutoEcoFarmEnterCameraModeKeyDownR"
+        ]
     },
     "_AutoEcoFarmCancelMove": {
         "desc": "退出任务前先松开w",
