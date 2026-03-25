@@ -342,10 +342,6 @@
     },
     "CreditShoppingNothingToBuy": {
         "desc": "没有合适的东西可以买了",
-        "recognition": "DirectHit",
-        "next": [
-            "InMainWindow",
-            "[JumpBack]CloseButtonType1"
-        ]
+        "recognition": "DirectHit"
     }
 }
