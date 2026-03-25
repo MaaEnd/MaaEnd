@@ -22,6 +22,7 @@ const (
 	autoStockpileComponent = "autostockpile"
 
 	selectedGoodsClickNodeName    = "AutoStockpileSelectedGoodsClick"
+	decisionAttachNodeName        = "AutoStockpileDecisionAttach"
 	swipeSpecificQuantityNodeName = "AutoStockpileSwipeSpecificQuantity"
 	selectedGoodsClickResetY      = 180
 	findMarketMarkNodeName        = "AutoStockpileFindMarketMark"
@@ -84,12 +85,12 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
-	cfg, abortReason, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName, region)
+	cfg, abortReason, err := getSelectionConfigFromNode(ctx, decisionAttachNodeName, region)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", autoStockpileComponent).
-			Str("node", arg.CurrentTaskName).
+			Str("node", decisionAttachNodeName).
 			Str("region", region).
 			Str("abort_reason", string(abortReason)).
 			Msg("failed to load selection config for recognition")

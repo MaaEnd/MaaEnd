@@ -93,7 +93,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	cfg, abortReason, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName, region)
+	cfg, abortReason, err := getSelectionConfigFromNode(ctx, decisionAttachNodeName, region)
 	if err != nil {
 		return stopTaskWithFocus(ctx, abortReason, err)
 	}
