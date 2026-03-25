@@ -84,13 +84,12 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	data := result.Data
-	region, anchor, err := resolveGoodsRegion(ctx)
+	region, err := resolveGoodsRegionFromActionArg(arg)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonRegionResolveFailedFatal, err)
 	}
 	log.Info().
 		Str("component", "autostockpile").
-		Str("anchor", anchor).
 		Str("region", region).
 		Msg("selector region resolved")
 

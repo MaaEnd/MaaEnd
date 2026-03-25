@@ -20,7 +20,6 @@ import (
 
 const (
 	autoStockpileComponent = "autostockpile"
-	anchorTargetRegionName = "AutoStockpileGotoTargetRegion"
 
 	selectedGoodsClickNodeName    = "AutoStockpileSelectedGoodsClick"
 	swipeSpecificQuantityNodeName = "AutoStockpileSwipeSpecificQuantity"
@@ -69,7 +68,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	region, anchor, err := resolveGoodsRegion(ctx)
+	region, err := resolveGoodsRegionFromTaskNode(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -81,7 +80,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}
 	log.Info().
 		Str("component", autoStockpileComponent).
-		Str("anchor", anchor).
+		Str("node", arg.CurrentTaskName).
 		Str("region", region).
 		Msg("goods region resolved")
 
@@ -422,6 +421,21 @@ func itemMapCounts(itemMap *ItemMap) (nameCount int, idCount int) {
 	return len(itemMap.NameToID), len(itemMap.IDToName)
 }
 
+func itemMapHasRegion(itemMap *ItemMap, region string) bool {
+	if itemMap == nil || len(itemMap.IDToName) == 0 {
+		return false
+	}
+
+	prefix := region + "/"
+	for id := range itemMap.IDToName {
+		if strings.HasPrefix(id, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[string]bool) []string {
 	if itemMap == nil || len(itemMap.IDToName) == 0 {
 		return nil
@@ -542,24 +556,71 @@ func buildCustomRecognitionResult(arg *maa.CustomRecognitionArg, payload Recogni
 	}, nil
 }
 
-func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string, err error) {
+func resolveGoodsRegionFromTaskNode(ctx *maa.Context, taskName string) (string, error) {
 	if ctx == nil {
-		return "", "", fmt.Errorf("context is nil")
+		return "", fmt.Errorf("context is nil")
+	}
+	if strings.TrimSpace(taskName) == "" {
+		return "", fmt.Errorf("task name is empty")
 	}
 
-	anchor, err = ctx.GetAnchor(anchorTargetRegionName)
+	node, err := ctx.GetNode(taskName)
 	if err != nil {
-		return "", "", fmt.Errorf("get anchor %s: %w", anchorTargetRegionName, err)
+		return "", fmt.Errorf("get node %s: %w", taskName, err)
+	}
+	if node.Action == nil {
+		return "", fmt.Errorf("node %s missing action", taskName)
 	}
 
-	switch anchor {
-	case "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution":
-		return "ValleyIV", anchor, nil
-	case "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution":
-		return "Wuling", anchor, nil
-	default:
-		return "", anchor, fmt.Errorf("unexpected anchor value %q", anchor)
+	param, ok := node.Action.Param.(*maa.CustomActionParam)
+	if !ok || param == nil {
+		return "", fmt.Errorf("node %s action param type %T is not *maa.CustomActionParam", taskName, node.Action.Param)
 	}
+
+	return resolveGoodsRegionFromCustomActionParam(param.CustomActionParam)
+}
+
+func resolveGoodsRegionFromActionArg(arg *maa.CustomActionArg) (string, error) {
+	if arg == nil {
+		return "", fmt.Errorf("custom action arg is nil")
+	}
+
+	return resolveGoodsRegionFromCustomActionParam(arg.CustomActionParam)
+}
+
+func resolveGoodsRegionFromCustomActionParam(raw any) (string, error) {
+	if raw == nil {
+		return "", fmt.Errorf("custom_action_param is nil")
+	}
+
+	param, err := normalizeCustomActionParam(raw)
+	if err != nil {
+		return "", fmt.Errorf("normalize custom_action_param: %w", err)
+	}
+
+	regionValue, ok := param["Region"]
+	if !ok {
+		return "", fmt.Errorf("custom_action_param.Region is required")
+	}
+
+	region, ok := regionValue.(string)
+	if !ok {
+		return "", fmt.Errorf("custom_action_param.Region type %T is not string", regionValue)
+	}
+	region = strings.TrimSpace(region)
+	if region == "" {
+		return "", fmt.Errorf("custom_action_param.Region is empty")
+	}
+
+	itemMap := GetItemMap()
+	if err := validateItemMap(itemMap); err != nil {
+		return "", fmt.Errorf("item_map unavailable: %w", err)
+	}
+	if !itemMapHasRegion(itemMap, region) {
+		return "", fmt.Errorf("custom_action_param.Region %q not found in item_map", region)
+	}
+
+	return region, nil
 }
 
 func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string, goodsROI []int) (*maa.RecognitionDetail, error) {

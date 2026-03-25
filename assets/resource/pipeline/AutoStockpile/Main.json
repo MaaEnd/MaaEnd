@@ -15,15 +15,17 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockpileValleyIV",
+            "[JumpBack]AutoStockpileWuling"
+        ]
     },
     "AutoStockpileValleyIV": {
         "desc": "自动囤货四号谷地节点",
         "enabled": false,
+        "max_hit": 1,
         "pre_delay": 0,
-        "anchor": {
-            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
-        },
         "action": {
             "type": "Custom",
             "param": {
@@ -35,22 +37,23 @@
                 }
             }
         },
+        "anchor": {
+            "AutoStockpileDecision": "AutoStockpileDecisionValleyIV"
+        },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileTask"
-        ],
         "focus": {
             "Node.Recognition.Starting": "正在前往: 四号谷地"
-        }
+        },
+        "next": [
+            "AutoStockpileTask"
+        ]
     },
     "AutoStockpileWuling": {
         "desc": "自动囤货武陵节点",
         "enabled": false,
+        "max_hit": 1,
         "pre_delay": 0,
-        "anchor": {
-            "AutoStockpileGotoTargetRegion": "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
-        },
         "action": {
             "type": "Custom",
             "param": {
@@ -62,13 +65,16 @@
                 }
             }
         },
+        "anchor": {
+            "AutoStockpileDecision": "AutoStockpileDecisionWuling"
+        },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileTask"
-        ],
         "focus": {
             "Node.Recognition.Starting": "正在前往: 武陵"
-        }
+        },
+        "next": [
+            "AutoStockpileTask"
+        ]
     }
 }
