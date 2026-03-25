@@ -158,7 +158,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtDevelopment"
+            // "SellProductAtDevelopment"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "据点管理未解锁"
@@ -192,21 +192,6 @@
         "rate_limit": 0,
         "next": [
             "SellProductInWulingOutpost"
-        ]
-    },
-    "SellProductBackToRegionalConstruction": {
-        "desc": "返回区域建设界面",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1",
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductAtDevelopment"
         ]
     }
 }

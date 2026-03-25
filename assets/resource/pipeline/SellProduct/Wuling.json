@@ -7,14 +7,14 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SellProductGoToWulingOutpost"
+                "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
-            "SellProductBackToRegionalConstruction"
+            "SellProductSellAreaFinish"
         ]
     },
     "SellProductSkyKingFlats": {

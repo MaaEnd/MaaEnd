@@ -295,5 +295,10 @@
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
+    },
+    "SellProductSellAreaFinish": {
+        "desc": "售卖一个地区完成",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
