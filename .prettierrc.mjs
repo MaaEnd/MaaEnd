@@ -40,6 +40,7 @@ export default {
         {
             files: [
                 "*.mts",
+                "**/*.ts",
             ],
             options: {
                 tabWidth: 2,
