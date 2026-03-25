@@ -2,23 +2,12 @@
     "AutoStockpileMain": {
         "desc": "自动囤货入口",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockpileValleyIV",
-                        "AutoStockpileWuling"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockpileValleyIV",
-            "[JumpBack]AutoStockpileWuling"
+            "[JumpBack]AutoStockpileWuling",
+            "AutoStockpileDone"
         ]
     },
     "AutoStockpileValleyIV": {
@@ -76,5 +65,10 @@
         "next": [
             "AutoStockpileTask"
         ]
+    },
+    "AutoStockpileDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
