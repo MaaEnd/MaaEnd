@@ -339,7 +339,7 @@
             "CreditShoppingBuyItem"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.CreditShopping.RefreshCountReached_triggered"
+            "Node.Recognition.Succeeded": "$task.CreditShopping.refresh_count_reached_triggered"
         }
     },
     "CreditShoppingNothingToBuy": {
