@@ -1,17 +1,14 @@
 package processcheck
 
 import (
-	_ "embed"
 	"fmt"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/shirou/gopsutil/v4/process"
 )
-
-//go:embed warning_message.html
-var processWarningHTML string
 
 type blacklistEntry struct {
 	keyword     string
@@ -55,7 +52,7 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		Msg("Blacklisted processes detected!")
 
 	names := strings.Join(found, ", ")
-	fmt.Println(fmt.Sprintf(processWarningHTML, names))
+	fmt.Println(i18n.RenderHTML("tasker.process_warning", map[string]any{"ProcessNames": names}))
 
 	c.warned = true
 }

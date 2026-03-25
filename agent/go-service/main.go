@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
@@ -21,6 +23,9 @@ func main() {
 	log.Info().
 		Str("version", Version).
 		Msg("MaaEnd Agent Service")
+
+	pienv.Init()
+	i18n.Init()
 
 	if len(os.Args) < 2 {
 		log.Fatal().Msg("Usage: go-service <identifier>")

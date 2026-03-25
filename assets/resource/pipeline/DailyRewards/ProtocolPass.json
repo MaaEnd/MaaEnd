@@ -239,7 +239,6 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 500,
         "next": [
             "SceneNoticeRewardsConfirm"
         ]

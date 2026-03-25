@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}ReadyText"
         ],
         "pre_delay": 0,
@@ -23,26 +24,40 @@
             1158,
             71
         ],
-        "expected": "${ExpectedText}"
+        "expected": "${ExpectedText}",
+        "order_by": "Vertical"
+    },
+    "Check${Id}Icon": {
+        "desc": "检查${Name}文本下方的图标",
+        "recognition": "TemplateMatch",
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ]
     },
     "Check${Id}ReadyText": {
         "desc": "检查${Name}委托是否准备好",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -51,17 +66,17 @@
     "Check${Id}Job": {
         "desc": "检查${Name}委托是否可以接取",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -69,17 +84,17 @@
     "Check${Id}GoToMissionText": {
         "desc": "检查${Name}委托是否可以前往",
         "recognition": "OCR",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -100,9 +115,10 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}Job"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoTo${Id}Mission"
@@ -113,9 +129,10 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}GoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "${Id}TrackOrGoTo"

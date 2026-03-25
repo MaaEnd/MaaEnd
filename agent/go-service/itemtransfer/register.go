@@ -5,7 +5,6 @@ import (
 )
 
 func Register() {
-	maa.AgentServerAddResourceSink(&resourcePathSink{})
 	maa.AgentServerRegisterCustomAction(
 		"ItemTransferFallbackAction",
 		&ItemTransferFallbackAction{},

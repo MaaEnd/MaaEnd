@@ -1,0 +1,4 @@
+<div style="color:#00bfff;font-weight:900;margin-top:8px;">{{printf (t "title") .UngraduatedCount}}</div>
+{{if .UngraduatedWeapons}}{{range $i, $w := .UngraduatedWeapons}}{{if $i}}{{separator}}{{end}}{{spanColor $w.Color (escapeHTML $w.Name)}}{{end}}{{else}}{{t "no_weapons"}}{{end}}<br>
+{{range .Sections}}{{if .Name}}<div style="color:{{.Color}};font-weight:900;margin-top:6px;">{{escapeHTML .Name}}</div>
+{{end}}{{range .Cards}}{{.}}{{end}}{{end}}

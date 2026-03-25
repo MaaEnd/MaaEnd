@@ -132,6 +132,18 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 	}
 
 	a.maxQuantity = maxQuantity
+
+	// 先钳制 Target，再计算 nextNode，避免 maxQuantity==1 时的除零问题
+	if a.ClampTargetToMax && a.maxQuantity < a.Target {
+		originalTarget := a.Target
+		a.Target = a.maxQuantity
+		a.logger.Warn().
+			Int("original_target", originalTarget).
+			Int("clamped_target", a.Target).
+			Int("max_quantity", a.maxQuantity).
+			Msg("target clamped to max quantity")
+	}
+
 	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)
 	if err != nil {
 		a.logger.Error().
@@ -343,7 +355,9 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 }
 
 func (a *QuantizedSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg) bool {
-	a.logger.Info().Msg("quantity adjustment completed")
+	a.logger.Info().
+		Int("target", a.Target).
+		Msg("quantity adjustment completed")
 	return true
 }
 

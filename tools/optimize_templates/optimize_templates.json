@@ -499,7 +499,7 @@
     "resource/image/Common/Button/YellowConfirmButtonType1": "d2ec4e421e26304e280e39e199a8ddc72af773d5aef5498c0e5652e52686da6b",
     "resource/image/Common/Button/ProtosyncMenuButton": "2d7cf43311c67db01dd4bafc18362c18985d30453d4951a4efe60e10f3584fdc",
     "resource/image/Common/Button/WhiteConfirmButtonType1": "640e8b31d5766cd0fd32ff1d3d7bcd1a6d43cd1197eb0a8983ce03c0c5e20d14",
-    "resource/image/Common/Button/CloseButtonType1": "f860a693f0066db4b6a7e9a0128ae8ef7c495818b8b5f85ac4906864b1d2dd3c",
+    "resource/image/Common/Button/CloseButtonType1": "3e1031aa8e750f13f9401364a7f6d28a0e974223b2824c587cf7aea0d0b8c348",
     "resource/image/Common/Button/ChangeRegionButtonHover": "84e27556be2929f401e71effb2c937dc7b652c6e625b70883a0c942c50f048eb",
     "resource/image/Common/Button/CloseRewardImage": "1a542c1673429d8d23f65b59155578b1a71f96b14fb6966f1d45c1dd8167acdc",
     "resource/image/Common/Button/CloseRewardButtonHover": "5dcc7d51084a6296a4f54996ba09ad94698b7367e9e10e230e5589a76917f2fa",
@@ -582,5 +582,17 @@
     "resource/image/EssenceFilter/EssenceTabChoose": "2060b99be30d57683f3dbf8e714a38c226f18956713847cd096b2015d8f66547",
     "resource/image/AutoStockpile/StockRedistributionKettle": "605e91bf825a5bbd7d31d0df350938fdf9c02c61d33d22a3b91c13d5894b1360",
     "resource/image/AutoStockpile/RegionalDevelopmentFunctionLocked": "b4f8403516785dcb171419ce0271ca23a27698e0d93639d20645ce21a41a4d13",
-    "resource/image/Common/Button/CloseButtonType1Hover": "8f128bf0b073a53067bf5c8d8ca36a76d4a71f88489aa6c8b75ce0323c579e95"
+    "resource/image/Common/Button/CloseButtonType1Hover": "8f128bf0b073a53067bf5c8d8ca36a76d4a71f88489aa6c8b75ce0323c579e95",
+    "resource/image/EnvironmentMonitoring/PhotoIcon": "97c3e04d1687d306520e5f239cfb2413ea5c0f7fe539300b76427ae038297a89",
+    "resource/image/SceneManager/TaskIcon": "f69a166681daf3982f727fa11de2f5dc60acb473ad90e74843710091f8924e52",
+    "resource/image/SceneManager/WorldMenuBaker": "ae7c2964e7c104107cc9a06c21fa1d95322f43ffe16d0dc1a16b7ad20066d476",
+    "resource/image/SceneManager/WorldMenuProtocolPass": "cf74e0dc23d9660b89e0ece0077305738e0317adf6f40e7cb2a6046dbee5ade4",
+    "resource/image/SceneManager/MenuExpandLeft": "6705a4d6b1fbdb6c41bfa982e1c866ddfa2b61deea4fa16ecbee6c39178be9fa",
+    "resource/image/SceneManager/WordMenuBackpack2": "34552cae9f9e82934f88867a0aaf92bd9cbfce7a7df2c6b7979ebd9b99a0660e",
+    "resource/image/SceneManager/MenuExpandRight": "44c7b6fb5c1f17bd483c41af6ae37b1c6175ecd24a86a065b901aadb9bc96df3",
+    "resource/image/SceneManager/WorldMenuOperationalManual": "3c115fc3fafc5cae93b407c5fa16bd1f0d3b22ff2f21d35b530e426d5a1a8a3f",
+    "resource/image/SceneManager/WordMenuBackpack": "45b65506a5b614f543fad43d4bd2c2898c8f75abbcc32be8bc949167aaa31be0",
+    "resource/image/SceneManager/WorldMenuEvent": "fb282f23eaf9f02caacbb588e8746bfc134600ecddd6556537a35b5e0b664f60",
+    "resource/image/DailyRewards/TaskClaimSingleReward": "a23127cf84e5bc9bc059c73738686c51edff8a575ea81e10bf39a1edea7eda07",
+    "resource/image/DeliveryJobs/CargoFilledToMax": "454240067ef6f4489a2de73b7b77ff08acb4643a7f620c2ce0f9e48e627ff69e"
 }

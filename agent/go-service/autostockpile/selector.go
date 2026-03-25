@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -79,7 +80,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return stopTaskWithFocus(ctx, result.AbortReason, nil)
 	}
 	if shouldRouteSkip(result.AbortReason) {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, "识别阶段提前结束")
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
 	}
 
 	data := result.Data
@@ -116,7 +117,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Str("component", "autostockpile").
 			Str("reason", selection.Reason).
 			Msg("no qualifying product selected")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("未找到符合条件的商品 (%s)", selection.Reason))
+		maafocus.Print(ctx, i18n.T("autostockpile.no_qualifying_product", selection.Reason))
 		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
 				Err(err).
@@ -131,7 +132,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	quantityDecision, err := resolveQuantityDecision(selection, *data, cfg)
 	if err != nil {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, "已命中商品，但最终跳过购买")
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, i18n.T("autostockpile.hit_skip_purchase"))
 	}
 	if quantityDecision.Mode == quantityModeSkip {
 		quantitySkipLog := log.Info().
@@ -147,7 +148,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			quantitySkipLog = quantitySkipLog.Int("max_buy", quantityDecision.MaxBuy)
 		}
 		quantitySkipLog.Msg("quantity decision requested skip short-circuit")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("已命中商品，但最终不购买（%s）", quantityDecision.Reason))
+		maafocus.Print(ctx, i18n.T("autostockpile.hit_but_skip", quantityDecision.Reason))
 		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
 				Err(err).
@@ -202,7 +203,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		quantityLog = quantityLog.Int("quantity_target", quantityDecision.Target)
 	}
 	quantityLog.Msg("product selected and pipeline overridden")
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("【%s】%s (价格 %d, 阈值 %d, 数量 %s)", selectionMode, selection.ProductName, selection.CurrentPrice, selection.Threshold, formatQuantityText(quantityDecision)))
+	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", selectionMode, selection.ProductName, selection.CurrentPrice, selection.Threshold, formatQuantityText(quantityDecision)))
 
 	return true
 }
@@ -210,7 +211,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 // SelectBestProduct 按阈值与利润分数选择当前应购买的最佳商品。
 func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) SelectionResult {
 	if len(data.Goods) == 0 {
-		return SelectionResult{Selected: false, Reason: "未识别到商品"}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}
 	}
 
 	candidates := make([]candidateGoods, 0, len(data.Goods))
@@ -240,7 +241,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	}
 
 	if len(candidates) == 0 {
-		return SelectionResult{Selected: false, Reason: "没有满足条件的商品"}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_qualifying_goods")}
 	}
 
 	sort.SliceStable(candidates, func(i, j int) bool {
@@ -293,7 +294,7 @@ func shouldStopTask(reason AbortReason) bool {
 }
 
 func lookupAbortReasonText(reason AbortReason) string {
-	reasonText, err := LookupAbortReasonZHCN(reason)
+	reasonText, err := LookupAbortReason(reason)
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -323,9 +324,12 @@ func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason A
 	logEvent.Msg("routing current cycle to skip branch")
 
 	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("<span style=\"color:orange\">⚠️%s（%s）</span>\n", focusPrefix, reasonText))
+		maafocus.Print(ctx, i18n.RenderHTML("autostockpile.warning_skip", map[string]any{
+			"Prefix": focusPrefix,
+			"Reason": reasonText,
+		}))
 	} else {
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("%s（%s）", focusPrefix, reasonText))
+		maafocus.Print(ctx, i18n.T("autostockpile.abort_info", focusPrefix, reasonText))
 	}
 	if err := overrideSkipBranch(ctx, currentTaskName); err != nil {
 		log.Error().
@@ -352,7 +356,9 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	}
 	logEvent.Msg("stopping task due to fatal abort reason")
 
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("<span style=\"color:red\">🚨发生严重错误，已停止任务（%s）</span>\n", reasonText))
+	maafocus.Print(ctx, i18n.RenderHTML("autostockpile.fatal_error", map[string]any{
+		"Reason": reasonText,
+	}))
 	if ctx == nil || ctx.GetTasker() == nil {
 		log.Error().
 			Str("component", "autostockpile").
@@ -397,15 +403,15 @@ func buildSkipNextItems() []maa.NextItem {
 
 func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {
 	if selection.CurrentPrice < selection.Threshold {
-		return "低价购买"
+		return i18n.T("autostockpile.mode_low_price")
 	}
 	if cfg.SundayMode && data.Sunday {
-		return "周日清空"
+		return i18n.T("autostockpile.mode_sunday_clear")
 	}
 	if cfg.OverflowMode && data.Quota.Overflow > 0 {
-		return "防溢出"
+		return i18n.T("autostockpile.mode_overflow")
 	}
-	return "低价购买"
+	return i18n.T("autostockpile.mode_low_price")
 }
 
 func extractRecoDetailJson(rd *maa.RecognitionDetail) string {

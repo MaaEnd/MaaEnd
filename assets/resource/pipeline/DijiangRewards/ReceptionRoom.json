@@ -223,6 +223,7 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": 100,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -258,8 +259,10 @@
         "desc": "[会客室·赠送线索] 关闭线索收集侧边栏",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoomCollectionClues",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click",
@@ -380,17 +383,16 @@
         ]
     },
     "ReceptionRoomReceiveExit": {
-        "desc": "[会客室·线索] 关闭领取界面",
+        "desc": "[会客室·线索] 关闭接收线索界面",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoomReceiveClues",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_wait_freezes": {
             "time": 200,
@@ -581,10 +583,7 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -699,10 +698,7 @@
         ],
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 0
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -711,13 +707,15 @@
         ]
     },
     "ReceptionRoomSetClues": {
-        "desc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
+        "desc": "[会客室·线索] 识别到会客室内的线索红点，准备放置线索",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
+                    "InReceptionRoom",
                     "ReceptionRoomSetClueTips"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "pre_delay": 0,
@@ -735,39 +733,34 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSetCluesOpen"
+            "[JumpBack]ReceptionRoomSetCluesChooseClues",
+            "ReceptionRoomSetCluesClose"
         ]
     },
-    "ReceptionRoomSetCluesOpen": {
-        "desc": "[会客室·线索] 点击会客室内的任务红点，打开放置线索界面",
+    "ReceptionRoomSetCluesChooseClues": {
+        "desc": "[会客室·线索] 识别到会客室内的线索界面和线索红点，点击进入放置",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    -600,
-                    0,
-                    600,
-                    150
+                "all_of": [
+                    "InReceptionRoomSetClues",
+                    "ReceptionRoomSetClueTips"
                 ],
-                "expected": [
-                    "线索库存",
-                    "線索庫存",
-                    "Clue Library",
-                    "在庫",
-                    "단서 보관"
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -40,
+                    50,
+                    0,
+                    0
                 ]
             }
         },
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -851,10 +844,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomSetCluesClose"
-        ]
+        "rate_limit": 0
     },
     "ReceptionRoomSetCluesItemPut": {
         "desc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
@@ -887,20 +877,24 @@
         "post_wait_freezes": {
             "time": 100,
             "timeout": 1000,
-            "target": "ReceptionRoomSetClueTips"
+            "target": [
+                859,
+                189,
+                388,
+                119
+            ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomSetCluesClose"
-        ]
+        "rate_limit": 0
     },
     "ReceptionRoomSetCluesClose": {
         "desc": "[会客室·线索] 关闭侧边栏",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoomSetClues",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -915,8 +909,10 @@
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
         "recognition": "And",
         "all_of": [
+            "InReceptionRoom",
             "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click"

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"image"
 	"math"
-	"os"
 	"regexp"
 	"sync"
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -186,12 +186,7 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 	a.externalOnce.Do(func() {
 		a.externalData = map[string]mapExternalDataItem{}
 
-		path := mt.FindResource(mt.MAP_EXTERNAL_DATA_PATH)
-		if path == "" {
-			return
-		}
-
-		data, err := os.ReadFile(path)
+		data, err := resource.ReadResource(mt.MAP_EXTERNAL_DATA_PATH)
 		if err != nil {
 			a.externalErr = fmt.Errorf("failed to read map external data: %w", err)
 			return

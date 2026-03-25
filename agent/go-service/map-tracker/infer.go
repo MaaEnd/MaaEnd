@@ -2,7 +2,6 @@
 package maptracker
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -14,6 +13,7 @@ import (
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -87,7 +87,7 @@ const (
 const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
 	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
-	CONVINCED_DISTANCE_THRESHOLD     = 30
+	CONVINCED_DISTANCE_THRESHOLD     = 20
 	CONVINCED_VALID_TIME_MS          = 2000
 )
 
@@ -109,12 +109,6 @@ type InferRotationRawResult struct {
 	conf          float64
 	elapsedTimeMs int64
 }
-
-//go:embed messages/inference_failed.html
-var inferenceFailedHTML string
-
-//go:embed messages/inference_finished.html
-var inferenceFinishedHTML string
 
 var mapTrackerInferRunner maa.CustomRecognitionRunner = &MapTrackerInfer{}
 
@@ -152,23 +146,14 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
 	t0 := time.Now()
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	var loc *InferLocationRawResult
-	var rot *InferRotationRawResult
+	ch := make(chan *InferLocationRawResult, 1)
 
 	go func() {
-		defer wg.Done()
-		loc = i.inferLocation(ctrlType, screenImg, mapNameRegex, param)
+		ch <- i.inferLocation(ctrlType, screenImg, mapNameRegex, param)
 	}()
 
-	go func() {
-		defer wg.Done()
-		rot = i.inferRotation(ctrlType, screenImg, rotStep)
-	}()
-
-	wg.Wait()
+	rot := i.inferRotation(ctrlType, screenImg, rotStep)
+	loc := <-ch
 
 	// Determine if recognition hit natively
 	internalLocHit := loc != nil && loc.conf > param.Threshold
@@ -286,7 +271,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	if !finalHit {
 		log.Info().Bool("finalLocHit", finalLoc != nil).Bool("finalRotHit", finalRot != nil).Msg("Map tracking inference did not hit")
 		if param.Print {
-			maafocus.NodeActionStarting(ctx, inferenceFailedHTML)
+			maafocus.Print(ctx, i18n.RenderHTML("maptracker.inference_failed", nil))
 		}
 
 		// Return as not hit
@@ -326,9 +311,14 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
 	if param.Print {
-		maafocus.NodeActionStarting(
+		maafocus.Print(
 			ctx,
-			fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName),
+			i18n.RenderHTML("maptracker.inference_finished", map[string]any{
+				"X":       finalLoc.x,
+				"Y":       finalLoc.y,
+				"Rot":     result.Rot,
+				"MapName": finalLoc.mapName,
+			}),
 		)
 	}
 

@@ -64,9 +64,10 @@
     },
     "DailyTaskClaimSingleReward": {
         "desc": "点击单个任务中领取按钮",
-        "recognition": {
-            "type": "OCR",
-            "param": {
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
                 "roi": [
                     825,
                     200,
@@ -80,8 +81,21 @@
                     "受取",
                     "[Cc]laim"
                 ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "template": [
+                    "DailyRewards/TaskClaimSingleReward.png"
+                ],
+                "threshold": 0.9
             }
-        },
+        ],
         "action": {
             "type": "Click",
             "param": {}

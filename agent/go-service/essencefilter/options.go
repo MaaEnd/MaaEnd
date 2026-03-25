@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -56,11 +57,11 @@ func rarityListToString(rarities []int) string {
 	case 1:
 		return strconv.Itoa(rarities[0])
 	case 2:
-		return fmt.Sprintf("%d 和 %d", rarities[0], rarities[1])
+		return i18n.T("essencefilter.rarity_join_2", rarities[0], rarities[1])
 	case 3:
-		return fmt.Sprintf("%d， %d 和 %d", rarities[0], rarities[1], rarities[2])
+		return i18n.T("essencefilter.rarity_join_3", rarities[0], rarities[1], rarities[2])
 	case 4:
-		return fmt.Sprintf("%d， %d， %d 和 %d", rarities[0], rarities[1], rarities[2], rarities[3])
+		return i18n.T("essencefilter.rarity_join_4", rarities[0], rarities[1], rarities[2], rarities[3])
 	default:
 		return fmt.Sprintf("%d+", len(rarities))
 	}
@@ -71,5 +72,5 @@ func essenceListToString(EssenceTypes []EssenceMeta) string {
 	for i, e := range EssenceTypes {
 		names[i] = e.Name
 	}
-	return strings.Join(names, "、")
+	return strings.Join(names, i18n.Separator())
 }

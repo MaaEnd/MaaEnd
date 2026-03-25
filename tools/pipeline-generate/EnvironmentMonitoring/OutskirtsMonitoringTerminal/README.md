@@ -5,10 +5,7 @@
 ## 运行方式（从 MaaEnd 仓库根目录）
 
 ```bash
-npx @joebao/maa-pipeline-generate \
- tools/pipeline-generate/EnvironmentMonitoring/OutskirtsMonitoringTerminal/template.jsonc \
- tools/pipeline-generate/EnvironmentMonitoring/OutskirtsMonitoringTerminal/data.json \
- --output-dir assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal
+npx @joebao/maa-pipeline-generate
 ```
 
 ## 变量说明

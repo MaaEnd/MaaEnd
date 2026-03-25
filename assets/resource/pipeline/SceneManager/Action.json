@@ -1,0 +1,8 @@
+{
+    "__SceneClickAction": {
+        "desc": "点击按钮",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    }
+}

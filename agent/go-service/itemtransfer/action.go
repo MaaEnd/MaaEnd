@@ -107,14 +107,14 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 			Int("grid_x", gx).Int("grid_y", gy).
 			Msg("target class found with low score, verifying via OCR")
 
-		name := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
-		if matchesTarget(name, itemInfo.Name) {
-			log.Info().Str("component", componentName).Str("ocr_name", name).Msg("OCR verified target")
+		names := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
+		if matchesAnyTarget(names, itemInfo.Name) {
+			log.Info().Str("component", componentName).Strs("ocr_names", names).Msg("OCR verified target")
 			return ctrlClick(ctrl, gx, gy)
 		}
 		log.Info().
 			Str("component", componentName).
-			Str("ocr_name", name).
+			Strs("ocr_names", names).
 			Str("expected", itemInfo.Name).
 			Msg("OCR name mismatch, proceeding to binary search")
 	}
@@ -228,23 +228,23 @@ func findByLowScoreTarget(items []gridItem, targetClass int) *gridItem {
 	return best
 }
 
-func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) string {
+func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) []string {
 	if tasker.Stopping() {
-		return ""
+		return nil
 	}
 
 	ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
 	time.Sleep(1500 * time.Millisecond)
 
 	if tasker.Stopping() {
-		return ""
+		return nil
 	}
 
 	ctrl.PostScreencap().Wait()
 	newImg, err := ctrl.CacheImage()
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("failed to cache image after hover")
-		return ""
+		return nil
 	}
 
 	ocrROI := computeTooltipROI(x, y)
@@ -262,22 +262,24 @@ func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, 
 			Int("hover_y", y).
 			Ints("ocr_roi", ocrROI).
 			Msg("tooltip OCR failed")
-		return ""
+		return nil
 	}
 
-	text := extractOCRText(detail)
+	texts := extractAllOCRTexts(detail)
 	log.Info().
 		Str("component", componentName).
-		Str("ocr_text", text).
+		Strs("ocr_texts", texts).
 		Int("hover_x", x).
 		Int("hover_y", y).
 		Msg("tooltip OCR result")
 
-	text = strings.TrimSpace(text)
-	if strings.Contains(text, "已盛装") {
-		return ""
+	var filtered []string
+	for _, t := range texts {
+		if !strings.Contains(t, "已盛装") {
+			filtered = append(filtered, t)
+		}
 	}
-	return text
+	return filtered
 }
 
 func computeTooltipROI(hoverX, hoverY int) []int {
@@ -298,12 +300,13 @@ func computeTooltipROI(hoverX, hoverY int) []int {
 	return []int{roiX, roiY, tooltipWidth, tooltipHeight}
 }
 
-func extractOCRText(detail *maa.RecognitionDetail) string {
+func extractAllOCRTexts(detail *maa.RecognitionDetail) []string {
 	if detail == nil || detail.Results == nil {
-		return ""
+		return nil
 	}
+	seen := make(map[string]bool)
+	var texts []string
 	for _, results := range [][]*maa.RecognitionResult{
-		{detail.Results.Best},
 		detail.Results.Filtered,
 		detail.Results.All,
 	} {
@@ -311,12 +314,19 @@ func extractOCRText(detail *maa.RecognitionDetail) string {
 			if r == nil {
 				continue
 			}
-			if ocrResult, ok := r.AsOCR(); ok && ocrResult.Text != "" {
-				return ocrResult.Text
+			if ocrResult, ok := r.AsOCR(); ok {
+				text := strings.TrimSpace(ocrResult.Text)
+				if text != "" && !seen[text] {
+					seen[text] = true
+					texts = append(texts, text)
+				}
 			}
 		}
+		if len(texts) > 0 {
+			return texts
+		}
 	}
-	return ""
+	return texts
 }
 
 func matchesTarget(ocrName, targetName string) bool {
@@ -329,6 +339,34 @@ func matchesTarget(ocrName, targetName string) bool {
 	}
 	cleaned := cleanOCRNoise(ocrName)
 	return cleaned != "" && cleaned == targetName
+}
+
+func matchesAnyTarget(names []string, targetName string) bool {
+	for _, name := range names {
+		if matchesTarget(name, targetName) {
+			return true
+		}
+	}
+	return false
+}
+
+// resolveOCRIndex finds the first OCR text that exists in categoryOrder
+// and returns its name and index. Falls back to fuzzy matching.
+func resolveOCRIndex(names []string, categoryOrder []string) (string, int) {
+	for _, n := range names {
+		if i := indexOf(categoryOrder, n); i >= 0 {
+			return n, i
+		}
+	}
+	for _, n := range names {
+		if i := fuzzyIndexOf(categoryOrder, n); i >= 0 {
+			return n, i
+		}
+	}
+	if len(names) > 0 {
+		return names[0], -1
+	}
+	return "", -1
 }
 
 func cleanOCRNoise(s string) string {
@@ -359,18 +397,15 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 	consecutiveMisses := 0
 
 	first := &items[0]
-	name := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY)
+	names := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY)
 
-	if matchesTarget(name, targetName) {
-		log.Info().Str("component", componentName).Str("ocr_name", name).Int("grid_idx", 0).Msg("found target at first cell")
+	if matchesAnyTarget(names, targetName) {
+		log.Info().Str("component", componentName).Strs("ocr_names", names).Int("grid_idx", 0).Msg("found target at first cell")
 		return first
 	}
 
-	if name != "" {
-		ocrIdx := indexOf(categoryOrder, name)
-		if ocrIdx < 0 {
-			ocrIdx = fuzzyIndexOf(categoryOrder, name)
-		}
+	if len(names) > 0 {
+		name, ocrIdx := resolveOCRIndex(names, categoryOrder)
 		if ocrIdx >= 0 && ocrIdx > targetIdx {
 			log.Info().Str("component", componentName).
 				Str("ocr_name", name).Int("ocr_idx", ocrIdx).Int("target_idx", targetIdx).
@@ -392,34 +427,31 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 		mid := (lo + hi) / 2
 		item := &items[mid]
 
-		name = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
-		if name == "" {
+		names = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
+		if len(names) == 0 {
 			lo = mid + 1
 			continue
 		}
 
-		if matchesTarget(name, targetName) {
+		if matchesAnyTarget(names, targetName) {
 			log.Info().Str("component", componentName).
-				Str("ocr_name", name).Int("grid_idx", mid).
+				Strs("ocr_names", names).Int("grid_idx", mid).
 				Msg("binary search found target")
 			return item
 		}
 
-		ocrIdx := indexOf(categoryOrder, name)
-		if ocrIdx < 0 {
-			ocrIdx = fuzzyIndexOf(categoryOrder, name)
-		}
+		name, ocrIdx := resolveOCRIndex(names, categoryOrder)
 		if ocrIdx < 0 {
 			consecutiveMisses++
 			if consecutiveMisses >= maxConsecutiveCategoryMisses {
 				log.Warn().Str("component", componentName).
-					Str("ocr_name", name).Int("consecutive_misses", consecutiveMisses).
+					Strs("ocr_names", names).Int("consecutive_misses", consecutiveMisses).
 					Msg("too many consecutive category misses, likely wrong category page")
 				return nil
 			}
 			lo = mid + 1
 			log.Warn().Str("component", componentName).
-				Str("ocr_name", name).Int("mid", mid).
+				Strs("ocr_names", names).Int("mid", mid).
 				Msg("OCR'd item not in category order, advancing forward")
 			continue
 		}
@@ -449,8 +481,8 @@ func linearScanOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller
 		if tasker.Stopping() {
 			return nil
 		}
-		name := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
-		if matchesTarget(name, targetName) {
+		names := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
+		if matchesAnyTarget(names, targetName) {
 			return &items[i]
 		}
 	}

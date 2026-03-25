@@ -78,6 +78,70 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "InReceptionRoomSetClues": {
+        "desc": "[会客室·线索] 识别到会客室内的线索库存界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -600,
+                    0,
+                    600,
+                    150
+                ],
+                "expected": [
+                    "线索库存",
+                    "線索庫存",
+                    "Clue Library",
+                    "在庫",
+                    "단서 보관"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InReceptionRoomCollectionClues": {
+        "desc": "[会客室·线索] 识别到会客室内的收集线索界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -600,
+                    0,
+                    600,
+                    150
+                ],
+                "expected": [
+                    "收集线索"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InReceptionRoomReceiveClues": {
+        "desc": "[会客室·线索] 识别到会客室内的接收线索界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -600,
+                    0,
+                    600,
+                    150
+                ],
+                "expected": [
+                    "接收线索"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "InGrowthChamber": {
         "desc": "[培养舱] 在培养舱界面，识别培养舱标题",
         "recognition": {
