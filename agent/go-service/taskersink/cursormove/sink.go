@@ -1,17 +1,50 @@
 package cursormove
 
 import (
-	"sync/atomic"
-
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// CursorMoveSink moves the cursor to (0,0) before the next recognition cycle
-// when the previous action repositioned the cursor. This prevents the cursor
-// from occluding game UI elements during Win32 screencap.
+// CursorMoveSink moves the cursor to the bottom-right corner before the next
+// recognition cycle when the previous action repositioned the cursor.
+// This prevents the cursor from occluding game UI elements during Win32 screencap.
 type CursorMoveSink struct {
-	dirty atomic.Bool
+	dirty bool
+	imgW  int32
+	imgH  int32
+}
+
+func (s *CursorMoveSink) moveCursor(ctrl *maa.Controller) {
+	ctrl.PostTouchMove(0, s.imgW, s.imgH, 0).Wait()
+}
+
+func (s *CursorMoveSink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, _ maa.TaskerTaskDetail) {
+	if event != maa.EventStatusStarting {
+		return
+	}
+
+	ctrl := tasker.GetController()
+	if ctrl == nil {
+		log.Warn().Msg("[cursormove] failed to get controller from tasker")
+		return
+	}
+
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		log.Warn().Err(err).Msg("[cursormove] failed to get cached image for size")
+		return
+	}
+
+	bounds := img.Bounds()
+	s.imgW = int32(bounds.Dx())
+	s.imgH = int32(bounds.Dy())
+	log.Info().
+		Int32("width", s.imgW).
+		Int32("height", s.imgH).
+		Msg("[cursormove] captured image size")
+
+	s.moveCursor(ctrl)
 }
 
 func (s *CursorMoveSink) OnNodeAction(ctx *maa.Context, event maa.EventStatus, detail maa.NodeActionDetail) {
@@ -26,7 +59,7 @@ func (s *CursorMoveSink) OnNodeAction(ctx *maa.Context, event maa.EventStatus, d
 
 	switch ad.Action {
 	case "Click", "Swipe", "Scroll", "Custom":
-		s.dirty.Store(true)
+		s.dirty = true
 	}
 }
 
@@ -35,9 +68,10 @@ func (s *CursorMoveSink) OnNodeNextList(ctx *maa.Context, event maa.EventStatus,
 		return
 	}
 
-	if !s.dirty.CompareAndSwap(true, false) {
+	if !s.dirty {
 		return
 	}
+	s.dirty = false
 
 	ctrl := ctx.GetTasker().GetController()
 	if ctrl == nil {
@@ -45,7 +79,7 @@ func (s *CursorMoveSink) OnNodeNextList(ctx *maa.Context, event maa.EventStatus,
 		return
 	}
 
-	ctrl.PostTouchMove(0, 0, 0, 0)
+	s.moveCursor(ctrl)
 }
 
 func (s *CursorMoveSink) OnNodePipelineNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodePipelineNodeDetail) {
