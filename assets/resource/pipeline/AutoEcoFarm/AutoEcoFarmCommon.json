@@ -2,15 +2,15 @@
 {
     "_AutoEcoFarmMoveMouse": {
         "desc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
-        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
+        "max_hit": 20, //默认为20，超过就不要再试了免得死循环
         "action": {
             "type": "TouchMove",
             "param": {
                 "target": [
                     0,
                     0,
-                    0,
-                    0
+                    1,
+                    1
                 ]
             }
         }
@@ -56,102 +56,6 @@
             "AutoEcoFarmExit"
         ]
     },
-    //下面这段代码是在地图上清除标记，只留工业设备，用来找农田的，要加jumpback
-    "_AutoEcoFarmClickTargetManager": {
-        "desc": "点开标记显示管理,需要Jumpback",
-        "max_hit": 3,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    25,
-                    635,
-                    156,
-                    48
-                ],
-                "expected": [
-                    "标记|显示|管理"
-                ]
-            }
-        },
-        "action": "Click",
-        "next": [
-            "_AutoEcoFarmClickClear"
-        ]
-    },
-    "_AutoEcoFarmClickClear": {
-        "desc": "点击清空选中",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    49,
-                    637,
-                    142,
-                    50
-                ],
-                "expected": [
-                    "清空",
-                    "Clear",
-                    "クリア"
-                ]
-            }
-        },
-        "action": "Click",
-        "next": [
-            "_AutoEcoFarmScrollToIndustrialFacilities"
-        ]
-    },
-    "_AutoEcoFarmScrollToIndustrialFacilities": {
-        "desc": "滚动一下",
-        "action": {
-            "type": "Scroll",
-            "param": {
-                "target": [
-                    159,
-                    347,
-                    19,
-                    15
-                ],
-                "dy": -480
-            }
-        },
-        "post_wait_freezes": 500,
-        "next": [
-            "_AutoEcoFarmClickIndustrialFacilities"
-        ]
-    },
-    "_AutoEcoFarmClickIndustrialFacilities": {
-        "desc": "点击工业设备",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    18,
-                    44,
-                    337,
-                    593
-                ],
-                "expected": [
-                    "工业设备"
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": "Click",
-        "next": [
-            "_AutoEcoFarmExitTargetManager"
-        ]
-    },
-    "_AutoEcoFarmExitTargetManager": {
-        "desc": "按一下esc",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27 //esc键
-            }
-        }
-    },
     "_AutoEcoFarmSwipeToGround": {
         "desc": "移动视角到地面，配合jumpback使用",
         "max_hit": 3, //默认为3，超过就不要再试了免得死循环
@@ -175,7 +79,9 @@
         "next": [
             "_AutoEcoFarmSwipeToGround2"
         ],
-        "focus": {"Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"}
+        "focus": {
+            "Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"
+        }
     },
     "_AutoEcoFarmSwipeToGround2": {
         "desc": "按下alt",
@@ -265,7 +171,7 @@
                     34
                 ],
                 "template": [
-                    "AutoEcoFarm/AutoEcoFarmCloseBag.png"
+                    "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png"
                 ]
             }
         },

@@ -18,6 +18,24 @@
             }
         }
     },
+    "RefreshCost": {
+        "desc": "刷新花费",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1140,
+                    655,
+                    32,
+                    18
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
     "RefreshColor": {
         "recognition": {
             "type": "ColorMatch",

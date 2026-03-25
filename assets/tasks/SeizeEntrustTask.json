@@ -85,7 +85,7 @@
                         "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": true
                         },
-                        "SeizeEntrustTaskSwipeDwon": {
+                        "SeizeEntrustTaskSwipeDown": {
                             "enabled": false
                         }
                     }
@@ -102,7 +102,7 @@
                         "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": false
                         },
-                        "SeizeEntrustTaskSwipeDwon": {
+                        "SeizeEntrustTaskSwipeDown": {
                             "enabled": true
                         }
                     }

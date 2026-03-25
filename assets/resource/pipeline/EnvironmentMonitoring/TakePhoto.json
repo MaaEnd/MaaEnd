@@ -96,10 +96,10 @@
                 "recognition": "ColorMatch",
                 "roi": "ShutterButton",
                 "roi_offset": [
-                    -31,
-                    -36,
-                    63,
-                    75
+                    -34,
+                    -39,
+                    69,
+                    85
                 ],
                 "method": 40,
                 "lower": [

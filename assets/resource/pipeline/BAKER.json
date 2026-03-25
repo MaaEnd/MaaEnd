@@ -30,6 +30,7 @@
             117
         ],
         "expected": [
+            // @i18n-skip
             "BAKER"
         ],
         "next": [
@@ -61,7 +62,8 @@
             117
         ],
         "expected": [
-            "会话消息"
+            "会话消息",
+            "對話消息"
         ],
         "next": [
             "BakerOpenFilter", // 只会执行一次, 后续走打开确认流程可以少一步
@@ -79,7 +81,8 @@
             117
         ],
         "expected": [
-            "事务通讯"
+            "事务通讯",
+            "事務通訊"
         ],
         "next": [
             "BakerOpenFilter2", // 只会执行一次, 后续走打开确认流程可以少一步
@@ -99,7 +102,9 @@
         ],
         "expected": [
             "当前无",
-            "无该类型会话"
+            "當前無",
+            "无该类型会话",
+            "無該類型對話"
         ],
         "next": [
             "BakerSwitchTask",
@@ -125,8 +130,9 @@
         "expected": [
             "全部显示",
             "全部顯示",
-            "Show All",
+            "(?i)Show\\s*All",
             "すべて",
+            "篩選生效中",
             "筛选生效中"
         ],
         "action": "Click",
@@ -146,7 +152,8 @@
             103
         ],
         "expected": [
-            "筛选生效中"
+            "筛选生效中",
+            "篩選生效中"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -184,7 +191,7 @@
         "expected": [
             "未读",
             "未讀",
-            "Unread",
+            "(?i)Unread",
             "未読"
         ],
         "action": "Click",
@@ -203,7 +210,9 @@
             170
         ],
         "expected": [
-            "保存"
+            "保存",
+            "儲存",
+            "(?i)Save"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -452,9 +461,10 @@
         "expected": [
             "暂无新话题",
             "尚無新話題",
-            "No New Topics",
+            "(?i)No\\s*New\\s*Topics",
             "新しいトピックはありません",
-            "话题结束"
+            "话题结束",
+            "話題結束"
         ],
         "next": [
             "BakerTalkWith",
@@ -517,8 +527,9 @@
         "expected": [
             "全部显示",
             "全部顯示",
-            "Show All",
+            "(?i)Show\\s*All",
             "すべて",
+            "篩選生效中",
             "筛选生效中"
         ],
         "action": "Click",

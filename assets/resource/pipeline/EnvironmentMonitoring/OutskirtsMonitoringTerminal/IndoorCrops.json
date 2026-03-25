@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsReadyText"
         ],
         "pre_delay": 0,
@@ -26,29 +27,43 @@
         "expected": [
             "室内作物",
             "室內作物",
-            "Indoor Crops",
+            "(?i)Indoor\\s*Crops",
             "室内の作物",
             "실내 작물"
-        ]
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckIndoorCropsIcon": {
+        "desc": "检查室内作物文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckIndoorCropsReadyText": {
         "desc": "检查室内作物委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -57,17 +72,17 @@
     "CheckIndoorCropsJob": {
         "desc": "检查室内作物委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -75,17 +90,17 @@
     "CheckIndoorCropsGoToMissionText": {
         "desc": "检查室内作物委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckIndoorCropsText",
+        "roi": "CheckIndoorCropsIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +117,7 @@
         "expected": [
             "室内培育",
             "室內培育",
-            "Growing Crop",
+            "(?i)Growing\\s*Crop",
             "室内栽培の作物",
             "실내 재배하고 있는 작물을 촬영하기"
         ]
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToIndoorCropsMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "IndoorCropsTrackOrGoTo"
@@ -157,10 +174,17 @@
         ]
     },
     "GoToIndoorCrops": {
-        "desc": "前往室内作物",
+        "desc": "前往室内作物，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToIndoorCropsStartPos",
-            "[JumpBack]SceneEnterWorldWulingWulingCity4"
+            "GoToIndoorCropsNotAtStartPos"
         ]
     },
     "GoToIndoorCropsStartPos": {
@@ -178,6 +202,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsNotAtStartPos": {
+        "desc": "不在室内作物任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity4"
             ]
         },
         "next": [

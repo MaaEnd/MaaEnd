@@ -47,7 +47,7 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -350,
+                    -450,
                     -150,
                     350,
                     150
@@ -69,7 +69,7 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -350,
+                    -450,
                     -150,
                     350,
                     150
@@ -92,7 +92,7 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -350,
+                    -450,
                     -150,
                     350,
                     150
@@ -111,50 +111,62 @@
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
         "desc": "在武陵总览界面，进入武陵-武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    450,
-                    0,
-                    500,
-                    250
-                ],
-                "expected": [
-                    "武",
-                    "陵",
-                    "城"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        // "recognition": {
+        //     "type": "OCR",
+        //     "param": {
+        //         "roi": [
+        //             450,
+        //             0,
+        //             500,
+        //             250
+        //         ],
+        //         "expected": [
+        //             "武",
+        //             "陵",
+        //             "城",
+        //             "WULING",
+        //             "CITY"
+        //         ]
+        //     }
+        // },
+        "action": "Click",
+        "target": [
+            510,
+            140,
+            130,
+            80
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
         ]
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    450,
-                    -400,
-                    500,
-                    400
-                ],
-                "expected": [
-                    "景",
-                    "玉",
-                    "谷"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        // "recognition": {
+        //     "type": "OCR",
+        //     "param": {
+        //         "roi": [
+        //             450,
+        //             -400,
+        //             500,
+        //             400
+        //         ],
+        //         "expected": [
+        //             "景",
+        //             "玉",
+        //             "谷",
+        //             "JINGYU",
+        //             "VALLEY"
+        //         ]
+        //     }
+        // },
+        "action": "Click",
+        "target": [
+            480,
+            450,
+            125,
+            80
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
         ]
@@ -191,6 +203,33 @@
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchorWithPick": {
+        "desc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick": {
+        "desc": "在武陵-武陵城地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     }
 }

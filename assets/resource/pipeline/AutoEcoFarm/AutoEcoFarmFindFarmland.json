@@ -3,58 +3,46 @@
 //节点从Exit离开，这里关联下一个阶段的节点
 {
     //节点出入口
-    "_AutoEcoFindFarmFarmlandValleyStart": {
+    "_AutoEcoFarmFindFarmlandValleyStart": {
         "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindValleyIVEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandValleyIVExit"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmFindEcoFarmValleyIV",
-            "_AutoEcoFindFarmFarmlandValleyIVExit"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-    "_AutoEcoFindFarmFarmlandWulinStart": {
+    "_AutoEcoFarmFindFarmlandWulinStart": {
         "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindWulinEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandWulinExit"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmFindEcoFarmWulin",
-            "_AutoEcoFindFarmFarmlandWulinExit"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-    "_AutoEcoFindFarmFarmlandValleyIVExit": {
+    "_AutoEcoFarmFindFarmlandValleyIVExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetValleyIVStart"
         ]
     },
-    "_AutoEcoFindFarmFarmlandWulinExit": {
+    "_AutoEcoFarmFindFarmlandWulinExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetWulinStart"
         ]
     },
     //内部节点
-    "_AutoEcoFarmFindEcoFarmValleyIV": {
-        "desc": "[四号谷地版]任务主体",
-        "max_hit": 1,
-        "next": [
-            "_AutoEcoFarmFindValleyIVEcoFarm",
-            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
-        ]
-    },
-    "_AutoEcoFarmFindEcoFarmWulin": {
-        "desc": "[武陵版]任务主体",
-        "max_hit": 1,
-        "next": [
-            "_AutoEcoFarmFindWulinEcoFarm",
-            "[JumpBack]SceneEnterMapWulingWulingCity"
-        ]
-    },
-    "_AutoEcoFarmFindEcoFarmAny": {
-        "desc": "[当前地图版]任务主体，用于循环任务,默认关闭",
-        "enabled": false,
-        "max_hit": 3,
+    "_AutoEcoFarmFindFarmlandOpenMap": {
+        "desc": "先打开大地图",
         "next": [
             "_AutoEcoFarmInMap",
             "[JumpBack]SceneEnterMapAny"
         ]
     },
     "_AutoEcoFarmInMap": {
-        "desc": "查找标记管理按钮来确认是否在地图界面",
+        "desc": "查找标记管理按钮来确认是否在地图界面，找到后点一下",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -65,14 +53,127 @@
                     48
                 ],
                 "expected": [
-                    "标记|显示|管理"
-                ]
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker Tags",
+                    "ソート",
+                    "표식 관리"
+                ],
+                "threshold": 0.9
             }
         },
         "next": [
-            //两个版本都试试
-            "_AutoEcoFarmFindValleyIVEcoFarm",
-            "_AutoEcoFarmFindWulinEcoFarm"
+            "_AutoEcoFarmClickTargetManager"
+        ]
+    },
+    //下面这段代码是在地图上清除标记，只留工业设备，方便找农田
+    "_AutoEcoFarmClickTargetManager": {
+        "desc": "点开标记显示管理",
+        "max_hit": 3,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    635,
+                    156,
+                    48
+                ],
+                "expected": [
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker Tags",
+                    "ソート",
+                    "표식 관리"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmClickClear"
+        ]
+    },
+    "_AutoEcoFarmClickClear": {
+        "desc": "点击清空选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    49,
+                    637,
+                    142,
+                    50
+                ],
+                "expected": [
+                    "清空选中",
+                    "清除選取",
+                    "(?i)Clear All",
+                    "一括解除",
+                    "선택 초기화"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmScrollToIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmScrollToIndustrialFacilities": {
+        "desc": "滚动一下",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    159,
+                    347,
+                    19,
+                    15
+                ],
+                "dy": -480
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "_AutoEcoFarmClickIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmClickIndustrialFacilities": {
+        "desc": "点击工业设备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    18,
+                    44,
+                    337,
+                    593
+                ],
+                "expected": [
+                    "工业设备",
+                    "工業設備",
+                    "(?i)Factory",
+                    "공업 설비"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmExitTargetManager"
+        ]
+    },
+    "_AutoEcoFarmExitTargetManager": {
+        "desc": "按一下esc",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        },
+        "next": [
+            "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
         ]
     },
     "_AutoEcoFarmFindValleyIVEcoFarm": {
@@ -81,29 +182,79 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    649,
-                    225,
-                    515,
-                    399
+                    337,
+                    166,
+                    943,
+                    458
                 ],
-                "expected": "生|态|种|植",
+                "expected": [
+                    "[生态种植区]{2,}",
+                    "[生態種植區]{2,}",
+                    "(?i)Eco\\s*-?\\s*Farm",
+                    "[栽培場]{2,}",
+                    "[생태재배구역]{2,}"
+                ],
                 "threshold": 0.7
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Scroll",
             "param": {
                 "target": true,
-                "dy": 720
+                "dy": 240
             }
         },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
-            //不行的话尝试筛选标记
-            "[JumpBack]_AutoEcoFarmClickTargetManager",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
+    },
+    "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
+        "desc": "将生态园拉到屏幕中间",
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    337,
+                    166,
+                    943,
+                    458
+                ],
+                "expected": [
+                    "[生态种植区]{2,}",
+                    "[生態種植區]{2,}",
+                    "(?i)Eco\\s*-?\\s*Farm",
+                    "[栽培場]{2,}",
+                    "[생태재배구역]{2,}"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": true,
+                "end": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmFindValleyIVEcoFarm",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
@@ -114,60 +265,67 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    237,
-                    98,
-                    671,
-                    373
+                    222,
+                    17,
+                    812,
+                    620
                 ],
-                "expected": "作|物|试|点",
+                "expected": [
+                    "[实验作物试点区]{3,}",
+                    "[實驗作物測試區]{3,}",
+                    "(?i)Agricultural|Test|Site",
+                    "[実験栽培試行区]{3,}",
+                    "[실험작물시범구역]{3,}"
+                ],
                 "threshold": 0.7
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Scroll",
             "param": {
                 "target": true,
-                "dy": 720
+                "dy": 240
             }
         },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullWulinEcoFarmToCenter",
-            //不行的话尝试筛选标记
-            "[JumpBack]_AutoEcoFarmClickTargetManager",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
-        ]
-    },
-    "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
-        "desc": "将生态园拉到屏幕中间",
-        "max_hit": 10,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "_AutoEcoFarmFindValleyIVEcoFarm",
-                "end": [
-                    640,
-                    360,
-                    1,
-                    1
-                ]
-            }
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "_AutoEcoFarmFindValleyIVEcoFarm"
         ]
     },
     "_AutoEcoFarmPullWulinEcoFarmToCenter": {
         "desc": "将“实验作物试点”拉到屏幕中间",
         "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    222,
+                    17,
+                    812,
+                    620
+                ],
+                "expected": [
+                    "[实验作物试点区]{3,}",
+                    "[實驗作物測試區]{3,}",
+                    "(?i)Agricultural|Test|Site",
+                    "[実験栽培試行区]{3,}",
+                    "[실험작물시범구역]{3,}"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": "_AutoEcoFarmFindWulinEcoFarm",
+                "begin": true,
                 "end": [
                     640,
                     360,
@@ -176,13 +334,16 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 10,
+        "post_delay": 0,
         "next": [
-            "_AutoEcoFarmFindWulinEcoFarm"
+            "_AutoEcoFarmFindWulinEcoFarm",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
     "_AutoEcoFarmFindFarmland": {
-        "desc": "全屏寻找农田,识别到了后点击",
+        "desc": "给custom调用的识别节点，全屏识别农田",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -195,6 +356,20 @@
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "order_by": "Horizontal"
             }
+        }
+    },
+    "_AutoEcoFarmFindFarmlandCustom": {
+        "desc": "全屏寻找农田,并点击离特定点最近的农田",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                "custom_recognition_param": {
+                    "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                    "xRatio": 0.5,
+                    "yRatio": 0.5
+                }
+            }
         },
         "action": {
             "type": "Click"
@@ -204,9 +379,9 @@
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse"
+            "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmIsMrarking": {
@@ -221,7 +396,11 @@
                     45
                 ],
                 "expected": [
-                    "标记"
+                    "标记",
+                    "標記",
+                    "Tag",
+                    "マーカー",
+                    "표식"
                 ],
                 "threshold": 0.7
             }
@@ -233,7 +412,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmland"
+            "_AutoEcoFarmFindFarmlandCustom"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
@@ -249,14 +428,16 @@
                 ],
                 "expected": [
                     "取消",
-                    "Cancel",
-                    "キャンセル"
+                    "取消",
+                    "(?i)Cancel",
+                    "キャンセル",
+                    "취소"
                 ],
                 "threshold": 0.9
             }
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmSetTarget": {
@@ -273,8 +454,9 @@
                 "expected": [
                     "追踪",
                     "追蹤",
-                    "Track",
-                    "追跡"
+                    "(?i)Track",
+                    "追跡",
+                    "추적하기"
                 ],
                 "threshold": 0.9
             }
@@ -283,7 +465,7 @@
             "type": "Click"
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmMutiSelection": {
@@ -298,7 +480,15 @@
                     273,
                     262
                 ],
-                "expected": "田块"
+                "expected": [
+                    "田块",
+                    "田塊",
+                    "(?i)Plot",
+                    "畑",
+                    "논배미"
+                ],
+                "threshold": 0.9,
+                "order_by": "Vertical"
             }
         },
         "action": {

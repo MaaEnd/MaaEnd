@@ -233,12 +233,35 @@ bool NavigationStateMachine::TickWaitZoneTransition()
             return true;
         }
 
+        if (landing_from_portal) {
+            motion_controller_->Stop();
+            motion_controller_->ClearForwardCommit();
+            if (local_driver_ != nullptr) {
+                local_driver_->CancelCommitment();
+                local_driver_->Reset();
+            }
+            session_->ResetDriverProgressTracking(local_driver_);
+            respawn_detection_suppressed_until_ =
+                std::chrono::steady_clock::now() + std::chrono::milliseconds(kRespawnSuppressAfterZoneTransitionMs);
+            post_zone_transition_reacquire_pending_ = true;
+        }
+
         SelectPhaseForCurrentWaypoint("zone_nodes_consumed");
+        if (landing_from_portal && session_->phase() == NaviPhase::AdvanceOnRoute) {
+            const size_t current_node_idx = session_->current_node_idx();
+            const std::string& zone_id = position_->zone_id;
+            LogInfo << "Landing zone confirmed; holding motion until a fresh capture in the new zone."
+                    << VAR(current_node_idx) << VAR(zone_id);
+        }
         return true;
     }
 
     if (!session_->is_waiting_for_zone_switch()) {
         SelectPhaseForCurrentWaypoint("zone_phase_exit");
+        return true;
+    }
+
+    if (TryFastPortalZoneTransition("wait_zone_transition_probe")) {
         return true;
     }
 
@@ -358,6 +381,41 @@ bool NavigationStateMachine::TickWaitRelocation()
         return true;
     }
 
+    if (session_->CurrentWaypoint().HasPosition()) {
+        const Waypoint& current_waypoint = session_->CurrentWaypoint();
+        const bool zone_matches = current_waypoint.zone_id.empty() || current_waypoint.zone_id == position_->zone_id;
+        const double actual_distance = std::hypot(current_waypoint.x - position_->x, current_waypoint.y - position_->y);
+        const bool direct_portal_arrival =
+            current_waypoint.action == ActionType::PORTAL && actual_distance <= kPortalCommitDistance;
+        const bool can_resume_current_route = zone_matches && actual_distance <= kRelocationDirectResumeDistance;
+        if (can_resume_current_route) {
+            const size_t current_node_idx = session_->current_node_idx();
+            LogInfo << "Relocation recovery stabilized near current waypoint; resuming current branch." << VAR(relocation_reason)
+                    << VAR(current_node_idx) << VAR(actual_distance);
+            session_->ResetDriverProgressTracking(local_driver_);
+            respawn_detection_suppressed_until_ =
+                std::chrono::steady_clock::now() + std::chrono::milliseconds(kRespawnSuppressAfterZoneTransitionMs);
+            SelectPhaseForCurrentWaypoint("relocation_resume_current_route");
+            if (session_->phase() == NaviPhase::AdvanceOnRoute) {
+                session_->SyncVirtualYaw(position_->angle, "relocation_resume_sync");
+                if (CanArriveSamePointAction(current_waypoint) || direct_portal_arrival) {
+                    const double portal_distance =
+                        session_->DistanceToAdjacentPortal(session_->current_node_idx(), position_->x, position_->y);
+                    return HandleWaypointArrival(
+                        position_->x,
+                        position_->y,
+                        actual_distance,
+                        actual_distance,
+                        portal_distance,
+                        false,
+                        direct_portal_arrival);
+                }
+                ResumeMotionTowardsCurrentWaypoint(position_->x, position_->y, "relocation_resume_current_route", 0);
+            }
+            return true;
+        }
+    }
+
     if (relocation_completion_policy == RelocationCompletionPolicy::RejoinOrFail) {
         const size_t current_node_idx = session_->current_node_idx();
         const double position_x = position_->x;
@@ -390,7 +448,32 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         return true;
     }
 
+    const std::string expected_zone_id = session_->CurrentExpectedZone();
     const Waypoint& current_waypoint = session_->CurrentWaypoint();
+    const double last_known_portal_distance =
+        session_->DistanceToAdjacentPortal(session_->current_node_idx(), position_->x, position_->y);
+    if ((current_waypoint.action == ActionType::PORTAL || last_known_portal_distance <= kZoneTransitionIsolationDistance)
+        && TryFastPortalZoneTransition("advance_portal_probe")) {
+        return true;
+    }
+
+    if (post_zone_transition_reacquire_pending_) {
+        if (!position_provider_->Capture(position_, false, expected_zone_id)) {
+            SleepFor(kLocatorRetryIntervalMs);
+            return true;
+        }
+
+        post_zone_transition_reacquire_pending_ = false;
+        session_->SyncVirtualYaw(position_->angle, "zone_transition_reacquire_sync");
+
+        if (expected_zone_id.empty() && position_->zone_id != session_->current_zone_id()) {
+            if (!HandleImplicitZoneTransition(expected_zone_id)) {
+                return true;
+            }
+            return true;
+        }
+    }
+
     if (!motion_controller_->IsMoving()) {
         const double stationary_portal_distance =
             session_->DistanceToAdjacentPortal(session_->current_node_idx(), position_->x, position_->y);
@@ -414,7 +497,6 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     }
 
     const auto frame_start_time = std::chrono::steady_clock::now();
-    const std::string expected_zone_id = session_->CurrentExpectedZone();
 
     const bool allow_blind_recovery = current_waypoint.action == ActionType::PORTAL || session_->is_waiting_for_zone_switch();
     const auto enter_black_screen_recovery = [&](const char* capture_stage) {
@@ -432,6 +514,9 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     };
 
     if (!position_provider_->Capture(position_, false, expected_zone_id)) {
+        if (!expected_zone_id.empty() && TryFastPortalZoneTransition("capture_failed_zone_probe", false)) {
+            return true;
+        }
         if (enter_black_screen_recovery("capture_failed")) {
             return true;
         }
@@ -451,6 +536,11 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     }
 
     if (session_->phase() != NaviPhase::AdvanceOnRoute) {
+        return true;
+    }
+
+    const bool held_fix = position_provider_->LastCaptureWasHeld();
+    if (held_fix && !expected_zone_id.empty() && TryFastPortalZoneTransition("held_fix_zone_probe", false)) {
         return true;
     }
 
@@ -524,12 +614,39 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         return snapshot;
     };
 
+    const double best_actual_distance = session_->best_actual_distance();
+    const bool portal_waits_for_zone =
+        current_waypoint.action == ActionType::PORTAL && session_->current_node_idx() + 1 < session_->current_path().size()
+        && session_->CurrentPathAt(session_->current_node_idx() + 1).IsZoneDeclaration();
+    const bool portal_transition_drifted =
+        portal_waits_for_zone && best_actual_distance <= kPortalCommitDistance * 2.0
+        && actual_distance >= kPortalTransitionDriftFreezeDistance
+        && actual_distance >= best_actual_distance + kRespawnDistanceIncreaseThreshold;
+    if (portal_transition_drifted) {
+        const size_t current_node_idx = session_->current_node_idx();
+        LogWarn << "Portal approach drift detected after near-arrival; freezing old motion for zone reprobe."
+                << VAR(current_node_idx) << VAR(actual_distance) << VAR(best_actual_distance) << VAR(portal_distance);
+        motion_controller_->Stop();
+        motion_controller_->ClearForwardCommit();
+        if (local_driver_ != nullptr) {
+            local_driver_->CancelCommitment();
+            local_driver_->Reset();
+        }
+        session_->ResetDriverProgressTracking(local_driver_);
+        respawn_detection_suppressed_until_ =
+            std::chrono::steady_clock::now() + std::chrono::milliseconds(kRespawnSuppressAfterZoneTransitionMs);
+        if (TryFastPortalZoneTransition("portal_drift_reprobe")) {
+            return true;
+        }
+        SleepFor(kLocatorRetryIntervalMs);
+        return true;
+    }
+
     if (!is_zone_transition_isolated && param_.arrival_timeout > 0 && actual_distance > kNoProgressMinDistance
         && stalled_ms > param_.arrival_timeout && session_->no_progress_recovery_attempts() >= kArrivalTimeoutMinRecoveryAttempts) {
         session_->UpdatePhase(NaviPhase::Failed, "arrival_watchdog_exhausted");
         NavigationSnapshot snapshot = make_snapshot();
         const size_t current_node_idx = session_->current_node_idx();
-        const double best_actual_distance = session_->best_actual_distance();
         const int no_progress_recovery_attempts = session_->no_progress_recovery_attempts();
         LogError << "Arrival watchdog exhausted after repeated recovery attempts." << VAR(current_node_idx) << VAR(actual_distance)
                  << VAR(best_actual_distance) << VAR(stalled_ms) << VAR(no_progress_recovery_attempts);
@@ -549,7 +666,7 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     }
 
     const auto loop_now = std::chrono::steady_clock::now();
-    const bool held_fix = position_provider_->LastCaptureWasHeld();
+    const bool suppress_respawn_detection = loop_now < respawn_detection_suppressed_until_;
     const double moved_distance =
         session_->has_previous_driver_pos() && session_->previous_driver_pos().zone_id == position_->zone_id
             ? std::hypot(position_->x - session_->previous_driver_pos().x, position_->y - session_->previous_driver_pos().y)
@@ -558,12 +675,15 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         std::isnan(session_->previous_driver_distance()) ? 0.0 : session_->previous_driver_distance() - actual_distance;
     const double distance_increase =
         std::isnan(session_->previous_driver_distance()) ? 0.0 : actual_distance - session_->previous_driver_distance();
-    const bool suspected_respawn = session_->has_previous_driver_pos() && position_->zone_id == session_->previous_driver_pos().zone_id
-                                   && moved_distance >= kRespawnTeleportDistance && distance_increase >= kRespawnDistanceIncreaseThreshold
+    const bool suspected_respawn = !suppress_respawn_detection && session_->has_previous_driver_pos()
+                                   && position_->zone_id == session_->previous_driver_pos().zone_id
+                                   && moved_distance >= kRespawnTeleportDistance
+                                   && distance_increase >= kRespawnDistanceIncreaseThreshold
                                    && current_waypoint.action != ActionType::PORTAL && !current_waypoint.WaitsForRelocation()
                                    && !session_->is_waiting_for_zone_switch();
     const bool partial_respawn_signal =
-        session_->has_previous_driver_pos() && position_->zone_id == session_->previous_driver_pos().zone_id && !suspected_respawn
+        !suppress_respawn_detection && session_->has_previous_driver_pos()
+        && position_->zone_id == session_->previous_driver_pos().zone_id && !suspected_respawn
         && (moved_distance >= kRespawnTeleportDistance || distance_increase >= kRespawnDistanceIncreaseThreshold);
     if (partial_respawn_signal) {
         const size_t current_node_idx = session_->current_node_idx();
@@ -614,10 +734,10 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         snapshot.error_yaw = error_yaw;
         snapshot.post_turn_forward_commit_active = post_turn_forward_commit_active;
         const size_t current_node_idx = session_->current_node_idx();
-        const double best_actual_distance = session_->best_actual_distance();
+        const double best_actual_distance_snapshot = session_->best_actual_distance();
         const int no_progress_recovery_attempts = session_->no_progress_recovery_attempts();
         LogWarn << "LocalDriverLite escalated to route rejoin." << VAR(current_node_idx) << VAR(actual_distance)
-                << VAR(best_actual_distance) << VAR(stalled_ms) << VAR(no_progress_recovery_attempts);
+                << VAR(best_actual_distance_snapshot) << VAR(stalled_ms) << VAR(no_progress_recovery_attempts);
         LogNavigationSnapshot(snapshot, "local_driver_escalation");
         if (AttemptRouteRejoin("recover_exhausted", true)) {
             session_->MarkRecoveryAttempt(actual_distance, std::chrono::steady_clock::now());
@@ -642,10 +762,10 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         const double position_x = position_->x;
         const double position_y = position_->y;
         const double virtual_yaw = session_->virtual_yaw();
-        const double best_actual_distance = session_->best_actual_distance();
+        const double best_actual_distance_turn = session_->best_actual_distance();
         LogWarn << "Turn-in-place correction triggered." << VAR(current_node_idx) << VAR(position_x) << VAR(position_y) << VAR(target_x)
                 << VAR(target_y) << VAR(next_position_idx) << VAR(sensor_target_yaw) << VAR(visual_yaw) << VAR(virtual_yaw)
-                << VAR(advanced_by_pass_through) << VAR(sensor_yaw_error) << VAR(actual_distance) << VAR(best_actual_distance)
+                << VAR(advanced_by_pass_through) << VAR(sensor_yaw_error) << VAR(actual_distance) << VAR(best_actual_distance_turn)
                 << VAR(stalled_ms) << VAR(moving_now);
         if (next_position_idx < session_->current_path().size()) {
             const Waypoint& next_waypoint = session_->CurrentPathAt(next_position_idx);
@@ -861,9 +981,72 @@ void NavigationStateMachine::EnterRelocationWait(
     session_->UpdatePhase(NaviPhase::WaitRelocation, reason);
 }
 
+bool NavigationStateMachine::TryFastPortalZoneTransition(const char* reason, bool require_nearby_portal)
+{
+    if (!session_->HasCurrentWaypoint()) {
+        return false;
+    }
+
+    bool has_portal_transition_ahead = false;
+    bool has_nearby_portal = session_->is_waiting_for_zone_switch();
+    const size_t current_node_idx = session_->current_node_idx();
+    const size_t nearby_end_idx = std::min(current_node_idx + 1, session_->current_path().size() - 1);
+    for (size_t index = current_node_idx; index < session_->current_path().size(); ++index) {
+        if (session_->CurrentPathAt(index).action != ActionType::PORTAL) {
+            continue;
+        }
+        if (index + 1 >= session_->current_path().size() || !session_->CurrentPathAt(index + 1).IsZoneDeclaration()) {
+            continue;
+        }
+
+        has_portal_transition_ahead = true;
+        if (index <= nearby_end_idx) {
+            has_nearby_portal = true;
+        }
+        if (has_nearby_portal && require_nearby_portal) {
+            break;
+        }
+    }
+    if (!has_portal_transition_ahead || (require_nearby_portal && !has_nearby_portal)) {
+        return false;
+    }
+
+    NaviPosition candidate_pos;
+    if (!position_provider_->Capture(&candidate_pos, true, {})) {
+        return false;
+    }
+    if (!candidate_pos.valid || candidate_pos.zone_id.empty() || candidate_pos.zone_id == session_->current_zone_id()) {
+        return false;
+    }
+
+    *position_ = candidate_pos;
+    if (!HandleImplicitZoneTransition({})) {
+        const std::string& candidate_zone_id = candidate_pos.zone_id;
+        const std::string& current_zone_id = session_->current_zone_id();
+        LogInfo << "Fast portal zone probe observed unmatched zone switch; pausing old motion for reprobe." << VAR(reason)
+                << VAR(current_zone_id) << VAR(candidate_zone_id);
+        motion_controller_->Stop();
+        motion_controller_->ClearForwardCommit();
+        if (local_driver_ != nullptr) {
+            local_driver_->CancelCommitment();
+            local_driver_->Reset();
+        }
+        position_provider_->ResetTracking();
+        session_->ResetDriverProgressTracking(local_driver_);
+        respawn_detection_suppressed_until_ =
+            std::chrono::steady_clock::now() + std::chrono::milliseconds(kRespawnSuppressAfterZoneTransitionMs);
+        SleepFor(kLocatorRetryIntervalMs);
+        return true;
+    }
+
+    const std::string& candidate_zone_id = candidate_pos.zone_id;
+    LogInfo << "Fast portal zone probe accepted zone switch." << VAR(reason) << VAR(candidate_zone_id);
+    return true;
+}
+
 bool NavigationStateMachine::HandleImplicitZoneTransition(const std::string& expected_zone_id)
 {
-    if (!expected_zone_id.empty() || position_->zone_id == session_->current_zone_id()) {
+    if (position_->zone_id.empty() || position_->zone_id == session_->current_zone_id()) {
         return false;
     }
 
@@ -875,11 +1058,35 @@ bool NavigationStateMachine::HandleImplicitZoneTransition(const std::string& exp
             continue;
         }
 
+        const size_t landing_zone_idx = index + 1;
+        if (landing_zone_idx >= session_->current_path().size() || !session_->CurrentPathAt(landing_zone_idx).IsZoneDeclaration()) {
+            continue;
+        }
+
+        const std::string& landing_zone_id = session_->CurrentPathAt(landing_zone_idx).zone_id;
+        if (!landing_zone_id.empty() && landing_zone_id != position_->zone_id) {
+            const size_t current_node_idx = session_->current_node_idx();
+            const std::string& actual_zone_id = position_->zone_id;
+            LogInfo << "Ignore detected zone switch that does not match landing zone." << VAR(current_node_idx)
+                    << VAR(expected_zone_id) << VAR(landing_zone_id) << VAR(actual_zone_id);
+            continue;
+        }
+
         session_->SkipPastWaypoint(index, "portal_zone_transition");
-        session_->UpdateCurrentZone(position_->zone_id, "portal_zone_transition");
+        session_->ConfirmZone(position_->zone_id, *position_, "portal_zone_transition");
         session_->SetWaitingForZoneSwitch(false, "portal_zone_transition");
-        valid_transition = true;
+        while (session_->HasCurrentWaypoint() && session_->CurrentWaypoint().IsZoneDeclaration()) {
+            const std::string& zone_id = session_->CurrentWaypoint().zone_id;
+            if (!zone_id.empty() && zone_id != position_->zone_id) {
+                break;
+            }
+            session_->AdvanceToNextWaypoint(ActionType::ZONE, "portal_zone_transition_confirmed");
+        }
         zone_transition_controller_->ConsumeLandingPortalNode();
+        session_->ResetDriverProgressTracking(local_driver_);
+        respawn_detection_suppressed_until_ =
+            std::chrono::steady_clock::now() + std::chrono::milliseconds(kRespawnSuppressAfterZoneTransitionMs);
+        valid_transition = true;
         break;
     }
 
@@ -893,10 +1100,20 @@ bool NavigationStateMachine::HandleImplicitZoneTransition(const std::string& exp
         return true;
     }
 
+    motion_controller_->Stop();
+    motion_controller_->ClearForwardCommit();
+    if (local_driver_ != nullptr) {
+        local_driver_->CancelCommitment();
+        local_driver_->Reset();
+    }
+    post_zone_transition_reacquire_pending_ = true;
+
     SelectPhaseForCurrentWaypoint("portal_transition_complete");
     if (session_->phase() == NaviPhase::AdvanceOnRoute) {
-        session_->SyncVirtualYaw(position_->angle, "portal_resume_sync");
-        ResumeMotionTowardsCurrentWaypoint(position_->x, position_->y, "portal_resume", 0);
+        const size_t current_node_idx = session_->current_node_idx();
+        const std::string& zone_id = position_->zone_id;
+        LogInfo << "Portal zone switch accepted; holding motion until a fresh capture in the new zone."
+                << VAR(current_node_idx) << VAR(zone_id);
     }
 
     return true;

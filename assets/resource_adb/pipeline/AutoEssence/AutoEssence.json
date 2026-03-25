@@ -1,0 +1,104 @@
+{
+    "__AutoEssenceAltKeyUp": {
+        "desc": "释放键盘 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "AutoEssenceClickTriggerButtonPre": {
+        "desc": "准备点击激发的大世界按钮，先按下 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "AutoEssenceClickTriggerButtonFailedPre": {
+        "desc": "未能识别到激发的大世界按钮，先释放 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "AutoEssenceClickObtainButtonPre": {
+        "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，先按下 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "AutoEssenceClickObtainButtonFailedPre": {
+        "desc": "未能识别到领取奖励（或放弃奖励）的大世界按钮，先释放 Alt 键（ADB 无需此操作）",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "AutoEssenceClickTriggerButton": {
+        "desc": "正式识别并点击激发的大世界按钮（ADB）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    640,
+                    300,
+                    270,
+                    290
+                ],
+                "template": "AutoEssence/EssenceTrigger.png",
+                "green_mask": true,
+                "threshold": 0.75
+            }
+        }
+    },
+    "AutoEssenceMistakeFactoryDevice": {
+        "desc": "识别是否误入工业设备界面，并将其关闭（ADB）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1105,
+                    10,
+                    175,
+                    150
+                ],
+                "template": "AutoEssence/FactoryDeviceDialog.png"
+            }
+        },
+        "action": {
+            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
+            "param": {
+                "target_offset": [
+                    60,
+                    5,
+                    -60,
+                    -10
+                ]
+            }
+        }
+    },
+    "AutoEssenceClickObtainButton": {
+        "desc": "正式识别并点击领取奖励的大世界按钮（ADB）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    20,
+                    -10,
+                    -75
+                ]
+            }
+        }
+    }
+}

@@ -11,6 +11,17 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
         "next": [
+            "CreditShoppingInit",
+            "CreditShoppingScanItem"
+        ]
+    },
+    "CreditShoppingInit": {
+        "desc": "初始化信用购物参数（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShoppingParseParams",
+        "next": [
             "CreditShoppingScanItem"
         ]
     },
@@ -27,11 +38,11 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -60,6 +71,7 @@
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "CreditShoppingReserveCredit",
+            "CreditShoppingPrudentRefresh",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -76,7 +88,7 @@
             "CreditShoppingNothingToBuy"
         ],
         "focus": {
-            "Node.Action.Succeeded": "信用点不足"
+            "Node.Action.Succeeded": "$task.CreditShopping.refresh_no_credit"
         }
     },
     "RefreshItem": {
@@ -100,23 +112,59 @@
         "next": [
             "CreditShoppingShopping",
             "[JumpBack]YellowConfirmButtonType1"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "刷新商品"
+        }
     },
     "CreditShoppingReserveCredit": {
-        "desc": "信用点 < 300",
-        "recognition": "OCR",
-        "roi": [
-            1083,
-            17,
-            76,
-            26
-        ],
-        "expected": "^([12]?\\d{1,2})$",
+        "desc": "信用点低于保留阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}<300"
+                }
+            }
+        },
         "next": [
             "CreditShoppingNothingToBuy"
         ],
         "focus": {
-            "Node.Action.Succeeded": "信用点小于300, 退出购买流程"
+            "Node.Recognition.Succeeded": "$task.CreditShopping.reserve_credit_reached"
+        }
+    },
+    "CreditShoppingReserveCreditOCRInternal": {
+        "desc": "识别当前信用点",
+        "recognition": "OCR",
+        "roi": [
+            1083,
+            0,
+            135,
+            71
+        ],
+        "expected": "^\\d+$",
+        "color_filter": "CreditShoppingReserveCreditOCRInternalColor"
+    },
+    "CreditShoppingReserveCreditOCRInternalColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1083,
+                    17,
+                    114,
+                    27
+                ],
+                "method": 6,
+                "lower": [
+                    198
+                ],
+                "upper": [
+                    255
+                ]
+            }
         }
     },
     "AutoGetCredits": {
@@ -133,7 +181,7 @@
             "[JumpBack]SceneEnterMenuShop"
         ],
         "focus": {
-            "Node.Action.Succeeded": "信用点不足,尝试从帝江号会客室获取"
+            "Node.Action.Succeeded": "$task.CreditShopping.auto_get_credits"
         }
     },
     "AutoGetCreditsBuy": {
@@ -156,8 +204,15 @@
             "BuyFirstOCR"
         ],
         "box_index": 3,
+        "action": "Click",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
+        ],
         "next": [
-            "CreditShoppingBuyFirstItem"
+            "CreditShoppingBuyItem"
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
@@ -174,32 +229,65 @@
         "box_index": 4,
         "action": "Click",
         "next": [
-            "CreditShoppingBuyNormalItemWithDiscount"
+            "CreditShoppingBuyItem"
         ]
     },
     "CreditShoppingBuyBlacklist": {
-        "desc": "信用点溢出时购买黑名单物品",
+        "desc": "忽略黑名单",
         "recognition": "And",
         "all_of": [
-            "CreditNum",
             "CreditIcon",
-            "NotSoldOut"
+            "NotSoldOut",
+            "CanAfford"
         ],
         "box_index": 2,
+        "action": "Click",
         "next": [
-            "CreditShoppingBuyBlacklistItem"
+            "CreditShoppingBuyItem"
         ]
     },
-    "CreditNum": {
-        "desc": "信用点溢出（>300）",
-        "recognition": "OCR",
-        "roi": [
-            1083,
-            17,
-            76,
-            26
+    "CreditShoppingPrudentRefresh": {
+        "desc": "稳健模式刷新，当前信用点-刷新花费低于阈值时触发",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "Custom",
+                            "param": {
+                                "custom_recognition": "CreditShoppingReserveRecognition",
+                                "custom_recognition_param": {
+                                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "CreditIcon",
+                                    "NotSoldOut",
+                                    "CanAfford"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingBuyItem"
         ],
-        "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
+        }
     },
     "CreditShoppingNothingToBuy": {
         "desc": "没有合适的东西可以买了",

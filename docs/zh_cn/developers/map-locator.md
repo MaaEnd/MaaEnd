@@ -38,7 +38,7 @@ MapLocator 仅负责“充当系统明亮的眼睛”——即高频、高精度
 **必填参数**：**无**
 
 **可选参数 (`custom_recognition_param`)**：
-支持传递 JSON 字符串格式的高级参数设置，用于在极端或特定场景中覆写默认参数，针对性地微调本定位器。
+支持传递 JSON 对象格式的高级参数设置，用于在极端或特定场景中覆写默认参数，针对性地微调本定位器。
 
 - `loc_threshold`: 介于 $[0, 1]$ 的实数，默认 `0.55`。控制基于图像匹配特征的最宽容的命中基础分数线。如果环境极尽复杂光怪陆离而频繁意外断连，可酌情下浮（比如 `0.45`）；常规情形推荐保持默认或按需上调，确保精确度。
 - `yolo_threshold`: 介于 $[0, 1]$ 的实数，默认 `0.70`。YOLO判断地图UI类别的最低置信度阈值。过低可能会把部分具备类似圆盘UI的界面错认为小地图。
@@ -55,7 +55,7 @@ MapLocator 仅负责“充当系统明亮的眼睛”——即高频、高精度
     - `2 (ScreenBlocked)`: 画像遭遇未知且庞大干扰物的压倒性覆写/遮挡。
     - `3 (Teleported)`: 两帧之间坐标位移严重超出人类/载具移速极限，进而判定为遭受了强制传送。
     - `4 (YoloFailed)`: 初始 YOLO 模型已确认当前游戏截图不具备小地图识别区域。
-- `mapName`: （成功态）本次定位吻合度最高的大地图区域名称 (如 "map001_lv001")。
+- `mapName`: （成功态）本次定位吻合度最高的大地图区域名称 (如 "map01_lv001")。
 - `x`: （成功态）X 轴向全局像素坐标（水平值）。
 - `y`: （成功态）Y 轴向全局像素坐标（垂直值）。
 - `rot`: （成功态）当前计算输出的真实朝向偏航角（高精度，通常 $0^\circ \sim 360^\circ$ 以北为零向）。
@@ -94,3 +94,59 @@ MapLocator 仅负责“充当系统明亮的眼睛”——即高频、高精度
     }
 }
 ```
+
+### custom_recognition: MapLocateAssertLocation
+
+判断玩家当前是否位于指定 `zone_id` 的某个矩形区域内。
+
+这个节点本质上是对 `MapLocateRecognition` 的一次薄封装：底层仍然先做一次定位，然后检查返回的 `zone_id` 与 `(x, y)` 是否满足给定条件。它是一个纯判定节点，不负责移动，也不会修改任何导航状态。
+
+#### 节点参数
+
+**必填参数 (`custom_recognition_param`)**：
+
+- `zone_id`: 目标区域名，必须与定位结果中的区域名完全一致。
+- `target`: 由 4 个数字组成的数组 `[x, y, w, h]`，表示左上角坐标与矩形宽高。
+
+**可选参数 (`custom_recognition_param`)**：
+
+- `loc_threshold`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+- `yolo_threshold`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+- `force_global_search`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+
+#### 返回值结构 (Out Detail)
+
+该节点同样会向 `out_detail` 输出 JSON，常用字段如下：
+
+- `status`: 底层定位状态码，语义同 `MapLocateRecognition`。
+- `matched`: 真假值。只有当区域和矩形都命中时才为 `true`。
+- `inTarget`: 与 `matched` 等价，便于直接读取“是否在目标框中”。
+- `message`: 底层定位日志或失败原因。
+- `zoneId`: 本次判定要求的目标区域名。
+- `x` / `y` / `rot` / `locConf` / `latencyMs`: 本次定位结果；只有定位成功时才有意义。
+- `target`: 回显本次判定使用的 `[x, y, w, h]`。
+
+#### 示例用法
+
+```json
+{
+    "WulingBaseAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                605,
+                878,
+                60,
+                20
+            ]
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> 这个节点适合在进入 `MapNavigateAction` 之前做入口判定。例如：先判断人物是否已经站在传送落点附近，再决定后续是否继续跑对应路线。

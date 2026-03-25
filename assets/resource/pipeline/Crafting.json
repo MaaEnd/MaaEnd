@@ -16,13 +16,13 @@
                 "roi": [
                     900,
                     100,
-                    250,
+                    349,
                     160
                 ],
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "간편 제작"
                 ]
@@ -58,7 +58,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "간편 제작"
                 ]
@@ -80,7 +80,7 @@
         "expected": [
             "制作",
             "製作",
-            "Craft",
+            "(?i)Craft",
             "確定"
         ],
         "action": "Click",
@@ -102,7 +102,9 @@
         ],
         "expected": [
             "空间已满",
-            "可销毁或丢弃部分"
+            "空間已滿",
+            "可销毁或丢弃部分",
+            "可銷毀或丟棄部分"
         ],
         "next": [
             "CraftingCreationFinish",
@@ -110,15 +112,16 @@
         ]
     },
     "CraftingCloseProductPopup": {
+        "desc": "制作成功确认",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    622,
-                    645,
-                    37,
-                    38
-                ],
+                    590,
+                    573,
+                    100,
+                    117
+                ], //扩大识图区域，避免界面微调导致识别失败
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9
             }

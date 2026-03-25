@@ -139,7 +139,10 @@
         "post_delay": 0, // 此节点为守卫节点，无需延迟
         "next": [
             // 默认情况下不会自循环
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "❓ 未能按预期识别到拼图界面的UI元素"
+        }
     },
     "PuzzleSolverOnSuccess": {
         "desc": "回调：解谜成功后触发，关闭拼图界面",

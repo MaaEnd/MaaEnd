@@ -3,117 +3,50 @@
         {
             "name": "VisitFriends",
             "label": "$task.VisitFriends.label",
-            "entry": "FriendVisitMain",
+            "entry": "VisitFriendsMain",
             "description": "$task.VisitFriends.description",
             "option": [
-                "PriorStealVegetables"
+                "ProductionAssistType"
             ],
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
                 "Win32-Front"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
-        "PriorStealVegetables": {
-            "type": "switch",
-            "label": "$option.PriorStealVegetables.label",
-            "description": "$option.PriorStealVegetables.description",
-            "default_case": "No",
+        "ProductionAssistType": {
+            "type": "select",
+            "label": "$option.ProductionAssistType.label",
+            "default_case": "ProductionAssistAll",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "ProductionAssistAll",
+                    "label": "$option.ProductionAssistType.ProductionAssistAll.label"
+                },
+                {
+                    "name": "ProductionAssistOnlyGrowthChamber",
+                    "label": "$option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label",
                     "pipeline_override": {
-                        "PriorStealGateProductionAndClueCheck": {
-                            "enabled": true
-                        },
-                        "ProductionAssistOCR": {
-                            "enabled": false
-                        },
-                        "ClueExchangeOCR": {
-                            "enabled": false
-                        },
-                        "ProductionAssistCheckPriorSteal": {
-                            "enabled": true
-                        },
-                        "ProductionAssistCheck": {
-                            "enabled": false
-                        },
-                        "GrowthChamberCheck": {
-                            "enabled": true
-                        },
-                        "SkipConfirmBackToFriendList": {
-                            "enabled": true
-                        },
-                        "WaitOpenTerminalAssistStealVeg": {
-                            "enabled": true
-                        },
-                        "WaitOpenTerminalAssist": {
-                            "enabled": false
-                        },
-                        "VisitorTerminalClueExchangeFirst": {
-                            "enabled": true
-                        },
-                        "VisitorTerminalSwipeFacilityList": {
-                            "enabled": true
-                        },
-                        "VisitorTerminalAssistGrowthChamber": {
-                            "enabled": true
-                        },
-                        "VisitorTerminalCloseSeedDialog": {
-                            "enabled": true
-                        },
-                        "VisitorTerminalAssist": {
-                            "enabled": false
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "custom_recognition_param": {
+                                "assist_mode": "only_growth_chamber"
+                            }
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ProductionAssistWithoutControlNexus",
+                    "label": "$option.ProductionAssistType.ProductionAssistWithoutControlNexus.label",
                     "pipeline_override": {
-                        "PriorStealGateProductionAndClueCheck": {
-                            "enabled": false
-                        },
-                        "ProductionAssistCheckPriorSteal": {
-                            "enabled": false
-                        },
-                        "ProductionAssistOCR": {
-                            "enabled": true
-                        },
-                        "ClueExchangeOCR": {
-                            "enabled": true
-                        },
-                        "ProductionAssistCheck": {
-                            "enabled": true
-                        },
-                        "GrowthChamberCheck": {
-                            "enabled": false
-                        },
-                        "SkipConfirmBackToFriendList": {
-                            "enabled": false
-                        },
-                        "WaitOpenTerminalAssistStealVeg": {
-                            "enabled": false
-                        },
-                        "WaitOpenTerminalAssist": {
-                            "enabled": true
-                        },
-                        "VisitorTerminalClueExchangeFirst": {
-                            "enabled": false
-                        },
-                        "VisitorTerminalSwipeFacilityList": {
-                            "enabled": false
-                        },
-                        "VisitorTerminalAssistGrowthChamber": {
-                            "enabled": false
-                        },
-                        "VisitorTerminalCloseSeedDialog": {
-                            "enabled": false
-                        },
-                        "VisitorTerminalAssist": {
-                            "enabled": true
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "custom_recognition_param": {
+                                "assist_mode": "without_control_nexus"
+                            }
                         }
                     }
                 }

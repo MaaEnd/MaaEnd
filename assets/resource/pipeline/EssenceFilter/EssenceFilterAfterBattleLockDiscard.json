@@ -1,0 +1,275 @@
+{
+    "EssenceFilterAfterBattleLockItemLog": {
+        "desc": "日志：即将锁定Essence",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterTraceAction",
+                "custom_action_param": {
+                    "step": "LockItem"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckLocked",
+            "EssenceFilterAfterBattleLockItem"
+        ]
+    },
+    "EssenceFilterAfterBattleLockItem": {
+        "desc": "锁定Essence",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -8,
+                    -7,
+                    16,
+                    15
+                ],
+                "template": "EssenceFilter/LockButton.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 300,
+        "next": [
+            "EssenceFilterAfterBattleCheckLocked",
+            "EssenceFilterAfterBattleLockItem"
+        ],
+        "focus": {
+            //"Node.Action.Succeeded": "已锁定基质"
+        }
+    },
+    "EssenceFilterAfterBattleCheckLocked": {
+        "desc": "确认已上锁",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -8,
+                    -7,
+                    16,
+                    15
+                ],
+                "template": "EssenceFilter/LockButtonLocked.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleLockItem"
+        ],
+        "focus": {
+            //"Node.Action.Succeeded": "已确认上锁"
+        }
+    },
+    "EssenceFilterAfterBattleRecognitionLocked": {
+        "desc": "识别：是否已上锁（仅识别，试最后一个时用）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -8,
+                    -7,
+                    16,
+                    15
+                ],
+                "template": "EssenceFilter/LockButtonLocked.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "EssenceFilterAfterBattleDiscardItemLog": {
+        "desc": "日志：即将废弃 Essence",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterTraceAction",
+                "custom_action_param": {
+                    "step": "DiscardItem"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckDiscarded",
+            "EssenceFilterAfterBattleDiscardItem"
+        ]
+    },
+    "EssenceFilterAfterBattleDiscardItem": {
+        "desc": "废弃 Essence",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -46,
+                    -8,
+                    23,
+                    17
+                ],
+                "template": "EssenceFilter/DiscardButton.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckDiscarded",
+            "EssenceFilterAfterBattleDiscardItem"
+        ],
+        "focus": {
+            //"Node.Action.Succeeded": "已废弃基质"
+        }
+    },
+    "EssenceFilterAfterBattleCheckDiscarded": {
+        "desc": "确认已废弃",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -46,
+                    -8,
+                    23,
+                    17
+                ],
+                "template": "EssenceFilter/DiscardButtonDiscarded.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleDiscardItem"
+        ],
+        "focus": {
+            //"Node.Action.Succeeded": "已确认废弃"
+        }
+    },
+    "EssenceFilterAfterBattleCloseDetail": {
+        "desc": "关闭详情页后继续处理下一个基质（Skip路径专用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ]
+    },
+    "EssenceFilterAfterBattleCloseDetailJumpback": {
+        "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡（JumpBack专用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            //无next，用来触发Jumpback
+        ]
+    },
+    "EssenceFilterAfterBattleRowNextItem": {
+        "desc": "处理下一个命中的格子，识别不到则退出任务",
+        "next": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "EssenceFilterAfterBattleNthRecognition",
+            "EssenceFilterAfterBattleExit"
+        ]
+    },
+    "EssenceFilterAfterBattleNthRecognition": {
+        "desc": "按顺序返回识别结果，每次调用时index++",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceFilterAfterBattleNthRecognition",
+                "custom_recognition_param": {
+                    "recognitionNodeName": "EssenceFullScreenDetectAll"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "EssenceFindLockItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleExit"
+        ]
+    }
+}

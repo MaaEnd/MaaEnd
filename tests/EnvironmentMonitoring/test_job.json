@@ -1,8 +1,11 @@
 {
     "configs": {
-        "name": "(Win32-官服)环境监测",
+        "name": "环境监测",
         "resource": "官服",
-        "controller": "Win32"
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
     },
     "cases": [
         {

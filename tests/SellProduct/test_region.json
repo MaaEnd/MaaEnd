@@ -1,8 +1,11 @@
 {
     "configs": {
-        "name": "(Win32-官服)一键售卖产品，测试地区识别",
+        "name": "一键售卖产品，测试地区识别",
         "resource": "官服",
-        "controller": "Win32"
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
     },
     "cases": [
         {

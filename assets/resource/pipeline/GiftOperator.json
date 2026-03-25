@@ -13,7 +13,7 @@
                 "expected": [
                     "礼物",
                     "禮物",
-                    "Gift",
+                    "(?i)Gift",
                     "プレゼント"
                 ]
             }
@@ -26,15 +26,15 @@
         }
     },
     "GiftOperatorBagFullDialog": {
-        "desc": "背包满离开后跳过对话",
+        "desc": "背包满离开后跳过对话。",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    630,
-                    680,
-                    20,
-                    35
+                    616,
+                    679,
+                    48,
+                    40
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipNext2.png"
@@ -44,7 +44,11 @@
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "next": [
+            "GiftOperatorLeave",
+            "GiftOperatorBagFullDialog"
+        ]
     },
     "GiftOperatorBagFullLeave": {
         "desc": "背包满时点击离开",
@@ -66,6 +70,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 200,
         "next": [
             "GiftOperatorBagFullDialog"
         ]
@@ -137,6 +142,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 200,
         "next": [
             "GiftOperatorReceiveDialog",
             "GiftOperatorBagFull"
@@ -165,6 +171,7 @@
                 "key": 18
             }
         },
+        "post_wait_freezes": 200,
         "next": [
             "GiftOperatorSkipDialog"
         ],
@@ -186,7 +193,7 @@
                 "expected": [
                     "干员联络",
                     "幹員聯絡",
-                    "Operator Contact",
+                    "(?i)Operator\\s*Contact",
                     "オペレーターの呼び出し"
                 ]
             }
@@ -327,6 +334,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 200,
         "next": [
             "GiftOperatorGiftDialog"
         ]
@@ -377,21 +385,18 @@
         },
         "next": [
             "GiftOperatorCheckContact"
-        ],
-        "on_error": [
-            "GiftOperatorRetryCleanupAlt"
         ]
     },
     "GiftOperatorGiftDialog": {
-        "desc": "赠送后跳过对话",
+        "desc": "赠送后跳过对话。",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    630,
-                    680,
-                    20,
-                    35
+                    616,
+                    679,
+                    48,
+                    40
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipNext2.png"
@@ -403,7 +408,8 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorLeave"
+            "GiftOperatorLeave",
+            "GiftOperatorGiftDialog"
         ]
     },
     "GiftOperatorGiftSelected": {
@@ -432,47 +438,21 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    44,
-                    649,
-                    36,
-                    25
+                    20,
+                    634,
+                    92,
+                    56
                 ],
                 "expected": [
                     "默认",
                     "預設",
-                    "Default",
+                    "(?i)Default",
                     "デフォルト"
                 ]
             }
         },
         "next": [
             "GiftOperatorClickGift"
-        ]
-    },
-    "GiftOperatorShiftToRunMapTracker": {
-        "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 16
-            }
-        },
-        "post_delay": 500,
-        "next": [
-            "GiftOperatorMoveMapTracker"
-        ]
-    },
-    "GiftOperatorShiftToRunRecorded": {
-        "desc": "按 Shift 恢复跑步模式，等待后再执行预制按键",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 16
-            }
-        },
-        "post_delay": 500,
-        "next": [
-            "GiftOperatorMoveRecordedResetAlt"
         ]
     },
     "GiftOperatorInDijiang0": {
@@ -746,15 +726,15 @@
         ]
     },
     "GiftOperatorReceiveDialog": {
-        "desc": "领取成功后跳过对话，回到对话流程",
+        "desc": "领取成功后跳过对话，回到对话流程。",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    630,
-                    680,
-                    20,
-                    35
+                    616,
+                    679,
+                    48,
+                    40
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipNext2.png"
@@ -771,7 +751,8 @@
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
             "GiftOperatorBranchMaxAffinity",
-            "GiftOperatorLeave"
+            "GiftOperatorLeave",
+            "GiftOperatorReceiveDialog"
         ]
     },
     "GiftOperatorRetryCleanupA": {
@@ -872,16 +853,42 @@
             "GiftOperatorCheckSelected3"
         ]
     },
+    "GiftOperatorShiftToRunMapTracker": {
+        "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 16
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveMapTracker"
+        ]
+    },
+    "GiftOperatorShiftToRunRecorded": {
+        "desc": "按 Shift 恢复跑步模式，等待后再执行预制按键",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 16
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveRecordedResetAlt"
+        ]
+    },
     "GiftOperatorSkipDialog": {
-        "desc": "跳过对话，然后判断三种分支",
+        "desc": "跳过对话，然后判断三种分支。next 含自身以便未跳转时重试一次点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    630,
-                    680,
-                    20,
-                    35
+                    616,
+                    679,
+                    48,
+                    40
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipNext2.png"
@@ -895,7 +902,8 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity"
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorSkipDialog"
         ]
     },
     "GiftOperatorWaitChat": {

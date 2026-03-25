@@ -3,6 +3,7 @@
         "desc": "从任意界面进入四号谷地-枢纽区地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVTheHub",
             "[JumpBack]SceneEnterMapAny"
@@ -12,6 +13,7 @@
         "desc": "从任意界面进入四号谷地-谷地通道地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVValleyPass",
             "[JumpBack]SceneEnterMapAny"
@@ -21,6 +23,7 @@
         "desc": "从任意界面进入四号谷地-源石研究园地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVOriginiumSciencePark",
             "[JumpBack]SceneEnterMapAny"
@@ -30,6 +33,7 @@
         "desc": "从任意界面进入四号谷地-阿伯莉采石场地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarry",
             "[JumpBack]SceneEnterMapAny"
@@ -39,6 +43,7 @@
         "desc": "从任意界面进入四号谷地-矿脉源区地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespring",
             "[JumpBack]SceneEnterMapAny"
@@ -48,6 +53,7 @@
         "desc": "从任意界面进入四号谷地-供能高地地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateau",
             "[JumpBack]SceneEnterMapAny"
@@ -57,6 +63,7 @@
         "desc": "从任意界面进入四号谷地-枢纽区大世界",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapAnyEnterWorldValleyIVTheHub",
             "[JumpBack]SceneEnterMapAny"
@@ -74,6 +81,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -91,6 +99,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -108,6 +117,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -125,6 +135,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -142,6 +153,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -159,6 +171,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
@@ -176,6 +189,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
@@ -193,6 +207,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring1Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
@@ -210,6 +225,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring2Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
@@ -227,6 +243,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
@@ -244,6 +261,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring4Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
@@ -261,6 +279,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau0Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
@@ -278,6 +297,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau1Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
@@ -295,6 +315,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau2Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
@@ -312,6 +333,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"

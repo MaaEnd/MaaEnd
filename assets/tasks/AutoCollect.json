@@ -1,0 +1,59 @@
+{
+    "task": [
+        {
+            "name": "AutoCollect",
+            "label": "$task.AutoCollect.label",
+            "entry": "AutoCollectStart",
+            "description": "$task.AutoCollect.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "AutoCollectRoutes"
+            ],
+            "group": [
+                "foreground"
+            ]
+        }
+    ],
+    "option": {
+        "AutoCollectRoutes": {
+            "type": "checkbox",
+            "label": "$option.AutoCollectRoutes.label",
+            "default_case": [
+                "Route1",
+                "Route2",
+                "Route3"
+            ],
+            "cases": [
+                {
+                    "name": "Route1",
+                    "label": "$option.AutoCollectRoute1.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute1Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route2",
+                    "label": "$option.AutoCollectRoute2.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute2Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route3",
+                    "label": "$option.AutoCollectRoute3.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute3Sub": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

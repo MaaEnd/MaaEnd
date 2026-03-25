@@ -39,7 +39,7 @@
         "expected": [
             "四号谷地",
             "四號谷地",
-            "Valley IV",
+            "(?i)Valley\\s*IV",
             "Valley"
         ],
         "threshold": 0.8,
@@ -62,7 +62,7 @@
         ],
         "expected": [
             "武陵",
-            "Wuling"
+            "(?i)Wuling"
         ],
         "threshold": 0.8,
         "pre_delay": 0,
@@ -84,7 +84,7 @@
         ],
         "expected": [
             "武陵",
-            "Wuling"
+            "(?i)Wuling"
         ],
         "threshold": 0.8,
         "pre_delay": 0,
@@ -123,6 +123,7 @@
         ],
         "expected": [
             "稳定需求",
+            "穩定需求",
             "Staple"
         ],
         "threshold": 0.6,
@@ -143,6 +144,7 @@
         ],
         "expected": [
             "弹性需求",
+            "彈性需求",
             "Elastic"
         ],
         "threshold": 0.6,
@@ -261,7 +263,7 @@
         "expected": [
             "无法购买",
             "無法購買",
-            "Cannot Purchase",
+            "(?i)Cannot\\s*Purchase",
             "購入不可"
         ],
         "action": "DoNothing",

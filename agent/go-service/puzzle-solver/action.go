@@ -10,6 +10,9 @@ import (
 
 type Action struct{}
 
+// Compile-time interface check
+var _ maa.CustomActionRunner = &Action{}
+
 // doPlace performs the interaction to place a single puzzle piece
 func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	log.Debug().

@@ -77,20 +77,59 @@ python tools/setup_workspace.py
 - **当您被提示 “HDR” 或 “自动管理应用的颜色” 等功能已开启时，请不要进行截图、取色等操作，可能会导致模板效果与用户实际显示不符**
 - 若需要进行颜色匹配，推荐优先使用 HSV 或灰度空间进行匹配。不同厂商显卡（如 NVIDIA、AMD、Intel）渲染方式存在差异，直接使用 RGB 颜色值在各类设备上会有轻微偏差；而在 HSV 空间中固定色相，仅对饱和度和亮度作适当调整，即可在三种显卡下获得更统一、稳定的识别效果。
 - 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `install` 再进行ui中的测试。（或运行 build_and_install.py ，运行方法同上）**。
-- `resource_fast` 文件夹中清除了默认延迟，操作速度会大幅加快，但也对 pipeline 的鲁棒性提出来更高的要求。我们推荐优先使用 `resource_fast`，但也请开发者根据任务实际情况自行选择。  
-  _说人话就是 `resource_fast` 难写的多，每次操作之后下一帧画面可能还是过渡动画，你也要想办法识别。但运行速度也更快，对自己有信心的可以试试。搞不定或者懒得弄就放 `resource` 里，操作慢一点但写起来简单。_
+- 关于 OCR 节点 `expected` 的 i18n：开发者无需手动维护多语言，只需按自己当前语言写入预期文本，`tools/i18n` 程序会自动将 pipeline 中 OCR 的 `expected` 处理为正确 i18n。
+- `expected` 建议写完整文本，不要只写片段。例如应写“这是一段示例内容”，而不是只写“示例内容”。
+- 英文 `expected` 在自动处理后会被写成忽略大小写的正则；为兼容 OCR 可能吞掉单词间空格的情况，正则只会在单词之间使用 `\\s*`。例如 `Send Local Clues` 会生成 `(?i)Send\\s*Local\\s*Clues`。
+- 对于未跳过自动处理的 OCR 节点，脚本还会根据原始文本与翻译后最长文本的显示宽度差异，自动补充或调整 `roi_offset`，以尽量保证多语言文本仍能落在识别区域内；`only_rec: true` 的节点不会执行这一步。
+- 若你确实需要写片段、手写正则，或不希望该 OCR 节点被 i18n 程序自动处理，请在对应 `expected` 数组内添加跳过标记注释 `// @i18n-skip`。
+- 示例（会自动 i18n 处理，推荐）：
 
-### 关于秦始皇节点（可复用节点或 Custom ）
+    ```jsonc
+    "expected": [
+        "这是一段示例内容"
+    ]
+    ```
+
+- 示例（跳过自动 i18n 处理，适用于片段匹配或手写正则）：
+
+    ```jsonc
+    "expected": [
+        // @i18n-skip
+        "示例内容"
+    ]
+    ```
+
+### 关于秦始皇节点（Custom 或 Pipeline 可复用节点）
 
 某些具有高可复用性的节点已经予以封装，并撰写了详细文档，以避免重复造轮子。参见：
 
-- [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
+#### 可复用节点
+
+以下是基于 Pipeline 的可复用节点，可以调用这些节点来实现逻辑，具体可以看对应的文档：
+
 - [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
-- [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
-- [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
+
+#### 可复用 Custom 节点
+
+以下是基于 Custom 的可复用节点，具有高业务化的特点，在需要调用时可以酌情使用，但**根据 [Go Service 代码规范](#go-service-代码规范) 和 [Cpp Algo 代码规范](#cpp-algo-代码规范) 您不应该在非必要情况下使用以下这些节点**，具体原因已在这两部分文档指出。
+
+- [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
+- [MapNavigator 参考文档](./map-navigator.md)：路径录制工具与 `MapNavigateAction` 自动导航节点。
+- [Custom 动作与识别参考文档](./custom.md)：通过 `Custom` 节点调用 go-service 中的自定义动作与自定义识别逻辑。
+- [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [CharacterController 参考文档](./character-controller.md)：角色视角旋转、移动及朝向目标自动移动等控制节点。
-- [节点测试参考文档](./node-testing.md)：节点静态截图测试的目录约定、Schema 和编写建议。
+- [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。
+
+### 关于测试
+
+MaaEnd 采用 maa-tools 来提供节点测试，验证识别是否能正确命中游戏中相应的位置，具体使用请参考 [节点测试参考文档](./node-testing.md) 相关文档，当您编写需要识别的节点时尽量添加对应的测试用例，这可以为以后的任务维护和逻辑重构打下地基。
+
+### 关于任务维护
+
+以下的这些任务具有维护文档，在写新功能和修改其他功能时无需查看，**但在您更改这些任务时，一定要阅读相关任务的维护文档**。参见：
+
+- [AutoStockpile 维护文档](./auto-stockpile-maintain.md)：该文档说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、价格阈值与地区扩展应如何维护。
 
 ## 代码规范
 
@@ -101,7 +140,8 @@ python tools/setup_workspace.py
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
 - 每一步操作都需要基于识别进行，请勿 “整体识别一次 -> 点击 A -> 点击 B -> 点击 C”，而是 “识别 A -> 点击 A -> 识别 B -> 点击 B”。  
   _你没法保证点完 A 之后画面是否还和之前一样，极端情况下此时游戏弹出新池子公告，直接点击 B 有没有可能点到抽卡里去乱操作了？_
-- 应通过 pre_wait_freezes、post_wait_freezes 等待画面禁止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
+- 应通过 pre_wait_freezes、post_wait_freezes 等待画面静止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
+- 工具推荐：[MAA-pipeline-generate](https://github.com/Joe-Bao/MAA-pipeline-generate) —— 可以适用于大批量制作、仅有细微差异的 Pipeline 场景，支持模板化批量生成。
 
 > [!NOTE]
 >

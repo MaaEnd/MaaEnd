@@ -2,10 +2,14 @@
     // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 __ScenePrivate 节点
     "SceneAnyEnterWorld": {
         "desc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateEndVisitConfirm",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateAnyExit"
@@ -15,6 +19,7 @@
         "desc": "从任意界面进入任意一个地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateWorldEnterMapAny",
             "[JumpBack]SceneAnyEnterWorld"
@@ -24,6 +29,7 @@
         "desc": "从任意界面进入大世界工厂模式",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterWorldFactorySuccess",
             "__ScenePrivateWorldFactoryDisableEnterFactoryActive",
@@ -140,9 +146,33 @@
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "next": [
+            "__ScenePrivateNoticeRewardsUpgrade",
+            "__ScenePrivateNextTrue"
+        ]
     },
     "SceneWaitLoadingExit": {
         "desc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",

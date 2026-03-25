@@ -22,7 +22,7 @@
                 "expected": [
                     "活动中心",
                     "活動中心",
-                    "Event Center",
+                    "(?i)Event\\s*Center",
                     "イベント",
                     "이벤트 센터"
                 ]
@@ -37,83 +37,54 @@
     },
     "DailyEventUnreadItemInit": {
         "desc": "初始化未读活动",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "DailyEventUnreadItemInitRecognition"
-            }
-        },
+        "recognition": "Custom",
+        "custom_recognition": "DailyEventUnreadItemInitRecognition",
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]DailyEventUnreadItemSwitch",
-            "DailyEventFinish"
-        ]
+        "action": "Custom",
+        "custom_action": "DailyEventUnreadItemInitAction",
+        "post_delay": 0
     },
     "DailyEventUnreadItemSwitch": {
         "desc": "切换未处理的活动列表",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "DailyEventUnreadItemSwitchRecognition"
-            }
-        },
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            720
+        ],
+        "expected": [
+            ".{3,}" // 匹配三个及以上字符
+        ],
+        "only_rec": true,
         "pre_delay": 0,
-        "action": {
-            "type": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
         },
-        "post_wait_freezes": 400,
         "post_delay": 0,
         "next": [
-            "DailyEventUnreadDetailInit",
-            "DailyEventFinish"
+            "DailyEventUnreadLimitedTimeSignin",
+            "DailyEventUnreadWeeklyRoutine",
+            "DailyEventUnreadGuideEvent",
+            "DailyEventUnreadUnknown"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "切换活动"
         }
     },
-    "DailyEventUnreadDetailInit": {
-        "desc": "检查画面右侧是否有未处理的活动奖励",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "DailyEventUnreadDetailInitRecognition"
-            }
-        },
+    "DailyEventUnreadUnknown": {
+        "desc": "跳过未支持的活动",
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "DailyEventUnreadDetailPick"
-        ]
-    },
-    "DailyEventUnreadDetailPick": {
-        "desc": "尝试点击未处理的活动奖励",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "DailyEventUnreadDetailPickRecognition"
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -300,
-                0,
-                300,
-                200
-            ]
-        },
-        "next": [
-            "DailyEventRewardsConfirm",
-            "DailyEventUnreadDetailPick",
-            "DailyEventUnreadDetailInit",
-            "DailyEventFinish"
-        ],
         "focus": {
-            "Node.Recognition.Succeeded": "点击领取奖励"
+            "Node.Recognition.Succeeded": "跳过未支持的活动"
         }
     },
     "DailyEventFinish": {
@@ -162,70 +133,6 @@
                 ],
                 "threshold": 0.7
             }
-        }
-    },
-    "DailyEventRewardsConfirm": {
-        "desc": "出现奖励点击奖励界面的确认按钮",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    520,
-                                    0,
-                                    240,
-                                    180
-                                ],
-                                "template": [
-                                    "SceneManager/NoticeRewardsIcon.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    520,
-                                    540,
-                                    240,
-                                    180
-                                ],
-                                "template": [
-                                    "SceneManager/NoticeRewardsConfirm.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
-                ],
-                "box_index": 1
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -300,
-                0,
-                300,
-                200
-            ]
-        },
-        "next": [
-            "DailyEventUnreadDetailInit",
-            "DailyEventFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "点击确认领取奖励"
         }
     }
 }

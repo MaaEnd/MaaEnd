@@ -1,0 +1,9 @@
+<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">{{t "title"}}</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+<tr><th style="text-align:left; padding: 2px 4px;">{{t "weapon_col"}}</th><th style="text-align:left; padding: 2px 4px;">{{t "skill_combo_col"}}</th><th style="text-align:right; padding: 2px 4px;">{{t "lock_count_col"}}</th></tr>
+{{range .Items}}<tr>
+<td style="padding: 2px 4px;">{{range $i, $w := .Weapons}}{{if $i}}{{separator}}{{end}}<span style="color: {{$w.Color}};">{{escapeHTML $w.Name}}</span>{{end}}</td>
+<td style="padding: 2px 4px;">{{range $i, $s := .Skills}}{{if $i}} | {{end}}<span style="color: #064d7c;">{{escapeHTML $s}}</span>{{end}}</td>
+<td style="padding: 2px 4px; text-align: right;">{{.Count}}</td>
+</tr>{{end}}
+</table>

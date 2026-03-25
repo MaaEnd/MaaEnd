@@ -7,13 +7,13 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    215,
                     60
                 ],
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "Operational Manual",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -36,7 +36,7 @@
         ],
         "expected": [
             "索引",
-            "Index",
+            "(?i)Index",
             "協約空間"
         ],
         "action": "Click",
@@ -56,6 +56,7 @@
         ],
         "expected": [
             "员养成",
+            "員養成",
             "Operator Progression"
         ],
         "action": "Click",
@@ -67,8 +68,8 @@
         "next": [
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
-            "[JumpBack]ProtocolSpaceOperationalManualScrollList",
-            "ProtocolSpaceOperationalManualScrollEnd"
+            "ProtocolSpaceOperationalManualScrollEnd",
+            "[JumpBack]ProtocolSpaceOperationalManualScrollList"
         ]
     },
     "ProtocolSpaceOperationalManualScrollList": {

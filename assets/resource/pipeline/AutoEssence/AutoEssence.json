@@ -1,5 +1,6 @@
 {
     "AutoEssenceMain": {
+        "desc": "自动基质刷取的主入口",
         "anchor": {
             "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
         },
@@ -13,20 +14,30 @@
         }
     },
     "AutoEssenceLocationSetup": {
+        "desc": "识别和确定附近的淤积点所属的地区",
         "max_hit": 1,
-        "rate_limit": 1000,
+        "rate_limit": 2000,
         "next": [
             "VFTheHubLocationAssertion",
             "VFOriginiumScienceParkLocationAssertion",
             "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
-            "WLWulingCityLocationAssertion"
+            "WLWulingCityLocationAssertion",
+            "WLQingboStockadeLocationAssertion",
+            "[JumpBack]AutoEssenceLocationSetupFailed"
         ],
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         }
     },
-    "AutoEssenceAltKeyUp": {
+    "AutoEssenceLocationSetupFailed": {
+        "desc": "未能识别附近的淤积点所属的地区",
+        "focus": {
+            "Node.Action.Starting": "❓未能识别附近的淤积点所属的地区\n请确保当前**处于淤积点附近**，并且未遮挡小地图！"
+        }
+    },
+    "__AutoEssenceAltKeyUp": {
+        "desc": "释放键盘 Alt 键（通过覆写 AutoEssenceAfterAltKeyUp 锚点即可设置该节点执行完毕后的下一个节点）",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -38,6 +49,7 @@
         ]
     },
     "AutoEssenceClickTriggerButtonPre": {
+        "desc": "准备点击激发的大世界按钮，先按下 Alt 键",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -53,6 +65,7 @@
         ]
     },
     "AutoEssenceClickTriggerButton": {
+        "desc": "正式识别并点击激发的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -63,7 +76,8 @@
                     180
                 ],
                 "template": "AutoEssence/EssenceTrigger.png",
-                "green_mask": true
+                "green_mask": true,
+                "order_by": "Score"
             }
         },
         "action": {
@@ -73,13 +87,14 @@
             "AutoEssenceAfterAltKeyUp": "AutoEssenceReadyToStart"
         },
         "next": [
-            "AutoEssenceAltKeyUp"
+            "__AutoEssenceAltKeyUp"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击激发按钮"
         }
     },
     "AutoEssenceClickTriggerButtonFailedPre": {
+        "desc": "未能识别到激发的大世界按钮，先释放 Alt 键",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -91,18 +106,56 @@
         ]
     },
     "AutoEssenceClickTriggerButtonFailed": {
+        "desc": "未能识别到激发的大世界按钮、且释放了 Alt 键之后的守卫节点",
         "max_hit": 8,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
     "AutoEssenceReadyToStart": {
+        "desc": "点击了激发的大世界按钮之后的守卫节点",
+        "pre_delay": 0,
+        "post_wait_freezes": 500,
+        "post_delay": 0,
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceClickEssenceStartButton"
         ]
     },
+    "AutoEssenceMistakeFactoryDevice": {
+        "desc": "识别是否误入工业设备界面，并将其关闭",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "template": "AutoEssence/FactoryDeviceDialog.png"
+            }
+        },
+        "action": {
+            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
+            "param": {
+                "target_offset": [
+                    50,
+                    5,
+                    -50,
+                    -10
+                ]
+            }
+        },
+        "next": [
+            "AutoEssenceClickTriggerButtonFailed"
+        ],
+        "focus": {
+            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
+        }
+    },
     "AutoEssenceClickEssenceStartButton": {
+        "desc": "识别并点击开始界面中的开始挑战按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -119,20 +172,17 @@
         "action": {
             "type": "Click"
         },
-        "anchor": {
-            "AutoEssenceAfterWalkAround": "AutoEssenceCheckOngoing"
-        },
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning1",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
         }
     },
     "AutoEssenceDismissWarning1": {
+        "desc": "识别并关闭开始挑战时的第一个警告弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -151,45 +201,14 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning2",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
         }
     },
-    "AutoEssenceMistakeFactoryDevice": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    950,
-                    30,
-                    270,
-                    230
-                ],
-                "template": "AutoEssence/FactoryDeviceDialog.png"
-            }
-        },
-        "action": {
-            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
-            "param": {
-                "target_offset": [
-                    -50,
-                    0,
-                    -50,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "AutoEssenceClickTriggerButtonFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
-        }
-    },
     "AutoEssenceDismissWarning2": {
+        "desc": "识别并关闭开始挑战时的第二个警告弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -207,14 +226,58 @@
         },
         "post_delay": 1000,
         "next": [
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
         }
     },
+    "AutoEssenceChallengeEnter": {
+        "desc": "识别是否成功进入挑战",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    40,
+                    260,
+                    330
+                ],
+                "template": "AutoEssence/EssenceOngoing.png",
+                "green_mask": true
+            }
+        },
+        "next": [
+            "AutoEssenceClickEssenceChallengeUsingWalk",
+            "AutoEssenceClickEssenceChallengeUsingAutoFight"
+        ]
+    },
+    "AutoEssenceClickEssenceChallengeUsingWalk": {
+        "desc": "使用走路方式挑战（利用玩家的炮台进行攻击）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoEssenceLocationSetup",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "🚶正在使用走路方式挑战"
+        }
+    },
+    "AutoEssenceClickEssenceChallengeUsingAutoFight": {
+        "desc": "使用自动战斗方式挑战",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoEssenceCheckOngoing"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "⚔️正在使用自动战斗方式挑战"
+        }
+    },
     "AutoEssenceCheckOngoing": {
+        "desc": "检查挑战是否仍在进行中",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -229,9 +292,11 @@
             }
         },
         "inverse": true,
+        "pre_delay": 0,
         "anchor": {
             "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickObtainButtonPre"
         },
+        "post_delay": 0,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
@@ -241,6 +306,7 @@
         }
     },
     "AutoEssenceClickObtainButtonPre": {
+        "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，先按下 Alt 键",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -256,6 +322,7 @@
         ]
     },
     "AutoEssenceClickObtainButton": {
+        "desc": "正式识别并点击领取奖励的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -286,13 +353,14 @@
             "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScalingPre"
         },
         "next": [
-            "AutoEssenceAltKeyUp"
+            "__AutoEssenceAltKeyUp"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击领取奖励按钮"
         }
     },
     "AutoEssenceClickObtainButtonFailedPre": {
+        "desc": "未能识别到领取奖励（或放弃奖励）的大世界按钮，先释放 Alt 键",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -307,12 +375,14 @@
         }
     },
     "AutoEssenceClickObtainButtonFailed": {
+        "desc": "未能识别到领取奖励的大世界按钮、且释放了 Alt 键之后的守卫节点",
         "max_hit": 8,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
     "AutoEssenceClickDiscardButton": {
+        "desc": "正式识别并点击放弃奖励的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -343,13 +413,14 @@
             "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"
         },
         "next": [
-            "AutoEssenceAltKeyUp"
+            "__AutoEssenceAltKeyUp"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击放弃奖励按钮"
         }
     },
     "AutoEssenceChooseScalingPre": {
+        "desc": "准备选择领取倍数的守卫节点",
         "pre_wait_freezes": 1000,
         "next": [
             "AutoEssenceChooseScaling1",
@@ -357,6 +428,7 @@
         ]
     },
     "AutoEssenceChooseScaling1": {
+        "desc": "识别并点击单倍领取的选项",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -381,6 +453,7 @@
         }
     },
     "AutoEssenceAfterChooseScaling": {
+        "desc": "选择了领取倍数之后的守卫节点",
         "next": [
             "[JumpBack]AutoEssenceChooseOverrideOff",
             "[JumpBack]AutoEssenceChooseOverrideOn",
@@ -388,6 +461,7 @@
         ]
     },
     "AutoEssenceChooseOverrideOff": {
+        "desc": "识别刻写选项是否已打开，识别到之后，点击它来关闭刻写",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
@@ -410,6 +484,7 @@
         }
     },
     "AutoEssenceChooseOverrideOn": {
+        "desc": "识别刻写选项是否已关闭，识别到之后，点击它来开启刻写",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
@@ -432,6 +507,7 @@
         }
     },
     "AutoEssenceConfirmObtain": {
+        "desc": "识别并点击确认领取奖励的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -447,9 +523,21 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
+            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
+            "EssenceFilterAfterBattleStart",
+            //基质筛选未开启或进入失败时直接关闭战利品界面
             "AutoEssenceCloseObtainDialog"
         ],
         "focus": {
@@ -457,6 +545,7 @@
         }
     },
     "AutoEssenceConfirmDiscard": {
+        "desc": "识别并点击确认放弃奖励的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -481,14 +570,15 @@
         }
     },
     "AutoEssenceLowSp": {
+        "desc": "识别理智不足的弹窗，识别到之后结束任务",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    440,
-                    200,
-                    160,
-                    160
+                    420,
+                    220,
+                    180,
+                    180
                 ],
                 "template": "AutoEssence/SpDialog.png"
             }
@@ -501,6 +591,7 @@
         }
     },
     "AutoEssenceCloseObtainDialog": {
+        "desc": "识别并点击关闭战利品界面的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -526,7 +617,9 @@
         }
     },
     "AutoEssenceOnSuccess": {
+        "desc": "成功完成一次基质刷取后的守卫节点",
         "next": [
+            // 可以在此添加 "AutoEssenceMain" 来实现循环刷取
             "AutoEssenceOnComplete"
         ],
         "focus": {
@@ -534,6 +627,8 @@
         }
     },
     "AutoEssenceOnComplete": {
+        "desc": "成功完成了所有基质刷取，安全结束任务",
+        "action": "StopTask",
         "focus": {
             "Node.Action.Starting": "🎉**已完成所规定次数的基质刷取**"
         }

@@ -2,11 +2,11 @@ package batchaddfriends
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -38,8 +38,17 @@ type BatchAddFriendsStrangersOnAddAction struct{}
 type BatchAddFriendsStrangersFinishAction struct{}
 type BatchAddFriendsFriendListFullAction struct{}
 
+// Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &BatchAddFriendsAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDLoopTopAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDEnterAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnAddAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnEmptyAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDFinishAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsStrangersOnAddAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsStrangersFinishAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsFriendListFullAction{}
 )
 
 type batchAddState struct {
@@ -175,9 +184,9 @@ func (a *BatchAddFriendsUIDOnAddAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		Int("fail", state.uidFail).
 		Str("uid", state.uidCurrent).
 		Msg("[BatchAddFriends]已点击添加好友")
-	maafocus.NodeActionStarting(
+	maafocus.Print(
 		ctx,
-		fmt.Sprintf("UID %s：已发送好友申请（%d/%d）", state.uidCurrent, state.uidSuccess, state.uidTotal),
+		i18n.T("batchaddfriends.uid_sent", state.uidCurrent, state.uidSuccess, state.uidTotal),
 	)
 	return true
 }
@@ -220,9 +229,9 @@ func (a *BatchAddFriendsUIDFinishAction) Run(ctx *maa.Context, arg *maa.CustomAc
 
 func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	state.strangersProcessed++
-	maafocus.NodeActionStarting(
+	maafocus.Print(
 		ctx,
-		fmt.Sprintf("添加好友进度 [%d/%d]", state.strangersProcessed, state.strangersMaxCount),
+		i18n.T("batchaddfriends.strangers_progress", state.strangersProcessed, state.strangersMaxCount),
 	)
 	return true
 }
@@ -270,7 +279,7 @@ func parseMaxCount(v interface{}, def int) int {
 }
 
 func splitUIDs(raw string) []string {
-	// 按空白字符与中文顿号“、”拆分 UID。
+	// 按空白字符与中文顿号"、"拆分 UID。
 	re := regexp.MustCompile(`[、\s]+`)
 	parts := re.Split(strings.TrimSpace(raw), -1)
 	uids := make([]string, 0, len(parts))

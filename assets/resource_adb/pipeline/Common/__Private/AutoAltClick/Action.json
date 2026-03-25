@@ -1,0 +1,14 @@
+{
+    "__AutoAltClickAltKeyDownAction": {
+        "desc": "alt按键",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__AutoAltClickAltKeyUpAction": {
+        "desc": "alt按键",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    }
+}

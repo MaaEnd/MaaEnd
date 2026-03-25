@@ -26,7 +26,8 @@
         },
         "next": [
             "[Anchor]ValuableStashValuablesTabInNext",
-            "[Anchor]ValuableStashValuablesTabInNext2"
+            "[Anchor]ValuableStashValuablesTabInNext2",
+            "[Anchor]ValuableStashValuablesTabInNext3"
         ],
         "focus": {
             "Node.Action.Starting": "进入珍贵物品标签页界面"

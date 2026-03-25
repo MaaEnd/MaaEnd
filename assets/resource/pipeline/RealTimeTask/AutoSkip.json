@@ -80,7 +80,6 @@
         "threshold": 0.7,
         "inverse": true,
         "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "退出剧情场景"

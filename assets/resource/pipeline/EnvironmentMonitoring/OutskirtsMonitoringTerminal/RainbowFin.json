@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinReadyText"
         ],
         "pre_delay": 0,
@@ -26,29 +27,43 @@
         "expected": [
             "七彩鳞",
             "七彩鱗",
-            "Rainbow Fin",
+            "(?i)Rainbow\\s*Fin",
             "七色鱗獣",
             "무지개 린수"
-        ]
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckRainbowFinIcon": {
+        "desc": "检查七彩鳞文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckRainbowFinReadyText": {
         "desc": "检查七彩鳞委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -57,17 +72,17 @@
     "CheckRainbowFinJob": {
         "desc": "检查七彩鳞委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -75,17 +90,17 @@
     "CheckRainbowFinGoToMissionText": {
         "desc": "检查七彩鳞委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckRainbowFinText",
+        "roi": "CheckRainbowFinIcon",
         "roi_offset": [
-            65,
-            408,
-            248,
-            19
+            -14,
+            332,
+            359,
+            76
         ],
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +117,7 @@
         "expected": [
             "七彩鳞",
             "七彩鱗",
-            "Rainbow Fin",
+            "(?i)Rainbow\\s*Fin",
             "七色鱗獣",
             "무지개 린수"
         ]
@@ -112,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToRainbowFinMission"
@@ -125,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "RainbowFinTrackOrGoTo"
@@ -157,10 +174,17 @@
         ]
     },
     "GoToRainbowFin": {
-        "desc": "前往七彩鳞",
+        "desc": "前往七彩鳞，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToRainbowFinStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley10"
+            "GoToRainbowFinNotAtStartPos"
         ]
     },
     "GoToRainbowFinStartPos": {
@@ -178,6 +202,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToRainbowFinMapTrackerMove"
+        ]
+    },
+    "GoToRainbowFinNotAtStartPos": {
+        "desc": "不在七彩鳞任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley10"
             ]
         },
         "next": [

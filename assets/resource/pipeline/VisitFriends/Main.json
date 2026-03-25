@@ -1,0 +1,48 @@
+{
+    "VisitFriendsMain": {
+        "desc": "函数入口",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMainAction",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenu",
+            "[JumpBack]SceneEnterMenuFriends"
+        ]
+    },
+    "VisitFriendsMenu": {
+        "desc": "识别是否位于好友列表界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    150,
+                    120
+                ],
+                "template": "VisitFriends/OnFriendList.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -100,
+                300,
+                300
+            ]
+        },
+        "next": [
+            "VisitFriendsMenuScan"
+        ]
+    },
+    "VisitFriendsExecuteVisit": {
+        "desc": "执行拜访",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsExecuteVisitAction",
+        "post_delay": 0
+    }
+}

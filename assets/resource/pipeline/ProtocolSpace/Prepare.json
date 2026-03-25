@@ -11,7 +11,7 @@
         "expected": [
             "协议空间",
             "協議空間",
-            "Protocol Space",
+            "(?i)Protocol\\s*Space",
             "協約空間"
         ],
         "pre_delay": 0,
@@ -33,13 +33,12 @@
         "expected": [
             "五级",
             "五級",
-            "Level 5",
+            "(?i)Level\\s*5",
             "Lv.5"
         ],
         "action": "Click",
         "post_wait_freezes": 200,
         "next": [
-            // "ProtocolSpacePrepareSanityLow",
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceNormalPrepareChooseReward",
             "ProtocolSpaceEnterSpace"
@@ -60,7 +59,7 @@
         "expected": [
             "自选",
             "自選",
-            "Options",
+            "(?i)Options",
             "選択"
         ],
         "action": "Click",
@@ -153,49 +152,16 @@
         "expected": [
             "协议空间",
             "協議空間",
-            "Protocol Space",
+            "(?i)Protocol\\s*Space",
             "協約空間"
         ],
         "pre_delay": 0,
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
-            "ProtocolSpacePrepareSanityLow",
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceEnterSpace"
         ]
-    },
-    "ProtocolSpacePrepareSanityLowFilter": {
-        "recognition": "ColorMatch",
-        "method": 4,
-        "lower": [
-            100,
-            50,
-            50
-        ],
-        "upper": [
-            220,
-            120,
-            120
-        ]
-    },
-    "ProtocolSpacePrepareSanityLow": {
-        "desc": "理智不足",
-        "recognition": "OCR",
-        "roi": [
-            960,
-            650,
-            55,
-            22
-        ],
-        "expected": [
-            "\\d"
-        ],
-        "only_rec": true,
-        "color_filter": "ProtocolSpacePrepareSanityLowFilter",
-        "focus": {
-            "Node.Recognition.Succeeded": "理智不足，结束任务"
-        }
     },
     "ProtocolSpacePrepareLock": {
         "desc": "未解锁",
@@ -208,6 +174,7 @@
         ],
         "expected": [
             "解锁",
+            "解鎖",
             "unlock"
         ],
         "focus": {
