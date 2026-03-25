@@ -22,6 +22,7 @@ const (
 
 // ---- Controller sub-object types (per PI protocol) ----
 
+// Win32Config holds Win32 controller-specific fields (class/window regex, screencap and input methods).
 type Win32Config struct {
 	ClassRegex  string `json:"class_regex,omitempty"`
 	WindowRegex string `json:"window_regex,omitempty"`
@@ -30,16 +31,19 @@ type Win32Config struct {
 	Keyboard    string `json:"keyboard,omitempty"`
 }
 
+// MacOSConfig holds macOS controller-specific fields (title regex, screencap and input methods).
 type MacOSConfig struct {
 	TitleRegex string `json:"title_regex,omitempty"`
 	Screencap  string `json:"screencap,omitempty"`
 	Input      string `json:"input,omitempty"`
 }
 
+// PlayCoverConfig holds PlayCover (macOS) controller-specific fields.
 type PlayCoverConfig struct {
 	UUID string `json:"uuid,omitempty"`
 }
 
+// GamepadConfig holds Gamepad (Windows, requires ViGEm) controller-specific fields.
 type GamepadConfig struct {
 	ClassRegex  string `json:"class_regex,omitempty"`
 	WindowRegex string `json:"window_regex,omitempty"`
@@ -101,126 +105,106 @@ var (
 	once   sync.Once
 )
 
-// Init reads and parses all PI_* environment variables into the global singleton.
-// Call once at startup, before modules that depend on PI context.
-func Init() {
-	once.Do(func() {
-		env := &Env{
-			InterfaceVersion:   os.Getenv(EnvInterfaceVersion),
-			ClientName:         os.Getenv(EnvClientName),
-			ClientVersion:      os.Getenv(EnvClientVersion),
-			ClientLanguage:     os.Getenv(EnvClientLanguage),
-			ClientMaaFWVersion: os.Getenv(EnvClientMaaFWVersion),
-			Version:            os.Getenv(EnvVersion),
-			ControllerRaw:      os.Getenv(EnvController),
-			ResourceRaw:        os.Getenv(EnvResource),
+func doInit() {
+	env := &Env{
+		InterfaceVersion:   os.Getenv(EnvInterfaceVersion),
+		ClientName:         os.Getenv(EnvClientName),
+		ClientVersion:      os.Getenv(EnvClientVersion),
+		ClientLanguage:     os.Getenv(EnvClientLanguage),
+		ClientMaaFWVersion: os.Getenv(EnvClientMaaFWVersion),
+		Version:            os.Getenv(EnvVersion),
+		ControllerRaw:      os.Getenv(EnvController),
+		ResourceRaw:        os.Getenv(EnvResource),
+	}
+
+	if env.ControllerRaw != "" {
+		var ctrl Controller
+		if err := json.Unmarshal([]byte(env.ControllerRaw), &ctrl); err != nil {
+			log.Warn().Err(err).
+				Str("component", "pienv").
+				Str("env_key", EnvController).
+				Msg("failed to parse env")
+		} else {
+			env.Controller = &ctrl
 		}
+	}
 
-		if env.ControllerRaw != "" {
-			var ctrl Controller
-			if err := json.Unmarshal([]byte(env.ControllerRaw), &ctrl); err != nil {
-				log.Warn().Err(err).Msg("pienv: failed to parse PI_CONTROLLER")
-			} else {
-				env.Controller = &ctrl
-			}
+	if env.ResourceRaw != "" {
+		var res Resource
+		if err := json.Unmarshal([]byte(env.ResourceRaw), &res); err != nil {
+			log.Warn().Err(err).
+				Str("component", "pienv").
+				Str("env_key", EnvResource).
+				Msg("failed to parse env")
+		} else {
+			env.Resource = &res
 		}
+	}
 
-		if env.ResourceRaw != "" {
-			var res Resource
-			if err := json.Unmarshal([]byte(env.ResourceRaw), &res); err != nil {
-				log.Warn().Err(err).Msg("pienv: failed to parse PI_RESOURCE")
-			} else {
-				env.Resource = &res
-			}
-		}
+	global = env
 
-		global = env
+	le := log.Info().
+		Str("component", "pienv").
+		Str("interface_version", env.InterfaceVersion).
+		Str("client_name", env.ClientName).
+		Str("client_version", env.ClientVersion).
+		Str("client_language", env.ClientLanguage).
+		Str("client_maafw_version", env.ClientMaaFWVersion).
+		Str("pi_version", env.Version).
+		Bool("controller_ok", env.Controller != nil).
+		Bool("resource_ok", env.Resource != nil)
 
-		le := log.Info().
-			Str("interface_version", env.InterfaceVersion).
-			Str("client_name", env.ClientName).
-			Str("client_version", env.ClientVersion).
-			Str("client_language", env.ClientLanguage).
-			Str("client_maafw_version", env.ClientMaaFWVersion).
-			Str("pi_version", env.Version).
-			Bool("controller_ok", env.Controller != nil).
-			Bool("resource_ok", env.Resource != nil)
+	if env.Controller != nil {
+		le = le.Str("ctrl_name", env.Controller.Name).
+			Str("ctrl_type", env.Controller.Type)
+	}
+	if env.Resource != nil {
+		le = le.Str("res_name", env.Resource.Name)
+	}
 
-		if env.Controller != nil {
-			le = le.Str("ctrl_name", env.Controller.Name).
-				Str("ctrl_type", env.Controller.Type)
-		}
-		if env.Resource != nil {
-			le = le.Str("res_name", env.Resource.Name)
-		}
-
-		le.Msg("PI environment initialized")
-	})
+	le.Msg("PI environment initialized")
 }
 
-// Get returns the global Env. Returns nil if Init has not been called.
+// Init reads and parses all PI_* environment variables into the global singleton.
+// Safe to call multiple times; only the first call performs actual initialization.
+func Init() {
+	once.Do(doInit)
+}
+
+// Get returns the global Env, initializing on first access if needed.
+// The underlying sync.Once ensures no data race between Init and Get.
 func Get() *Env {
+	once.Do(doInit)
 	return global
 }
 
-// ---- Convenience accessors (nil-safe) ----
+// ---- Convenience accessors ----
 
-func InterfaceVersion() string {
-	if global == nil {
-		return ""
-	}
-	return global.InterfaceVersion
-}
+// InterfaceVersion returns the PI_INTERFACE_VERSION value (e.g. "v2.5.0").
+func InterfaceVersion() string { return Get().InterfaceVersion }
 
-func ClientName() string {
-	if global == nil {
-		return ""
-	}
-	return global.ClientName
-}
+// ClientName returns the PI_CLIENT_NAME value (e.g. "MFAA", "MXU").
+func ClientName() string { return Get().ClientName }
 
-func ClientVersion() string {
-	if global == nil {
-		return ""
-	}
-	return global.ClientVersion
-}
+// ClientVersion returns the PI_CLIENT_VERSION value.
+func ClientVersion() string { return Get().ClientVersion }
 
-func ClientLanguage() string {
-	if global == nil {
-		return ""
-	}
-	return global.ClientLanguage
-}
+// ClientLanguage returns the PI_CLIENT_LANGUAGE value (e.g. "zh_cn", "en_us").
+func ClientLanguage() string { return Get().ClientLanguage }
 
-func ClientMaaFWVersion() string {
-	if global == nil {
-		return ""
-	}
-	return global.ClientMaaFWVersion
-}
+// ClientMaaFWVersion returns the PI_CLIENT_MAAFW_VERSION value.
+func ClientMaaFWVersion() string { return Get().ClientMaaFWVersion }
 
-func ProjectVersion() string {
-	if global == nil {
-		return ""
-	}
-	return global.Version
-}
+// ProjectVersion returns the PI_VERSION value (resource project version from interface.json).
+func ProjectVersion() string { return Get().Version }
 
-func GetController() *Controller {
-	if global == nil {
-		return nil
-	}
-	return global.Controller
-}
+// GetController returns the parsed Controller, or nil if PI_CONTROLLER was absent or empty.
+func GetController() *Controller { return Get().Controller }
 
-func GetResource() *Resource {
-	if global == nil {
-		return nil
-	}
-	return global.Resource
-}
+// GetResource returns the parsed Resource, or nil if PI_RESOURCE was absent or empty.
+func GetResource() *Resource { return Get().Resource }
 
+// ControllerType returns the controller type (e.g. "Win32", "Adb"), or empty if unavailable.
 func ControllerType() string {
 	if c := GetController(); c != nil {
 		return c.Type
@@ -228,6 +212,7 @@ func ControllerType() string {
 	return ""
 }
 
+// ControllerName returns the controller name identifier, or empty if unavailable.
 func ControllerName() string {
 	if c := GetController(); c != nil {
 		return c.Name
@@ -235,6 +220,7 @@ func ControllerName() string {
 	return ""
 }
 
+// ResourceName returns the resource name identifier, or empty if unavailable.
 func ResourceName() string {
 	if r := GetResource(); r != nil {
 		return r.Name
