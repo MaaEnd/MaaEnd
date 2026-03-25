@@ -11,6 +11,7 @@ import (
 	"sync"
 	"text/template"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,7 +23,6 @@ const (
 	LangKoKR = "ko_kr"
 
 	DefaultLang        = LangZhCN
-	envKey             = "PI_CLIENT_LANGUAGE"
 	localeRelDir       = "locales/go-service"
 	localeAssetsRelDir = "assets/locales/go-service"
 )
@@ -63,7 +63,8 @@ var (
 )
 
 func Init() {
-	lang := strings.ToLower(strings.TrimSpace(os.Getenv(envKey)))
+	raw := pienv.ClientLanguage()
+	lang := strings.ToLower(strings.TrimSpace(raw))
 	if lang == "" {
 		lang = DefaultLang
 	}
@@ -81,7 +82,7 @@ func Init() {
 	mu.Unlock()
 
 	log.Info().
-		Str("PI_CLIENT_LANGUAGE", os.Getenv(envKey)).
+		Str("PI_CLIENT_LANGUAGE", raw).
 		Str("resolved_lang", lang).
 		Str("locale_dir", resolved).
 		Int("message_count", messageCount).
