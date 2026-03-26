@@ -16,15 +16,8 @@
     },
     "AutoEcoFarmExitErr": {
         "desc": "退出并返回任务失败",
-        "timeout": 0,
-        "next": [
-            "AutoEcoFarmRecognitionErr"
-        ]
-    },
-    "AutoEcoFarmRecognitionErr": {
-        "desc": "必定失败的节点，让任务失败",
-        "recognition": "DirectHit",
-        "inverse": true
+        "action": "Custom",
+        "custom_action": "325"
     },
     "AutoEcoFarmtest": {
         "desc": "全屏寻找农田,识别到了后点击",
