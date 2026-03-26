@@ -14,7 +14,7 @@
 - 包内注册：`agent/go-service/quantizedsliding/register.go`
 - go-service 总注册入口：`agent/go-service/register.go`
 - 公共 Pipeline：`assets/resource/pipeline/QuantizedSliding/Main.json` 与 `Helper.json`
-- 现有接入示例：`assets/resource/pipeline/AutoStockpile/Task.json`
+- 现有接入示例：`assets/resource/pipeline/AutoStockpile/Purchase.json` 中的 `AutoStockpileSwipeSpecificQuantity`
 
 其中 `agent/go-service/quantizedsliding/` 已按职责拆分为多个文件：
 
@@ -309,7 +309,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 }
 ```
 
-文件位置：`assets/resource/pipeline/AutoStockpile/Task.json`
+文件位置：`assets/resource/pipeline/AutoStockpile/Purchase.json`（节点：`AutoStockpileSwipeSpecificQuantity`）
 
 ## 成功与失败条件
 
