@@ -1,9 +1,8 @@
 # 开发手册 - QuantizedSliding 参考文档
 
-`QuantizedSliding` 是一个通过 `Custom` 动作类型调用的 go-service 自定义动作实现，
-用于处理“拖动滑条选择数量，但目标值是离散档位”的界面。
+`QuantizedSliding` 是一个通过 `Custom` 动作类型调用的 go-service 自定义动作，用于处理"拖动滑条选择数量，但目标值是离散档位"的界面。
 
-它适合下面这类场景：
+适合下面这类场景：
 
 - 先拖到大致位置，再通过 `+` / `-` 按钮微调数量；
 - 拖条本身没有稳定的固定坐标，但滑块模板可以识别；
@@ -14,7 +13,7 @@
 - Go 动作包：`agent/go-service/quantizedsliding/`
 - 包内注册：`agent/go-service/quantizedsliding/register.go`
 - go-service 总注册入口：`agent/go-service/register.go`
-- 公共 Pipeline：`assets/resource/pipeline/QuantizedSliding/Main.json`
+- 公共 Pipeline：`assets/resource/pipeline/QuantizedSliding/Main.json` 与 `Helper.json`
 - 现有接入示例：`assets/resource/pipeline/AutoStockpile/Task.json`
 
 其中 `agent/go-service/quantizedsliding/` 已按职责拆分为多个文件：
@@ -22,6 +21,7 @@
 | 文件           | 作用                                       |
 | -------------- | ------------------------------------------ |
 | `types.go`     | 参数结构、动作类型、运行期状态与包级类型   |
+| `params.go`    | 参数解析与归一化                           |
 | `nodes.go`     | 公共动作名、内部节点名与 override key 常量 |
 | `handlers.go`  | `Run()` 分发、各阶段处理函数、状态重置     |
 | `overrides.go` | Pipeline override 构造逻辑                 |
@@ -36,11 +36,11 @@
 1. **对外调用模式**：当业务任务以 `custom_action: "QuantizedSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `QuantizedSlidingMain` 开始执行整条内部节点链。
 2. **内部节点模式**：当当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
 
-也就是说，业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
+业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
 
 ## 它是怎么工作的
 
-`QuantizedSliding` 不是“按固定百分比滑到某个位置”，而是一个**先探测、再计算、再微调**的流程。
+`QuantizedSliding` 不是"按固定百分比滑到某个位置"，而是一个**先探测、再计算、再微调**的流程。
 
 整体步骤如下：
 
@@ -53,7 +53,7 @@
 7. OCR 再次识别当前数量；若仍不等于目标值，则通过加减按钮微调。
 8. 数量与目标一致后结束。
 
-其中第 5 步的精确点击位置，当前实现按线性插值计算：
+其中第 5 步的精确点击位置按线性插值计算：
 
 ```text
 numerator = Target - 1
@@ -64,11 +64,9 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 计算出的 `[clickX, clickY]` 会被动态写入公共节点 `QuantizedSlidingPreciseClick` 的 `action.param.target`。
 
-对应的内部节点由 `QuantizedSliding` 自己调用 `QuantizedSlidingMain` 及其后继节点链完成，调用方**不需要**手动串这些内部节点。
-
 ## 调用方式
 
-在业务 Pipeline 中，像普通 `Custom` 动作一样调用即可。下面示例采用 MaaFramework Pipeline 协议 v2 写法。
+在业务 Pipeline 中，像普通 `Custom` 动作一样调用即可。示例采用 MaaFramework Pipeline 协议 v2 写法。
 
 ```json
 "SomeTaskAdjustQuantity": {
@@ -92,19 +90,19 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ## 参数说明
 
-`custom_action_param` 请直接传入一个 JSON 对象。常用字段如下：
+常用字段如下：
 
-| 字段                      | 类型                    | 必填 | 说明                                                                                                                                              |
-| ------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`                  | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                                                                                                  |
-| `QuantityBox`             | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                    |
-| `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                               |
-| `ConcatAllFilteredDigits` | `bool`                  | 否   | 数量解析策略开关。`false`（默认）：只读 `Results.Best` 的 OCR 文本；`true`：读取 `Results.Filtered` 全片段，按 y 再 x 排序拼接后再解析数字。      |
-| `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                                                                                                 |
-| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
-| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
-| `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                 |
-| `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
+| 字段                      | 类型                    | 必填 | 说明                                                                                                                                               |
+| ------------------------- | ----------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`                  | `int`（正整数）         | 是   | 目标数量。最终希望调到的档位值，必须大于 0。                                                                                                       |
+| `QuantityBox`             | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                     |
+| `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                |
+| `ConcatAllFilteredDigits` | `bool`                  | 否   | 数量解析策略开关。`false`（默认）：只读 Go 侧 `Results.Best` 的 OCR 文本；`true`：读取 `Results.Filtered` 全片段，按 y 再 x 排序拼接后再解析数字。 |
+| `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                         |
+| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。可传模板路径，也可传坐标。                                                                                                         |
+| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。可传模板路径，也可传坐标。                                                                                                         |
+| `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                  |
+| `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。  |
 
 `CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
@@ -114,21 +112,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ### `QuantityFilter`
 
-`QuantityFilter` 是一个**可选增强项**。不传时，`QuantizedSliding` 的行为与旧版本一致；传入后，会先对 `QuantizedSlidingGetQuantity` 的 OCR 结果做颜色过滤，再识别数字。
-
-需要注意：当前数量解析由 `ConcatAllFilteredDigits` 控制两种策略：
-
-- `false`（默认）：只读取 `QuantizedSlidingGetQuantity.Results.Best.AsOCR().Text`，然后从该单条文本中提取**全部数字字符**。
-- `true`：读取 `QuantizedSlidingGetQuantity.Results.Filtered`，按 **y 升序、y 相同按 x 升序** 排序后拼接，再从拼接文本中提取**全部数字字符**。
-
-`DetailJson` 仍仅作为 typed 路径缺失时的兼容兜底。如果 `QuantityBox` 里混入了其他数字，它们仍可能被一起解析。`QuantityFilter` 的核心用途之一，是在 OCR 前尽量只保留目标数量本身。
-
-它适合这类场景：
-
-- 数字本身颜色稳定；
-- 背景、描边、阴影或其他数字干扰较多；
-- `QuantityBox` 已经不太方便继续缩小，但还能通过颜色把目标数字和干扰数字拉开；
-- `QuantityBox` 本身已经框准，只是 OCR 前缺少一层颜色筛选。
+`QuantityFilter` 是一个**可选增强项**。不传时，仅表示不启用 `QuantizedSlidingGetQuantity` 的颜色过滤预处理；传入后，会先对该 OCR 结果做颜色过滤，再识别数字。
 
 最小示例：
 
@@ -142,12 +126,21 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 约束与限制：
 
-- `lower` / `upper` 必须同时存在，且长度一致；
-- 当前建议使用仓库内已有的常见 `ColorMatch` 模式：`4`（RGB）、`40`（HSV）或 `6`（GRAY）；
+- `lower` / `upper` 必须同时存在，且长度必须一致；
+- 通道数量必须与 `method` 匹配：`4`（RGB）和 `40`（HSV）需要 3 个通道，`6`（GRAY）需要 1 个通道；
 - 当前仅支持**单组**颜色阈值，不支持 `[[...], [...]]` 这种多段范围；
-- 可以把它理解为对数量区域先做一次按颜色的“近似二值化”，尽量只留下目标数字再交给 OCR；
+- 可以把它理解为对数量区域先做一次按颜色的"近似二值化"，尽量只留下目标数字再交给 OCR；
 - 如果干扰数字和目标数字颜色完全一致，`QuantityFilter` 也无法从根本上区分，这时仍应优先收紧 `QuantityBox`；
 - `QuantityFilter` 只是增强 OCR 预处理，不是 `QuantityBox` 选区不准时的替代品。
+
+### 数量解析策略
+
+数量解析由 `ConcatAllFilteredDigits` 控制两种策略：
+
+- `false`（默认）：Go 侧从 `QuantizedSlidingGetQuantity` 的识别结果中读取 `Results.Best.AsOCR().Text`，然后从该单条文本中提取**全部数字字符**。
+- `true`：Go 侧读取 `Results.Filtered`，按 **y 升序、y 相同按 x 升序** 排序后拼接，再从拼接文本中提取**全部数字字符**。
+
+`DetailJson` 仅作为 Go 侧 typed 路径取不到文本时的兼容兜底。`Results.Best`、`Results.Filtered` 与 `DetailJson` 不是 Pipeline JSON 字段，而是 Go 代码读取识别结果的内部路径。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
 
@@ -180,23 +173,35 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ## 方向约定
 
-`Direction` 决定“滑到最大值”时的目标方向。当前实现写死的覆盖终点为：
+`Direction` 决定"滑到最大值"时的目标方向。当前实现写死的覆盖终点为：
 
 - `right` / `up`：`[1260, 10, 10, 10]`
 - `left` / `down`：`[10, 700, 10, 10]`
 
+这并不意味着滑块会真的沿着屏幕对角线移动。当前实现只是用一个足够远的终点区域来强制滑块向对应端点移动。
+
+因此，当 `Direction` 设置错误时，常见结果不是"稍微偏一点"，而是：
+
+- 最大值识别错误；
+- 滑块没有被推到真正的端点；
+- 后续所有比例点击都发生偏移。
+
 ## 依赖的公共节点
 
-`QuantizedSliding` 内部依赖 `assets/resource/pipeline/QuantizedSliding/Main.json` 中的公共节点，主要包括：
+`QuantizedSliding` 内部依赖 `assets/resource/pipeline/QuantizedSliding/` 下的公共节点。其中 `Helper.json` 包含基础识别节点：
 
 - `QuantizedSlidingSwipeButton`：识别滑块模板 `QuantizedSliding/SwipeButton.png`
-- `QuantizedSlidingSwipeToMax`：拖到最大值
 - `QuantizedSlidingGetQuantity`：OCR 当前数量
+- `QuantizedSlidingQuantityFilter`：辅助 `GetQuantity` 的颜色过滤
+
+`Main.json` 包含主流程节点：
+
+- `QuantizedSlidingSwipeToMax`：拖到最大值
 - `QuantizedSlidingCheckQuantity`：判断是否需要微调
 - `QuantizedSlidingIncreaseQuantity` / `QuantizedSlidingDecreaseQuantity`：执行加减按钮点击
 - `QuantizedSlidingDone`：成功结束
 
-其中有两点最关键：
+有两点最关键：
 
 1. 必须能稳定识别滑块模板 `QuantizedSliding/SwipeButton.png`；
 2. `QuantityBox` 对应的 OCR 必须能稳定读出数字。
@@ -207,7 +212,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 - 滑块识别框优先从 `QuantizedSlidingSwipeButton` 的 `Results.Best.AsTemplateMatch()` 读取；
 - 数量文本来自 `QuantizedSlidingGetQuantity`：默认（`ConcatAllFilteredDigits: false`）只读 `Results.Best`；显式传 `true` 时改为按 y→x 顺序拼接 `Results.Filtered`；
-- `DetailJson` 只作为 typed 路径失败后的兼容兜底。
+- `DetailJson` 只作为 typed 路径取不到文本时的兼容兜底。
 
 对维护者来说，`Best`、`Filtered` 与 fallback 不是可以随意互换的数据来源，而是当前实现的一部分约束。
 
@@ -256,7 +261,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - `12/99` 会被解析为 `1299`，而不是 `12`；
 - 如果 OCR 容易把数字识别成字母，整个动作就会失败。
 
-所以 `QuantityBox` 不仅要“能读到数字”，还要尽量避免把其他数字组一起框进去。
+所以 `QuantityBox` 不仅要"能读到数字"，还要尽量避免把其他数字组一起框进去。
 如果画面限制导致 `QuantityBox` 无法再继续缩小，但目标数字颜色足够稳定，可以再配合 `QuantityFilter` 做颜色过滤，先压掉背景或旁边的干扰数字。
 
 ### 4. 选择按钮定位方式
@@ -297,7 +302,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
     },
     "post_delay": 0,
     "rate_limit": 0,
-    "next": ["AutoStockpileRelayNode"],
+    "next": ["AutoStockpileRelayNodeSwipe"],
     "focus": {
         "Node.Action.Failed": "定量滑动失败，取消购买"
     }
@@ -314,6 +319,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 能成功拖到最大值；
 - 能 OCR 出最大值与当前值；
 - 目标值 `Target` 不大于最大值，或 `ClampTargetToMax` 为 `true`（此时 `Target` 会被钳制为 `maxQuantity`）；
+- 若识别到的 `maxQuantity` 为 `1`，且目标值最终也是 `1`（包括被 `ClampTargetToMax` 钳制后的情况），流程会直接分支到成功，不会再走比例点击；
 - 经过精确点击与微调后，当前值最终等于 `Target`。
 
 ### 常见失败条件
@@ -321,8 +327,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - `QuantityBox` 不是 `[x, y, w, h]` 四元组；
 - `Direction` 不是 `left/right/up/down` 之一；
 - OCR 没有读到数字；
-- 最大值 `maxQuantity` 小于 `Target`，且 `ClampTargetToMax` 为 `false`（默认值）；
-- 最大值小于等于 `1`，无法计算比例；
+- 最大值 `maxQuantity` 小于 `Target`，且 `ClampTargetToMax` 为 `false`（默认值）；当上限只有 `1` 且目标值仍大于 `1` 时，也属于这一类失败；
 - 加减按钮无法识别或无法点击；
 - 微调次数过多仍未收敛。
 
@@ -343,12 +348,12 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 > 先用比例点击快速靠近目标，再用加减按钮收尾。
 
-这比“全靠加减按钮硬点”快得多，也比“只点一次比例位置”稳得多。
+这比"全靠加减按钮硬点"快得多，也比"只点一次比例位置"稳得多。
 
 ## 常见坑
 
 - **把它当成普通滑动节点**：它本质上是一个完整子流程，不只是一次 `Swipe`。
-- **`Direction` 填反**：会导致“滑到最大值”这一步本身就不成立。
+- **`Direction` 填反**：会导致"滑到最大值"这一步本身就不成立。
 - **OCR 框进了多个数字组**：例如 `12/99` 会被拼成 `1299`，不是自动取第一个数字。
 - **`QuantityBox` 截得太紧**：数字跳动或描边变化时 OCR 容易失败。
 - **只给按钮坐标，不做识别兜底**：界面轻微偏移后就可能点歪。
@@ -362,7 +367,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 1. 滑块模板 `QuantizedSliding/SwipeButton.png` 是否能稳定命中。
 2. `QuantityBox` 是否基于 **1280×720**，且 OCR 能稳定读出数字。
-3. `Direction` 是否与“最大值所在方向”一致。
+3. `Direction` 是否与"最大值所在方向"一致。
 4. `IncreaseButton` / `DecreaseButton` 是否优先使用模板路径。
 5. `Target` 是否有可能大于当前场景允许的最大值。
 6. 若启用了 `ClampTargetToMax`，调用方是否能处理"实际数量可能小于原始 `Target`"的情况。
@@ -373,12 +378,14 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 如果需要继续追实现，建议按下面顺序看：
 
 1. `agent/go-service/quantizedsliding/register.go`：确认动作注册名。
-2. `agent/go-service/quantizedsliding/handlers.go`：看 `Run()` 如何区分“对外调用模式”和“内部节点模式”。
+2. `agent/go-service/quantizedsliding/handlers.go`：看 `Run()` 如何区分"对外调用模式"和"内部节点模式"。
 3. `agent/go-service/quantizedsliding/nodes.go`：看公共动作名、内部节点名与 override key 常量。
-4. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
-5. `agent/go-service/quantizedsliding/ocr.go`：看 typed-first 的数量与识别框提取逻辑。
-6. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
-7. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
+4. `agent/go-service/quantizedsliding/params.go`：看参数解析与归一化。
+5. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
+6. `agent/go-service/quantizedsliding/ocr.go`：看 typed-first 的数量与识别框提取逻辑。
+7. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
+8. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
+9. `assets/resource/pipeline/QuantizedSliding/Helper.json`：看基础识别节点配置。
 
 ## 相关文档
 

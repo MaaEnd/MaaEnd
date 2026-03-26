@@ -1,7 +1,6 @@
 # Development Guide - QuantizedSliding Reference Document
 
-`QuantizedSliding` is a go-service custom action implementation invoked through the `Custom` action type.
-It is used for interfaces where you drag a slider to choose a quantity, but the target value is a discrete level rather than a continuous value.
+`QuantizedSliding` is a go-service custom action invoked through the `Custom` action type. It handles interfaces where you drag a slider to choose a quantity, but the target value is a discrete level rather than a continuous value.
 
 It is suitable for scenarios like these:
 
@@ -14,7 +13,7 @@ The current implementation is located at:
 - Go action package: `agent/go-service/quantizedsliding/`
 - Package-local registration: `agent/go-service/quantizedsliding/register.go`
 - go-service global registration entry: `agent/go-service/register.go`
-- Shared Pipeline: `assets/resource/pipeline/QuantizedSliding/Main.json`
+- Shared Pipeline: `assets/resource/pipeline/QuantizedSliding/Main.json` and `Helper.json`
 - Existing integration example: `assets/resource/pipeline/AutoStockpile/Task.json`
 
 `agent/go-service/quantizedsliding/` is now split by responsibility:
@@ -22,6 +21,7 @@ The current implementation is located at:
 | File           | Responsibility                                                         |
 | -------------- | ---------------------------------------------------------------------- |
 | `types.go`     | Parameter structs, action type, runtime state, and package-level types |
+| `params.go`    | Parameter parsing and normalization                                    |
 | `nodes.go`     | Shared action name, internal node names, and override key constants    |
 | `handlers.go`  | `Run()` dispatch, per-stage handlers, and state reset                  |
 | `overrides.go` | Pipeline override construction                                         |
@@ -36,11 +36,11 @@ The current implementation is located at:
 1. **External invocation mode**: when a business task calls it with `custom_action: "QuantizedSliding"`, the Go side automatically constructs the internal Pipeline override and starts running the full internal flow from `QuantizedSlidingMain` through its downstream nodes.
 2. **Internal node mode**: when the current node itself is one of `QuantizedSlidingMain`, `QuantizedSlidingFindStart`, `QuantizedSlidingGetMaxQuantity`, `QuantizedSlidingFindEnd`, `QuantizedSlidingCheckQuantity`, or `QuantizedSlidingDone`, the Go side directly handles that specific stage.
 
-In other words, the business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
+The business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
 
 ## How it works
 
-`QuantizedSliding` does not simply “swipe to a fixed percentage.” Instead, it uses a **detect, calculate, then fine-tune** flow.
+`QuantizedSliding` does not simply "swipe to a fixed percentage." Instead, it uses a **detect, calculate, then fine-tune** flow.
 
 The overall steps are:
 
@@ -64,13 +64,9 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 The computed `[clickX, clickY]` is then dynamically written into `QuantizedSlidingPreciseClick.action.param.target`.
 
-The internal nodes are executed by `QuantizedSliding` itself through `QuantizedSlidingMain` and its downstream nodes. The caller does **not** need to manually chain those internal nodes.
-
 ## How to call it
 
 In a business Pipeline, call it like a normal `Custom` action. The example below uses MaaFramework Pipeline protocol v2 syntax.
-
-Pass `custom_action_param` as a JSON object directly.
 
 ```json
 "SomeTaskAdjustQuantity": {
@@ -94,19 +90,19 @@ Pass `custom_action_param` as a JSON object directly.
 
 ## Parameter description
 
-`custom_action_param` should be passed as a JSON object directly. The commonly used fields are:
+Commonly used fields are:
 
-| Field                     | Type                    | Required | Description                                                                                                                                                                             |
-| ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`                  | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.                                                                                                                        |
-| `QuantityBox`             | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                                                                                                 |
-| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                               |
-| `ConcatAllFilteredDigits` | `bool`                  | No       | Quantity parsing strategy switch. `false` (default): read only `Results.Best` OCR text. `true`: read all `Results.Filtered` OCR fragments, sort by y then x, concatenate, then parse.   |
-| `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.                                                                                                                              |
-| `IncreaseButton`          | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.                                                                                                                  |
-| `DecreaseButton`          | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.                                                                                                                  |
-| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                  |
-| `ClampTargetToMax`        | `bool`                  | No       | If `true`, when `Target` exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately). |
+| Field                     | Type                    | Required | Description                                                                                                                                                                                   |
+| ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`                  | `int` (positive)        | Yes      | The target quantity. The final discrete value you want to reach. Must be greater than 0.                                                                                                      |
+| `QuantityBox`             | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                                                                                                       |
+| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                                     |
+| `ConcatAllFilteredDigits` | `bool`                  | No       | Quantity parsing strategy switch. `false` (default): read only Go-side `Results.Best` OCR text. `true`: read all `Results.Filtered` OCR fragments, sort by y then x, concatenate, then parse. |
+| `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                      |
+| `IncreaseButton`          | `string` or `int[2\|4]` | Yes      | The "increase quantity" button. Can be a template path or coordinates.                                                                                                                        |
+| `DecreaseButton`          | `string` or `int[2\|4]` | Yes      | The "decrease quantity" button. Can be a template path or coordinates.                                                                                                                        |
+| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                        |
+| `ClampTargetToMax`        | `bool`                  | No       | If `true`, when `Target` exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately).       |
 
 `CenterPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
 
@@ -116,21 +112,7 @@ Pass `custom_action_param` as a JSON object directly.
 
 ### `QuantityFilter`
 
-`QuantityFilter` is an **optional enhancement**. If omitted, `QuantizedSliding` behaves exactly like the current version. If provided, OCR for `QuantizedSlidingGetQuantity` first applies color filtering and then reads the digits.
-
-Important: quantity parsing now has two strategies controlled by `ConcatAllFilteredDigits`:
-
-- `false` (default): read only `QuantizedSlidingGetQuantity.Results.Best.AsOCR().Text`, then extract **all digit characters** from that single text.
-- `true`: concatenate OCR fragments from `QuantizedSlidingGetQuantity.Results.Filtered` after sorting by **y ascending, then x ascending**, then extract **all digit characters** from the concatenated text.
-
-`DetailJson` is still a compatibility fallback when typed OCR results are missing. If `QuantityBox` includes unrelated numbers, those digits may still be merged into the parsed value. One main purpose of `QuantityFilter` is to keep only the actual quantity visible before OCR runs.
-
-It is a good fit when:
-
-- the digit color itself is stable;
-- the background, outline, shadow, or nearby numbers introduce OCR noise;
-- `QuantityBox` is already hard to tighten further, but color still separates the target digits from the interference;
-- `QuantityBox` is already correct, but OCR needs one more preprocessing step.
+`QuantityFilter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `QuantizedSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
 
 Minimal example:
 
@@ -145,11 +127,20 @@ Minimal example:
 Constraints and limits:
 
 - `lower` and `upper` must both be present and must have the same length;
-- use the common `ColorMatch` methods already used in this repo: `4` (RGB), `40` (HSV), or `6` (GRAY);
-- only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
-- you can treat it as an approximate color-based binarization step for the quantity area before OCR;
-- if the interfering digits use exactly the same color as the target digits, `QuantityFilter` cannot fundamentally separate them, so tightening `QuantityBox` is still the first choice;
+- The channel count must match the `method`: `4` (RGB) and `40` (HSV) require 3 channels, `6` (GRAY) requires 1 channel;
+- Only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
+- You can treat it as an approximate color-based binarization step for the quantity area before OCR;
+- If the interfering digits use exactly the same color as the target digits, `QuantityFilter` cannot fundamentally separate them, so tightening `QuantityBox` is still the first choice;
 - `QuantityFilter` improves OCR preprocessing, but it is not a substitute for an inaccurate `QuantityBox`.
+
+### Quantity parsing strategy
+
+Quantity parsing has two strategies controlled by `ConcatAllFilteredDigits`:
+
+- `false` (default): The Go side reads `Results.Best.AsOCR().Text` from the recognition result of `QuantizedSlidingGetQuantity`, then extracts **all digit characters** from that single text.
+- `true`: The Go side reads `Results.Filtered`, sorts by **y ascending, then x ascending**, concatenates, then extracts **all digit characters** from the concatenated text.
+
+`DetailJson` is a compatibility fallback only when the Go-side typed path does not return text. `Results.Best`, `Results.Filtered`, and `DetailJson` are not Pipeline JSON fields, but internal paths used by Go code to read recognition results.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
@@ -182,14 +173,14 @@ Also note that after JSON deserialization on the Go side, these arrays may appea
 
 ## Direction convention
 
-`Direction` determines which direction is treated as “toward the maximum value.” The current implementation uses these hardcoded override end regions:
+`Direction` determines which direction is treated as "toward the maximum value." The current implementation uses these hardcoded override end regions:
 
 - `right` / `up`: `[1260, 10, 10, 10]`
 - `left` / `down`: `[10, 700, 10, 10]`
 
 This does not mean the slider handle literally moves along the screen diagonal. The current implementation simply overrides the `Swipe` node with a sufficiently distant end region to force the slider toward the corresponding endpoint.
 
-Because of that, when `Direction` is set incorrectly, the most common result is not “slightly off,” but rather:
+Because of that, when `Direction` is set incorrectly, the most common result is not "slightly off," but rather:
 
 - The maximum value is recognized incorrectly;
 - The slider is not pushed to the real endpoint;
@@ -197,11 +188,15 @@ Because of that, when `Direction` is set incorrectly, the most common result is 
 
 ## Shared nodes it depends on
 
-Internally, `QuantizedSliding` depends on shared nodes in `assets/resource/pipeline/QuantizedSliding/Main.json`, mainly including:
+Internally, `QuantizedSliding` depends on shared nodes in `assets/resource/pipeline/QuantizedSliding/`. The `Helper.json` contains basic recognition nodes:
 
 - `QuantizedSlidingSwipeButton`: recognizes the slider template `QuantizedSliding/SwipeButton.png`
-- `QuantizedSlidingSwipeToMax`: drags to the maximum value
 - `QuantizedSlidingGetQuantity`: OCR for the current quantity
+- `QuantizedSlidingQuantityFilter`: color filtering helper for `GetQuantity`
+
+`Main.json` contains the main flow nodes:
+
+- `QuantizedSlidingSwipeToMax`: drags to the maximum value
 - `QuantizedSlidingCheckQuantity`: determines whether fine-tuning is needed
 - `QuantizedSlidingIncreaseQuantity` / `QuantizedSlidingDecreaseQuantity`: clicks the increase/decrease buttons
 - `QuantizedSlidingDone`: successful exit
@@ -217,7 +212,7 @@ The current Go-side recognition reading rules are intentionally narrow:
 
 - The slider hit box is read from `QuantizedSlidingSwipeButton` and prefers `Results.Best.AsTemplateMatch()`.
 - The quantity text is read from `QuantizedSlidingGetQuantity`: default (`ConcatAllFilteredDigits: false`) reads only `Results.Best`; explicit `true` switches to concatenating `Results.Filtered` fragments in y-then-x order.
-- `DetailJson` is kept only as a compatibility fallback when the typed result path does not produce usable data.
+- `DetailJson` is kept only as a compatibility fallback when the typed result path does not return text.
 
 For maintainers, this means `Best`, `Filtered`, and fallback parsing are not interchangeable in the current implementation.
 
@@ -266,7 +261,7 @@ That means:
 - `12/99` is parsed as `1299`, not `12`;
 - If OCR frequently misreads digits as letters, the whole action will fail.
 
-So `QuantityBox` must not only “read digits,” but should also avoid including unrelated numeric groups whenever possible.
+So `QuantityBox` must not only "read digits," but should also avoid including unrelated numeric groups whenever possible.
 If screen constraints make `QuantityBox` difficult to shrink further, but the target digits have a stable color, combine it with `QuantityFilter` to suppress the background or nearby interfering digits before OCR.
 
 ### 4. Choose how to locate the buttons
@@ -279,8 +274,7 @@ The recommended priority is:
 
 ### 5. Call it in the business task
 
-See the actual usage currently in this repository.
-The human-readable strings below are kept exactly as they appear in the current repo:
+See the actual usage currently in this repository:
 
 ```json
 "AutoStockpileSwipeSpecificQuantity": {
@@ -308,7 +302,7 @@ The human-readable strings below are kept exactly as they appear in the current 
     },
     "post_delay": 0,
     "rate_limit": 0,
-    "next": ["AutoStockpileRelayNode"],
+    "next": ["AutoStockpileRelayNodeSwipe"],
     "focus": {
         "Node.Action.Failed": "定量滑动失败，取消购买"
     }
@@ -325,6 +319,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Task.json`
 - It can be dragged to the maximum value successfully;
 - OCR can read both the maximum value and the current value;
 - The target value `Target` is not greater than the maximum value, or `ClampTargetToMax` is `true` (in which case `Target` is clamped to `maxQuantity`);
+- If the recognized `maxQuantity` is `1` and the final target is also `1` (including the case after `ClampTargetToMax`), the flow branches directly to success without proportional clicking;
 - After the proportional click and fine-tuning, the current value finally equals `Target`.
 
 ### Common failure conditions
@@ -332,8 +327,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Task.json`
 - `QuantityBox` is not a 4-tuple `[x, y, w, h]`;
 - `Direction` is not one of `left/right/up/down`;
 - OCR does not read any digits;
-- The maximum value `maxQuantity` is smaller than `Target`, and `ClampTargetToMax` is `false` (default);
-- The maximum value is less than or equal to `1`, so the ratio cannot be calculated;
+- The maximum value `maxQuantity` is smaller than `Target`, and `ClampTargetToMax` is `false` (default); this also covers the case where the maximum is only `1` but the target still remains greater than `1`;
 - The increase/decrease buttons cannot be recognized or clicked;
 - Too many fine-tuning attempts still do not converge.
 
@@ -359,13 +353,13 @@ This is much faster than relying only on repeated button clicks, and much more s
 ## Common pitfalls
 
 - **Treating it like a single `Swipe` action**: it is essentially a complete internal flow, not just one `Swipe` step.
-- **Setting `Direction` backwards**: this breaks the “swipe to max” step itself.
+- **Setting `Direction` backwards**: this breaks the "swipe to max" step itself.
 - **Including multiple number groups in `QuantityBox`**: for example, `12/99` is parsed as `1299`, not automatically treated as the first number only.
 - **Making `QuantityBox` too tight**: OCR easily fails when digits move or outlines change.
 - **Using only button coordinates without a recognition fallback**: small UI shifts can make clicks miss.
 - **Assuming the slider template is universally reusable**: the shared template may fail if different screens use different slider styles.
 - **Using a target value above the limit**: `Target > maxQuantity` fails immediately by default. Set `ClampTargetToMax: true` to automatically clamp to the maximum value instead of failing, but note that the actual final quantity will be `maxQuantity`, not the original `Target`.
-- **Adding extra hard waits without thinking**: this shared flow already uses `post_wait_freezes`, so business integration should not stack many more hard delays on top.
+- **Adding redundant hard waits**: this shared flow already uses `post_wait_freezes`, so business integration should not stack many more hard delays on top.
 
 ## Self-checklist
 
@@ -386,10 +380,12 @@ If you need to follow the implementation further, review in this order:
 1. `agent/go-service/quantizedsliding/register.go`: confirm the registered action name.
 2. `agent/go-service/quantizedsliding/handlers.go`: see how `Run()` distinguishes external invocation mode from internal node mode.
 3. `agent/go-service/quantizedsliding/nodes.go`: see the shared action name, internal node names, and override keys.
-4. `agent/go-service/quantizedsliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
-5. `agent/go-service/quantizedsliding/ocr.go`: see typed-first quantity and hit box extraction logic.
-6. `agent/go-service/quantizedsliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
-7. `assets/resource/pipeline/QuantizedSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
+4. `agent/go-service/quantizedsliding/params.go`: see parameter parsing and normalization.
+5. `agent/go-service/quantizedsliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
+6. `agent/go-service/quantizedsliding/ocr.go`: see typed-first quantity and hit box extraction logic.
+7. `agent/go-service/quantizedsliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
+8. `assets/resource/pipeline/QuantizedSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
+9. `assets/resource/pipeline/QuantizedSliding/Helper.json`: see basic recognition node configuration.
 
 ## Related documents
 

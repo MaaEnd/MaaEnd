@@ -32,6 +32,7 @@ type quantityFilterParam struct {
 //   - Target: 目标数量
 //   - QuantityBox: OCR 识别数量的 ROI 区域 [x,y,w,h]
 //   - QuantityFilter: 可选的数量 OCR 颜色过滤参数
+//   - ConcatAllFilteredDigits: 数量解析策略开关。false（默认）只读 Best OCR；true 时按 y 再 x 顺序拼接 Filtered OCR 片段后再解析
 //   - Direction: 滑动方向 (left/right/up/down)
 //   - IncreaseButton: 增加数量按钮的模板路径或坐标
 //   - DecreaseButton: 减少数量按钮的模板路径或坐标
