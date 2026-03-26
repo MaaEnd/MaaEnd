@@ -134,7 +134,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도 비율이 맞지 않습니다! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 작업이 강제로 중지되었습니다",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd는 현재 <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 비율만</span> 지원합니다.",
+    "tasker.aspect_ratio_warning.desc": "💡 전체 화면은 16:9 모니터만 지원합니다. 창 모드에서는 해상도를 수동으로 16:9로 설정할 수 있습니다.",
     "tasker.aspect_ratio_warning.recommend_title": "👇 해상도를 다음으로 조정해 주세요:",
     "tasker.aspect_ratio_warning.future": "🚀 앞으로 더 많은 비율을 지원할 예정입니다. 기대해 주세요!",
 

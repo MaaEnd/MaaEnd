@@ -134,7 +134,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 警告：解像度のアスペクト比が一致しません！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 タスクを強制停止しました",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd は現時点で <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 のみ</span> をサポートしています。",
+    "tasker.aspect_ratio_warning.desc": "💡 フルスクリーンは 16:9 のディスプレイのみ対応。ウィンドウ表示では手動で解像度を 16:9 に設定できます。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 次の解像度に変更してください：",
     "tasker.aspect_ratio_warning.future": "🚀 今後、より多くのアスペクト比に対応予定です。お楽しみに！",
 

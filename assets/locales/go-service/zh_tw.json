@@ -134,7 +134,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 警告：解析度比例不相符！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任務已強制停止",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd 目前 <span style=\"text-decoration: underline; font-size: 1.1em;\">僅支援 16:9</span> 比例。",
+    "tasker.aspect_ratio_warning.desc": "💡 全螢幕模式僅支援 16:9 顯示器；視窗化模式下可將解析度手動設為 16:9。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 請將解析度調整為：",
     "tasker.aspect_ratio_warning.future": "🚀 未來將適配更多比例，敬請期待！",
 

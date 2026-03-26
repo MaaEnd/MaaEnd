@@ -134,7 +134,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 Warning: Aspect ratio mismatch! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 Task has been force-stopped",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd currently supports <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 only</span>.",
+    "tasker.aspect_ratio_warning.desc": "💡 Fullscreen mode only supports 16:9 displays; in windowed mode, you can manually set the resolution to 16:9.",
     "tasker.aspect_ratio_warning.recommend_title": "👇 Please set your resolution to:",
     "tasker.aspect_ratio_warning.future": "🚀 More aspect ratios will be supported in the future—stay tuned!",
 
