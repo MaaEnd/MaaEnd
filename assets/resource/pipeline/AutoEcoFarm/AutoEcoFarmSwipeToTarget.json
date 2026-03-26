@@ -45,10 +45,56 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
+                    171,
+                    64,
+                    951,
+                    563
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "method": 5,
+                "green_mask": true,
+                "threshold": 0.4
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmCalculateSwipeTarget"
+        ]
+    },
+    "_AutoEcoFarmTargeRecognitionGAI": {
+        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    171,
+                    64,
+                    951,
+                    563
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "method": 5,
+                "green_mask": true,
+                "threshold": 0.4
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmCalculateSwipeTarget"
+        ]
+    },
+    "_AutoEcoFarmTargeRecognitionGManual": {
+        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    171,
+                    64,
+                    951,
+                    563
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmlandG2.png",
                 "method": 5,
