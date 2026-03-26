@@ -3,6 +3,7 @@ package quantizedsliding
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -161,13 +162,13 @@ func joinFilteredOCRText(results *maa.RecognitionResults) string {
 		return ""
 	}
 
-	for i := 0; i < len(fragments)-1; i++ {
-		for j := i + 1; j < len(fragments); j++ {
-			if fragments[j].y < fragments[i].y || (fragments[j].y == fragments[i].y && fragments[j].x < fragments[i].x) {
-				fragments[i], fragments[j] = fragments[j], fragments[i]
-			}
+	sort.SliceStable(fragments, func(i int, j int) bool {
+		if fragments[i].y != fragments[j].y {
+			return fragments[i].y < fragments[j].y
 		}
-	}
+
+		return fragments[i].x < fragments[j].x
+	})
 
 	var builder strings.Builder
 	for _, fragment := range fragments {
