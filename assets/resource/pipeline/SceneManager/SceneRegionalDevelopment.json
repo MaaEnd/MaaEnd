@@ -1,33 +1,33 @@
 {
     "__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment": {
         "desc": "从地区建设二级菜单退出到地区建设菜单",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopmentView2",
             "CloseButtonType1"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
     },
     "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentValleyIV": {
         "desc": "在地区建设菜单界面，进入四号谷地地区建设界面",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
         ],
+        "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor": "__ScenePrivateMenuRegionalDevelopmentSelectRegionValleyIV",
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentRegionAnchorSuccess": "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess",
             "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentRegionChange"
@@ -35,17 +35,17 @@
     },
     "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentWuling": {
         "desc": "在地区建设菜单界面，进入武陵地区建设界面",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
         ],
+        "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor": "__ScenePrivateMenuRegionalDevelopmentSelectRegionWuling",
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentRegionAnchorSuccess": "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess",
             "__ScenePrivateMenuRegionalDevelopmentAnyEnterMenuRegionalDevelopmentRegionChange"
@@ -128,9 +128,6 @@
     },
     "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess": {
         "desc": "在地区建设菜单界面，进入四号谷地地区建设界面",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopmentValleyIV"
@@ -143,13 +140,13 @@
                 200,
                 100
             ]
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess": {
         "desc": "在地区建设菜单界面，进入武陵地区建设界面",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopmentWuling"
@@ -162,7 +159,10 @@
                 200,
                 100
             ]
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetOutpostManagement": {
         "desc": "在武陵地区建设界面，进入据点管理界面",
