@@ -1,0 +1,201 @@
+{
+    "AutoStockpileTask": {
+        "desc": "开始自动囤货任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileElasticGoodsButton",
+            "AutoStockpileCheckInStore"
+        ]
+    },
+    "AutoStockpileCheckInStore": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    50,
+                    55,
+                    60,
+                    70
+                ],
+                "template": [
+                    "AutoStockpile/StapleGoodsButtonSelected.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "该地区未解锁弹性物资调度，跳过该地区"
+        }
+    },
+    "AutoStockpileElasticGoodsButton": {
+        "desc": "弹性物资调度黑白双煞",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    340,
+                    55,
+                    60,
+                    70
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButton.png",
+                    "AutoStockpile/ElasticGoodsButtonSelected.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileGotoElasticGoods"
+        ]
+    },
+    "AutoStockpileEnsureStoreFrameStable": {
+        "desc": "希望+3（确认稳定标识，画面未稳定会是黑边）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    7,
+                    119,
+                    68,
+                    84
+                ],
+                "template": [
+                    "AutoStockpile/StockRedistributionKettle.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGotoElasticGoods": {
+        "desc": "选择弹性物资调度",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileElasticGoodsButton",
+                    "AutoStockpileEnsureStoreFrameStable"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileSwipeToBottom",
+            "AutoStockpileGotoBottom"
+        ]
+    },
+    "AutoStockpileGotoBottom": {
+        "desc": "将所有可购买物品展示在窗口中",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    140,
+                    40,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButtonSide.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    10,
+                    10,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileMoveMouse"
+        ]
+    },
+    "AutoStockpileSwipeToBottom": {
+        "desc": "将所有可购买物品展示在窗口中（更稳定）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1200,
+                    660,
+                    20,
+                    20
+                ],
+                "end": [
+                    [
+                        1200,
+                        60,
+                        20,
+                        20
+                    ]
+                ],
+                "duration": [
+                    100
+                ]
+            }
+        },
+        "repeat": 2,
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileMoveMouse"
+        ]
+    },
+    "AutoStockpileMoveMouse": {
+        "desc": "避免鼠标遮挡",
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    1100,
+                    70,
+                    10,
+                    10
+                ]
+            }
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoStockpileDecision"
+        ]
+    }
+}
