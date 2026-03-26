@@ -398,15 +398,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": {
-            "target": [
-                29,
-                166,
-                1222,
-                481
-            ],
-            "time": 2000
-        },
+        "post_delay": 5000,
         "next": [
             "SeizeEntrustTaskNewsStatus1"
         ]
