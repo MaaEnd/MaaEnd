@@ -50,7 +50,9 @@
                     1280,
                     720
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandG2.png",
+                "method": 5,
+                "green_mask": true,
                 "threshold": 0.4
             }
         },
@@ -153,7 +155,7 @@
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
-            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
+            "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -164,7 +166,7 @@
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
-            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
+            "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -215,7 +217,7 @@
             "_AutoEcoFarmAltUp"
         ]
     },
-    "_AutoEcoFarmSwipeTargetToFrontWithErr": {
+    "_AutoEcoFarmSwipeRandomWithErr": {
         "desc": "识别不到标记时将标记随便拉一下，尝试解决问题",
         "max_hit": 3,
         "action": {
