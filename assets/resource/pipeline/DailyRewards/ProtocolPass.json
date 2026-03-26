@@ -86,80 +86,245 @@
         },
         "post_wait_freezes": 500,
         "next": [
-            "[JumpBack]DailyProtocolMissionsPick", // 第一个tab可能有new在最后一周，但是切换列表会默认显示第一个tab，直接领取就行
-            "[JumpBack]DailyProtocolNewSwitch", // 找非第一个tab的new
-            "[JumpBack]DailyProtocolMissionsSwitch",
+            "[JumpBack]DailyProtocolMissionsPick",
+            "[JumpBack]DailyProtocolSwitchWeeklyMission",
+            "[JumpBack]DailyProtocolSwitchCurrentMission",
+            "[JumpBack]DailyProtocolSwitchEventMission",
+            "[JumpBack]DailyProtocolSwitchHorizonsMission",
             "DailyProtocolFinish"
         ]
     },
-    "DailyProtocolNewSwitch": {
-        "desc": "在任务界面点击切换列表，找new那他点掉，否则影响红点显示",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
+    "DailyProtocolSwitchWeeklyMission": {
+        "desc": "在任务界面点击切换列表，找周常",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
                 "roi": [
                     150,
                     120,
                     300,
                     500
+                ],
+                "expected": [
+                    "周任务",
+                    "週任務",
+                    "Weekly Mission",
+                    "週間クエスト",
+                    "주간 임무"
+                ],
+                "sub_name": "text"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "text",
+                "roi_offset": [
+                    0,
+                    -30,
+                    250,
+                    40
                 ],
                 "template": [
                     "DailyRewards/ProtocolNewSwitch.png"
                 ],
                 "threshold": 0.9
             }
-        },
+        ],
         "action": {
             "type": "Click",
             "param": {
                 "target_offset": [
                     -10,
-                    10,
+                    20,
                     0,
                     0
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                400,
+                240,
+                200,
+                200
+            ]
         }
     },
-    "DailyProtocolMissionsSwitch": {
-        "desc": "在任务界面点击切换列表，找红点",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
+    "DailyProtocolSwitchCurrentMission": {
+        "desc": "在任务界面点击切换列表，找当前任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
                 "roi": [
                     150,
                     120,
                     300,
                     500
                 ],
-                "lower": [
-                    245,
-                    107,
-                    0
+                "expected": [
+                    "当前任务",
+                    "當期任務",
+                    "Current Mission",
+                    "今期クエスト",
+                    "주기 임무"
                 ],
-                "upper": [
-                    255,
-                    127,
-                    10
+                "sub_name": "text"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "text",
+                "roi_offset": [
+                    0,
+                    -30,
+                    250,
+                    40
                 ],
-                "connected": true,
-                "count": 15
+                "template": [
+                    "DailyRewards/ProtocolNewSwitch.png"
+                ],
+                "threshold": 0.9
             }
-        },
+        ],
         "action": {
             "type": "Click",
             "param": {
                 "target_offset": [
                     -10,
-                    10,
+                    20,
                     0,
                     0
                 ]
             }
         },
-        "next": [
-            "DailyProtocolMissionsPick"
-        ]
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                400,
+                240,
+                200,
+                200
+            ]
+        }
+    },
+    "DailyProtocolSwitchEventMission": {
+        "desc": "在任务界面点击切换列表，找活动任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    150,
+                    120,
+                    300,
+                    500
+                ],
+                "expected": [
+                    "活动任务",
+                    "活動任務",
+                    "Event Mission",
+                    "特殊任務",
+                    "이벤트 임무"
+                ],
+                "sub_name": "text"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "text",
+                "roi_offset": [
+                    0,
+                    -30,
+                    250,
+                    40
+                ],
+                "template": [
+                    "DailyRewards/ProtocolNewSwitch.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                400,
+                240,
+                200,
+                200
+            ]
+        }
+    },
+    "DailyProtocolSwitchHorizonsMission": {
+        "desc": "在任务界面点击切换列表，找启程任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    150,
+                    120,
+                    300,
+                    500
+                ],
+                "expected": [
+                    "启程任务",
+                    "啟程任務",
+                    "Horizons Mission",
+                    "旅立ちクエスト",
+                    "여정의 시작 임무"
+                ],
+                "sub_name": "text"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "text",
+                "roi_offset": [
+                    0,
+                    -30,
+                    250,
+                    40
+                ],
+                "template": [
+                    "DailyRewards/ProtocolNewSwitch.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                400,
+                240,
+                200,
+                200
+            ]
+        }
     },
     "DailyProtocolMissionsPick": {
         "desc": "在任务界面点击领取",
