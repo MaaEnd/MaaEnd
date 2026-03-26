@@ -11,7 +11,12 @@
         ]
     },
     "AutoEcoFarmExit": {
-        "desc": "退出任务"
+        "desc": "退出任务",
+        "action": "StopTask"
+    },
+    "AutoEcoFarmExitErr": {
+        "desc": "退出任务",
+        "action": "StopTask"
     },
     "AutoEcoFarmtest": {
         "desc": "全屏寻找农田,识别到了后点击",
