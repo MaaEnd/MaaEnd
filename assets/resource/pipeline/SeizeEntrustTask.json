@@ -1,4 +1,45 @@
 {
+    "SeizeEntrustTaskBeforeSwipeDown": {
+        "desc": "直接滑到最底下",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1250,
+                    620,
+                    16,
+                    23
+                ],
+                "template": [
+                    "SeizeEntrustTask/InDown.png"
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ],
+                "dy": -240
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ],
+            "time": 1000
+        },
+        "post_delay": 0
+    },
     "SeizeEntrustTaskErrorTaskStop": {
         "recognition": {
             "type": "OCR",
@@ -430,6 +471,7 @@
             }
         },
         "inverse": true,
+        "pre_delay": 0,
         "action": {
             "type": "Scroll",
             "param": {
@@ -450,7 +492,8 @@
                 481
             ],
             "time": 1000
-        }
+        },
+        "post_delay": 0
     },
     "SeizeEntrustTaskWalkingToDepotNode": {
         "desc": "注意该节点受到开关控制",
@@ -544,9 +587,7 @@
             "param": {}
         },
         "next": [
-            "SeizeEntrustTaskFoundOKButton"
-        ],
-        "on_error": [
+            "SeizeEntrustTaskFoundOKButton",
             "SeizeEntrustTaskLockWulingCityStopTask"
         ]
     },
@@ -572,10 +613,12 @@
                 "expected": "3/3"
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "StopTask",
             "param": {}
         },
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "今天的运送委托已满3单"
         }
@@ -599,10 +642,12 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "StopTask",
             "param": {}
         },
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "{\"desc\":\"手里已经有单了，结束抢单\"}"
         }
@@ -692,6 +737,7 @@
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
+            "[JumpBack]SeizeEntrustTaskBeforeSwipeDown",
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [
