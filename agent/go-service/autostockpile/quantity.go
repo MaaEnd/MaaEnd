@@ -140,6 +140,9 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 
 func buildSelectionPipelineOverride(ctx *maa.Context, selection SelectionResult, decision quantityDecision) (map[string]any, error) {
 	override := map[string]any{
+		"AutoStockpileRelayNodeDecisionReady": map[string]any{
+			"enabled": false,
+		},
 		selectedGoodsClickNodeName: map[string]any{
 			"enabled":  true,
 			"template": []string{BuildTemplatePath(selection.ProductID)},

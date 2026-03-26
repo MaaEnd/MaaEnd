@@ -377,6 +377,9 @@ func overrideSkipBranch(ctx *maa.Context, currentTaskName string) error {
 
 func buildSkipResetOverride() map[string]any {
 	return map[string]any{
+		"AutoStockpileRelayNodeDecisionReady": map[string]any{
+			"enabled": false,
+		},
 		selectedGoodsClickNodeName: map[string]any{
 			"enabled": false,
 		},
