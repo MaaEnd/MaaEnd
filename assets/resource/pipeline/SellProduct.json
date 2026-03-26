@@ -118,7 +118,10 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "据点管理未解锁"
-        }
+        },
+        "next": [
+            "SellProductLoop"
+        ]
     },
     "SellProductTaskEnd": {
         "desc": "任务结束",

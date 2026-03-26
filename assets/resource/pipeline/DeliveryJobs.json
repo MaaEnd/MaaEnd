@@ -117,7 +117,10 @@
         "threshold": 0.8,
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsLoop"
+        ]
     },
     "DeliveryJobsFinished": {
         "desc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服",
