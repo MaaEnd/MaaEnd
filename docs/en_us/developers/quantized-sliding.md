@@ -25,7 +25,7 @@ The current implementation is located at:
 | `nodes.go`     | Shared action name, internal node names, and override key constants    |
 | `handlers.go`  | `Run()` dispatch, per-stage handlers, and state reset                  |
 | `overrides.go` | Pipeline override construction                                         |
-| `ocr.go`       | Typed-first recognition helpers for hit-box and quantity reads         |
+| `ocr.go`       | Typed-first recognition helpers for hit box and quantity reads         |
 | `normalize.go` | Button parameter normalization and basic calculation helpers           |
 | `register.go`  | Registers the `QuantizedSliding` action into go-service                |
 
@@ -101,7 +101,7 @@ Pass `custom_action_param` as a JSON object directly.
 | `Target`                  | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.                                                                                                                        |
 | `QuantityBox`             | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                                                                                                 |
 | `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                               |
-| `ConcatAllFilteredDigits` | `bool`                  | No       | Quantity parse strategy switch. `false` (default): read only `Results.Best` OCR text. `true`: read all `Results.Filtered` OCR fragments, sort by y then x, concatenate, then parse.     |
+| `ConcatAllFilteredDigits` | `bool`                  | No       | Quantity parsing strategy switch. `false` (default): read only `Results.Best` OCR text. `true`: read all `Results.Filtered` OCR fragments, sort by y then x, concatenate, then parse.   |
 | `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.                                                                                                                              |
 | `IncreaseButton`          | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.                                                                                                                  |
 | `DecreaseButton`          | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.                                                                                                                  |
@@ -213,7 +213,7 @@ Two points are the most critical:
 
 If either of these prerequisites is not met, more accurate proportional calculations will not help.
 
-The current Go-side recognition read rules are intentionally narrow:
+The current Go-side recognition reading rules are intentionally narrow:
 
 - The slider hit box is read from `QuantizedSlidingSwipeButton` and prefers `Results.Best.AsTemplateMatch()`.
 - The quantity text is read from `QuantizedSlidingGetQuantity`: default (`ConcatAllFilteredDigits: false`) reads only `Results.Best`; explicit `true` switches to concatenating `Results.Filtered` fragments in y-then-x order.
@@ -387,7 +387,7 @@ If you need to follow the implementation further, review in this order:
 2. `agent/go-service/quantizedsliding/handlers.go`: see how `Run()` distinguishes external invocation mode from internal node mode.
 3. `agent/go-service/quantizedsliding/nodes.go`: see the shared action name, internal node names, and override keys.
 4. `agent/go-service/quantizedsliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
-5. `agent/go-service/quantizedsliding/ocr.go`: see typed-first quantity and hit-box extraction logic.
+5. `agent/go-service/quantizedsliding/ocr.go`: see typed-first quantity and hit box extraction logic.
 6. `agent/go-service/quantizedsliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
 7. `assets/resource/pipeline/QuantizedSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
 
