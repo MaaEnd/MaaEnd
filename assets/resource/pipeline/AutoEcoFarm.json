@@ -2,7 +2,7 @@
     "AutoEcoFarmMain": {
         "desc": "自动生态农场主入口",
         "next": [
-            "AutoEcoFarmExitErr",
+            //"AutoEcoFarmExitErr",
             "_AutoEcoFarmPrepareStart",
             "_AutoEcoFarmGotoValleyIVEcoFarmStart",
             "_AutoEcoFarmGotoWulinEcoFarmStart",
