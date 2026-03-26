@@ -20,7 +20,8 @@
             "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
             "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
             "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
-            "DeliveryJobsTaskFinish"
+            "DeliveryJobsLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "DeliveryJobsInValleyIVLocalDepotNode": {

@@ -16,7 +16,8 @@
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfrastructureOutpost",
             "[JumpBack]SellProductReconstructionCommand",
-            "SellProductSellAreaFinish"
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "SellProductRefugeeCamp": {

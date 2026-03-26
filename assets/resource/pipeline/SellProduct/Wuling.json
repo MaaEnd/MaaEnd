@@ -14,7 +14,8 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
-            "SellProductSellAreaFinish"
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "SellProductSkyKingFlats": {
