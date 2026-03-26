@@ -29,15 +29,6 @@
                 "dy": -240
             }
         },
-        "post_wait_freezes": {
-            "target": [
-                29,
-                166,
-                1222,
-                481
-            ],
-            "time": 1000
-        },
         "post_delay": 0
     },
     "SeizeEntrustTaskErrorTaskStop": {
@@ -390,14 +381,21 @@
         }
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
-        "desc": "滑到底后等待3秒再进入调度",
-        "post_delay": 0,
+        "desc": "滑到底后才会执行调度器，然后等待3秒再进入调度",
+        "pre_wait_freezes": {
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ],
+            "time": 2000
+        },
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTargetF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskNews"
-        ],
-        "focus": "3000"
+        ]
     },
     "isSeizeEntrustTaskExhausted": {
         "desc": "今天的运送委托已满3单，没办法继续接单，直接结束抢单",
