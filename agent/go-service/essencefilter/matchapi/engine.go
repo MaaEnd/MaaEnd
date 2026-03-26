@@ -146,41 +146,60 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		}, nil
 	}
 
-	// 2) Future Promising extension rule.
+	// 2) Extension rules: evaluate both first, then OR lock decision.
+	futureMatched := false
+	futureMinTotal := 0
 	if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
 		if e.matchFuturePromising(ocrSkills, ocrLevels, opts.FuturePromisingMinTotal) {
+			futureMatched = true
+			futureMinTotal = opts.FuturePromisingMinTotal
+		}
+	}
+
+	practicalMatched := false
+	practicalMinLv := 0
+	practicalSlot3Lv := 0
+	var practicalMatch *SkillCombinationMatch
+	if opts.KeepSlot3Level3Practical {
+		minLv := opts.Slot3MinLevel
+		if minLv <= 0 {
+			minLv = 3
+		}
+		if match, slot3Lv, ok := e.matchSlot3Level3Practical(ocrSkills, ocrLevels, minLv); ok {
+			practicalMatched = true
+			practicalMinLv = minLv
+			practicalSlot3Lv = slot3Lv
+			practicalMatch = match
+		}
+	}
+
+	if futureMatched || practicalMatched {
+		shouldLock := (futureMatched && opts.LockFuturePromising) || (practicalMatched && opts.LockSlot3Practical)
+
+		// Keep existing priority: FuturePromising result is preferred for display fields when both matched.
+		if futureMatched {
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
 				SkillIDs:      []int{0, 0, 0},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
-				ExtMinTotal:   opts.FuturePromisingMinTotal,
-				ShouldLock:    opts.LockFuturePromising,
+				ExtMinTotal:   futureMinTotal,
+				ShouldLock:    shouldLock,
 				ShouldDiscard: false,
 			}, nil
 		}
-	}
 
-	// 3) Slot3 Level3 Practical extension rule.
-	if opts.KeepSlot3Level3Practical {
-		minLv := opts.Slot3MinLevel
-		if minLv <= 0 {
-			minLv = 3
-		}
-
-		if match, slot3Lv, ok := e.matchSlot3Level3Practical(ocrSkills, ocrLevels, minLv); ok {
-			return &MatchResult{
-				Kind:          MatchSlot3Level3Practical,
-				SkillIDs:      match.SkillIDs,
-				SkillsChinese: match.SkillsChinese,
-				Weapons:       match.Weapons,
-				ExtSlot3Lv:    slot3Lv,
-				ExtMinLevel:   minLv,
-				ShouldLock:    opts.LockSlot3Practical,
-				ShouldDiscard: false,
-			}, nil
-		}
+		return &MatchResult{
+			Kind:          MatchSlot3Level3Practical,
+			SkillIDs:      practicalMatch.SkillIDs,
+			SkillsChinese: practicalMatch.SkillsChinese,
+			Weapons:       practicalMatch.Weapons,
+			ExtSlot3Lv:    practicalSlot3Lv,
+			ExtMinLevel:   practicalMinLv,
+			ShouldLock:    shouldLock,
+			ShouldDiscard: false,
+		}, nil
 	}
 
 	// 4) No match.
