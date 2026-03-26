@@ -1,0 +1,84 @@
+{
+    "DailyEventUnreadChallengeEvent": {
+        "desc": "处理挑战活动",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "color",
+                "recognition": "ColorMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "connected": true,
+                "count": 200
+            },
+            {
+                "recognition": "OCR",
+                "roi": "color",
+                "expected": [
+                    "挑战活动",
+                    "挑戰活動",
+                    "Challenge Event",
+                    "上級者",
+                    "도전 이벤트"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadChallengeEventClaim",
+            "DailyEventUnreadChallengeEventFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入挑战活动"
+        }
+    },
+    "DailyEventUnreadChallengeEventClaim": {
+        "desc": "领取奖励",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -300,
+            -500,
+            300,
+            500
+        ],
+        "template": "DailyRewards/Event/ChallengeEventClaim.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyEventUnreadChallengeEventFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

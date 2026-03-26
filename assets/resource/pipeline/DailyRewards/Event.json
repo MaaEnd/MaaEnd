@@ -70,6 +70,7 @@
             "DailyEventUnreadLimitedTimeSignin",
             "DailyEventUnreadWeeklyRoutine",
             "DailyEventUnreadGuideEvent",
+            "DailyEventUnreadChallengeEvent",
             "DailyEventUnreadUnknown"
         ],
         "focus": {
