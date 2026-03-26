@@ -68,7 +68,8 @@
                 "template": [
                     "SceneManager/MenuExpandLeft.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.7,
+                "green_mask": true
             }
         },
         "pre_delay": 0,
@@ -95,7 +96,8 @@
                 "template": [
                     "SceneManager/MenuExpandRight.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.7,
+                "green_mask": true
             }
         },
         "pre_delay": 0,
@@ -201,9 +203,9 @@
                     100
                 ],
                 "template": [
-                    "SceneManager/WorldMenuEvent.png"
-                ],
-                "threshold": 0.9
+                    "SceneManager/WorldMenuEvent.png",
+                    "SceneManager/WorldMenuEvent2.png"
+                ]
             }
         },
         "pre_delay": 0,
@@ -411,8 +413,7 @@
                 ],
                 "template": [
                     "SceneManager/WorldMenuOperationalManual.png"
-                ],
-                "threshold": 0.9
+                ]
             }
         },
         "pre_delay": 0,
@@ -491,8 +492,7 @@
                 ],
                 "template": [
                     "SceneManager/WorldMenuProtocolPass.png"
-                ],
-                "green_mask": true
+                ]
             }
         },
         "pre_delay": 0,
@@ -941,8 +941,7 @@
                     "SceneManager/WordMenuBackpack.png",
                     "SceneManager/WordMenuBackpack2.png",
                     "SceneManager/Backpack.png"
-                ],
-                "threshold": 0.9
+                ]
             }
         },
         "pre_delay": 0,
