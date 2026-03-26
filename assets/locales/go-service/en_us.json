@@ -22,6 +22,7 @@
     "autostockpile.hit_but_skip": "Item matched but not purchasing (%s)",
     "autostockpile.product_selected": "[%s] %s (Price %d, Threshold %d, Qty %s)",
     "autostockpile.reconcile_price_corrected": "Detected price recognition error (%d -> %d), reselecting",
+    "autostockpile.reconcile_decision_unchanged": "Decision unchanged, continuing",
     "autostockpile.recognition_early_end": "Recognition ended early",
     "autostockpile.hit_skip_purchase": "Item matched but purchase skipped",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",

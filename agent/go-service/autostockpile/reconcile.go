@@ -14,6 +14,14 @@ type ReconcileDecisionAction struct{}
 
 var _ maa.CustomActionRunner = &ReconcileDecisionAction{}
 
+func enableDecisionReadyOverride(ctx *maa.Context) error {
+	return ctx.OverridePipeline(map[string]any{
+		"AutoStockpileRelayNodeDecisionReady": map[string]any{
+			"enabled": true,
+		},
+	})
+}
+
 func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
@@ -72,6 +80,23 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	oldPrice := state.CurrentDecision.Selection.CurrentPrice
 	priceChanged := price != oldPrice
+	if !priceChanged {
+		if err := enableDecisionReadyOverride(ctx); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("node", "AutoStockpileRelayNodeDecisionReady").
+				Msg("failed to override proceed pipeline when price unchanged")
+			return false
+		}
+
+		log.Info().
+			Str("component", "autostockpile").
+			Str("product_id", state.CurrentDecision.Selection.ProductID).
+			Int("price", price).
+			Msg("reconcile price unchanged, proceed path selected")
+		return true
+	}
 
 	updatedData := copyRecognitionData(state.RawRecognitionData)
 	matched := false
@@ -114,11 +139,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			newQuantityDecision.Target == state.CurrentDecision.QuantityDecision.Target)
 
 	if isEquivalent {
-		if err := ctx.OverridePipeline(map[string]any{
-			"AutoStockpileRelayNodeDecisionReady": map[string]any{
-				"enabled": true,
-			},
-		}); err != nil {
+		if err := enableDecisionReadyOverride(ctx); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", "autostockpile").
@@ -136,6 +157,8 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 				QuantityDecision: newQuantityDecision,
 			},
 		})
+
+		maafocus.Print(ctx, i18n.T("autostockpile.reconcile_decision_unchanged"))
 
 		log.Info().
 			Str("component", "autostockpile").

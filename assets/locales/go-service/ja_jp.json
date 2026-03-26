@@ -22,6 +22,7 @@
     "autostockpile.hit_but_skip": "商品に一致しましたが、最終的に購入しません（%s）",
     "autostockpile.product_selected": "【%s】%s (価格 %d、しきい値 %d、数量 %s)",
     "autostockpile.reconcile_price_corrected": "価格認識エラーを検出しました(%d -> %d)。再選択しています",
+    "autostockpile.reconcile_decision_unchanged": "判断は変わっていません。そのまま続行します",
     "autostockpile.recognition_early_end": "認識フェーズが早期終了しました",
     "autostockpile.hit_skip_purchase": "商品に一致しましたが、購入をスキップしました",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
