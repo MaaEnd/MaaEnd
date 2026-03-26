@@ -34,7 +34,8 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsAutoValleyIV",
-            "DeliveryJobsAutoWuling"
+            "DeliveryJobsAutoWuling",
+            "DeliveryJobsLoop"
         ]
     },
     "DeliveryJobsAutoValleyIV": {
