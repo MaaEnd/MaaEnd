@@ -174,9 +174,38 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 	}
 
 	if futureMatched || practicalMatched {
-		shouldLock := (futureMatched && opts.LockFuturePromising) || (practicalMatched && opts.LockSlot3Practical)
+		futureLocks := futureMatched && opts.LockFuturePromising
+		practicalLocks := practicalMatched && opts.LockSlot3Practical
+		shouldLock := futureLocks || practicalLocks
 
-		// Keep existing priority: FuturePromising result is preferred for display fields when both matched.
+		// 当需要锁定时，优先返回实际触发锁定的规则 Kind，以保证锁定原因/统计与实际一致。
+		if futureLocks {
+			return &MatchResult{
+				Kind:          MatchFuturePromising,
+				SkillIDs:      []int{0, 0, 0},
+				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
+				Weapons:       []WeaponData{},
+				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
+				ExtMinTotal:   futureMinTotal,
+				ShouldLock:    shouldLock,
+				ShouldDiscard: false,
+			}, nil
+		}
+
+		if practicalLocks {
+			return &MatchResult{
+				Kind:          MatchSlot3Level3Practical,
+				SkillIDs:      practicalMatch.SkillIDs,
+				SkillsChinese: practicalMatch.SkillsChinese,
+				Weapons:       practicalMatch.Weapons,
+				ExtSlot3Lv:    practicalSlot3Lv,
+				ExtMinLevel:   practicalMinLv,
+				ShouldLock:    shouldLock,
+				ShouldDiscard: false,
+			}, nil
+		}
+
+		// 不锁定时保持现有优先级：FuturePromising 结果在两者都命中时优先用于展示字段。
 		if futureMatched {
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
