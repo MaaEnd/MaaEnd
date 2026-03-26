@@ -21,10 +21,11 @@
 
 | 文件           | 作用                                       |
 | -------------- | ------------------------------------------ |
-| `types.go`     | 参数结构、动作类型、常量与包级变量         |
+| `types.go`     | 参数结构、动作类型、运行期状态与包级类型   |
+| `nodes.go`     | 公共动作名、内部节点名与 override key 常量 |
 | `handlers.go`  | `Run()` 分发、各阶段处理函数、状态重置     |
 | `overrides.go` | Pipeline override 构造逻辑                 |
-| `ocr.go`       | OCR 文本提取与识别框解析                   |
+| `ocr.go`       | typed-first 的识别框/数量读取辅助逻辑      |
 | `normalize.go` | 按钮参数归一化与基础计算辅助               |
 | `register.go`  | 向 go-service 注册 `QuantizedSliding` 动作 |
 
@@ -77,6 +78,7 @@ clickY = startY + (endY - startY) * numerator / denominator
             "custom_action": "QuantizedSliding",
             "custom_action_param": {
                 "Target": 1,
+                "ConcatAllFilteredDigits": false,
                 "QuantityBox": [360, 490, 110, 70],
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
@@ -92,16 +94,17 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 `custom_action_param` 请直接传入一个 JSON 对象。常用字段如下：
 
-| 字段                | 类型                    | 必填 | 说明                                                                                                                                              |
-| ------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                                                                                                  |
-| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                    |
-| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                               |
-| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                                                                                                 |
-| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
-| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
-| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                 |
-| `ClampTargetToMax`  | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
+| 字段                      | 类型                    | 必填 | 说明                                                                                                                                              |
+| ------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`                  | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                                                                                                  |
+| `QuantityBox`             | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                    |
+| `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                               |
+| `ConcatAllFilteredDigits` | `bool`                  | 否   | 数量解析策略开关。`false`（默认）：只读 `Results.Best` 的 OCR 文本；`true`：读取 `Results.Filtered` 全片段，按 y 再 x 排序拼接后再解析数字。      |
+| `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                                                                                                 |
+| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
+| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                                                                                                        |
+| `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                 |
+| `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
 
 `CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
@@ -113,7 +116,12 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 `QuantityFilter` 是一个**可选增强项**。不传时，`QuantizedSliding` 的行为与旧版本一致；传入后，会先对 `QuantizedSlidingGetQuantity` 的 OCR 结果做颜色过滤，再识别数字。
 
-需要注意：当前实现会先按位置顺序拼接同一轮 OCR 命中的文本片段，再从中提取**全部数字字符**转成整数。因此，如果 `QuantityBox` 里混入了其他数字，它们也可能被一起拼进最终结果。`QuantityFilter` 的一个核心用途，就是在 OCR 前尽量只保留目标数量本身。
+需要注意：当前数量解析由 `ConcatAllFilteredDigits` 控制两种策略：
+
+- `false`（默认）：只读取 `QuantizedSlidingGetQuantity.Results.Best.AsOCR().Text`，然后从该单条文本中提取**全部数字字符**。
+- `true`：读取 `QuantizedSlidingGetQuantity.Results.Filtered`，按 **y 升序、y 相同按 x 升序** 排序后拼接，再从拼接文本中提取**全部数字字符**。
+
+`DetailJson` 仍仅作为 typed 路径缺失时的兼容兜底。如果 `QuantityBox` 里混入了其他数字，它们仍可能被一起解析。`QuantityFilter` 的核心用途之一，是在 OCR 前尽量只保留目标数量本身。
 
 它适合这类场景：
 
@@ -195,6 +203,14 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 只要这两个前提不成立，后面的比例计算再准确也没有意义。
 
+当前 Go 侧的识别读取策略也有明确边界：
+
+- 滑块识别框优先从 `QuantizedSlidingSwipeButton` 的 `Results.Best.AsTemplateMatch()` 读取；
+- 数量文本来自 `QuantizedSlidingGetQuantity`：默认（`ConcatAllFilteredDigits: false`）只读 `Results.Best`；显式传 `true` 时改为按 y→x 顺序拼接 `Results.Filtered`；
+- `DetailJson` 只作为 typed 路径失败后的兼容兜底。
+
+对维护者来说，`Best`、`Filtered` 与 fallback 不是可以随意互换的数据来源，而是当前实现的一部分约束。
+
 ## 接入步骤
 
 建议按下面的顺序接入。
@@ -268,9 +284,14 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "QuantityBox": [360, 490, 110, 70],
-                "CenterPointOffset": [-10, 0],
-                "Target": 1
+                "QuantityBox": [340, 430, 200, 140],
+                "Target": 1,
+                "ConcatAllFilteredDigits": true,
+                "QuantityFilter": {
+                    "lower": [20, 150, 150],
+                    "upper": [35, 255, 255],
+                    "method": 40
+                }
             }
         }
     },
@@ -353,10 +374,11 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 1. `agent/go-service/quantizedsliding/register.go`：确认动作注册名。
 2. `agent/go-service/quantizedsliding/handlers.go`：看 `Run()` 如何区分“对外调用模式”和“内部节点模式”。
-3. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
-4. `agent/go-service/quantizedsliding/ocr.go`：看 OCR 文本与识别框提取逻辑。
-5. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
-6. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
+3. `agent/go-service/quantizedsliding/nodes.go`：看公共动作名、内部节点名与 override key 常量。
+4. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
+5. `agent/go-service/quantizedsliding/ocr.go`：看 typed-first 的数量与识别框提取逻辑。
+6. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
+7. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
 
 ## 相关文档
 
