@@ -30,7 +30,7 @@ func readHitBox(detail *maa.RecognitionDetail) ([]int, bool) {
 	return nil, false
 }
 
-func readQuantityText(detail *maa.RecognitionDetail) string {
+func readQuantityText(detail *maa.RecognitionDetail, concatAllFilteredDigits bool) string {
 	if detail == nil {
 		return ""
 	}
@@ -40,8 +40,14 @@ func readQuantityText(detail *maa.RecognitionDetail) string {
 		candidate = detail
 	}
 
-	if text := joinFilteredOCRText(candidate.Results); text != "" {
-		return text
+	if concatAllFilteredDigits {
+		if text := joinFilteredOCRText(candidate.Results); text != "" {
+			return text
+		}
+	} else {
+		if text := readBestOCRText(candidate.Results); text != "" {
+			return text
+		}
 	}
 
 	if text := extractOCRTextFromDetailJSON(candidate.DetailJson); text != "" {
@@ -55,8 +61,8 @@ func readQuantityText(detail *maa.RecognitionDetail) string {
 	return ""
 }
 
-func readQuantityValue(detail *maa.RecognitionDetail) (int, error) {
-	text := readQuantityText(detail)
+func readQuantityValue(detail *maa.RecognitionDetail, concatAllFilteredDigits bool) (int, error) {
+	text := readQuantityText(detail, concatAllFilteredDigits)
 	if text == "" {
 		return 0, fmt.Errorf("ocr text not found in recognition detail")
 	}
@@ -78,6 +84,19 @@ func readQuantityValue(detail *maa.RecognitionDetail) (int, error) {
 	}
 
 	return value, nil
+}
+
+func readBestOCRText(results *maa.RecognitionResults) string {
+	if results == nil || results.Best == nil {
+		return ""
+	}
+
+	ocrResult, ok := results.Best.AsOCR()
+	if !ok {
+		return ""
+	}
+
+	return strings.TrimSpace(ocrResult.Text)
 }
 
 func findRecognitionDetailByName(detail *maa.RecognitionDetail, targetName string) *maa.RecognitionDetail {

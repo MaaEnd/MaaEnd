@@ -125,7 +125,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 
-	maxQuantity, err := readQuantityValue(arg.RecognitionDetail)
+	maxQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse max quantity from ocr")
 		return false
@@ -268,7 +268,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	currentQuantity, err := readQuantityValue(arg.RecognitionDetail)
+	currentQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false

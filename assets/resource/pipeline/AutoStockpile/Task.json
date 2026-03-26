@@ -410,6 +410,7 @@
                         140
                     ],
                     "Target": 1,
+                    "ConcatAllFilteredDigits": true,
                     "QuantityFilter": {
                         "lower": [
                             20,

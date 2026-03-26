@@ -6,14 +6,15 @@ import (
 )
 
 type quantizedSlidingParam struct {
-	Target            int                  `json:"Target"`
-	QuantityBox       []int                `json:"QuantityBox"`
-	QuantityFilter    *quantityFilterParam `json:"QuantityFilter"`
-	Direction         string               `json:"Direction"`
-	IncreaseButton    any                  `json:"IncreaseButton"`
-	DecreaseButton    any                  `json:"DecreaseButton"`
-	CenterPointOffset any                  `json:"CenterPointOffset"`
-	ClampTargetToMax  bool                 `json:"ClampTargetToMax"`
+	Target                  int                  `json:"Target"`
+	QuantityBox             []int                `json:"QuantityBox"`
+	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
+	ConcatAllFilteredDigits bool                 `json:"ConcatAllFilteredDigits"`
+	Direction               string               `json:"Direction"`
+	IncreaseButton          any                  `json:"IncreaseButton"`
+	DecreaseButton          any                  `json:"DecreaseButton"`
+	CenterPointOffset       any                  `json:"CenterPointOffset"`
+	ClampTargetToMax        bool                 `json:"ClampTargetToMax"`
 }
 
 // quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
@@ -37,14 +38,15 @@ type quantityFilterParam struct {
 //   - CenterPointOffset: 滑动条中心点坐标偏移量
 //   - ClampTargetToMax: 为 true 时，若 Target 超过 maxQuantity，自动将 Target 钳制为 maxQuantity 并继续（默认 false 时直接失败）
 type QuantizedSlidingAction struct {
-	Target            int
-	QuantityBox       []int
-	QuantityFilter    *quantityFilterParam
-	Direction         string
-	IncreaseButton    buttonTarget
-	DecreaseButton    buttonTarget
-	CenterPointOffset [2]int
-	ClampTargetToMax  bool
+	Target                  int
+	QuantityBox             []int
+	QuantityFilter          *quantityFilterParam
+	ConcatAllFilteredDigits bool
+	Direction               string
+	IncreaseButton          buttonTarget
+	DecreaseButton          buttonTarget
+	CenterPointOffset       [2]int
+	ClampTargetToMax        bool
 
 	startBox    []int
 	endBox      []int
