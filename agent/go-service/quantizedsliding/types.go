@@ -65,15 +65,6 @@ func (b buttonTarget) logValue() any {
 	return append([]int(nil), b.coordinates...)
 }
 
-var quantizedSlidingActionNodes = []string{
-	"QuantizedSlidingMain",
-	"QuantizedSlidingFindStart",
-	"QuantizedSlidingGetMaxQuantity",
-	"QuantizedSlidingFindEnd",
-	"QuantizedSlidingCheckQuantity",
-	"QuantizedSlidingDone",
-}
-
 const maxClickRepeat = 30
 
 var defaultCenterPointOffset = [2]int{-10, 0}

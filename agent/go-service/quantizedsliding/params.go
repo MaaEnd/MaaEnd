@@ -133,7 +133,7 @@ func (a *QuantizedSlidingAction) logParsedActionParams() {
 
 func (a *QuantizedSlidingAction) initLogger(taskName string) {
 	a.logger = log.With().
-		Str("component", "QuantizedSliding").
+		Str("component", quantizedSlidingActionName).
 		Str("task", taskName).
 		Logger()
 }
