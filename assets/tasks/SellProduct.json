@@ -24,7 +24,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductValleyIVSell": {
+                        "SellProductValleyIV": {
                             "enabled": true
                         }
                     },
@@ -37,7 +37,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductValleyIVSell": {
+                        "SellProductValleyIV": {
                             "enabled": false
                         }
                     }
@@ -1216,7 +1216,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductWulingSell": {
+                        "SellProductWuling": {
                             "enabled": true
                         }
                     },
@@ -1227,7 +1227,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductWulingSell": {
+                        "SellProductWuling": {
                             "enabled": false
                         }
                     }
