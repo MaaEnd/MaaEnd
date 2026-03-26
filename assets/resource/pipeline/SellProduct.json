@@ -33,7 +33,8 @@
         "rate_limit": 0,
         "next": [
             "SellProductAutoValleyIV",
-            "SellProductAutoWuling"
+            "SellProductAutoWuling",
+            "SellProductLoop"
         ]
     },
     "SellProductAutoValleyIV": {
