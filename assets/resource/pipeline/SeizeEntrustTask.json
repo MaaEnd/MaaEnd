@@ -40,13 +40,6 @@
         },
         "post_delay": 0
     },
-    "SeizeEntrustTaskBeforeDispatcherSleep": {
-        "desc": "滑到底后等待5秒再进入调度器",
-        "pre_delay": 5000,
-        "next": [
-            "isSeizeEntrustTaskDestinationWulingCity"
-        ]
-    },
     "SeizeEntrustTaskErrorTaskStop": {
         "recognition": {
             "type": "OCR",
@@ -190,85 +183,6 @@
             "Node.Recognition.Succeeded": "找到武陵城7.98万订单！"
         }
     },
-    "SeizeEntrustTaskFoundChangeButton": {
-        "desc": "查找更换地区按钮并点击",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    21,
-                    250,
-                    222,
-                    95
-                ],
-                "expected": [
-                    "更换",
-                    "更換",
-                    "(?i)Change",
-                    "変更",
-                    "변경"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SeizeEntrustTaskisUnlockWulingCityF2"
-        ]
-    },
-    "SeizeEntrustTaskFoundDepotNodeButton": {
-        "desc": "判断是否在仓储节点页面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1002,
-                    329,
-                    236,
-                    89
-                ],
-                "expected": [
-                    "仓储节点",
-                    "倉儲節點",
-                    "(?i)Depot\\s*Node",
-                    "保管ボックス"
-                ]
-            }
-        },
-        "next": [
-            "SeizeEntrustTaskisUnlockWulingCityF1",
-            "SeizeEntrustTaskFoundChangeButton"
-        ]
-    },
-    "SeizeEntrustTaskFoundDepotNodeButton2": {
-        "desc": "判断是否在仓储节点页面并进入",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1002,
-                    329,
-                    236,
-                    89
-                ],
-                "expected": [
-                    "仓储节点",
-                    "倉儲節點",
-                    "(?i)Depot\\s*Node",
-                    "保管ボックス"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SeizeEntrustTaskFoundListOfDeliveryJobsButton"
-        ]
-    },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
         "desc": "进入运送委托列表",
         "recognition": {
@@ -298,33 +212,6 @@
         "focus": {
             "Node.Recognition.Succeeded": "进入运送委托列表"
         }
-    },
-    "SeizeEntrustTaskFoundOKButton": {
-        "desc": "点击确认进入武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    627,
-                    378,
-                    243,
-                    106
-                ],
-                "expected": [
-                    "确认",
-                    "確定",
-                    "(?i)Confirm",
-                    "確認"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SeizeEntrustTaskFoundDepotNodeButton2"
-        ]
     },
     "SeizeEntrustTaskFoundTarget": {
         "recognition": {
@@ -371,23 +258,14 @@
             "Node.Recognition.Succeeded": "现在准备传送到仓储节点"
         }
     },
-    "SeizeEntrustTaskLockWulingCityStopTask": {
-        "action": {
-            "type": "StopTask",
-            "param": {}
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "您还没有解锁武陵城哦"
-        }
-    },
     "SeizeEntrustTaskMain": {
         "recognition": {
             "type": "OCR",
             "param": {}
         },
         "next": [
-            "SeizeEntrustTaskFoundDepotNodeButton",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
     },
     "SeizeEntrustTaskNews": {
@@ -511,61 +389,15 @@
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
     },
-    "SeizeEntrustTaskisUnlockWulingCityF1": {
-        "desc": "判断是否已经解锁武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    19,
-                    170,
-                    105,
-                    60
-                ],
-                "expected": [
-                    "武陵",
-                    "Wuling",
-                    "무릉"
-                ]
-            }
-        },
-        "next": [
-            "SeizeEntrustTaskFoundDepotNodeButton2"
-        ]
-    },
-    "SeizeEntrustTaskisUnlockWulingCityF2": {
-        "desc": "判断是否已经解锁武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    429,
-                    37,
-                    414,
-                    238
-                ],
-                "expected": [
-                    "武陵",
-                    "Wuling",
-                    "무릉"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SeizeEntrustTaskFoundOKButton",
-            "SeizeEntrustTaskLockWulingCityStopTask"
-        ]
-    },
     "isSeizeEntrustTaskDestinationWulingCity": {
+        "desc": "滑到底后等待3秒再进入调度",
+        "post_delay": 0,
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTargetF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskNews"
-        ]
+        ],
+        "focus": "3000"
     },
     "isSeizeEntrustTaskExhausted": {
         "desc": "今天的运送委托已满3单，没办法继续接单，直接结束抢单",
@@ -706,7 +538,7 @@
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
             "[JumpBack]SeizeEntrustTaskBeforeSwipeDown",
-            "SeizeEntrustTaskBeforeDispatcherSleep"
+            "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [
             "SeizeEntrustTaskStopTask2"
