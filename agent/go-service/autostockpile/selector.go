@@ -2,7 +2,6 @@ package autostockpile
 
 import (
 	"encoding/json"
-	"fmt"
 	"sort"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -11,10 +10,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	swipeMaxNodeName = "AutoStockpileSwipeMax"
-	skipNodeName     = "AutoStockpileSkip"
-)
+var _ maa.CustomActionRunner = &SelectItemAction{}
+
+// SelectItemAction 根据识别结果执行商品选择动作。
+type SelectItemAction struct{}
 
 type candidateGoods struct {
 	goods     GoodsItem
@@ -31,7 +30,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	detailJSON := extractRecoDetailJson(arg.RecognitionDetail)
+	detailJSON := extractCustomRecognitionDetailJSON(arg.RecognitionDetail)
 	if detailJSON == "" {
 		log.Error().
 			Str("component", "autostockpile").
@@ -363,39 +362,6 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	return false
 }
 
-func overrideSkipBranch(ctx *maa.Context, currentTaskName string) error {
-	if err := ctx.OverridePipeline(buildSkipResetOverride()); err != nil {
-		return fmt.Errorf("reset skip pipeline state: %w", err)
-	}
-
-	if err := ctx.OverrideNext(currentTaskName, buildSkipNextItems()); err != nil {
-		return fmt.Errorf("override next for skip branch: %w", err)
-	}
-
-	return nil
-}
-
-func buildSkipResetOverride() map[string]any {
-	return map[string]any{
-		"AutoStockpileRelayNodeDecisionReady": map[string]any{
-			"enabled": false,
-		},
-		selectedGoodsClickNodeName: map[string]any{
-			"enabled": false,
-		},
-		swipeMaxNodeName: map[string]any{
-			"enabled": false,
-		},
-		swipeSpecificQuantityNodeName: map[string]any{
-			"enabled": false,
-		},
-	}
-}
-
-func buildSkipNextItems() []maa.NextItem {
-	return []maa.NextItem{{Name: skipNodeName}}
-}
-
 func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
@@ -407,21 +373,4 @@ func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg Se
 		return i18n.T("autostockpile.mode_overflow")
 	}
 	return i18n.T("autostockpile.mode_low_price")
-}
-
-func extractRecoDetailJson(rd *maa.RecognitionDetail) string {
-	if rd == nil || rd.DetailJson == "" {
-		return ""
-	}
-
-	var wrapped struct {
-		Best struct {
-			Detail json.RawMessage `json:"detail"`
-		} `json:"best"`
-	}
-	if err := json.Unmarshal([]byte(rd.DetailJson), &wrapped); err == nil && len(wrapped.Best.Detail) > 0 {
-		return string(wrapped.Best.Detail)
-	}
-
-	return rd.DetailJson
 }

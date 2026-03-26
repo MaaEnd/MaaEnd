@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 
@@ -145,4 +146,60 @@ func ParseTierFromID(id string) string {
 // 例如：输入 "ValleyIV/OriginiumSaplings.Tier3" 返回 "AutoStockpile/Goods/ValleyIV/OriginiumSaplings.Tier3.png"
 func BuildTemplatePath(id string) string {
 	return filepath.ToSlash(filepath.Join("AutoStockpile", "Goods", id+".png"))
+}
+
+func validateItemMap(itemMap *ItemMap) error {
+	if itemMap == nil {
+		return fmt.Errorf("item_map is nil")
+	}
+	if len(itemMap.NameToID) == 0 {
+		return fmt.Errorf("item_map name_to_id is empty")
+	}
+	if len(itemMap.IDToName) == 0 {
+		return fmt.Errorf("item_map id_to_name is empty")
+	}
+	return nil
+}
+
+func itemMapCounts(itemMap *ItemMap) (nameCount int, idCount int) {
+	if itemMap == nil {
+		return 0, 0
+	}
+	return len(itemMap.NameToID), len(itemMap.IDToName)
+}
+
+func itemMapHasRegion(itemMap *ItemMap, region string) bool {
+	if itemMap == nil || len(itemMap.IDToName) == 0 {
+		return false
+	}
+
+	prefix := region + "/"
+	for id := range itemMap.IDToName {
+		if strings.HasPrefix(id, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[string]bool) []string {
+	if itemMap == nil || len(itemMap.IDToName) == 0 {
+		return nil
+	}
+
+	prefix := region + "/"
+	ids := make([]string, 0, len(itemMap.IDToName))
+	for id := range itemMap.IDToName {
+		if !strings.HasPrefix(id, prefix) {
+			continue
+		}
+		if boundIDs[id] {
+			continue
+		}
+		ids = append(ids, id)
+	}
+
+	sort.Strings(ids)
+	return ids
 }
