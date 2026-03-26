@@ -29,12 +29,12 @@
                     "pipeline_override": {
                         "AutoUseSpMedicationChooseEmergencySanityBooster": {
                             "action": "DoNothing",
-                            "next": [
-                                "AutoUseSpMedicationSkipRegular"
-                            ],
                             "focus": {
                                 "Node.Action.Starting": "未选择使用应急药剂，跳过"
-                            }
+                            },
+                            "next": [
+                                "AutoUseSpMedicationSkipRegular"
+                            ]
                         }
                     }
                 }

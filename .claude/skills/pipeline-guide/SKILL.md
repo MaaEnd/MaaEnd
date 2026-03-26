@@ -31,14 +31,14 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
             "param": {
                 "template": "MyTask/button.png",
                 "roi": [100, 200, 300, 100],
-                "threshold": 0.7,
-            },
+                "threshold": 0.7
+            }
         },
         "action": {
-            "type": "Click",
+            "type": "Click"
         },
-        "next": ["NextNode"],
-    },
+        "next": ["NextNode"]
+    }
 }
 ```
 
@@ -132,18 +132,18 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 
 ## 常用动作类型
 
-| 动作                   | 用途            | 关键字段                               |
-| ---------------------- | --------------- | -------------------------------------- |
-| `Click`                | 点击            | `target`, `target_offset`              |
-| `LongPress`            | 长按            | `target`, `duration`                   |
-| `Swipe`                | 滑动            | `begin`, `end`, `duration`             |
-| `Scroll`               | 滚轮（仅Win32） | `target`, `dx`, `dy`                   |
-| `ClickKey`             | 按键            | `key`（虚拟键码）                      |
-| `InputText`            | 输入文本        | `input_text`                           |
-| `StartApp` / `StopApp` | 启停应用        | `package`                              |
-| `StopTask`             | 停止当前任务链  | 无                                     |
-| `Custom`               | 自定义动作      | `custom_action`, `custom_action_param` |
-| `DoNothing`            | 不执行（默认）  | 无                                     |
+| 动作 | 用途 | 关键字段 |
+|------|------|----------|
+| `Click` | 点击 | `target`, `target_offset` |
+| `LongPress` | 长按 | `target`, `duration` |
+| `Swipe` | 滑动 | `begin`, `end`, `duration` |
+| `Scroll` | 滚轮（仅Win32） | `target`, `dx`, `dy` |
+| `ClickKey` | 按键 | `key`（虚拟键码） |
+| `InputText` | 输入文本 | `input_text` |
+| `StartApp` / `StopApp` | 启停应用 | `package` |
+| `StopTask` | 停止当前任务链 | 无 |
+| `Custom` | 自定义动作 | `custom_action`, `custom_action_param` |
+| `DoNothing` | 不执行（默认） | 无 |
 
 `target` 支持：`true`（当前识别结果）、节点名字符串、`[x, y]`、`[x, y, w, h]`。
 
@@ -198,17 +198,17 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 
 ### 通用按钮（`Common/Button/`）
 
-| 节点                       | 说明                            |
-| -------------------------- | ------------------------------- |
-| `WhiteConfirmButtonType1`  | 白底圆环确认                    |
-| `WhiteConfirmButtonType2`  | 白底对号确认                    |
-| `YellowConfirmButtonType1` | 黄底圆环确认                    |
-| `YellowConfirmButtonType2` | 黄底对号确认                    |
-| `CancelButton`             | 白底 X 取消                     |
-| `CloseButtonType1`         | 右上角 X（不兼容 ESC 菜单）     |
-| `CloseButtonType2`         | 右上角 X（兼容 ESC 菜单，推荐） |
-| `TeleportButton`           | 右下角传送按钮                  |
-| `CloseRewardsButton`       | 奖励界面对号关闭                |
+| 节点 | 说明 |
+|------|------|
+| `WhiteConfirmButtonType1` | 白底圆环确认 |
+| `WhiteConfirmButtonType2` | 白底对号确认 |
+| `YellowConfirmButtonType1` | 黄底圆环确认 |
+| `YellowConfirmButtonType2` | 黄底对号确认 |
+| `CancelButton` | 白底 X 取消 |
+| `CloseButtonType1` | 右上角 X（不兼容 ESC 菜单） |
+| `CloseButtonType2` | 右上角 X（兼容 ESC 菜单，推荐） |
+| `TeleportButton` | 右下角传送按钮 |
+| `CloseRewardsButton` | 奖励界面对号关闭 |
 
 ### SceneManager（万能跳转）
 
@@ -241,9 +241,9 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
             "MyTaskMainStep",
             "[JumpBack]SceneDialogConfirm",
             "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]SceneAnyEnterWorld",
-        ],
-    },
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    }
 }
 ```
 
@@ -269,11 +269,11 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
             "type": "And",
             "param": {
                 "all_of": ["ButtonBackground", "ButtonIcon"],
-                "box_index": 0,
-            },
+                "box_index": 0
+            }
         },
-        "action": {"type": "Click"},
-    },
+        "action": { "type": "Click" }
+    }
 }
 ```
 

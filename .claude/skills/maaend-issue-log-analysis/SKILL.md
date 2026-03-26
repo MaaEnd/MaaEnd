@@ -50,7 +50,6 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 如果有 `on_error/` 截图，用它校验当时实际停留画面；如果没有，要检查是否是未触发 `on_error`，还是日志导出因体积限制把图片截断了。
 
 6. 回溯到代码和文档。
-
     - 任务入口、节点名、控制器限制先看 MaaEnd 仓库。
     - Pipeline 运行语义不确定时查 MaaFramework 文档。
     - MXU 行为或日志分层不确定时，先查 MXU README / 文档；只有文档不足或证据已指向实现层时才看源码。
@@ -389,6 +388,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 Translate the complete conclusion directly into English and paste it here. Note that the English text is in `assets/locales/interface/en_us.json`.
 
 </details>
+
 ```
 
 ## Reminders
