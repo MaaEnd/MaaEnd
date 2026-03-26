@@ -41,6 +41,19 @@
     },
     "VisitFriendsMenuScanScrollList": {
         "desc": "向下滚动好友列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    150,
+                    120
+                ],
+                "template": "VisitFriends/OnFriendList.png",
+                "threshold": 0.8
+            }
+        },
         "action": "Swipe",
         "begin": [
             650,

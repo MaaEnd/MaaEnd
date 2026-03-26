@@ -594,5 +594,7 @@
     "resource/image/SceneManager/WordMenuBackpack": "45b65506a5b614f543fad43d4bd2c2898c8f75abbcc32be8bc949167aaa31be0",
     "resource/image/SceneManager/WorldMenuEvent": "fb282f23eaf9f02caacbb588e8746bfc134600ecddd6556537a35b5e0b664f60",
     "resource/image/DailyRewards/TaskClaimSingleReward": "a23127cf84e5bc9bc059c73738686c51edff8a575ea81e10bf39a1edea7eda07",
-    "resource/image/DeliveryJobs/CargoFilledToMax": "454240067ef6f4489a2de73b7b77ff08acb4643a7f620c2ce0f9e48e627ff69e"
+    "resource/image/DeliveryJobs/CargoFilledToMax": "454240067ef6f4489a2de73b7b77ff08acb4643a7f620c2ce0f9e48e627ff69e",
+    "resource/image/VisitFriends/AssistCountIcon": "da194320bb6cd972da97aa7f0eaec77bca30aa84d739461259320c3e32d6a057",
+    "resource/image/VisitFriends/ClueExchangeCountIcon": "134d2a8af96af12b8ae37f9799d516b60cdc32d79e4ec6e2a6868025e1794c75"
 }

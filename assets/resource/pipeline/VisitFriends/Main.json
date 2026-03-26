@@ -35,8 +35,88 @@
             ]
         },
         "next": [
+            "VisitFriendsFull",
             "VisitFriendsMenuScan"
         ]
+    },
+    "VisitFriendsFull": {
+        "desc": "好友助力次数已满",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistFull",
+            "VisitFriendsClueExchangeFull"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
+        }
+    },
+    "VisitFriendsAssistFull": {
+        "desc": "好友助力交换次数已满",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -230,
+                    0,
+                    230,
+                    130
+                ],
+                "template": "VisitFriends/AssistCountIcon.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsClueExchangeFull": {
+        "desc": "好友线索交换次数已满",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -230,
+                    0,
+                    230,
+                    130
+                ],
+                "template": "VisitFriends/ClueExchangeCountIcon.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "VisitFriendsExecuteVisit": {
         "desc": "执行拜访",
