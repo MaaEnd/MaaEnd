@@ -32,10 +32,6 @@ func readHitBox(detail *maa.RecognitionDetail) ([]int, bool) {
 		return []int{detail.Box[0], detail.Box[1], detail.Box[2], detail.Box[3]}, true
 	}
 
-	if len(detail.Box) >= 4 {
-		return []int{detail.Box[0], detail.Box[1], detail.Box[2], detail.Box[3]}, true
-	}
-
 	return nil, false
 }
 
