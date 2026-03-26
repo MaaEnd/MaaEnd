@@ -40,6 +40,13 @@
         },
         "post_delay": 0
     },
+    "SeizeEntrustTaskBeforeDispatcherSleep": {
+        "desc": "滑到底后等待5秒再进入调度器",
+        "pre_delay": 5000,
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ]
+    },
     "SeizeEntrustTaskErrorTaskStop": {
         "recognition": {
             "type": "OCR",
@@ -195,7 +202,11 @@
                     95
                 ],
                 "expected": [
-                    "更换"
+                    "更换",
+                    "更換",
+                    "(?i)Change",
+                    "変更",
+                    "변경"
                 ]
             }
         },
@@ -300,7 +311,10 @@
                     106
                 ],
                 "expected": [
-                    "确认"
+                    "确认",
+                    "確定",
+                    "(?i)Confirm",
+                    "確認"
                 ]
             }
         },
@@ -446,47 +460,6 @@
             "Node.Recognition.Succeeded": "没有在运送委托列表界面哦"
         }
     },
-    "SeizeEntrustTaskSwipeDown": {
-        "desc": "直接滑到最底下",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1250,
-                    620,
-                    16,
-                    23
-                ],
-                "template": [
-                    "SeizeEntrustTask/InDown.png"
-                ]
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": {
-            "type": "Scroll",
-            "param": {
-                "target": [
-                    763,
-                    424,
-                    5,
-                    5
-                ],
-                "dy": -240
-            }
-        },
-        "post_wait_freezes": {
-            "target": [
-                29,
-                166,
-                1222,
-                481
-            ],
-            "time": 1000
-        },
-        "post_delay": 0
-    },
     "SeizeEntrustTaskWalkingToDepotNode": {
         "desc": "注意该节点受到开关控制",
         "enabled": false,
@@ -550,7 +523,9 @@
                     60
                 ],
                 "expected": [
-                    "武陵"
+                    "武陵",
+                    "Wuling",
+                    "무릉"
                 ]
             }
         },
@@ -570,7 +545,9 @@
                     238
                 ],
                 "expected": [
-                    "武陵"
+                    "武陵",
+                    "Wuling",
+                    "무릉"
                 ]
             }
         },
@@ -587,7 +564,6 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTargetF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskNews"
         ]
     },
@@ -641,7 +617,7 @@
         },
         "post_delay": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "{\"desc\":\"手里已经有单了，结束抢单\"}"
+            "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
         }
     },
     "isSeizeEntrustTaskInMap": {
@@ -730,7 +706,7 @@
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
             "[JumpBack]SeizeEntrustTaskBeforeSwipeDown",
-            "isSeizeEntrustTaskDestinationWulingCity"
+            "SeizeEntrustTaskBeforeDispatcherSleep"
         ],
         "on_error": [
             "SeizeEntrustTaskStopTask2"
