@@ -38,9 +38,9 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
-            "CreditShoppingReserveCredit",
-            "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
+            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -71,7 +71,7 @@
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
-            "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
@@ -223,9 +223,9 @@
             "CreditShoppingBuyItem"
         ]
     },
-    "CreditShoppingBuyNormalWithDiscount": {
+    "CreditShoppingBuyPriority2": {
         //"enabled": false,
-        "desc": "普通购买（选项：可购买非白名单物品、折扣比例、黑名单设置）",
+        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
