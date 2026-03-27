@@ -70,9 +70,9 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
-            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
+            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",

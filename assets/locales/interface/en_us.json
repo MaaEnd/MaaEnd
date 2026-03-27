@@ -321,6 +321,8 @@
     "option.CreditShoppingForce.cases.Exit.label": "Exit",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "Buy blacklist items",
     "option.CreditShoppingForce.cases.Refresh.label": "Strictly buy by whitelist and enable refresh",
+    "option.AutoGetCredits.label": "Auto-collect credits when whitelist items are unaffordable",
+    "option.AutoGetCredits.description": "When enabled, if credits are insufficient while buying a whitelisted item, it will attempt to collect credits from the Dijiang reception room.",
     "option.RefreshGetCredits.label": "Trigger linkage when refresh credits are insufficient",
     "option.RefreshGetCredits.description": "Only takes effect when the linkage feature is enabled.",
     "option.DiscountValue.label": "Discount threshold",

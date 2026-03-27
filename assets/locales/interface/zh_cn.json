@@ -282,6 +282,8 @@
     "option.CreditShoppingForce.cases.Exit.label": "退出",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "购买黑名单物品",
     "option.CreditShoppingForce.cases.Refresh.label": "执行刷新",
+    "option.AutoGetCredits.label": "白名单物品买不起时自动获取信用点",
+    "option.AutoGetCredits.description": "开启后，购买白名单物品时若信用点不足，会尝试从帝江号会客室获取信用点。",
     "option.RefreshGetCredits.label": "刷新额度不足同样触发联动功能",
     "option.RefreshGetCredits.description": "需要在联动功能开启时，才会生效",
     "option.DiscountValue.label": "折扣比例",

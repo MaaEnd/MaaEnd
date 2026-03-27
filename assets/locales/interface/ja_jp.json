@@ -282,6 +282,8 @@
     "option.CreditShoppingForce.cases.Exit.label": "終了",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "ブラックリスト物品を購入",
     "option.CreditShoppingForce.cases.Refresh.label": "ホワイトリスト厳守で購入し、刷新を有効化",
+    "option.AutoGetCredits.label": "ホワイトリスト商品が買えない時に自動でクレジットを取得",
+    "option.AutoGetCredits.description": "有効にすると、ホワイトリスト商品の購入時にクレジットが不足した場合、帝江号の応接室からクレジットの回収を試みます。",
     "option.RefreshGetCredits.label": "リフレッシュ残額不足時にも連動機能を発動",
     "option.RefreshGetCredits.description": "連動機能が有効な場合のみ有効です。",
     "option.DiscountValue.label": "割引率",
