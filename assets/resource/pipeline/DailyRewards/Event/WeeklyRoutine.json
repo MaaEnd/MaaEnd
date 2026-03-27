@@ -77,7 +77,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 200,
+            "time": 600,
             "target": [
                 -800,
                 -110,
@@ -85,7 +85,7 @@
                 110
             ]
         },
-        "post_delay": 200,
+        "post_delay": 0,
         "next": [
             "DailyEventUnreadWeeklyRoutinePickAll",
             "DailyEventUnreadWeeklyRoutineFinish"
