@@ -101,7 +101,7 @@ func runStockBillOCR(ctx *maa.Context, img image.Image) (int, bool) {
 		return 0, false
 	}
 
-	texts := ocrTextCandidates(detail, ocrTextPolicyBestFilteredAll)
+	texts := ocrTextCandidates(detail, ocrTextPolicyBestOnly)
 	amount, ok := parseStockBillAmount(texts)
 	if !ok {
 		log.Warn().

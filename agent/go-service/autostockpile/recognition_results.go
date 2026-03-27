@@ -14,7 +14,7 @@ type ocrTextPolicy int
 
 const (
 	ocrTextPolicyFilteredOnly ocrTextPolicy = iota
-	ocrTextPolicyBestFilteredAll
+	ocrTextPolicyBestOnly
 )
 
 type templateHitStrategy int
@@ -71,17 +71,31 @@ func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
 	return candidates
 }
 
+func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
+	if detail == nil || detail.Results == nil {
+		return nil
+	}
+	if len(detail.Results.Filtered) > 0 {
+		return detail.Results.Filtered
+	}
+	if len(detail.Results.All) > 0 {
+		return detail.Results.All
+	}
+	if detail.Results.Best != nil {
+		return []*maa.RecognitionResult{detail.Results.Best}
+	}
+	return nil
+}
+
 func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []string {
 	var sources [][]*maa.RecognitionResult
 	switch policy {
 	case ocrTextPolicyFilteredOnly:
 		sources = [][]*maa.RecognitionResult{filteredRecognitionResults(detail)}
-	case ocrTextPolicyBestFilteredAll:
+	case ocrTextPolicyBestOnly:
 		if detail != nil && detail.Results != nil {
 			sources = [][]*maa.RecognitionResult{
 				resultsFromBest(detail.Results.Best),
-				detail.Results.Filtered,
-				detail.Results.All,
 			}
 		}
 	}
@@ -113,7 +127,7 @@ func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []st
 }
 
 func firstOCRText(detail *maa.RecognitionDetail) (string, bool) {
-	texts := ocrTextCandidates(detail, ocrTextPolicyBestFilteredAll)
+	texts := ocrTextCandidates(detail, ocrTextPolicyBestOnly)
 	if len(texts) == 0 {
 		return "", false
 	}
@@ -121,10 +135,7 @@ func firstOCRText(detail *maa.RecognitionDetail) (string, bool) {
 }
 
 func pickTemplateHit(detail *maa.RecognitionDetail, strategy templateHitStrategy) (maa.Rect, bool) {
-	results := filteredRecognitionResults(detail)
-	if len(results) == 0 && detail != nil && detail.Results != nil && detail.Results.Best != nil {
-		results = []*maa.RecognitionResult{detail.Results.Best}
-	}
+	results := recognitionResults(detail)
 	if len(results) == 0 {
 		return maa.Rect{}, false
 	}

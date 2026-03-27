@@ -37,8 +37,8 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	ocrText, ok := firstOCRText(arg.RecognitionDetail)
-	if !ok {
+	ocrTexts := ocrTextCandidates(arg.RecognitionDetail, ocrTextPolicyBestOnly)
+	if len(ocrTexts) == 0 {
 		log.Error().
 			Str("component", "autostockpile").
 			Msg("reconcile recognition detail contains no ocr text")
@@ -46,13 +46,16 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 
 	priceText := ""
-	if match := priceRe.FindStringSubmatch(ocrText); len(match) == 2 {
-		priceText = match[1]
+	for _, ocrText := range ocrTexts {
+		if match := priceRe.FindStringSubmatch(ocrText); len(match) == 2 {
+			priceText = match[1]
+			break
+		}
 	}
 	if priceText == "" {
 		log.Error().
 			Str("component", "autostockpile").
-			Str("ocr_text", ocrText).
+			Strs("ocr_texts", ocrTexts).
 			Msg("failed to extract reconcile price text from recognition detail")
 		return false
 	}
