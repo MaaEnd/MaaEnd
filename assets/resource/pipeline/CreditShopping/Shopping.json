@@ -142,11 +142,12 @@
         "desc": "识别当前信用点",
         "recognition": "OCR",
         "roi": [
-            1083,
-            0,
-            135,
-            71
+            1123,
+            21,
+            38,
+            17
         ],
+        "only_rec": true,
         "expected": "^\\d+$",
         "color_filter": "CreditShoppingReserveCreditOCRInternalColor"
     },
