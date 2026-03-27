@@ -222,7 +222,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			continue
 		}
 
-		box, hit := pickTemplateHit(detail, templateHitLowest)
+		box, hit := bestTemplateHit(detail)
 		if !hit {
 			continue
 		}

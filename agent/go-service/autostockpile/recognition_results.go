@@ -17,13 +17,6 @@ const (
 	ocrTextPolicyBestOnly
 )
 
-type templateHitStrategy int
-
-const (
-	templateHitTopmost templateHitStrategy = iota
-	templateHitLowest
-)
-
 func extractCustomRecognitionDetailJSON(detail *maa.RecognitionDetail) string {
 	if detail == nil || detail.DetailJson == "" {
 		return ""
@@ -69,22 +62,6 @@ func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
 		candidates = append(candidates, ocrResult)
 	}
 	return candidates
-}
-
-func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
-	if detail == nil || detail.Results == nil {
-		return nil
-	}
-	if len(detail.Results.Filtered) > 0 {
-		return detail.Results.Filtered
-	}
-	if len(detail.Results.All) > 0 {
-		return detail.Results.All
-	}
-	if detail.Results.Best != nil {
-		return []*maa.RecognitionResult{detail.Results.Best}
-	}
-	return nil
 }
 
 func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []string {
@@ -134,42 +111,17 @@ func firstOCRText(detail *maa.RecognitionDetail) (string, bool) {
 	return texts[0], true
 }
 
-func pickTemplateHit(detail *maa.RecognitionDetail, strategy templateHitStrategy) (maa.Rect, bool) {
-	results := recognitionResults(detail)
-	if len(results) == 0 {
+func bestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
 		return maa.Rect{}, false
 	}
 
-	selected := maa.Rect{}
-	hit := false
-	for _, result := range results {
-		if result == nil {
-			continue
-		}
-		tm, ok := result.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-
-		if !hit {
-			selected = tm.Box
-			hit = true
-			continue
-		}
-
-		switch strategy {
-		case templateHitLowest:
-			if tm.Box.Y() > selected.Y() {
-				selected = tm.Box
-			}
-		default:
-			if tm.Box.Y() < selected.Y() {
-				selected = tm.Box
-			}
-		}
+	tm, ok := detail.Results.Best.AsTemplateMatch()
+	if !ok {
+		return maa.Rect{}, false
 	}
 
-	return selected, hit
+	return tm.Box, true
 }
 
 func resultsFromBest(best *maa.RecognitionResult) []*maa.RecognitionResult {

@@ -45,14 +45,6 @@ func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath strin
 	return ctx.RunRecognition(locateGoodsNodeName, img, nil)
 }
 
-func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
-	return pickTemplateHit(detail, templateHitLowest)
-}
-
-func pickTopmostTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
-	return pickTemplateHit(detail, templateHitTopmost)
-}
-
 func resolveGoodsRecognitionROI(ctx *maa.Context, img image.Image) []int {
 	baseROI := []int{63, 162, 1177, 553}
 	marketMarkBox, found, err := runFindMarketMark(ctx, img)
@@ -95,7 +87,7 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 		return maa.Rect{}, false, nil
 	}
 
-	box, hit := pickTopmostTemplateHit(detail)
+	box, hit := bestTemplateHit(detail)
 	if !hit {
 		resetSelectedGoodsClickROIY(ctx)
 		return maa.Rect{}, false, nil
