@@ -750,8 +750,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomSetCluesChooseClues",
-            "ReceptionRoomSetCluesClose"
+            "ReceptionRoomSetCluesChooseClues"
         ]
     },
     "ReceptionRoomSetCluesChooseClues": {
@@ -760,24 +759,12 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InReceptionRoomSetClues",
-                    "ReceptionRoomSetClueTips"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -40,
-                    50,
-                    0,
-                    0
+                    "InReceptionRoomSetClues"
                 ]
             }
         },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -861,7 +848,10 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSetCluesClose"
+        ]
     },
     "ReceptionRoomSetCluesItemPut": {
         "desc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
@@ -902,7 +892,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSetCluesClose"
+        ]
     },
     "ReceptionRoomSetCluesClose": {
         "desc": "[会客室·线索] 关闭侧边栏",
