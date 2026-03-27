@@ -186,6 +186,16 @@
                 "green_mask": true
             }
         },
+        "pre_wait_freezes": {
+            "target": [
+                70,
+                80,
+                70,
+                60
+            ],
+            "time": 800,
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "post_delay": 0
     },
