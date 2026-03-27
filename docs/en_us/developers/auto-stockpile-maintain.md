@@ -102,7 +102,7 @@ The default per-tier threshold table (e.g., 800 for `ValleyIVTier1`) is maintain
 
 > [!TIP]
 >
-> Threshold-related task inputs and attach values must be **positive integers**. Empty strings, `0`, and negative values do not trigger fallback; they are rejected by task input validation or the Go-side config parser.
+> Threshold-related task inputs and attach values must be **positive integers**. Empty strings, `0`, and negative values do not trigger fallback; they are rejected by task input validation or by the Go-side config parser.
 
 ## Reserve Stock Bill
 
