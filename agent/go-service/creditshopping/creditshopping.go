@@ -123,32 +123,25 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		return fmt.Sprintf("^(%s)$", strings.Join(escaped, "|"))
 	}
 
-	buildBlacklistRegex := func(keywords []string) string {
-		if len(keywords) == 0 {
-			return "^.*$"
-		}
-		escaped := make([]string, 0, len(keywords))
-		for _, keyword := range keywords {
-			escaped = append(escaped, regexp.QuoteMeta(keyword))
-		}
-		return fmt.Sprintf("^(?!(%s)$).*$", strings.Join(escaped, "|"))
-	}
-
 	buyFirstKeywords := mergeKeywordLists(
 		collectKeywords(getNodeAttach("BuyFirstOCR")),
 		collectKeywords(getNodeAttach("BuyFirstOCR_CanNotAfford")),
 	)
-	blacklistKeywords := collectKeywords(getNodeAttach("BlacklistOCR"))
+	priority2Keywords := collectKeywords(getNodeAttach("Priority2OCR"))
+	priority3Keywords := collectKeywords(getNodeAttach("Priority3OCR"))
 
 	buyFirstExpected := buildWhitelistRegex(buyFirstKeywords)
-	blacklistExpected := buildBlacklistRegex(blacklistKeywords)
+	priority2Expected := buildWhitelistRegex(priority2Keywords)
+	priority3Expected := buildWhitelistRegex(priority3Keywords)
 
 	log.Debug().
 		Str("component", "CreditShopping").
 		Interface("buy_first_keywords", buyFirstKeywords).
-		Interface("blacklist_keywords", blacklistKeywords).
+		Interface("priority2_keywords", priority2Keywords).
+		Interface("priority3_keywords", priority3Keywords).
 		Str("buy_first_expected", buyFirstExpected).
-		Str("blacklist_expected", blacklistExpected).
+		Str("priority2_expected", priority2Expected).
+		Str("priority3_expected", priority3Expected).
 		Msg("merged keywords from attach")
 
 	overrideMap := map[string]interface{}{
@@ -158,8 +151,11 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		"BuyFirstOCR_CanNotAfford": map[string]interface{}{
 			"expected": buyFirstExpected,
 		},
-		"BlacklistOCR": map[string]interface{}{
-			"expected": blacklistExpected,
+		"Priority2OCR": map[string]interface{}{
+			"expected": priority2Expected,
+		},
+		"Priority3OCR": map[string]interface{}{
+			"expected": priority3Expected,
 		},
 	}
 

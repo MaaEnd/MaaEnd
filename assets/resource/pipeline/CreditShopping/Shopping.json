@@ -40,6 +40,7 @@
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyPriority3",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -71,6 +72,7 @@
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyPriority3",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -194,20 +196,22 @@
             "CreditIcon",
             "NotSoldOut",
             "CanNotAfford",
-            "BuyFirstOCR_CanNotAfford"
+            "BuyFirstOCR_CanNotAfford",
+            "IsDiscountPriority1_CanNotAfford"
         ],
-        "box_index": 3
+        "box_index": 4
     },
     "CreditShoppingBuyFirst": {
-        "desc": "优先购买（选项：白名单）",
+        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "BuyFirstOCR"
+            "BuyFirstOCR",
+            "IsDiscountPriority1"
         ],
-        "box_index": 3,
+        "box_index": 4,
         "action": "Click",
         "target_offset": [
             25,
@@ -227,8 +231,24 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "BlacklistOCR",
-            "IsDiscount"
+            "Priority2OCR",
+            "IsDiscountPriority2"
+        ],
+        "box_index": 4,
+        "action": "Click",
+        "next": [
+            "CreditShoppingBuyItem"
+        ]
+    },
+    "CreditShoppingBuyPriority3": {
+        "desc": "优先购买3（选项：优先白名单3、折扣设置）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "Priority3OCR",
+            "IsDiscountPriority3"
         ],
         "box_index": 4,
         "action": "Click",
@@ -237,7 +257,7 @@
         ]
     },
     "CreditShoppingBuyBlacklist": {
-        "desc": "忽略黑名单购买（选项：没有可购买物品时=购买黑名单物品）",
+        "desc": "强制购买剩余可购物品（选项：信用点低于刷新阈值后操作=购买黑名单物品）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
