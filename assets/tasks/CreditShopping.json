@@ -725,11 +725,14 @@
             "pipeline_override": {
                 "CreditShoppingPrudentRefresh": {
                     "recognition": {
+                        "type": "And",
                         "param": {
                             "all_of": [
                                 {
                                     "recognition": {
+                                        "type": "Custom",
                                         "param": {
+                                            "custom_recognition": "ExpressionRecognition",
                                             "custom_recognition_param": {
                                                 "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{PrudentRefreshThreshold}"
                                             }
@@ -738,16 +741,19 @@
                                 },
                                 {
                                     "recognition": {
+                                        "type": "And",
                                         "param": {
                                             "all_of": [
                                                 "CreditIcon",
                                                 "NotSoldOut",
                                                 "CanAfford"
-                                            ]
+                                            ],
+                                            "box_index": 2
                                         }
                                     }
                                 }
-                            ]
+                            ],
+                            "box_index": 1
                         }
                     }
                 }
