@@ -22,7 +22,7 @@
     "option": {
         "SelectFarm": {
             "type": "switch",
-            "label": "自定义要收的农场，关掉默认全收",
+            "label": "$task.AutoEcoFarm.option.SelectFarm.label",
             "default_case": "Yes",
             "cases": [
                 {
@@ -39,7 +39,7 @@
         },
         "GotoValleyIV": {
             "type": "switch",
-            "label": "四号谷地-源石研究园农场",
+            "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
             "default_case": "Yes",
             "cases": [
                 {
@@ -62,7 +62,7 @@
         },
         "GotoWulin": {
             "type": "switch",
-            "label": "武陵-武陵城农场",
+            "label": "$task.AutoEcoFarm.option.GotoWulin.label",
             "default_case": "Yes",
             "cases": [
                 {
