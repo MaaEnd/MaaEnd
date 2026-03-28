@@ -119,6 +119,7 @@
     "essencefilter.focus.finish.summary": "フィルタ完了。走査数: %d、ロック確定: %d。",
     "essencefilter.focus.finish.ext_future": "拡張ルール「将来有望」一致数: %d",
     "essencefilter.focus.finish.ext_practical": "拡張ルール「実用」一致数: %d",
+    "essencefilter.focus.plan.no_feasible_location_plans": "実行可能な地点プランがありません。未卒業武器リストのみ表示します。",
 
     "tasker.process_warning.title": "⚠️ 警告：ブラックリストのプロセスが実行中です",
     "tasker.process_warning.detected": "🔍 検出されたプロセス：",

@@ -119,6 +119,7 @@
     "essencefilter.focus.finish.summary": "篩選完成！共歷遍物品：%d，確認鎖定物品：%d",
     "essencefilter.focus.finish.ext_future": "擴展規則「未來可期」命中：%d 個",
     "essencefilter.focus.finish.ext_practical": "擴展規則「實用基質」命中：%d 個",
+    "essencefilter.focus.plan.no_feasible_location_plans": "當前沒有可行地點方案，僅顯示未畢業武器列表。",
 
     "tasker.process_warning.title": "⚠️ 警告：偵測到黑名單進程正在執行",
     "tasker.process_warning.detected": "🔍 偵測到的進程：",

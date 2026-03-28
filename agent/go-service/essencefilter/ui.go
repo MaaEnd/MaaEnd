@@ -340,7 +340,7 @@ func logCalculatorResult(ctx *maa.Context) {
 			Str("component", "EssenceFilter").
 			Str("step", "PlanRecommend").
 			Msg("skip recommend output: no feasible location plans")
-		return
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.no_feasible_location_plans"))
 	}
 	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.plan_recommend", map[string]any{
 		"UngraduatedCount":   len(ungraduated),
