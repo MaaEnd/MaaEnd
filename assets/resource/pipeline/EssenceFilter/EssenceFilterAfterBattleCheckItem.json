@@ -77,7 +77,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceAfterBattleYellowSlot1"
+            "EssenceFilterAfterBattleTierGateFlawless"
         ],
         "on_error": [
             "EssenceFilterAfterBattleRowNextItem"
@@ -111,13 +111,119 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceAfterBattleYellowSlot1"
+            "EssenceFilterAfterBattleTierGatePure"
         ],
         "on_error": [
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
+        }
+    },
+    "EssenceFilterAfterBattleTierGateFlawless": {
+        "desc": "Tier gate: flawless detected, check mode before proceeding",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterAfterBattleTierGateAction",
+                "custom_action_param": {
+                    "tier": "flawless"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceAfterBattleYellowSlot1"
+        ]
+    },
+    "EssenceFilterAfterBattleTierGatePure": {
+        "desc": "Tier gate: pure detected, check mode before proceeding",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterAfterBattleTierGateAction",
+                "custom_action_param": {
+                    "tier": "pure"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceAfterBattleYellowSlot1"
+        ]
+    },
+    "EssenceFilterAfterBattleTierBoundaryFlawlessNotice": {
+        "desc": "仅选无暇：战后检测到高纯基质，关闭详情后退出",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCloseDetailThenExit",
+            "EssenceFilterAfterBattleExit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_boundary_flawless"
+        }
+    },
+    "EssenceFilterAfterBattleCloseDetailThenExit": {
+        "desc": "关闭详情页后退出（边界停扫专用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleExit"
+        ]
+    },
+    "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {
+        "desc": "仅选高纯：战后检测到无暇基质，跳过",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_skip_pure_only"
         }
     },
     "EssenceAfterBattleYellowSlot1": {

@@ -1,4 +1,4 @@
-﻿{
+{
     "global.region.ValleyIV": "第4谷地 (Valley IV)",
     "global.region.Wuling": "武陵 (Wuling)",
     "global.region.OriginiumSciencePark": "源石研究パーク",
@@ -61,6 +61,9 @@
     "option.AutoPat.description": "荷役獣をなでなでします。自動拾得と併用するとさらに効果的。重複なでなでを判別できないため、なでなで後は素早く動物を変えることをお勧めします🐮",
     "task.EssenceFilter.label": "🔒基質フィルターロック",
     "task.EssenceFilter.description": "選択された武器レアリティに基づき、該当する全武器の基質をロックします。少なくとも1つ選択してください。",
+    "task.EssenceFilter.focus.tier_boundary_flawless": "純粋のみ選択中：清浄基質を検出したため、スキャンを停止します",
+    "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "純粋のみ選択中：清浄基質を検出したため、戦闘後フィルタを終了します",
+    "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "清浄のみ選択中：純粋基質をスキップします",
     "option.SelectInputLanguage.label": "ゲーム言語",
     "option.SelectInputLanguage.description": "ゲーム内表示言語と一致させてください（スキル名マッチング用）。OCR も同じ言語で。",
     "option.SelectInputLanguage.cases.CN.label": "简体中文",

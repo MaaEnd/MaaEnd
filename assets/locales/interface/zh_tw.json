@@ -1,4 +1,4 @@
-﻿{
+{
     "global.region.ValleyIV": "四號谷地",
     "global.region.Wuling": "武陵",
     "global.region.OriginiumSciencePark": "源石研究園",
@@ -61,6 +61,9 @@
     "option.AutoPat.description": "拍一拍馱獸，與自動拾取配合使用更佳。拍一拍無法識別是否重複拍過，建議在拍後迅速換🐮",
     "task.EssenceFilter.label": "🔒基質篩選鎖定",
     "task.EssenceFilter.description": "根據所選的武器稀有度，將鎖定所有符合条件武器的基質。請至少選擇一個稀有度。",
+    "task.EssenceFilter.focus.tier_boundary_flawless": "僅選擇無瑕基質：偵測到高純基質，停止掃描",
+    "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "僅選擇無瑕基質：偵測到高純基質，退出戰後篩選",
+    "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "僅選擇高純基質：跳過無瑕基質",
     "option.SelectInputLanguage.label": "遊戲語言",
     "option.SelectInputLanguage.description": "須與遊戲內介面語言一致，用於技能名匹配；OCR 辨識語言亦應與此一致。",
     "option.SelectInputLanguage.cases.CN.label": "簡體中文",

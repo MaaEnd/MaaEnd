@@ -40,6 +40,15 @@ type EssenceMeta struct {
 	Range ColorRange
 }
 
+// EssenceMode describes which essence tiers are selected for this run.
+type EssenceMode int
+
+const (
+	EssenceModeBoth         EssenceMode = iota // both flawless + pure selected
+	EssenceModeFlawlessOnly                    // only flawless selected; stop when pure encountered
+	EssenceModePureOnly                        // only pure selected; skip flawless until pure appears
+)
+
 // Global variables (data in db.go; runtime state in RunState; matcher config in config.go)
 var (
 	// Essence color matching parameters (defaults; per-run selection in RunState.EssenceTypes)
