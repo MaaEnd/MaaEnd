@@ -291,6 +291,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	st.PhysicalItemCount = len(results)
 
 	skipMarked := st.PipelineOpts.SkipLockedRow
+	boundaryHit := false
 
 	for _, res := range results {
 		tm, ok := res.AsTemplateMatch()
@@ -309,7 +310,6 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		colorMatched := false
 		for _, et := range st.EssenceTypes {
 			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
-				// 直接传递 roi 切片
 				"EssenceColorMatch": map[string]any{"roi": roi, "lower": et.Range.Lower, "upper": et.Range.Upper},
 			})
 			if err != nil {
@@ -318,6 +318,21 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			if cDetail != nil && cDetail.Hit {
 				colorMatched = true
 				break
+			}
+		}
+
+		// Flawless-only boundary: if box didn't match flawless, probe pure in the same pass.
+		// First pure hit means we've reached the tier boundary (inventory is sorted flawless-first).
+		if !colorMatched && !boundaryHit && st.EssenceMode == EssenceModeFlawlessOnly {
+			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
+				"EssenceColorMatch": map[string]any{
+					"roi":   roi,
+					"lower": PureEssenceMeta.Range.Lower,
+					"upper": PureEssenceMeta.Range.Upper,
+				},
+			})
+			if err == nil && cDetail != nil && cDetail.Hit {
+				boundaryHit = true
 			}
 		}
 
@@ -364,48 +379,17 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").Int("len_results", len(results)).Int("valid_boxes", len(st.RowBoxes)).Msg("color match done")
 
-	// Tier-boundary detection for flawless-only mode:
-	// If only flawless is selected, probe each physical box for pure color.
-	// Inventory is sorted flawless-first, so the first pure hit means all remaining are pure.
-	if st.EssenceMode == EssenceModeFlawlessOnly {
-		boundaryHit := false
-		for _, res := range results {
-			tm, ok := res.AsTemplateMatch()
-			if !ok {
-				continue
-			}
-			b := tm.Box
-			boxArr := [4]int{b.X(), b.Y(), b.Width(), b.Height()}
-			roiW := boxArr[2]
-			roiH := boxArr[3] - 90
-			if roiW <= 0 || roiH <= 0 {
-				continue
-			}
-			roi := maa.Rect{boxArr[0], boxArr[1] + 90, roiW, roiH}
-			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
-				"EssenceColorMatch": map[string]any{
-					"roi":   roi,
-					"lower": PureEssenceMeta.Range.Lower,
-					"upper": PureEssenceMeta.Range.Upper,
-				},
-			})
-			if err == nil && cDetail != nil && cDetail.Hit {
-				boundaryHit = true
-				break
-			}
-		}
-		if boundaryHit {
-			st.EncounteredTierBoundary = true
-			log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").
-				Msg("flawless-only: pure essence detected, tier boundary reached")
-			if len(st.RowBoxes) == 0 {
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
-				return true
-			}
-			st.RowIndex = 0
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+	if boundaryHit {
+		st.EncounteredTierBoundary = true
+		log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").
+			Msg("flawless-only: pure essence detected, tier boundary reached")
+		if len(st.RowBoxes) == 0 {
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
 			return true
 		}
+		st.RowIndex = 0
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+		return true
 	}
 
 	if skipMarked && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {

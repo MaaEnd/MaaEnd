@@ -29,7 +29,16 @@ func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.
 		Tier string `json:"tier"` // "flawless" or "pure"
 	}
 	if arg.CustomActionParam != "" {
-		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
+		if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+			log.Error().Str("component", "EssenceFilter").Str("action", "AfterBattleTierGate").
+				Err(err).Str("raw", arg.CustomActionParam).Msg("failed to parse custom_action_param")
+			return false
+		}
+	}
+	if params.Tier != "flawless" && params.Tier != "pure" {
+		log.Error().Str("component", "EssenceFilter").Str("action", "AfterBattleTierGate").
+			Str("tier", params.Tier).Msg("invalid or missing tier param, expected \"flawless\" or \"pure\"")
+		return false
 	}
 
 	switch st.EssenceMode {
