@@ -396,10 +396,10 @@
             "param": {
                 "roi": "EssenceAfterBattleYellowSlot3",
                 "roi_offset": [
-                    8,
+                    2,
                     -24,
-                    169,
-                    10
+                    175,
+                    12
                 ],
                 "expected": [
                     ".*"
