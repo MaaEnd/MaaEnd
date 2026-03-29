@@ -45,7 +45,9 @@
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductSkyKingFlatsSelectItem1",
-            "SellProductSelectNewGood2": "SellProductSkyKingFlatsSelectItem2"
+            "SellProductSelectNewGood2": "SellProductSkyKingFlatsSelectItem2",
+            "SellProductSelectNewGood3": "SellProductSkyKingFlatsSelectItem3",
+            "SellProductSelectNewGood4": "SellProductSkyKingFlatsSelectItem4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -158,6 +160,46 @@
     },
     "SellProductSkyKingFlatsSelectItem2": {
         "desc": "天王坪援建点售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectItem3": {
+        "desc": "天王坪援建点售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectItem4": {
+        "desc": "天王坪援建点售卖优先物品4",
         "enabled": false,
         "max_hit": 1,
         "recognition": "OCR",

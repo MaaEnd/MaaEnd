@@ -332,6 +332,8 @@
     "task.SellProduct.PriorityItemSwitch": "우선 상품 설정",
     "task.SellProduct.PriorityItem1": "우선 상품 1",
     "task.SellProduct.PriorityItem2": "우선 상품 2",
+    "task.SellProduct.PriorityItem3": "우선 상품 3",
+    "task.SellProduct.PriorityItem4": "우선 상품 4",
     "task.VisitFriends.label": "🤝 친구 방문",
     "task.VisitFriends.description": "친구를 방문하여 지원 및 정보 교환을 수행합니다.",
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 수령",

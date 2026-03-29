@@ -331,6 +331,8 @@
     "task.SellProduct.PriorityItemSwitch": "優先商品を設定",
     "task.SellProduct.PriorityItem1": "優先商品1",
     "task.SellProduct.PriorityItem2": "優先商品2",
+    "task.SellProduct.PriorityItem3": "優先商品3",
+    "task.SellProduct.PriorityItem4": "優先商品4",
     "task.SellProduct.TaskEnd": "販売タスクが完了しました",
     "task.VisitFriends.label": "🤝 フレンド訪問",
     "task.VisitFriends.description": "フレンドを訪問し、支援と情報交換を実行します。",

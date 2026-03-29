@@ -77,7 +77,9 @@
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductRefugeeCampSelectItem1",
-            "SellProductSelectNewGood2": "SellProductRefugeeCampSelectItem2"
+            "SellProductSelectNewGood2": "SellProductRefugeeCampSelectItem2",
+            "SellProductSelectNewGood3": "SellProductRefugeeCampSelectItem3",
+            "SellProductSelectNewGood4": "SellProductRefugeeCampSelectItem4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -97,7 +99,9 @@
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductInfrastructureOutpostSelectItem1",
-            "SellProductSelectNewGood2": "SellProductInfrastructureOutpostSelectItem2"
+            "SellProductSelectNewGood2": "SellProductInfrastructureOutpostSelectItem2",
+            "SellProductSelectNewGood3": "SellProductInfrastructureOutpostSelectItem3",
+            "SellProductSelectNewGood4": "SellProductInfrastructureOutpostSelectItem4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -117,7 +121,9 @@
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductReconstructionCommandSelectItem1",
-            "SellProductSelectNewGood2": "SellProductReconstructionCommandSelectItem2"
+            "SellProductSelectNewGood2": "SellProductReconstructionCommandSelectItem2",
+            "SellProductSelectNewGood3": "SellProductReconstructionCommandSelectItem3",
+            "SellProductSelectNewGood4": "SellProductReconstructionCommandSelectItem4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -470,6 +476,126 @@
     },
     "SellProductReconstructionCommandSelectItem2": {
         "desc": "重建指挥部售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductRefugeeCampSelectItem3": {
+        "desc": "难民暂居处售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductRefugeeCampSelectItem4": {
+        "desc": "难民暂居处售卖优先物品4",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectItem3": {
+        "desc": "基建前站售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectItem4": {
+        "desc": "基建前站售卖优先物品4",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionCommandSelectItem3": {
+        "desc": "重建指挥部售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionCommandSelectItem4": {
+        "desc": "重建指挥部售卖优先物品4",
         "enabled": false,
         "max_hit": 1,
         "recognition": "OCR",

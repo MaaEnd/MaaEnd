@@ -488,6 +488,8 @@
     "task.SellProduct.PriorityItemSwitch": "Set Priority Items",
     "task.SellProduct.PriorityItem1": "Priority Item 1",
     "task.SellProduct.PriorityItem2": "Priority Item 2",
+    "task.SellProduct.PriorityItem3": "Priority Item 3",
+    "task.SellProduct.PriorityItem4": "Priority Item 4",
     "task.VisitFriends.label": "🤝 Visit Friends",
     "task.VisitFriends.description": "Visit friends to perform support and intel exchange.",
     "task.ReceiveProdManual.label": "🌾 Claim Simple Crafting Manual Rewards",

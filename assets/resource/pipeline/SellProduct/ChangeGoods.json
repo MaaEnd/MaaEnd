@@ -115,6 +115,8 @@
         "next": [
             "[Anchor]SellProductSelectNewGood1",
             "[Anchor]SellProductSelectNewGood2",
+            "[Anchor]SellProductSelectNewGood3",
+            "[Anchor]SellProductSelectNewGood4",
             "SellProductSelectNextGood"
         ]
     },
@@ -130,6 +132,8 @@
         "next": [
             "[Anchor]SellProductSelectNewGood1",
             "[Anchor]SellProductSelectNewGood2",
+            "[Anchor]SellProductSelectNewGood3",
+            "[Anchor]SellProductSelectNewGood4",
             "SellProductSelectFirstGood"
         ]
     },
