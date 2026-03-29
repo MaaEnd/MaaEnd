@@ -89,9 +89,6 @@
             "AutoGetCredits",
             "CanNotFlash"
         ],
-        "next": [
-            "CreditShoppingNothingToBuy"
-        ],
         "focus": {
             "Node.Action.Succeeded": "$task.CreditShopping.refresh_no_credit"
         }
@@ -133,9 +130,6 @@
                 }
             }
         },
-        "next": [
-            "CreditShoppingNothingToBuy"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.reserve_credit_reached"
         }
