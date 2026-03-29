@@ -959,7 +959,10 @@
         "CreditShoppingPriority3Items": {
             "type": "checkbox",
             "label": "$option.CreditShoppingPriority3Items.label",
-            "default_case": [],
+            "default_case": [
+                "ArsenalTicket",
+                "Oroberyl"
+            ],
             "cases": [
                 {
                     "name": "ArsenalTicket",

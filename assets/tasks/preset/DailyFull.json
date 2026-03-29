@@ -31,7 +31,7 @@
                             "ArsenalTicket",
                             "Oroberyl"
                         ],
-                        "CreditShoppingPriority1DiscountValue": "Ignore",
+                        "CreditShoppingPriority1DiscountValue": "Any",
                         "CreditShoppingPriority2": "Yes",
                         "CreditShoppingPriority2Items": [
                             "ArsenalTicket",
