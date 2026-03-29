@@ -151,7 +151,6 @@
         ],
         "only_rec": true,
         "expected": "^\\d+$",
-        "only_rec": true,
         "color_filter": "CreditShoppingReserveCreditOCRInternalColor"
     },
     "CreditShoppingReserveCreditOCRInternalColor": {
