@@ -447,68 +447,8 @@
         "CreditShoppingPriority1DiscountValue": {
             "type": "select",
             "label": "$option.DiscountValue.label",
-            "default_case": "Ignore",
+            "default_case": "Any",
             "cases": [
-                {
-                    "name": "Ignore",
-                    "label": "$option.DiscountValue.cases.Ignore.label",
-                    "pipeline_override": {
-                        "IsDiscountPriority1": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BuyFirstOCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        0,
-                                        0,
-                                        0
-                                    ],
-                                    "upper": [
-                                        255,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        },
-                        "IsDiscountPriority1_CanNotAfford": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BuyFirstOCR_CanNotAfford",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        0,
-                                        0,
-                                        0
-                                    ],
-                                    "upper": [
-                                        255,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        }
-                    }
-                },
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
@@ -910,39 +850,6 @@
             "default_case": "-75%",
             "cases": [
                 {
-                    "name": "Ignore",
-                    "label": "$option.DiscountValue.cases.Ignore.label",
-                    "pipeline_override": {
-                        "IsDiscountPriority2": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority2OCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        0,
-                                        0,
-                                        0
-                                    ],
-                                    "upper": [
-                                        255,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
@@ -1283,41 +1190,8 @@
         "CreditShoppingPriority3DiscountValue": {
             "type": "select",
             "label": "$option.DiscountValue.label",
-            "default_case": "Ignore",
+            "default_case": "Any",
             "cases": [
-                {
-                    "name": "Ignore",
-                    "label": "$option.DiscountValue.cases.Ignore.label",
-                    "pipeline_override": {
-                        "IsDiscountPriority3": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority3OCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        0,
-                                        0,
-                                        0
-                                    ],
-                                    "upper": [
-                                        255,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        }
-                    }
-                },
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
