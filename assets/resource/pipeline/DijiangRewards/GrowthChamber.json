@@ -274,7 +274,7 @@
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckTargetEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
+                    "GrowthChamberCheckTargetNotEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
                 ],
                 "box_index": 1
             }
@@ -289,8 +289,55 @@
             "[JumpBack]GrowthChamberGrowConfirm",
             "GrowthChamberSeedExtract",
             "GrowthChamberGrowExit",
+            "GrowthChamberReturn",
+            "GrowthChamberGrowListEnd"
+        ]
+    },
+    "GrowthChamberGrowListEnd": {
+        "desc": "翻到种植列表最末尾",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberScrollEnd",
+                    "GrowthChamberBackButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "GrowthChamberReturn"
         ]
+    },
+    "GrowthChamberScrollEnd": {
+        "desc": "[培养舱·培养] 在选择对象界面已经滑动到最底部",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    377,
+                    549,
+                    30,
+                    24
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    1,
+                    175
+                ],
+                "upper": [
+                    0,
+                    3,
+                    201
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
     },
     "GrowthChamberGrowConfirm": {
         "desc": "[培养舱·培养] 点击确认开始培养",
@@ -330,6 +377,15 @@
                 ],
                 "box_index": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                64,
+                122,
+                407,
+                486
+            ]
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -462,35 +518,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GrowthChamberBackExtract"
-        ]
-    },
-    "GrowthChamberBackExtract": {
-        "desc": "[培养舱·基核] 在提取界面点击返回按钮",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GrowthChamberBackButton"
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "timeout": 1000,
-            "target": true
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GrowthChamberBackToMain"
+            "GrowthChamberGrowBack"
         ]
     },
     "GrowthChamberBackToMain": {

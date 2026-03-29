@@ -239,7 +239,7 @@
                                 "Wulingstone"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -273,7 +273,7 @@
                                 "Igneosite"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -309,7 +309,7 @@
                                 "岩天使葉"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -345,7 +345,7 @@
                                 "受蝕玉化葉"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -381,7 +381,7 @@
                                 "星門菌"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -416,7 +416,7 @@
                                 "血潮茸"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -451,7 +451,7 @@
                                 "重闇石"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -486,7 +486,7 @@
                                 "中闇石"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -522,7 +522,7 @@
                                 "輕黯石"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -558,7 +558,7 @@
                                 "至晶多齒葉"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -594,7 +594,7 @@
                                 "純晶多齒葉"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -630,7 +630,7 @@
                                 "晶華多齒葉"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -666,7 +666,7 @@
                                 "重紅柱狀菌"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -702,7 +702,7 @@
                                 "中紅柱狀菌"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -738,7 +738,7 @@
                                 "輕紅柱狀菌"
                             ]
                         },
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -772,7 +772,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "GrowthChamberCheckTargetEmpty": {
+                        "GrowthChamberCheckSeedNotEmpty": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -802,6 +802,16 @@
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "GrowthChamberCheckTargetNotEmpty": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "GrowthChamberCheckSeedNotEmpty"
+                                    ]
+                                }
+                            }
+                        },
                         "GrowthChamberSeedExtract": {
                             "enabled": false
                         },

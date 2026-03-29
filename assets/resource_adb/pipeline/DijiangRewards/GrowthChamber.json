@@ -94,5 +94,13 @@
                 ]
             }
         }
+    },
+    "GrowthChamberScrollEnd": {
+        "roi": [
+            470,
+            586,
+            37,
+            32
+        ]
     }
 }
