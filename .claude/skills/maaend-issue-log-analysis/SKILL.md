@@ -389,6 +389,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 Translate the complete conclusion directly into English and paste it here. Note that the English text is in `assets/locales/interface/en_us.json`.
 
 </details>
+
 ```
 
 ## Reminders
@@ -403,3 +404,4 @@ Translate the complete conclusion directly into English and paste it here. Note 
 - 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，用尖括号包裹，不要给本地路径加行号。
 - 如果日志和 issue 文字描述不一致，必须显式说明“证据未复现”还是“证据已复现但用户表述不精确”。
 - 如果证据表明问题已在新版本修复，明确建议用户升级；如果怀疑安装包、资源文件或配置损坏，明确建议重新下载或重建；如果判断为真实代码缺陷且暂无 workaround，明确建议等待开发者修复。
+```

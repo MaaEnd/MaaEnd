@@ -151,6 +151,7 @@
         ],
         "only_rec": true,
         "expected": "^\\d+$",
+        "only_rec": true,
         "color_filter": "CreditShoppingReserveCreditOCRInternalColor"
     },
     "CreditShoppingReserveCreditOCRInternalColor": {
@@ -280,7 +281,7 @@
                         "recognition": {
                             "type": "Custom",
                             "param": {
-                                "custom_recognition": "CreditShoppingReserveRecognition",
+                                "custom_recognition": "ExpressionRecognition",
                                 "custom_recognition_param": {
                                     "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
                                 }

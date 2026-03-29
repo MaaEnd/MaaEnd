@@ -119,6 +119,7 @@
     "essencefilter.focus.finish.summary": "필터링 완료! 탐색한 아이템: %d개, 잠금 확정 아이템: %d개",
     "essencefilter.focus.finish.ext_future": "확장 규칙 \"미래 유망\" 적중: %d개",
     "essencefilter.focus.finish.ext_practical": "확장 규칙 \"실용 기질\" 적중: %d개",
+    "essencefilter.focus.plan.no_feasible_location_plans": "가능한 지역 플랜이 없습니다. 미졸업 무기 목록만 표시합니다.",
 
     "tasker.process_warning.title": "⚠️ 경고: 블랙리스트 프로세스가 실행 중입니다",
     "tasker.process_warning.detected": "🔍 감지된 프로세스:",

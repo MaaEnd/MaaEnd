@@ -126,7 +126,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -184,7 +185,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -242,7 +244,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -300,7 +303,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }

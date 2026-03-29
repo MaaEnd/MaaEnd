@@ -14,7 +14,7 @@ The current implementation is located at:
 - Package-local registration: `agent/go-service/quantizedsliding/register.go`
 - go-service global registration entry: `agent/go-service/register.go`
 - Shared Pipeline: `assets/resource/pipeline/QuantizedSliding/Main.json` and `Helper.json`
-- Existing integration example: `assets/resource/pipeline/AutoStockpile/Task.json`
+- Existing integration example: `AutoStockpileSwipeSpecificQuantity` in `assets/resource/pipeline/AutoStockpile/Purchase.json`
 
 `agent/go-service/quantizedsliding/` is now split by responsibility:
 
@@ -309,7 +309,7 @@ See the actual usage currently in this repository:
 }
 ```
 
-File location: `assets/resource/pipeline/AutoStockpile/Task.json`
+File location: `assets/resource/pipeline/AutoStockpile/Purchase.json` (node: `AutoStockpileSwipeSpecificQuantity`)
 
 ## Success and failure conditions
 

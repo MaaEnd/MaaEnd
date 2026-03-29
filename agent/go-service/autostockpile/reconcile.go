@@ -14,14 +14,6 @@ type ReconcileDecisionAction struct{}
 
 var _ maa.CustomActionRunner = &ReconcileDecisionAction{}
 
-func enableDecisionReadyOverride(ctx *maa.Context) error {
-	return ctx.OverridePipeline(map[string]any{
-		"AutoStockpileRelayNodeDecisionReady": map[string]any{
-			"enabled": true,
-		},
-	})
-}
-
 func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
@@ -45,7 +37,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	ocrTexts := extractOCRTexts(arg.RecognitionDetail)
+	ocrTexts := ocrTextCandidates(arg.RecognitionDetail, ocrTextPolicyBestOnly)
 	if len(ocrTexts) == 0 {
 		log.Error().
 			Str("component", "autostockpile").
@@ -54,8 +46,8 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 
 	priceText := ""
-	for _, text := range ocrTexts {
-		if match := priceRe.FindStringSubmatch(text); len(match) == 2 {
+	for _, ocrText := range ocrTexts {
+		if match := priceRe.FindStringSubmatch(ocrText); len(match) == 2 {
 			priceText = match[1]
 			break
 		}
@@ -63,7 +55,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	if priceText == "" {
 		log.Error().
 			Str("component", "autostockpile").
-			Str("ocr_texts", strings.Join(ocrTexts, ",")).
+			Strs("ocr_texts", ocrTexts).
 			Msg("failed to extract reconcile price text from recognition detail")
 		return false
 	}

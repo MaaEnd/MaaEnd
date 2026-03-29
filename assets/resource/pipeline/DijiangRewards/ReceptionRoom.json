@@ -245,7 +245,8 @@
                     "已达自有线索库容量上限",
                     "已達自有線索庫容量上限",
                     "Local clue library is full"
-                ]
+                ],
+                "color_filter": "ReceptionRoomSendCluesClueCollectionFullColor"
             }
         },
         "pre_delay": 0,
@@ -254,6 +255,23 @@
         "next": [
             "ReceptionRoomSendCluesClueCollectionFullClose"
         ]
+    },
+    "ReceptionRoomSendCluesClueCollectionFullColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    245,
+                    0,
+                    0
+                ],
+                "upper": [
+                    255,
+                    100,
+                    100
+                ]
+            }
+        }
     },
     "ReceptionRoomSendCluesClueCollectionFullClose": {
         "desc": "[会客室·赠送线索] 关闭线索收集侧边栏",

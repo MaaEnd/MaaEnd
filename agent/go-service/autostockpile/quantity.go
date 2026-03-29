@@ -1,12 +1,9 @@
 package autostockpile
 
 import (
-	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -138,36 +135,6 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 	}
 }
 
-func buildSelectionPipelineOverride(ctx *maa.Context, selection SelectionResult, decision quantityDecision) (map[string]any, error) {
-	override := map[string]any{
-		"AutoStockpileRelayNodeDecisionReady": map[string]any{
-			"enabled": false,
-		},
-		selectedGoodsClickNodeName: map[string]any{
-			"enabled":  true,
-			"template": []string{BuildTemplatePath(selection.ProductID)},
-		},
-		swipeMaxNodeName: map[string]any{
-			"enabled": decision.Mode == quantityModeSwipeMax,
-		},
-	}
-
-	if decision.Mode != quantityModeSwipeSpecificQuantity {
-		override[swipeSpecificQuantityNodeName] = map[string]any{
-			"enabled": false,
-		}
-		return override, nil
-	}
-
-	customActionParam, err := loadSwipeSpecificQuantityCustomActionParam(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	override[swipeSpecificQuantityNodeName] = buildSwipeSpecificQuantityOverride(customActionParam, decision.Target)
-	return override, nil
-}
-
 func formatQuantityText(decision quantityDecision) string {
 	switch decision.Mode {
 	case quantityModeSwipeMax:
@@ -176,63 +143,5 @@ func formatQuantityText(decision quantityDecision) string {
 		return strconv.Itoa(decision.Target)
 	default:
 		return decision.Reason
-	}
-}
-
-func loadSwipeSpecificQuantityCustomActionParam(ctx *maa.Context) (map[string]any, error) {
-	if ctx == nil {
-		return nil, fmt.Errorf("context is nil")
-	}
-
-	node, err := ctx.GetNode(swipeSpecificQuantityNodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	if node.Action == nil {
-		return nil, fmt.Errorf("node %s missing action", swipeSpecificQuantityNodeName)
-	}
-
-	param, ok := node.Action.Param.(*maa.CustomActionParam)
-	if !ok || param == nil {
-		return nil, fmt.Errorf("node %s action param type %T is not *maa.CustomActionParam", swipeSpecificQuantityNodeName, node.Action.Param)
-	}
-
-	return normalizeCustomActionParam(param.CustomActionParam)
-}
-
-func buildSwipeSpecificQuantityOverride(customActionParam map[string]any, target int) map[string]any {
-	clonedParam := make(map[string]any, len(customActionParam))
-	for key, item := range customActionParam {
-		clonedParam[key] = item
-	}
-	clonedParam["Target"] = target
-
-	return map[string]any{
-		"enabled": true,
-		"action": map[string]any{
-			"param": map[string]any{
-				"custom_action_param": clonedParam,
-			},
-		},
-	}
-}
-
-func normalizeCustomActionParam(raw any) (map[string]any, error) {
-	switch value := raw.(type) {
-	case map[string]any:
-		cloned := make(map[string]any, len(value))
-		for key, item := range value {
-			cloned[key] = item
-		}
-		return cloned, nil
-	case string:
-		var nested any
-		if err := json.Unmarshal([]byte(value), &nested); err != nil {
-			return nil, err
-		}
-		return normalizeCustomActionParam(nested)
-	default:
-		return nil, fmt.Errorf("unsupported custom_action_param type %T", raw)
 	}
 }

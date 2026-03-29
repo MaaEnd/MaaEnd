@@ -9,6 +9,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "SelectFarm",
                 "FarmlandFindingScheme",
                 "AutoEcoFarmClearBagBeforeTasks",
                 "AutoEcoFarmClearBagAfterTasks"
@@ -19,9 +20,73 @@
         }
     ],
     "option": {
+        "SelectFarm": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.SelectFarm.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "GotoValleyIV",
+                        "GotoWulin"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "GotoValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
+                            "enable": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
+                            "enable": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GotoWulin": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.GotoWulin.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoWulinEcoFarmStart": {
+                            "enable": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoWulinEcoFarmStart": {
+                            "enable": false
+                        }
+                    }
+                }
+            ]
+        },
         "FarmlandFindingScheme": {
             "type": "select",
             "label": "$task.AutoEcoFarm.option.FarmlandFindingScheme.label",
+            "description": "$task.AutoEcoFarm.option.FarmlandFindingScheme.description",
             "default_case": "Center",
             "cases": [
                 {
