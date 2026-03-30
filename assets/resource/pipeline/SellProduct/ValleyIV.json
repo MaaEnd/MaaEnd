@@ -74,6 +74,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood",
             "SellProductSellAttempt1": "SellProductRefugeeCampSellAttempt1",
             "SellProductSellAttempt2": "SellProductRefugeeCampSellAttempt2",
             "SellProductSellAttempt3": "SellProductRefugeeCampSellAttempt3",
@@ -82,7 +83,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellAttempts"
+            "SellProductSellLoop"
         ]
     },
     "SellProductInfrastructureOutpostSell": {
@@ -94,6 +95,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood",
             "SellProductSellAttempt1": "SellProductInfrastructureOutpostSellAttempt1",
             "SellProductSellAttempt2": "SellProductInfrastructureOutpostSellAttempt2",
             "SellProductSellAttempt3": "SellProductInfrastructureOutpostSellAttempt3",
@@ -102,7 +104,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellAttempts"
+            "SellProductSellLoop"
         ]
     },
     "SellProductReconstructionCommandSell": {
@@ -114,6 +116,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood",
             "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
             "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
             "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
@@ -122,49 +125,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellAttempts"
-        ]
-    },
-    "SellProductRefugeeCampZeroProductTryChangeGoods": {
-        "desc": "难民暂居处缺货时尝试更换一次货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    "SellProductInfrastructureOutpostZeroProductTryChangeGoods": {
-        "desc": "基建前站缺货时尝试更换一次货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    "SellProductReconstructionCommandZeroProductTryChangeGoods": {
-        "desc": "重建指挥部缺货时尝试更换一次货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoods"
+            "SellProductSellLoop"
         ]
     },
     "SellProductInRefugeeCamp": {
@@ -451,6 +412,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -470,6 +434,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -561,6 +528,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -580,6 +550,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -671,6 +644,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -690,6 +666,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -709,6 +688,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -728,6 +710,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -747,6 +732,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -766,6 +754,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -785,6 +776,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -804,6 +798,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,

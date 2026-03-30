@@ -1,44 +1,4 @@
 {
-    "SellProductCheckSelectGoodsText": {
-        "desc": "检查选择交易货品的文本",
-        "recognition": "OCR",
-        "roi": [
-            51,
-            53,
-            366,
-            118
-        ],
-        "expected": [
-            "选择交易货品",
-            "選擇交易貨品",
-            "(?i)Select\\s*Goods\\s*to\\s*Trade",
-            "取引商品を選択",
-            "거래할 상품 선택"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProductCheckNextGoodsText": {
-        "desc": "检查下一个货品的文本",
-        "recognition": "OCR",
-        "roi": [
-            511,
-            180,
-            274,
-            83
-        ],
-        "expected": [
-            "本地仓储",
-            "本地區倉儲",
-            "(?i)Local\\s*Depot",
-            "地域在庫",
-            "지역 저장고"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "SellProductChangeGoods": {
         "desc": "识别更换货品并点击，进入更换界面，优先选择配置的货品，否则选择下一个货品",
         "recognition": "OCR",
@@ -85,7 +45,7 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]SellProductSelectNewGood",
-            "SellProductSelectNextGood"
+            "[Anchor]SellProductSelectDefaultGood"
         ]
     },
     "SellProductSelectFirstGood": {
@@ -102,6 +62,9 @@
         ],
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -137,5 +100,45 @@
         "next": [
             "SellProductAtSell"
         ]
+    },
+    "SellProductCheckSelectGoodsText": {
+        "desc": "检查选择交易货品的文本",
+        "recognition": "OCR",
+        "roi": [
+            51,
+            53,
+            366,
+            118
+        ],
+        "expected": [
+            "选择交易货品",
+            "選擇交易貨品",
+            "(?i)Select\\s*Goods\\s*to\\s*Trade",
+            "取引商品を選択",
+            "거래할 상품 선택"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCheckNextGoodsText": {
+        "desc": "检查下一个货品的文本",
+        "recognition": "OCR",
+        "roi": [
+            511,
+            180,
+            274,
+            83
+        ],
+        "expected": [
+            "本地仓储",
+            "本地區倉儲",
+            "(?i)Local\\s*Depot",
+            "地域在庫",
+            "지역 저장고"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

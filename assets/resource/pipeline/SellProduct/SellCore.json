@@ -1,4 +1,21 @@
 {
+    "SellProductSellLoop": {
+        "desc": "售卖循环，按优先级依次换货并尝试售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductSellAttempt1",
+            "[Anchor]SellProductSellAttempt2",
+            "[Anchor]SellProductSellAttempt3",
+            "[Anchor]SellProductSellAttempt4",
+            "SellProductSellLoopEnd"
+        ]
+    },
     "SellProductAtSell": {
         "desc": "货品已换好，检查货物库存并尝试售卖",
         "recognition": "And",
@@ -14,23 +31,6 @@
             "SellProductNeedSelectGoodsTryChangeGoods",
             "SellProductClickBarRight",
             "SellProductDragBar"
-        ]
-    },
-    "SellProductSellAttempts": {
-        "desc": "按优先级依次换货并尝试售卖",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]SellProductSellAttempt1",
-            "[Anchor]SellProductSellAttempt2",
-            "[Anchor]SellProductSellAttempt3",
-            "[Anchor]SellProductSellAttempt4",
-            "SellProductSellAttemptsEnd"
         ]
     },
     "SellProductZeroProductColorMatch": {
@@ -117,7 +117,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellAttempts"
+            "SellProductSellLoop"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
@@ -297,8 +297,8 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
-    "SellProductSellAttemptsEnd": {
-        "desc": "尝试售卖配置已全部完成",
+    "SellProductSellLoopEnd": {
+        "desc": "售卖循环结束，所有售卖尝试完成",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

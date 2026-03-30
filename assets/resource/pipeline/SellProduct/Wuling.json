@@ -42,6 +42,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood",
             "SellProductSellAttempt1": "SellProductSkyKingFlatsSellAttempt1",
             "SellProductSellAttempt2": "SellProductSkyKingFlatsSellAttempt2",
             "SellProductSellAttempt3": "SellProductSkyKingFlatsSellAttempt3",
@@ -50,21 +51,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellAttempts"
-        ]
-    },
-    "SellProductSkyKingFlatsZeroProductTryChangeGoods": {
-        "desc": "天王坪援建点缺货时尝试更换一次货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoods"
+            "SellProductSellLoop"
         ]
     },
     "SellProductInSkyKingFlats": {
@@ -219,6 +206,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -238,6 +228,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -257,6 +250,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -276,6 +272,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
