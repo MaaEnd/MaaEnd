@@ -207,7 +207,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
         },
         "pre_delay": 0,
         "action": "Click",
@@ -251,7 +251,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
         },
         "pre_delay": 0,
         "action": "Click",
@@ -273,7 +273,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectFirstGood"
+            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
         },
         "pre_delay": 0,
         "action": "Click",
