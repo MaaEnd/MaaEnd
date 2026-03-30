@@ -83,6 +83,18 @@
             }
         }
     },
+    "GrowthChamberSelectTarget": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    109,
+                    122,
+                    364,
+                    395
+                ]
+            }
+        }
+    },
     "GrowthChamberSortOrder": {
         "recognition": {
             "param": {
