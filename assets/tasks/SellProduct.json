@@ -75,8 +75,9 @@
         },
         "ValleyIVRefugeeCampAttempt1": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -101,8 +102,9 @@
         },
         "ValleyIVRefugeeCampAttempt2": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt2",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -127,7 +129,8 @@
         },
         "ValleyIVRefugeeCampAttempt3": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -153,7 +156,8 @@
         },
         "ValleyIVRefugeeCampAttempt4": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -972,8 +976,9 @@
         },
         "ValleyIVInfrastructureOutpostAttempt1": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -998,8 +1003,9 @@
         },
         "ValleyIVInfrastructureOutpostAttempt2": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt2",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -1024,7 +1030,8 @@
         },
         "ValleyIVInfrastructureOutpostAttempt3": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -1050,7 +1057,8 @@
         },
         "ValleyIVInfrastructureOutpostAttempt4": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -1741,8 +1749,9 @@
         },
         "ValleyIVReconstructionCommandAttempt1": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -1767,8 +1776,9 @@
         },
         "ValleyIVReconstructionCommandAttempt2": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt2",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -1793,7 +1803,8 @@
         },
         "ValleyIVReconstructionCommandAttempt3": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -1819,7 +1830,8 @@
         },
         "ValleyIVReconstructionCommandAttempt4": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -2473,8 +2485,9 @@
         },
         "WulingSkyKingFlatsAttempt1": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -2499,8 +2512,9 @@
         },
         "WulingSkyKingFlatsAttempt2": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
-            "default_case": "No",
+            "label": "$task.SellProduct.SellAttempt2",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -2525,7 +2539,8 @@
         },
         "WulingSkyKingFlatsAttempt3": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
@@ -2551,7 +2566,8 @@
         },
         "WulingSkyKingFlatsAttempt4": {
             "type": "switch",
-            "label": "$task.SellProduct.PriorityItemSwitch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "description": "$task.SellProduct.SellAttemptDescription",
             "default_case": "No",
             "cases": [
                 {
