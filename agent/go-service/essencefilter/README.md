@@ -21,7 +21,7 @@
 ## 数据流概要
 
 1. **Init**：读资源路径 → 按 `attach.input_language`（仅 `CN|TC|EN|JP|KR`，非法值回退 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
-2. **运行中**：Pipeline 依次调用 RowCollect（收集本行格子并 ColorMatch；若开启 `skip_locked_row` 则对缩略图跑 `EssenceThumbMarked`，已标记格不进入本行列表）→ RowNextItem（点击下一格）→ CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。
+2. **运行中**：Pipeline 依次调用 RowCollect（收集本行格子并 ColorMatch；按 `skip_thumb_lock` / `skip_thumb_discard` 对缩略图跑 `EssenceThumbMarked`（双开）或 `EssenceThumbLock` / `EssenceThumbDiscard`（单开），命中则从本行待处理列表排除）→ RowNextItem（点击下一格）→ CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。旧 attach 仅含 `skip_locked_row` 时仍兼容，会同时映射到两个布尔值。
 3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案 → `setRunState(nil)`。
 
 所有运行时可变状态集中在 `RunState`，由 Init 分配、Finish 清空；匹配数据由 `matchapi.Engine` 管理与缓存。

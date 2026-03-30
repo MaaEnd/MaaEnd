@@ -49,6 +49,10 @@ type RunState struct {
 
 	// Essence types selected for this run (e.g. Flawless, Pure)
 	EssenceTypes []EssenceMeta
+	// EssenceMode derived from selection: flawless_only / pure_only / both
+	EssenceMode EssenceMode
+	// EncounteredTierBoundary is set when flawless-only mode encounters pure (inventory scan should stop)
+	EncounteredTierBoundary bool
 
 	// PipelineOpts is a copy of EssenceFilterInit attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
@@ -81,7 +85,8 @@ func (s *RunState) Reset() {
 	s.PhysicalItemCount = 0
 	s.PipelineOpts = EssenceFilterOptions{}
 	s.InputLanguage = ""
-	// EssenceTypes is set by Init from options, not cleared here
+	s.EncounteredTierBoundary = false
+	// EssenceTypes and EssenceMode are set by Init from options, not cleared here
 }
 
 // getRunState returns the current run state. Returns nil if no run is active.

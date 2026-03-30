@@ -21,6 +21,8 @@
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.hit_but_skip": "상품이 일치했지만 최종적으로 구매하지 않습니다 (%s)",
     "autostockpile.product_selected": "【%s】%s (가격 %d, 임계값 %d, 수량 %s)",
+    "autostockpile.reconcile_price_corrected": "가격 인식 오류를 감지했습니다(%d -> %d). 다시 선택하는 중입니다",
+    "autostockpile.reconcile_decision_unchanged": "결정이 바뀌지 않아 계속 진행합니다",
     "autostockpile.recognition_early_end": "인식 단계가 조기 종료되었습니다",
     "autostockpile.hit_skip_purchase": "상품이 일치했지만 최종 구매를 건너뜁니다",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
@@ -45,8 +47,9 @@
     "autostockpile.abort.GoodsOCRUnavailableWarn": "상품 OCR 결과를 사용할 수 없습니다",
     "autostockpile.abort.GoodsTierInvalidFatal": "상품 등급 인식 결과가 잘못되었습니다",
     "autostockpile.abort.None": "없음",
-    "autostockpile.abort.InsufficientFunds": "조달권이 지정 수량보다 적습니다",
-    "autostockpile.abort.QuotaZero": "남은 구매 가능 수량이 0입니다",
+    "autostockpile.abort.InsufficientFundsSkip": "조달권이 지정 수량보다 적습니다",
+    "autostockpile.abort.QuotaZeroSkip": "남은 구매 가능 수량이 0입니다",
+    "autostockpile.abort.QuotaUnavailableWarn": "남은 구매 가능 수량 인식에 실패했습니다",
     "autostockpile.abort.RegionResolveFailedFatal": "현재 거점 구역을 확인할 수 없습니다",
     "autostockpile.abort.SelectionConfigInvalidFatal": "구매 설정을 읽지 못했습니다",
     "autostockpile.abort.StockBillUnavailableWarn": "조달권 수량 인식에 실패했습니다",
@@ -116,6 +119,7 @@
     "essencefilter.focus.finish.summary": "필터링 완료! 탐색한 아이템: %d개, 잠금 확정 아이템: %d개",
     "essencefilter.focus.finish.ext_future": "확장 규칙 \"미래 유망\" 적중: %d개",
     "essencefilter.focus.finish.ext_practical": "확장 규칙 \"실용 기질\" 적중: %d개",
+    "essencefilter.focus.plan.no_feasible_location_plans": "가능한 지역 플랜이 없습니다. 미졸업 무기 목록만 표시합니다.",
 
     "tasker.process_warning.title": "⚠️ 경고: 블랙리스트 프로세스가 실행 중입니다",
     "tasker.process_warning.detected": "🔍 감지된 프로세스:",
@@ -134,7 +138,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도 비율이 맞지 않습니다! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 작업이 강제로 중지되었습니다",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd는 현재 <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 비율만</span> 지원합니다.",
+    "tasker.aspect_ratio_warning.desc": "💡 전체 화면은 16:9 모니터만 지원합니다. 창 모드에서는 해상도를 수동으로 16:9로 설정할 수 있습니다.",
     "tasker.aspect_ratio_warning.recommend_title": "👇 해상도를 다음으로 조정해 주세요:",
     "tasker.aspect_ratio_warning.future": "🚀 앞으로 더 많은 비율을 지원할 예정입니다. 기대해 주세요!",
 

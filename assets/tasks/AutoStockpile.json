@@ -30,7 +30,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileDecision": {
+                        "AutoStockpileDecisionAttach": {
                             "attach": {
                                 "overflow_mode": true
                             }
@@ -50,7 +50,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileDecision": {
+                        "AutoStockpileDecisionAttach": {
                             "attach": {
                                 "sunday_mode": true
                             }
@@ -112,7 +112,7 @@
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileDecision": {
+                "AutoStockpileDecisionAttach": {
                     "attach": {
                         "price_limits_ValleyIV.Tier1": "{ValleyIVTier1PriceLimit}",
                         "price_limits_ValleyIV.Tier2": "{ValleyIVTier2PriceLimit}",
@@ -151,7 +151,7 @@
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileDecision": {
+                "AutoStockpileDecisionAttach": {
                     "attach": {
                         "reserve_stock_bill_ValleyIV": "{ValleyIVReserveStockBillAmount}"
                     }
@@ -201,7 +201,7 @@
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileDecision": {
+                "AutoStockpileDecisionAttach": {
                     "attach": {
                         "price_limits_Wuling.Tier1": "{WulingTier1PriceLimit}",
                         "price_limits_Wuling.Tier2": "{WulingTier2PriceLimit}"
@@ -239,7 +239,7 @@
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileDecision": {
+                "AutoStockpileDecisionAttach": {
                     "attach": {
                         "reserve_stock_bill_Wuling": "{WulingReserveStockBillAmount}"
                     }

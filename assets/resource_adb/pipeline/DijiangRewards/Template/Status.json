@@ -1,0 +1,18 @@
+{
+    "GrowthChamberCheckSeedNotEmpty": {
+        "roi_offset": [
+            43,
+            54,
+            9,
+            1
+        ]
+    },
+    "GrowthChamberCheckPlantNotEmpty": {
+        "roi_offset": [
+            -84,
+            57,
+            31,
+            0
+        ]
+    }
+}

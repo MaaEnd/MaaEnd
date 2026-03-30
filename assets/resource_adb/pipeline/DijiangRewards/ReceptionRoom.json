@@ -1,28 +1,4 @@
 {
-    "ReceptionRoomReceiveExit": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
-    "ReceptionRoomSendExit": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
-    "ReceptionRoomCollectCluesExit": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "ReceptionRoomSendCluesClueCollectionFullClose": {
         "action": {
             "type": "ClickKey",

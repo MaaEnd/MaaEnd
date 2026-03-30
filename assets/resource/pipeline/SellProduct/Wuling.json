@@ -14,7 +14,8 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
-            "SellProductSellAreaFinish"
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "SellProductSkyKingFlats": {
@@ -40,30 +41,17 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
-            "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectNewGood1": "SellProductSkyKingFlatsSelectItem1",
-            "SellProductSelectNewGood2": "SellProductSkyKingFlatsSelectItem2"
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProductSkyKingFlatsSellAttempt1",
+            "SellProductSellAttempt2": "SellProductSkyKingFlatsSellAttempt2",
+            "SellProductSellAttempt3": "SellProductSkyKingFlatsSellAttempt3",
+            "SellProductSellAttempt4": "SellProductSkyKingFlatsSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
-        ]
-    },
-    "SellProductSkyKingFlatsZeroProductTryChangeGoods": {
-        "desc": "天王坪援建点缺货时尝试更换一次货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoods"
+            "SellProductSellLoop"
         ]
     },
     "SellProductInSkyKingFlats": {
@@ -135,10 +123,81 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "SellProductSkyKingFlatsSellAttempt1": {
+        "desc": "天王坪援建点第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt2": {
+        "desc": "天王坪援建点第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt3": {
+        "desc": "天王坪援建点第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt4": {
+        "desc": "天王坪援建点第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
     "SellProductSkyKingFlatsSelectItem1": {
         "desc": "天王坪援建点售卖优先物品1",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -147,6 +206,9 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -158,7 +220,6 @@
     "SellProductSkyKingFlatsSelectItem2": {
         "desc": "天王坪援建点售卖优先物品2",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -167,6 +228,53 @@
             518
         ],
         "expected": [],
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectItem3": {
+        "desc": "天王坪援建点售卖优先物品3",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectItem4": {
+        "desc": "天王坪援建点售卖优先物品4",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,

@@ -57,6 +57,7 @@
         "recognition": "And",
         "all_of": [
             {
+                "sub_name": "icon",
                 "recognition": "TemplateMatch",
                 "roi": [
                     -230,
@@ -65,8 +66,7 @@
                     130
                 ],
                 "template": "VisitFriends/AssistCountIcon.png",
-                "threshold": 0.9,
-                "sub_name": "icon"
+                "threshold": 0.9
             },
             {
                 "recognition": "OCR",
@@ -90,6 +90,7 @@
         "recognition": "And",
         "all_of": [
             {
+                "sub_name": "icon",
                 "recognition": "TemplateMatch",
                 "roi": [
                     -230,
@@ -98,8 +99,7 @@
                     130
                 ],
                 "template": "VisitFriends/ClueExchangeCountIcon.png",
-                "threshold": 0.9,
-                "sub_name": "icon"
+                "threshold": 0.9
             },
             {
                 "recognition": "OCR",

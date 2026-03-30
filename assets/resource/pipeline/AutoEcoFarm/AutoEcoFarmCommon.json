@@ -22,7 +22,7 @@
             "_AutoEcoFarmMoveToTargetErr1"
         ],
         "focus": {
-            "Node.Action.Failed": "出现异常情况，脚本提前中止"
+            "Node.Action.Starting": "出现异常情况，脚本提前中止"
         }
     },
     "_AutoEcoFarmMoveToTargetErrFindTarget": {
@@ -31,7 +31,7 @@
             "_AutoEcoFarmMoveToTargetErr1"
         ],
         "focus": {
-            "Node.Recognition.Failed": "在识别标记时出现异常情况，脚本提前中止"
+            "Node.Action.Starting": "在识别标记时出现异常情况，脚本提前中止"
         }
     },
     "_AutoEcoFarmMoveToTargetErr1": {
@@ -42,7 +42,9 @@
                 "key": 87 //w键
             }
         },
-        "next": []
+        "next": [
+            "_AutoEcoFarmMoveToTargetErr2"
+        ]
     },
     "_AutoEcoFarmMoveToTargetErr2": {
         "desc": "恢复跑步模式，方式是按一下shift",

@@ -21,6 +21,8 @@
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最终不购买（%s）",
     "autostockpile.product_selected": "【%s】%s (价格 %d, 阈值 %d, 数量 %s)",
+    "autostockpile.reconcile_price_corrected": "检测到价格识别错误 (%d -> %d)，正在重新选择",
+    "autostockpile.reconcile_decision_unchanged": "决策未变化，继续执行",
     "autostockpile.recognition_early_end": "识别阶段提前结束",
     "autostockpile.hit_skip_purchase": "已命中商品，但最终跳过购买",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
@@ -41,12 +43,12 @@
     "autostockpile.qty_overflow_buy": "按防溢出数量购买",
     "autostockpile.qty_overflow_reserve_zero": "保留调度券限制后防溢出购买数量为 0",
     "autostockpile.qty_overflow_reserve_limited": "保留调度券限制防溢出购买数量",
-
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品识别结果不可用",
     "autostockpile.abort.GoodsTierInvalidFatal": "商品档位识别结果无效",
     "autostockpile.abort.None": "无",
-    "autostockpile.abort.InsufficientFunds": "调度券低于指定数量",
-    "autostockpile.abort.QuotaZero": "剩余可购买数量为0",
+    "autostockpile.abort.InsufficientFundsSkip": "调度券低于指定数量",
+    "autostockpile.abort.QuotaZeroSkip": "剩余可购买数量为0",
+    "autostockpile.abort.QuotaUnavailableWarn": "剩余可购买数量识别失败",
     "autostockpile.abort.RegionResolveFailedFatal": "无法确定当前据点区域",
     "autostockpile.abort.SelectionConfigInvalidFatal": "购买配置读取失败",
     "autostockpile.abort.StockBillUnavailableWarn": "调度券数量识别失败",
@@ -116,6 +118,7 @@
     "essencefilter.focus.finish.summary": "筛选完成！共历遍物品：%d，确认锁定物品：%d",
     "essencefilter.focus.finish.ext_future": "扩展规则「未来可期」命中：%d 个",
     "essencefilter.focus.finish.ext_practical": "扩展规则「实用基质」命中：%d 个",
+    "essencefilter.focus.plan.no_feasible_location_plans": "当前没有可行地点方案，仅展示未毕业武器列表。",
 
     "tasker.process_warning.title": "⚠️ 警告：检测到黑名单进程正在运行",
     "tasker.process_warning.detected": "🔍 检测到的进程：",
@@ -134,7 +137,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 警告：分辨率比例不匹配！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任务已强制停止",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd 目前 <span style=\"text-decoration: underline; font-size: 1.1em;\">仅支持 16:9</span> 比例。",
+    "tasker.aspect_ratio_warning.desc": "💡 全屏模式仅支持 16:9 显示器；窗口化模式下可将分辨率手动设为 16:9。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 请将分辨率调整为：",
     "tasker.aspect_ratio_warning.future": "🚀 未来将适配更多比例，敬请期待！",
 

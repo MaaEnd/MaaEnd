@@ -18,7 +18,8 @@
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
-            "DeliveryJobsTaskFinish"
+            "DeliveryJobsLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "DeliveryJobsInWulingLocalDepotNode": {

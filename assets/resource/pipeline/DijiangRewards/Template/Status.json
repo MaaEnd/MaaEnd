@@ -154,6 +154,11 @@
                         100
                     ],
                     [
+                        35,
+                        150,
+                        165
+                    ],
+                    [
                         170,
                         100,
                         100
@@ -164,6 +169,11 @@
                         39,
                         255,
                         200
+                    ],
+                    [
+                        40,
+                        170,
+                        185
                     ],
                     [
                         180,
@@ -249,8 +259,19 @@
             }
         }
     },
-    "GrowthChamberCheckTargetEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
+    "GrowthChamberCheckTargetNotEmpty": {
+        "desc": "[培养舱·培养] 检查当前培养对象基核数量和本体数量是否足够",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GrowthChamberCheckSeedNotEmpty",
+                    "GrowthChamberCheckPlantNotEmpty"
+                ]
+            }
+        }
+    },
+    "GrowthChamberCheckSeedNotEmpty": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -260,6 +281,25 @@
                     41,
                     23,
                     0
+                ],
+                "expected": [
+                    "^[^0].*$"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GrowthChamberCheckPlantNotEmpty": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrowthChamberSelectTarget",
+                "roi_offset": [
+                    -69,
+                    43,
+                    28,
+                    2
                 ],
                 "expected": [
                     "^[^0].*$"

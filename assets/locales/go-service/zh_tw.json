@@ -21,6 +21,8 @@
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最終不購買（%s）",
     "autostockpile.product_selected": "【%s】%s (價格 %d, 閾值 %d, 數量 %s)",
+    "autostockpile.reconcile_price_corrected": "檢測到價格辨識錯誤(%d -> %d)，正在重新選擇",
+    "autostockpile.reconcile_decision_unchanged": "決策未變化，繼續執行",
     "autostockpile.recognition_early_end": "識別階段提前結束",
     "autostockpile.hit_skip_purchase": "已命中商品，但最終跳過購買",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
@@ -45,8 +47,9 @@
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品識別結果不可用",
     "autostockpile.abort.GoodsTierInvalidFatal": "商品檔位識別結果無效",
     "autostockpile.abort.None": "無",
-    "autostockpile.abort.InsufficientFunds": "調度券低於指定數量",
-    "autostockpile.abort.QuotaZero": "剩餘可購買數量為0",
+    "autostockpile.abort.InsufficientFundsSkip": "調度券低於指定數量",
+    "autostockpile.abort.QuotaZeroSkip": "剩餘可購買數量為0",
+    "autostockpile.abort.QuotaUnavailableWarn": "剩餘可購買數量識別失敗",
     "autostockpile.abort.RegionResolveFailedFatal": "無法確定當前據點區域",
     "autostockpile.abort.SelectionConfigInvalidFatal": "購買配置讀取失敗",
     "autostockpile.abort.StockBillUnavailableWarn": "調度券數量識別失敗",
@@ -116,6 +119,7 @@
     "essencefilter.focus.finish.summary": "篩選完成！共歷遍物品：%d，確認鎖定物品：%d",
     "essencefilter.focus.finish.ext_future": "擴展規則「未來可期」命中：%d 個",
     "essencefilter.focus.finish.ext_practical": "擴展規則「實用基質」命中：%d 個",
+    "essencefilter.focus.plan.no_feasible_location_plans": "當前沒有可行地點方案，僅顯示未畢業武器列表。",
 
     "tasker.process_warning.title": "⚠️ 警告：偵測到黑名單進程正在執行",
     "tasker.process_warning.detected": "🔍 偵測到的進程：",
@@ -134,7 +138,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 警告：解析度比例不相符！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任務已強制停止",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd 目前 <span style=\"text-decoration: underline; font-size: 1.1em;\">僅支援 16:9</span> 比例。",
+    "tasker.aspect_ratio_warning.desc": "💡 全螢幕模式僅支援 16:9 顯示器；視窗化模式下可將解析度手動設為 16:9。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 請將解析度調整為：",
     "tasker.aspect_ratio_warning.future": "🚀 未來將適配更多比例，敬請期待！",
 

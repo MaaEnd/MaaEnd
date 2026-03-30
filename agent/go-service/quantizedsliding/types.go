@@ -6,14 +6,15 @@ import (
 )
 
 type quantizedSlidingParam struct {
-	Target            int                  `json:"Target"`
-	QuantityBox       []int                `json:"QuantityBox"`
-	QuantityFilter    *quantityFilterParam `json:"QuantityFilter"`
-	Direction         string               `json:"Direction"`
-	IncreaseButton    any                  `json:"IncreaseButton"`
-	DecreaseButton    any                  `json:"DecreaseButton"`
-	CenterPointOffset any                  `json:"CenterPointOffset"`
-	ClampTargetToMax  bool                 `json:"ClampTargetToMax"`
+	Target                  int                  `json:"Target"`
+	QuantityBox             []int                `json:"QuantityBox"`
+	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
+	ConcatAllFilteredDigits bool                 `json:"ConcatAllFilteredDigits"`
+	Direction               string               `json:"Direction"`
+	IncreaseButton          any                  `json:"IncreaseButton"`
+	DecreaseButton          any                  `json:"DecreaseButton"`
+	CenterPointOffset       any                  `json:"CenterPointOffset"`
+	ClampTargetToMax        bool                 `json:"ClampTargetToMax"`
 }
 
 // quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
@@ -31,20 +32,22 @@ type quantityFilterParam struct {
 //   - Target: 目标数量
 //   - QuantityBox: OCR 识别数量的 ROI 区域 [x,y,w,h]
 //   - QuantityFilter: 可选的数量 OCR 颜色过滤参数
+//   - ConcatAllFilteredDigits: 数量解析策略开关。false（默认）只读 Best OCR；true 时按 y 再 x 顺序拼接 Filtered OCR 片段后再解析
 //   - Direction: 滑动方向 (left/right/up/down)
 //   - IncreaseButton: 增加数量按钮的模板路径或坐标
 //   - DecreaseButton: 减少数量按钮的模板路径或坐标
 //   - CenterPointOffset: 滑动条中心点坐标偏移量
 //   - ClampTargetToMax: 为 true 时，若 Target 超过 maxQuantity，自动将 Target 钳制为 maxQuantity 并继续（默认 false 时直接失败）
 type QuantizedSlidingAction struct {
-	Target            int
-	QuantityBox       []int
-	QuantityFilter    *quantityFilterParam
-	Direction         string
-	IncreaseButton    buttonTarget
-	DecreaseButton    buttonTarget
-	CenterPointOffset [2]int
-	ClampTargetToMax  bool
+	Target                  int
+	QuantityBox             []int
+	QuantityFilter          *quantityFilterParam
+	ConcatAllFilteredDigits bool
+	Direction               string
+	IncreaseButton          buttonTarget
+	DecreaseButton          buttonTarget
+	CenterPointOffset       [2]int
+	ClampTargetToMax        bool
 
 	startBox    []int
 	endBox      []int
@@ -63,15 +66,6 @@ func (b buttonTarget) logValue() any {
 	}
 
 	return append([]int(nil), b.coordinates...)
-}
-
-var quantizedSlidingActionNodes = []string{
-	"QuantizedSlidingMain",
-	"QuantizedSlidingFindStart",
-	"QuantizedSlidingGetMaxQuantity",
-	"QuantizedSlidingFindEnd",
-	"QuantizedSlidingCheckQuantity",
-	"QuantizedSlidingDone",
 }
 
 const maxClickRepeat = 30

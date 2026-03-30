@@ -45,12 +45,60 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
+                    171,
+                    64,
+                    951,
+                    563
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.4
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmCalculateSwipeTarget"
+        ]
+    },
+    "_AutoEcoFarmTargeRecognitionGAI": {
+        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    171,
+                    64,
+                    951,
+                    563
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.4
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmCalculateSwipeTarget"
+        ]
+    },
+    "_AutoEcoFarmTargeRecognitionGManual": {
+        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    171,
+                    64,
+                    951,
+                    563
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandG2.png",
+                "green_mask": true,
+                "method": 5,
                 "threshold": 0.4
             }
         },
@@ -153,7 +201,7 @@
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
-            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
+            "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -164,7 +212,7 @@
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
-            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
+            "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -215,7 +263,7 @@
             "_AutoEcoFarmAltUp"
         ]
     },
-    "_AutoEcoFarmSwipeTargetToFrontWithErr": {
+    "_AutoEcoFarmSwipeRandomWithErr": {
         "desc": "识别不到标记时将标记随便拉一下，尝试解决问题",
         "max_hit": 3,
         "action": {

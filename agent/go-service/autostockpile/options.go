@@ -2,7 +2,10 @@ package autostockpile
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math"
+	"strconv"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -143,17 +146,91 @@ func collectRegionReserveStockBill(attach map[string]json.RawMessage, region str
 		return 0, false, nil
 	}
 
-	// 使用 parsePriceLimitValue 解析 int 或 string 格式
-	parsedValue, err := parsePriceLimitValue(rawValue)
+	parsedValue, err := parsePositiveThresholdValue(key, rawValue)
 	if err != nil {
-		return 0, true, fmt.Errorf("%s: %w", key, err)
+		return 0, true, err
 	}
 
-	// 如果值 ≤ 0，返回 0
-	if parsedValue <= 0 {
-		return 0, true, nil
+	if parsedValue > math.MaxInt/10000 {
+		return 0, true, newThresholdConfigError(key, fmt.Errorf("value %d too large (max %d)", parsedValue, math.MaxInt/10000))
 	}
 
-	// 将用户输入（"万"单位）转换为实际数值，乘以 10000
 	return parsedValue * 10000, true, nil
+}
+
+type thresholdConfigError struct {
+	field string
+	err   error
+}
+
+func (e *thresholdConfigError) Error() string {
+	return fmt.Sprintf("%s: %v", e.field, e.err)
+}
+
+func (e *thresholdConfigError) Unwrap() error {
+	return e.err
+}
+
+func newThresholdConfigError(field string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var target *thresholdConfigError
+	if errors.As(err, &target) {
+		return err
+	}
+
+	return &thresholdConfigError{field: field, err: err}
+}
+
+func isThresholdConfigError(err error) bool {
+	var target *thresholdConfigError
+	return errors.As(err, &target)
+}
+
+func parsePositiveThresholdValue(field string, data json.RawMessage) (int, error) {
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err == nil {
+		if strings.TrimSpace(stringValue) == "" {
+			return 0, newThresholdConfigError(field, fmt.Errorf("must not be empty"))
+		}
+
+		parsed, parseErr := strconv.Atoi(stringValue)
+		if parseErr != nil {
+			return 0, newThresholdConfigError(field, fmt.Errorf("invalid integer string %q", stringValue))
+		}
+		if parsed <= 0 {
+			return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
+		}
+		return parsed, nil
+	}
+
+	parsed, err := parsePriceLimitValue(data)
+	if err != nil {
+		return 0, newThresholdConfigError(field, err)
+	}
+	if parsed <= 0 {
+		return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
+	}
+
+	return parsed, nil
+}
+
+func parsePriceLimitValue(data json.RawMessage) (int, error) {
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		return intValue, nil
+	}
+
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err == nil {
+		parsed, parseErr := strconv.Atoi(stringValue)
+		if parseErr != nil {
+			return 0, fmt.Errorf("invalid integer string %q", stringValue)
+		}
+		return parsed, nil
+	}
+
+	return 0, fmt.Errorf("must be an integer or integer string")
 }

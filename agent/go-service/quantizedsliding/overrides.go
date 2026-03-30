@@ -30,14 +30,14 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 	}
 
 	override := map[string]any{
-		"QuantizedSlidingSwipeToMax": map[string]any{
+		nodeQuantizedSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
 					"end": append([]int(nil), end...),
 				},
 			},
 		},
-		"QuantizedSlidingGetQuantity": map[string]any{
+		nodeQuantizedSlidingGetQuantity: map[string]any{
 			"recognition": map[string]any{
 				"param": map[string]any{
 					"roi": quantityParam["roi"],
@@ -50,13 +50,13 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 		return override
 	}
 
-	quantityParam["color_filter"] = "QuantizedSlidingQuantityFilter"
-	override["QuantizedSlidingGetQuantity"] = map[string]any{
+	quantityParam["color_filter"] = nodeQuantizedSlidingQuantityFilter
+	override[nodeQuantizedSlidingGetQuantity] = map[string]any{
 		"recognition": map[string]any{
 			"param": quantityParam,
 		},
 	}
-	override["QuantizedSlidingQuantityFilter"] = map[string]any{
+	override[nodeQuantizedSlidingQuantityFilter] = map[string]any{
 		"recognition": map[string]any{
 			"param": map[string]any{
 				"method": quantityFilter.Method,
@@ -71,18 +71,18 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 
 func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
 	override := map[string]any{
-		"QuantizedSlidingDone": map[string]any{
-			"enabled": nextNode == "QuantizedSlidingDone",
+		nodeQuantizedSlidingDone: map[string]any{
+			"enabled": nextNode == nodeQuantizedSlidingDone,
 		},
-		"QuantizedSlidingIncreaseQuantity": map[string]any{
-			"enabled": nextNode == "QuantizedSlidingIncreaseQuantity",
+		nodeQuantizedSlidingIncreaseQuantity: map[string]any{
+			"enabled": nextNode == nodeQuantizedSlidingIncreaseQuantity,
 		},
-		"QuantizedSlidingDecreaseQuantity": map[string]any{
-			"enabled": nextNode == "QuantizedSlidingDecreaseQuantity",
+		nodeQuantizedSlidingDecreaseQuantity: map[string]any{
+			"enabled": nextNode == nodeQuantizedSlidingDecreaseQuantity,
 		},
 	}
 
-	if nextNode != "QuantizedSlidingIncreaseQuantity" && nextNode != "QuantizedSlidingDecreaseQuantity" {
+	if nextNode != nodeQuantizedSlidingIncreaseQuantity && nextNode != nodeQuantizedSlidingDecreaseQuantity {
 		return override
 	}
 

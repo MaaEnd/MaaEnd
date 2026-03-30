@@ -92,7 +92,7 @@ commit_parsers = [
 ]
 
 # 忽略这些提交
-ignore_tags = "rc"
+# ignore_tags = "rc"
 
 # 排序规则
 sort_commits = "oldest"

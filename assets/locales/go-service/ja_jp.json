@@ -21,6 +21,8 @@
     "autostockpile.no_qualifying_product": "条件を満たす商品がありません (%s)",
     "autostockpile.hit_but_skip": "商品に一致しましたが、最終的に購入しません（%s）",
     "autostockpile.product_selected": "【%s】%s (価格 %d、しきい値 %d、数量 %s)",
+    "autostockpile.reconcile_price_corrected": "価格認識エラーを検出しました(%d -> %d)。再選択しています",
+    "autostockpile.reconcile_decision_unchanged": "判断は変わっていません。そのまま続行します",
     "autostockpile.recognition_early_end": "認識フェーズが早期終了しました",
     "autostockpile.hit_skip_purchase": "商品に一致しましたが、購入をスキップしました",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
@@ -45,8 +47,9 @@
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品のOCR結果が利用できません",
     "autostockpile.abort.GoodsTierInvalidFatal": "商品ティアの認識結果が無効です",
     "autostockpile.abort.None": "なし",
-    "autostockpile.abort.InsufficientFunds": "配送券が指定数量を下回っています",
-    "autostockpile.abort.QuotaZero": "残り購入可能数量は0です",
+    "autostockpile.abort.InsufficientFundsSkip": "配送券が指定数量を下回っています",
+    "autostockpile.abort.QuotaZeroSkip": "残り購入可能数量は0です",
+    "autostockpile.abort.QuotaUnavailableWarn": "残り購入可能数量の認識に失敗しました",
     "autostockpile.abort.RegionResolveFailedFatal": "現在の拠点エリアを特定できません",
     "autostockpile.abort.SelectionConfigInvalidFatal": "購入設定の読み込みに失敗しました",
     "autostockpile.abort.StockBillUnavailableWarn": "配送券数量の認識に失敗しました",
@@ -116,6 +119,7 @@
     "essencefilter.focus.finish.summary": "フィルタ完了。走査数: %d、ロック確定: %d。",
     "essencefilter.focus.finish.ext_future": "拡張ルール「将来有望」一致数: %d",
     "essencefilter.focus.finish.ext_practical": "拡張ルール「実用」一致数: %d",
+    "essencefilter.focus.plan.no_feasible_location_plans": "実行可能な地点プランがありません。未卒業武器リストのみ表示します。",
 
     "tasker.process_warning.title": "⚠️ 警告：ブラックリストのプロセスが実行中です",
     "tasker.process_warning.detected": "🔍 検出されたプロセス：",
@@ -134,7 +138,7 @@
 
     "tasker.aspect_ratio_warning.title": "🚨 警告：解像度のアスペクト比が一致しません！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 タスクを強制停止しました",
-    "tasker.aspect_ratio_warning.desc": "💡 MaaEnd は現時点で <span style=\"text-decoration: underline; font-size: 1.1em;\">16:9 のみ</span> をサポートしています。",
+    "tasker.aspect_ratio_warning.desc": "💡 フルスクリーンは 16:9 のディスプレイのみ対応。ウィンドウ表示では手動で解像度を 16:9 に設定できます。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 次の解像度に変更してください：",
     "tasker.aspect_ratio_warning.future": "🚀 今後、より多くのアスペクト比に対応予定です。お楽しみに！",
 

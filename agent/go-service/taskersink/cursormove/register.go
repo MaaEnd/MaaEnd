@@ -8,9 +8,10 @@ import (
 
 // Register adds the cursor-move sinks when the controller is Win32.
 func Register() {
-	if pienv.ControllerName() != "Win32-Front" {
-		return
-	}
+	// if pienv.ControllerName() != "Win32-Front" {
+	// 	return
+	// }
+	return
 
 	sink := &CursorMoveSink{}
 	maa.AgentServerAddContextSink(sink)

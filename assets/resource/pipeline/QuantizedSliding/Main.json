@@ -181,16 +181,14 @@
             "type": "Swipe",
             "param": {
                 "begin": "QuantizedSlidingFindStart",
+                "begin_offset": [
+                    5,
+                    5,
+                    -5,
+                    -5
+                ],
                 "end": [
                     "QuantizedSlidingFindStart"
-                ],
-                "end_offset": [
-                    [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
                 ]
             }
         },

@@ -261,7 +261,7 @@
             "SceneCheckColorFailedScreenShot"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
         }
     },
     "SceneCheckTealColor": {
@@ -327,7 +327,7 @@
             "SceneCheckColorFailedScreenShot"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
         }
     },
     "SceneCheckPurpleColor": {
@@ -393,7 +393,7 @@
             "SceneCheckColorFailedScreenShot"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
         }
     },
     "SceneCheckColorFailedScreenShot": {

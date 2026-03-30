@@ -11,7 +11,7 @@ import (
 func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
-			Str("component", "QuantizedSliding").
+			Str("component", quantizedSlidingActionName).
 			Msg("got nil custom action arg")
 		return false
 	}
@@ -32,17 +32,17 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 func (a *QuantizedSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	switch arg.CurrentTaskName {
-	case "QuantizedSlidingMain":
+	case nodeQuantizedSlidingMain:
 		return a.handleMain(ctx, arg)
-	case "QuantizedSlidingFindStart":
+	case nodeQuantizedSlidingFindStart:
 		return a.handleFindStart(ctx, arg)
-	case "QuantizedSlidingGetMaxQuantity":
+	case nodeQuantizedSlidingGetMaxQuantity:
 		return a.handleGetMaxQuantity(ctx, arg)
-	case "QuantizedSlidingFindEnd":
+	case nodeQuantizedSlidingFindEnd:
 		return a.handleFindEnd(ctx, arg)
-	case "QuantizedSlidingCheckQuantity":
+	case nodeQuantizedSlidingCheckQuantity:
 		return a.handleCheckQuantity(ctx, arg)
-	case "QuantizedSlidingDone":
+	case nodeQuantizedSlidingDone:
 		return a.handleDone(ctx, arg)
 	default:
 		a.logger.Warn().Msg("unknown current task name")
@@ -104,7 +104,7 @@ func (a *QuantizedSlidingAction) handleFindStart(_ *maa.Context, arg *maa.Custom
 		return false
 	}
 
-	box, ok := extractHitBox(arg.RecognitionDetail)
+	box, ok := readHitBox(arg.RecognitionDetail)
 	if !ok {
 		a.logger.Error().Msg("failed to extract start box from recognition detail")
 		return false
@@ -125,7 +125,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 
-	maxQuantity, err := parseOCRText(arg.RecognitionDetail)
+	maxQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse max quantity from ocr")
 		return false
@@ -198,7 +198,7 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 		return false
 	}
 
-	endBox, ok := extractHitBox(arg.RecognitionDetail)
+	endBox, ok := readHitBox(arg.RecognitionDetail)
 	if !ok {
 		a.logger.Error().Msg("failed to extract end box from recognition detail")
 		return false
@@ -234,7 +234,7 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 	clickY := startY + (endY-startY)*numerator/denominator
 
 	if err := ctx.OverridePipeline(map[string]any{
-		"QuantizedSlidingPreciseClick": map[string]any{
+		nodeQuantizedSlidingPreciseClick: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
 					"target": []int{clickX, clickY},
@@ -268,7 +268,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	currentQuantity, err := parseOCRText(arg.RecognitionDetail)
+	currentQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false
@@ -276,7 +276,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 
 	switch {
 	case currentQuantity == a.Target:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingDone", buttonTarget{}, 0); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDone, buttonTarget{}, 0); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -292,13 +292,13 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		a.logger.Info().
 			Int("current_quantity", currentQuantity).
 			Int("target", a.Target).
-			Str("next", "QuantizedSlidingDone").
+			Str("next", nodeQuantizedSlidingDone).
 			Msg("quantity matched target")
 		return true
 	case currentQuantity < a.Target:
 		diff := a.Target - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingIncreaseQuantity", a.IncreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingIncreaseQuantity, a.IncreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -320,13 +320,13 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.IncreaseButton.logValue()).
-			Str("next", "QuantizedSlidingIncreaseQuantity").
+			Str("next", nodeQuantizedSlidingIncreaseQuantity).
 			Msg("quantity below target, branch to increase")
 		return true
 	default:
 		diff := currentQuantity - a.Target
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingDecreaseQuantity", a.DecreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDecreaseQuantity, a.DecreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -348,7 +348,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.DecreaseButton.logValue()).
-			Str("next", "QuantizedSlidingDecreaseQuantity").
+			Str("next", nodeQuantizedSlidingDecreaseQuantity).
 			Msg("quantity above target, branch to decrease")
 		return true
 	}
@@ -376,7 +376,7 @@ func (a *QuantizedSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	detail, err := ctx.RunTask("QuantizedSlidingMain", override)
+	detail, err := ctx.RunTask(nodeQuantizedSlidingMain, override)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -428,7 +428,7 @@ func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
 		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
 	}
 	if maxQuantity == 1 && target == 1 {
-		return "QuantizedSlidingDone", nil
+		return nodeQuantizedSlidingDone, nil
 	}
 
 	return "", nil
