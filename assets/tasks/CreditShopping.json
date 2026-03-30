@@ -55,7 +55,7 @@
                         "CreditShoppingPriority1DiscountValue"
                     ],
                     "pipeline_override": {
-                        "CreditShoppingBuyFirst": {
+                        "CreditShoppingBuyPriority1": {
                             "enabled": true
                         }
                     }
@@ -63,7 +63,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingBuyFirst": {
+                        "CreditShoppingBuyPriority1": {
                             "enabled": false
                         }
                     }

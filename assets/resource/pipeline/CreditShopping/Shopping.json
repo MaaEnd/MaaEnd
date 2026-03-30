@@ -37,7 +37,7 @@
         "threshold": 0.7,
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingBuyPriority1",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
             "CreditShoppingReserveCredit",
@@ -69,7 +69,7 @@
         },
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingBuyPriority1",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
             "CreditShoppingReserveCredit",
@@ -195,7 +195,7 @@
         ],
         "box_index": 4
     },
-    "CreditShoppingBuyFirst": {
+    "CreditShoppingBuyPriority1": {
         "desc": "优先购买1（选项：优先白名单1、折扣设置）",
         "recognition": "And",
         "all_of": [
@@ -207,12 +207,6 @@
         ],
         "box_index": 4,
         "action": "Click",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
-        ],
         "next": [
             "CreditShoppingBuyItem"
         ]
