@@ -38,9 +38,9 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
-            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -70,9 +70,9 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
-            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -226,7 +226,7 @@
         "box_index": 4
     },
     "CreditShoppingBuyPriority1": {
-        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
+        "desc": "优先购买（选项：优先购买物品、折扣设置；不遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -243,7 +243,7 @@
     },
     "CreditShoppingBuyPriority2": {
         //"enabled": false,
-        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
+        "desc": "购买其他物品1（选项：其他物品1、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -259,7 +259,7 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "优先购买3（选项：优先白名单3、折扣设置）",
+        "desc": "购买其他物品2（选项：其他物品2、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",

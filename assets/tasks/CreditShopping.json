@@ -46,6 +46,7 @@
         "CreditShoppingPriority1": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority1.label",
+            "description": "$option.CreditShoppingPriority1.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -564,6 +565,7 @@
         "CreditShoppingPriority2": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority2.label",
+            "description": "$option.CreditShoppingPriority2.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -954,6 +956,7 @@
         "CreditShoppingPriority3": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority3.label",
+            "description": "$option.CreditShoppingPriority3.description",
             "default_case": "No",
             "cases": [
                 {
