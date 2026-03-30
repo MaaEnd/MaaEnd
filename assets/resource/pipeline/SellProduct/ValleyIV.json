@@ -73,18 +73,16 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
-            "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectNewGood1": "SellProductRefugeeCampSelectItem1",
-            "SellProductSelectNewGood2": "SellProductRefugeeCampSelectItem2",
-            "SellProductSelectNewGood3": "SellProductRefugeeCampSelectItem3",
-            "SellProductSelectNewGood4": "SellProductRefugeeCampSelectItem4"
+            "SellProductSellAttempt1": "SellProductRefugeeCampSellAttempt1",
+            "SellProductSellAttempt2": "SellProductRefugeeCampSellAttempt2",
+            "SellProductSellAttempt3": "SellProductRefugeeCampSellAttempt3",
+            "SellProductSellAttempt4": "SellProductRefugeeCampSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductSellAttempts"
         ]
     },
     "SellProductInfrastructureOutpostSell": {
@@ -95,18 +93,16 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
-            "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectNewGood1": "SellProductInfrastructureOutpostSelectItem1",
-            "SellProductSelectNewGood2": "SellProductInfrastructureOutpostSelectItem2",
-            "SellProductSelectNewGood3": "SellProductInfrastructureOutpostSelectItem3",
-            "SellProductSelectNewGood4": "SellProductInfrastructureOutpostSelectItem4"
+            "SellProductSellAttempt1": "SellProductInfrastructureOutpostSellAttempt1",
+            "SellProductSellAttempt2": "SellProductInfrastructureOutpostSellAttempt2",
+            "SellProductSellAttempt3": "SellProductInfrastructureOutpostSellAttempt3",
+            "SellProductSellAttempt4": "SellProductInfrastructureOutpostSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductSellAttempts"
         ]
     },
     "SellProductReconstructionCommandSell": {
@@ -117,18 +113,16 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
-            "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectNewGood1": "SellProductReconstructionCommandSelectItem1",
-            "SellProductSelectNewGood2": "SellProductReconstructionCommandSelectItem2",
-            "SellProductSelectNewGood3": "SellProductReconstructionCommandSelectItem3",
-            "SellProductSelectNewGood4": "SellProductReconstructionCommandSelectItem4"
+            "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
+            "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
+            "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
+            "SellProductSellAttempt4": "SellProductReconstructionCommandSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductSellAttempts"
         ]
     },
     "SellProductRefugeeCampZeroProductTryChangeGoods": {
@@ -374,10 +368,81 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "SellProductRefugeeCampSellAttempt1": {
+        "desc": "难民暂居处第1次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampSellAttempt2": {
+        "desc": "难民暂居处第2次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampSellAttempt3": {
+        "desc": "难民暂居处第3次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampSellAttempt4": {
+        "desc": "难民暂居处第4次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductRefugeeCampSelectItem1": {
         "desc": "难民暂居处售卖优先物品1",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -397,7 +462,6 @@
     "SellProductRefugeeCampSelectItem2": {
         "desc": "难民暂居处售卖优先物品2",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -414,10 +478,81 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductInfrastructureOutpostSellAttempt1": {
+        "desc": "基建前站第1次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt2": {
+        "desc": "基建前站第2次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt3": {
+        "desc": "基建前站第3次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt4": {
+        "desc": "基建前站第4次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductInfrastructureOutpostSelectItem1": {
         "desc": "基建前站售卖优先物品1",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -437,7 +572,6 @@
     "SellProductInfrastructureOutpostSelectItem2": {
         "desc": "基建前站售卖优先物品2",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -454,10 +588,81 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductReconstructionCommandSellAttempt1": {
+        "desc": "重建指挥部第1次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt2": {
+        "desc": "重建指挥部第2次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt3": {
+        "desc": "重建指挥部第3次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt4": {
+        "desc": "重建指挥部第4次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductReconstructionCommandSelectItem1": {
         "desc": "重建指挥部售卖优先物品1",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -477,7 +682,6 @@
     "SellProductReconstructionCommandSelectItem2": {
         "desc": "重建指挥部售卖优先物品2",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -497,7 +701,6 @@
     "SellProductRefugeeCampSelectItem3": {
         "desc": "难民暂居处售卖优先物品3",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -517,7 +720,6 @@
     "SellProductRefugeeCampSelectItem4": {
         "desc": "难民暂居处售卖优先物品4",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -537,7 +739,6 @@
     "SellProductInfrastructureOutpostSelectItem3": {
         "desc": "基建前站售卖优先物品3",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -557,7 +758,6 @@
     "SellProductInfrastructureOutpostSelectItem4": {
         "desc": "基建前站售卖优先物品4",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -577,7 +777,6 @@
     "SellProductReconstructionCommandSelectItem3": {
         "desc": "重建指挥部售卖优先物品3",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -597,7 +796,6 @@
     "SellProductReconstructionCommandSelectItem4": {
         "desc": "重建指挥部售卖优先物品4",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,

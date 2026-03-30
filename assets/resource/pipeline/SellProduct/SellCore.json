@@ -9,8 +9,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductChangeGoodsAtBeginning",
-            "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
+            "SellProductChangeGoods",
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
@@ -18,21 +17,20 @@
             "SellProductDragBar"
         ]
     },
-    "SellProductChangeGoodsAtBeginning": {
-        "desc": "在售卖开始时更换货品。这是为了确保货物按优先级售卖。",
+    "SellProductSellAttempts": {
+        "desc": "按优先级依次尝试售卖各货品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
         ],
         "pre_delay": 0,
-        // 仅在售卖流程开始时尝试更换一次货品
-        "anchor": {
-            "SellProductChangeGoodsAtBeginning": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductChangeGoodsAtBeginningAction"
+            "[Anchor]SellProductSellAttempt1",
+            "[Anchor]SellProductSellAttempt2",
+            "[Anchor]SellProductSellAttempt3",
+            "[Anchor]SellProductSellAttempt4"
         ]
     },
     "SellProductZeroProductColorMatch": {
@@ -118,6 +116,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSellAttempts"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
         }

@@ -57,7 +57,10 @@
                         }
                     },
                     "option": [
-                        "ValleyIVRefugeeCampPrioritySwitch"
+                        "ValleyIVRefugeeCampAttempt1",
+                        "ValleyIVRefugeeCampAttempt2",
+                        "ValleyIVRefugeeCampAttempt3",
+                        "ValleyIVRefugeeCampAttempt4"
                     ]
                 },
                 {
@@ -70,7 +73,7 @@
                 }
             ]
         },
-        "ValleyIVRefugeeCampPrioritySwitch": {
+        "ValleyIVRefugeeCampAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.PriorityItemSwitch",
             "default_case": "No",
@@ -78,39 +81,96 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSelectItem1": {
-                            "enabled": true
-                        },
-                        "SellProductRefugeeCampSelectItem2": {
-                            "enabled": true
-                        },
-                        "SellProductRefugeeCampSelectItem3": {
-                            "enabled": true
-                        },
-                        "SellProductRefugeeCampSelectItem4": {
+                        "SellProductRefugeeCampSellAttempt1": {
                             "enabled": true
                         }
                     },
                     "option": [
-                        "ValleyIVRefugeeCampItem1",
-                        "ValleyIVRefugeeCampItem2",
-                        "ValleyIVRefugeeCampItem3",
+                        "ValleyIVRefugeeCampItem1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVRefugeeCampItem2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVRefugeeCampItem3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVRefugeeCampItem4"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSelectItem1": {
-                            "enabled": false
-                        },
-                        "SellProductRefugeeCampSelectItem2": {
-                            "enabled": false
-                        },
-                        "SellProductRefugeeCampSelectItem3": {
-                            "enabled": false
-                        },
-                        "SellProductRefugeeCampSelectItem4": {
+                        "SellProductRefugeeCampSellAttempt4": {
                             "enabled": false
                         }
                     }
@@ -894,7 +954,10 @@
                         }
                     },
                     "option": [
-                        "ValleyIVInfrastructureOutpostPrioritySwitch"
+                        "ValleyIVInfrastructureOutpostAttempt1",
+                        "ValleyIVInfrastructureOutpostAttempt2",
+                        "ValleyIVInfrastructureOutpostAttempt3",
+                        "ValleyIVInfrastructureOutpostAttempt4"
                     ]
                 },
                 {
@@ -907,7 +970,7 @@
                 }
             ]
         },
-        "ValleyIVInfrastructureOutpostPrioritySwitch": {
+        "ValleyIVInfrastructureOutpostAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.PriorityItemSwitch",
             "default_case": "No",
@@ -915,39 +978,96 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSelectItem1": {
-                            "enabled": true
-                        },
-                        "SellProductInfrastructureOutpostSelectItem2": {
-                            "enabled": true
-                        },
-                        "SellProductInfrastructureOutpostSelectItem3": {
-                            "enabled": true
-                        },
-                        "SellProductInfrastructureOutpostSelectItem4": {
+                        "SellProductInfrastructureOutpostSellAttempt1": {
                             "enabled": true
                         }
                     },
                     "option": [
-                        "ValleyIVInfrastructureOutpostItem1",
-                        "ValleyIVInfrastructureOutpostItem2",
-                        "ValleyIVInfrastructureOutpostItem3",
+                        "ValleyIVInfrastructureOutpostItem1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVInfrastructureOutpostItem2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVInfrastructureOutpostItem3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVInfrastructureOutpostItem4"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSelectItem1": {
-                            "enabled": false
-                        },
-                        "SellProductInfrastructureOutpostSelectItem2": {
-                            "enabled": false
-                        },
-                        "SellProductInfrastructureOutpostSelectItem3": {
-                            "enabled": false
-                        },
-                        "SellProductInfrastructureOutpostSelectItem4": {
+                        "SellProductInfrastructureOutpostSellAttempt4": {
                             "enabled": false
                         }
                     }
@@ -1603,7 +1723,10 @@
                         }
                     },
                     "option": [
-                        "ValleyIVReconstructionCommandPrioritySwitch"
+                        "ValleyIVReconstructionCommandAttempt1",
+                        "ValleyIVReconstructionCommandAttempt2",
+                        "ValleyIVReconstructionCommandAttempt3",
+                        "ValleyIVReconstructionCommandAttempt4"
                     ]
                 },
                 {
@@ -1616,7 +1739,7 @@
                 }
             ]
         },
-        "ValleyIVReconstructionCommandPrioritySwitch": {
+        "ValleyIVReconstructionCommandAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.PriorityItemSwitch",
             "default_case": "No",
@@ -1624,39 +1747,96 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSelectItem1": {
-                            "enabled": true
-                        },
-                        "SellProductReconstructionCommandSelectItem2": {
-                            "enabled": true
-                        },
-                        "SellProductReconstructionCommandSelectItem3": {
-                            "enabled": true
-                        },
-                        "SellProductReconstructionCommandSelectItem4": {
+                        "SellProductReconstructionCommandSellAttempt1": {
                             "enabled": true
                         }
                     },
                     "option": [
-                        "ValleyIVReconstructionCommandItem1",
-                        "ValleyIVReconstructionCommandItem2",
-                        "ValleyIVReconstructionCommandItem3",
+                        "ValleyIVReconstructionCommandItem1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVReconstructionCommandItem2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ValleyIVReconstructionCommandItem3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVReconstructionCommandItem4"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSelectItem1": {
-                            "enabled": false
-                        },
-                        "SellProductReconstructionCommandSelectItem2": {
-                            "enabled": false
-                        },
-                        "SellProductReconstructionCommandSelectItem3": {
-                            "enabled": false
-                        },
-                        "SellProductReconstructionCommandSelectItem4": {
+                        "SellProductReconstructionCommandSellAttempt4": {
                             "enabled": false
                         }
                     }
@@ -2275,7 +2455,10 @@
                         }
                     },
                     "option": [
-                        "WulingSkyKingFlatsPrioritySwitch"
+                        "WulingSkyKingFlatsAttempt1",
+                        "WulingSkyKingFlatsAttempt2",
+                        "WulingSkyKingFlatsAttempt3",
+                        "WulingSkyKingFlatsAttempt4"
                     ]
                 },
                 {
@@ -2288,7 +2471,7 @@
                 }
             ]
         },
-        "WulingSkyKingFlatsPrioritySwitch": {
+        "WulingSkyKingFlatsAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.PriorityItemSwitch",
             "default_case": "No",
@@ -2296,39 +2479,96 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSelectItem1": {
-                            "enabled": true
-                        },
-                        "SellProductSkyKingFlatsSelectItem2": {
-                            "enabled": true
-                        },
-                        "SellProductSkyKingFlatsSelectItem3": {
-                            "enabled": true
-                        },
-                        "SellProductSkyKingFlatsSelectItem4": {
+                        "SellProductSkyKingFlatsSellAttempt1": {
                             "enabled": true
                         }
                     },
                     "option": [
-                        "WulingSkyKingFlatsItem1",
-                        "WulingSkyKingFlatsItem2",
-                        "WulingSkyKingFlatsItem3",
+                        "WulingSkyKingFlatsItem1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingSkyKingFlatsItem2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingSkyKingFlatsItem3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "WulingSkyKingFlatsItem4"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSelectItem1": {
-                            "enabled": false
-                        },
-                        "SellProductSkyKingFlatsSelectItem2": {
-                            "enabled": false
-                        },
-                        "SellProductSkyKingFlatsSelectItem3": {
-                            "enabled": false
-                        },
-                        "SellProductSkyKingFlatsSelectItem4": {
+                        "SellProductSkyKingFlatsSellAttempt4": {
                             "enabled": false
                         }
                     }

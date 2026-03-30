@@ -41,18 +41,16 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
-            "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectNewGood1": "SellProductSkyKingFlatsSelectItem1",
-            "SellProductSelectNewGood2": "SellProductSkyKingFlatsSelectItem2",
-            "SellProductSelectNewGood3": "SellProductSkyKingFlatsSelectItem3",
-            "SellProductSelectNewGood4": "SellProductSkyKingFlatsSelectItem4"
+            "SellProductSellAttempt1": "SellProductSkyKingFlatsSellAttempt1",
+            "SellProductSellAttempt2": "SellProductSkyKingFlatsSellAttempt2",
+            "SellProductSellAttempt3": "SellProductSkyKingFlatsSellAttempt3",
+            "SellProductSellAttempt4": "SellProductSkyKingFlatsSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductSellAttempts"
         ]
     },
     "SellProductSkyKingFlatsZeroProductTryChangeGoods": {
@@ -138,10 +136,81 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "SellProductSkyKingFlatsSellAttempt1": {
+        "desc": "天王坪援建点第1次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt2": {
+        "desc": "天王坪援建点第2次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt3": {
+        "desc": "天王坪援建点第3次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt4": {
+        "desc": "天王坪援建点第4次售卖尝试",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductSkyKingFlatsSelectItem1": {
         "desc": "天王坪援建点售卖优先物品1",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -161,7 +230,6 @@
     "SellProductSkyKingFlatsSelectItem2": {
         "desc": "天王坪援建点售卖优先物品2",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -181,7 +249,6 @@
     "SellProductSkyKingFlatsSelectItem3": {
         "desc": "天王坪援建点售卖优先物品3",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -201,7 +268,6 @@
     "SellProductSkyKingFlatsSelectItem4": {
         "desc": "天王坪援建点售卖优先物品4",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
