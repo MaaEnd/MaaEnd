@@ -10,7 +10,8 @@
                 "SelectWeaponRarity",
                 "SelectEssence",
                 "SelectExtraRules",
-                "SkipLockedRow"
+                "SkipThumbLock",
+                "SkipThumbDiscard"
             ],
             "controller": [
                 "Win32-Window",
@@ -254,10 +255,10 @@
                 }
             ]
         },
-        "SkipLockedRow": {
+        "SkipThumbLock": {
             "type": "switch",
-            "label": "$option.SkipLockedRow.label",
-            "description": "$option.SkipLockedRow.description",
+            "label": "$option.SkipThumbLock.label",
+            "description": "$option.SkipThumbLock.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -265,7 +266,7 @@
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "skip_locked_row": true
+                                "skip_thumb_lock": true
                             }
                         }
                     }
@@ -275,7 +276,35 @@
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "skip_locked_row": false
+                                "skip_thumb_lock": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SkipThumbDiscard": {
+            "type": "switch",
+            "label": "$option.SkipThumbDiscard.label",
+            "description": "$option.SkipThumbDiscard.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "skip_thumb_discard": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "skip_thumb_discard": false
                             }
                         }
                     }

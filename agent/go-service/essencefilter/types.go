@@ -23,8 +23,9 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
-	// 收集每行时对缩略图做已锁定/已废弃标记识别，命中则从本行待处理列表排除（见 RowCollect + EssenceThumbMarked）
-	SkipLockedRow bool `json:"skip_locked_row"`
+	// 收集每行时对缩略图做已锁定/已废弃标记识别，命中则从本行待处理列表排除（见 RowCollect；双开时用 EssenceThumbMarked，否则单模板节点）
+	SkipThumbLock    bool `json:"skip_thumb_lock"`
+	SkipThumbDiscard bool `json:"skip_thumb_discard"`
 
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR (default CN).
 	InputLanguage string `json:"input_language"`

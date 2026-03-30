@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
+	"image"
 	"regexp"
 	"sort"
 	"strconv"
@@ -260,6 +261,24 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 
 // --- RowCollect / RowNextItem / Finish / SwipeCalibrate（同一 case：行遍历与网格）---
 
+// rowCollectThumbHit returns thumbnail lock/discard mark for RowCollect per skip_thumb_lock / skip_thumb_discard.
+func rowCollectThumbHit(ctx *maa.Context, img image.Image, thumbROI []int, skipLock, skipDiscard bool) bool {
+	param := map[string]any{"roi": thumbROI}
+	switch {
+	case skipLock && skipDiscard:
+		d, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{"EssenceThumbMarked": param})
+		return err == nil && d != nil && d.Hit
+	case skipLock:
+		d, err := ctx.RunRecognition("EssenceThumbLock", img, map[string]any{"EssenceThumbLock": param})
+		return err == nil && d != nil && d.Hit
+	case skipDiscard:
+		d, err := ctx.RunRecognition("EssenceThumbDiscard", img, map[string]any{"EssenceThumbDiscard": param})
+		return err == nil && d != nil && d.Hit
+	default:
+		return false
+	}
+}
+
 // EssenceFilterRowCollectAction - collect boxes in a row (TemplateMatch + ColorMatch), then RowNextItem
 type EssenceFilterRowCollectAction struct{}
 
@@ -290,7 +309,9 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	st.RowBoxes = st.RowBoxes[:0]
 	st.PhysicalItemCount = len(results)
 
-	skipMarked := st.PipelineOpts.SkipLockedRow
+	skipLock := st.PipelineOpts.SkipThumbLock
+	skipDiscard := st.PipelineOpts.SkipThumbDiscard
+	anyThumbSkip := skipLock || skipDiscard
 	boundaryHit := false
 
 	for _, res := range results {
@@ -338,7 +359,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 		if colorMatched {
 			isMarked := false
-			if skipMarked {
+			if anyThumbSkip {
 				margin := 10
 				bx1, by1 := boxArr[0]-margin, boxArr[1]-margin
 				if bx1 < 0 {
@@ -354,14 +375,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 				roiW := int(float64(bw) * 0.30)
 				roiH := int(float64(bh) * 0.35)
 
-				thumbDetail, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{
-					"EssenceThumbMarked": map[string]any{
-						"roi": []int{roiX, roiY, roiW, roiH},
-					},
-				})
-				if err == nil && thumbDetail != nil && thumbDetail.Hit {
-					isMarked = true
-				}
+				isMarked = rowCollectThumbHit(ctx, img, []int{roiX, roiY, roiW, roiH}, skipLock, skipDiscard)
 			}
 
 			if !isMarked {
@@ -392,7 +406,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		return true
 	}
 
-	if skipMarked && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
+	if anyThumbSkip && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
 		reportColoredByKey(ctx, st, "#11cf00", "focus.row.all_marked", st.CurrentRow)
 	}
 

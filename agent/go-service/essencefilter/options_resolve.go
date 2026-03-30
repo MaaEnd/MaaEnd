@@ -25,8 +25,11 @@ type EssenceFilterOptionsPatch struct {
 
 	DiscardUnmatched       *bool   `json:"discard_unmatched"`
 	ExportCalculatorScript *bool   `json:"export_calculator_script"`
-	SkipLockedRow          *bool   `json:"skip_locked_row"`
-	InputLanguage          *string `json:"input_language"`
+	SkipThumbLock          *bool   `json:"skip_thumb_lock"`
+	SkipThumbDiscard       *bool   `json:"skip_thumb_discard"`
+	// Legacy: when both SkipThumbLock and SkipThumbDiscard are absent in the same patch, maps to both.
+	SkipLockedRow *bool `json:"skip_locked_row"`
+	InputLanguage *string `json:"input_language"`
 }
 
 func defaultEssenceFilterOptions() EssenceFilterOptions {
@@ -44,7 +47,8 @@ func defaultEssenceFilterOptions() EssenceFilterOptions {
 		LockSlot3Practical:       false,
 		DiscardUnmatched:         false,
 		ExportCalculatorScript:   false,
-		SkipLockedRow:            true,
+		SkipThumbLock:            true,
+		SkipThumbDiscard:         true,
 		InputLanguage:            "CN",
 	}
 }
@@ -159,8 +163,15 @@ func applyOptionsPatch(dst *EssenceFilterOptions, patch EssenceFilterOptionsPatc
 	if patch.ExportCalculatorScript != nil {
 		dst.ExportCalculatorScript = *patch.ExportCalculatorScript
 	}
-	if patch.SkipLockedRow != nil {
-		dst.SkipLockedRow = *patch.SkipLockedRow
+	if patch.SkipThumbLock != nil {
+		dst.SkipThumbLock = *patch.SkipThumbLock
+	}
+	if patch.SkipThumbDiscard != nil {
+		dst.SkipThumbDiscard = *patch.SkipThumbDiscard
+	}
+	if patch.SkipLockedRow != nil && patch.SkipThumbLock == nil && patch.SkipThumbDiscard == nil {
+		dst.SkipThumbLock = *patch.SkipLockedRow
+		dst.SkipThumbDiscard = *patch.SkipLockedRow
 	}
 	if patch.InputLanguage != nil {
 		dst.InputLanguage = *patch.InputLanguage
