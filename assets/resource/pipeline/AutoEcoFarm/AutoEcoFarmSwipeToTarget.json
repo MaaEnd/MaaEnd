@@ -160,7 +160,7 @@
                 "custom_recognition_param": {
                     //将视角拉向目标多少比例
                     "xStepRatio": 0.5,
-                    "yStepRatio": 1
+                    "yStepRatio": 0.5
                 },
                 "roi": "_AutoEcoFarmTargeRecognition"
             }
