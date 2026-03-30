@@ -30,7 +30,7 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeEntrustTaskisWalkingToDepotNode"
+                        "SeizeEntrustTaskSelectDestination"
                     ],
                     "pipeline_override": {
                         "SeizeEntrustTaskGoDepotNode": {
@@ -64,6 +64,38 @@
             ],
             "controller": [
                 "Win32-Front"
+            ]
+        },
+        "SeizeEntrustTaskSelectDestination": {
+            "type": "select",
+            "label": "选择要传送到的锚点",
+            "description": "",
+            "cases": [
+                {
+                    "name": "仓储节点上方锚点",
+                    "option": [
+                        "SeizeEntrustTaskisWalkingToDepotNode"
+                    ],
+                    "pipeline_override": {
+                        "isSeizeEntrustTaskInMap": {
+                            "next": [
+                                "isSeizeEntrustTaskInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity5"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "仓储节点左侧锚点",
+                    "pipeline_override": {
+                        "isSeizeEntrustTaskInMap": {
+                            "next": [
+                                "isSeizeEntrustTaskInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity6"
+                            ]
+                        }
+                    }
+                }
             ]
         }
     }
