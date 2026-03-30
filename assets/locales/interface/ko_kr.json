@@ -334,7 +334,7 @@
     "task.SellProduct.SellAttempt2": "판매 시도 2",
     "task.SellProduct.SellAttempt3": "판매 시도 3",
     "task.SellProduct.SellAttempt4": "판매 시도 4",
-    "task.SellProduct.SellAttemptDescription": "각 시도는 한 번의 판매 기회에 해당합니다. 활성화하면 해당 거점에서 제품을 한 번 판매합니다. 아래에서 우선 상품을 선택할 수도 있습니다（미설정 시 임의 상품이 판매됩니다）.",
+    "task.SellProduct.SellAttemptDescription": "각 시도는 한 번의 판매 기회에 해당합니다. 활성화하면 해당 거점에서 제품을 한 번 판매합니다. 아래에서 우선 상품을 선택할 수도 있습니다.",
     "task.SellProduct.PriorityItem1": "우선 상품 1",
     "task.SellProduct.PriorityItem2": "우선 상품 2",
     "task.SellProduct.PriorityItem3": "우선 상품 3",
