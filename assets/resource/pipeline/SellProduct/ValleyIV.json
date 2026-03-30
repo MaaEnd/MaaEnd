@@ -369,7 +369,7 @@
         "rate_limit": 0
     },
     "SellProductRefugeeCampSellAttempt1": {
-        "desc": "难民暂居处第1次售卖尝试",
+        "desc": "难民暂居处第1次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -383,11 +383,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductRefugeeCampSellAttempt2": {
-        "desc": "难民暂居处第2次售卖尝试",
+        "desc": "难民暂居处第2次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -401,11 +401,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductRefugeeCampSellAttempt3": {
-        "desc": "难民暂居处第3次售卖尝试",
+        "desc": "难民暂居处第3次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -419,11 +419,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductRefugeeCampSellAttempt4": {
-        "desc": "难民暂居处第4次售卖尝试",
+        "desc": "难民暂居处第4次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -437,7 +437,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductRefugeeCampSelectItem1": {
@@ -479,7 +479,7 @@
         ]
     },
     "SellProductInfrastructureOutpostSellAttempt1": {
-        "desc": "基建前站第1次售卖尝试",
+        "desc": "基建前站第1次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -493,11 +493,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInfrastructureOutpostSellAttempt2": {
-        "desc": "基建前站第2次售卖尝试",
+        "desc": "基建前站第2次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -511,11 +511,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInfrastructureOutpostSellAttempt3": {
-        "desc": "基建前站第3次售卖尝试",
+        "desc": "基建前站第3次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -529,11 +529,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInfrastructureOutpostSellAttempt4": {
-        "desc": "基建前站第4次售卖尝试",
+        "desc": "基建前站第4次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -547,7 +547,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInfrastructureOutpostSelectItem1": {
@@ -589,7 +589,7 @@
         ]
     },
     "SellProductReconstructionCommandSellAttempt1": {
-        "desc": "重建指挥部第1次售卖尝试",
+        "desc": "重建指挥部第1次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -603,11 +603,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductReconstructionCommandSellAttempt2": {
-        "desc": "重建指挥部第2次售卖尝试",
+        "desc": "重建指挥部第2次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -621,11 +621,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductReconstructionCommandSellAttempt3": {
-        "desc": "重建指挥部第3次售卖尝试",
+        "desc": "重建指挥部第3次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -639,11 +639,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductReconstructionCommandSellAttempt4": {
-        "desc": "重建指挥部第4次售卖尝试",
+        "desc": "重建指挥部第4次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -657,7 +657,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductReconstructionCommandSelectItem1": {

@@ -137,7 +137,7 @@
         "rate_limit": 0
     },
     "SellProductSkyKingFlatsSellAttempt1": {
-        "desc": "天王坪援建点第1次售卖尝试",
+        "desc": "天王坪援建点第1次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -151,11 +151,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductSkyKingFlatsSellAttempt2": {
-        "desc": "天王坪援建点第2次售卖尝试",
+        "desc": "天王坪援建点第2次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -169,11 +169,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductSkyKingFlatsSellAttempt3": {
-        "desc": "天王坪援建点第3次售卖尝试",
+        "desc": "天王坪援建点第3次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -187,11 +187,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductSkyKingFlatsSellAttempt4": {
-        "desc": "天王坪援建点第4次售卖尝试",
+        "desc": "天王坪援建点第4次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -205,7 +205,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductSkyKingFlatsSelectItem1": {
