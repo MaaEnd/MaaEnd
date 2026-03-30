@@ -580,7 +580,7 @@
     "task.AutoEcoFarm.option.GotoValleyIV.label": "4호 계곡 - 오리지늄 연구 단지",
     "task.AutoEcoFarm.option.GotoWulin.label": "우링 - 우링 시",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "농지 탐색 방식",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.description": "\n## 경로 설정:\n농장 배치에 맞춰 가장 적합한 자동 수확 경로를 선택하세요.\n## 모드 상세:\n1. **대각선 수확**: 캐릭터가 농장 우측 하단에서 좌측 상단으로 이동하며 수확합니다. **요구사항**: 농경지를 직사각형으로 배치하지 않으면 외곽의 작물을 놓치기 쉽습니다.\n2. **중앙 수확**: 캐릭터가 농장 한가운데로 이동해 제자리에서 한 번만 수확합니다. **요구사항**: 한 번에 모두 수확할 수 있도록 중심을 기준으로 원형(또는 밀집 진형)으로 배치해야 합니다.",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.description": "## 모드 상세:\n1. **대각선 수확**: 캐릭터가 농장 우측 하단에서 좌측 상단으로 이동하며 수확합니다. **요구사항**: 농경지를 직사각형으로 배치하지 않으면 외곽의 작물을 놓치기 쉽습니다.\n2. **중앙 수확**: 캐릭터가 농장 한가운데로 이동해 제자리에서 한 번만 수확합니다. **요구사항**: 한 번에 모두 수확할 수 있도록 중심을 기준으로 원형(또는 밀집 진형)으로 배치해야 합니다.",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "대각선 수확",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label": "중앙 수확",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "태스크 시작 전 가방 잡동사니 수납",

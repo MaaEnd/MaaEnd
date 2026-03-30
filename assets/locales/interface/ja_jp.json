@@ -580,7 +580,7 @@
     "task.AutoEcoFarm.option.GotoValleyIV.label": "四号谷地 - オリジニウム研究園",
     "task.AutoEcoFarm.option.GotoWulin.label": "武陵 - 武陵城",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "農地探索方式",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.description": "\n## ルート設定：\n農地のレイアウトに合わせて、最適な自動回収ルートを選択してください。\n## モード詳細：\n1、**対角線回収**：キャラが農園の右下から左上へ斜めに走りながら回収します。**要件：**農地を綺麗な長方形に配置しないと、端の作物を逃しやすくなります。\n2、**中央回収**：キャラが農園のど真ん中に直行し、その場で一回だけ広範囲回収を行います。**要件：**農地を中央に密集させた円形に配置し、一度に全て回収できるようにしてください。",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.description": "## モード詳細：\n1、**対角線回収**：キャラが農園の右下から左上へ斜めに走りながら回収します。**要件**：農地を綺麗な長方形に配置しないと、端の作物を逃しやすくなります。\n2、**中央回収**：キャラが農園のど真ん中に直行し、その場で一回だけ広範囲回収を行います。**要件**：農地を中央に密集させた円形に配置し、一度に全て回収できるようにしてください。",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "対角線回収",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label": "中央回収",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "タスク開始前にバックパック内の雑品を収納",
