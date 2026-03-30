@@ -45,7 +45,8 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]SellProductSelectNewGood",
-            "[Anchor]SellProductSelectDefaultGood"
+            "[Anchor]SellProductSelectGoodFirstTime",
+            "SellProductSelectNextGood"
         ]
     },
     "SellProductSelectFirstGood": {
@@ -63,7 +64,7 @@
         "pre_delay": 0,
         "action": "Click",
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+            "SellProductSelectGoodFirstTime": ""
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -42,7 +42,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectDefaultGood": "SellProductSelectFirstGood",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
             "SellProductSellAttempt1": "SellProductSkyKingFlatsSellAttempt1",
             "SellProductSellAttempt2": "SellProductSkyKingFlatsSellAttempt2",
             "SellProductSellAttempt3": "SellProductSkyKingFlatsSellAttempt3",
@@ -207,7 +207,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+            "SellProductSelectGoodFirstTime": ""
         },
         "pre_delay": 0,
         "action": "Click",
@@ -229,7 +229,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+            "SellProductSelectGoodFirstTime": ""
         },
         "pre_delay": 0,
         "action": "Click",
@@ -251,7 +251,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+            "SellProductSelectGoodFirstTime": ""
         },
         "pre_delay": 0,
         "action": "Click",
@@ -273,7 +273,7 @@
         ],
         "expected": [],
         "anchor": {
-            "SellProductSelectDefaultGood": "SellProductSelectNextGood"
+            "SellProductSelectGoodFirstTime": ""
         },
         "pre_delay": 0,
         "action": "Click",
