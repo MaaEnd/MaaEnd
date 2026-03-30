@@ -172,13 +172,41 @@
         "next": [
             //找到农田就下一步，没找到再拉缩放
             "_AutoEcoFarmFindFarmlandCustom",
+            //如果已经到最大缩放还没找到农田，那可能是没有种田，直接跳过该地区任务回主菜单
+            "_AutoEcoFarmScaleMax",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullEcoFarmToCenter"
         ]
     },
+    "_AutoEcoFarmScaleMax": {
+        "desc": "缩放加号为灰色则代表已经拉到最大",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1225,
+                    242,
+                    24,
+                    24
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmPlusGrey.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "已经缩放到最大了，还没找到农田，默认当做没种田处理，换下个地区"
+        },
+        "next": [
+            "AutoEcoFarmMain"
+        ]
+    },
     "_AutoEcoFarmPullEcoFarmToCenter": {
         "desc": "将农田拉到屏幕中间",
-        "max_hit": 10,
+        "max_hit": 20,
         "pre_delay": 0,
         "action": {
             "type": "Swipe",
