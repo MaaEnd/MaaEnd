@@ -106,7 +106,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 1000
         },
         "pre_delay": 0,
@@ -334,8 +334,8 @@
                     3,
                     201
                 ],
-                "count": 10,
-                "connected": true
+                "connected": true,
+                "count": 10
             }
         }
     },
@@ -378,6 +378,7 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "post_wait_freezes": {
             "time": 100,
             "target": [
@@ -387,7 +388,6 @@
                 486
             ]
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -405,7 +405,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GrowthChamberBackToMain"
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberSeedExtract": {

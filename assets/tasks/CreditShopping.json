@@ -6,12 +6,12 @@
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
             "option": [
-                "CreditShoppingOptions",
-                "CreditShoppingBlackOptions",
-                "AutoGetCredits",
-                "CreditShoppingForce",
                 "CreditShoppingReserve",
-                "CreditShoppingOtherItems"
+                "AutoGetCredits",
+                "CreditShoppingPriority1",
+                "CreditShoppingPriority2",
+                "CreditShoppingPriority3",
+                "CreditShoppingForce"
             ],
             "group": [
                 "daily"
@@ -19,9 +19,60 @@
         }
     ],
     "option": {
-        "CreditShoppingOptions": {
+        "AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoGetCredits": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoGetCredits": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority1.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority1Items",
+                        "CreditShoppingPriority1DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyFirst": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyFirst": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1Items": {
             "type": "checkbox",
-            "label": "$option.CreditShoppingOptions.label",
+            "label": "$option.CreditShoppingPriority1Items.label",
             "default_case": [
                 "ArsenalTicket",
                 "Oroberyl"
@@ -393,16 +444,185 @@
                 }
             ]
         },
-        "CreditShoppingBlackOptions": {
+        "CreditShoppingPriority1DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BuyFirstOCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "upper": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BuyFirstOCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "upper": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": "25|50|75|95|99"
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": "25|50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": "50|75|95|99"
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": "50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": "75|95|99"
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": "75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": "95|99"
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": "95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": "99"
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": "99"
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority2.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority2Items",
+                        "CreditShoppingPriority2DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority2": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2Items": {
             "type": "checkbox",
-            "label": "$option.CreditShoppingBlackOptions.label",
-            "default_case": [],
+            "label": "$option.CreditShoppingPriority2Items.label",
+            "default_case": [
+                "ArmsInspector",
+                "ArmsINSPKit",
+                "ArsenalTicket",
+                "CastDie",
+                "ElementaryCognitiveCarrier",
+                "ElementaryCombatRecord",
+                "HeavyCastDie",
+                "IntermediateCombatRecord",
+                "Oroberyl",
+                "Protodisk",
+                "Protoprism",
+                "Protohedron",
+                "Protoset",
+                "TCreds"
+            ],
             "cases": [
                 {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "arsenal_ticket": [
                                     "武库配额",
@@ -418,7 +638,7 @@
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "oroberyl": [
                                     "嵌晶玉",
@@ -434,7 +654,7 @@
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "t_creds": [
                                     "折金票",
@@ -450,7 +670,7 @@
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "elementary_cognitive_carrier": [
                                     "初级认知载体",
@@ -466,7 +686,7 @@
                     "name": "ElementaryCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "elementary_combat_record": [
                                     "初级作战记录",
@@ -482,7 +702,7 @@
                     "name": "IntermediateCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "intermediate_combat_record": [
                                     "中级作战记录",
@@ -498,7 +718,7 @@
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "arms_inspector": [
                                     "武器检查单元",
@@ -514,7 +734,7 @@
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "arms_insp_kit": [
                                     "武器检查装置",
@@ -530,7 +750,7 @@
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "cast_die": [
                                     "强固模具",
@@ -546,7 +766,7 @@
                     "name": "HeavyCastDie",
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "heavy_cast_die": [
                                     "重型强固模具",
@@ -562,7 +782,7 @@
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "protodisk": [
                                     "协议圆盘",
@@ -578,7 +798,7 @@
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "protoset": [
                                     "协议圆盘组",
@@ -594,7 +814,7 @@
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "protoprism": [
                                     "协议棱柱",
@@ -610,7 +830,7 @@
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
+                        "Priority2OCR": {
                             "attach": {
                                 "protohedron": [
                                     "协议棱柱组",
@@ -619,6 +839,437 @@
                                     "協約角柱セット"
                                 ]
                             }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "-75%",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority2OCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "upper": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": "25|50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": "50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": "75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": "95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": "99"
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority3.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority3Items",
+                        "CreditShoppingPriority3DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority3": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3Items": {
+            "type": "checkbox",
+            "label": "$option.CreditShoppingPriority3Items.label",
+            "default_case": [
+                "ArsenalTicket",
+                "Oroberyl"
+            ],
+            "cases": [
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority3OCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "upper": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "connected": true,
+                                    "count": 100
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": "25|50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": "50|75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": "75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": "95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": "99"
                         }
                     }
                 }
@@ -782,151 +1433,6 @@
                 }
             ]
         },
-        "CreditShoppingOtherItems": {
-            "type": "switch",
-            "label": "$option.CreditShoppingOtherItems.label",
-            "description": "$option.CreditShoppingOtherItems.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "CreditShoppingBuyNormalWithDiscount": {
-                            "enabled": true
-                        }
-                    },
-                    "option": [
-                        "DiscountValue"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "CreditShoppingBuyNormalWithDiscount": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "DiscountValue": {
-            "type": "select",
-            "label": "$option.DiscountValue.label",
-            "default_case": "-95%",
-            "cases": [
-                {
-                    "name": "Ignore",
-                    "label": "$option.DiscountValue.cases.Ignore.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BlacklistOCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        0,
-                                        0,
-                                        0
-                                    ],
-                                    "upper": [
-                                        255,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Any",
-                    "label": "$option.DiscountValue.cases.Any.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BlacklistOCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 40,
-                                    "lower": [
-                                        26,
-                                        255,
-                                        255
-                                    ],
-                                    "upper": [
-                                        26,
-                                        255,
-                                        255
-                                    ],
-                                    "connected": true,
-                                    "count": 100
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "-25%",
-                    "label": "$option.DiscountValue.cases.-25%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": "25|50|75|95|99"
-                        }
-                    }
-                },
-                {
-                    "name": "-50%",
-                    "label": "$option.DiscountValue.cases.-50%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": "50|75|95|99"
-                        }
-                    }
-                },
-                {
-                    "name": "-75%",
-                    "label": "$option.DiscountValue.cases.-75%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": "75|95|99"
-                        }
-                    }
-                },
-                {
-                    "name": "-95%",
-                    "label": "$option.DiscountValue.cases.-95%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": "95|99"
-                        }
-                    }
-                },
-                {
-                    "name": "-99%",
-                    "label": "$option.DiscountValue.cases.-99%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": "99"
-                        }
-                    }
-                }
-            ]
-        },
         "CreditShoppingReserve": {
             "type": "input",
             "label": "$option.CreditShoppingReserve.label",
@@ -952,30 +1458,6 @@
                     }
                 }
             }
-        },
-        "AutoGetCredits": {
-            "type": "switch",
-            "label": "$option.AutoGetCredits.label",
-            "description": "$option.AutoGetCredits.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoGetCredits": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoGetCredits": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
         }
     }
 }

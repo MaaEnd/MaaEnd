@@ -22,12 +22,35 @@
                 {
                     "name": "CreditShoppingN2",
                     "option": {
-                        "AutoGetCredits": "Yes",
-                        "CreditShoppingForce": "IgnoreBlackList",
+                        "CreditShoppingForce": "Refresh",
                         "CreditShoppingReserve": {
                             "ReserveCreditThreshold": "300"
                         },
-                        "CreditShoppingOtherItems": "No"
+                        "CreditShoppingPriority1": "Yes",
+                        "CreditShoppingPriority1Items": [
+                            "ArsenalTicket",
+                            "Oroberyl"
+                        ],
+                        "CreditShoppingPriority1DiscountValue": "Any",
+                        "CreditShoppingPriority2": "Yes",
+                        "CreditShoppingPriority2Items": [
+                            "ArsenalTicket",
+                            "Oroberyl",
+                            "TCreds",
+                            "ElementaryCognitiveCarrier",
+                            "ElementaryCombatRecord",
+                            "IntermediateCombatRecord",
+                            "ArmsInspector",
+                            "ArmsINSPKit",
+                            "CastDie",
+                            "HeavyCastDie",
+                            "Protodisk",
+                            "Protoset",
+                            "Protoprism",
+                            "Protohedron"
+                        ],
+                        "CreditShoppingPriority2DiscountValue": "-75%",
+                        "CreditShoppingPriority3": "No"
                     }
                 },
                 {
