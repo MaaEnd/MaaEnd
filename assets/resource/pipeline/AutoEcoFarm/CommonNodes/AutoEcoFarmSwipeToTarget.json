@@ -9,24 +9,6 @@
 //无法中断循环，需要单独将判断距离在范围内做成custom的recognition节点
 {
     //节点出入口
-    "_AutoEcoFarmSwipeToTargetValleyIVStart": {
-        "desc": "[谷地版]微调视角直到目标到屏幕中间",
-        "anchor": {
-            "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopValleyIV"
-        },
-        "next": [
-            "_AutoEcoFarmSwipeToTargetStart"
-        ]
-    },
-    "_AutoEcoFarmSwipeToTargetWulinStart": {
-        "desc": "[武陵版]微调视角直到目标到屏幕中间",
-        "anchor": {
-            "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopWuLin"
-        },
-        "next": [
-            "_AutoEcoFarmSwipeToTargetStart"
-        ]
-    },
     "_AutoEcoFarmSwipeToTargetStart": {
         "desc": "微调视角直到目标到屏幕中间",
         "next": [
@@ -160,7 +142,7 @@
                 "custom_recognition_param": {
                     //将视角拉向目标多少比例
                     "xStepRatio": 0.5,
-                    "yStepRatio": 1
+                    "yStepRatio": 0.5
                 },
                 "roi": "_AutoEcoFarmTargeRecognition"
             }
@@ -191,22 +173,11 @@
             }
         },
         "next": [
-            "[Anchor]_AutoEcoFarmSwipeLoop"
+            "[Anchor]_AutoEcoFarmSwipeLoopAnchor"
         ]
     },
-    "_AutoEcoFarmSwipeLoopValleyIV": {
-        "desc": "[四号谷地版]控制循环次数节点",
-        "max_hit": 20,
-        "next": [
-            "_AutoEcoFarmTargeInBack",
-            "_AutoEcoFarmTargeRecognition",
-            "[JumpBack]_AutoEcoFarmSwipeToGround",
-            "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
-            "_AutoEcoFarmMoveToTargetErrFindTarget"
-        ]
-    },
-    "_AutoEcoFarmSwipeLoopWuLin": {
-        "desc": "[武陵版]控制循环次数节点",
+    "_AutoEcoFarmCheckTarget": {
+        "desc": "识别标记状态并判断下一步做什么",
         "max_hit": 20,
         "next": [
             "_AutoEcoFarmTargeInBack",
@@ -334,7 +305,7 @@
         "next": [
             //目标在中央则直接结束该子任务，否则继续循环
             "_AutoEcoFarmTargeInCenter",
-            "[Anchor]_AutoEcoFarmSwipeLoop",
+            "[Anchor]_AutoEcoFarmSwipeLoopAnchor",
             //循环控制节点超上限后会失效，直接结束任务
             "_AutoEcoFarmMoveToTargetErr"
         ]

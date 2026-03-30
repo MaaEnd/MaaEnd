@@ -1,0 +1,125 @@
+//这里是初始化所有地区独立的节点，如果以后有新增农场，那么只需要按以下步骤进行
+// 1、复制这个文件
+// 2、直接CTRL+H将这个json中的所有"Wulin"（包括说明里的）替换为新的地区名，并确认节点名都改成了“共用节点名+新地区名”
+// 3、刚替换完会有一堆报错，不要紧张，先将Anchor节点的参数设置成新地区的，全部替换完成后一般就没有报错了
+// 4、将节点入口（如"_AutoEcoFarmInitStartWulin"）放到"AutoEcoFarmMain"的next里 "_AutoEcoFarmPrepareStart"和"_AutoEcoFarmEndStart"之间就行了
+// 5、在task里面新增地区入口的开关，在SelectFarm这一组设置里面，将子节点GotoXXX复制一个然后将参数、描述里的地区名改成新的地区节点就行了
+{
+    "_AutoEcoFarmInitStartWulin": {
+        "desc": "[Wulin版]子任务入口",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInitAnchorsWulin"
+        ]
+    },
+    "_AutoEcoFarmInitAnchorsWulin": {
+        "desc": "[Wulin版]设置地区独有的Anchor节点",
+        "anchor": {
+            //AutoEcoFarmGotoFarm.json 前往农场部分
+            "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
+            "_AutoEcoFarmGotoEcoFarmAnchor": "_AutoEcoFarmGotoEcoFarmWulin",
+            //AutoEcoFarmFindFarmland.json 寻找标记部分
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
+            //AutoEcoFarmSwipeToTarget.json 拉近标记部分
+            "_AutoEcoFarmSwipeLoopAnchor": "_AutoEcoFarmSwipeLoopWuLin"
+        },
+        "next": [
+            "_AutoEcoFarmGotoEcoFarmStart"
+        ]
+    },
+    //下面是所有Anchor节点
+    //传送到农场附近的节点，使用万能跳转的节点，将next里的替换成寻路节点起点附近的传送点，具体方法参考对应的文档
+    "_AutoEcoFarmTeleportToFarmWulin": {
+        "desc": "[Wulin版]万能跳转到农场附近",
+        "max_hit": 1,
+        "next": [
+            "SceneEnterWorldWulingWulingCityCore"
+        ]
+    },
+    //不同地区前往农场的寻路节点，使用Maptracker的节点，改custom_action_param，具体方法参考对应的文档
+    "_AutoEcoFarmGotoEcoFarmWulin": {
+        "desc": "[Wulin版]前往生态农场",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path_trim": true,
+            "fine_approach": "Never",
+            "path": [
+                [
+                    383.0,
+                    237.0
+                ],
+                [
+                    390.7,
+                    233.3
+                ],
+                [
+                    404.0,
+                    231.6
+                ],
+                [
+                    417.0,
+                    228.1
+                ],
+                [
+                    424.9,
+                    220.5
+                ],
+                [
+                    426.0,
+                    204.4
+                ],
+                [
+                    425.9,
+                    189.4
+                ],
+                [
+                    443.0,
+                    192.0
+                ]
+            ]
+        },
+        "next": [
+            //JumpBack
+        ]
+    },
+    //识别地图上农田标题的节点，改recognition内容
+    "_AutoEcoFarmFindEcoFarmWulin": {
+        "desc": "[Wulin版]寻找农场标题, 之后接入放大节点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    222,
+                    17,
+                    812,
+                    620
+                ],
+                "expected": [
+                    "[实验作物试点区]{3,}",
+                    "[實驗作物測試區]{3,}",
+                    "(?i)Agricultural|Test|Site",
+                    "[実験栽培試行区]{3,}",
+                    "[실험작물시범구역]{3,}"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmScroll",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
+    },
+    //独立控制将视角拉近屏幕中央的循环次数，不用改，除非你需要自定义循环次数
+    "_AutoEcoFarmSwipeLoopWuLin": {
+        "desc": "[Wulin版]控制循环次数节点",
+        "max_hit": 20,
+        "next": [
+            "_AutoEcoFarmCheckTarget"
+        ]
+    }
+}
