@@ -464,19 +464,14 @@
                                         -34,
                                         7
                                     ],
-                                    "method": 40,
+                                    "method": 6,
                                     "lower": [
-                                        26,
-                                        255,
-                                        255
+                                        0
                                     ],
                                     "upper": [
-                                        26,
-                                        255,
                                         255
                                     ],
-                                    "connected": true,
-                                    "count": 100
+                                    "count": 1
                                 }
                             }
                         },
@@ -491,19 +486,14 @@
                                         -34,
                                         7
                                     ],
-                                    "method": 40,
+                                    "method": 6,
                                     "lower": [
-                                        26,
-                                        255,
-                                        255
+                                        0
                                     ],
                                     "upper": [
-                                        26,
-                                        255,
                                         255
                                     ],
-                                    "connected": true,
-                                    "count": 100
+                                    "count": 1
                                 }
                             }
                         }
@@ -864,19 +854,36 @@
                                         -34,
                                         7
                                     ],
-                                    "method": 40,
+                                    "method": 6,
                                     "lower": [
-                                        26,
-                                        255,
-                                        255
+                                        0
                                     ],
                                     "upper": [
-                                        26,
-                                        255,
                                         255
                                     ],
-                                    "connected": true,
-                                    "count": 100
+                                    "count": 1
+                                }
+                            }
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority2OCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
                                 }
                             }
                         }
@@ -888,6 +895,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": "25|50|75|95|99"
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": "25|50|75|95|99"
                         }
                     }
                 },
@@ -896,6 +906,9 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
+                            "expected": "50|75|95|99"
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
                             "expected": "50|75|95|99"
                         }
                     }
@@ -906,6 +919,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": "75|95|99"
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": "75|95|99"
                         }
                     }
                 },
@@ -915,6 +931,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": "95|99"
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": "95|99"
                         }
                     }
                 },
@@ -923,6 +942,9 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
+                            "expected": "99"
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
                             "expected": "99"
                         }
                     }
@@ -1210,19 +1232,36 @@
                                         -34,
                                         7
                                     ],
-                                    "method": 40,
+                                    "method": 6,
                                     "lower": [
-                                        26,
-                                        255,
-                                        255
+                                        0
                                     ],
                                     "upper": [
-                                        26,
-                                        255,
                                         255
                                     ],
-                                    "connected": true,
-                                    "count": 100
+                                    "count": 1
+                                }
+                            }
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority3OCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
                                 }
                             }
                         }
@@ -1234,6 +1273,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": "25|50|75|95|99"
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": "25|50|75|95|99"
                         }
                     }
                 },
@@ -1242,6 +1284,9 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
+                            "expected": "50|75|95|99"
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
                             "expected": "50|75|95|99"
                         }
                     }
@@ -1252,6 +1297,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": "75|95|99"
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": "75|95|99"
                         }
                     }
                 },
@@ -1261,6 +1309,9 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": "95|99"
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": "95|99"
                         }
                     }
                 },
@@ -1269,6 +1320,9 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
+                            "expected": "99"
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
                             "expected": "99"
                         }
                     }

@@ -185,6 +185,14 @@
         }
     },
     "AutoGetCreditsBuy": {
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsBuyPriority2",
+            "AutoGetCreditsBuyPriority3"
+        ]
+    },
+    "AutoGetCreditsBuyPriority1": {
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -192,6 +200,28 @@
             "CanNotAfford",
             "BuyFirstOCR_CanNotAfford",
             "IsDiscountPriority1_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "AutoGetCreditsBuyPriority2": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority2OCR_CanNotAfford",
+            "IsDiscountPriority2_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "AutoGetCreditsBuyPriority3": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority3OCR_CanNotAfford",
+            "IsDiscountPriority3_CanNotAfford"
         ],
         "box_index": 4
     },
