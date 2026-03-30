@@ -154,7 +154,13 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		"Priority2OCR": map[string]interface{}{
 			"expected": priority2Expected,
 		},
+		"Priority2OCR_CanNotAfford": map[string]interface{}{
+			"expected": priority2Expected,
+		},
 		"Priority3OCR": map[string]interface{}{
+			"expected": priority3Expected,
+		},
+		"Priority3OCR_CanNotAfford": map[string]interface{}{
 			"expected": priority3Expected,
 		},
 	}

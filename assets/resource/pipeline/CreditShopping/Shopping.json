@@ -37,10 +37,10 @@
         "threshold": 0.7,
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingBuyPriority1",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
-            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -69,10 +69,10 @@
         },
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingBuyPriority1",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
-            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
@@ -185,6 +185,14 @@
         }
     },
     "AutoGetCreditsBuy": {
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsBuyPriority2",
+            "AutoGetCreditsBuyPriority3"
+        ]
+    },
+    "AutoGetCreditsBuyPriority1": {
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -195,8 +203,30 @@
         ],
         "box_index": 4
     },
-    "CreditShoppingBuyFirst": {
-        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
+    "AutoGetCreditsBuyPriority2": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority2OCR_CanNotAfford",
+            "IsDiscountPriority2_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "AutoGetCreditsBuyPriority3": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority3OCR_CanNotAfford",
+            "IsDiscountPriority3_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "CreditShoppingBuyPriority1": {
+        "desc": "优先购买（选项：优先购买物品、折扣设置；不遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -207,19 +237,13 @@
         ],
         "box_index": 4,
         "action": "Click",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
-        ],
         "next": [
             "CreditShoppingBuyItem"
         ]
     },
     "CreditShoppingBuyPriority2": {
         //"enabled": false,
-        "desc": "优先购买1（选项：优先白名单1、折扣设置）",
+        "desc": "购买其他物品1（选项：其他物品1、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -235,7 +259,7 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "优先购买3（选项：优先白名单3、折扣设置）",
+        "desc": "购买其他物品2（选项：其他物品2、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",

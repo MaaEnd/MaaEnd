@@ -151,10 +151,40 @@
         "only_rec": true,
         "order_by": "Vertical"
     },
+    "Priority2OCR_CanNotAfford": {
+        "desc": "优先购买2白名单物品（买不起）",
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^", //这里是具体执行参数
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
     "IsDiscountPriority2": {
         "desc": "优先购买2折扣匹配",
         "recognition": "OCR",
         "roi": "Priority2OCR",
+        "roi_offset": [
+            62,
+            -172,
+            -34,
+            7
+        ],
+        "expected": [
+            "99|95|75|50|25"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "IsDiscountPriority2_CanNotAfford": {
+        "desc": "优先购买2买不起时折扣匹配",
+        "recognition": "OCR",
+        "roi": "Priority2OCR_CanNotAfford",
         "roi_offset": [
             62,
             -172,
@@ -181,10 +211,40 @@
         "only_rec": true,
         "order_by": "Vertical"
     },
+    "Priority3OCR_CanNotAfford": {
+        "desc": "优先购买3白名单物品（买不起）",
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^", //这里是具体执行参数
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
     "IsDiscountPriority3": {
         "desc": "优先购买3折扣匹配",
         "recognition": "OCR",
         "roi": "Priority3OCR",
+        "roi_offset": [
+            62,
+            -172,
+            -34,
+            7
+        ],
+        "expected": [
+            "99|95|75|50|25"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "IsDiscountPriority3_CanNotAfford": {
+        "desc": "优先购买3买不起时折扣匹配",
+        "recognition": "OCR",
+        "roi": "Priority3OCR_CanNotAfford",
         "roi_offset": [
             62,
             -172,
