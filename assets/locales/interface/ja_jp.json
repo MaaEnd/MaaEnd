@@ -380,7 +380,7 @@
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "最高等級優先",
     "task.GearAssembly.description": "指定された等級の装備を自動で製造します",
     "task.ProtocolSpace.label": "⚔️プロトコル空間",
-    "task.ProtocolSpace.description": "理智を消費してプロトコル空間の報酬を自動で周回し、理智を使い切るまで継続します。",
+    "task.ProtocolSpace.description": "理智を消費してプロトコル空間の最高レベルの報酬を自動で周回し、理智を使い切るまで継続します。",
     "option.ProtocolSpaceTab.label": "プロトコル空間",
     "option.ProtocolSpaceUsePermit.label": "理智消費許可を優先使用",
     "option.ProtocolSpaceSuccessCount.label": "行動成功回数上限",

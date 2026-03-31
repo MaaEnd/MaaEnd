@@ -219,7 +219,7 @@
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "Highest Rarity First",
     "task.GearAssembly.description": "Automatically craft a gear of the specified level",
     "task.ProtocolSpace.label": "⚔️Protocol Space",
-    "task.ProtocolSpace.description": "Automatically consume sanity to farm Protocol Space rewards until sanity is fully consumed.",
+    "task.ProtocolSpace.description": "Automatically consume sanity to farm the highest-level Protocol Space rewards until sanity is fully consumed.",
     "option.ProtocolSpaceTab.label": "Protocol Space",
     "option.ProtocolSpaceUsePermit.label": "Prefer sanity consumption permit",
     "option.ProtocolSpaceSuccessCount.label": "Max action success count",

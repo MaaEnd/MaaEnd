@@ -267,7 +267,10 @@
                             }
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": "ProtocolSpace/WeaponTune.png"
+                            "template": [
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
+                            ]
                         }
                     },
                     "option": [
@@ -289,7 +292,10 @@
                             }
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": "ProtocolSpace/AdvancedProgression5.png"
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
                         }
                     },
                     "option": [
@@ -307,7 +313,10 @@
                     "label": "$option.OperatorProgression.OperatorEXP.label",
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/OperatorEXP.png"
+                            "template": [
+                                "ProtocolSpace/OperatorEXP.png",
+                                "ProtocolSpace/OperatorEXPLow.png"
+                            ]
                         }
                     },
                     "option": [
@@ -319,7 +328,10 @@
                     "label": "$option.OperatorProgression.Promotions.label",
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/Promotions.png"
+                            "template": [
+                                "ProtocolSpace/Promotions.png",
+                                "ProtocolSpace/PromotionsLow.png"
+                            ]
                         }
                     },
                     "option": [
@@ -340,7 +352,10 @@
                     "label": "$option.OperatorProgression.SkillUp.label",
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/SkillUp.png"
+                            "template": [
+                                "ProtocolSpace/SkillUp.png",
+                                "ProtocolSpace/SkillUpLow.png"
+                            ]
                         }
                     },
                     "option": [
@@ -367,7 +382,10 @@
                     "label": "$option.WeaponProgression.WeaponTune.label",
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/WeaponTune.png"
+                            "template": [
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
+                            ]
                         }
                     },
                     "option": [

@@ -76,11 +76,11 @@
         "desc": "滚动右侧模拟空间列表",
         "action": "Swipe",
         "begin": [
-            850,
+            950,
             500
         ],
         "end": [
-            850,
+            950,
             280
         ],
         "end_hold": 200
@@ -136,8 +136,8 @@
             0
         ],
         "expected": [
-            "前往",
-            "Go"
+            "查看",
+            "View"
         ]
     },
     "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable": {
