@@ -15,7 +15,7 @@
                     "name": "DijiangRewards",
                     "option": {
                         "AutoStartExchange": "Yes",
-                        "ProductionAssistanceWithoutTheControlNexus": "No",
+                        "StageTaskSetting": "No",
                         "ClueStockLimit": "2"
                     }
                 },
