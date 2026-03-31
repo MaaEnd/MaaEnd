@@ -7,7 +7,7 @@
             "description": "$task.CreditShopping.description",
             "option": [
                 "CreditShoppingReserve",
-                "AutoGetCredits",
+                "CreditShoppingGetCreditsSetting",
                 "CreditShoppingPriority1",
                 "CreditShoppingPriority2",
                 "CreditShoppingPriority3",
@@ -19,6 +19,32 @@
         }
     ],
     "option": {
+        "CreditShoppingGetCreditsSetting": {
+            "type": "switch",
+            "label": "$option.CreditShoppingGetCreditsSetting.label",
+            "description": "$option.CreditShoppingGetCreditsSetting.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoGetCredits",
+                        "CreditShoppingSendCluesWhenInsufficient"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoGetCredits": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesEntry_NeedCredit": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "AutoGetCredits": {
             "type": "switch",
             "label": "$option.AutoGetCredits.label",
@@ -27,9 +53,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "option": [
-                        "CreditShoppingSendCluesWhenInsufficient"
-                    ],
                     "pipeline_override": {
                         "AutoGetCredits": {
                             "enabled": true
