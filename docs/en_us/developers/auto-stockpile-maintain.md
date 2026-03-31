@@ -121,7 +121,7 @@ The Go Service dynamically overrides Pipeline node parameters at runtime:
 - **AutoStockpileGetGoods**: Overrides the recognition `roi`.
 - **AutoStockpileSelectedGoodsClick**: Overrides `template`, the `y` coordinate of the ROI, and the `enabled` state.
 - **AutoStockpileRelayNodeDecisionReady**: Overrides the `enabled` state.
-- **AutoStockpileSwipeSpecificQuantity**: Overrides the `Target` value and `enabled` state.
+- **AutoStockpileSwipeSpecificQuantity**: Overrides the `Quantity.Target` value and `enabled` state.
 - **AutoStockpileSwipeMax**: Overrides the `enabled` state.
 
 When the decision finds no qualifying items or needs to skip, Go resets the purchase-branch nodes (`AutoStockpileRelayNodeDecisionReady`, `AutoStockpileSelectedGoodsClick`, `AutoStockpileSwipeSpecificQuantity`, and `AutoStockpileSwipeMax`) by setting them all to `enabled: false`, then redirects the flow to the skip branch via `OverrideNext`.

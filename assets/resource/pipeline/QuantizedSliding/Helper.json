@@ -26,7 +26,8 @@
                 ],
                 "expected": [
                     "\\d+"
-                ]
+                ],
+                "only_rec": false
             }
         },
         "pre_delay": 0,

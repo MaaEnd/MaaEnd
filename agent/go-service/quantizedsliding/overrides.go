@@ -24,9 +24,10 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, greenMask bool) map[string]any {
+func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool, greenMask bool) map[string]any {
 	quantityParam := map[string]any{
-		"roi": append([]int(nil), quantityBox...),
+		"roi":      append([]int(nil), quantityBox...),
+		"only_rec": quantityOnlyRec,
 	}
 
 	override := map[string]any{
@@ -47,7 +48,8 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 		nodeQuantizedSlidingGetQuantity: map[string]any{
 			"recognition": map[string]any{
 				"param": map[string]any{
-					"roi": quantityParam["roi"],
+					"roi":      quantityParam["roi"],
+					"only_rec": quantityParam["only_rec"],
 				},
 			},
 		},

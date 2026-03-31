@@ -74,7 +74,7 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 		return false
 	}
 
-	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.GreenMask)
+	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.QuantityOnlyRec, a.GreenMask)
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
@@ -126,7 +126,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 
-	maxQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
+	maxQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse max quantity from ocr")
 		return false
@@ -269,7 +269,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	currentQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
+	currentQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false
