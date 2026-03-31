@@ -40,6 +40,15 @@
         "all_of": [
             "SellProductCheckSelectGoodsText"
         ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                145,
+                103,
+                998,
+                518
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
