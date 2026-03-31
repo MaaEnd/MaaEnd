@@ -1,0 +1,6 @@
+{
+    "template": "template.jsonc",
+    "data": "data.mjs",
+    "format": true,
+    "merged": true
+}
