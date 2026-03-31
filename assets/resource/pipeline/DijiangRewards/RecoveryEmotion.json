@@ -23,6 +23,15 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                98,
+                135,
+                620,
+                291
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
