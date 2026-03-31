@@ -41,22 +41,43 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
         - `maa.bak.log`
         - `config/` 目录
         - 没有 `on_error/`，或只有部分现场图
+        - `.dmp` 崩溃转储文件（如 `MaaEnd.dmp`、`MaaEnd.exe.<pid>.dmp`）
+    - 如果发现 `.dmp` 文件，记录其文件名和路径，将在步骤 5 中单独处理。
 
-5. 建立时间线。
+5. **DMP 崩溃转储分析（如有 `.dmp` 文件则必须执行此步骤）。**
+
+    如果在日志包内或 issue 附件中发现了 `.dmp` 文件，**立即读取 `.claude/skills/dmp-analysis/SKILL.md` 并严格按其流程执行**。不要跳过这一步，不要只凭日志文本猜测崩溃原因。
+
+    a. 按照 `dmp-analysis/SKILL.md` 的完整流程完成崩溃转储分析，包括：
+        - 解析异常类型、崩溃地址、崩溃模块
+        - 提取 crashing thread 的完整堆栈帧
+        - 下载对应版本的 PDB 符号并使用 `dump_syms` + `minidump-stackwalk` 完成符号化
+    b. DMP 的进程 PID（通常在文件名中，如 `MaaEnd.exe.18188.dmp` → PID 18188）必须与 `maa.log` 中的 `[Px<pid>]` 标签交叉验证，确认是同一次崩溃会话。
+    c. 最终报告中必须包含 **`## DMP 崩溃分析`** 区域（见 Output Format），内容包括：
+        - 异常类型和异常码（如 `0xC0000409`），以及异常码的含义
+        - 崩溃模块和偏移
+        - **crashing thread 的全部有效堆栈帧**（module+offset 或符号化后的 function+line），不要省略或截断
+        - 关键模块列表
+    d. 如果堆栈中涉及 MaaFramework 或 MXU 的帧且已完成符号化（有函数名+源码行号），**必须**按对应版本 clone 上游仓库源码，定位到具体代码行，并以远端 GitHub `blob` 行号链接（尖括号包裹）的形式贴出。clone 命令参考：
+        - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MaaXYZ/MaaFramework.git .cache/upstream-src/MaaFramework`
+        - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MistEO/MXU.git .cache/upstream-src/MXU`
+    e. 如果符号化失败或无法下载 PDB，在报告中明确说明，但仍必须输出 module+offset 级别的堆栈。
+
+6. 建立时间线。
 
     - 先从 issue 文本判断“用户觉得出问题的时刻”。
     - 再把 `mxu-web-*`、`mxu-tauri.log`、`go-service.log`、`maa.log`、`mxu-agent*.log` 串成一条时间线。
     - 先用 `mxu-tauri.log` 或 `maa.log` 找本次提交的 `task_id`，因为一个日志包里经常混有很多历史运行。
     - 如果有 `on_error/` 截图，用它校验当时实际停留画面；如果没有，要检查是否是未触发 `on_error`，还是日志导出因体积限制把图片截断了。
 
-6. 回溯到代码和文档。
+7. 回溯到代码和文档。
 
     - 任务入口、节点名、控制器限制先看 MaaEnd 仓库。
     - Pipeline 运行语义不确定时查 MaaFramework 文档。
     - MXU 行为或日志分层不确定时，先查 MXU README / 文档；只有文档不足或证据已指向实现层时才看源码。
     - 输出给用户时，如果提到任务入口、任务说明、选项名、提示文案，先到 `assets/locales/interface/zh_cn.json` 查中文文案，不要直接把 `task id` / `option id` 当成最终展示文本。
 
-7. 只有在满足条件时才下钻第三方仓库。
+8. 只有在满足条件时才下钻第三方仓库。
 
     - 先用 issue、日志、MaaEnd 仓库和 MaaFramework 文档做初步归因。
     - 如果怀疑问题在 MXU、MaaFramework 或 binding 实现层，且现有证据不足以确认，再按需查看对应上游仓库源码。
@@ -328,6 +349,35 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 任务 / 相关选项：优先写 `assets/locales/interface/zh_cn.json` 中的中文 `label` / `description`
 - 用户现象：
 
+## DMP 崩溃分析
+
+（仅当 issue 存在 .dmp 文件时输出此区域。如果没有 .dmp 文件，删除整个区域。）
+
+- DMP 文件：`<filename>`（PID `<pid>`，与 `maa.log` 中 `[Px<pid>]` 已交叉验证）
+- 异常类型：`<EXCEPTION_*>`（`<hex code>`），含义：...
+- 崩溃模块：`<module_name>+<offset>`
+- 符号化状态：已符号化 / 仅 module+offset（原因：...）
+
+### 崩溃堆栈（crashing thread 全部有效帧，禁止省略）
+
+```
+Frame 0: <module>+<offset>  [或 <function> at <file>:<line>]
+Frame 1: ...
+Frame 2: ...
+...
+```
+
+（如果符号化成功且帧涉及 MaaFramework 或 MXU，在每个相关帧后面附上游源码链接：）
+- Frame N: `<function>` → <https://github.com/MaaXYZ/MaaFramework/blob/v5.x.x/src/...#L123>
+
+### 关键模块
+
+| Module | Base | Size |
+|--------|------|------|
+| MaaFramework.dll | ... | ... |
+| MaaWin32ControlUnit.dll | ... | ... |
+| ... | ... | ... |
+
 ## 关键证据
 
 <details><summary>点击此处展开</summary>
@@ -394,6 +444,8 @@ Translate the complete conclusion directly into English and paste it here. Note 
 
 ## Reminders
 
+- **DMP 堆栈必须完整输出**：如果 issue 存在 `.dmp` 文件，最终报告中必须包含 `## DMP 崩溃分析` 区域，其中的崩溃堆栈必须列出 crashing thread 的全部有效帧（module+offset 或 function+line），禁止省略或用"等"代替。如果符号化帧涉及 MaaFramework/MXU，必须附上游 GitHub blob 行号链接。如果最终报告中缺少此区域而 issue 明确有 DMP，说明分析流程不完整，需要返回步骤 5 补做。
+- **DMP 分析必须先读 skill**：发现 `.dmp` 时必须先读取 `.claude/skills/dmp-analysis/SKILL.md` 再动手，不要自行发明解析流程。特别注意该 skill 中关于 `0xC0000409` 子参数含义等分析细节。
 - 不要只看一个日志文件下结论。
 - 不要把“维护者评论”当成唯一证据。
 - 不要把环境告警自动等同于根因。
