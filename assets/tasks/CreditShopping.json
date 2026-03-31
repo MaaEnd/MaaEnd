@@ -27,6 +27,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "CreditShoppingSendCluesWhenInsufficient"
+                    ],
                     "pipeline_override": {
                         "AutoGetCredits": {
                             "enabled": true
@@ -38,6 +41,111 @@
                     "pipeline_override": {
                         "AutoGetCredits": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingSendCluesWhenInsufficient": {
+            "type": "switch",
+            "label": "$option.CreditShoppingSendCluesWhenInsufficient.label",
+            "description": "$option.CreditShoppingSendCluesWhenInsufficient.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingClueSend",
+                        "CreditShoppingClueStockLimit"
+                    ],
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesEntry_NeedCredit": {
+                            "enabled": true,
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesEntry_NeedCredit": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingClueSend": {
+            "type": "input",
+            "label": "$option.CreditShoppingClueSend.label",
+            "description": "$option.CreditShoppingClueSend.description",
+            "inputs": [
+                {
+                    "name": "MaxClueSendWhenInsufficient",
+                    "label": "$option.CreditShoppingClueSend.MaxClueSend.label",
+                    "description": "$option.CreditShoppingClueSend.MaxClueSend.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "1"
+                }
+            ],
+            "pipeline_override": {
+                "ReceptionRoomSendCluesSelectClues_NeedCredit": {
+                    "max_hit": "{MaxClueSendWhenInsufficient}"
+                }
+            }
+        },
+        "CreditShoppingClueStockLimit": {
+            "type": "select",
+            "label": "$option.CreditShoppingClueStockLimit.label",
+            "description": "$option.CreditShoppingClueStockLimit.description",
+            "default_case": "2",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.1.label",
+                    "pipeline_override": {
+                        "ClueItemCount_NeedCredit": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": "ClueItem",
+                                    "roi_offset": [
+                                        165,
+                                        0,
+                                        -46,
+                                        0
+                                    ],
+                                    "expected": [
+                                        "^(?:[2-9]|1[0-9]|20)$"
+                                    ],
+                                    "only_rec": true
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.2.label",
+                    "pipeline_override": {
+                        "ClueItemCount_NeedCredit": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": "ClueItem",
+                                    "roi_offset": [
+                                        165,
+                                        0,
+                                        -46,
+                                        0
+                                    ],
+                                    "expected": [
+                                        "^(20|[3-9]|1[0-9])$"
+                                    ],
+                                    "only_rec": true
+                                }
+                            }
                         }
                     }
                 }
