@@ -192,14 +192,15 @@
         "template": [
             "SellProduct/SellProductBarRight.png"
         ],
+        "order_by": "Score",
         "method": 10001,
         "pre_delay": 0,
         "action": "Click",
         "target_offset": [
-            40,
-            21,
-            -30,
-            -43
+            7,
+            16,
+            -21,
+            -32
         ],
         // 单击后需要等待一会儿再交易
         "post_wait_freezes": 80,
