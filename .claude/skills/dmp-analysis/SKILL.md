@@ -13,7 +13,7 @@ description: 分析 Windows 崩溃转储文件（.dmp），诊断 MaaEnd 及其�
 
 ## Prerequisites
 
-`minidump-stackwalk` and `dump_syms` are pre-installed in the CI environment (see `.github/workflows/issue-ai-analysis.yml`).
+在本仓库的 `issue-ai-analysis` workflow 中会安装并确保 `minidump-stackwalk` 和 `dump_syms` 可用（见 `.github/workflows/issue-ai-analysis.yml`）。如果你在本地复现或手动运行本流程，需要自行安装这些工具（可参考下文安装命令）。
 
 Verify before proceeding:
 
@@ -190,11 +190,13 @@ Look up the function and line from the symbolicated stack trace in the cloned so
 - 崩溃模块：`<module_name>` (版本 `<version>`)
 - 崩溃函数：`<symbolicated function name>`
 
-## 崩溃堆栈（crashing thread）
+## DMP 崩溃分析
 
-<top 10–15 symbolicated frames>
+### 崩溃堆栈（crashing thread）
 
-## 关键模块版本
+<crashing thread 的全部有效符号化堆栈帧；如堆栈被截断/损坏，请在此说明原因>
+
+### 关键模块版本
 
 | Module | Version |
 |--------|---------|
@@ -202,13 +204,13 @@ Look up the function and line from the symbolicated stack trace in the cloned so
 | MaaFramework.dll | ... |
 | ... | ... |
 
-## 根因判断
+### 根因判断
 
 - 崩溃归属：MaaFramework / MXU / 第三方依赖 / 未知
 - 分析：...
 - 置信度：高 / 中 / 低
 
-## 建议
+### 建议
 
 - 对用户的建议（升级、绕过方案等）
 - 对开发者的建议（上游报告、修复方向）
