@@ -424,7 +424,32 @@
         },
         "next": [
             "GrowthChamberSeedExtractConfirm",
-            "GrowthChamberNoMaterials"
+            "GrowthChamberNoMaterials",
+            "GrowthChamberReturnGrowView"
+        ]
+    },
+    "GrowthChamberReturnGrowView": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "培养",
+                    "培養",
+                    "(?i)Grow"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GrowthChamberViewIn"
         ]
     },
     "GrowthChamberSeedExtractConfirm": {
