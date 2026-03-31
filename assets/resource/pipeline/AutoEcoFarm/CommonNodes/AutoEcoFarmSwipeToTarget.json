@@ -44,52 +44,6 @@
             "_AutoEcoFarmCalculateSwipeTarget"
         ]
     },
-    "_AutoEcoFarmTargeRecognitionGAI": {
-        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    171,
-                    64,
-                    951,
-                    563
-                ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
-                "green_mask": true,
-                "method": 5,
-                "threshold": 0.4
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "_AutoEcoFarmCalculateSwipeTarget"
-        ]
-    },
-    "_AutoEcoFarmTargeRecognitionGManual": {
-        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    171,
-                    64,
-                    951,
-                    563
-                ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandG2.png",
-                "green_mask": true,
-                "method": 5,
-                "threshold": 0.4
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "_AutoEcoFarmCalculateSwipeTarget"
-        ]
-    },
     "_AutoEcoFarmTargeInCenter": {
         "desc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
         "recognition": {
