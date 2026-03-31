@@ -19,16 +19,45 @@
                 ]
             }
         ],
+        "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[JumpBack]ProtocolSpaceTeamChoose",
             "ProtocolSpacePopupSanityLow",
-            "ProtocolSpaceEnterSpaceConfirm"
+            "ProtocolSpaceEnterSpacePrepareSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
         }
+    },
+    "ProtocolSpaceEnterSpacePrepareSuccess": {
+        "desc": "进入协议空间准备界面成功",
+        "recognition": "TemplateMatch",
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]ProtocolSpaceTeamChoose",
+            "ProtocolSpaceEnterSpaceConfirm"
+        ]
     },
     "ProtocolSpaceTeamChooseTextRecognition": {
         "desc": "识别协议空间队伍",
@@ -355,12 +384,12 @@
             "\\d"
         ],
         "color_filter": "ProtocolSpaceRewardSanityLowFilter",
-        "focus": {
-            "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
-        },
         "next": [
             "ProtocolSpaceRewardDontUsePermit"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
+        }
     },
     "ProtocolSpaceRewardSanityLow": {
         "desc": "理智不足",
