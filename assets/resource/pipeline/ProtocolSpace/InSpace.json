@@ -342,6 +342,26 @@
             130
         ]
     },
+    "ProtocolSpaceRewardUsePermitSanityLow": {
+        "desc": "使用理智消耗许可时理智不足",
+        "recognition": "OCR",
+        "roi": [
+            680,
+            530,
+            90,
+            35
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
+        },
+        "next": [
+            "ProtocolSpaceRewardDontUsePermit"
+        ]
+    },
     "ProtocolSpaceRewardSanityLow": {
         "desc": "理智不足",
         "recognition": "OCR",
@@ -398,7 +418,7 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceRewardSanityLow",
+            "ProtocolSpaceRewardUsePermitSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
