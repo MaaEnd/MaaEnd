@@ -36,6 +36,6 @@ body:
     id: additional
     attributes:
       label: 其他信息
-      description: 软件和游戏截图截图等
+      description: 软件和游戏截图等
     validations:
       required: false
