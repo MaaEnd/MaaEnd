@@ -547,7 +547,7 @@
     "controller.Win32-Window.label": "PC-Default",
     "controller.Win32-Window.description": "Best compatibility, suitable for everyday use. Supports game minimization, may occasionally grab the mouse.",
     "controller.Win32-Window-Background.label": "PC-Background",
-    "controller.Win32-Window-Background.description": "Pure background controller. Supports game minimization and does not grab the mouse. However, it may cause the game window to move around erratically; this does not affect usage. It is recommended to minimize the game to avoid distraction.",
+    "controller.Win32-Window-Background.description": "Pure background controller. Supports game minimization and does not grab the mouse. However, it may cause the game window to move around erratically; this does not affect usage. It is recommended to minimize the game to avoid distraction. If the game window ends up off-screen after a task finishes, press Alt+Enter twice to restore it.",
     "controller.Win32-Front.label": "PC-Foreground",
     "controller.Win32-Front.description": "Foreground control. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
     "controller.ADB.label": "Android",
