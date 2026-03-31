@@ -96,12 +96,7 @@
                     "Reception"
                 ]
             }
-        },
-        "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
-        ]
+        }
     },
     "StartExchange_NeedCredit": {
         "desc": "[信用点商店联动任务·线索] 识别开始线索交流的按钮，点击进入线索交流",
