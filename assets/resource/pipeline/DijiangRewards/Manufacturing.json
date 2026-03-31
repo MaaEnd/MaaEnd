@@ -16,6 +16,16 @@
             "timeout": 1000
         },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                375,
+                578
+            ]
+        },
         "action": {
             "type": "Click"
         },
