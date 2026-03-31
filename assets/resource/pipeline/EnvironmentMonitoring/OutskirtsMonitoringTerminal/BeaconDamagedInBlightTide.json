@@ -36,15 +36,15 @@
     "CheckBeaconDamagedInBlightTideIcon": {
         "desc": "检查侵蚀潮中损坏的信标文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "CheckBeaconDamagedInBlightTideText",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckBeaconDamagedInBlightTideReadyText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否准备好",

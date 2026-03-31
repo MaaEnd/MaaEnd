@@ -36,15 +36,15 @@
     "CheckEcologyNearTheFieldLogisticsDepotIcon": {
         "desc": "检查储备站周围的生态环境文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "CheckEcologyNearTheFieldLogisticsDepotText",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckEcologyNearTheFieldLogisticsDepotReadyText": {
         "desc": "检查储备站周围的生态环境委托是否准备好",

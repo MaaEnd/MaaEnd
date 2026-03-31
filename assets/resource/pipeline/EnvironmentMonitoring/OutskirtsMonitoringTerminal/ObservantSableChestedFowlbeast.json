@@ -36,15 +36,15 @@
     "CheckObservantSableChestedFowlbeastIcon": {
         "desc": "检查东张西望的黑腹雉羽兽文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "CheckObservantSableChestedFowlbeastText",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckObservantSableChestedFowlbeastReadyText": {
         "desc": "检查东张西望的黑腹雉羽兽委托是否准备好",

@@ -206,11 +206,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectGoodFirstTime": ""
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -228,11 +228,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectGoodFirstTime": ""
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -250,11 +250,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectGoodFirstTime": ""
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -272,11 +272,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectGoodFirstTime": ""
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

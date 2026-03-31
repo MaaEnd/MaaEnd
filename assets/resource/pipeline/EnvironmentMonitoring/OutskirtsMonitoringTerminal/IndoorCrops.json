@@ -36,15 +36,15 @@
     "CheckIndoorCropsIcon": {
         "desc": "检查室内作物文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "CheckIndoorCropsText",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckIndoorCropsReadyText": {
         "desc": "检查室内作物委托是否准备好",

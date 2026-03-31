@@ -36,15 +36,15 @@
     "CheckCleansingJadeIcon": {
         "desc": "检查漱玉文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "CheckCleansingJadeText",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "CheckCleansingJadeReadyText": {
         "desc": "检查漱玉委托是否准备好",
