@@ -1,0 +1,100 @@
+{
+    "configs": {
+        "name": "一键售卖产品，测试售卖",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_据点_难民暂居处.png",
+            "hits": [
+                {
+                    "node": "SellProductClickBarRight",
+                    "box": {
+                        "Win32": [
+                            1148,
+                            553,
+                            32,
+                            45
+                        ],
+                        "ADB": [
+                            1118,
+                            527,
+                            32,
+                            43
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_基建前站.png",
+            "hits": [
+                {
+                    "node": "SellProductClickBarRight",
+                    "box": {
+                        "Win32": [
+                            1148,
+                            553,
+                            32,
+                            45
+                        ],
+                        "ADB": [
+                            1118,
+                            527,
+                            32,
+                            43
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_重建指挥部.png",
+            "hits": [
+                {
+                    "node": "SellProductClickBarRight",
+                    "box": {
+                        "Win32": [
+                            1148,
+                            553,
+                            32,
+                            45
+                        ],
+                        "ADB": [
+                            1118,
+                            527,
+                            32,
+                            43
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "image": "武陵_地区建设_据点_天王坪援建点.png",
+            "hits": [
+                {
+                    "node": "SellProductClickBarRight",
+                    "box": {
+                        "Win32": [
+                            1148,
+                            553,
+                            32,
+                            45
+                        ],
+                        "ADB": [
+                            1118,
+                            527,
+                            32,
+                            43
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
