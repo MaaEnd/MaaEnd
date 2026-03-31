@@ -1,299 +1,112 @@
 // SellProduct 数据源
-// 定义各售卖点的物品列表和多语言 OCR 识别文本
+// 基于 settlement_trade_outposts.json 自动构建物品列表（取所有繁荣度等级的并集）
 
-// ===== 物品定义 =====
-// 每个物品: { id, name(简中), label(i18n key), expected(多语言 OCR 识别) }
-const ITEMS = {
-    BuckCapsuleA: {
-        name: "精选荞愈胶囊",
-        label: "$item.BuckCapsuleA",
-        expected: [
-            "^精選蕎癒膠囊$",
-            "^精选荞愈胶囊$",
-            "^蕎花カプセルⅢ$",
-            "^메밀꽃 치유 캡슐(대)$",
-            "^Buck Capsule [A]$",
-        ],
-    },
-    HCValleyBattery: {
-        name: "高容谷地电池",
-        label: "$item.HCValleyBattery",
-        expected: [
-            "^高容量谷地電池$",
-            "^高容谷地电池$",
-            "^大容量谷地バッテリー$",
-            "^대용량 협곡 배터리$",
-            "^HC Valley Battery$",
-        ],
-    },
-    CannedCitromeA: {
-        name: "精选柑实罐头",
-        label: "$item.CannedCitromeA",
-        expected: [
-            "^精選柑實罐頭$",
-            "^精选柑实罐头$",
-            "^シトロームの缶詰Ⅲ$",
-            "^시트론 통조림(대)$",
-            "^Canned Citrome [A]$",
-        ],
-    },
-    SCValleyBattery: {
-        name: "中容谷地电池",
-        label: "$item.SCValleyBattery",
-        expected: [
-            "^中容量谷地電池$",
-            "^中容谷地电池$",
-            "^中容量谷地バッテリー$",
-            "^중용량 협곡 배터리$",
-            "^SC Valley Battery$",
-        ],
-    },
-    CannedCitromeB: {
-        name: "优质柑实罐头",
-        label: "$item.CannedCitromeB",
-        expected: [
-            "^優質柑實罐頭$",
-            "^优质柑实罐头$",
-            "^シトロームの缶詰Ⅱ$",
-            "^시트론 통조림(중)$",
-            "^Canned Citrome [B]$",
-        ],
-    },
-    BuckCapsuleB: {
-        name: "优质荞愈胶囊",
-        label: "$item.BuckCapsuleB",
-        expected: [
-            "^優質蕎癒膠囊$",
-            "^优质荞愈胶囊$",
-            "^蕎花カプセルⅡ$",
-            "^메밀꽃 치유 캡슐(중)$",
-            "^Buck Capsule [B]$",
-        ],
-    },
-    BuckCapsuleC: {
-        name: "荞愈胶囊",
-        label: "$item.BuckCapsuleC",
-        expected: [
-            "^蕎癒膠囊$",
-            "^荞愈胶囊$",
-            "^蕎花カプセルⅠ$",
-            "^메밀꽃 치유 캡슐$",
-            "^Buck Capsule [C]$",
-        ],
-    },
-    CannedCitromeC: {
-        name: "柑实罐头",
-        label: "$item.CannedCitromeC",
-        expected: [
-            "^柑實罐頭$",
-            "^柑实罐头$",
-            "^シトロームの缶詰Ⅰ$",
-            "^시트론 통조림$",
-            "^Canned Citrome [C]$",
-        ],
-    },
-    AmethystBottle: {
-        name: "紫晶质瓶",
-        label: "$item.AmethystBottle",
-        expected: [
-            "^紫晶質瓶$",
-            "^紫晶质瓶$",
-            "^紫晶製ボトル$",
-            "^자수정 병$",
-            "^Amethyst Bottle$",
-        ],
-    },
-    Origocrust: {
-        name: "晶体外壳",
-        label: "$item.Origocrust",
-        expected: [
-            "^晶體外殼$",
-            "^晶体外壳$",
-            "^結晶外殻$",
-            "^오리고 크러스트$",
-            "^Origocrust$",
-        ],
-    },
-    AmethystPart: {
-        name: "紫晶零件",
-        label: "$item.AmethystPart",
-        expected: [
-            "^紫晶零件$",
-            "^紫晶零件$",
-            "^紫晶部品$",
-            "^자수정 부품$",
-            "^Amethyst Part$",
-        ],
-    },
-    LCValleyBattery: {
-        name: "低容谷地电池",
-        label: "$item.LCValleyBattery",
-        expected: [
-            "^低容量谷地電池$",
-            "^低容谷地电池$",
-            "^小容量谷地バッテリー$",
-            "^저용량 협곡 배터리$",
-            "^LC Valley Battery$",
-        ],
-    },
-    FerriumPart: {
-        name: "铁制零件",
-        label: "$item.FerriumPart",
-        expected: [
-            "^鐵製零件$",
-            "^铁制零件$",
-            "^鉄製部品$",
-            "^페리움 부품$",
-            "^Ferrium Part$",
-        ],
-    },
-    SCWulingBattery: {
-        name: "中容武陵电池",
-        label: "$item.SCWulingBattery",
-        expected: [
-            "^中容武陵电池$",
-            "^中容量武陵電池$",
-            "^SC Wuling Battery$",
-            "^中容量武陵バッテリー$",
-            "^중용량 무릉 배터리$",
-        ],
-    },
-    YazhenSyringeB: {
-        name: "优质芽针针剂",
-        label: "$item.YazhenSyringeB",
-        expected: [
-            "^优质芽针针剂$",
-            "^優質芽針針劑$",
-            "^Yazhen Syringe [A]$",
-            "^芽針注射剤Ⅱ$",
-            "^고급 야침 주사약$",
-        ],
-    },
-    LCWulingBattery: {
-        name: "低容武陵电池",
-        label: "$item.LCWulingBattery",
-        expected: [
-            "^低容量武陵電池$",
-            "^低容武陵电池$",
-            "^低容量武陵電池$",
-            "^저용량 무릉 배터리$",
-            "^LC Wuling Battery$",
-        ],
-    },
-    YazhenSyringe: {
-        name: "芽针针剂",
-        label: "$item.YazhenSyringe",
-        expected: [
-            "^芽針針劑$",
-            "^芽针针剂$",
-            "^芽針注射剤Ⅰ$",
-            "^야침 주사약$",
-            "^Yazhen Syringe [C]$",
-        ],
-    },
-    JincaoDrink: {
-        name: "锦草软饮",
-        label: "$item.JincaoDrink",
-        expected: [
-            "^錦草飲料$",
-            "^锦草软饮$",
-            "^錦草ソーダⅠ$",
-            "^금초 청량음료$",
-            "^Jincao Drink$",
-        ],
-    },
-    CuprumPart: {
-        name: "赤铜零件",
-        label: "$item.CuprumPart",
-        expected: [
-            "^赤铜零件$",
-            "^赤銅零件$",
-            "^Cuprium Part$",
-            "^赤銅部品$",
-            "^적동 부품$",
-        ],
-    },
-    Xiranite: {
-        name: "息壤",
-        label: "$item.Xiranite",
-        expected: [
-            "^息壤$",
-            "^息壤$",
-            "^息壤$",
-            "^식양$",
-            "^Xiranite$",
-        ],
-    },
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const settlementData = require("./settlement_trade_outposts.json");
+
+// ===== itemId → 内部 key / label 映射 =====
+const ITEM_META = {
+    item_bottled_rec_hp_3: { key: "BuckCapsuleA", label: "$item.BuckCapsuleA" },
+    item_proc_battery_3: { key: "HCValleyBattery", label: "$item.HCValleyBattery" },
+    item_bottled_food_3: { key: "CannedCitromeA", label: "$item.CannedCitromeA" },
+    item_proc_battery_2: { key: "SCValleyBattery", label: "$item.SCValleyBattery" },
+    item_bottled_food_2: { key: "CannedCitromeB", label: "$item.CannedCitromeB" },
+    item_bottled_rec_hp_2: { key: "BuckCapsuleB", label: "$item.BuckCapsuleB" },
+    item_bottled_rec_hp_1: { key: "BuckCapsuleC", label: "$item.BuckCapsuleC" },
+    item_bottled_food_1: { key: "CannedCitromeC", label: "$item.CannedCitromeC" },
+    item_glass_bottle: { key: "AmethystBottle", label: "$item.AmethystBottle" },
+    item_crystal_shell: { key: "Origocrust", label: "$item.Origocrust" },
+    item_glass_cmpt: { key: "AmethystPart", label: "$item.AmethystPart" },
+    item_proc_battery_1: { key: "LCValleyBattery", label: "$item.LCValleyBattery" },
+    item_iron_cmpt: { key: "FerriumPart", label: "$item.FerriumPart" },
+    item_iron_enr_cmpt: { key: "SteelPart", label: "$item.SteelPart" },
+    item_proc_battery_5: { key: "SCWulingBattery", label: "$item.SCWulingBattery" },
+    item_bottled_rec_hp_5: { key: "YazhenSyringeB", label: "$item.YazhenSyringeB" },
+    item_proc_battery_4: { key: "LCWulingBattery", label: "$item.LCWulingBattery" },
+    item_bottled_rec_hp_4: { key: "YazhenSyringe", label: "$item.YazhenSyringe" },
+    item_bottled_food_4: { key: "JincaoDrink", label: "$item.JincaoDrink" },
+    item_copper_cmpt: { key: "CuprumPart", label: "$item.CuprumPart" },
+    item_xiranite_powder: { key: "Xiranite", label: "$item.Xiranite" },
 };
 
-// ===== 售卖点配置 =====
-// NodePrefix: pipeline_override 中使用的节点前缀
-// items: 该售卖点可售卖的物品 ID 列表
-const LOCATIONS = [
-    {
+// ===== 从 settlement 数据提取全局物品字典 =====
+// expected 顺序: TC, CN, JP, EN
+const ITEMS = {};
+for (const settlement of Object.values(settlementData.settlements)) {
+    for (const level of Object.values(settlement.byProsperityLevel)) {
+        for (const item of level.tradeItems) {
+            const meta = ITEM_META[item.itemId];
+            if (!meta) continue;
+            if (ITEMS[meta.key]) continue; // 已收集过
+            ITEMS[meta.key] = {
+                name: item.name.CN,
+                label: meta.label,
+                expected: [
+                    `^${item.name.TC}$`,
+                    `^${item.name.CN}$`,
+                    `^${item.name.JP}$`,
+                    `^${item.name.EN}$`,
+                ],
+            };
+        }
+    }
+}
+
+// ===== settlementId → 售卖点配置映射 =====
+const SETTLEMENT_MAP = {
+    stm_tundra_1: {
         RegionPrefix: "ValleyIV",
         LocationId: "RefugeeCamp",
         NodePrefix: "RefugeeCamp",
-        items: [
-            "BuckCapsuleA",
-            "HCValleyBattery",
-            "CannedCitromeA",
-            "SCValleyBattery",
-            "CannedCitromeB",
-            "BuckCapsuleB",
-            "BuckCapsuleC",
-            "CannedCitromeC",
-            "AmethystBottle",
-            "Origocrust",
-            "AmethystPart",
-        ],
     },
-    {
+    stm_tundra_2: {
         RegionPrefix: "ValleyIV",
         LocationId: "InfrastructureOutpost",
         NodePrefix: "InfrastructureOutpost",
-        items: [
-            "BuckCapsuleA",
-            "HCValleyBattery",
-            "CannedCitromeA",
-            "SCValleyBattery",
-            "CannedCitromeB",
-            "BuckCapsuleB",
-            "LCValleyBattery",
-            "CannedCitromeC",
-            "FerriumPart",
-        ],
     },
-    {
+    stm_tundra_3: {
         RegionPrefix: "ValleyIV",
         LocationId: "ReconstructionCommand",
         NodePrefix: "ReconstructionCommand",
-        items: [
-            "BuckCapsuleA",
-            "HCValleyBattery",
-            "CannedCitromeA",
-            "SCValleyBattery",
-            "CannedCitromeB",
-            "BuckCapsuleB",
-            "CannedCitromeC",
-            "FerriumPart",
-        ],
     },
-    {
+    stm_hongs_1: {
         RegionPrefix: "Wuling",
         LocationId: "SkyKingFlats",
         NodePrefix: "SkyKingFlats",
-        items: [
-            "SCWulingBattery",
-            "YazhenSyringeB",
-            "LCWulingBattery",
-            "YazhenSyringe",
-            "JincaoDrink",
-            "CuprumPart",
-            "Xiranite",
-        ],
     },
-];
+};
+
+// ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
+const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
+    ([settlementId, config]) => {
+        const settlement = settlementData.settlements[settlementId];
+        // 取所有 level 的 tradeItems 并集（按 itemId 去重），记录 rarity 和最高 unitPrice
+        const itemMap = new Map();
+        for (const level of Object.values(settlement.byProsperityLevel)) {
+            for (const item of level.tradeItems) {
+                const meta = ITEM_META[item.itemId];
+                if (!meta) continue;
+                const prev = itemMap.get(meta.key);
+                if (!prev || item.unitPrice > prev.unitPrice) {
+                    itemMap.set(meta.key, {
+                        rarity: item.rarity,
+                        unitPrice: item.unitPrice,
+                    });
+                }
+            }
+        }
+        // 按 rarity 降序 → unitPrice 降序 排列
+        const items = [...itemMap.entries()]
+            .sort(
+                (a, b) =>
+                    b[1].rarity - a[1].rarity ||
+                    b[1].unitPrice - a[1].unitPrice,
+            )
+            .map(([key]) => key);
+        return { ...config, items };
+    },
+);
 
 // ===== 构建 cases 数组 =====
 function buildItemCases(nodePrefix, itemNum, itemIds) {

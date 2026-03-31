@@ -1,0 +1,1497 @@
+{
+  "source": "SettlementBasicDataTable.settlementTradeItemMap（据点收购/供货交易）",
+  "locales": [
+    "CN",
+    "EN",
+    "JP",
+    "TC"
+  ],
+  "settlements": {
+    "stm_hongs_1": {
+      "settlementId": "stm_hongs_1",
+      "settlementName": {
+        "CN": "天王坪援建点",
+        "EN": "Sky King Flats Construction Site",
+        "JP": "天王原建設支援拠点",
+        "TC": "天王坪援助點"
+      },
+      "domainId": "domain_2",
+      "domainLevelId": "map02_lv001",
+      "domainLevelShowName": {
+        "CN": "景玉谷",
+        "EN": "Jingyu Valley",
+        "JP": "景玉谷",
+        "TC": "景玉谷"
+      },
+      "levelIdAlsoThisSettlement": "map02_lv001",
+      "paymentItemId": "item_domain_jinlong_coupon",
+      "paymentItemName": {
+        "CN": "武陵调度券",
+        "EN": "Wuling Stock Bill",
+        "JP": "武陵取引券",
+        "TC": "武陵調度券"
+      },
+      "byProsperityLevel": {
+        "1": {
+          "prosperityLevel": 1,
+          "recoItemId": "item_bottled_rec_hp_4",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_4",
+              "rarity": 4,
+              "name": {
+                "CN": "低容武陵电池",
+                "EN": "LC Wuling Battery",
+                "JP": "小容量武陵バッテリー",
+                "TC": "低容量武陵電池"
+              },
+              "unitPrice": 25,
+              "stmExp": 25,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_4",
+              "rarity": 3,
+              "name": {
+                "CN": "芽针针剂",
+                "EN": "Yazhen Syringe [C]",
+                "JP": "芽針注射剤Ⅰ",
+                "TC": "芽針針劑"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "CN": "息壤",
+                "EN": "Xiranite",
+                "JP": "息壌",
+                "TC": "息壤"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "2": {
+          "prosperityLevel": 2,
+          "recoItemId": "item_proc_battery_4",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_4",
+              "rarity": 4,
+              "name": {
+                "CN": "低容武陵电池",
+                "EN": "LC Wuling Battery",
+                "JP": "小容量武陵バッテリー",
+                "TC": "低容量武陵電池"
+              },
+              "unitPrice": 25,
+              "stmExp": 25,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_bottled_food_4",
+              "rarity": 3,
+              "name": {
+                "CN": "锦草软饮",
+                "EN": "Jincao Drink",
+                "JP": "錦草ソーダⅠ",
+                "TC": "錦草飲料"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_4",
+              "rarity": 3,
+              "name": {
+                "CN": "芽针针剂",
+                "EN": "Yazhen Syringe [C]",
+                "JP": "芽針注射剤Ⅰ",
+                "TC": "芽針針劑"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_copper_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "赤铜零件",
+                "EN": "Cuprium Part",
+                "JP": "赤銅部品",
+                "TC": "赤銅零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "CN": "息壤",
+                "EN": "Xiranite",
+                "JP": "息壌",
+                "TC": "息壤"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "3": {
+          "prosperityLevel": 3,
+          "recoItemId": "item_bottled_rec_hp_5",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_5",
+              "rarity": 4,
+              "name": {
+                "CN": "中容武陵电池",
+                "EN": "SC Wuling Battery",
+                "JP": "中容量武陵バッテリー",
+                "TC": "中容量武陵電池"
+              },
+              "unitPrice": 54,
+              "stmExp": 54,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_4",
+              "rarity": 4,
+              "name": {
+                "CN": "低容武陵电池",
+                "EN": "LC Wuling Battery",
+                "JP": "小容量武陵バッテリー",
+                "TC": "低容量武陵電池"
+              },
+              "unitPrice": 25,
+              "stmExp": 25,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_5",
+              "rarity": 4,
+              "name": {
+                "CN": "优质芽针针剂",
+                "EN": "Yazhen Syringe [A]",
+                "JP": "芽針注射剤Ⅱ",
+                "TC": "優質芽針針劑"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d1d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_bottled_food_4",
+              "rarity": 3,
+              "name": {
+                "CN": "锦草软饮",
+                "EN": "Jincao Drink",
+                "JP": "錦草ソーダⅠ",
+                "TC": "錦草飲料"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_4",
+              "rarity": 3,
+              "name": {
+                "CN": "芽针针剂",
+                "EN": "Yazhen Syringe [C]",
+                "JP": "芽針注射剤Ⅰ",
+                "TC": "芽針針劑"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_copper_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "赤铜零件",
+                "EN": "Cuprium Part",
+                "JP": "赤銅部品",
+                "TC": "赤銅零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "CN": "息壤",
+                "EN": "Xiranite",
+                "JP": "息壌",
+                "TC": "息壤"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d1d0",
+              "isRecommended": false
+            }
+          ]
+        }
+      }
+    },
+    "stm_tundra_1": {
+      "settlementId": "stm_tundra_1",
+      "settlementName": {
+        "CN": "难民暂居处",
+        "EN": "Refugee Camp",
+        "JP": "仮設居住地",
+        "TC": "難民暫居處"
+      },
+      "domainId": "domain_1",
+      "domainLevelId": "map01_lv002",
+      "domainLevelShowName": {
+        "CN": "谷地通道",
+        "EN": "Valley Pass",
+        "JP": "谷地通路",
+        "TC": "谷地通道"
+      },
+      "levelIdAlsoThisSettlement": "map01_lv002",
+      "paymentItemId": "item_domain_tundra_coupon",
+      "paymentItemName": {
+        "CN": "谷地调度券",
+        "EN": "Valley Stock Bill",
+        "JP": "谷地取引券",
+        "TC": "谷地調度券"
+      },
+      "byProsperityLevel": {
+        "1": {
+          "prosperityLevel": 1,
+          "recoItemId": "item_bottled_rec_hp_1",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_rec_hp_1",
+              "rarity": 3,
+              "name": {
+                "CN": "荞愈胶囊",
+                "EN": "Buck Capsule [C]",
+                "JP": "蕎花カプセルⅠ",
+                "TC": "蕎癒膠囊"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_glass_bottle",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶质瓶",
+                "EN": "Amethyst Bottle",
+                "JP": "紫晶製ボトル",
+                "TC": "紫晶質瓶"
+              },
+              "unitPrice": 2,
+              "stmExp": 2,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_crystal_shell",
+              "rarity": 2,
+              "name": {
+                "CN": "晶体外壳",
+                "EN": "Origocrust",
+                "JP": "結晶外殻",
+                "TC": "晶體外殼"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶零件",
+                "EN": "Amethyst Part",
+                "JP": "紫晶部品",
+                "TC": "紫晶零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "2": {
+          "prosperityLevel": 2,
+          "recoItemId": "item_bottled_rec_hp_2",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_1",
+              "rarity": 3,
+              "name": {
+                "CN": "荞愈胶囊",
+                "EN": "Buck Capsule [C]",
+                "JP": "蕎花カプセルⅠ",
+                "TC": "蕎癒膠囊"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_bottle",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶质瓶",
+                "EN": "Amethyst Bottle",
+                "JP": "紫晶製ボトル",
+                "TC": "紫晶質瓶"
+              },
+              "unitPrice": 2,
+              "stmExp": 2,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_crystal_shell",
+              "rarity": 2,
+              "name": {
+                "CN": "晶体外壳",
+                "EN": "Origocrust",
+                "JP": "結晶外殻",
+                "TC": "晶體外殼"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶零件",
+                "EN": "Amethyst Part",
+                "JP": "紫晶部品",
+                "TC": "紫晶零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "3": {
+          "prosperityLevel": 3,
+          "recoItemId": "item_bottled_rec_hp_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质柑实罐头",
+                "EN": "Canned Citrome [B]",
+                "JP": "シトロームの缶詰Ⅱ",
+                "TC": "優質柑實罐頭"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_1",
+              "rarity": 3,
+              "name": {
+                "CN": "荞愈胶囊",
+                "EN": "Buck Capsule [C]",
+                "JP": "蕎花カプセルⅠ",
+                "TC": "蕎癒膠囊"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_bottle",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶质瓶",
+                "EN": "Amethyst Bottle",
+                "JP": "紫晶製ボトル",
+                "TC": "紫晶質瓶"
+              },
+              "unitPrice": 2,
+              "stmExp": 2,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_crystal_shell",
+              "rarity": 2,
+              "name": {
+                "CN": "晶体外壳",
+                "EN": "Origocrust",
+                "JP": "結晶外殻",
+                "TC": "晶體外殼"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶零件",
+                "EN": "Amethyst Part",
+                "JP": "紫晶部品",
+                "TC": "紫晶零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "4": {
+          "prosperityLevel": 4,
+          "recoItemId": "item_bottled_rec_hp_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_food_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选柑实罐头",
+                "EN": "Canned Citrome [A]",
+                "JP": "シトロームの缶詰Ⅲ",
+                "TC": "精選柑實罐頭"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质柑实罐头",
+                "EN": "Canned Citrome [B]",
+                "JP": "シトロームの缶詰Ⅱ",
+                "TC": "優質柑實罐頭"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_1",
+              "rarity": 3,
+              "name": {
+                "CN": "荞愈胶囊",
+                "EN": "Buck Capsule [C]",
+                "JP": "蕎花カプセルⅠ",
+                "TC": "蕎癒膠囊"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_bottle",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶质瓶",
+                "EN": "Amethyst Bottle",
+                "JP": "紫晶製ボトル",
+                "TC": "紫晶質瓶"
+              },
+              "unitPrice": 2,
+              "stmExp": 2,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_crystal_shell",
+              "rarity": 2,
+              "name": {
+                "CN": "晶体外壳",
+                "EN": "Origocrust",
+                "JP": "結晶外殻",
+                "TC": "晶體外殼"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_glass_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "紫晶零件",
+                "EN": "Amethyst Part",
+                "JP": "紫晶部品",
+                "TC": "紫晶零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        }
+      }
+    },
+    "stm_tundra_2": {
+      "settlementId": "stm_tundra_2",
+      "settlementName": {
+        "CN": "基建前站",
+        "EN": "Infra-Station",
+        "JP": "建設基地",
+        "TC": "基建前站"
+      },
+      "domainId": "domain_1",
+      "domainLevelId": "map01_lv005",
+      "domainLevelShowName": {
+        "CN": "源石研究园",
+        "EN": "Originium Science Park",
+        "JP": "源石研究パーク",
+        "TC": "源石研究園"
+      },
+      "levelIdAlsoThisSettlement": "map01_lv005",
+      "paymentItemId": "item_domain_tundra_coupon",
+      "paymentItemName": {
+        "CN": "谷地调度券",
+        "EN": "Valley Stock Bill",
+        "JP": "谷地取引券",
+        "TC": "谷地調度券"
+      },
+      "byProsperityLevel": {
+        "1": {
+          "prosperityLevel": 1,
+          "recoItemId": "item_proc_battery_1",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_1",
+              "rarity": 3,
+              "name": {
+                "CN": "低容谷地电池",
+                "EN": "LC Valley Battery",
+                "JP": "小容量谷地バッテリー",
+                "TC": "低容量谷地電池"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_iron_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "铁制零件",
+                "EN": "Ferrium Part",
+                "JP": "鉄製部品",
+                "TC": "鐵製零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "2": {
+          "prosperityLevel": 2,
+          "recoItemId": "item_proc_battery_2",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_1",
+              "rarity": 3,
+              "name": {
+                "CN": "低容谷地电池",
+                "EN": "LC Valley Battery",
+                "JP": "小容量谷地バッテリー",
+                "TC": "低容量谷地電池"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "铁制零件",
+                "EN": "Ferrium Part",
+                "JP": "鉄製部品",
+                "TC": "鐵製零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "3": {
+          "prosperityLevel": 3,
+          "recoItemId": "item_proc_battery_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_1",
+              "rarity": 3,
+              "name": {
+                "CN": "低容谷地电池",
+                "EN": "LC Valley Battery",
+                "JP": "小容量谷地バッテリー",
+                "TC": "低容量谷地電池"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "铁制零件",
+                "EN": "Ferrium Part",
+                "JP": "鉄製部品",
+                "TC": "鐵製零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "4": {
+          "prosperityLevel": 4,
+          "recoItemId": "item_proc_battery_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_food_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选柑实罐头",
+                "EN": "Canned Citrome [A]",
+                "JP": "シトロームの缶詰Ⅲ",
+                "TC": "精選柑實罐頭"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质柑实罐头",
+                "EN": "Canned Citrome [B]",
+                "JP": "シトロームの缶詰Ⅱ",
+                "TC": "優質柑實罐頭"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_1",
+              "rarity": 3,
+              "name": {
+                "CN": "低容谷地电池",
+                "EN": "LC Valley Battery",
+                "JP": "小容量谷地バッテリー",
+                "TC": "低容量谷地電池"
+              },
+              "unitPrice": 16,
+              "stmExp": 16,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_cmpt",
+              "rarity": 2,
+              "name": {
+                "CN": "铁制零件",
+                "EN": "Ferrium Part",
+                "JP": "鉄製部品",
+                "TC": "鐵製零件"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        }
+      }
+    },
+    "stm_tundra_3": {
+      "settlementId": "stm_tundra_3",
+      "settlementName": {
+        "CN": "重建指挥部",
+        "EN": "Reconstruction HQ",
+        "JP": "再建管理本部",
+        "TC": "重建指揮部"
+      },
+      "domainId": "domain_1",
+      "domainLevelId": "map01_lv007",
+      "domainLevelShowName": {
+        "CN": "供能高地",
+        "EN": "Power Plateau",
+        "JP": "エネルギー高地",
+        "TC": "供能高地"
+      },
+      "levelIdAlsoThisSettlement": "map01_lv007",
+      "paymentItemId": "item_domain_tundra_coupon",
+      "paymentItemName": {
+        "CN": "谷地调度券",
+        "EN": "Valley Stock Bill",
+        "JP": "谷地取引券",
+        "TC": "谷地調度券"
+      },
+      "byProsperityLevel": {
+        "1": {
+          "prosperityLevel": 1,
+          "recoItemId": "item_bottled_rec_hp_2",
+          "tradeItems": [
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_iron_enr_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "钢制零件",
+                "EN": "Steel Part",
+                "JP": "鋼製部品",
+                "TC": "鋼製零件"
+              },
+              "unitPrice": 3,
+              "stmExp": 3,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "2": {
+          "prosperityLevel": 2,
+          "recoItemId": "item_bottled_rec_hp_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_enr_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "钢制零件",
+                "EN": "Steel Part",
+                "JP": "鋼製部品",
+                "TC": "鋼製零件"
+              },
+              "unitPrice": 3,
+              "stmExp": 3,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "3": {
+          "prosperityLevel": 3,
+          "recoItemId": "item_bottled_rec_hp_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_food_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选柑实罐头",
+                "EN": "Canned Citrome [A]",
+                "JP": "シトロームの缶詰Ⅲ",
+                "TC": "精選柑實罐頭"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质柑实罐头",
+                "EN": "Canned Citrome [B]",
+                "JP": "シトロームの缶詰Ⅱ",
+                "TC": "優質柑實罐頭"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_enr_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "钢制零件",
+                "EN": "Steel Part",
+                "JP": "鋼製部品",
+                "TC": "鋼製零件"
+              },
+              "unitPrice": 3,
+              "stmExp": 3,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "4": {
+          "prosperityLevel": 4,
+          "recoItemId": "item_bottled_rec_hp_3",
+          "tradeItems": [
+            {
+              "itemId": "item_bottled_food_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选柑实罐头",
+                "EN": "Canned Citrome [A]",
+                "JP": "シトロームの缶詰Ⅲ",
+                "TC": "精選柑實罐頭"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_3",
+              "rarity": 4,
+              "name": {
+                "CN": "精选荞愈胶囊",
+                "EN": "Buck Capsule [A]",
+                "JP": "蕎花カプセルⅢ",
+                "TC": "精選蕎癒膠囊"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_3",
+              "rarity": 4,
+              "name": {
+                "CN": "高容谷地电池",
+                "EN": "HC Valley Battery",
+                "JP": "大容量谷地バッテリー",
+                "TC": "高容量谷地電池"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_2",
+              "rarity": 3,
+              "name": {
+                "CN": "中容谷地电池",
+                "EN": "SC Valley Battery",
+                "JP": "中容量谷地バッテリー",
+                "TC": "中容量谷地電池"
+              },
+              "unitPrice": 30,
+              "stmExp": 30,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质柑实罐头",
+                "EN": "Canned Citrome [B]",
+                "JP": "シトロームの缶詰Ⅱ",
+                "TC": "優質柑實罐頭"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_2",
+              "rarity": 3,
+              "name": {
+                "CN": "优质荞愈胶囊",
+                "EN": "Buck Capsule [B]",
+                "JP": "蕎花カプセルⅡ",
+                "TC": "優質蕎癒膠囊"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_1",
+              "rarity": 3,
+              "name": {
+                "CN": "柑实罐头",
+                "EN": "Canned Citrome [C]",
+                "JP": "シトロームの缶詰Ⅰ",
+                "TC": "柑實罐頭"
+              },
+              "unitPrice": 10,
+              "stmExp": 10,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_iron_enr_cmpt",
+              "rarity": 3,
+              "name": {
+                "CN": "钢制零件",
+                "EN": "Steel Part",
+                "JP": "鋼製部品",
+                "TC": "鋼製零件"
+              },
+              "unitPrice": 3,
+              "stmExp": 3,
+              "versionStart": "v0d8d0",
+              "isRecommended": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}
