@@ -10,6 +10,7 @@ type quantizedSlidingParam struct {
 	QuantityBox             []int                `json:"QuantityBox"`
 	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
 	ConcatAllFilteredDigits bool                 `json:"ConcatAllFilteredDigits"`
+	GreenMask               bool                 `json:"GreenMask"`
 	Direction               string               `json:"Direction"`
 	IncreaseButton          any                  `json:"IncreaseButton"`
 	DecreaseButton          any                  `json:"DecreaseButton"`
@@ -43,6 +44,7 @@ type QuantizedSlidingAction struct {
 	QuantityBox             []int
 	QuantityFilter          *quantityFilterParam
 	ConcatAllFilteredDigits bool
+	GreenMask               bool
 	Direction               string
 	IncreaseButton          buttonTarget
 	DecreaseButton          buttonTarget

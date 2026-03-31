@@ -12,6 +12,7 @@ type parsedQuantizedSlidingParams struct {
 	quantityBox             []int
 	quantityFilter          *quantityFilterParam
 	concatAllFilteredDigits bool
+	greenMask               bool
 	direction               string
 	increaseButton          buttonTarget
 	decreaseButton          buttonTarget
@@ -93,6 +94,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		quantityBox:             append([]int(nil), params.QuantityBox...),
 		quantityFilter:          quantityFilter,
 		concatAllFilteredDigits: params.ConcatAllFilteredDigits,
+		greenMask:               params.GreenMask,
 		direction:               strings.ToLower(strings.TrimSpace(params.Direction)),
 		increaseButton:          increaseButton,
 		decreaseButton:          decreaseButton,
@@ -106,6 +108,7 @@ func (a *QuantizedSlidingAction) applyActionParams(params parsedQuantizedSliding
 	a.QuantityBox = params.quantityBox
 	a.QuantityFilter = params.quantityFilter
 	a.ConcatAllFilteredDigits = params.concatAllFilteredDigits
+	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
@@ -120,6 +123,7 @@ func (a *QuantizedSlidingAction) logParsedActionParams() {
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
+		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
 		Bool("concat_all_filtered_digits", a.ConcatAllFilteredDigits).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).

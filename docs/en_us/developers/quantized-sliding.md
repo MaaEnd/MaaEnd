@@ -155,7 +155,7 @@ These two fields support two forms:
 In this case, go-service dynamically rewrites the corresponding branch node to `TemplateMatch + Click`:
 
 - The template threshold is fixed at `0.8`
-- `green_mask` is fixed at `true`
+- The top-level parameter `GreenMask` defaults to `false`, and is mapped to the TemplateMatch protocol field `green_mask`
 - The click uses `target: true` and includes `target_offset: [5, 5, -5, -5]`
 
 This is usually more stable than hardcoded coordinates, so it is the preferred option.

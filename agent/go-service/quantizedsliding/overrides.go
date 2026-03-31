@@ -24,12 +24,19 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam) map[string]any {
+func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, greenMask bool) map[string]any {
 	quantityParam := map[string]any{
 		"roi": append([]int(nil), quantityBox...),
 	}
 
 	override := map[string]any{
+		nodeQuantizedSlidingSwipeButton: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"green_mask": greenMask,
+				},
+			},
+		},
 		nodeQuantizedSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
@@ -69,7 +76,7 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 	return override
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, greenMask bool) map[string]any {
 	override := map[string]any{
 		nodeQuantizedSlidingDone: map[string]any{
 			"enabled": nextNode == nodeQuantizedSlidingDone,
@@ -89,7 +96,7 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	repeat = clampClickRepeat(repeat)
 
 	if target.template != "" {
-		override[nextNode] = buildTemplateMatchButtonOverride(target.template, repeat)
+		override[nextNode] = buildTemplateMatchButtonOverride(target.template, repeat, greenMask)
 		return override
 	}
 
@@ -106,8 +113,8 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	return override
 }
 
-func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
-	if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, target, repeat)); err != nil {
+func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int, greenMask bool) error {
+	if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, target, repeat, greenMask)); err != nil {
 		return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 	}
 	if err := ctx.OverrideNext(currentNode, []maa.NextItem{{Name: nextNode}}); err != nil {
@@ -117,7 +124,7 @@ func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode 
 	return nil
 }
 
-func buildTemplateMatchButtonOverride(template string, repeat int) map[string]any {
+func buildTemplateMatchButtonOverride(template string, repeat int, greenMask bool) map[string]any {
 	return map[string]any{
 		"enabled": true,
 		"recognition": map[string]any{
@@ -125,7 +132,7 @@ func buildTemplateMatchButtonOverride(template string, repeat int) map[string]an
 			"param": map[string]any{
 				"template":   []string{template},
 				"threshold":  []float64{0.8},
-				"green_mask": true,
+				"green_mask": greenMask,
 			},
 		},
 		"action": map[string]any{

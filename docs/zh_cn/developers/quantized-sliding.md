@@ -155,7 +155,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 此时 go-service 会动态把对应分支节点改成 `TemplateMatch + Click`：
 
 - 模板阈值固定为 `0.8`
-- `green_mask` 固定为 `true`
+- 顶层参数 `GreenMask` 默认值为 `false`，进入 TemplateMatch 协议层后映射为 `green_mask`
 - 点击时使用 `target: true`，并附带 `target_offset: [5, 5, -5, -5]`
 
 这种方式通常比硬编码坐标更稳，推荐优先使用。
