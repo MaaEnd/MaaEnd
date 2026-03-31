@@ -7,7 +7,7 @@
             "description": "$task.DijiangRewards.description",
             "option": [
                 "AutoStartExchange",
-                "ProductionAssistanceWithoutTheControlNexus",
+                "StageTaskSetting",
                 "ClueSetting",
                 "SelectToGrow"
             ],
@@ -41,17 +41,37 @@
                 }
             ]
         },
-        "ProductionAssistanceWithoutTheControlNexus": {
+        "StageTaskSetting": {
             "type": "switch",
-            "label": "$option.ProductionAssistanceWithoutTheControlNexus.label",
-            "description": "$option.ProductionAssistanceWithoutTheControlNexus.description",
+            "label": "$option.StageTaskSetting.label",
+            "description": "$option.StageTaskSetting.description",
             "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "RecoveryEmotionStage",
+                        "ReceptionRoomStage",
+                        "ManufacturingStage",
+                        "GrowthChamberStage"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "RecoveryEmotionStage": {
+            "type": "switch",
+            "label": "$option.RecoveryEmotionStage.label",
+            "description": "$option.RecoveryEmotionStage.description",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "RecoveryEmotionMain": {
-                            "enabled": false
+                            "enabled": true
                         }
                     }
                 },
@@ -59,7 +79,79 @@
                     "name": "No",
                     "pipeline_override": {
                         "RecoveryEmotionMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ReceptionRoomStage": {
+            "type": "switch",
+            "label": "$option.ReceptionRoomStage.label",
+            "description": "$option.ReceptionRoomStage.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomMain": {
                             "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ManufacturingStage": {
+            "type": "switch",
+            "label": "$option.ManufacturingStage.label",
+            "description": "$option.ManufacturingStage.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "MFGCabinMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "MFGCabinMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GrowthChamberStage": {
+            "type": "switch",
+            "label": "$option.GrowthChamberStage.label",
+            "description": "$option.GrowthChamberStage.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GrowthChamberMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "GrowthChamberMain": {
+                            "enabled": false
                         }
                     }
                 }
