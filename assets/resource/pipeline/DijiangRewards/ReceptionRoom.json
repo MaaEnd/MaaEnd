@@ -167,7 +167,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSendCluesClueCollectionOpen"
+            "ReceptionRoomSendCluesClueCollectionOpen",
+            "ReceptionRoomClueExchangeWait"
         ]
     },
     "ReceptionRoomSendCluesClueCollectionOpen": {
@@ -314,7 +315,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SceneNoticeRewardsConfirm"
+            "SceneNoticeRewardsConfirm",
+            "ReceptionRoomClueExchangeWait"
         ]
     },
     "ReceptionRoomReceiveClues": {
@@ -338,7 +340,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomReceiveCluesOpen"
+            "ReceptionRoomReceiveCluesOpen",
+            "ReceptionRoomClueExchangeWait"
         ]
     },
     "ReceptionRoomReceiveCluesOpen": {
@@ -768,7 +771,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSetCluesChooseClues"
+            "ReceptionRoomSetCluesChooseClues",
+            "ReceptionRoomClueExchangeWait"
         ]
     },
     "ReceptionRoomSetCluesChooseClues": {
