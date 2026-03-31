@@ -349,7 +349,19 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 任务 / 相关选项：优先写 `assets/locales/interface/zh_cn.json` 中的中文 `label` / `description`
 - 用户现象：
 
-## DMP 崩溃分析
+## 关键证据
+
+<details><summary>点击此处展开</summary>
+
+- `maa.log`：...
+- `go-service.log`：...
+- `mxu-tauri.log`：...
+- `mxu-web-*.log`：...
+- `mxu-agent.log` / `on_error`：...
+- 代码依据：如需指向具体实现，直接附远端 GitHub 行号链接
+
+
+### DMP 崩溃分析
 
 （仅当 issue 存在 .dmp 文件时输出此区域。如果没有 .dmp 文件，删除整个区域。）
 
@@ -358,7 +370,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 崩溃模块：`<module_name>+<offset>`
 - 符号化状态：已符号化 / 仅 module+offset（原因：...）
 
-### 崩溃堆栈（crashing thread 全部有效帧，禁止省略）
+#### 崩溃堆栈（crashing thread 全部有效帧，禁止省略）
 
 ```
 Frame 0: <module>+<offset>  [或 <function> at <file>:<line>]
@@ -370,7 +382,7 @@ Frame 2: ...
 （如果符号化成功且帧涉及 MaaFramework 或 MXU，在每个相关帧后面附上游源码链接：）
 - Frame N: `<function>` → <https://github.com/MaaXYZ/MaaFramework/blob/v5.x.x/src/...#L123>
 
-### 关键模块
+#### 关键模块
 
 | Module | Base | Size |
 |--------|------|------|
@@ -378,16 +390,6 @@ Frame 2: ...
 | MaaWin32ControlUnit.dll | ... | ... |
 | ... | ... | ... |
 
-## 关键证据
-
-<details><summary>点击此处展开</summary>
-
-- `maa.log`：...
-- `go-service.log`：...
-- `mxu-tauri.log`：...
-- `mxu-web-*.log`：...
-- `mxu-agent.log` / `on_error`：...
-- 代码依据：如需指向具体实现，直接附远端 GitHub 行号链接
 
 </details>
 
