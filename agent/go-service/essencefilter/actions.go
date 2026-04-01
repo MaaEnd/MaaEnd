@@ -516,7 +516,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 const firstRowTargetY = 86       //首行Y
 const calibrateTolerance = 8     //校准误差
 const calibrateScrollRatio = 1.1 //校准滑动比例
-const calibrateSwipeMin = 13     //校准滑动最小值（10px）
+const calibrateSwipeMin = 13     //校准滑动最小值（13px）
 const calibrateSwipeMax = 40     //校准滑动最大值
 
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
