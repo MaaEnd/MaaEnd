@@ -24,7 +24,7 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool, greenMask bool) map[string]any {
+func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool) map[string]any {
 	quantityParam := map[string]any{
 		"roi":      append([]int(nil), quantityBox...),
 		"only_rec": quantityOnlyRec,

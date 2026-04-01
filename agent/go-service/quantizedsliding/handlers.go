@@ -74,7 +74,7 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 		return false
 	}
 
-	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.QuantityOnlyRec, a.GreenMask)
+	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.QuantityOnlyRec)
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
