@@ -1629,17 +1629,18 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoGetCreditsCanNotFlash": {
-                            "recognition": "Or",
-                            "any_of": [
-                                "CanNotFlash"
-                            ]
+                        "RefreshGetCredits": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "RefreshGetCredits": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },

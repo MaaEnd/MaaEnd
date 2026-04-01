@@ -45,6 +45,7 @@
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
+            "RefreshGetCredits",
             "ADBSpecial",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
@@ -77,6 +78,7 @@
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
+            "RefreshGetCredits",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -172,8 +174,7 @@
         "max_hit": 1,
         "recognition": "Or",
         "any_of": [
-            "AutoGetCreditsBuyPriority1",
-            "AutoGetCreditsCanNotFlash"
+            "AutoGetCreditsBuyPriority1"
         ],
         "next": [
             "[JumpBack]NeedCredit",
@@ -185,21 +186,26 @@
             "Node.Action.Succeeded": "$task.CreditShopping.auto_get_credits"
         }
     },
-    "AutoGetCreditsCanNotFlash": {
+    "RefreshGetCredits": {
         "desc": "刷新信用点不足触发获取信用点，默认关闭，由任务选项开启",
+        "max_hit": 1,
+        "enabled": false,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    1,
-                    1
-                ],
-                "expected": [
-                    "a^"
+                "all_of": [
+                    "CanNotFlash"
                 ]
             }
+        },
+        "next": [
+            "[JumpBack]NeedCredit",
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.CreditShopping.auto_get_credits"
         }
     },
     "AutoGetCreditsBuy": {
