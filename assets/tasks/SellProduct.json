@@ -71,7 +71,6 @@
                 }
             ]
         },
-        // ===== 售卖点开关 =====
         "ValleyIVRefugeeCamp": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVRefugeeCamp",
@@ -101,7 +100,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 1（默认开启，含描述） =====
         "ValleyIVRefugeeCampAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt1",
@@ -129,7 +127,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 2（默认开启） =====
         "ValleyIVRefugeeCampAttempt2": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt2",
@@ -156,7 +153,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 3（默认关闭） =====
         "ValleyIVRefugeeCampAttempt3": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt3",
@@ -183,7 +179,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 4（默认关闭） =====
         "ValleyIVRefugeeCampAttempt4": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt4",
@@ -210,7 +205,6 @@
                 }
             ]
         },
-        // ===== 优先物品选择 1-4 =====
         "ValleyIVRefugeeCampItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
@@ -446,7 +440,6 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "^紫晶零件$",
                                 "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
@@ -699,7 +692,6 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
-                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
@@ -950,7 +942,6 @@
                         "SellProductRefugeeCampSelectItem3": {
                             "enabled": true,
                             "expected": [
-                                "^紫晶零件$",
                                 "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
@@ -1203,7 +1194,6 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
-                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
@@ -1219,7 +1209,6 @@
                 }
             ]
         },
-        // ===== 售卖点开关 =====
         "ValleyIVInfrastructureOutpost": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVInfrastructureOutpost",
@@ -1249,7 +1238,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 1（默认开启，含描述） =====
         "ValleyIVInfrastructureOutpostAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt1",
@@ -1277,7 +1265,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 2（默认开启） =====
         "ValleyIVInfrastructureOutpostAttempt2": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt2",
@@ -1304,7 +1291,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 3（默认关闭） =====
         "ValleyIVInfrastructureOutpostAttempt3": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt3",
@@ -1331,7 +1317,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 4（默认关闭） =====
         "ValleyIVInfrastructureOutpostAttempt4": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt4",
@@ -1358,7 +1343,6 @@
                 }
             ]
         },
-        // ===== 优先物品选择 1-4 =====
         "ValleyIVInfrastructureOutpostItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
@@ -2199,7 +2183,6 @@
                 }
             ]
         },
-        // ===== 售卖点开关 =====
         "ValleyIVReconstructionCommand": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVReconstructionCommand",
@@ -2229,7 +2212,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 1（默认开启，含描述） =====
         "ValleyIVReconstructionCommandAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt1",
@@ -2257,7 +2239,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 2（默认开启） =====
         "ValleyIVReconstructionCommandAttempt2": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt2",
@@ -2284,7 +2265,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 3（默认关闭） =====
         "ValleyIVReconstructionCommandAttempt3": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt3",
@@ -2311,7 +2291,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 4（默认关闭） =====
         "ValleyIVReconstructionCommandAttempt4": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt4",
@@ -2338,7 +2317,6 @@
                 }
             ]
         },
-        // ===== 优先物品选择 1-4 =====
         "ValleyIVReconstructionCommandItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
@@ -3095,7 +3073,6 @@
                 }
             ]
         },
-        // ===== 售卖点开关 =====
         "WulingSkyKingFlats": {
             "type": "switch",
             "label": "$task.SellProduct.WulingSkyKingFlats",
@@ -3125,7 +3102,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 1（默认开启，含描述） =====
         "WulingSkyKingFlatsAttempt1": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt1",
@@ -3153,7 +3129,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 2（默认开启） =====
         "WulingSkyKingFlatsAttempt2": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt2",
@@ -3180,7 +3155,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 3（默认关闭） =====
         "WulingSkyKingFlatsAttempt3": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt3",
@@ -3207,7 +3181,6 @@
                 }
             ]
         },
-        // ===== 售卖尝试 4（默认关闭） =====
         "WulingSkyKingFlatsAttempt4": {
             "type": "switch",
             "label": "$task.SellProduct.SellAttempt4",
@@ -3234,7 +3207,6 @@
                 }
             ]
         },
-        // ===== 优先物品选择 1-4 =====
         "WulingSkyKingFlatsItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
@@ -3386,7 +3358,6 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -3555,7 +3526,6 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
-                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
@@ -3723,7 +3693,6 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
-                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
@@ -3890,7 +3859,6 @@
                         "SellProductSkyKingFlatsSelectItem4": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
