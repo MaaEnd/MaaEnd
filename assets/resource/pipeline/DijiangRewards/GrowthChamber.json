@@ -449,7 +449,7 @@
             "type": "Click"
         },
         "next": [
-            "GrowthChamberViewIn"
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberSeedExtractConfirm": {
