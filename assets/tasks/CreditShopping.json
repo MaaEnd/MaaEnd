@@ -36,7 +36,20 @@
                     "name": "No",
                     "pipeline_override": {
                         "AutoGetCredits": {
-                            "enabled": false
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         },
                         "ReceptionRoomSendCluesEntry_NeedCredit": {
                             "enabled": false
@@ -53,17 +66,26 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "AutoGetCredits": {
-                            "enabled": true
-                        }
-                    }
+                    "pipeline_override": {}
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "AutoGetCredits": {
-                            "enabled": false
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }
@@ -1607,9 +1629,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoGetCredits": {
+                        "AutoGetCreditsCanNotFlash": {
+                            "recognition": "Or",
                             "any_of": [
-                                "AutoGetCreditsBuy",
                                 "CanNotFlash"
                             ]
                         }

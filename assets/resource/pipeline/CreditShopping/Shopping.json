@@ -172,7 +172,8 @@
         "max_hit": 1,
         "recognition": "Or",
         "any_of": [
-            "AutoGetCreditsBuy"
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsCanNotFlash"
         ],
         "next": [
             "[JumpBack]NeedCredit",
@@ -182,6 +183,23 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.CreditShopping.auto_get_credits"
+        }
+    },
+    "AutoGetCreditsCanNotFlash": {
+        "desc": "刷新信用点不足触发获取信用点，默认关闭，由任务选项开启",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1,
+                    1
+                ],
+                "expected": [
+                    "a^"
+                ]
+            }
         }
     },
     "AutoGetCreditsBuy": {
