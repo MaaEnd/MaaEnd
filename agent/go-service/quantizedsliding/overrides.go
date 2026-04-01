@@ -31,13 +31,6 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 	}
 
 	override := map[string]any{
-		nodeQuantizedSlidingSwipeButton: map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"green_mask": greenMask,
-				},
-			},
-		},
 		nodeQuantizedSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{

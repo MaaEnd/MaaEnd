@@ -6,7 +6,8 @@
             "param": {
                 "template": [
                     "QuantizedSliding/SwipeButton.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "pre_delay": 0,
