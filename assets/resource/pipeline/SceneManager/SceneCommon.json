@@ -127,6 +127,9 @@
                 ],
                 "box_index": 1
             }
+        },
+        "action": {
+            "type": "Click"
         }
     }
 }
