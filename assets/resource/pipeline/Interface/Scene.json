@@ -12,6 +12,7 @@
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateEndVisitConfirm",
             "[JumpBack]SceneWaitLoadingExit",
+            "__ScenePrivateCloseADBExit",
             "[JumpBack]__ScenePrivateAnyExit"
         ]
     },
