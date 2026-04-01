@@ -164,1066 +164,6 @@
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
     },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try1": {
-        "desc": "在地图界面找锚点 (武陵城-界石坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity1Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try2": {
-        "desc": "在地图界面找锚点 (武陵城-界石坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity1Bottom.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            -60,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try3": {
-        "desc": "在地图界面找锚点 (武陵城-界石坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity1Right.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            -60,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try1": {
-        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity2Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try2": {
-        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity2Bottom.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            -60,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try3": {
-        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity2Right.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            -60,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try1": {
-        "desc": "在地图界面找锚点 (武陵城-天井院)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity5Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try2": {
-        "desc": "在地图界面找锚点 (武陵城-天井院)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity5Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try3": {
-        "desc": "在地图界面找锚点 (武陵城-天井院)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity5Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try1": {
-        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity6Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try2": {
-        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity6Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try3": {
-        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity6Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try1": {
-        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity7Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try2": {
-        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity7Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try3": {
-        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/WulingCity7Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try1": {
-        "desc": "在地图界面找锚点 (景玉谷-踩道)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley1Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try2": {
-        "desc": "在地图界面找锚点 (景玉谷-踩道)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley1Bottom.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            -60,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try3": {
-        "desc": "在地图界面找锚点 (景玉谷-踩道)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley1Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try1": {
-        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley3Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try2": {
-        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley3Right.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            -60,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try3": {
-        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley3Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try1": {
-        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley5Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try2": {
-        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley5Bottom.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            -60,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try3": {
-        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley5Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try1": {
-        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley6Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try2": {
-        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley6Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try3": {
-        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley6Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try1": {
-        "desc": "在地图界面找锚点 (景玉谷-南山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley9Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try2": {
-        "desc": "在地图界面找锚点 (景玉谷-南山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley9Left.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try3": {
-        "desc": "在地图界面找锚点 (景玉谷-南山)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/MapWuling/JingyuValley9Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10Try0": {
-        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
-        "custom_action_param": {
-            "map_name": "map02_lv001",
-            "target": [
-                125,
-                824
-            ],
-            "on_find": "Click"
-        },
-        "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
-        ]
-    },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8Try0": {
-        "desc": "在地图界面找锚点 (武陵城-储备站右下)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                694,
-                914
-            ],
-            "on_find": "Click"
-        },
-        "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
-        ]
-    },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley0Try0": {
         "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
         "recognition": "And",
@@ -1244,16 +184,35 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley1Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-踩道)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                498,
+                185
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1279,16 +238,35 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley3Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-清波寨外寨大世界)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                515,
+                345
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1314,16 +292,62 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley5Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-天王坪)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                491,
+                415
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley6Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                505,
+                495
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1349,16 +373,8 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
-        },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1384,14 +400,59 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley9Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-南山)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                338,
+                770
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10Try0": {
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "target": [
+                125,
+                824
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
         "next": [
@@ -1419,16 +480,62 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity1Try0": {
+        "desc": "在地图界面找锚点 (武陵城-界石坪)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                212,
+                515
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity2Try0": {
+        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                633,
+                541
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1454,16 +561,8 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
-        },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
@@ -1489,14 +588,113 @@
         "anchor": {
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
-        "post_wait_freezes": {
-            "time": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity5Try0": {
+        "desc": "在地图界面找锚点 (武陵城-天井院学院)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
             "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
+                663,
+                737
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity6Try0": {
+        "desc": "在地图界面找锚点 (武陵城-储备站左上)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                591,
+                828
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity7Try0": {
+        "desc": "在地图界面找锚点 (武陵城-三窟岗)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                421,
+                852
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8Try0": {
+        "desc": "在地图界面找锚点 (武陵城-储备站右下)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                694,
+                914
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
         "next": [
