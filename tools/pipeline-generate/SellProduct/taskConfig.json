@@ -1,0 +1,7 @@
+{
+    "task": true,
+    "template": "task-template.jsonc",
+    "data": "task-data.flat-settlement.mjs",
+    "outputDir": "output",
+    "format": true
+}
