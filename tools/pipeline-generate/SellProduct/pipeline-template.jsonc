@@ -12,7 +12,7 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}Sell",
-            "[JumpBack]SellProductGoTo${LocationId}Outpost"
+            "[JumpBack]SellProductGoTo${LocationId}"
         ]
     },
     // ===== 售卖锚点节点 =====
@@ -50,7 +50,7 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoTo${LocationId}Outpost": {
+    "SellProductGoTo${LocationId}": {
         "desc": "前往${LocationDesc}据点",
         "recognition": "And",
         "all_of": [

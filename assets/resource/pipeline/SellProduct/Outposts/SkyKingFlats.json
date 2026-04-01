@@ -12,7 +12,7 @@
         "rate_limit": 0,
         "next": [
             "SellProductSkyKingFlatsSell",
-            "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
+            "[JumpBack]SellProductGoToSkyKingFlats"
         ]
     },
     // ===== 售卖锚点节点 =====
@@ -50,7 +50,7 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoToSkyKingFlatsOutpost": {
+    "SellProductGoToSkyKingFlats": {
         "desc": "前往天王坪援建点据点",
         "recognition": "And",
         "all_of": [

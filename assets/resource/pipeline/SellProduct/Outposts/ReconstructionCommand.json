@@ -12,7 +12,7 @@
         "rate_limit": 0,
         "next": [
             "SellProductReconstructionCommandSell",
-            "[JumpBack]SellProductGoToReconstructionCommandOutpost"
+            "[JumpBack]SellProductGoToReconstructionCommand"
         ]
     },
     // ===== 售卖锚点节点 =====
@@ -50,7 +50,7 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoToReconstructionCommandOutpost": {
+    "SellProductGoToReconstructionCommand": {
         "desc": "前往重建指挥部据点",
         "recognition": "And",
         "all_of": [

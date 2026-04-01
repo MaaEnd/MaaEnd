@@ -12,7 +12,7 @@
         "rate_limit": 0,
         "next": [
             "SellProductInfrastructureOutpostSell",
-            "[JumpBack]SellProductGoToInfrastructureOutpostOutpost"
+            "[JumpBack]SellProductGoToInfrastructureOutpost"
         ]
     },
     // ===== 售卖锚点节点 =====
@@ -50,7 +50,7 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoToInfrastructureOutpostOutpost": {
+    "SellProductGoToInfrastructureOutpost": {
         "desc": "前往基建前站据点",
         "recognition": "And",
         "all_of": [
