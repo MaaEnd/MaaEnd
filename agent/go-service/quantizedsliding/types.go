@@ -38,6 +38,7 @@ type quantityFilterParam struct {
 //   - Quantity.Box: OCR 识别数量的 ROI 区域 [x,y,w,h]
 //   - QuantityFilter: 可选的数量 OCR 颜色过滤参数
 //   - Quantity.OnlyRec: 是否为数量 OCR 节点启用 only_rec
+//   - GreenMask: 顶层参数，默认值为 false，进入 TemplateMatch 协议层后映射为 green_mask，用于滑块模板和加减按钮模板匹配
 //   - Direction: 滑动方向 (left/right/up/down)
 //   - IncreaseButton: 增加数量按钮的模板路径或坐标
 //   - DecreaseButton: 减少数量按钮的模板路径或坐标
