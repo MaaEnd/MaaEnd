@@ -138,15 +138,16 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    990,
-                    485,
-                    70,
-                    35
+                    1000,
+                    244,
+                    80,
+                    20
                 ],
                 "expected": [
-                    "^\\d{3,4}$"
+                    "\\d{3,4}"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "color_filter": "AutoStockpileReconcilPriceFilter"
             }
         },
         "pre_delay": 0,
@@ -208,6 +209,29 @@
         ],
         "focus": {
             "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
+        }
+    },
+    "AutoStockpileReconcilPriceFilter": {
+        "desc": "过滤调度券图标",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        40
+                    ]
+                ],
+                "upper": [
+                    [
+                        5,
+                        5,
+                        120
+                    ]
+                ]
+            }
         }
     }
 }
