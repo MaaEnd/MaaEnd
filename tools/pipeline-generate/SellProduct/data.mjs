@@ -1,10 +1,4 @@
-// SellProduct 数据源（中间层）
-// 默认读 settlement_trade_outposts.json：换源时改 require 路径，并同步调整下方对 settlements / tradeItems 的遍历逻辑。
-// 成品结构：与根目录 task-template.jsonc 合并后应对齐「SellProduct.json」类文件（静态 task + 区域开关 + 各点 Attempt/Item + select cases）。
-// 生成：node generate-task.mjs --template ./task-template.jsonc --data ./task-data.flat-settlement.mjs
-// 导出：
-// - default / settlementFlatRows：与 task-template.jsonc 配套（RegionPrefix、LocationId、ItemCases1~4 数组）
-// - templateSmartTaskData：与 examples/task/template.smart.jsonc 配套（多一层 TaskName、RegionTaskOptionIds 等）
+// SellProduct 数据源
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
