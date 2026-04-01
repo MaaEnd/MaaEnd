@@ -136,11 +136,18 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
 // ===== 构建 cases 数组 =====
 function buildItemCases(nodePrefix, itemNum, itemIds) {
     const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
+    const attemptKey = `SellProduct${nodePrefix}SellAttempt${itemNum}`;
     const cases = [
         {
             name: "无",
             pipeline_override: {
                 [selectKey]: { enabled: false },
+                [attemptKey]: {
+                    anchor: {
+                        SellProductSelectNewGood: selectKey,
+                        SellProductPriorityGoodMissHandler: "",
+                    },
+                },
             },
         },
     ];
@@ -152,6 +159,13 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                 [selectKey]: {
                     enabled: true,
                     expected: item.expected,
+                },
+                [attemptKey]: {
+                    anchor: {
+                        SellProductSelectNewGood: selectKey,
+                        SellProductPriorityGoodMissHandler:
+                            "SellProductPriorityGoodMissWarning",
+                    },
                 },
             },
             label: item.label,

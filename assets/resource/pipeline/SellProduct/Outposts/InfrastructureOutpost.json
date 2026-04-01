@@ -115,7 +115,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1"
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -134,7 +135,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2"
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -153,7 +155,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3"
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -172,7 +175,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4"
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,

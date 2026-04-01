@@ -117,7 +117,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1"
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -136,7 +137,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2"
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -155,7 +157,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3"
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -174,7 +177,8 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4"
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
