@@ -1,7 +1,7 @@
 # 售卖物品
 
 ```shell
-npx @joebao/maa-pipeline-generate
+npx @joebao/maa-pipeline-generate --config task-config.json
 ```
 
 ## 致谢

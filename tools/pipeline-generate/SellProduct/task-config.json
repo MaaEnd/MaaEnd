@@ -1,5 +1,5 @@
 {
-    "template": "template.jsonc",
+    "template": "task-template.jsonc",
     "data": "data.mjs",
     "format": true,
     "merged": true
