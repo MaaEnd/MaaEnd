@@ -5,7 +5,7 @@
             "[JumpBack]SceneEnterWorldWulingWulingCity2"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线4"
+            "Node.Recognition.Succeeded": "开始路线2"
         }
     },
     "AutoCollectRoute2End": {
@@ -38,7 +38,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind1": {
-        "desc": "前往采集点",
+        "desc": "前往采集点1",
         "action": {
             "type": "Custom",
             "param": {
@@ -115,7 +115,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind2": {
-        "desc": "前往采集点",
+        "desc": "前往采集点2",
         "action": {
             "type": "Custom",
             "param": {
@@ -140,7 +140,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind3": {
-        "desc": "前往采集点",
+        "desc": "前往采集点3",
         "action": {
             "type": "Custom",
             "param": {
@@ -165,7 +165,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind4": {
-        "desc": "前往采集点",
+        "desc": "前往采集点4",
         "action": {
             "type": "Custom",
             "param": {
@@ -190,7 +190,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind5": {
-        "desc": "前往采集点",
+        "desc": "前往采集点5",
         "action": {
             "type": "Custom",
             "param": {
@@ -215,7 +215,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind6": {
-        "desc": "前往采集点",
+        "desc": "前往采集点6",
         "action": {
             "type": "Custom",
             "param": {
@@ -240,7 +240,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind7": {
-        "desc": "前往采集点",
+        "desc": "前往采集点7",
         "action": {
             "type": "Custom",
             "param": {
@@ -265,7 +265,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind8": {
-        "desc": "前往采集点",
+        "desc": "前往采集点8",
         "action": {
             "type": "Custom",
             "param": {
@@ -290,7 +290,7 @@
         ]
     },
     "AutoCollectRoute2GotoFind9": {
-        "desc": "前往采集点",
+        "desc": "前往采集点9",
         "action": {
             "type": "Custom",
             "param": {
