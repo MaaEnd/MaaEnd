@@ -198,7 +198,7 @@
                     0,
                     0
                 ],
-                "expected": 0,
+                "expected": 1,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
@@ -279,7 +279,7 @@
                     0,
                     0
                 ],
-                "expected": 1,
+                "expected": 0,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
