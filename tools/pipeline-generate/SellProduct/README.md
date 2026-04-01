@@ -2,7 +2,7 @@
 
 ```shell
 npx @joebao/maa-pipeline-generate --config task-config.json
-npx @joebao/maa-pipeline-generate --config pipeline-config.json
+npx @joebao/maa-pipeline-generate --config pipeline-config.json --output-pattern '${LocationId}.json'
 ```
 
 ## 致谢

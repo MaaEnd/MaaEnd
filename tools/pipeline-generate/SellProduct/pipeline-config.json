@@ -2,7 +2,7 @@
     "template": "pipeline-template.jsonc",
     "data": "data.mjs",
     "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts",
-    "outputPattern": "${RegionPrefix}.json",
+    "outputPattern": "${LocationId}.json",
     "format": true,
     "merged": false
 }
