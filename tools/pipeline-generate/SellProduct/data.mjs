@@ -1,5 +1,10 @@
-// SellProduct 数据源
-// 基于 settlement_trade_outposts.json 自动构建物品列表（取所有繁荣度等级的并集）
+// SellProduct 数据源（中间层）
+// 默认读 settlement_trade_outposts.json：换源时改 require 路径，并同步调整下方对 settlements / tradeItems 的遍历逻辑。
+// 成品结构：与根目录 task-template.jsonc 合并后应对齐「SellProduct.json」类文件（静态 task + 区域开关 + 各点 Attempt/Item + select cases）。
+// 生成：node generate-task.mjs --template ./task-template.jsonc --data ./task-data.flat-settlement.mjs
+// 导出：
+// - default / settlementFlatRows：与 task-template.jsonc 配套（RegionPrefix、LocationId、ItemCases1~4 数组）
+// - templateSmartTaskData：与 examples/task/template.smart.jsonc 配套（多一层 TaskName、RegionTaskOptionIds 等）
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -174,8 +179,8 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
     return cases;
 }
 
-// ===== 导出数据 =====
-export default LOCATIONS.map((loc) => ({
+// ===== 扁平行（仅 Region + ItemCases，给其它脚本用）=====
+export const settlementFlatRows = LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
     LocationId: loc.LocationId,
     LocationDesc: loc.LocationDesc,
@@ -185,3 +190,57 @@ export default LOCATIONS.map((loc) => ({
     ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
     ItemCases4: buildItemCases(loc.LocationId, 4, loc.items),
 }));
+
+const REGION_LABELS = {
+    ValleyIV: "$global.region.ValleyIV",
+    Wuling: "$global.region.Wuling",
+};
+
+/** 与 examples/task/template.smart.jsonc 占位符对齐（基于 settlement 导出的 ItemCases） */
+function buildEntryForTemplateSmart(regionPrefix, regionLocations, loc) {
+    return {
+        name: `${regionPrefix}-${loc.LocationId}`,
+        TaskName: "SellProduct",
+        TaskEntry: "SellProductMain",
+        TaskLabel: "$task.SellProduct.label",
+        TaskDescription: "$task.SellProduct.description",
+        TaskGroup: ["daily"],
+        RegionPrefix: regionPrefix,
+        RegionLabel: REGION_LABELS[regionPrefix],
+        RegionTaskOptionIds: [`${regionPrefix}Sell`],
+        RegionLocationIds: regionLocations.map(
+            (l) => `${l.RegionPrefix}${l.LocationId}`,
+        ),
+        LocationId: loc.LocationId,
+        NodePrefix: loc.LocationId,
+        Attempt1DefaultCase: "Yes",
+        Attempt2DefaultCase: "Yes",
+        Attempt3DefaultCase: "No",
+        Attempt4DefaultCase: "No",
+        ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
+        ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
+        ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
+        ItemCases4: buildItemCases(loc.LocationId, 4, loc.items),
+    };
+}
+
+const valleyLocs = LOCATIONS.filter((l) => l.RegionPrefix === "ValleyIV");
+const wulingLocs = LOCATIONS.filter((l) => l.RegionPrefix === "Wuling");
+
+/** 供 template.smart.jsonc + generate-task 使用 */
+export const templateSmartTaskData = [
+    ...valleyLocs.map((loc) =>
+        buildEntryForTemplateSmart("ValleyIV", valleyLocs, loc),
+    ),
+    ...wulingLocs.map((loc) =>
+        buildEntryForTemplateSmart("Wuling", wulingLocs, loc),
+    ),
+];
+
+/** task 生成：输出文件（loadData 的 config） */
+export const taskFromSettlementConfig = {
+    outputFile: "SellProduct.from-settlement.json",
+};
+
+// ===== 默认导出：扁平 settlement 行 =====
+export default settlementFlatRows;
