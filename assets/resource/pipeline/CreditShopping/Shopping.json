@@ -237,6 +237,12 @@
         ],
         "box_index": 4,
         "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -254,6 +260,12 @@
         ],
         "box_index": 4,
         "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -270,6 +282,12 @@
         ],
         "box_index": 4,
         "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyItem"
         ]
