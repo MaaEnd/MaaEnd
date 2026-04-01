@@ -273,7 +273,7 @@
     },
     "CreditShoppingBuyPriority2": {
         //"enabled": false,
-        "desc": "购买其他物品1（选项：其他物品1、折扣设置；遵守保留信用点阈值）",
+        "desc": "普通购买1（选项：普通购买1物品、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
@@ -295,7 +295,7 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "购买其他物品2（选项：其他物品2、折扣设置；遵守保留信用点阈值）",
+        "desc": "普通购买2（选项：普通购买2物品、折扣设置；遵守保留信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
