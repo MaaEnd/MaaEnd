@@ -10,6 +10,8 @@
     "task.DeliveryJobs.AcceptJobOnly.description": "When enabled, it only accepts jobs automatically and does not transfer them; it stops automatically after a job is accepted.",
     "task.EnvironmentMonitoring.description": "Automatically complete environment monitoring tasks",
     "task.EnvironmentMonitoring.label": "🌿Environment Monitoring",
+    "task.DataCollectOcrTemp.description": "[Temp] go-service full-screen OCR ×5; saves frames under debug/datacollect_ocr; lines in go-service log",
+    "task.DataCollectOcrTemp.label": "📋Full-screen OCR sample (temp)",
     "task.DeliveryJobs.PackCargoSelectItem.description": "Whether to fill with specific goods. If enabled, it selects the configured goods to fill.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",
     "task.DeliveryJobs.WhatToFillValleyIV": "Goods to Fill (Valley IV)",

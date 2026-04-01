@@ -10,6 +10,8 @@
     "task.DeliveryJobs.AcceptJobOnly.description": "有効にすると依頼の自動受注のみを行い、転送は行いません。依頼受注後に自動で停止します。",
     "task.EnvironmentMonitoring.description": "環境監視タスクを自動で完了します",
     "task.EnvironmentMonitoring.label": "🌿環境監視",
+    "task.DataCollectOcrTemp.description": "[仮] go-service 全画面 OCR×5、原画は debug/datacollect_ocr、全文は go-service ログ",
+    "task.DataCollectOcrTemp.label": "📋全画面OCR取得(仮)",
     "task.DeliveryJobs.PackCargoSelectItem.description": "指定貨物を補充するかどうか。有効にすると、設定に従って指定貨物を選んで補充します。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "指定貨物を補充",
     "task.DeliveryJobs.WhatToFillValleyIV": "補充する貨物（第4谷地）",

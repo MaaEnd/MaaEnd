@@ -158,6 +158,7 @@
         "tasks/ReceiveProdManual.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
+        "tasks/DataCollectOcrTemp.json",
         "tasks/AndroidOpenGame.json",
         // preset
         "tasks/preset/DailyFull.json",

@@ -12,6 +12,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/datacollect"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
@@ -40,6 +41,7 @@ func registerAll() {
 	cursormove.Register()
 
 	// General Custom
+	datacollect.Register()
 	subtask.Register()
 	clearhitcount.Register()
 	expressionrecognition.Register()

@@ -10,6 +10,8 @@
     "task.DeliveryJobs.AcceptJobOnly.description": "활성화하면 임무를 자동으로 수락만 하고 전달은 하지 않으며, 임무를 수락한 뒤 자동으로 중지합니다.",
     "task.EnvironmentMonitoring.description": "환경 모니터링 작업을 자동으로 완료합니다",
     "task.EnvironmentMonitoring.label": "🌿환경 모니터링",
+    "task.DataCollectOcrTemp.description": "[임시] go-service 전체 화면 OCR×5, 원본은 debug/datacollect_ocr, 전체는 go-service 로그",
+    "task.DataCollectOcrTemp.label": "📋전체 OCR 수집(임시)",
     "task.DeliveryJobs.PackCargoSelectItem.description": "지정 화물을 채울지 여부입니다. 활성화하면 설정에 따라 지정 화물을 선택해 채웁니다.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "지정 화물 채우기",
     "task.DeliveryJobs.WhatToFillValleyIV": "채울 화물 (제4 계곡)",

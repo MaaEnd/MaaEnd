@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "DataCollectOcrTemp",
+            "label": "$task.DataCollectOcrTemp.label",
+            "entry": "DataCollectOcrTempMain",
+            "description": "$task.DataCollectOcrTemp.description",
+            "controller": [
+                "Win32-Front",
+                "Win32-Window",
+                "Win32-Window-Background",
+                "ADB"
+            ],
+            "group": [
+                "utility"
+            ]
+        }
+    ]
+}
