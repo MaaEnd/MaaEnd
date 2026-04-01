@@ -1,0 +1,42 @@
+{
+    "SellProductValleyIVSell": {
+        "desc": "在四号谷地售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SellProductRefugeeCamp",
+            "[JumpBack]SellProductInfrastructureOutpost",
+            "[JumpBack]SellProductReconstructionCommand",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductWulingSell": {
+        "desc": "在武陵售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SellProductSkyKingFlats",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    }
+}

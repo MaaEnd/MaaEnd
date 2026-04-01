@@ -1,8 +1,8 @@
 {
     "template": "pipeline-template.jsonc",
     "data": "data.mjs",
-    "format": true,
-    "merged": false,
+    "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts",
     "outputPattern": "${RegionPrefix}.json",
-    "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts"
+    "format": true,
+    "merged": false
 }

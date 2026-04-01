@@ -2,6 +2,7 @@
 
 ```shell
 npx @joebao/maa-pipeline-generate --config task-config.json
+npx @joebao/maa-pipeline-generate --config pipeline-config.json
 ```
 
 ## 致谢
