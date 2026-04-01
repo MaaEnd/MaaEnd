@@ -98,7 +98,9 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	repeat = clampClickRepeat(repeat)
 
 	if target.template != "" {
-		override[nextNode] = buildTemplateMatchButtonOverride(target.template, repeat, greenMask)
+		helperNode := resolveButtonHelperNode(nextNode)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template, greenMask)
+		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
 
@@ -126,15 +128,36 @@ func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode 
 	return nil
 }
 
-func buildTemplateMatchButtonOverride(template string, repeat int, greenMask bool) map[string]any {
+func resolveButtonHelperNode(nextNode string) string {
+	switch nextNode {
+	case nodeQuantizedSlidingIncreaseQuantity:
+		return nodeQuantizedSlidingIncreaseButton
+	case nodeQuantizedSlidingDecreaseQuantity:
+		return nodeQuantizedSlidingDecreaseButton
+	default:
+		return ""
+	}
+}
+
+func buildTemplateMatchButtonHelperOverride(template string, greenMask bool) map[string]any {
+	return map[string]any{
+		"recognition": map[string]any{
+			"param": map[string]any{
+				"template":   []string{template},
+				"green_mask": greenMask,
+			},
+		},
+	}
+}
+
+func buildTemplateMatchButtonOverride(helperNode string, repeat int) map[string]any {
 	return map[string]any{
 		"enabled": true,
 		"recognition": map[string]any{
-			"type": "TemplateMatch",
+			"type": "And",
 			"param": map[string]any{
-				"template":   []string{template},
-				"threshold":  []float64{0.8},
-				"green_mask": greenMask,
+				"all_of":    []string{helperNode},
+				"box_index": 0,
 			},
 		},
 		"action": map[string]any{
