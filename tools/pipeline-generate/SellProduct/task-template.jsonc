@@ -8,7 +8,7 @@
             {
                 "name": "Yes",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}": {
+                    "SellProduct${LocationId}": {
                         "enabled": true
                     }
                 },
@@ -22,7 +22,7 @@
             {
                 "name": "No",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}": {
+                    "SellProduct${LocationId}": {
                         "enabled": false
                     }
                 }
@@ -39,7 +39,7 @@
             {
                 "name": "Yes",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt1": {
+                    "SellProduct${LocationId}SellAttempt1": {
                         "enabled": true
                     }
                 },
@@ -50,7 +50,7 @@
             {
                 "name": "No",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt1": {
+                    "SellProduct${LocationId}SellAttempt1": {
                         "enabled": false
                     }
                 }
@@ -66,7 +66,7 @@
             {
                 "name": "Yes",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt2": {
+                    "SellProduct${LocationId}SellAttempt2": {
                         "enabled": true
                     }
                 },
@@ -77,7 +77,7 @@
             {
                 "name": "No",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt2": {
+                    "SellProduct${LocationId}SellAttempt2": {
                         "enabled": false
                     }
                 }
@@ -93,7 +93,7 @@
             {
                 "name": "Yes",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt3": {
+                    "SellProduct${LocationId}SellAttempt3": {
                         "enabled": true
                     }
                 },
@@ -104,7 +104,7 @@
             {
                 "name": "No",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt3": {
+                    "SellProduct${LocationId}SellAttempt3": {
                         "enabled": false
                     }
                 }
@@ -120,7 +120,7 @@
             {
                 "name": "Yes",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt4": {
+                    "SellProduct${LocationId}SellAttempt4": {
                         "enabled": true
                     }
                 },
@@ -131,7 +131,7 @@
             {
                 "name": "No",
                 "pipeline_override": {
-                    "SellProduct${NodePrefix}SellAttempt4": {
+                    "SellProduct${LocationId}SellAttempt4": {
                         "enabled": false
                     }
                 }

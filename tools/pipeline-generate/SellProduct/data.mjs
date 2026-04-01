@@ -58,30 +58,25 @@ const SETTLEMENT_MAP = {
     stm_tundra_1: {
         RegionPrefix: "ValleyIV",
         LocationId: "RefugeeCamp",
-        NodePrefix: "RefugeeCamp",
         TextExpected: [
             "难民暂居处",
             "難民暫居處",
             "(?i)Refugee\\s*Camp",
             "仮設居住地",
         ],
-        InOutpostCheck: "SellProductInValleyIVOutpost",
     },
     stm_tundra_2: {
         RegionPrefix: "ValleyIV",
         LocationId: "InfrastructureOutpost",
-        NodePrefix: "InfrastructureOutpost",
         TextExpected: [
             "基建前站",
             "(?i)Infra\\s*-\\s*Station",
             "建設基地",
         ],
-        InOutpostCheck: "SellProductInValleyIVOutpost",
     },
     stm_tundra_3: {
         RegionPrefix: "ValleyIV",
         LocationId: "ReconstructionCommand",
-        NodePrefix: "ReconstructionCommand",
         TextExpected: [
             "重建指挥部",
             "重建指揮部",
@@ -89,12 +84,10 @@ const SETTLEMENT_MAP = {
             "再建管理本部",
             "Reconstruction Hc",
         ],
-        InOutpostCheck: "SellProductInValleyIVOutpost",
     },
     stm_hongs_1: {
         RegionPrefix: "Wuling",
         LocationId: "SkyKingFlats",
-        NodePrefix: "SkyKingFlats",
         TextExpected: [
             "天王坪",
             "天王坪援助",
@@ -102,7 +95,6 @@ const SETTLEMENT_MAP = {
             "Sky King",
             "天王原",
         ],
-        InOutpostCheck: "SellProductInWulingOutpost",
     },
 };
 
@@ -172,12 +164,10 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
 export default LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
     LocationId: loc.LocationId,
-    NodePrefix: loc.NodePrefix,
     LocationDesc: loc.LocationDesc,
     TextExpected: loc.TextExpected,
-    InOutpostCheck: loc.InOutpostCheck,
-    ItemCases1: buildItemCases(loc.NodePrefix, 1, loc.items),
-    ItemCases2: buildItemCases(loc.NodePrefix, 2, loc.items),
-    ItemCases3: buildItemCases(loc.NodePrefix, 3, loc.items),
-    ItemCases4: buildItemCases(loc.NodePrefix, 4, loc.items),
+    ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
+    ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
+    ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
+    ItemCases4: buildItemCases(loc.LocationId, 4, loc.items),
 }));
