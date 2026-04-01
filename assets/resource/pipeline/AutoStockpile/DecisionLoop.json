@@ -147,7 +147,7 @@
                     "\\d{3,4}"
                 ],
                 "only_rec": true,
-                "color_filter": "AutoStockpileReconcilPriceFilter"
+                "color_filter": "AutoStockpileReconcilePriceFilter"
             }
         },
         "pre_delay": 0,
@@ -211,7 +211,7 @@
             "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
         }
     },
-    "AutoStockpileReconcilPriceFilter": {
+    "AutoStockpileReconcilePriceFilter": {
         "desc": "过滤调度券图标",
         "recognition": {
             "type": "ColorMatch",
@@ -232,6 +232,9 @@
                     ]
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
