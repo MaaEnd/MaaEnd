@@ -95,10 +95,6 @@
     },
     "__ScenePrivateCloseADBExit": {
         "desc": "关闭ADB控制器的退出游戏界面",
-        "pre_wait_freezes": 200,
-        "post_wait_freezes": 200,
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": {
             "type": "And",
             "param": {
@@ -128,8 +124,12 @@
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0
     }
 }
