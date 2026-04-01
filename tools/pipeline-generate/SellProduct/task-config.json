@@ -1,6 +1,8 @@
 {
     "template": "task-template.jsonc",
     "data": "data.mjs",
+    "outputDir": "../../../assets/tasks/",
+    "outputFile": "SellProduct.json",
     "format": true,
     "merged": true
 }
