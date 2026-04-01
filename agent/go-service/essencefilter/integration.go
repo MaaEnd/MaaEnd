@@ -2,9 +2,11 @@ package essencefilter
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -18,6 +20,17 @@ func dataDirFromResourceBase() string {
 		base = "data"
 	}
 	return filepath.Join(base, "EssenceFilter")
+}
+
+// weaponsOutputDataVersionString returns the local modification date of weapons_output.json
+// (same file the match engine loads), so the UI notice stays in sync without editing matcher_config.
+func weaponsOutputDataVersionString() string {
+	p := filepath.Join(dataDirFromResourceBase(), "weapons_output.json")
+	info, err := os.Stat(p)
+	if err != nil {
+		return ""
+	}
+	return info.ModTime().In(time.Local).Format("2006-01-02")
 }
 
 func reportFocusByKey(ctx *maa.Context, _ *RunState, key string, args ...any) {
@@ -194,7 +207,7 @@ func reportDataVersionNotice(ctx *maa.Context, st *RunState) {
 	if st == nil || st.MatchEngine == nil {
 		return
 	}
-	v := strings.TrimSpace(st.MatchEngine.DataVersion())
+	v := strings.TrimSpace(weaponsOutputDataVersionString())
 	if v == "" {
 		return
 	}
