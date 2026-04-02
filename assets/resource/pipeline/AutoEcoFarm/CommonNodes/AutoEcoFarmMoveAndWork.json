@@ -302,6 +302,15 @@
                 "key": 18 //alt键
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                548,
+                589,
+                185,
+                92
+            ]
+        },
         "next": [
             "[JumpBack]AutoEcoFarmEnterCameraModeKeyDownR",
             "_AutoEcoFarmWaitForTeammate"
