@@ -189,14 +189,14 @@
         "all_of": [
             "ProtocolSpaceIn"
         ],
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "CharacterControllerPitchDeltaAction",
         "custom_action_param": {
             "delta": 90 // 这个不准，看着用
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
