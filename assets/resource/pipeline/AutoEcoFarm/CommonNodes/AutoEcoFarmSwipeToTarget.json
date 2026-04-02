@@ -51,9 +51,9 @@
             "param": {
                 "roi": [
                     620,
-                    300,
+                    100,
                     40,
-                    100
+                    300
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "threshold": 0.4
