@@ -8,6 +8,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const autoEcoFarmStepRatioDecay = 0.9
+
 // 定义获取参数的字段
 
 type autoEcoFarmCalculateSwipeTargetParams struct {
@@ -20,6 +22,7 @@ type autoEcoFarmCalculateSwipeTarget struct{}
 
 // 根据目标的坐标区域和设定的拉近比例，计算出swipe用的end坐标，用来实现将视角拉近目标区域一定比例
 func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+
 	//计算常用参数,计算过程中同一用float64，最后转回int
 
 	screenCenterX := float64(arg.Img.Bounds().Dx()) / 2
@@ -42,19 +45,42 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		}
 	}
 
-	oTargetX := float64(arg.Roi.X())      // 传入矩形左上角X
-	oTargetY := float64(arg.Roi.Y())      // 传入矩形左上角Y
-	oTargetW := float64(arg.Roi.Width())  // 传入矩形宽度（X轴方向）
-	oTargetH := float64(arg.Roi.Height()) // 传入矩形高度（Y轴方向）
+	oTargetX := float64(arg.Roi.X())        // 传入矩形左上角X
+	oTargetY := float64(arg.Roi.Y())        // 传入矩形左上角Y
+	oTargetW := float64(arg.Roi.Width())    // 传入矩形宽度（X轴方向）
+	oTargetH := float64(arg.Roi.Height())   // 传入矩形高度（Y轴方向）
+	oTargetCenterX := oTargetX + oTargetW/2 // 中点X = 左上角X + 宽度/2
+	oTargetCenterY := oTargetY + oTargetH/2 // 中点Y = 左上角Y + 高度/2
+
+	//获取上一次的识别结果
+	if lastState := getLastState(); lastState != nil {
+		params.XStepRatio = lastState.xStepRatio
+		params.YStepRatio = lastState.yStepRatio
+
+		if lastState.arg != nil {
+			lastTargetCenterX := float64(lastState.arg.Roi.X()) + float64(lastState.arg.Roi.Width())/2
+			lastTargetCenterY := float64(lastState.arg.Roi.Y()) + float64(lastState.arg.Roi.Height())/2
+
+			lastDx := lastTargetCenterX - screenCenterX
+			lastDy := lastTargetCenterY - screenCenterY
+			currDx := oTargetCenterX - screenCenterX
+			currDy := oTargetCenterY - screenCenterY
+
+			if lastDx != 0 && currDx != 0 && lastDx*currDx < 0 {
+				params.XStepRatio *= autoEcoFarmStepRatioDecay
+				log.Info().Msgf("检测到 X 方向越过屏幕中心，XStepRatio 下调为 %.4f", params.XStepRatio)
+			}
+			if lastDy != 0 && currDy != 0 && lastDy*currDy < 0 {
+				params.YStepRatio *= autoEcoFarmStepRatioDecay
+				log.Info().Msgf("检测到 Y 方向越过屏幕中心，YStepRatio 下调为 %.4f", params.YStepRatio)
+			}
+		}
+	}
 
 	log.Info().Msgf(
 		"Roi矩形参数：左上角X=%.2f, 左上角Y=%.2f, 宽度=%.2f, 高度=%.2f",
 		oTargetX, oTargetY, oTargetW, oTargetH,
 	)
-
-	// 计算传入矩形的中点坐标
-	oTargetCenterX := oTargetX + oTargetW/2 // 中点X = 左上角X + 宽度/2
-	oTargetCenterY := oTargetY + oTargetH/2 // 中点Y = 左上角Y + 高度/2
 
 	//  计算屏幕中心坐标
 
@@ -75,7 +101,7 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		Box:    targetbox,
 		Detail: "",
 	}
-
+	setLastState(arg, params.XStepRatio, params.YStepRatio)
 	return results, true
 
 }
