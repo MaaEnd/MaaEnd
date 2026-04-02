@@ -18,6 +18,9 @@
         },
         "next": [
             "AutoEcoFarmEnterCameraModeChooseCamera"
+        ],
+        "on_error": [
+            "AutoEcoFarmExitErr"
         ]
     },
     "_AutoEcoFarmExitCameraMode": {
@@ -51,8 +54,7 @@
             ]
         },
         "next": [
-            //接回工作的节点
-            "_AutoEcoFarmFindMenuLoop"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "AutoEcoFarmEnterCameraModeChooseCamera": {
@@ -82,6 +84,9 @@
         },
         "next": [
             "AutoEcoFarmEnterCameraModeKeyUpR"
+        ],
+        "on_error": [
+            "AutoEcoFarmExitErr"
         ]
     },
     "AutoEcoFarmEnterCameraModeKeyUpR": {
@@ -89,8 +94,10 @@
         "action": "KeyUp",
         "key": 82, // R 0x52
         "next": [
-            "AutoEcoFarmClickPhotoScene",
-            "_AutoEcoFarmExitCameraMode"
+            "AutoEcoFarmClickPhotoScene"
+        ],
+        "on_error": [
+            "AutoEcoFarmExitErr"
         ]
     },
     ///////点击画面部分
@@ -112,8 +119,10 @@
             ]
         },
         "next": [
-            "_AutoEcoFarmHideFactoryFacilities",
-            "_AutoEcoFarmExitCameraMode"
+            "_AutoEcoFarmHideFactoryFacilities"
+        ],
+        "on_error": [
+            "AutoEcoFarmExitErr"
         ]
     },
     "AutoEcoFarmPhotoScene": {
@@ -166,14 +175,12 @@
             "_AutoEcoFarmFindHideFactoryFacilities"
         ],
         "action": "Click",
-        //每次操作后休息30秒等队友完成工作
-        "post_delay": 30000,
         "next": [
-            "_AutoEcoFarmExitCameraMode"
+            "_AutoEcoFarmJumpBack"
         ],
-        "focus": {
-            "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
-        }
+        "on_error": [
+            "AutoEcoFarmExitErr"
+        ]
     },
     "_AutoEcoFarmFindShowFactoryFacilities": {
         "desc": "[识别节点]关这个字",
