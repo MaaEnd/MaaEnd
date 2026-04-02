@@ -132,39 +132,6 @@
             "AutoStockpileReconcileDecision"
         ]
     },
-    "AutoStockpileReconcileDecision": {
-        "desc": "根据详情页价格校正并重算决策",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1000,
-                    244,
-                    80,
-                    20
-                ],
-                "expected": [
-                    "\\d{3,4}"
-                ],
-                "only_rec": true,
-                "color_filter": "AutoStockpileReconcilePriceFilter"
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoStockpile.ReconcileDecision"
-            }
-        },
-        "post_delay": 0,
-        "timeout": 5000,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileRelayNodeDecisionReady",
-            "AutoStockpileBackToSelection"
-        ]
-    },
     "AutoStockpileBackToSelection": {
         "desc": "返回选择界面，准备下一轮决策",
         "recognition": {
@@ -236,5 +203,43 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoStockpileReconcileDecision": {
+        "desc": "根据详情页价格校正并重算决策",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    244,
+                    80,
+                    20
+                ],
+                "expected": [
+                    "\\d{3,4}"
+                ],
+                "replace": [
+                    [
+                        "^\\d",
+                        ""
+                    ]
+                ],
+                "color_filter": "AutoStockpileReconcilePriceFilter"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockpile.ReconcileDecision"
+            }
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeDecisionReady",
+            "AutoStockpileBackToSelection"
+        ]
     }
 }
