@@ -3,6 +3,7 @@ package autoecofarm
 import (
 	_ "embed"
 	"encoding/json"
+	"math"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -10,7 +11,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const autoEcoFarmStepRatioDecay = 0.9
+const (
+	autoEcoFarmStepRatioDecay = 0.9
+	autoEcoFarmStepRatioMin   = 0.1
+)
 
 type autoEcoFarmCalculateSwipeTargetParams struct {
 	XStepRatio float64 `json:"xStepRatio"`
@@ -65,7 +69,7 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		currDy := oTargetCenterY - screenCenterY
 
 		if lastDx != 0 && currDx != 0 && lastDx*currDx < 0 {
-			params.XStepRatio *= autoEcoFarmStepRatioDecay
+			params.XStepRatio = math.Max(params.XStepRatio*autoEcoFarmStepRatioDecay, autoEcoFarmStepRatioMin)
 			log.Debug().
 				Str("component", "AutoEcoFarm").
 				Str("axis", "X").
@@ -74,7 +78,7 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 			crossedCenter = true
 		}
 		if lastDy != 0 && currDy != 0 && lastDy*currDy < 0 {
-			params.YStepRatio *= autoEcoFarmStepRatioDecay
+			params.YStepRatio = math.Max(params.YStepRatio*autoEcoFarmStepRatioDecay, autoEcoFarmStepRatioMin)
 			log.Debug().
 				Str("component", "AutoEcoFarm").
 				Str("axis", "Y").
