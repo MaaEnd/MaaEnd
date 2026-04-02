@@ -98,6 +98,9 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		Float64("w", oTargetW).Float64("h", oTargetH).
 		Msg("ROI rect")
 
+	params.XStepRatio = math.Max(autoEcoFarmStepRatioMin, math.Min(params.XStepRatio, 1.0))
+	params.YStepRatio = math.Max(autoEcoFarmStepRatioMin, math.Min(params.YStepRatio, 1.0))
+
 	dx := oTargetCenterX - screenCenterX
 	dy := oTargetCenterY - screenCenterY
 
