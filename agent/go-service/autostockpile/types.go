@@ -62,7 +62,6 @@ type RecognitionResult struct {
 // RecognitionData 表示识别成功时传递给消费端的原始数据。
 type RecognitionData struct {
 	Quota              QuotaInfo   `json:"Quota"`
-	Sunday             bool        `json:"Sunday"`
 	StockBillAmount    int         `json:"StockBillAmount"`
 	StockBillAvailable bool        `json:"StockBillAvailable"`
 	Goods              []GoodsItem `json:"Goods"`
@@ -98,7 +97,6 @@ type SelectionResult struct {
 type SelectionConfig struct {
 	Strategy          string           `json:"strategy"`
 	OverflowMode      bool             `json:"overflow_mode"`
-	SundayMode        bool             `json:"sunday_mode"`
 	FallbackThreshold int              `json:"fallback_threshold"`
 	ReserveStockBill  int              `json:"reserve_stock_bill"`
 	PriceLimits       PriceLimitConfig `json:"price_limits"`
@@ -109,7 +107,6 @@ func (c *SelectionConfig) UnmarshalJSON(data []byte) error {
 	type selectionConfigAlias struct {
 		Strategy         string           `json:"strategy"`
 		OverflowMode     bool             `json:"overflow_mode"`
-		SundayMode       bool             `json:"sunday_mode"`
 		ReserveStockBill int              `json:"reserve_stock_bill"`
 		PriceLimits      PriceLimitConfig `json:"price_limits"`
 	}
@@ -117,7 +114,6 @@ func (c *SelectionConfig) UnmarshalJSON(data []byte) error {
 	alias := selectionConfigAlias{
 		Strategy:         c.Strategy,
 		OverflowMode:     c.OverflowMode,
-		SundayMode:       c.SundayMode,
 		ReserveStockBill: c.ReserveStockBill,
 		PriceLimits:      c.PriceLimits,
 	}
@@ -142,7 +138,6 @@ func (c *SelectionConfig) UnmarshalJSON(data []byte) error {
 	*c = SelectionConfig{
 		Strategy:          alias.Strategy,
 		OverflowMode:      alias.OverflowMode,
-		SundayMode:        alias.SundayMode,
 		FallbackThreshold: fallbackThreshold,
 		ReserveStockBill:  alias.ReserveStockBill,
 		PriceLimits:       alias.PriceLimits,

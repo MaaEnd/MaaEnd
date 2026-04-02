@@ -6,6 +6,16 @@ import (
 	"strings"
 )
 
+func defaultPriceLimitsForRegion(region string) PriceLimitConfig {
+	result := make(PriceLimitConfig)
+	for tierID, threshold := range autoStockpileDefaultPriceLimits {
+		if strings.HasPrefix(tierID, region) {
+			result[tierID] = threshold
+		}
+	}
+	return result
+}
+
 var autoStockpileDefaultPriceLimits = map[string]int{
 	"ValleyIVTier1": 800,
 	"ValleyIVTier2": 1200,

@@ -36,7 +36,6 @@
     "autostockpile.abort_info": "%s (%s)",
     "autostockpile.fatal_error.text": "🚨 Critical error, task stopped (%s)",
     "autostockpile.mode_low_price": "Low Price Buy",
-    "autostockpile.mode_sunday_clear": "Sunday Clearance",
     "autostockpile.mode_overflow": "Anti-overflow",
     "autostockpile.no_goods_recognized": "No goods recognized",
     "autostockpile.no_qualifying_goods": "No qualifying goods",

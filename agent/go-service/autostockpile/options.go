@@ -35,8 +35,13 @@ func getSelectionConfigFromNode(ctx *maa.Context, nodeName string, region string
 }
 
 func parseSelectionConfigFromAttach(attach map[string]any, region string) (SelectionConfig, error) {
-	cfg := SelectionConfig{FallbackThreshold: defaultFallbackBuyThreshold}
+	cfg := SelectionConfig{
+		OverflowMode:      true,
+		FallbackThreshold: defaultFallbackBuyThreshold,
+	}
 	if len(attach) == 0 {
+		cfg.PriceLimits = defaultPriceLimitsForRegion(region)
+		cfg.FallbackThreshold = minPositiveThreshold(cfg.PriceLimits)
 		return cfg, nil
 	}
 
@@ -97,8 +102,10 @@ func applyRegionScopedConfig(attach map[string]json.RawMessage, region string, c
 	}
 	if len(priceLimits) > 0 {
 		cfg.PriceLimits = priceLimits
-		cfg.FallbackThreshold = minPositiveThreshold(priceLimits)
+	} else {
+		cfg.PriceLimits = defaultPriceLimitsForRegion(region)
 	}
+	cfg.FallbackThreshold = minPositiveThreshold(cfg.PriceLimits)
 
 	reserveStockBill, found, err := collectRegionReserveStockBill(attach, region)
 	if err != nil {

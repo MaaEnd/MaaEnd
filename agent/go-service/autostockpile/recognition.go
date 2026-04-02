@@ -52,8 +52,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return buildAbortedRecognitionResult(arg, abortReason)
 	}
 
-	sunday := isServerSundayNow()
-
 	overflowDetected := false
 	overflowAmount := 0
 	overflowCurrent := 0
@@ -305,7 +303,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Current:  overflowCurrent,
 				Overflow: overflowAmount,
 			},
-			Sunday:             sunday,
 			StockBillAmount:    stockBillAmount,
 			StockBillAvailable: stockBillAvailable,
 			Goods:              resultGoods,
@@ -327,7 +324,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Int("quota_current", resultPayload.Data.Quota.Current).
 		Int("quota_overflow", resultPayload.Data.Quota.Overflow).
 		Bool("overflow", resultPayload.hasOverflow()).
-		Bool("sunday", resultPayload.Data.Sunday).
 		Int("stock_bill_amount", resultPayload.Data.StockBillAmount).
 		Bool("stock_bill_available", resultPayload.Data.StockBillAvailable).
 		Str("abort_reason", string(resultPayload.AbortReason)).

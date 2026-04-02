@@ -108,8 +108,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			Msg("target product not found in goods list during reconcile")
 	}
 
-	bypassThresholdFilter := (updatedData.Quota.Overflow > 0 && state.EffectiveConfig.OverflowMode) ||
-		(updatedData.Sunday && state.EffectiveConfig.SundayMode)
+	bypassThresholdFilter := updatedData.Quota.Overflow > 0 && state.EffectiveConfig.OverflowMode
 
 	newSelection, newQuantityDecision, err := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
 	if err != nil {

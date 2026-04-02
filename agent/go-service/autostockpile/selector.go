@@ -57,18 +57,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	goodsCount := 0
 	stockBillAmount := 0
 	stockBillAvailable := false
-	sunday := false
 	if result.Data != nil {
 		goodsCount = len(result.Data.Goods)
 		stockBillAmount = result.Data.StockBillAmount
 		stockBillAvailable = result.Data.StockBillAvailable
-		sunday = result.Data.Sunday
 	}
 
 	log.Info().
 		Str("component", "autostockpile").
 		Bool("overflow", result.hasOverflow()).
-		Bool("sunday", sunday).
 		Str("abort_reason", string(result.AbortReason)).
 		Int("stock_bill_amount", stockBillAmount).
 		Bool("stock_bill_available", stockBillAvailable).
@@ -97,15 +94,11 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return stopTaskWithFocus(ctx, abortReason, err)
 	}
 
-	// OverflowMode intentionally shares the same threshold-bypass path as SundayMode.
-	// Although the option key is named AutoStockpileOverflowBuyLowPriceGoods,
-	// the expected behavior is to allow above-threshold purchases when stock is overflowing.
-	bypassThresholdFilter := (result.hasOverflow() && cfg.OverflowMode) || (data.Sunday && cfg.SundayMode)
+	bypassThresholdFilter := result.hasOverflow() && cfg.OverflowMode
 	if bypassThresholdFilter {
 		log.Info().
 			Str("component", "autostockpile").
 			Bool("overflow_allow", result.hasOverflow() && cfg.OverflowMode).
-			Bool("sunday_allow", data.Sunday && cfg.SundayMode).
 			Msg("allow all goods mode enabled")
 	}
 
@@ -365,9 +358,6 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
-	}
-	if cfg.SundayMode && data.Sunday {
-		return i18n.T("autostockpile.mode_sunday_clear")
 	}
 	if cfg.OverflowMode && data.Quota.Overflow > 0 {
 		return i18n.T("autostockpile.mode_overflow")

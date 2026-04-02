@@ -36,7 +36,6 @@
     "autostockpile.abort_info": "%s（%s）",
     "autostockpile.fatal_error.text": "🚨重大なエラーが発生し、タスクを停止しました（%s）",
     "autostockpile.mode_low_price": "安値購入",
-    "autostockpile.mode_sunday_clear": "日曜クリア",
     "autostockpile.mode_overflow": "オーバーフロー防止",
     "autostockpile.no_goods_recognized": "商品を認識できませんでした",
     "autostockpile.no_qualifying_goods": "条件を満たす商品がありません",

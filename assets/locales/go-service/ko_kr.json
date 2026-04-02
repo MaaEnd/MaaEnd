@@ -36,7 +36,6 @@
     "autostockpile.abort_info": "%s (%s)",
     "autostockpile.fatal_error.text": "🚨치명적인 오류가 발생하여 작업을 중지했습니다 (%s)",
     "autostockpile.mode_low_price": "저가 구매",
-    "autostockpile.mode_sunday_clear": "일요일 비우기",
     "autostockpile.mode_overflow": "오버플로 방지",
     "autostockpile.no_goods_recognized": "인식된 상품이 없습니다",
     "autostockpile.no_qualifying_goods": "조건을 만족하는 상품이 없습니다",

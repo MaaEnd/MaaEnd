@@ -1,6 +1,6 @@
 # Development Guide - AutoStockpile Maintenance Document
 
-This document explains how to maintain item templates, item mappings, task options (global switches / regional thresholds / reserve stock bill), and region expansion for `AutoStockpile`.
+This document explains how to maintain item templates, item mappings, task options (region toggles), and region expansion for `AutoStockpile`.
 
 The current implementation consists of two cooperating parts:
 
@@ -15,7 +15,7 @@ The core maintenance points of AutoStockpile are as follows:
 | ----------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | Item name mapping             | `agent/go-service/autostockpile/item_map.json`             | Maps OCR item names to internal item IDs                                                             |
 | Item template images          | `assets/resource/image/AutoStockpile/Goods/`               | Template images for matching on the item details page                                                |
-| Task options                  | `assets/tasks/AutoStockpile.json`                          | User-configurable global switches, region toggles, price thresholds, and reserve stock bill settings |
+| Task options                  | `assets/tasks/AutoStockpile.json`                          | User-configurable region toggles (Valley IV / Wuling)                                                |
 | Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json`         | Defines entry subtasks and anchor mappings for each region                                           |
 | Stockpile entry Pipeline      | `assets/resource/pipeline/AutoStockpile/Entry.json`        | Enters the elastic goods interface and scrolls to the bottom                                         |
 | Decision loop Pipeline        | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | Executes core flows: recognition, decision, reconciliation, skip                                     |
@@ -74,44 +74,32 @@ Current regions and tiers supported in the repository:
 >
 > `agent/go-service/autostockpile` calls `InitItemMap("zh_cn")` during registration. Initialization failure only logs a warning and does not block service startup. However, if `item_map` is still unavailable when later parsing item names or validating regions, those operations will fail. The `item_map.json` file is embedded in the binary.
 
-### Current Task Options and Attach Keys
+### Current Task Options
 
-In the current `assets/tasks/AutoStockpile.json`, task options write to the `attach` field of the `AutoStockpileDecisionAttach` node via `pipeline_override`, which the Go service reads uniformly. The keys actually written are:
+The current `assets/tasks/AutoStockpile.json` exposes only two region toggles:
 
-| Purpose                      | Task option / input                           | Attach key                        |
-| ---------------------------- | --------------------------------------------- | --------------------------------- |
-| Relax threshold on overflow  | `AutoStockpileOverflowBuyLowPriceGoods`       | `overflow_mode=true`              |
-| Relax threshold on Sundays   | `AutoStockpileBuyAllGoodsOnSunday`            | `sunday_mode=true`                |
-| Valley IV price thresholds   | `ValleyIVTier1PriceLimit` / `Tier2` / `Tier3` | `price_limits_ValleyIV.Tier1/2/3` |
-| Valley IV reserve stock bill | `ValleyIVReserveStockBillAmount`              | `reserve_stock_bill_ValleyIV`     |
-| Wuling price thresholds      | `WulingTier1PriceLimit` / `Tier2`             | `price_limits_Wuling.Tier1/2`     |
-| Wuling reserve stock bill    | `WulingReserveStockBillAmount`                | `reserve_stock_bill_Wuling`       |
+| Task option             | Purpose                                                     |
+| ----------------------- | ----------------------------------------------------------- |
+| `AutoStockpileValleyIV` | Enables the Valley IV region node via `pipeline_override.enabled` |
+| `AutoStockpileWuling`   | Enables the Wuling region node via `pipeline_override.enabled`    |
 
-The `AutoStockpileValleyIV` and `AutoStockpileWuling` region switches themselves do not write to `attach`. Instead, they control whether the corresponding region nodes in `Main.json` are enabled via `pipeline_override.enabled`.
+These toggles do not write to `attach`. The Go Service uses the following hardcoded behaviors:
+
+- **Overflow threshold bypass**: `overflow_mode` is permanently set to `true`; no user configuration required.
+- **Price thresholds**: Default values from `autoStockpileDefaultPriceLimits` in `thresholds.go` are applied automatically; no user configuration required.
+- **Reserve stock bill**: Disabled by default (`reserve_stock_bill=0`); no user configuration required.
+
+The `attach` mechanism is still present and can be used to override these defaults manually via pipeline overrides if needed in the future.
 
 ## Threshold Resolution Mechanism
 
 The system determines the purchase threshold using the following priority:
 
-1. **Explicit Region Tier Threshold**: Reads the value configured in task options for `price_limits_{Region}.Tier{N}`.
-2. **Minimum Positive Region Threshold**: If no specific tier threshold is set, it uses the minimum positive value among all configured prices for that region.
-3. **fallback_threshold from attach**: If present and a positive integer, this value is used. Current task options do not expose this configuration, but the Go parsing logic supports reading it from attach.
-4. **Global Default**: If neither of the above is available, it falls back to `defaultFallbackBuyThreshold` (800).
+1. **Explicit Region Tier Threshold via attach**: Reads `price_limits_{Region}.Tier{N}` from the `attach` field (can only be set via manual pipeline override; not exposed as a task option).
+2. **Region Default Thresholds**: If no attach values are present, the defaults from `autoStockpileDefaultPriceLimits` in `thresholds.go` are used. The fallback threshold is set to the minimum positive value in that table for the current region.
+3. **Global Default**: If neither is available, falls back to `defaultFallbackBuyThreshold` (800).
 
-The default per-tier threshold table (e.g., 800 for `ValleyIVTier1`) is maintained in `agent/go-service/autostockpile/thresholds.go`, not `options.go`.
-
-> [!TIP]
->
-> Threshold-related task inputs and attach values must be **positive integers**. Empty strings, `0`, and negative values do not trigger fallback; they are rejected by task input validation or by the Go-side config parser.
-
-## Reserve Stock Bill
-
-AutoStockpile supports reserving a specific amount of stock bills (scheduling coupons).
-
-- **Input Unit**: The value entered in the UI is in units of 10k (e.g., entering 60 represents 600,000).
-- **Parsing Logic**: Go code parses the `reserve_stock_bill_{Region}` option and multiplies the value by 10,000 to get the actual reserve amount. If the result exceeds `math.MaxInt/10000`, an error is returned.
-- **Prerequisite**: The reserve stock bill feature only takes effect when the corresponding region's reserve switch is enabled. Once enabled, the current stock bill balance must be OCR-readable. If OCR fails, or if the balance is less than or equal to the reserve amount, the recognition phase ends early and the purchase flow is skipped.
-- **Purchase Limit**: If the current stock bill balance, after subtracting the reserve amount, is insufficient for the target item, the purchase quantity will be limited or the item will be skipped.
+The default per-tier threshold table (e.g., 800 for `ValleyIVTier1`) is maintained in `agent/go-service/autostockpile/thresholds.go`.
 
 ## Runtime Override Behavior
 
@@ -176,13 +164,11 @@ If you are just adding a new tier for an existing item (e.g., adding `Tier3` for
 - Add the `{BaseName}.Tier{N}` mapping in `item_map.json`.
 - Add the corresponding template image in `assets/resource/image/AutoStockpile/Goods/{Region}/`.
 
-To support a new general tier in the task configuration (e.g., adding `Tier3` inputs for `Wuling`), also maintain the following:
+To support a new general tier for a region, also maintain the following:
 
-1. **Task Options**: Add the `price_limits_{Region}.Tier{N}` input and `pipeline_override.attach` key in `assets/tasks/AutoStockpile.json`.
-2. **Default Thresholds**: Update `autoStockpileDefaultPriceLimits` in `agent/go-service/autostockpile/thresholds.go`.
-3. **Localization**: Add labels and descriptions for the new tier in `assets/locales/interface/*.json`.
+1. **Default Thresholds**: Add the new tier's default value to `autoStockpileDefaultPriceLimits` in `agent/go-service/autostockpile/thresholds.go`.
 
-If no specific threshold is configured for a new tier, it will fall back following the "minimum positive region threshold -> `fallback_threshold` (if present) -> 800" order. The task will continue, but purchase decisions might not be ideal.
+If no default threshold is provided for a new tier, it will fall back to the minimum positive region threshold or `defaultFallbackBuyThreshold` (800). The task will continue, but purchase decisions might not be ideal.
 
 ## Adding Regions
 
@@ -197,9 +183,7 @@ Adding a new region involves several steps across the project:
 
 File: `assets/tasks/AutoStockpile.json`
 
-- Add an `AutoStockpile{NewRegion}` toggle.
-- Add the matching price input fields and `price_limits_{NewRegion}.Tier{N}` `pipeline_override.attach` keys.
-- If reserve support is needed, add the corresponding switch / input fields and the `reserve_stock_bill_{NewRegion}` attach key.
+- Add an `AutoStockpile{NewRegion}` toggle that enables the corresponding region node in `Main.json` via `pipeline_override.enabled`.
 
 ### 3. Pipeline Nodes
 
@@ -235,15 +219,13 @@ Ensure the following after any changes:
 
 1. Values in `item_map.json` use the `{Region}/{BaseName}.Tier{N}` format and match image filenames.
 2. Template images are placed in `assets/resource/image/AutoStockpile/Goods/{Region}/`.
-3. Key names in `assets/tasks/AutoStockpile.json` follow the `price_limits_{Region}.Tier{N}` format. If reserve stock bill is enabled, `reserve_stock_bill_{Region}` is also present.
-4. When adding a tier, `thresholds.go` and `locales/*.json` are updated.
-5. When adding a region, `Main.json`, `DecisionLoop.json` (especially `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`), `assets/tasks/AutoStockpile.json`, `item_map.json`, `thresholds.go`, and `locales/*.json` are all updated.
+3. When adding a tier, `autoStockpileDefaultPriceLimits` in `thresholds.go` is updated with the new tier's default value.
+4. When adding a region, `Main.json`, `DecisionLoop.json` (especially `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`), `assets/tasks/AutoStockpile.json`, `item_map.json`, `thresholds.go`, and `locales/*.json` are all updated.
 
 ## Common Pitfalls
 
 - **Missing `item_map.json`**: Adding images without mapping prevents OCR names from being linked to item IDs, leading to incomplete recognition.
 - **Missing Images**: Adding mappings without templates prevents clicking the items.
 - **Missing `custom_action_param.Region` on `AutoStockpileDecision{Region}`**: Adding a region without setting the decision node's region causes the recognition/task flow to fail immediately.
-- **Missing Thresholds**: New tiers without configured thresholds will use fallback values, which may not match expectations.
-- **Missing `reserve_stock_bill_{Region}`**: The region will work for purchasing, but the "Reserve Stock Bill" feature won't be available in task options.
+- **Missing Default Thresholds**: New tiers without entries in `autoStockpileDefaultPriceLimits` will use fallback values, which may not match expectations.
 - **Extra Dots in Filenames**: Using extra `.` characters in filenames interferes with parsing the item name and tier.
