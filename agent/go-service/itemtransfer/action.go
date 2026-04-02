@@ -3,6 +3,7 @@ package itemtransfer
 import (
 	"encoding/json"
 	"image"
+	"math/bits"
 	"sort"
 	"strconv"
 	"strings"
@@ -107,14 +108,14 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 			Int("grid_x", gx).Int("grid_y", gy).
 			Msg("target class found with low score, verifying via OCR")
 
-		names := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
-		if matchesAnyTarget(names, itemInfo.Name) {
-			log.Info().Str("component", componentName).Strs("ocr_names", names).Msg("OCR verified target")
+		results := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
+		if matchesAnyTarget(ocrTexts(results), itemInfo.Name) {
+			log.Info().Str("component", componentName).Strs("ocr_names", ocrTexts(results)).Msg("OCR verified target")
 			return ctrlClick(ctrl, gx, gy)
 		}
 		log.Info().
 			Str("component", componentName).
-			Strs("ocr_names", names).
+			Strs("ocr_names", ocrTexts(results)).
 			Str("expected", itemInfo.Name).
 			Msg("OCR name mismatch, proceeding to binary search")
 	}
@@ -228,7 +229,42 @@ func findByLowScoreTarget(items []gridItem, targetClass int) *gridItem {
 	return best
 }
 
-func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) []string {
+// runTooltipOCR runs OCR in the tooltip region computed from hoverX/hoverY.
+// It returns all recognized texts with bounding boxes and scores.
+func runTooltipOCR(ctx *maa.Context, img image.Image, hoverX, hoverY int) []tooltipOCRResult {
+	ocrROI := computeTooltipROI(hoverX, hoverY)
+	override := map[string]any{
+		tooltipOCRNode: map[string]any{
+			"roi": ocrROI,
+		},
+	}
+
+	detail, err := ctx.RunRecognition(tooltipOCRNode, img, override)
+	if err != nil || detail == nil || !detail.Hit {
+		log.Warn().
+			Str("component", componentName).
+			Int("hover_x", hoverX).
+			Int("hover_y", hoverY).
+			Ints("ocr_roi", ocrROI).
+			Msg("tooltip OCR failed")
+		return nil
+	}
+
+	results := extractAllOCRResults(detail)
+	log.Info().
+		Str("component", componentName).
+		Strs("ocr_texts", ocrTexts(results)).
+		Int("hover_x", hoverX).
+		Int("hover_y", hoverY).
+		Ints("ocr_roi", ocrROI).
+		Msg("tooltip OCR result")
+
+	return results
+}
+
+// hoverAndOCR moves the cursor to (x, y), waits for the tooltip to appear,
+// takes a screenshot, then delegates to runTooltipOCR.
+func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) []tooltipOCRResult {
 	if tasker.Stopping() {
 		return nil
 	}
@@ -241,42 +277,18 @@ func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, 
 	}
 
 	ctrl.PostScreencap().Wait()
-	newImg, err := ctrl.CacheImage()
+	img, err := ctrl.CacheImage()
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("failed to cache image after hover")
 		return nil
 	}
 
-	ocrROI := computeTooltipROI(x, y)
-	override := map[string]any{
-		tooltipOCRNode: map[string]any{
-			"roi": ocrROI,
-		},
-	}
+	results := runTooltipOCR(ctx, img, x, y)
 
-	detail, err := ctx.RunRecognition(tooltipOCRNode, newImg, override)
-	if err != nil || detail == nil || !detail.Hit {
-		log.Warn().
-			Str("component", componentName).
-			Int("hover_x", x).
-			Int("hover_y", y).
-			Ints("ocr_roi", ocrROI).
-			Msg("tooltip OCR failed")
-		return nil
-	}
-
-	texts := extractAllOCRTexts(detail)
-	log.Info().
-		Str("component", componentName).
-		Strs("ocr_texts", texts).
-		Int("hover_x", x).
-		Int("hover_y", y).
-		Msg("tooltip OCR result")
-
-	var filtered []string
-	for _, t := range texts {
-		if !strings.Contains(t, "已盛装") {
-			filtered = append(filtered, t)
+	var filtered []tooltipOCRResult
+	for _, r := range results {
+		if !strings.Contains(r.Text, "已盛装") {
+			filtered = append(filtered, r)
 		}
 	}
 	return filtered
@@ -300,12 +312,14 @@ func computeTooltipROI(hoverX, hoverY int) []int {
 	return []int{roiX, roiY, tooltipWidth, tooltipHeight}
 }
 
-func extractAllOCRTexts(detail *maa.RecognitionDetail) []string {
+// extractAllOCRResults collects all OCR hits from a recognition detail,
+// preserving text, box, and score. Prefers Filtered over All.
+func extractAllOCRResults(detail *maa.RecognitionDetail) []tooltipOCRResult {
 	if detail == nil || detail.Results == nil {
 		return nil
 	}
 	seen := make(map[string]bool)
-	var texts []string
+	var out []tooltipOCRResult
 	for _, results := range [][]*maa.RecognitionResult{
 		detail.Results.Filtered,
 		detail.Results.All,
@@ -314,17 +328,33 @@ func extractAllOCRTexts(detail *maa.RecognitionDetail) []string {
 			if r == nil {
 				continue
 			}
-			if ocrResult, ok := r.AsOCR(); ok {
-				text := strings.TrimSpace(ocrResult.Text)
+			if ocr, ok := r.AsOCR(); ok {
+				text := strings.TrimSpace(ocr.Text)
 				if text != "" && !seen[text] {
 					seen[text] = true
-					texts = append(texts, text)
+					out = append(out, tooltipOCRResult{
+						Text:  text,
+						Box:   ocr.Box,
+						Score: ocr.Score,
+					})
 				}
 			}
 		}
-		if len(texts) > 0 {
-			return texts
+		if len(out) > 0 {
+			return out
 		}
+	}
+	return out
+}
+
+// ocrTexts extracts a plain text slice from structured OCR results.
+func ocrTexts(results []tooltipOCRResult) []string {
+	if len(results) == 0 {
+		return nil
+	}
+	texts := make([]string, len(results))
+	for i, r := range results {
+		texts[i] = r.Text
 	}
 	return texts
 }
@@ -380,9 +410,118 @@ func cleanOCRNoise(s string) string {
 	return b.String()
 }
 
+// maxLinearSteps is the hard cap on how many grid cells the linear approach
+// may visit. Even when the binary search interval is large enough to permit
+// more steps, we never exceed this limit.
+const maxLinearSteps = 3
+
+// binarySearchSteps returns the worst-case number of OCR calls binary search
+// would need for a remaining interval of n elements: ⌈log₂(n+1)⌉.
+func binarySearchSteps(n int) int {
+	if n <= 0 {
+		return 0
+	}
+	return bits.Len(uint(n))
+}
+
+// adaptiveThreshold returns the effective close-index threshold given the
+// current binary search interval size. Linear approach is only started when
+// its max steps (= returned threshold) ≤ the remaining binary search steps,
+// guaranteeing no extra OCR calls compared to continuing binary search.
+func adaptiveThreshold(remainingN int) int {
+	bs := binarySearchSteps(remainingN)
+	if bs > maxLinearSteps {
+		return maxLinearSteps
+	}
+	return bs
+}
+
+func shouldSwitchToLinear(ocrIdx, targetIdx, threshold int) bool {
+	if ocrIdx < 0 || threshold <= 0 {
+		return false
+	}
+	return abs(ocrIdx-targetIdx) <= threshold && ocrIdx != targetIdx
+}
+
+// linearApproachFromGrid walks from startGridIdx along the grid toward targetIdx:
+// grid index +1 per step when knownOcrIdx < targetIdx, -1 when knownOcrIdx > targetIdx.
+// maxSteps limits the number of cells to visit (set by adaptiveThreshold).
+// If OCR resolves past the target in the approach direction, returns nil (overshoot).
+func linearApproachFromGrid(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string, startGridIdx, knownOcrIdx, maxSteps int) *gridItem {
+	if maxSteps <= 0 || knownOcrIdx < 0 || knownOcrIdx == targetIdx {
+		return nil
+	}
+
+	dir := 1
+	if knownOcrIdx > targetIdx {
+		dir = -1
+	}
+
+	for step := 1; step <= maxSteps; step++ {
+		g := startGridIdx + dir*step
+		if g < 0 || g >= len(items) {
+			log.Info().
+				Str("component", componentName).
+				Int("start_grid", startGridIdx).
+				Int("dir", dir).
+				Int("step", step).
+				Msg("linear approach reached grid boundary without target")
+			return nil
+		}
+		if tasker.Stopping() {
+			return nil
+		}
+
+		results := hoverAndOCR(ctx, tasker, ctrl, items[g].CenterX, items[g].CenterY)
+		names := ocrTexts(results)
+		if matchesAnyTarget(names, targetName) {
+			log.Info().
+				Str("component", componentName).
+				Strs("ocr_names", names).
+				Int("grid_idx", g).
+				Msg("linear approach found target")
+			return &items[g]
+		}
+		if len(results) == 0 {
+			continue
+		}
+		_, ocrIdx := resolveOCRIndex(names, categoryOrder)
+		if ocrIdx >= 0 && dir > 0 && ocrIdx > targetIdx {
+			log.Info().
+				Str("component", componentName).
+				Int("ocr_idx", ocrIdx).
+				Int("target_idx", targetIdx).
+				Int("grid_idx", g).
+				Msg("linear approach overshot past target (forward)")
+			return nil
+		}
+		if ocrIdx >= 0 && dir < 0 && ocrIdx < targetIdx {
+			log.Info().
+				Str("component", componentName).
+				Int("ocr_idx", ocrIdx).
+				Int("target_idx", targetIdx).
+				Int("grid_idx", g).
+				Msg("linear approach overshot past target (backward)")
+			return nil
+		}
+	}
+
+	log.Info().
+		Str("component", componentName).
+		Int("start_grid", startGridIdx).
+		Int("target_idx", targetIdx).
+		Msg("linear approach exhausted without finding target")
+	return nil
+}
+
 // binarySearchOnPage searches among visible grid cells.
 // Always starts from cell 0 (top-left) to establish a baseline, then
 // converges forward via binary search on the remaining range.
+// When OCR resolves to a category index close to the target and the
+// adaptive threshold (min(maxLinearSteps, ⌈log₂(remaining)⌉)) is met,
+// binary search stops and cells are visited linearly toward the target;
+// this guarantees the linear phase never costs more OCR calls than
+// continuing binary search would.
 // Returns the target item if found, or nil when the range is exhausted.
 func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string) *gridItem {
 	if len(items) == 0 {
@@ -397,20 +536,29 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 	consecutiveMisses := 0
 
 	first := &items[0]
-	names := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY)
+	results := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY)
+	names := ocrTexts(results)
 
 	if matchesAnyTarget(names, targetName) {
 		log.Info().Str("component", componentName).Strs("ocr_names", names).Int("grid_idx", 0).Msg("found target at first cell")
 		return first
 	}
 
-	if len(names) > 0 {
+	if len(results) > 0 {
 		name, ocrIdx := resolveOCRIndex(names, categoryOrder)
-		if ocrIdx >= 0 && ocrIdx > targetIdx {
+		firstThreshold := adaptiveThreshold(len(items) - 1)
+		if ocrIdx >= 0 && ocrIdx > targetIdx && abs(ocrIdx-targetIdx) > firstThreshold {
 			log.Info().Str("component", componentName).
 				Str("ocr_name", name).Int("ocr_idx", ocrIdx).Int("target_idx", targetIdx).
 				Msg("first cell already past target, item not on this page")
 			return nil
+		}
+		if shouldSwitchToLinear(ocrIdx, targetIdx, firstThreshold) {
+			log.Info().Str("component", componentName).
+				Str("ocr_name", name).Int("ocr_idx", ocrIdx).Int("target_idx", targetIdx).
+				Int("threshold", firstThreshold).
+				Msg("first cell within close index range, switching to linear approach")
+			return linearApproachFromGrid(ctx, tasker, ctrl, items, categoryOrder, targetIdx, targetName, 0, ocrIdx, firstThreshold)
 		}
 		if ocrIdx < 0 {
 			consecutiveMisses++
@@ -427,8 +575,9 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 		mid := (lo + hi) / 2
 		item := &items[mid]
 
-		names = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
-		if len(names) == 0 {
+		results = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
+		names = ocrTexts(results)
+		if len(results) == 0 {
 			lo = mid + 1
 			continue
 		}
@@ -463,6 +612,21 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 			Int("lo", lo).Int("hi", hi).Int("mid", mid).
 			Msg("binary search narrowing grid range")
 
+		var remainingN int
+		if ocrIdx < targetIdx {
+			remainingN = hi - mid
+		} else {
+			remainingN = mid - lo
+		}
+		midThreshold := adaptiveThreshold(remainingN)
+		if shouldSwitchToLinear(ocrIdx, targetIdx, midThreshold) {
+			log.Info().Str("component", componentName).
+				Str("ocr_name", name).Int("ocr_idx", ocrIdx).Int("target_idx", targetIdx).
+				Int("mid", mid).Int("remaining_n", remainingN).Int("threshold", midThreshold).
+				Msg("within close index range, switching to linear approach")
+			return linearApproachFromGrid(ctx, tasker, ctrl, items, categoryOrder, targetIdx, targetName, mid, ocrIdx, midThreshold)
+		}
+
 		if ocrIdx < targetIdx {
 			lo = mid + 1
 		} else {
@@ -481,8 +645,8 @@ func linearScanOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller
 		if tasker.Stopping() {
 			return nil
 		}
-		names := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
-		if matchesAnyTarget(names, targetName) {
+		results := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
+		if matchesAnyTarget(ocrTexts(results), targetName) {
 			return &items[i]
 		}
 	}

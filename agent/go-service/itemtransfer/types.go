@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,6 +32,15 @@ type gridItem struct {
 	Score   float64
 	CenterX int
 	CenterY int
+}
+
+// tooltipOCRResult holds a single OCR hit from the tooltip region,
+// preserving the bounding box and confidence score for callers that
+// need positional or quality information.
+type tooltipOCRResult struct {
+	Text  string
+	Box   maa.Rect
+	Score float64
 }
 
 const (
