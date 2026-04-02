@@ -107,6 +107,12 @@
         },
         "pre_wait_freezes": {
             "time": 200,
+            "target": [
+                207,
+                28,
+                869,
+                452
+            ],
             "timeout": 1000
         },
         "pre_delay": 0,
