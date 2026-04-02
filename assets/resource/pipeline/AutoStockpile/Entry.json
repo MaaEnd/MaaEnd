@@ -1,4 +1,33 @@
 {
+    "AutoStockpileSelectMarket": {
+        "desc": "将所有可购买物品展示在窗口中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileFindMarketSidebar",
+                    "AutoStockpileElasticGoodsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -5,
+                    -5
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileMoveMouse"
+        ]
+    },
     "AutoStockpileTask": {
         "desc": "开始自动囤货任务",
         "pre_delay": 0,
@@ -101,13 +130,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileSwipeToBottom",
-            "AutoStockpileGotoBottom"
+            "AutoStockpileSelectMarket"
         ]
     },
-    "AutoStockpileGotoBottom": {
+    "AutoStockpileFindMarketSidebar": {
         "desc": "将所有可购买物品展示在窗口中",
-        "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -126,56 +153,8 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    10,
-                    10,
-                    -10,
-                    -10
-                ]
-            }
-        },
-        "post_wait_freezes": 80,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileMoveMouse"
-        ]
-    },
-    "AutoStockpileSwipeToBottom": {
-        "desc": "将所有可购买物品展示在窗口中（更稳定）",
-        "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    1200,
-                    660,
-                    20,
-                    20
-                ],
-                "end": [
-                    [
-                        1200,
-                        60,
-                        20,
-                        20
-                    ]
-                ],
-                "duration": [
-                    100
-                ]
-            }
-        },
-        "repeat": 2,
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileMoveMouse"
-        ]
+        "rate_limit": 0
     },
     "AutoStockpileMoveMouse": {
         "desc": "避免鼠标遮挡",
