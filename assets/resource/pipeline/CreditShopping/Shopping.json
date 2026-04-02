@@ -276,6 +276,7 @@
             0,
             0
         ],
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -299,6 +300,7 @@
             0,
             0
         ],
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -321,6 +323,7 @@
             0,
             0
         ],
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -335,6 +338,7 @@
         ],
         "box_index": 2,
         "action": "Click",
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -376,6 +380,7 @@
         "action": {
             "type": "Click"
         },
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ],
@@ -425,6 +430,7 @@
         "action": {
             "type": "Click"
         },
+        "pre_wait_freezes": 100,
         "next": [
             "CreditShoppingBuyItem"
         ],
