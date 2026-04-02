@@ -80,6 +80,7 @@
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "GreenMask": true,
                     "Quantity": {
                         "Target": 1,
                         "Box": [
