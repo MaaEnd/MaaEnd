@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -56,6 +57,7 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 	if lastState := getLastState(); lastState != nil {
 		params.XStepRatio = lastState.xStepRatio
 		params.YStepRatio = lastState.yStepRatio
+		crossedCenter := false
 
 		if lastState.arg != nil {
 			lastTargetCenterX := float64(lastState.arg.Roi.X()) + float64(lastState.arg.Roi.Width())/2
@@ -69,10 +71,17 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 			if lastDx != 0 && currDx != 0 && lastDx*currDx < 0 {
 				params.XStepRatio *= autoEcoFarmStepRatioDecay
 				log.Info().Msgf("检测到 X 方向越过屏幕中心，XStepRatio 下调为 %.4f", params.XStepRatio)
+				crossedCenter = true
+
 			}
 			if lastDy != 0 && currDy != 0 && lastDy*currDy < 0 {
 				params.YStepRatio *= autoEcoFarmStepRatioDecay
 				log.Info().Msgf("检测到 Y 方向越过屏幕中心，YStepRatio 下调为 %.4f", params.YStepRatio)
+				crossedCenter = true
+			}
+
+			if crossedCenter {
+				maafocus.Print(ctx, "怎么拉过头了，稍微降低点拉近比例试试")
 			}
 		}
 	}
