@@ -60,6 +60,7 @@
 
     "autoecofarm.invalid_params": "パラメータが不正です",
     "autoecofarm.no_results": "結果を認識できませんでした",
+    "autoecofarm.crossed_center": "行き過ぎを検知、ステップ比率を低減します",
 
     "essencefilter.no_locked": "今回ロックした対象基質はありません。",
     "essencefilter.loot_summary.title": "戦利品サマリー：",

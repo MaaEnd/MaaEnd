@@ -60,6 +60,7 @@
 
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",
+    "autoecofarm.crossed_center": "偵測到拉過頭，自動降低拉近比例",
 
     "essencefilter.no_locked": "本次未鎖定任何目標基質。",
     "essencefilter.loot_summary.title": "戰利品摘要：",

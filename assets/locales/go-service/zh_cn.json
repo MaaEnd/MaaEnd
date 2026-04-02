@@ -59,6 +59,7 @@
 
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",
+    "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",
 
     "essencefilter.no_locked": "本次未锁定任何目标基质。",
     "essencefilter.loot_summary.title": "战利品摘要：",

@@ -12,30 +12,9 @@ var (
 )
 
 type swipeTargetState struct {
-	arg        *maa.CustomRecognitionArg
+	lastRoi    maa.Rect
 	xStepRatio float64
 	yStepRatio float64
-}
-
-func cloneArg(arg *maa.CustomRecognitionArg) *maa.CustomRecognitionArg {
-	if arg == nil {
-		return nil
-	}
-
-	copied := *arg
-	return &copied
-}
-
-func cloneState(state *swipeTargetState) *swipeTargetState {
-	if state == nil {
-		return nil
-	}
-
-	return &swipeTargetState{
-		arg:        cloneArg(state.arg),
-		xStepRatio: state.xStepRatio,
-		yStepRatio: state.yStepRatio,
-	}
 }
 
 // getLastState 返回最近一次缓存状态的快照。
@@ -43,42 +22,32 @@ func getLastState() *swipeTargetState {
 	stateMu.RLock()
 	defer stateMu.RUnlock()
 
-	return cloneState(lastSwipeTargetState)
-}
-
-// getLastArg 返回最近一次的识别参数副本。
-func getLastArg() *maa.CustomRecognitionArg {
-	state := getLastState()
-	if state == nil {
+	if lastSwipeTargetState == nil {
 		return nil
 	}
 
-	return state.arg
-}
-
-// getLastRatios 返回最近一次的 X/Y StepRatio。
-func getLastRatios() (float64, float64, bool) {
-	state := getLastState()
-	if state == nil {
-		return 0, 0, false
+	return &swipeTargetState{
+		lastRoi:    lastSwipeTargetState.lastRoi,
+		xStepRatio: lastSwipeTargetState.xStepRatio,
+		yStepRatio: lastSwipeTargetState.yStepRatio,
 	}
-
-	return state.xStepRatio, state.yStepRatio, true
 }
 
-// setLastState 保存最新的识别参数和 StepRatio。
-func setLastState(arg *maa.CustomRecognitionArg, xStepRatio, yStepRatio float64) {
+// setLastState 保存最新的识别 ROI 和 StepRatio。
+func setLastState(roi maa.Rect, xStepRatio, yStepRatio float64) {
 	stateMu.Lock()
 	defer stateMu.Unlock()
 
-	if arg == nil {
-		lastSwipeTargetState = nil
-		return
-	}
-
 	lastSwipeTargetState = &swipeTargetState{
-		arg:        cloneArg(arg),
+		lastRoi:    roi,
 		xStepRatio: xStepRatio,
 		yStepRatio: yStepRatio,
 	}
+}
+
+// ResetSwipeTargetState 清空缓存的滑动目标状态，供 Pipeline 在生命周期边界调用。
+func ResetSwipeTargetState() {
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	lastSwipeTargetState = nil
 }

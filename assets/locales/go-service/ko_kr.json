@@ -60,6 +60,7 @@
 
     "autoecofarm.invalid_params": "잘못된 매개변수입니다",
     "autoecofarm.no_results": "인식된 결과가 없습니다",
+    "autoecofarm.crossed_center": "오버슈트 감지, 이동 비율을 줄입니다",
 
     "essencefilter.no_locked": "이번에 잠근 대상 기질이 없습니다.",
     "essencefilter.loot_summary.title": "전리품 요약:",

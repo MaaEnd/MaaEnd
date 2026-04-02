@@ -127,6 +127,18 @@
             }
         },
         "next": [
+            "_AutoEcoFarmResetSwipeState"
+        ]
+    },
+    "_AutoEcoFarmResetSwipeState": {
+        "desc": "重置滑动目标状态",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmResetSwipeState"
+            }
+        },
+        "next": [
             "[Anchor]_AutoEcoFarmSwipeLoopAnchor"
         ]
     },

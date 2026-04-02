@@ -60,6 +60,7 @@
 
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
+    "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
 
     "essencefilter.no_locked": "No target essences locked this run.",
     "essencefilter.loot_summary.title": "Loot Summary:",
