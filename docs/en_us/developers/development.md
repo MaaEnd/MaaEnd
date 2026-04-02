@@ -148,7 +148,7 @@ The following tasks have maintenance documentation. When writing new features an
 
 ### Go Service Code Specifications
 
-- Go Service is only used to handle certain special actions/recognition; the overall process should still be connected in series using Pipeline. Do not write a large amount of process code with Go Service.
+- Go Service is only used to handle certain special actions/recognition; the overall process should still be connected in series using Pipeline. Do not write a large amount of process code with Go Service. For example, in a product-purchase task, Go Service handles price comparison and iterating over products only; opening product details, tapping purchase, and returning to the product list remain in Pipeline.
 
 ### Cpp Algo Code Specifications
 
