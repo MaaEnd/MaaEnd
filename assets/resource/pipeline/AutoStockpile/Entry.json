@@ -134,7 +134,7 @@
         ]
     },
     "AutoStockpileFindMarketSidebar": {
-        "desc": "将所有可购买物品展示在窗口中",
+        "desc": "识别侧边栏市场图标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
