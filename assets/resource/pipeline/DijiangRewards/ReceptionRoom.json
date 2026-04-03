@@ -101,7 +101,7 @@
                 100
             ]
         },
-        "pre_delay": 1500, // 等待可能出现的情报交流结束弹窗
+        "pre_delay": 3000, // 等待可能出现的情报交流结束弹窗
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -167,8 +167,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSendCluesClueCollectionOpen",
-            "ReceptionRoomClueExchangeWait"
+            "ReceptionRoomSendCluesClueCollectionOpen"
         ]
     },
     "ReceptionRoomSendCluesClueCollectionOpen": {
@@ -315,8 +314,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SceneNoticeRewardsConfirm",
-            "ReceptionRoomClueExchangeWait"
+            "SceneNoticeRewardsConfirm"
         ]
     },
     "ReceptionRoomReceiveClues": {
@@ -340,8 +338,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomReceiveCluesOpen",
-            "ReceptionRoomClueExchangeWait"
+            "ReceptionRoomReceiveCluesOpen"
         ]
     },
     "ReceptionRoomReceiveCluesOpen": {
@@ -771,8 +768,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSetCluesChooseClues",
-            "ReceptionRoomClueExchangeWait"
+            "ReceptionRoomSetCluesChooseClues"
         ]
     },
     "ReceptionRoomSetCluesChooseClues": {
