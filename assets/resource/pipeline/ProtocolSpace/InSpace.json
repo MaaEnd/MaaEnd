@@ -172,31 +172,59 @@
     "ProtocolSpaceEnterSpaceSuccess": {
         "desc": "进入协议空间成功",
         "recognition": "And",
+        "pre_delay": 0,
         "all_of": [
             "ProtocolSpaceIn"
         ],
+        "post_delay": 0,
         "post_wait_freezes": 200,
         "next": [
-            "ProtocolSpaceTouchStartDelta"
+            "ProtocolSpaceEnterSpaceSprint1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入协议空间成功"
         }
     },
-    "ProtocolSpaceTouchStartDelta": {
-        "desc": "向下拉动视角，避免光点被头挡住",
+    "ProtocolSpaceEnterSpaceSprint1": {
+        "desc": "尝试第一次冲刺（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
         "recognition": "And",
+        "pre_delay": 0,
         "all_of": [
             "ProtocolSpaceIn"
         ],
+        "post_delay": 600,
+        "action": "Click",
+        "contact": 1,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceSprint2"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSprint2": {
+        "desc": "尝试第二次冲刺",
+        "recognition": "And",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "CharacterControllerPitchDeltaAction",
-        "custom_action_param": {
-            "delta": 90 // 这个不准，看着用
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
+        "all_of": [
+            "ProtocolSpaceIn"
+        ],
+        "post_delay": 600,
+        "action": "Click",
+        "contact": 1,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceSprint3"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSprint3": {
+        "desc": "尝试第三次冲刺",
+        "recognition": "And",
+        "pre_delay": 0,
+        "all_of": [
+            "ProtocolSpaceIn"
+        ],
+        "post_delay": 600,
+        "action": "Click",
+        "contact": 1,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
