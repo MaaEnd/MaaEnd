@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   check-commits:
@@ -60,7 +60,7 @@ jobs:
               per_page: 100,
             });
 
-            const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|debug|ai)(?:\([^)]+\))?!?:\s.+|revert:\s.+)$/;
+            const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|ai)(?:\([^)]+\))?!?:\s.+|revert:\s.+)$/;
 
             const invalidCommits = commits.filter(commit => {
               const title = commit.commit.message.split('\n')[0];
@@ -70,29 +70,30 @@ jobs:
             console.log(`Checked ${commits.length} commit(s)`);
 
             if (invalidCommits.length === 0) {
-              console.log('All commits passed validation');
+              await core.summary
+                .addHeading('Commit check passed')
+                .addRaw(`Checked ${commits.length} commit(s).`, true)
+                .write();
               return;
             }
 
             const invalidCommitNames = invalidCommits.map(commit => commit.commit.message);
-            const invalidCommitInfoList = invalidCommits
-              .map(commit => {
-                const title = commit.commit.message.split('\n')[0];
-                const reason = commit.parents.length > 1 ? 'merge commit' : 'invalid format';
-                return `- ${title} [\`${commit.sha.substring(0, 7)}\`](${commit.html_url}) (${reason})`;
-              })
-              .join('\n');
+            const invalidCommitInfoList = invalidCommits.map(commit => {
+              const title = commit.commit.message.split('\n')[0];
+              const reason = commit.parents.length > 1 ? 'merge commit' : 'invalid format';
+              return `- ${title} [\`${commit.sha.substring(0, 7)}\`](${commit.html_url}) (${reason})`;
+            });
 
             const commentBody = [
               marker,
               `## Found ${invalidCommits.length} invalid commit(s)`,
               '',
-              invalidCommitInfoList,
+              invalidCommitInfoList.join('\n'),
               '',
               '---',
               'Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.',
               '',
-              'Accepted prefixes include: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `debug`, `ai`, `revert`.',
+              'Accepted prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `ai`, `revert`.',
               '',
               '请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。',
             ].join('\n');
@@ -107,5 +108,13 @@ jobs:
             } catch (error) {
               core.warning(`Failed to create PR comment: ${error.message}`);
             }
+
+            await core.summary
+              .addHeading(`Found ${invalidCommits.length} invalid commit(s)`)
+              .addRaw(invalidCommitInfoList.join('\n'), true)
+              .addSeparator()
+              .addRaw('Accepted prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `ai`, `revert`.', true)
+              .addRaw('Do not use merge commits in pull requests.', true)
+              .write();
 
             core.setFailed(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
