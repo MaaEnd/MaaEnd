@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   check-commits:
@@ -37,11 +37,15 @@ jobs:
             );
 
             for (const comment of previousComments) {
-              await github.rest.issues.deleteComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: comment.id,
-              });
+              try {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                });
+              } catch (error) {
+                core.warning(`Failed to delete previous bot comment: ${error.message}`);
+              }
             }
 
       - name: Check commits
@@ -93,11 +97,15 @@ jobs:
               '请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。',
             ].join('\n');
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: commentBody,
-            });
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: commentBody,
+              });
+            } catch (error) {
+              core.warning(`Failed to create PR comment: ${error.message}`);
+            }
 
             core.setFailed(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
