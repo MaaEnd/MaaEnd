@@ -79,7 +79,7 @@ jobs:
               return;
             }
 
-            const invalidCommitNames = invalidCommits.map(commit => commit.commit.message);
+            const invalidCommitTitles = invalidCommits.map(commit => commit.commit.message.split('\n')[0]);
             const invalidCommitInfoList = invalidCommits.map(commit => {
               const title = commit.commit.message.split('\n')[0];
               const reason = commit.parents.length > 1 ? 'merge commit' : 'invalid format';
@@ -146,7 +146,7 @@ jobs:
               failureReasons.push(`Invalid PR title: ${prTitle || '(empty title)'}`);
             }
             if (invalidCommits.length > 0) {
-              failureReasons.push(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
+              failureReasons.push(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitTitles.join('\n-------------------\n')}`);
             }
 
             core.setFailed(failureReasons.join('\n===================\n'));
