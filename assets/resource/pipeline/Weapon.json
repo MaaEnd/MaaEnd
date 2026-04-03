@@ -78,7 +78,15 @@
         "all_of": [
             "LevelUpButton"
         ],
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                200
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
