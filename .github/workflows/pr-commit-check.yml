@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   check-commits:
-    name: Check Commits in PR
+    name: Check PR Title and Commits
     if: ${{ !github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     steps:
@@ -48,11 +48,12 @@ jobs:
               }
             }
 
-      - name: Check commits
+      - name: Check PR title and commits
         uses: actions/github-script@v8
         with:
           script: |
             const marker = '<!-- pr-commit-check -->';
+            const prTitle = context.payload.pull_request.title || '';
             const commits = await github.paginate(github.rest.pulls.listCommits, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -61,18 +62,19 @@ jobs:
             });
 
             const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|ai)(?:\([^)]+\))?!?:\s.+|revert:\s.+)$/;
+            const invalidPrTitle = !regex.test(prTitle);
 
             const invalidCommits = commits.filter(commit => {
               const title = commit.commit.message.split('\n')[0];
               return !regex.test(title) || commit.parents.length > 1;
             });
 
-            console.log(`Checked ${commits.length} commit(s)`);
+            console.log(`Checked PR title and ${commits.length} commit(s)`);
 
-            if (invalidCommits.length === 0) {
+            if (!invalidPrTitle && invalidCommits.length === 0) {
               await core.summary
-                .addHeading('Commit check passed')
-                .addRaw(`Checked ${commits.length} commit(s).`, true)
+                .addHeading('PR check passed')
+                .addRaw(`Checked PR title and ${commits.length} commit(s).`, true)
                 .write();
               return;
             }
@@ -84,19 +86,28 @@ jobs:
               return `- ${title} [\`${commit.sha.substring(0, 7)}\`](${commit.html_url}) (${reason})`;
             });
 
-            const commentBody = [
-              marker,
-              `## Found ${invalidCommits.length} invalid commit(s)`,
-              '',
-              invalidCommitInfoList.join('\n'),
-              '',
-              '---',
-              'Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.',
-              '',
-              'Accepted prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `ai`, `revert`.',
-              '',
-              '请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。',
-            ].join('\n');
+            const commentLines = [marker, '## PR title / commit check failed', ''];
+
+            if (invalidPrTitle) {
+              commentLines.push('### Invalid PR title');
+              commentLines.push(`- ${prTitle || '(empty title)'}`);
+              commentLines.push('');
+            }
+
+            if (invalidCommits.length > 0) {
+              commentLines.push(`### Invalid commit(s): ${invalidCommits.length}`);
+              commentLines.push(invalidCommitInfoList.join('\n'));
+              commentLines.push('');
+            }
+
+            commentLines.push('---');
+            commentLines.push('Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.');
+            commentLines.push('');
+            commentLines.push('Accepted prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `ai`, `revert`.');
+            commentLines.push('');
+            commentLines.push('请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。');
+
+            const commentBody = commentLines.join('\n');
 
             try {
               await github.rest.issues.createComment({
@@ -110,11 +121,32 @@ jobs:
             }
 
             await core.summary
-              .addHeading(`Found ${invalidCommits.length} invalid commit(s)`)
-              .addRaw(invalidCommitInfoList.join('\n'), true)
+              .addHeading('PR title / commit check failed');
+
+            if (invalidPrTitle) {
+              await core.summary
+                .addHeading('Invalid PR title', 3)
+                .addRaw(`- ${prTitle || '(empty title)'}`, true);
+            }
+
+            if (invalidCommits.length > 0) {
+              await core.summary
+                .addHeading(`Invalid commit(s): ${invalidCommits.length}`, 3)
+                .addRaw(invalidCommitInfoList.join('\n'), true);
+            }
+
+            await core.summary
               .addSeparator()
               .addRaw('Accepted prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `ai`, `revert`.', true)
               .addRaw('Do not use merge commits in pull requests.', true)
               .write();
 
-            core.setFailed(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
+            const failureReasons = [];
+            if (invalidPrTitle) {
+              failureReasons.push(`Invalid PR title: ${prTitle || '(empty title)'}`);
+            }
+            if (invalidCommits.length > 0) {
+              failureReasons.push(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
+            }
+
+            core.setFailed(failureReasons.join('\n===================\n'));
