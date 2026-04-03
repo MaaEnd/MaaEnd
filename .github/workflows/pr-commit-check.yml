@@ -1,0 +1,99 @@
+name: PR Commit Check
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  check-commits:
+    name: Check Commits in PR
+    if: ${{ !github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up previous comment
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const marker = '<!-- pr-commit-check -->';
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+
+            const previousComments = comments.filter(comment =>
+              comment.user.login === 'github-actions[bot]' && comment.body.includes(marker)
+            );
+
+            for (const comment of previousComments) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+              });
+            }
+
+      - name: Check commits
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const marker = '<!-- pr-commit-check -->';
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+
+            const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|debug|ai)(?:\([^)]+\))?!?:\s|(?:[Rr]evert|[Rr]elease|[Rr]eapply)\b)/;
+
+            const invalidCommits = commits.filter(commit => {
+              const title = commit.commit.message.split('\n')[0];
+              return !regex.test(title) || commit.parents.length > 1;
+            });
+
+            console.log(`Checked ${commits.length} commit(s)`);
+
+            if (invalidCommits.length === 0) {
+              console.log('All commits passed validation');
+              return;
+            }
+
+            const invalidCommitNames = invalidCommits.map(commit => commit.commit.message);
+            const invalidCommitInfoList = invalidCommits
+              .map(commit => {
+                const title = commit.commit.message.split('\n')[0];
+                const reason = commit.parents.length > 1 ? 'merge commit' : 'invalid format';
+                return `- ${title} [\`${commit.sha.substring(0, 7)}\`](${commit.html_url}) (${reason})`;
+              })
+              .join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `${marker}
+## ⚠️ Found ${invalidCommits.length} invalid commit(s)
+
+${invalidCommitInfoList}
+
+---
+Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.
+
+Accepted prefixes include: \`build\`, \`chore\`, \`ci\`, \`docs\`, \`feat\`, \`fix\`, \`perf\`, \`refactor\`, \`rft\`, \`style\`, \`test\`, \`i18n\`, \`typo\`, \`debug\`, \`ai\`.
+
+请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。`,
+            });
+
+            core.setFailed(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
