@@ -161,7 +161,7 @@ In this case, go-service dynamically rewrites the corresponding branch node to `
 
 - The template threshold is fixed at `0.8`
 - The top-level parameter `GreenMask` defaults to `false`, and is mapped to the TemplateMatch protocol field `green_mask`
-- The click uses `target: true` and includes `target_offset: [5, 5, -5, -5]`
+- The click uses `target: true` and includes `target_offset: [5, 5, -10, -10]`
 
 This is usually more stable than hardcoded coordinates, so it is the preferred option.
 

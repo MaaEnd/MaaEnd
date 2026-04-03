@@ -157,7 +157,7 @@ func buildTemplateMatchButtonOverride(helperNode string, repeat int) map[string]
 			"type": "Click",
 			"param": map[string]any{
 				"target":        true,
-				"target_offset": []int{5, 5, -5, -5},
+				"target_offset": []int{5, 5, -10, -10},
 			},
 		},
 		"repeat": repeat,
