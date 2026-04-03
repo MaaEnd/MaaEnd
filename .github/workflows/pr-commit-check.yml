@@ -56,7 +56,7 @@ jobs:
               per_page: 100,
             });
 
-            const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|debug|ai)(?:\([^)]+\))?!?:\s|(?:[Rr]evert|[Rr]elease|[Rr]eapply)\b)/;
+            const regex = /^(?:(?:build|chore|ci|docs?|feat|fix|perf|refactor|rft|style|styles|test|i18n|typo|debug|ai)(?:\([^)]+\))?!?:\s.+|revert:\s.+)$/;
 
             const invalidCommits = commits.filter(commit => {
               const title = commit.commit.message.split('\n')[0];
@@ -79,21 +79,25 @@ jobs:
               })
               .join('\n');
 
+            const commentBody = [
+              marker,
+              `## Found ${invalidCommits.length} invalid commit(s)`,
+              '',
+              invalidCommitInfoList,
+              '',
+              '---',
+              'Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.',
+              '',
+              'Accepted prefixes include: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `rft`, `style`, `styles`, `test`, `i18n`, `typo`, `debug`, `ai`, `revert`.',
+              '',
+              '请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。',
+            ].join('\n');
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: `${marker}
-## ⚠️ Found ${invalidCommits.length} invalid commit(s)
-
-${invalidCommitInfoList}
-
----
-Please follow the Conventional Commits format used in this repository, and **do not** use merge commits in pull requests.
-
-Accepted prefixes include: \`build\`, \`chore\`, \`ci\`, \`docs\`, \`feat\`, \`fix\`, \`perf\`, \`refactor\`, \`rft\`, \`style\`, \`test\`, \`i18n\`, \`typo\`, \`debug\`, \`ai\`.
-
-请遵循本仓库使用的 Conventional Commits 规范，并且**不要**在 Pull Request 中使用 Merge Commit。`,
+              body: commentBody,
             });
 
             core.setFailed(`Found ${invalidCommits.length} invalid commit(s):\n${invalidCommitNames.join('\n-------------------\n')}`);
