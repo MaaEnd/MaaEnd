@@ -195,6 +195,12 @@
         "post_delay": 600,
         "action": "Click",
         "contact": 1,
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "ProtocolSpaceEnterSpaceSprint2"
@@ -210,6 +216,12 @@
         "post_delay": 600,
         "action": "Click",
         "contact": 1,
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "ProtocolSpaceEnterSpaceSprint3"
@@ -225,6 +237,12 @@
         "post_delay": 600,
         "action": "Click",
         "contact": 1,
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
