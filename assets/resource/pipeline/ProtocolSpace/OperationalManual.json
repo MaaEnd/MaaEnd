@@ -40,7 +40,6 @@
             "協約空間"
         ],
         "action": "Click",
-        "post_wait_freezes": 200,
         "next": [
             "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
         ]
@@ -59,12 +58,13 @@
             "員養成",
             "Operator Progression"
         ],
+        "pre_wait_freezes": 200,
         "action": "Click",
         "anchor": {
             "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
             "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 400,
         "next": [
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
