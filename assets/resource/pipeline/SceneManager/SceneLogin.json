@@ -59,7 +59,6 @@
                 "sub_name": "__ScenePrivateCloseAnnouncementButton",
                 "recognition": {
                     "type": "TemplateMatch",
-                    "desc": "识别登录时公告界面的关闭按钮,这里不用通用按钮的原因是 roi 和模版大小都不同",
                     "param": {
                         "roi": [
                             1178,
@@ -70,13 +69,13 @@
                         "template": [
                             "SceneManager/LoginAnnouncementClose.png"
                         ]
-                    }
+                    },
+                    "desc": "识别登录时公告界面的关闭按钮,这里不用通用按钮的原因是 roi 和模版大小都不同"
                 }
             },
             {
                 "recognition": {
                     "type": "OCR",
-                    "desc": "识别是否在公告界面",
                     "param": {
                         "roi": [
                             252,
@@ -87,7 +86,8 @@
                         "expected": [
                             "公告"
                         ]
-                    }
+                    },
+                    "desc": "识别是否在公告界面"
                 }
             }
         ],
