@@ -4,7 +4,46 @@
 我们的主体流程采用 [Pipeline JSON 低代码](/assets/resource/pipeline)，复杂逻辑通过 [go-service](/agent/go-service) 编码实现。
 若有意加入 MaaEnd 开发，可以先阅读 [MaaFramework 相关文档](https://maafw.com/)，了解低代码逻辑、相关编辑调试工具的使用，也可以查看 [MaaFramework 教学视频](https://www.bilibili.com/video/BV1yr421E7MW)，但视频较旧，请以文档为主哦~
 
-## 本地部署
+## 快速本地部署
+
+### 第一步：把工作区跑起来
+
+#### 你至少需要这些环境
+
+- Git
+- Python 3.10+
+- Node.js 22+
+- pnpm 10+
+- Go 1.25+
+
+其中：
+
+- `package.json` 要求 Node 22。
+- `agent/go-service/go.mod` 当前是 Go 1.25.6。
+- Python 用来跑工作区脚本和辅助工具。
+
+#### 克隆完整代码
+
+打开终端（命令行）:
+Windows：Git Bash 或 CMD
+
+macOS / Linux：Terminal
+
+按顺序执行命令:
+
+```bash
+# 克隆完整代码
+git clone --recursive https://github.com/MaaEnd/MaaEnd.git
+
+# 进入项目根目录
+cd MaaEnd
+
+# 验证
+git log -1
+// 执行 git log -1 若能看到一条包含 commit 哈希、作者、日期的记录，则表示项目已完整克隆，历史记录可用
+```
+
+#### 工作区配置
 
 我们提供一个自动化的**工作区初始化脚本**，只需执行：
 
@@ -13,6 +52,7 @@ python tools/setup_workspace.py
 ```
 
 即可完整设置开发所需的环境。
+之后只要打开项目根目录的相对目录 `install\mxu.exe` 即可使用 ui 进行调试（不过不推荐这种调试方法，建议根据下文开发技巧使用开发工具进行调试）
 
 > [!NOTE]
 >
@@ -23,18 +63,7 @@ python tools/setup_workspace.py
 <br>
 
 1. 完整克隆项目及子仓库。
-
-    ```bash
-    git clone https://github.com/MaaEnd/MaaEnd --recursive
-    ```
-
-    **不要漏了 `--recursive`**
-
-    如果你已经 clone 了项目，但没有使用 `--recursive` 参数，现在你可以在项目的根目录执行
-
-    ```bash
-    git submodule update --init --recursive
-    ```
+按照 [克隆完整代码](#克隆完整代码) 来完整克隆项目及子仓库
 
 2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压内容到 `deps` 文件夹。
 
