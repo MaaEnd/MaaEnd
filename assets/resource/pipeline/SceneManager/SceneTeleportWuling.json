@@ -272,8 +272,110 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Center.png",
+            "SceneManager/MapWuling/JingyuValley4Center1.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Left.png",
+            "SceneManager/MapWuling/JingyuValley4Left1.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Top.png",
+            "SceneManager/MapWuling/JingyuValley4Top1.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley4Try0": {
-        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)",
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟内),此锚点兼容性差",
         "recognition": "And",
         "all_of": [
             "InMapWulingJingyuValley"
