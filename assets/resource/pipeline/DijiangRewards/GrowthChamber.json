@@ -528,7 +528,7 @@
         ]
     },
     "GrowthChamberNoMaterials": {
-        "desc": "[培养舱·基核] 原料不足时停止任务",
+        "desc": "[培养舱·基核] 原料不足时返回目标列表并重新查找候选",
         "recognition": {
             "type": "OCR",
             "param": {
