@@ -203,7 +203,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		quantityLog = quantityLog.Int("quantity_target", quantityDecision.Target)
 	}
 	quantityLog.Msg("product selected and pipeline overridden")
-	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", selectionMode, selection.ProductName, selection.CurrentPrice, selection.Threshold, formatQuantityText(quantityDecision)))
+	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", selectionMode, selection.ProductName, selection.CurrentPrice))
 
 	return true
 }
