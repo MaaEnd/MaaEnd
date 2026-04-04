@@ -62,7 +62,7 @@ python tools/setup_workspace.py
 <summary>点此展开手动配置指南。</summary>
 <br>
 
-1. 完整克隆项目及子仓库。
+1. 完整克隆项目及子仓库。  
 按照 [克隆完整代码](#克隆完整代码) 来完整克隆项目及子仓库
 
 2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压内容到 `deps` 文件夹。
@@ -93,7 +93,7 @@ python tools/setup_workspace.py
 
 #### 简易快速开发
 
-[快速开发文档](docs\zh_cn\developers\getting-started.md)
+[快速开发文档](./getting-started.md)
 这部分文档面向 **完全不了解 MaaFramework、但想尽快在 MaaEnd 里成功改东西并跑起来** 的开发者，有相关 maafw 开发经验的开发者可以跳过这部分。
 
 目标不是一次讲完所有细节，而是按实际开发优先级，把你带到这三个结果：
