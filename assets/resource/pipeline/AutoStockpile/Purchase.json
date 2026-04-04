@@ -1,6 +1,6 @@
 {
     "AutoStockpileRelayNodeDecisionReady": {
-        "desc": "当前决策已校正，可进入购买链",
+        "desc": "[Go覆盖] 当前决策已校正，可进入购买链",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -69,7 +69,7 @@
         }
     },
     "AutoStockpileSwipeSpecificQuantity": {
-        "desc": "滑动到指定数值",
+        "desc": "[Go覆盖] 滑动到指定数值",
         "enabled": false,
         "pre_delay": 0,
         "action": {
@@ -117,7 +117,7 @@
         }
     },
     "AutoStockpileSwipeMax": {
-        "desc": "选择最大购买数量",
+        "desc": "[Go覆盖] 选择最大购买数量",
         "enabled": false,
         "pre_delay": 0,
         "action": {

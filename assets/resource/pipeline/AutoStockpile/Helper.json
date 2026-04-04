@@ -1,6 +1,6 @@
 {
     "AutoStockpileGetGoods": {
-        "desc": "对购买区域进行OCR",
+        "desc": "[Go覆盖] 对购买区域进行OCR",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -22,7 +22,7 @@
         "rate_limit": 0
     },
     "AutoStockpileLocateGoods": {
-        "desc": "定位商品，具体模板会在运行时被go覆写",
+        "desc": "[Go覆盖] 定位商品，具体模板会在运行时被go覆写",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

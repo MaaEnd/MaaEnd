@@ -60,6 +60,7 @@
         ]
     },
     "AutoStockpileCheckInStore": {
+        "desc": "检查商店图标，确认是否位于物资调度",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

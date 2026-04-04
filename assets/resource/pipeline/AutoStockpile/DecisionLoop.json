@@ -84,7 +84,7 @@
         ]
     },
     "AutoStockpileSelectedGoodsClick": {
-        "desc": "点击决策选中的商品 (template)",
+        "desc": "[Go覆盖] 点击决策选中的商品 (template)",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
