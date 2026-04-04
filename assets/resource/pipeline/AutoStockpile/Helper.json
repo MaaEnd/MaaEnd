@@ -49,19 +49,18 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "lower": [
                     [
-                        0,
-                        0,
-                        70
+                        60,
+                        60,
+                        60
                     ]
                 ],
                 "upper": [
                     [
-                        5,
-                        10,
-                        120
+                        150,
+                        150,
+                        150
                     ]
                 ]
             }
@@ -91,58 +90,6 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockpileGetQuotaFilter": {
-        "desc": "去除背景干扰",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        100
-                    ]
-                ],
-                "upper": [
-                    [
-                        50,
-                        50,
-                        200
-                    ]
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockpileGetQuotaAdditionFilter": {
-        "desc": "去除背景干扰",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        0
-                    ]
-                ],
-                "upper": [
-                    [
-                        35,
-                        255,
-                        200
-                    ]
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileGetQuota": {
         "desc": "获取购买数量",
         "recognition": {
@@ -156,8 +103,7 @@
                 ],
                 "expected": [
                     "\\d"
-                ],
-                "color_filter": "AutoStockpileGetQuotaFilter"
+                ]
             }
         },
         "pre_delay": 0,
@@ -200,6 +146,31 @@
                 ],
                 "expected": [
                     "\\d"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuotaAdditionFilter": {
+        "desc": "过滤可能存在的溢出警告",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        160,
+                        160,
+                        160
+                    ]
                 ]
             }
         },

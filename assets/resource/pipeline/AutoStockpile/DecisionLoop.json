@@ -178,32 +178,6 @@
             "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
         }
     },
-    "AutoStockpileReconcilePriceFilter": {
-        "desc": "过滤调度券图标",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        40
-                    ]
-                ],
-                "upper": [
-                    [
-                        5,
-                        5,
-                        120
-                    ]
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileReconcileDecision": {
         "desc": "根据详情页价格校正并重算决策",
         "recognition": {
@@ -223,8 +197,7 @@
                         "[^\\d]",
                         ""
                     ]
-                ],
-                "color_filter": "AutoStockpileReconcilePriceFilter"
+                ]
             }
         },
         "pre_delay": 0,
