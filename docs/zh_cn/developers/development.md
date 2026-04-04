@@ -12,9 +12,9 @@
 
 - Git
 - Python 3.10+
-- Node.js 22+
+- Node.js 22
 - pnpm 10+
-- Go 1.25+
+- Go 1.25.6+
 
 其中：
 
