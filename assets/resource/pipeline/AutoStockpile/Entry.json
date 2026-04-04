@@ -27,7 +27,7 @@
             "param": {
                 "all_of": [
                     "AutoStockpileFindMarketSidebar",
-                    "AutoStockpileElasticGoodsButton"
+                    "AutoStockpileElasticGoodsSelected"
                 ]
             }
         },
@@ -84,20 +84,11 @@
     "AutoStockpileElasticGoodsButton": {
         "desc": "弹性物资调度黑白双煞",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    340,
-                    55,
-                    60,
-                    70
-                ],
-                "template": [
-                    "AutoStockpile/ElasticGoodsButton.png",
-                    "AutoStockpile/ElasticGoodsButtonSelected.png"
-                ],
-                "threshold": [
-                    0.8
+                "any_of": [
+                    "AutoStockpileElasticGoods",
+                    "AutoStockpileElasticGoodsSelected"
                 ]
             }
         },
@@ -174,5 +165,45 @@
         "next": [
             "[Anchor]AutoStockpileDecision"
         ]
+    },
+    "AutoStockpileElasticGoods": {
+        "desc": "弹性物资调度未选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    340,
+                    55,
+                    60,
+                    70
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButton.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
+    },
+    "AutoStockpileElasticGoodsSelected": {
+        "desc": "弹性物资调度选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    340,
+                    55,
+                    60,
+                    70
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButtonSelected.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
     }
 }
