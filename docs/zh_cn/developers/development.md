@@ -24,12 +24,12 @@
 
 #### 克隆完整代码
 
-打开终端（命令行）:
-Windows：Git Bash 或 CMD
+打开终端（命令行）：
 
-macOS / Linux：Terminal
+- Windows：Git Bash 或 CMD
+- macOS / Linux：Terminal
 
-按顺序执行命令:
+按顺序执行命令：
 
 ```bash
 # 克隆完整代码
@@ -37,10 +37,9 @@ git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 
 # 进入项目根目录
 cd MaaEnd
-
-# 验证
-克隆成功后会在目录下有相关源码文件，如果没有请重新尝试上述操作，如果是网络问题可能需要使用魔法
 ```
+
+克隆成功后目录下会有相关源码文件，若缺失请重新尝试上述操作（网络问题可能需要使用代理）。
 
 #### 工作区配置
 
@@ -50,8 +49,7 @@ cd MaaEnd
 python tools/setup_workspace.py
 ```
 
-即可完整设置开发所需的环境。
-之后只要打开项目根目录下的 `install\mxu.exe` 即可使用 UI 进行调试（不过不推荐这种调试方法，建议根据下文开发技巧使用开发工具进行调试）
+即可完整设置开发所需的环境。之后只要打开项目根目录下的 `install/mxu.exe` 即可使用 UI 进行调试（不过不推荐这种调试方法，建议根据下文开发技巧使用开发工具进行调试）。
 
 > [!NOTE]
 >
@@ -61,8 +59,7 @@ python tools/setup_workspace.py
 <summary>点此展开手动配置指南。</summary>
 <br>
 
-1. 完整克隆项目及子仓库。  
-按照 [克隆完整代码](#克隆完整代码) 来完整克隆项目及子仓库
+1. 完整克隆项目及子仓库。按照 [克隆完整代码](#克隆完整代码) 来完整克隆项目及子仓库。
 
 2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压内容到 `deps` 文件夹。
 
@@ -90,16 +87,9 @@ python tools/setup_workspace.py
 
 </details>
 
-#### 简易快速开发
+#### 入门开发路线
 
-[快速开发文档](./getting-started.md)
-这部分文档面向 **完全不了解 MaaFramework、但想尽快在 MaaEnd 里成功改东西并跑起来** 的开发者，有相关 maafw 开发经验的开发者可以跳过这部分。
-
-目标不是一次讲完所有细节，而是按实际开发优先级，把你带到这三个结果：
-
-1. 能搭好本地工作区并成功运行程序。
-2. 能看懂 MaaEnd 的基本结构，知道该改哪一层。
-3. 能按当前仓库里开发者的常见做法，完成一次小改动并自检。
+完全不熟悉 MaaFramework 的开发者，建议先阅读 [开发入门路线](./getting-started.md)。该文档按实际开发优先级引导你搭好工作区、看懂项目结构并完成一次小改动，有相关开发经验的开发者可以跳过。
 
 ## 开发技巧
 

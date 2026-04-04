@@ -55,10 +55,10 @@ MaaEnd 基本可以先理解成四层：
 
 这是最终用户会接触到的 GUI 入口，适合确认“项目能不能启动”。
 
-### 2. 做开发调试(最推荐)
+### 2. 做开发调试（最推荐）
 
 - 将工作目录设置为**项目根目录**的文件夹
-- 用 **MaaFramework [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7)**调试 Pipeline。（推荐使用[MaaPipelineEditor](https://github.com/kqcoxn/MaaPipelineEditor)进行可视化开发和 VS Code 的 [MaaPipelineEditor 插件](https://github.com/neko-para/maa-support-extension)进行 Pipeline 调试）
+- 用 **MaaFramework [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7)** 调试 Pipeline。（推荐使用 [MaaPipelineEditor](https://github.com/kqcoxn/MaaPipelineEditor) 进行可视化开发和 VS Code 的 [MaaPipelineEditor 插件](https://github.com/neko-para/maa-support-extension) 进行 Pipeline 调试）
 - 用 VS Code 调试 `agent/go-service`。
 
 不推荐把 MXU 当主要调试工具。当前项目要求：
@@ -75,8 +75,8 @@ MaaEnd 基本可以先理解成四层：
 
 先看：
 
-- `assets\interface.json`（由于使用 i18n 键国际化，建议使用开发工具获得更好的阅读体验，下文同理）
-- `assets\locales\interface\zh_cn.json`
+- `assets/interface.json`（由于使用 i18n 键国际化，建议使用开发工具获得更好的阅读体验，下文同理）
+- `assets/locales/interface/zh_cn.json`
 
 例如任务标题、描述、选项标签，通常都在这里。
 
@@ -96,6 +96,7 @@ MaaEnd 基本可以先理解成四层：
 - 任务可选项 `option`
 - 任务归属分组 `group`
 - 预设任务组合 `assets/tasks/preset/*.json`
+
 示例：
 
 ```jsonc
@@ -286,7 +287,8 @@ python tools/build_and_install.py
 ```
 
 如果你还改了 C++ 算法侧，则用：
-**注意这需要 VC 作为生成器，采用 cmake 编译，一般开发者无需更改 c++ 侧**
+
+> **注意：这需要 VC 作为生成器，采用 cmake 编译，一般开发者无需更改 C++ 侧。**
 
 ```bash
 python tools/build_and_install.py --cpp-algo
