@@ -1,4 +1,25 @@
 {
+    "AutoStockpileOOSEnsureStable": {
+        "desc": "已售罄图标 (稳定标识)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    130,
+                    45,
+                    400
+                ],
+                "template": [
+                    "AutoStockpile/OOS.png",
+                    "AutoStockpile/OOSSelected.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
+    },
     "AutoStockpileSelectMarket": {
         "desc": "将所有可购买物品展示在窗口中",
         "recognition": {
@@ -87,29 +108,6 @@
             "AutoStockpileGotoElasticGoods"
         ]
     },
-    "AutoStockpileEnsureStoreFrameStable": {
-        "desc": "希望+3（确认稳定标识，画面未稳定会是黑边）",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    7,
-                    119,
-                    68,
-                    84
-                ],
-                "template": [
-                    "AutoStockpile/StockRedistributionKettle.png"
-                ],
-                "threshold": [
-                    0.8
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileGotoElasticGoods": {
         "desc": "选择弹性物资调度",
         "recognition": {
@@ -117,7 +115,7 @@
             "param": {
                 "all_of": [
                     "AutoStockpileElasticGoodsButton",
-                    "AutoStockpileEnsureStoreFrameStable"
+                    "AutoStockpileOOSEnsureStable"
                 ]
             }
         },
