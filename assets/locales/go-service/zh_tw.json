@@ -17,6 +17,9 @@
     "visitfriends.can_growth_chamber": "助力生長艙",
     "visitfriends.current_counts": "當前助力次數：%d，線索交換次數：%d",
 
+    "autosell.price_compare_ok": "識別價格: %d,最低價格: %d，符合條件",
+    "autosell.price_compare_fail": "識別價格: %d,最低價格: %d，不符合條件",
+
     "autostockpile.recognition_done": "識別完成，共識別到 %d 個商品",
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最終不購買（%s）",

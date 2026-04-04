@@ -17,6 +17,9 @@
     "visitfriends.can_growth_chamber": "assist Growth Chamber",
     "visitfriends.current_counts": "Assist count: %d, Clue exchange count: %d",
 
+    "autosell.price_compare_ok": "Recognized price: %d, Minimum price: %d, meets condition",
+    "autosell.price_compare_fail": "Recognized price: %d, Minimum price: %d, does not meet condition",
+
     "autostockpile.recognition_done": "Recognition complete, %d items found",
     "autostockpile.no_qualifying_product": "No qualifying items found (%s)",
     "autostockpile.hit_but_skip": "Item matched but not purchasing (%s)",

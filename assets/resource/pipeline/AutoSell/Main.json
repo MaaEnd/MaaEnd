@@ -12,6 +12,20 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellMainInit"
+        ]
+    },
+    "AutoSellMainInit": {
+        "desc": "初始化custom",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemRecordAction",
+        "custom_action_param": {
+            "record_type": "init"
+        },
+        "next": [
             "AutoSellFriendsMenu"
         ]
     },
@@ -65,11 +79,14 @@
         ]
     },
     "AutoSellEnterShipConfirm": {
-        "desc": "识别进入好友船的确认",
+        "desc": "识别进入好友船的确认,第一次进入好友",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1"
         ],
+        "anchor": {
+            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchValleyIV"
+        },
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
@@ -148,124 +165,129 @@
     },
     "AutoSellEnterStockRedistributionSuccess": {
         "desc": "成功进入物资调度页面",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            400,
-            70
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistribution"
         ],
-        "expected": [
-            "弹性需求物资",
-            "彈性需求物資",
-            "Elastic Goods",
-            "時価商品",
-            "변동 수요 물자"
-        ],
-        "threshold": 0.9,
         "pre_delay": 0,
         "pre_wait_freezes": 100,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellStockRedistributionScanItemText"
+            "[Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor"
         ]
     },
-    "AutoSellStockRedistributionScanItemText": {
-        "desc": "识别物资调度界面中的item",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    200,
-                    1280,
-                    500
-                ],
-                "template": [
-                    "AutoSell/SellTicketItemValleyIV.png",
-                    "AutoSell/SellTicketItemWuling.png"
-                ],
-                "threshold": 0.9,
-                "sub_name": "ticket_icon"
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": "ticket_icon",
-                "roi_offset": [
-                    -70,
-                    35,
-                    135,
-                    10
-                ],
-                "lower": [
-                    61,
-                    60,
-                    60
-                ],
-                "upper": [
-                    81,
-                    80,
-                    80
-                ],
-                "connected": true,
-                "count": 100,
-                "sub_name": "item_text"
-            },
-            {
-                "recognition": "OCR",
-                "roi": "item_text",
-                "rec_only": true
-            }
+    "AutoSellEnterStockRedistributionAreaSwitchValleyIV": {
+        "desc": "切换地区到四号谷地",
+        "recognition": "TemplateMatch",
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png",
+            "AutoSell/StockRedistributionValleyIVNotChoose.png"
         ],
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistributionOpenItem",
+            "AutoSellEnterStockRedistributionOpenItemFinish"
+        ]
+    },
+    "AutoSellEnterStockRedistributionAreaSwitchWuling": {
+        "desc": "切换地区到武陵",
+        "recognition": "TemplateMatch",
+        "template": [
+            "AutoSell/StockRedistributionWulingChoose.png",
+            "AutoSell/StockRedistributionWulingNotChoose.png"
+        ],
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistributionOpenItem",
+            "AutoSellEnterStockRedistributionOpenItemFinish"
+        ]
+    },
+    "AutoSellEnterStockRedistributionOpenItem": {
+        "desc": "打开目标物资调度界面下一个待识别item",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellStockRedistributionOpenItemTextRecognition",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "action": "Custom",
-        "custom_action": "AutoSellStockRedistributionScanItemTextAction"
+        "custom_action": "AutoSellStockRedistributionOpenItemTextAction"
     },
-    "AutoSellStockRedistributionItemOpen": {
-        "desc": "打开物资调度item界面",
+    "AutoSellEnterStockRedistributionOpenItemFinish": {
+        "desc": "当前页面物资调度界面item打开完成",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
-        "target": [
-            100,
-            300,
-            1,
-            1
-        ],
         "next": [
-            "AutoSellSellGoodsOpen"
+            "AutoSellEnterStockRedistributionOpenItemValleyIVFinish",
+            "AutoSellEnterStockRedistributionOpenItemWulingFinish"
         ]
     },
-    "AutoSellSellGoodsOpen": {
-        "desc": "打开出售物资界面",
-        "recognition": "OCR",
+    "AutoSellEnterStockRedistributionOpenItemValleyIVFinish": {
+        "desc": "当前四号谷地物资调度界面item打开完成，切换到下一个地区",
+        "recognition": "TemplateMatch",
         "roi": [
             0,
             0,
-            400,
-            200
+            600,
+            150
         ],
-        "expected": [
-            "出售物资",
-            "出售物資",
-            "Sell Goods",
-            "商品販売",
-            "물자 판매"
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png"
         ],
-        "pre_wait_freezes": 100,
+        "threshold": 0.9,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "anchor": {
+            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchWuling"
+        },
         "next": [
-            "AutoSellFriendsPricesOpen"
+            "AutoSellEnterStockRedistributionSuccess"
         ]
     },
-    "AutoSellFriendsPricesOpen": {},
+    "AutoSellEnterStockRedistributionOpenItemWulingFinish": {
+        "desc": "当前武陵物资调度界面item打开完成，任务结束",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionWulingChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "anchor": {
+            "AutoSellEnterStockRedistributionAreaSwitchAnchor": ""
+        }
+    },
     "AutoSellFinish": {
         "pre_delay": 0,
         "post_delay": 0

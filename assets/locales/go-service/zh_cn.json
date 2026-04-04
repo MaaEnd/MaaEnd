@@ -17,6 +17,9 @@
     "visitfriends.can_growth_chamber": "助力生长舱",
     "visitfriends.current_counts": "当前助力次数：%d，线索交换次数：%d",
 
+    "autosell.price_compare_ok": "识别价格: %d,最低价格: %d，符合条件",
+    "autosell.price_compare_fail": "识别价格: %d,最低价格: %d，不符合条件",
+
     "autostockpile.recognition_done": "识别完成，共识别到 %d 个商品",
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最终不购买（%s）",

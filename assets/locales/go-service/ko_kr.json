@@ -17,6 +17,9 @@
     "visitfriends.can_growth_chamber": "성장실 지원",
     "visitfriends.current_counts": "현재 지원 횟수: %d, 단서 교환 횟수: %d",
 
+    "autosell.price_compare_ok": "인식 가격: %d, 최저 가격: %d, 조건 충족",
+    "autosell.price_compare_fail": "인식 가격: %d, 최저 가격: %d, 조건 불충족",
+
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.hit_but_skip": "상품이 일치했지만 최종적으로 구매하지 않습니다 (%s)",
