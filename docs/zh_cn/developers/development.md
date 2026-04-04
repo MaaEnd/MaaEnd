@@ -39,8 +39,7 @@ git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
 
 # 验证
-git log -1
-// 执行 git log -1 若能看到一条包含 commit 哈希、作者、日期的记录，则表示项目已完整克隆，历史记录可用
+克隆成功后会在目录下有相关源码文件，如果没有请重新尝试上述操作，如果是网络问题可能需要使用魔法
 ```
 
 #### 工作区配置
