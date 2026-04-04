@@ -130,6 +130,7 @@ MaaEnd 采用 maa-tools 来提供节点测试，验证识别是否能正确命�
 以下的这些任务具有维护文档，在写新功能和修改其他功能时无需查看，**但在您更改这些任务时，一定要阅读相关任务的维护文档**。参见：
 
 - [AutoStockpile 维护文档](./auto-stockpile-maintain.md)：该文档说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、价格阈值与地区扩展应如何维护。
+- [CreditShopping 维护文档](./tasks/credit-shopping-maintain.md)：该文档说明 `CreditShopping`（信用点商店）的购买优先级、补信用联动、刷新策略与商品扩展应如何维护。
 - [DijiangRewards 维护文档](./tasks/dijiang-rewards-maintain.md)：该文档说明 `DijiangRewards`（基建任务）的主流程、阶段职责，以及 `interface` 选项如何覆盖 Pipeline 行为。
 
 ## 代码规范
