@@ -230,7 +230,7 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "価格変動が大きい物資の最低販売価格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "価格変動が極大の物資の最低販売価格",
     "task.AutoStockpile.label": "📦 自動備蓄",
-    "task.AutoStockpile.description": "弾性需要物資を購入し、溢れ時に自動で価格しきい値を無視します。",
+    "task.AutoStockpile.description": "弾性需要物資を購入し、ビッグデータAIによるインテリジェント計算で最適な購買戦略を導き出します。",
     "task.AutoStockpile.option.AutoStockpileValleyIV.label": "第4谷地",
     "task.AutoStockpile.option.AutoStockpileWuling.label": "武陵",
     "option.AutoBuyAndSell.label": "自動購入/販売",

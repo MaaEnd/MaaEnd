@@ -230,7 +230,7 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "價格變動較大物資最低售賣價格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "價格變動極大物資最低售賣價格",
     "task.AutoStockpile.label": "📦自動囤貨",
-    "task.AutoStockpile.description": "購買彈性需求物資，溢出時自動忽略價格閾值",
+    "task.AutoStockpile.description": "購買彈性需求物資，基於大數據AI智能計算得出最佳購買策略。",
     "task.AutoStockpile.option.AutoStockpileValleyIV.label": "四號谷地",
     "task.AutoStockpile.option.AutoStockpileWuling.label": "武陵",
     "option.AutoBuyAndSell.label": "自動購買/出售",
