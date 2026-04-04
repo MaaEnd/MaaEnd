@@ -34,8 +34,8 @@ MaaEnd 基本可以先理解成四层：
 1. 本文：先跑起来，先有整体图。
 2. [`docs/zh_cn/developers/development.md`](./development.md)
 3. MaaFramework 官方文档
-    - Pipeline 协议：<https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.1-PipelineProtocol.md>
-    - 项目接口 V2：<https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.3-ProjectInterfaceV2.md>
+    - Pipeline 协议：<https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/3.1-%E4%BB%BB%E5%8A%A1%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%8D%8F%E8%AE%AE.md>
+    - 项目接口 V2：<https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/3.3-ProjectInterfaceV2%E5%8D%8F%E8%AE%AE.md>
     - 看工作区、资源、规范、已有文档入口。
 4. [`docs/zh_cn/developers/common-buttons.md`](./common-buttons.md)
     - 学会优先复用已有按钮节点，少重复造轮子。
