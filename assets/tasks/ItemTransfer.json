@@ -7,6 +7,7 @@
             "description": "$task.ItemTransfer.description",
             "option": [
                 "AutoTeleport",
+                "AutoCleanBag",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
@@ -22,6 +23,30 @@
         }
     ],
     "option": {
+        "AutoCleanBag": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferClearBag": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ItemTransferClearBag": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "AutoTeleport": {
             "type": "switch",
             "label": "$option.ItemTransferAutoTeleport.label",

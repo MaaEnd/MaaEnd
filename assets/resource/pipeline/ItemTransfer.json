@@ -3,7 +3,7 @@
         "desc": "由于半透明问题，在 tasks 中提供 AutoTeleport 导航选项，自动将用户传送到帝江号会客室并将视角抬至最高；由于只能使用前台控制器，默认不开启",
         "recognition": "DirectHit",
         "next": [
-            "ItemTransferSwitchRepoToOrigin"
+            "ItemTransferClearBag"
         ]
     },
     "ItemTransferStart": {
@@ -52,6 +52,28 @@
         "action": "ClickKey",
         "key": 66, // B
         "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClearBag"
+        ]
+    },
+    "ItemTransferClearBag": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    896,
+                    497,
+                    57,
+                    41
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmQuickStash.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]
