@@ -171,7 +171,7 @@
             ]
         },
         "next": [
-            "__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "__ScenePrivateNextTrue"
         ]
     },
@@ -211,6 +211,7 @@
             ]
         },
         "next": [
+            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "[Anchor]SceneNoticeRewardsConfirmNextAnchor"
         ]
     },
