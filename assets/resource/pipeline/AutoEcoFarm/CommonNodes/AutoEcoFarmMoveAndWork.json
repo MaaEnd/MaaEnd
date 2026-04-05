@@ -138,7 +138,8 @@
                     440,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
                 "threshold": 0.6,
                 "order_by": "Score"
             }
@@ -412,7 +413,8 @@
                     440,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
                 "threshold": 0.6,
                 "order_by": "Score"
             }

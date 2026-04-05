@@ -238,7 +238,8 @@
                     1280,
                     720
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
                 "threshold": 0.7,
                 "order_by": "Horizontal"
             }
@@ -283,7 +284,8 @@
                     1280,
                     720
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
                 "threshold": 0.7,
                 "order_by": "Horizontal"
             }
