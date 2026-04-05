@@ -162,7 +162,8 @@
             238
         ],
         "end_hold": 300,
-        "post_wait_freezes": 1
+        "post_wait_freezes": 20,
+        "max_hit": 50
     },
     "DailyTaskScrollFinished": {
         "desc": "日常任务滑到底了，结束",
@@ -170,10 +171,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    927,
-                    474,
-                    160,
-                    115
+                    929,
+                    432,
+                    162,
+                    108
                 ],
                 "template": [
                     "DailyRewards/FinishedTaskIcon.png"
@@ -225,6 +226,7 @@
             "type": "DoNothing",
             "param": {}
         },
+        "timeout": 10000,
         "post_delay": 0,
         "next": [
             "DailyTaskUpgradeWeapon",
