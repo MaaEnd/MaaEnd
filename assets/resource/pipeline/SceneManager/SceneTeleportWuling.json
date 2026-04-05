@@ -709,8 +709,8 @@
         "custom_action_param": {
             "map_name": "map02_lv002",
             "target": [
-                665,
-                736
+                664.9,
+                736.5
             ],
             "on_find": "Click"
         },
