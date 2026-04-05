@@ -2,8 +2,6 @@
     "AutoSellStockRedistributionItemOpen": {
         "desc": "打开物资调度item界面",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Click",
         "target": [
             100,
@@ -18,6 +16,8 @@
             -60,
             0
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellSellGoodsOpen"
         ]
@@ -47,9 +47,9 @@
         "box_index": 1,
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "AutoSellFriendsPricesOpen"
         ]
@@ -88,7 +88,7 @@
         "recognition": "Custom",
         "custom_recognition": "AutoSellPriceCompareRecognition",
         "custom_recognition_param": {
-            "lowest_price": 4500
+            "lowest_price": 5000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -101,14 +101,14 @@
     "AutoSellFriendsPricesUnExpected": {
         "desc": "价格不符合预期",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "AutoSellItemRecordAction",
         "custom_action_param": {
             "item_name": "锚点厨具货组",
             "record_type": "record"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesBackToSellGoods"
         ]
@@ -119,9 +119,9 @@
         "template": "AutoSell/FriendsPricesBack.png",
         "threshold": 0.9,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "AutoSellFriendsPricesBackToView0"
         ]
@@ -136,9 +136,9 @@
         "box_index": 1,
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "AutoSellEnterStockRedistributionSuccess"
         ]
@@ -154,7 +154,10 @@
         "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以购买"
+        }
     },
     "AutoSellFriendsPricesExpectedBuyBackToSellGoods": {
         "desc": "从好友价格界面返回到物资调度界面",
@@ -162,9 +165,9 @@
         "template": "AutoSell/FriendsPricesBack.png",
         "threshold": 0.9,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
         ]
@@ -177,11 +180,11 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
-            "AutoSellFriendsPricesExpectedBuySlide",
+            // "AutoSellFriendsPricesExpectedBuySlide",
             "AutoSellFriendsPricesExpectedBuyClick"
         ]
     },
@@ -192,8 +195,6 @@
         "threshold": 0.9,
         "pre_wait_freezes": 100,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Click",
         "target_offset": [
             -75,
@@ -201,6 +202,8 @@
             5,
             -10
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedBuyClick"
         ]
@@ -213,9 +216,9 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "AutoSellFriendsPricesExpectedBuyRecord"
         ],
@@ -225,10 +228,8 @@
     },
     "AutoSellFriendsPricesExpectedBuyRecord": {
         "desc": "记录已经购买的物品",
-        "action": "Custom",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Custom",
         "custom_action": "AutoSellItemRecordAction",
         "custom_action_param": {
             "item_name": "锚点厨具货组",
@@ -237,15 +238,14 @@
         "anchor": {
             "SceneNoticeRewardsConfirmNextAnchor": "AutoSellEnterStockRedistributionSuccess"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneNoticeRewardsConfirmWithAnchor"
         ]
     },
     "AutoSellFriendsPricesExpectedGoTo": {
         "desc": "当前价格符合预期，需要前往好友飞船",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "recognition": "And",
         "all_of": [
             "AutoSellFriendsPriceFirstTicketRecognition",
@@ -273,6 +273,7 @@
             }
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
         "target_offset": [
             -30,
@@ -280,9 +281,14 @@
             0,
             0
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedGoToConfirm"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友不是最高价，前往拜访"
+        }
     },
     "AutoSellFriendsPricesExpectedGoToConfirm": {
         "desc": "前往好友飞船确认",
@@ -301,9 +307,9 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "AutoSellEnterShipSuccess"

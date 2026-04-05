@@ -18,13 +18,13 @@
     "AutoSellMainInit": {
         "desc": "初始化custom",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "AutoSellItemRecordAction",
         "custom_action_param": {
             "record_type": "init"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellFriendsMenu"
         ]
@@ -61,7 +61,6 @@
             }
         ],
         "box_index": 1,
-        "action": "Click",
         "pre_wait_freezes": {
             "time": 200,
             "target": [
@@ -72,6 +71,7 @@
             ]
         },
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -84,12 +84,12 @@
         "all_of": [
             "YellowConfirmButtonType1"
         ],
-        "anchor": {
-            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchValleyIV"
-        },
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchValleyIV"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -108,10 +108,8 @@
         ],
         "template": "VisitFriends/ShipEscButton.png",
         "threshold": 0.9,
-        "pre_delay": 0,
-        "post_delay": 0,
         "pre_wait_freezes": 100,
-        "rate_limit": 0,
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -125,19 +123,18 @@
                     141
                 ],
                 [
-                    187.83,
-                    140.91
+                    187,
+                    141
                 ],
                 [
-                    186.65,
-                    133.36
-                ],
-                [
-                    187.65,
-                    129.72
+                    187,
+                    131,
+                    true
                 ]
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellEnterStockRedistribution"
         ],
@@ -145,6 +142,47 @@
             "Node.Action.Starting": "正在走向物资调度终端"
         }
     },
+    // "AutoSellEnterShipSuccess": {
+    //     "desc": "进入好友船成功的标志",
+    //     "recognition": "TemplateMatch",
+    //     "roi": [
+    //         0,
+    //         0,
+    //         100,
+    //         100
+    //     ],
+    //     "template": "VisitFriends/ShipEscButton.png",
+    //     "threshold": 0.9,
+    //     "pre_delay": 0,
+    //     "post_delay": 0,
+    //     "pre_wait_freezes": 100,
+    //     "rate_limit": 0,
+    //     "action": "Custom",
+    //     "custom_action": "MapTrackerMove",
+    //     "custom_action_param": {
+    //         "map_name": "base01_lv003",
+    //         "path": [
+    //             [
+    //                 196.9,
+    //                 143.6
+    //             ],
+    //             [
+    //                 190.3,
+    //                 143.6
+    //             ],
+    //             [
+    //                 190.3,
+    //                 139.1
+    //             ]
+    //         ]
+    //     },
+    //     "focus": {
+    //         "Node.Action.Starting": "正在走向物资调度终端"
+    //     },
+    //     "next": [
+    //         "AutoSellEnterStockRedistribution"
+    //     ]
+    // },
     "AutoSellEnterStockRedistribution": {
         "desc": "进入物资调度页面",
         "recognition": "TemplateMatch",
@@ -172,8 +210,8 @@
         "all_of": [
             "InFriendsStockRedistribution"
         ],
-        "pre_delay": 0,
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -183,20 +221,20 @@
     "AutoSellEnterStockRedistributionAreaSwitchValleyIV": {
         "desc": "切换地区到四号谷地",
         "recognition": "TemplateMatch",
-        "template": [
-            "AutoSell/StockRedistributionValleyIVChoose.png",
-            "AutoSell/StockRedistributionValleyIVNotChoose.png"
-        ],
         "roi": [
             0,
             0,
             600,
             150
         ],
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png",
+            "AutoSell/StockRedistributionValleyIVNotChoose.png"
+        ],
         "threshold": 0.9,
         "pre_delay": 0,
-        "post_wait_freezes": 200,
         "action": "Click",
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -207,20 +245,20 @@
     "AutoSellEnterStockRedistributionAreaSwitchWuling": {
         "desc": "切换地区到武陵",
         "recognition": "TemplateMatch",
-        "template": [
-            "AutoSell/StockRedistributionWulingChoose.png",
-            "AutoSell/StockRedistributionWulingNotChoose.png"
-        ],
         "roi": [
             0,
             0,
             600,
             150
         ],
+        "template": [
+            "AutoSell/StockRedistributionWulingChoose.png",
+            "AutoSell/StockRedistributionWulingNotChoose.png"
+        ],
         "threshold": 0.9,
         "pre_delay": 0,
-        "post_wait_freezes": 200,
         "action": "Click",
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -233,10 +271,10 @@
         "recognition": "Custom",
         "custom_recognition": "AutoSellStockRedistributionOpenItemTextRecognition",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
-        "custom_action": "AutoSellStockRedistributionOpenItemTextAction"
+        "custom_action": "AutoSellStockRedistributionOpenItemTextAction",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoSellEnterStockRedistributionOpenItemFinish": {
         "desc": "当前页面物资调度界面item打开完成",
@@ -262,11 +300,11 @@
         ],
         "threshold": 0.9,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "anchor": {
             "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchWuling"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellEnterStockRedistributionSuccess"
         ],
@@ -288,11 +326,11 @@
         ],
         "threshold": 0.9,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "anchor": {
             "AutoSellEnterStockRedistributionAreaSwitchAnchor": ""
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "武陵物资检查完毕，任务结束"
         }

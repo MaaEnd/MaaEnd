@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "AutoSell",
+            "label": "$task.AutoSell.label",
+            "entry": "AutoSellMain",
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [],
+            "group": [
+                "daily"
+            ]
+        }
+    ],
+    "option": {}
+}

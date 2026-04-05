@@ -4,6 +4,7 @@
         "recognition": "And",
         "all_of": [
             {
+                "sub_name": "ticket_icon",
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,
@@ -15,10 +16,10 @@
                     "AutoSell/SellTicketItemValleyIV.png",
                     "AutoSell/SellTicketItemWuling.png"
                 ],
-                "threshold": 0.9,
-                "sub_name": "ticket_icon"
+                "threshold": 0.9
             },
             {
+                "sub_name": "item_text",
                 "recognition": "ColorMatch",
                 "roi": "ticket_icon",
                 "roi_offset": [
@@ -38,14 +39,13 @@
                     80
                 ],
                 "connected": true,
-                "count": 100,
-                "sub_name": "item_text"
+                "count": 100
             },
             {
                 "recognition": "OCR",
                 "roi": "item_text",
-                "rec_only": true,
-                "order_by": "Vertical"
+                "order_by": "Vertical",
+                "rec_only": true
             }
         ]
     },
@@ -91,6 +91,7 @@
         "all_of": [
             "AutoSellFriendsPriceFirstTicketRecognition",
             {
+                "sub_name": "current_area",
                 "recognition": "ColorMatch",
                 "roi": "AutoSellFriendsPriceFirstTicketRecognition",
                 "roi_offset": [
@@ -110,8 +111,7 @@
                     10
                 ],
                 "connected": true,
-                "count": 100,
-                "sub_name": "current_area"
+                "count": 100
             },
             {
                 "recognition": "OCR",

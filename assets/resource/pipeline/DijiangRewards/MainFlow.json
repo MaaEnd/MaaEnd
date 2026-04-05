@@ -59,7 +59,7 @@
                                     183,
                                     119
                                 ],
-                                "template": "Resell/inGame1.png",
+                                "template": "ClaimDijiangRewards/inGame1.png",
                                 "threshold": 0.8
                             }
                         }
@@ -74,7 +74,7 @@
                                     98,
                                     128
                                 ],
-                                "template": "Resell/inGame2.png",
+                                "template": "ClaimDijiangRewards/inGame2.png",
                                 "threshold": 0.8
                             }
                         }
