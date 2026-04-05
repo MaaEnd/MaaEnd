@@ -313,6 +313,17 @@ def check_cmake_environment() -> bool:
     return False
 
 
+def cleanup_cmake_cache(build_dir: Path) -> None:
+    """清理 CMake 缓存，避免不同 generator 之间切换冲突。"""
+    cache_file = build_dir / "CMakeCache.txt"
+    cmake_files_dir = build_dir / "CMakeFiles"
+
+    if cache_file.exists():
+        cache_file.unlink(missing_ok=True)
+    if cmake_files_dir.exists() and cmake_files_dir.is_dir():
+        shutil.rmtree(cmake_files_dir)
+
+
 def build_cpp_algo(
     root_dir: Path,
     install_dir: Path,
@@ -351,19 +362,21 @@ def build_cpp_algo(
             resolved_arch = machine
 
     # 根据平台选择 configure preset，参考 MaaFramework build.yml
+    configure_preset_candidates: list[str]
     if resolved_os == "win":
         if resolved_arch == "aarch64":
-            configure_preset = "MSVC 2022 ARM"
+            configure_preset_candidates = ["MSVC 2022 ARM"]
         else:
-            configure_preset = "MSVC 2022"
+            # 兼容仅安装 VS2026 的环境：优先尝试 2022，失败时自动回退 2026
+            configure_preset_candidates = ["MSVC 2022", "MSVC 2026"]
     elif resolved_os == "linux":
         if resolved_arch == "aarch64":
-            configure_preset = "NinjaMulti Linux arm64"
+            configure_preset_candidates = ["NinjaMulti Linux arm64"]
         else:
-            configure_preset = "NinjaMulti Linux x64"
+            configure_preset_candidates = ["NinjaMulti Linux x64"]
     else:
         # macOS
-        configure_preset = "NinjaMulti"
+        configure_preset_candidates = ["NinjaMulti"]
 
     # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
     arch_part = "x64" if resolved_arch == "x86_64" else "arm64"
@@ -374,46 +387,64 @@ def build_cpp_algo(
 
     print(f"  {t('build_mode')}: {build_type}")
     print(f"  {t('target_platform')}: {resolved_os}/{resolved_arch}")
-    print(f"  Configure preset: {configure_preset}")
+    print(f"  Configure preset candidates: {', '.join(configure_preset_candidates)}")
     print(f"  MaaDeps triplet: {maadeps_triplet}")
 
-    # cmake --preset <configure_preset>
-    configure_cmd = [
-        "cmake",
-        "--preset",
-        configure_preset,
-        f"-DMAADEPS_TRIPLET={maadeps_triplet}",
-        f"-DCMAKE_INSTALL_PREFIX={install_dir}",
-    ]
+    # cmake --preset <configure_preset>（按候选列表依次尝试）
+    configure_result: subprocess.CompletedProcess[str] | None = None
+    configure_preset = configure_preset_candidates[0]
+    build_dir = cpp_algo_dir / "build"
+    for idx, preset in enumerate(configure_preset_candidates):
+        if idx > 0:
+            cleanup_cmake_cache(build_dir)
 
-    # macOS 需要额外的参数
-    if resolved_os == "macos":
-        osx_arch = "x86_64" if resolved_arch == "x86_64" else "arm64"
-        configure_cmd.extend(
-            [
-                "-DCMAKE_OSX_SYSROOT=macosx",
-                f"-DCMAKE_OSX_ARCHITECTURES={osx_arch}",
-            ]
+        configure_cmd = [
+            "cmake",
+            "--preset",
+            preset,
+            f"-DMAADEPS_TRIPLET={maadeps_triplet}",
+            f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+        ]
+
+        # macOS 需要额外的参数
+        if resolved_os == "macos":
+            osx_arch = "x86_64" if resolved_arch == "x86_64" else "arm64"
+            configure_cmd.extend(
+                [
+                    "-DCMAKE_OSX_SYSROOT=macosx",
+                    f"-DCMAKE_OSX_ARCHITECTURES={osx_arch}",
+                ]
+            )
+
+        print(f"  {t('build_command')}: {' '.join(configure_cmd)}")
+
+        result = subprocess.run(
+            configure_cmd,
+            cwd=cpp_algo_dir,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
+        configure_result = result
 
-    print(f"  {t('build_command')}: {' '.join(configure_cmd)}")
+        if result.stdout:
+            print(result.stdout)
 
-    result = subprocess.run(
-        configure_cmd,
-        cwd=cpp_algo_dir,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-    )
-    if result.stdout:
-        print(result.stdout)
-    if result.returncode != 0:
-        print(f"  {t('error')} {t('cmake_configure_failed')}:")
+        if result.returncode == 0:
+            configure_preset = preset
+            if idx > 0:
+                print(f"  {Console.warn('WARN')} 已使用 {preset}")
+            break
+
+        # 失败时：如果还有下一个候选，继续尝试；否则报错退出
         if result.stderr:
             print(result.stderr)
+        if idx < len(configure_preset_candidates) - 1:
+            print(f"  {Console.warn('WARN')} 预设 {preset} 配置失败，尝试下一个预设...")
+            continue
+
+        print(f"  {t('error')} {t('cmake_configure_failed')}:")
         return False
-    if result.stderr:
-        print(result.stderr)
 
     # cmake --build build --preset <build_preset>
     build_preset = f"{configure_preset} - {build_type}"
