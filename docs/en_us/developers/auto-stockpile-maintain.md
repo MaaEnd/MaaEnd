@@ -11,18 +11,18 @@ The current implementation consists of two cooperating parts:
 
 The core maintenance points of AutoStockpile are as follows:
 
-| Module                        | Path                                                       | Purpose                                                                                              |
-| ----------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Item name mapping             | `agent/go-service/autostockpile/item_map.json`             | Maps OCR item names to internal item IDs                                                             |
-| Item template images          | `assets/resource/image/AutoStockpile/Goods/`               | Template images for matching on the item details page                                                |
-| Task options                  | `assets/tasks/AutoStockpile.json`                          | User-configurable region toggles (Valley IV / Wuling)                                                |
-| Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json`         | Defines entry subtasks and anchor mappings for each region                                           |
-| Stockpile entry Pipeline      | `assets/resource/pipeline/AutoStockpile/Entry.json`        | Enters the elastic goods interface and scrolls to the bottom                                         |
-| Decision loop Pipeline        | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | Executes core flows: recognition, decision, reconciliation, skip                                     |
-| Purchase flow Pipeline        | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | Executes purchase quantity adjustment, purchase, cancel operations                                   |
-| Recognition node defaults     | `assets/resource/pipeline/AutoStockpile/Helper.json`       | Default parameters for overflow detection, goods OCR, template matching, etc.                        |
-| Go recognition/decision logic | `agent/go-service/autostockpile/`                          | Applies runtime recognition overrides, parses results, and applies thresholds                        |
-| Multilingual copy             | `assets/locales/interface/*.json`                          | UI text for AutoStockpile tasks and options                                                          |
+| Module                        | Path                                                       | Purpose                                                                       |
+| ----------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Item name mapping             | `agent/go-service/autostockpile/item_map.json`             | Maps OCR item names to internal item IDs                                      |
+| Item template images          | `assets/resource/image/AutoStockpile/Goods/`               | Template images for matching on the item details page                         |
+| Task options                  | `assets/tasks/AutoStockpile.json`                          | User-configurable region toggles (Valley IV / Wuling)                         |
+| Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json`         | Defines entry subtasks and anchor mappings for each region                    |
+| Stockpile entry Pipeline      | `assets/resource/pipeline/AutoStockpile/Entry.json`        | Enters the elastic goods interface and scrolls to the bottom                  |
+| Decision loop Pipeline        | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | Executes core flows: recognition, decision, reconciliation, skip              |
+| Purchase flow Pipeline        | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | Executes purchase quantity adjustment, purchase, cancel operations            |
+| Recognition node defaults     | `assets/resource/pipeline/AutoStockpile/Helper.json`       | Default parameters for overflow detection, goods OCR, template matching, etc. |
+| Go recognition/decision logic | `agent/go-service/autostockpile/`                          | Applies runtime recognition overrides, parses results, and applies thresholds |
+| Multilingual copy             | `assets/locales/interface/*.json`                          | UI text for AutoStockpile tasks and options                                   |
 
 ## Naming Conventions
 
@@ -78,28 +78,28 @@ Current regions and tiers supported in the repository:
 
 The current `assets/tasks/AutoStockpile.json` exposes only two region toggles:
 
-| Task option             | Purpose                                                     |
-| ----------------------- | ----------------------------------------------------------- |
+| Task option             | Purpose                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
 | `AutoStockpileValleyIV` | Enables the Valley IV region node via `pipeline_override.enabled` |
 | `AutoStockpileWuling`   | Enables the Wuling region node via `pipeline_override.enabled`    |
 
-These toggles do not write to `attach`. The Go Service uses the following hardcoded behaviors:
+These toggles do not write to `attach`. The Go Service currently uses the following built-in behaviors:
 
-- **Overflow threshold bypass**: `overflow_mode` is permanently set to `true`; no user configuration required.
-- **Price thresholds**: Default values from `autoStockpileDefaultPriceLimits` in `thresholds.go` are applied automatically; no user configuration required.
-- **Reserve stock bill**: Disabled by default (`reserve_stock_bill=0`); no user configuration required.
+- **Overflow threshold bypass**: `selector.go` enables threshold bypass automatically only when recognition reports overflow (`Quota.Overflow > 0`); there is no user-facing or attach-based switch.
+- **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base` formula; no task option or attach override path is currently consumed.
+- **Reserve stock bill**: Not implemented as a runtime decision input. The recognition payload only carries quota and goods data, and the downstream decision flow does not consume any reserve-stock-bill state.
 
-The `attach` mechanism is still present and can be used to override these defaults manually via pipeline overrides if needed in the future.
+If you need different pricing behavior, update the Go defaults in code rather than writing manual `attach` overrides. The current AutoStockpile flow does not read attach-based overrides for price limits, overflow handling, or reserve-stock-bill settings.
 
 ## Threshold Resolution Mechanism
 
 The system determines the purchase threshold using the following priority:
 
-1. **Explicit Region Tier Threshold via attach**: Reads `price_limits_{Region}.Tier{N}` from the `attach` field (can only be set via manual pipeline override; not exposed as a task option).
-2. **Region Default Thresholds**: If no attach values are present, the defaults from `autoStockpileDefaultPriceLimits` in `thresholds.go` are used. The fallback threshold is set to the minimum positive value in that table for the current region.
-3. **Global Default**: If neither is available, falls back to `defaultFallbackBuyThreshold` (800).
+1. **Region-tier default generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from `region_base + tier_base`.
+2. **Region fallback threshold**: `buildSelectionConfig()` uses the minimum positive value from that region's generated table as `FallbackThreshold`.
+3. **Global default**: If the generated table has no positive value, `thresholds.go` falls back to `defaultFallbackBuyThreshold` (800), which is defined in `types.go`.
 
-The default per-tier threshold table (e.g., 800 for `ValleyIVTier1`) is maintained in `agent/go-service/autostockpile/thresholds.go`.
+Current generated defaults include `ValleyIVTier1=600`, `ValleyIVTier2=900`, `ValleyIVTier3=1200`, `WulingTier1=1200`, and `WulingTier2=1500`.
 
 ## Runtime Override Behavior
 
@@ -166,9 +166,9 @@ If you are just adding a new tier for an existing item (e.g., adding `Tier3` for
 
 To support a new general tier for a region, also maintain the following:
 
-1. **Default Thresholds**: Add the new tier's default value to `autoStockpileDefaultPriceLimits` in `agent/go-service/autostockpile/thresholds.go`.
+1. **Default Thresholds**: Add the new tier base to `tierBases` in `agent/go-service/autostockpile/strategy.go`.
 
-If no default threshold is provided for a new tier, it will fall back to the minimum positive region threshold or `defaultFallbackBuyThreshold` (800). The task will continue, but purchase decisions might not be ideal.
+If no tier base is provided for a new tier, it will fall back to the minimum positive region threshold or `defaultFallbackBuyThreshold` (800). The task will continue, but purchase decisions might not be ideal.
 
 ## Adding Regions
 
@@ -205,9 +205,10 @@ File: `agent/go-service/autostockpile/params.go`
 
 ### 5. Default Values
 
-File: `agent/go-service/autostockpile/thresholds.go`
+File: `agent/go-service/autostockpile/strategy.go`
 
-- Add default prices for each tier of the new region in `autoStockpileDefaultPriceLimits`.
+- Add the new region to `regionBases`.
+- Ensure the shared `tierBases` table already covers every tier that region should use.
 
 ### 6. Internationalization
 
@@ -219,13 +220,13 @@ Ensure the following after any changes:
 
 1. Values in `item_map.json` use the `{Region}/{BaseName}.Tier{N}` format and match image filenames.
 2. Template images are placed in `assets/resource/image/AutoStockpile/Goods/{Region}/`.
-3. When adding a tier, `autoStockpileDefaultPriceLimits` in `thresholds.go` is updated with the new tier's default value.
-4. When adding a region, `Main.json`, `DecisionLoop.json` (especially `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`), `assets/tasks/AutoStockpile.json`, `item_map.json`, `thresholds.go`, and `locales/*.json` are all updated.
+3. When adding a tier, `tierBases` in `strategy.go` is updated with the new tier's base value.
+4. When adding a region, `Main.json`, `DecisionLoop.json` (especially `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`), `assets/tasks/AutoStockpile.json`, `item_map.json`, `strategy.go`, and `locales/*.json` are all updated.
 
 ## Common Pitfalls
 
 - **Missing `item_map.json`**: Adding images without mapping prevents OCR names from being linked to item IDs, leading to incomplete recognition.
 - **Missing Images**: Adding mappings without templates prevents clicking the items.
 - **Missing `custom_action_param.Region` on `AutoStockpileDecision{Region}`**: Adding a region without setting the decision node's region causes the recognition/task flow to fail immediately.
-- **Missing Default Thresholds**: New tiers without entries in `autoStockpileDefaultPriceLimits` will use fallback values, which may not match expectations.
+- **Missing Default Threshold Inputs**: New tiers or regions without matching entries in `strategy.go` (`tierBases` / `regionBases`) will use fallback values, which may not match expectations.
 - **Extra Dots in Filenames**: Using extra `.` characters in filenames interferes with parsing the item name and tier.
