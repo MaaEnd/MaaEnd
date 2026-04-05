@@ -258,9 +258,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Current:  overflowCurrent,
 				Overflow: overflowAmount,
 			},
-			StockBillAmount:    0,
-			StockBillAvailable: false,
-			Goods:              resultGoods,
+			Goods: resultGoods,
 		},
 		AbortReason: AbortReasonNone,
 	}
@@ -279,8 +277,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Int("quota_current", resultPayload.Data.Quota.Current).
 		Int("quota_overflow", resultPayload.Data.Quota.Overflow).
 		Bool("overflow", resultPayload.hasOverflow()).
-		Int("stock_bill_amount", resultPayload.Data.StockBillAmount).
-		Bool("stock_bill_available", resultPayload.Data.StockBillAvailable).
 		Str("abort_reason", string(resultPayload.AbortReason)).
 		Int("goods_count", len(resultPayload.Data.Goods)).
 		Msg("custom recognition finished")

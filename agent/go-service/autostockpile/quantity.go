@@ -1,10 +1,6 @@
 package autostockpile
 
-import (
-	"strconv"
-
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-)
+import "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 
 type quantityMode string
 
@@ -15,14 +11,12 @@ const (
 )
 
 type quantityDecision struct {
-	Mode              quantityMode
-	Target            int
-	MaxBuy            int
-	ConstraintApplied bool
-	Reason            string
+	Mode   quantityMode
+	Target int
+	Reason string
 }
 
-func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) quantityDecision {
+func resolveQuantityDecision(selection SelectionResult, data RecognitionData) quantityDecision {
 	switch {
 	case selection.CurrentPrice < selection.Threshold:
 		return resolveThresholdQuantityDecision(data.Quota.Current)
@@ -57,16 +51,5 @@ func resolveOverflowQuantityDecision(quota QuotaInfo) quantityDecision {
 		Mode:   quantityModeSwipeSpecificQuantity,
 		Target: overflowTarget,
 		Reason: i18n.T("autostockpile.qty_overflow_buy"),
-	}
-}
-
-func formatQuantityText(decision quantityDecision) string {
-	switch decision.Mode {
-	case quantityModeSwipeMax:
-		return i18n.T("autostockpile.quantity_all")
-	case quantityModeSwipeSpecificQuantity:
-		return strconv.Itoa(decision.Target)
-	default:
-		return decision.Reason
 	}
 }

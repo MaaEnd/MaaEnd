@@ -6,6 +6,6 @@ func computeDecision(data RecognitionData, cfg SelectionConfig, bypassThresholdF
 		return selection, quantityDecision{}
 	}
 
-	decision := resolveQuantityDecision(selection, data, cfg)
+	decision := resolveQuantityDecision(selection, data)
 	return selection, decision
 }

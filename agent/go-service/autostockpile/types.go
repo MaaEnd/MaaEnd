@@ -57,10 +57,8 @@ type RecognitionResult struct {
 
 // RecognitionData 表示识别成功时传递给消费端的原始数据。
 type RecognitionData struct {
-	Quota              QuotaInfo   `json:"Quota"`
-	StockBillAmount    int         `json:"StockBillAmount"`
-	StockBillAvailable bool        `json:"StockBillAvailable"`
-	Goods              []GoodsItem `json:"Goods"`
+	Quota QuotaInfo   `json:"Quota"`
+	Goods []GoodsItem `json:"Goods"`
 }
 
 // QuotaInfo 表示额度识别结果。
