@@ -3,7 +3,6 @@
     "resell.quota_overflow": "⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
     "resell.auto_buy_disabled": "💡 已禁用自动购买/出售\n推荐购买: 第%d行第%d列 (利润: %d)",
     "resell.below_min_profit": "💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
-
     "visitfriends.friend_missing": "该好友缺少 %s",
     "visitfriends.clue_exchange": "线索交换",
     "visitfriends.control_nexus_assist": "总控中枢助力",
@@ -16,11 +15,12 @@
     "visitfriends.can_mfg_cabin": "助力制造舱",
     "visitfriends.can_growth_chamber": "助力生长舱",
     "visitfriends.current_counts": "当前助力次数：%d，线索交换次数：%d",
-
-    "autosell.price_compare_ok": "识别价格: %d,最低价格: %d，符合条件",
-    "autosell.price_compare_fail": "识别价格: %d,最低价格: %d，不符合条件",
-    "autosell.check_item_price": "检查物资 %s 价格",
-
+    "autosell.price_compare_ok": "识别最高价格: %d，最低售卖价格: %d，符合条件",
+    "autosell.price_compare_fail": "识别最高价格: %d，最低售卖价格: %d，不符合条件",
+    "autosell.check_item_price_moderate": "检查物资 %s 价格，该物资价格变动适中",
+    "autosell.check_item_price_large": "检查物资 %s 价格，该物资价格变动较大",
+    "autosell.check_item_price_massive": "检查物资 %s 价格，该物资价格变动极大",
+    "autosell.check_item_price_unknown": "检查物资 %s 价格，该物资价格变动未知",
     "autostockpile.recognition_done": "识别完成，共识别到 %d 个商品",
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最终不购买（%s）",
@@ -38,7 +38,6 @@
     "autostockpile.no_goods_recognized": "未识别到商品",
     "autostockpile.no_qualifying_goods": "没有满足条件的商品",
     "autostockpile.quantity_all": "全部",
-
     "autostockpile.qty_reserve_disabled": "未启用保留调度券",
     "autostockpile.qty_reserve_zero": "保留调度券限制后可购买数量为 0",
     "autostockpile.qty_reserve_allows_all": "保留调度券约束允许全量购买",
@@ -57,13 +56,10 @@
     "autostockpile.abort.SelectionConfigInvalidFatal": "购买配置读取失败",
     "autostockpile.abort.StockBillUnavailableWarn": "调度券数量识别失败",
     "autostockpile.abort.ThresholdConfigInvalidFatal": "价格阈值配置无效，请检查配置，不要输入0或留空",
-
     "batchaddfriends.uid_sent": "UID %s：已发送好友申请（%d/%d）",
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
-
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",
-
     "essencefilter.no_locked": "本次未锁定任何目标基质。",
     "essencefilter.loot_summary.title": "战利品摘要：",
     "essencefilter.loot_summary.weapon_col": "武器",
@@ -122,14 +118,12 @@
     "essencefilter.focus.finish.summary": "筛选完成！共历遍物品：%d，确认锁定物品：%d",
     "essencefilter.focus.finish.ext_future": "扩展规则「未来可期」命中：%d 个",
     "essencefilter.focus.finish.ext_practical": "扩展规则「实用基质」命中：%d 个",
-
     "tasker.process_warning.title": "⚠️ 警告：检测到黑名单进程正在运行",
     "tasker.process_warning.detected": "🔍 检测到的进程：",
     "tasker.process_warning.impact": "💡 这些进程会干扰图像识别",
     "tasker.process_warning.recommend_title": "👇 建议：",
     "tasker.process_warning.recommend_1": "  • 关闭上述进程后再运行任务",
     "tasker.process_warning.note": "ℹ️ 任务将继续执行，但可能会失败",
-
     "tasker.hdr_warning.title": "⚠️ 警告：检测到 HDR 或 自动管理应用的颜色 已开启",
     "tasker.hdr_warning.desc": "🖥️ HDR 或 自动管理应用的颜色 可能导致截图颜色异常，影响图像识别准确性",
     "tasker.hdr_warning.recommend_title": "💡 建议：",
@@ -137,30 +131,24 @@
     "tasker.hdr_warning.recommend_2": "  • Windows 设置 → 系统 → 屏幕 → 颜色配置文件 → 关闭 \"自动管理应用的颜色\"",
     "tasker.hdr_warning.recommend_3": "  • 或在图形驱动设置中关闭 HDR",
     "tasker.hdr_warning.note": "ℹ️ 任务将继续执行，但可能出现识别问题",
-
     "tasker.aspect_ratio_warning.title": "🚨 警告：分辨率比例不匹配！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任务已强制停止",
     "tasker.aspect_ratio_warning.desc": "💡 全屏模式仅支持 16:9 显示器；窗口化模式下可将分辨率手动设为 16:9。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 请将分辨率调整为：",
     "tasker.aspect_ratio_warning.future": "🚀 未来将适配更多比例，敬请期待！",
-
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "寻路已中止。",
     "maptracker.emergency_stop.cause_header": "可能原因：",
     "maptracker.emergency_stop.cause_1": "视角转向失败；",
     "maptracker.emergency_stop.cause_2": "路线阻挡或卡住。",
-
     "maptracker.navigation_moving.waypoint": "下一个路径点",
     "maptracker.navigation_moving.current": "当前：",
     "maptracker.navigation_moving.target": "目标：",
-
     "maptracker.navigation_finished.complete": "导航完成",
     "maptracker.navigation_finished.current": "当前：",
-
     "maptracker.inference_finished.loc": "Loc: ",
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
-
     "maptracker.inference_failed.title": "未知位置",
     "maptracker.inference_failed.reason": "（置信度过低）"
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -177,6 +178,47 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 		return false
 	}
 
+	var param struct {
+		ModeratePrice int `json:"moderate_price"`
+		LargePrice    int `json:"large_price"`
+		MassivePrice  int `json:"massive_price"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to parse CustomActionParam")
+		return false
+	}
+
+	// 翻译有缘再写
+	var targetPrice = 4600
+	if strings.Contains(resultItem.Text, "锚点") ||
+		strings.Contains(resultItem.Text, "悬空") ||
+		strings.Contains(resultItem.Text, "巫术") ||
+		strings.Contains(resultItem.Text, "天使") ||
+		strings.Contains(resultItem.Text, "岳硏") ||
+		strings.Contains(resultItem.Text, "冬虫") ||
+		strings.Contains(resultItem.Text, "武陵") ||
+		strings.Contains(resultItem.Text, "武侠") {
+		targetPrice = param.ModeratePrice
+		maafocus.Print(ctx, i18n.T("autosell.check_item_price_moderate", resultItem.Text))
+	} else if strings.Contains(resultItem.Text, "谷地水") ||
+		strings.Contains(resultItem.Text, "团结") ||
+		strings.Contains(resultItem.Text, "塞什") ||
+		strings.Contains(resultItem.Text, "星体") {
+		targetPrice = param.LargePrice
+		maafocus.Print(ctx, i18n.T("autosell.check_item_price_large", resultItem.Text))
+	} else if strings.Contains(resultItem.Text, "源石") ||
+		strings.Contains(resultItem.Text, "警戒") ||
+		strings.Contains(resultItem.Text, "硬脑") ||
+		strings.Contains(resultItem.Text, "边角") {
+		targetPrice = param.MassivePrice
+		maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", resultItem.Text))
+	} else {
+		log.Warn().Str("item_name", resultItem.Text).Msg("Unrecognized item name, using default target price")
+		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
+	}
+
 	override := map[string]any{
 		"AutoSellStockRedistributionItemOpen": map[string]any{
 			"target": maa.Rect{
@@ -198,9 +240,13 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 				"record_type": "record",
 			},
 		},
+		"AutoSellFriendsPricesExpected": map[string]any{
+			"custom_recognition_param": map[string]any{
+				"lowest_price": targetPrice,
+			},
+		},
 	}
 
-	maafocus.Print(ctx, i18n.T("autosell.check_item_price", resultItem.Text))
 	_, err := ctx.RunTask("AutoSellStockRedistributionItemOpen", override)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run AutoSellStockRedistributionItemOpen")

@@ -17,9 +17,12 @@
     "visitfriends.can_growth_chamber": "성장실 지원",
     "visitfriends.current_counts": "현재 지원 횟수: %d, 단서 교환 횟수: %d",
 
-    "autosell.price_compare_ok": "인식 가격: %d, 최저 가격: %d, 조건 충족",
-    "autosell.price_compare_fail": "인식 가격: %d, 최저 가격: %d, 조건 불충족",
-    "autosell.check_item_price": "%s 물자 가격 확인 중",
+    "autosell.price_compare_ok": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 충족",
+    "autosell.price_compare_fail": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 불충족",
+    "autosell.check_item_price_moderate": "%s 물자 가격 확인 중, 가격 변동 보통",
+    "autosell.check_item_price_large": "%s 물자 가격 확인 중, 가격 변동 큼",
+    "autosell.check_item_price_massive": "%s 물자 가격 확인 중, 가격 변동 매우 큼",
+    "autosell.check_item_price_unknown": "%s 물자 가격 확인 중, 가격 변동 알 수 없음",
 
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",

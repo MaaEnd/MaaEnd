@@ -3,7 +3,6 @@
     "resell.quota_overflow": "⚠️ 配額溢出提醒\n剩餘配額明天將超出上限，建議購買%d件商品\n推薦購買: 第%d行第%d列 (最高利潤: %d)",
     "resell.auto_buy_disabled": "💡 已禁用自動購買/出售\n推薦購買: 第%d行第%d列 (利潤: %d)",
     "resell.below_min_profit": "💡 沒有達到最低利潤的商品，建議把配額留至明天\n推薦購買: 第%d行第%d列 (利潤: %d)",
-
     "visitfriends.friend_missing": "該好友缺少 %s",
     "visitfriends.clue_exchange": "線索交換",
     "visitfriends.control_nexus_assist": "總控中樞助力",
@@ -16,11 +15,12 @@
     "visitfriends.can_mfg_cabin": "助力製造艙",
     "visitfriends.can_growth_chamber": "助力生長艙",
     "visitfriends.current_counts": "當前助力次數：%d，線索交換次數：%d",
-
-    "autosell.price_compare_ok": "識別價格: %d,最低價格: %d，符合條件",
-    "autosell.price_compare_fail": "識別價格: %d,最低價格: %d，不符合條件",
-    "autosell.check_item_price": "檢查物資 %s 價格",
-
+    "autosell.price_compare_ok": "識別最高價格: %d，最低售賣價格: %d，符合條件",
+    "autosell.price_compare_fail": "識別最高價格: %d，最低售賣價格: %d，不符合條件",
+    "autosell.check_item_price_moderate": "檢查物資 %s 價格，該物資價格變動適中",
+    "autosell.check_item_price_large": "檢查物資 %s 價格，該物資價格變動較大",
+    "autosell.check_item_price_massive": "檢查物資 %s 價格，該物資價格變動極大",
+    "autosell.check_item_price_unknown": "檢查物資 %s 價格，該物資價格變動未知",
     "autostockpile.recognition_done": "識別完成，共識別到 %d 個商品",
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最終不購買（%s）",
@@ -38,7 +38,6 @@
     "autostockpile.no_goods_recognized": "未識別到商品",
     "autostockpile.no_qualifying_goods": "沒有滿足條件的商品",
     "autostockpile.quantity_all": "全部",
-
     "autostockpile.qty_reserve_disabled": "未啟用保留調度券",
     "autostockpile.qty_reserve_zero": "保留調度券限制後可購買數量為 0",
     "autostockpile.qty_reserve_allows_all": "保留調度券約束允許全量購買",
@@ -47,7 +46,6 @@
     "autostockpile.qty_overflow_buy": "按防溢出數量購買",
     "autostockpile.qty_overflow_reserve_zero": "保留調度券限制後防溢出購買數量為 0",
     "autostockpile.qty_overflow_reserve_limited": "保留調度券限制防溢出購買數量",
-
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品識別結果不可用",
     "autostockpile.abort.GoodsTierInvalidFatal": "商品檔位識別結果無效",
     "autostockpile.abort.None": "無",
@@ -58,13 +56,10 @@
     "autostockpile.abort.SelectionConfigInvalidFatal": "購買配置讀取失敗",
     "autostockpile.abort.StockBillUnavailableWarn": "調度券數量識別失敗",
     "autostockpile.abort.ThresholdConfigInvalidFatal": "價格閾值配置無效，請檢查配置，不要輸入0或留空",
-
     "batchaddfriends.uid_sent": "UID %s：已發送好友申請（%d/%d）",
     "batchaddfriends.strangers_progress": "添加好友進度 [%d/%d]",
-
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",
-
     "essencefilter.no_locked": "本次未鎖定任何目標基質。",
     "essencefilter.loot_summary.title": "戰利品摘要：",
     "essencefilter.loot_summary.weapon_col": "武器",
@@ -123,14 +118,12 @@
     "essencefilter.focus.finish.summary": "篩選完成！共歷遍物品：%d，確認鎖定物品：%d",
     "essencefilter.focus.finish.ext_future": "擴展規則「未來可期」命中：%d 個",
     "essencefilter.focus.finish.ext_practical": "擴展規則「實用基質」命中：%d 個",
-
     "tasker.process_warning.title": "⚠️ 警告：偵測到黑名單進程正在執行",
     "tasker.process_warning.detected": "🔍 偵測到的進程：",
     "tasker.process_warning.impact": "💡 這些進程會干擾圖像識別",
     "tasker.process_warning.recommend_title": "👇 建議：",
     "tasker.process_warning.recommend_1": "  • 關閉上述進程後再執行任務",
     "tasker.process_warning.note": "ℹ️ 任務將繼續執行，但可能會失敗",
-
     "tasker.hdr_warning.title": "⚠️ 警告：偵測到 HDR 或「自動管理應用的顏色」已開啟",
     "tasker.hdr_warning.desc": "🖥️ HDR 或「自動管理應用的顏色」可能導致截圖色彩異常，影響圖像識別準確性",
     "tasker.hdr_warning.recommend_title": "💡 建議：",
@@ -138,30 +131,24 @@
     "tasker.hdr_warning.recommend_2": "  • Windows 設定 → 系統 → 顯示器 → 色彩設定檔 → 關閉「自動管理應用的顏色」",
     "tasker.hdr_warning.recommend_3": "  • 或在顯示卡驅動設定中關閉 HDR",
     "tasker.hdr_warning.note": "ℹ️ 任務將繼續執行，但可能出現識別問題",
-
     "tasker.aspect_ratio_warning.title": "🚨 警告：解析度比例不相符！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任務已強制停止",
     "tasker.aspect_ratio_warning.desc": "💡 全螢幕模式僅支援 16:9 顯示器；視窗化模式下可將解析度手動設為 16:9。",
     "tasker.aspect_ratio_warning.recommend_title": "👇 請將解析度調整為：",
     "tasker.aspect_ratio_warning.future": "🚀 未來將適配更多比例，敬請期待！",
-
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "尋路已中止。",
     "maptracker.emergency_stop.cause_header": "可能原因：",
     "maptracker.emergency_stop.cause_1": "視角轉向失敗；",
     "maptracker.emergency_stop.cause_2": "路線阻擋或卡住。",
-
     "maptracker.navigation_moving.waypoint": "下一個路徑點",
     "maptracker.navigation_moving.current": "當前：",
     "maptracker.navigation_moving.target": "目標：",
-
     "maptracker.navigation_finished.complete": "導航完成",
     "maptracker.navigation_finished.current": "當前：",
-
     "maptracker.inference_finished.loc": "Loc: ",
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
-
     "maptracker.inference_failed.title": "未知位置",
     "maptracker.inference_failed.reason": "（置信度過低）"
 }
