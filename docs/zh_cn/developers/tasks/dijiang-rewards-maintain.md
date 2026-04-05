@@ -1,6 +1,8 @@
 # 开发手册 - 基建任务维护文档
 
-本文用于说明 `DijiangRewards`（基建任务）的整体结构、四个阶段任务的职责，以及 `assets/tasks/DijiangRewards.json` 中各个 `interface` 选项对 Pipeline 的覆盖逻辑和设计原因，便于后续维护与扩展。
+本文用于说明 `DijiangRewards`（基建任务）的整体结构、四个阶段任务的职责，以及 `assets/tasks/DijiangRewards.json` 中各个 `interface` 选项对 Pipeline 的覆盖逻辑和设计原因，便于后续维护与扩展。  
+该文档撰写与2026年4月5日
+[fix:修复基建|信用点商店bug (#1868)](https://github.com/MaaEnd/MaaEnd/commit/1687671cb0dd87b737d24d52b8331f23f0e92a5c) 提交之后
 
 ## 文件概览
 
