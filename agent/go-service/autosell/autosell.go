@@ -55,11 +55,11 @@ func (r *AutoSellPriceCompareRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 
 	ocrPrice, atoiErr := strconv.Atoi(detailJson.Best.Text)
 	if atoiErr != nil {
-		log.Error().Err(atoiErr).Str("raw_text", detailJson.Best.Text).Str("component", "autosell").Str("step", "price_compare").Msg("parse ocr price")
+		log.Error().Err(atoiErr).Str("component", "autosell").Str("step", "price_compare").Str("raw_text", detailJson.Best.Text).Msg("parse ocr price")
 		return nil, false
 	}
 
-	log.Info().Int("ocr_price", ocrPrice).Int("lowest_price", lowestPrice).Str("component", "autosell").Str("step", "price_compare").Msg("price compare")
+	log.Info().Str("component", "autosell").Str("step", "price_compare").Int("ocr_price", ocrPrice).Int("lowest_price", lowestPrice).Msg("price compare")
 	if ocrPrice < lowestPrice {
 		maafocus.Print(ctx, i18n.T("autosell.price_compare_fail", ocrPrice, lowestPrice))
 		return nil, false
@@ -93,11 +93,11 @@ func (a *AutoSellItemRecordAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 		log.Info().Str("component", "autosell").Str("step", "item_record").Msg("init scan list")
 	case "record":
 		if slices.Contains(scannedItemNameList, params.ItemName) {
-			log.Info().Str("item_name", params.ItemName).Str("component", "autosell").Str("step", "item_record").Msg("item already scanned")
+			log.Info().Str("component", "autosell").Str("step", "item_record").Str("item_name", params.ItemName).Msg("item already scanned")
 			return true
 		}
 		scannedItemNameList = append(scannedItemNameList, params.ItemName)
-		log.Info().Str("item_name", params.ItemName).Str("component", "autosell").Str("step", "item_record").Msg("record item")
+		log.Info().Str("component", "autosell").Str("step", "item_record").Str("item_name", params.ItemName).Msg("record item")
 	}
 	return true
 }
@@ -141,7 +141,7 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 
 	for _, item := range detailJson.Filtered {
 		if slices.Contains(scannedItemNameList, item.Text) {
-			log.Info().Str("item_name", item.Text).Str("component", "autosell").Str("step", "scan_item_text").Msg("item already scanned")
+			log.Info().Str("component", "autosell").Str("step", "scan_item_text").Str("item_name", item.Text).Msg("item already scanned")
 			continue
 		}
 		resultItem.Box = item.Box
@@ -220,7 +220,7 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 		targetPrice = param.MassivePrice
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", resultItem.Text))
 	} else {
-		log.Warn().Str("item_name", resultItem.Text).Str("component", "autosell").Str("step", "open_item_text").Msg("unknown item, default price")
+		log.Warn().Str("component", "autosell").Str("step", "open_item_text").Str("item_name", resultItem.Text).Msg("unknown item, default price")
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
 	}
 
