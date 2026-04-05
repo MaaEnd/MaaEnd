@@ -116,7 +116,16 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                10,
+                170,
+                150,
+                40
+            ],
+            "threshold": 0.98
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -154,13 +163,22 @@
             "param": {
                 "target": [
                     1100,
-                    70,
+                    50,
                     10,
                     10
                 ]
             }
         },
-        "post_wait_freezes": 80,
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                15,
+                160,
+                40,
+                150
+            ],
+            "threshold": 0.98
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
