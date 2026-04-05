@@ -35,7 +35,7 @@
                 "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
                 "green_mask": true,
                 "method": 5,
-                "threshold": 0.4
+                "threshold": 0.6
             }
         },
         "pre_delay": 0,
@@ -56,7 +56,7 @@
                     300
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "threshold": 0.6
             }
         },
         "pre_delay": 0,
@@ -77,7 +77,7 @@
                     299
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "threshold": 0.6
             }
         },
         "pre_delay": 0,
@@ -148,7 +148,6 @@
         "next": [
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
-            "[JumpBack]_AutoEcoFarmSwipeToGround",
             "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
