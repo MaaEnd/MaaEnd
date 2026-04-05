@@ -26,19 +26,19 @@ func (r *AutoSellPriceCompareRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}
 
 	if paramsErr := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); paramsErr != nil {
-		log.Error().Err(paramsErr).Msg("Failed to parse CustomRecognitionParam")
+		log.Error().Err(paramsErr).Str("component", "autosell").Str("step", "price_compare").Msg("parse params")
 		return nil, false
 	}
 	lowestPrice := params.LowestPrice
 
 	detail, recoErr := ctx.RunRecognition("AutoSellFriendsPriceRecognition", arg.Img)
 	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Msg("Failed to run AutoSellFriendsPriceRecognition")
+		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "price_compare").Msg("run recognition")
 		return nil, false
 	}
 
 	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
-		log.Warn().Msg("AutoSellFriendsPriceRecognition did not hit or returned insufficient results")
+		log.Warn().Str("component", "autosell").Str("step", "price_compare").Msg("recognition miss")
 		return nil, false
 	}
 
@@ -49,17 +49,17 @@ func (r *AutoSellPriceCompareRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}
 	// Results.Best是空，暂时只能这样获取
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Msg("Failed to parse DetailJson from AutoSellFriendsPriceRecognition")
+		log.Error().Err(detailJsonErr).Str("component", "autosell").Str("step", "price_compare").Msg("parse detail json")
 		return nil, false
 	}
 
 	ocrPrice, atoiErr := strconv.Atoi(detailJson.Best.Text)
 	if atoiErr != nil {
-		log.Error().Err(atoiErr).Msg("Failed to convert OCR result to integer")
+		log.Error().Err(atoiErr).Str("raw_text", detailJson.Best.Text).Str("component", "autosell").Str("step", "price_compare").Msg("parse ocr price")
 		return nil, false
 	}
 
-	log.Info().Int("ocrPrice", ocrPrice).Int("lowestPrice", lowestPrice).Msg("OCR price extracted, comparing with lowest price")
+	log.Info().Int("ocr_price", ocrPrice).Int("lowest_price", lowestPrice).Str("component", "autosell").Str("step", "price_compare").Msg("price compare")
 	if ocrPrice < lowestPrice {
 		maafocus.Print(ctx, i18n.T("autosell.price_compare_fail", ocrPrice, lowestPrice))
 		return nil, false
@@ -82,21 +82,22 @@ func (a *AutoSellItemRecordAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().
 			Err(err).
-			Msg("failed to parse CustomActionParam")
+			Str("component", "autosell").Str("step", "item_record").
+			Msg("parse params")
 		return false
 	}
 
 	switch params.RecordType {
 	case "init":
 		scannedItemNameList = []string{}
-		log.Info().Msg("Cleared scanned item name list")
+		log.Info().Str("component", "autosell").Str("step", "item_record").Msg("init scan list")
 	case "record":
 		if slices.Contains(scannedItemNameList, params.ItemName) {
-			log.Info().Str("item_name", params.ItemName).Msg("Item name already recorded, skipping")
+			log.Info().Str("item_name", params.ItemName).Str("component", "autosell").Str("step", "item_record").Msg("item already scanned")
 			return true
 		}
 		scannedItemNameList = append(scannedItemNameList, params.ItemName)
-		log.Info().Str("item_name", params.ItemName).Msg("Recorded scanned item name")
+		log.Info().Str("item_name", params.ItemName).Str("component", "autosell").Str("step", "item_record").Msg("record item")
 	}
 	return true
 }
@@ -114,12 +115,12 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 	}
 	detail, recoErr := ctx.RunRecognition("AutoSellStockRedistributionOpenItemText", arg.Img)
 	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Msg("Failed to run AutoSellStockRedistributionOpenItemText")
+		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("run recognition")
 		return nil, false
 	}
 
 	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
-		log.Warn().Msg("AutoSellStockRedistributionOpenItemText did not hit or returned insufficient results")
+		log.Warn().Str("component", "autosell").Str("step", "scan_item_text").Msg("recognition miss")
 		return nil, false
 	}
 
@@ -132,7 +133,7 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 	}
 	// Results.Best是空，暂时只能这样获取
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Msg("Failed to parse DetailJson from AutoSellStockRedistributionOpenItemTextRecognition")
+		log.Error().Err(detailJsonErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("parse detail json")
 		return nil, false
 	}
 
@@ -140,7 +141,7 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 
 	for _, item := range detailJson.Filtered {
 		if slices.Contains(scannedItemNameList, item.Text) {
-			log.Info().Str("item_name", item.Text).Msg("Item name already recorded, skipping")
+			log.Info().Str("item_name", item.Text).Str("component", "autosell").Str("step", "scan_item_text").Msg("item already scanned")
 			continue
 		}
 		resultItem.Box = item.Box
@@ -149,13 +150,13 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 	}
 
 	if len(resultItem.Text) == 0 {
-		log.Info().Msg("No new item name found in recognition results")
+		log.Info().Str("component", "autosell").Str("step", "scan_item_text").Msg("no new item")
 		return nil, false
 	}
 
 	resultJson, marshalErr := json.Marshal(resultItem)
 	if marshalErr != nil {
-		log.Error().Err(marshalErr).Msg("Failed to marshal result item to JSON")
+		log.Error().Err(marshalErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("marshal result")
 		return nil, false
 	}
 	return &maa.CustomRecognitionResult{
@@ -169,14 +170,15 @@ type AutoSellStockRedistributionOpenItemTextAction struct{}
 func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
 	if !ok {
-		log.Error().Msg("Failed to get custom recognition result")
+		log.Error().Str("component", "autosell").Str("step", "open_item_text").Msg("get custom result")
 		return false
 	}
 	var resultItem scanItem
 	if err := json.Unmarshal([]byte(customResult.Detail), &resultItem); err != nil {
 		log.Error().
 			Err(err).
-			Msg("failed to parse CustomActionParam")
+			Str("component", "autosell").Str("step", "open_item_text").
+			Msg("parse custom result")
 		return false
 	}
 
@@ -188,7 +190,8 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
 		log.Error().
 			Err(err).
-			Msg("failed to parse CustomActionParam")
+			Str("component", "autosell").Str("step", "open_item_text").
+			Msg("parse params")
 		return false
 	}
 
@@ -217,12 +220,12 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 		targetPrice = param.MassivePrice
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", resultItem.Text))
 	} else {
-		log.Warn().Str("item_name", resultItem.Text).Msg("Unrecognized item name, using default target price")
+		log.Warn().Str("item_name", resultItem.Text).Str("component", "autosell").Str("step", "open_item_text").Msg("unknown item, default price")
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
 	}
 
 	if len(resultItem.Box) != 4 {
-		log.Error().Msg("Invalid bounding box in recognition result")
+		log.Error().Str("component", "autosell").Str("step", "open_item_text").Msg("invalid bbox")
 		return false
 	}
 
@@ -256,7 +259,7 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 
 	_, err := ctx.RunTask("AutoSellStockRedistributionItemOpen", override)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to run AutoSellStockRedistributionItemOpen")
+		log.Error().Err(err).Str("component", "autosell").Str("step", "open_item_text").Msg("run task")
 		return false
 	}
 	return true
