@@ -133,6 +133,7 @@
                 "AutoEssenceOnSuccess": {
                     "next": [
                         "AutoEssenceMain",
+                        "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
                         "AutoEssenceOnComplete"
                     ]
                 }
@@ -149,6 +150,9 @@
                     "pipeline_override": {
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
+                        },
+                        "AutoEssenceAfterBattleRunEndLootReport": {
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -162,6 +166,9 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterAfterBattleStart": {
+                            "enabled": false
+                        },
+                        "AutoEssenceAfterBattleRunEndLootReport": {
                             "enabled": false
                         }
                     }
