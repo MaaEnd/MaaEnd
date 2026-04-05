@@ -55,20 +55,14 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	goodsCount := 0
-	stockBillAmount := 0
-	stockBillAvailable := false
 	if result.Data != nil {
 		goodsCount = len(result.Data.Goods)
-		stockBillAmount = result.Data.StockBillAmount
-		stockBillAvailable = result.Data.StockBillAvailable
 	}
 
 	log.Info().
 		Str("component", "autostockpile").
 		Bool("overflow", result.hasOverflow()).
 		Str("abort_reason", string(result.AbortReason)).
-		Int("stock_bill_amount", stockBillAmount).
-		Bool("stock_bill_available", stockBillAvailable).
 		Int("goods_count", goodsCount).
 		Msg("recognition result parsed")
 
@@ -89,20 +83,17 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	cfg, abortReason, err := getSelectionConfigFromNode(ctx, decisionAttachNodeName, region)
-	if err != nil {
-		return stopTaskWithFocus(ctx, abortReason, err)
-	}
+	cfg := buildSelectionConfig(region)
 
-	bypassThresholdFilter := result.hasOverflow() && cfg.OverflowMode
+	bypassThresholdFilter := result.hasOverflow()
 	if bypassThresholdFilter {
 		log.Info().
 			Str("component", "autostockpile").
-			Bool("overflow_allow", result.hasOverflow() && cfg.OverflowMode).
+			Bool("overflow_allow", result.hasOverflow()).
 			Msg("allow all goods mode enabled")
 	}
 
-	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
+	selection, quantityDecision := computeDecision(*data, cfg, bypassThresholdFilter)
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -121,23 +112,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	if err != nil {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, i18n.T("autostockpile.hit_skip_purchase"))
-	}
 	if quantityDecision.Mode == quantityModeSkip {
-		quantitySkipLog := log.Info().
+		log.Info().
 			Str("component", "autostockpile").
 			Str("selection_mode", formatSelectionMode(selection, *data, cfg)).
 			Str("quantity_mode", string(quantityDecision.Mode)).
 			Str("quantity_reason", quantityDecision.Reason).
-			Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 			Int("quota_current", data.Quota.Current).
 			Int("quota_overflow", data.Quota.Overflow).
-			Int("reserve_stock_bill", cfg.ReserveStockBill)
-		if quantityDecision.ConstraintApplied {
-			quantitySkipLog = quantitySkipLog.Int("max_buy", quantityDecision.MaxBuy)
-		}
-		quantitySkipLog.Msg("quantity decision requested skip short-circuit")
+			Msg("quantity decision requested skip short-circuit")
 		maafocus.Print(ctx, i18n.T("autostockpile.hit_but_skip", quantityDecision.Reason))
 		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
@@ -188,17 +171,12 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("threshold", selection.Threshold).
 		Int("price", selection.CurrentPrice).
 		Int("score", selection.Score).
-		Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 		Int("quota_current", data.Quota.Current).
 		Int("quota_overflow", data.Quota.Overflow).
-		Int("reserve_stock_bill", cfg.ReserveStockBill).
 		Str("quantity_mode", string(quantityDecision.Mode)).
 		Str("quantity_reason", quantityDecision.Reason).
 		Bool("swipe_max_enabled", quantityDecision.Mode == quantityModeSwipeMax).
 		Bool("swipe_specific_quantity_enabled", quantityDecision.Mode == quantityModeSwipeSpecificQuantity)
-	if quantityDecision.ConstraintApplied {
-		quantityLog = quantityLog.Int("max_buy", quantityDecision.MaxBuy)
-	}
 	if quantityDecision.Mode == quantityModeSwipeSpecificQuantity {
 		quantityLog = quantityLog.Int("quantity_target", quantityDecision.Target)
 	}
@@ -359,7 +337,7 @@ func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg Se
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
 	}
-	if cfg.OverflowMode && data.Quota.Overflow > 0 {
+	if data.Quota.Overflow > 0 {
 		return i18n.T("autostockpile.mode_overflow")
 	}
 	return i18n.T("autostockpile.mode_low_price")

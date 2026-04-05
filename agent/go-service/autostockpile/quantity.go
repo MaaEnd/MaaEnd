@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/rs/zerolog/log"
 )
 
 type quantityMode string
@@ -23,113 +22,41 @@ type quantityDecision struct {
 	Reason            string
 }
 
-func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) (quantityDecision, error) {
-	upperBound, err := resolveQuantityUpperBound(data.StockBillAvailable, data.StockBillAmount, cfg.ReserveStockBill, selection.CurrentPrice, data.Quota.Current)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Bool("stock_bill_available", data.StockBillAvailable).
-			Int("stock_bill_amount", data.StockBillAmount).
-			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Int("price", selection.CurrentPrice).
-			Msg("failed to resolve quantity decision")
-		return quantityDecision{}, err
-	}
-
+func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) quantityDecision {
 	switch {
 	case selection.CurrentPrice < selection.Threshold:
-		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
-	case cfg.OverflowMode && data.Quota.Overflow > 0:
-		return resolveOverflowQuantityDecision(upperBound, data.Quota), nil
+		return resolveThresholdQuantityDecision(data.Quota.Current)
+	case data.Quota.Overflow > 0:
+		return resolveOverflowQuantityDecision(data.Quota)
 	default:
-		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
+		return resolveThresholdQuantityDecision(data.Quota.Current)
 	}
 }
 
-func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurrent int) quantityDecision {
-	if !upperBound.ConstraintApplied {
-		return quantityDecision{
-			Mode:              quantityModeSwipeMax,
-			MaxBuy:            upperBound.MaxBuy,
-			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            i18n.T("autostockpile.qty_reserve_disabled"),
-		}
-	}
-
-	if upperBound.CappedQuantity <= 0 {
-		return quantityDecision{
-			Mode:              quantityModeSkip,
-			MaxBuy:            upperBound.MaxBuy,
-			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            i18n.T("autostockpile.qty_reserve_zero"),
-		}
-	}
-
-	if upperBound.CappedQuantity == quotaCurrent {
-		return quantityDecision{
-			Mode:              quantityModeSwipeMax,
-			MaxBuy:            upperBound.MaxBuy,
-			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            i18n.T("autostockpile.qty_reserve_allows_all"),
-		}
-	}
-
+func resolveThresholdQuantityDecision(quotaCurrent int) quantityDecision {
 	return quantityDecision{
-		Mode:              quantityModeSwipeSpecificQuantity,
-		Target:            upperBound.CappedQuantity,
-		MaxBuy:            upperBound.MaxBuy,
-		ConstraintApplied: upperBound.ConstraintApplied,
-		Reason:            i18n.T("autostockpile.qty_reserve_limited"),
+		Mode:   quantityModeSwipeMax,
+		Reason: i18n.T("autostockpile.qty_reserve_disabled"),
 	}
 }
 
-func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaInfo) quantityDecision {
+func resolveOverflowQuantityDecision(quota QuotaInfo) quantityDecision {
 	overflowTarget := quota.Overflow
 	if overflowTarget > quota.Current {
 		overflowTarget = quota.Current
 	}
 
-	if !upperBound.ConstraintApplied {
-		if overflowTarget <= 0 {
-			return quantityDecision{
-				Mode:              quantityModeSkip,
-				MaxBuy:            upperBound.MaxBuy,
-				ConstraintApplied: upperBound.ConstraintApplied,
-				Reason:            i18n.T("autostockpile.qty_overflow_invalid"),
-			}
-		}
-
+	if overflowTarget <= 0 {
 		return quantityDecision{
-			Mode:              quantityModeSwipeSpecificQuantity,
-			Target:            overflowTarget,
-			MaxBuy:            upperBound.MaxBuy,
-			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            i18n.T("autostockpile.qty_overflow_buy"),
+			Mode:   quantityModeSkip,
+			Reason: i18n.T("autostockpile.qty_overflow_invalid"),
 		}
-	}
-
-	target := min(overflowTarget, upperBound.CappedQuantity)
-	if target <= 0 {
-		return quantityDecision{
-			Mode:              quantityModeSkip,
-			MaxBuy:            upperBound.MaxBuy,
-			ConstraintApplied: upperBound.ConstraintApplied,
-			Reason:            i18n.T("autostockpile.qty_overflow_reserve_zero"),
-		}
-	}
-
-	reason := i18n.T("autostockpile.qty_overflow_buy")
-	if target < overflowTarget {
-		reason = i18n.T("autostockpile.qty_overflow_reserve_limited")
 	}
 
 	return quantityDecision{
-		Mode:              quantityModeSwipeSpecificQuantity,
-		Target:            target,
-		MaxBuy:            upperBound.MaxBuy,
-		ConstraintApplied: upperBound.ConstraintApplied,
-		Reason:            reason,
+		Mode:   quantityModeSwipeSpecificQuantity,
+		Target: overflowTarget,
+		Reason: i18n.T("autostockpile.qty_overflow_buy"),
 	}
 }
 

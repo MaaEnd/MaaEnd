@@ -12,12 +12,10 @@ type AbortReason string
 const (
 	AbortReasonNone                        AbortReason = "None"
 	AbortReasonQuotaZeroSkip               AbortReason = "QuotaZeroSkip"
-	AbortReasonInsufficientFundsSkip       AbortReason = "InsufficientFundsSkip"
 	AbortReasonRegionResolveFailedFatal    AbortReason = "RegionResolveFailedFatal"
 	AbortReasonSelectionConfigInvalidFatal AbortReason = "SelectionConfigInvalidFatal"
 	AbortReasonThresholdConfigInvalidFatal AbortReason = "ThresholdConfigInvalidFatal"
 	AbortReasonGoodsTierInvalidFatal       AbortReason = "GoodsTierInvalidFatal"
-	AbortReasonStockBillUnavailableWarn    AbortReason = "StockBillUnavailableWarn"
 	AbortReasonGoodsOCRUnavailableWarn     AbortReason = "GoodsOCRUnavailableWarn"
 	AbortReasonQuotaUnavailableWarn        AbortReason = "QuotaUnavailableWarn"
 )
@@ -31,12 +29,10 @@ const (
 var knownAbortReasons = []AbortReason{
 	AbortReasonNone,
 	AbortReasonQuotaZeroSkip,
-	AbortReasonInsufficientFundsSkip,
 	AbortReasonRegionResolveFailedFatal,
 	AbortReasonSelectionConfigInvalidFatal,
 	AbortReasonThresholdConfigInvalidFatal,
 	AbortReasonGoodsTierInvalidFatal,
-	AbortReasonStockBillUnavailableWarn,
 	AbortReasonGoodsOCRUnavailableWarn,
 	AbortReasonQuotaUnavailableWarn,
 }
@@ -95,54 +91,8 @@ type SelectionResult struct {
 
 // SelectionConfig 表示 AutoStockpile 的商品选择配置。
 type SelectionConfig struct {
-	Strategy          string           `json:"strategy"`
-	OverflowMode      bool             `json:"overflow_mode"`
 	FallbackThreshold int              `json:"fallback_threshold"`
-	ReserveStockBill  int              `json:"reserve_stock_bill"`
 	PriceLimits       PriceLimitConfig `json:"price_limits"`
-}
-
-// UnmarshalJSON 支持在保留既有默认值的同时，对显式传入的阈值字段做严格校验。
-func (c *SelectionConfig) UnmarshalJSON(data []byte) error {
-	type selectionConfigAlias struct {
-		Strategy         string           `json:"strategy"`
-		OverflowMode     bool             `json:"overflow_mode"`
-		ReserveStockBill int              `json:"reserve_stock_bill"`
-		PriceLimits      PriceLimitConfig `json:"price_limits"`
-	}
-
-	alias := selectionConfigAlias{
-		Strategy:         c.Strategy,
-		OverflowMode:     c.OverflowMode,
-		ReserveStockBill: c.ReserveStockBill,
-		PriceLimits:      c.PriceLimits,
-	}
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-
-	raw := make(map[string]json.RawMessage)
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	fallbackThreshold := c.FallbackThreshold
-	if rawValue, ok := raw["fallback_threshold"]; ok {
-		threshold, err := parsePositiveThresholdValue("fallback_threshold", rawValue)
-		if err != nil {
-			return err
-		}
-		fallbackThreshold = threshold
-	}
-
-	*c = SelectionConfig{
-		Strategy:          alias.Strategy,
-		OverflowMode:      alias.OverflowMode,
-		FallbackThreshold: fallbackThreshold,
-		ReserveStockBill:  alias.ReserveStockBill,
-		PriceLimits:       alias.PriceLimits,
-	}
-	return nil
 }
 
 // PriceLimitConfig 按档位 ID 保存商品购买阈值。

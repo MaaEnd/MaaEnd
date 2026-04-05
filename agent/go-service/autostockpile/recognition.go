@@ -40,18 +40,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
-	cfg, abortReason, err := getSelectionConfigFromNode(ctx, decisionAttachNodeName, region)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Str("node", decisionAttachNodeName).
-			Str("region", region).
-			Str("abort_reason", string(abortReason)).
-			Msg("failed to load selection config for recognition")
-		return buildAbortedRecognitionResult(arg, abortReason)
-	}
-
 	overflowDetected := false
 	overflowAmount := 0
 	overflowCurrent := 0
@@ -87,39 +75,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("quota exhausted, aborting recognition before goods scan")
 
 		return buildAbortedRecognitionResult(arg, overflowAbortReason)
-	}
-
-	stockBillAmount := 0
-	stockBillAvailable := false
-	if cfg.ReserveStockBill > 0 {
-		if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
-			stockBillAmount = amount
-			stockBillAvailable = true
-		} else {
-			log.Warn().
-				Str("component", autoStockpileComponent).
-				Str("step", "stock_bill_ocr").
-				Str("abort_reason", string(AbortReasonStockBillUnavailableWarn)).
-				Msg("stock bill ocr unavailable")
-			return buildAbortedRecognitionResult(arg, AbortReasonStockBillUnavailableWarn)
-		}
-	} else {
-		log.Info().
-			Str("component", autoStockpileComponent).
-			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Msg("stock bill ocr skipped because reserve threshold is disabled")
-	}
-
-	if shouldAbortForInsufficientFunds(stockBillAvailable, stockBillAmount, cfg.ReserveStockBill) {
-		log.Info().
-			Str("component", autoStockpileComponent).
-			Int("overflow_amount", overflowAmount).
-			Int("stock_bill_amount", stockBillAmount).
-			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Str("abort_reason", string(AbortReasonInsufficientFundsSkip)).
-			Msg("stock bill below reserve threshold, aborting recognition before goods scan")
-
-		return buildAbortedRecognitionResult(arg, AbortReasonInsufficientFundsSkip)
 	}
 
 	itemMap := GetItemMap()
@@ -303,8 +258,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Current:  overflowCurrent,
 				Overflow: overflowAmount,
 			},
-			StockBillAmount:    stockBillAmount,
-			StockBillAvailable: stockBillAvailable,
+			StockBillAmount:    0,
+			StockBillAvailable: false,
 			Goods:              resultGoods,
 		},
 		AbortReason: AbortReasonNone,

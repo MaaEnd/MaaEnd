@@ -108,16 +108,9 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			Msg("target product not found in goods list during reconcile")
 	}
 
-	bypassThresholdFilter := updatedData.Quota.Overflow > 0 && state.EffectiveConfig.OverflowMode
+	bypassThresholdFilter := updatedData.Quota.Overflow > 0
 
-	newSelection, newQuantityDecision, err := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "autostockpile").
-			Msg("failed to recompute decision during reconcile")
-		return false
-	}
+	newSelection, newQuantityDecision := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
 
 	if priceChanged {
 		maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))

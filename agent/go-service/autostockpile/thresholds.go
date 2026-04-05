@@ -2,75 +2,11 @@ package autostockpile
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
-
-func defaultPriceLimitsForRegion(region string) PriceLimitConfig {
-	result := make(PriceLimitConfig)
-	for tierID, threshold := range autoStockpileDefaultPriceLimits {
-		if strings.HasPrefix(tierID, region) {
-			result[tierID] = threshold
-		}
-	}
-	return result
-}
-
-var autoStockpileDefaultPriceLimits = map[string]int{
-	"ValleyIVTier1": 800,
-	"ValleyIVTier2": 1200,
-	"ValleyIVTier3": 1500,
-	"WulingTier1":   1200,
-	"WulingTier2":   1500,
-}
-
-func defaultPriceLimitForTier(tierID string) (int, bool) {
-	threshold, ok := autoStockpileDefaultPriceLimits[tierID]
-	return threshold, ok
-}
-
-func requireDefaultPriceLimitForTier(tierID string) (int, error) {
-	threshold, ok := defaultPriceLimitForTier(tierID)
-	if !ok {
-		return 0, fmt.Errorf("missing default threshold for %s", tierID)
-	}
-	return threshold, nil
-}
-
-func priceLimitTierIDFromAttachKey(key string) (string, error) {
-	const prefix = "price_limits_"
-	if !strings.HasPrefix(key, prefix) {
-		return "", fmt.Errorf("invalid price limit key %s", key)
-	}
-
-	remainder := strings.TrimPrefix(key, prefix)
-	parts := strings.SplitN(remainder, ".", 2)
-	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
-		return "", fmt.Errorf("invalid price limit key %s", key)
-	}
-
-	return parts[0] + parts[1], nil
-}
-
-func normalizePriceLimitThreshold(tierID string, threshold int) int {
-	if threshold != 0 {
-		return threshold
-	}
-
-	if defaultThreshold, ok := defaultPriceLimitForTier(tierID); ok {
-		return defaultThreshold
-	}
-
-	return threshold
-}
-
-func parsePriceLimitOverrideValue(key string, data json.RawMessage) (int, error) {
-	if _, err := priceLimitTierIDFromAttachKey(key); err != nil {
-		return 0, err
-	}
-
-	return parsePositiveThresholdValue(key, data)
-}
 
 func minPositiveThreshold(priceLimits PriceLimitConfig) int {
 	min := 0
@@ -100,4 +36,76 @@ func resolveFallbackThreshold(raw int) int {
 		return raw
 	}
 	return defaultFallbackBuyThreshold
+}
+
+type thresholdConfigError struct {
+	field string
+	err   error
+}
+
+func (e *thresholdConfigError) Error() string {
+	return fmt.Sprintf("%s: %v", e.field, e.err)
+}
+
+func (e *thresholdConfigError) Unwrap() error {
+	return e.err
+}
+
+func newThresholdConfigError(field string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var target *thresholdConfigError
+	if errors.As(err, &target) {
+		return err
+	}
+
+	return &thresholdConfigError{field: field, err: err}
+}
+
+func parsePositiveThresholdValue(field string, data json.RawMessage) (int, error) {
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err == nil {
+		if strings.TrimSpace(stringValue) == "" {
+			return 0, newThresholdConfigError(field, fmt.Errorf("must not be empty"))
+		}
+
+		parsed, parseErr := strconv.Atoi(stringValue)
+		if parseErr != nil {
+			return 0, newThresholdConfigError(field, fmt.Errorf("invalid integer string %q", stringValue))
+		}
+		if parsed <= 0 {
+			return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
+		}
+		return parsed, nil
+	}
+
+	parsed, err := parsePriceLimitValue(data)
+	if err != nil {
+		return 0, newThresholdConfigError(field, err)
+	}
+	if parsed <= 0 {
+		return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
+	}
+
+	return parsed, nil
+}
+
+func parsePriceLimitValue(data json.RawMessage) (int, error) {
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		return intValue, nil
+	}
+
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err == nil {
+		parsed, parseErr := strconv.Atoi(stringValue)
+		if parseErr != nil {
+			return 0, fmt.Errorf("invalid integer string %q", stringValue)
+		}
+		return parsed, nil
+	}
+
+	return 0, fmt.Errorf("must be an integer or integer string")
 }
