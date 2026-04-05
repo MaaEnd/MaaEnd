@@ -75,15 +75,14 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    280,
-                    140,
+                    250,
                     120,
-                    20
+                    200,
+                    60
                 ],
                 "expected": [
-                    "\\d"
-                ],
-                "color_filter": "AutoStockpileGetQuotaAdditionFilter"
+                    "\\+\\d"
+                ]
             }
         },
         "pre_delay": 0,
@@ -96,13 +95,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
+                    50,
                     120,
-                    140,
-                    160,
-                    20
+                    270,
+                    60
                 ],
                 "expected": [
-                    "\\d"
+                    "\\d/\\d"
                 ]
             }
         },
@@ -139,38 +138,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    1050,
-                    15,
-                    160,
-                    25
+                    1000,
+                    5,
+                    250,
+                    50
                 ],
                 "expected": [
-                    "\\d"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockpileGetQuotaAdditionFilter": {
-        "desc": "过滤可能存在的溢出警告",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "lower": [
-                    [
-                        0,
-                        0,
-                        0
-                    ]
-                ],
-                "upper": [
-                    [
-                        160,
-                        160,
-                        160
-                    ]
+                    "\\d./"
                 ]
             }
         },
