@@ -38,6 +38,8 @@ func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cf
 	}
 
 	switch {
+	case selection.CurrentPrice < selection.Threshold:
+		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
 	case cfg.OverflowMode && data.Quota.Overflow > 0:
 		return resolveOverflowQuantityDecision(upperBound, data.Quota), nil
 	default:
