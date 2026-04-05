@@ -163,7 +163,6 @@
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
-        "tasks/preset/AutoTrading.json",
         "tasks/preset/EssenceFarming.json"
     ]
 }
