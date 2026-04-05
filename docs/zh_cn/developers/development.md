@@ -95,7 +95,18 @@ python tools/setup_workspace.py
 
 ### 关于开发体验
 
-- MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。工作目录可设置为**项目根目录**的文件夹。
+MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用，本文档在下文给出了相关推荐。调试时工作目录可设置为**项目根目录**的文件夹
+
+| 工具                                                                       | 简介                                                        |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| [MaaDebugger](https://github.com/MaaXYZ/MaaDebugger)                       | 独立调试工具                                                |
+| [Maa Pipeline Support](https://github.com/neko-para/maa-support-extension) | VSCode 插件，提供调试、截图、获取 ROI、取色等功能           |
+| [MFAToolsPlus](https://github.com/SweetSmellFox/MFAToolsPlus)              | 跨平台开发工具箱，提供便捷的数据获取和模拟测试方法          |
+| [MaaPipelineEditor](https://mpe.codax.site/docs)                           | 可视化阅读与构建 Pipeline，功能完备，提供渐进式本地功能扩展 |
+| [MaaLogAnalyzer](https://github.com/MaaXYZ/MaaLogAnalyzer)                 | 可视化分析基于 MaaFramework 开发应用的日志                  |
+
+### 注意事项
+
 - 每次修改 Pipeline 后只需要在开发工具中重新加载资源即可；但每次修改 go-service 都需要执行 `python tools/build_and_install.py` 重新进行编译（可以在 VS Code 的终端选项运行任务中使用 `build` 任务快捷运行）。
 - 可利用 VS Code 等工具对 go-service 挂断点或单步运行（自行 debug 启动 go-service，或利用 vscode attach）。~~不是哥们，你靠看日志改代码啊？~~
 - MXU 是面向终端用户的 GUI，不建议使用其开发调试，上述的 MaaFramework 开发工具可以极大程度提高开发效率。~~真狠啊就硬试啊~~
