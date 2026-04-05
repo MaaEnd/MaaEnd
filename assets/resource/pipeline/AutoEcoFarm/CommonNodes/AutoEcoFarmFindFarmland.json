@@ -192,7 +192,8 @@
                 "template": "AutoEcoFarm/AutoEcoFarmPlusGrey.png",
                 "green_mask": true,
                 "method": 5,
-                "threshold": 0.9
+                "threshold": 0.9,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -238,6 +239,7 @@
                     720
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.7,
                 "order_by": "Horizontal"
             }
         }

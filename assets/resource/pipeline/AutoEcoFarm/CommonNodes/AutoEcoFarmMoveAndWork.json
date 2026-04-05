@@ -139,7 +139,8 @@
                     300
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -160,7 +161,8 @@
                     63
                 ],
                 "template": "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png",
-                "threshold": 0.7
+                "threshold": 0.7,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -180,7 +182,8 @@
                     31
                 ],
                 "template": "AutoEcoFarm/AutoecofarmWhitecloseblackgrouund.png",
-                "threshold": 0.7
+                "threshold": 0.7,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -410,7 +413,8 @@
                     300
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "inverse": true,

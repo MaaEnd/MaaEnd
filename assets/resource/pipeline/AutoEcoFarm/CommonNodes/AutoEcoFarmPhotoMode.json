@@ -35,7 +35,8 @@
                     51
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmBigCamera.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": {
@@ -69,7 +70,8 @@
                     464
                 ],
                 "template": "Common/CameraMode.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -136,6 +138,7 @@
         ],
         "template": "AutoEcoFarm/AutoEcoFarmPhotoScene.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "action": "Click"
     },
     "AutoEcoFarmPhotoSceneIsWhite": {
