@@ -71,10 +71,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    22,
+                    336,
                     406,
-                    1230,
-                    299
+                    675,
+                    243
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "threshold": 0.6
