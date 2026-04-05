@@ -2,24 +2,9 @@ package autostockpile
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strconv"
 	"strings"
-
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
-
-var (
-	_ maa.CustomActionRunner      = &SelectItemAction{}
-	_ maa.CustomRecognitionRunner = &ItemValueChangeRecognition{}
-)
-
-// SelectItemAction 根据识别结果执行商品选择动作。
-type SelectItemAction struct{}
-
-// ItemValueChangeRecognition 负责识别商品及其价格信息。
-type ItemValueChangeRecognition struct{}
 
 // AbortReason 表示识别阶段提前终止的稳定原因键。
 type AbortReason string
@@ -191,99 +176,6 @@ func (c *PriceLimitConfig) UnmarshalJSON(data []byte) error {
 
 	*c = parsed
 	return nil
-}
-
-type thresholdConfigError struct {
-	field string
-	err   error
-}
-
-func (e *thresholdConfigError) Error() string {
-	return fmt.Sprintf("%s: %v", e.field, e.err)
-}
-
-func (e *thresholdConfigError) Unwrap() error {
-	return e.err
-}
-
-func newThresholdConfigError(field string, err error) error {
-	if err == nil {
-		return nil
-	}
-
-	var target *thresholdConfigError
-	if errors.As(err, &target) {
-		return err
-	}
-
-	return &thresholdConfigError{field: field, err: err}
-}
-
-func isThresholdConfigError(err error) bool {
-	var target *thresholdConfigError
-	return errors.As(err, &target)
-}
-
-func parsePositiveThresholdValue(field string, data json.RawMessage) (int, error) {
-	var stringValue string
-	if err := json.Unmarshal(data, &stringValue); err == nil {
-		if strings.TrimSpace(stringValue) == "" {
-			return 0, newThresholdConfigError(field, fmt.Errorf("must not be empty"))
-		}
-
-		parsed, parseErr := strconv.Atoi(stringValue)
-		if parseErr != nil {
-			return 0, newThresholdConfigError(field, fmt.Errorf("invalid integer string %q", stringValue))
-		}
-		if parsed <= 0 {
-			return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
-		}
-		return parsed, nil
-	}
-
-	parsed, err := parsePriceLimitValue(data)
-	if err != nil {
-		return 0, newThresholdConfigError(field, err)
-	}
-	if parsed <= 0 {
-		return 0, newThresholdConfigError(field, fmt.Errorf("must be greater than 0"))
-	}
-
-	return parsed, nil
-}
-
-func parsePriceLimitValue(data json.RawMessage) (int, error) {
-	var intValue int
-	if err := json.Unmarshal(data, &intValue); err == nil {
-		return intValue, nil
-	}
-
-	var stringValue string
-	if err := json.Unmarshal(data, &stringValue); err == nil {
-		parsed, parseErr := strconv.Atoi(stringValue)
-		if parseErr != nil {
-			return 0, fmt.Errorf("invalid integer string %q", stringValue)
-		}
-		return parsed, nil
-	}
-
-	return 0, fmt.Errorf("must be an integer or integer string")
-}
-
-// ThresholdConfig 表示匹配与定价阶段使用的阈值配置。
-type ThresholdConfig struct {
-	FallbackThreshold int              `json:"fallback_threshold"`
-	PriceLimits       PriceLimitConfig `json:"price_limits"`
-}
-
-// ItemMatchResult 表示 OCR 商品名与规范商品名的匹配结果。
-type ItemMatchResult struct {
-	OCRName       string
-	CanonicalName string
-	TierID        string
-	EditDistance  int
-	Threshold     int
-	Matched       bool
 }
 
 // Validate 校验 RecognitionResult 是否满足新契约约束。

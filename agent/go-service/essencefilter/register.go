@@ -34,5 +34,6 @@ func Register() {
 
 	//战斗后识别版本
 	maa.AgentServerRegisterCustomAction("EssenceFilterAfterBattleSkillDecisionAction", &EssenceFilterAfterBattleSkillDecisionAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterAfterBattleTierGateAction", &EssenceFilterAfterBattleTierGateAction{})
 	maa.AgentServerRegisterCustomRecognition("EssenceFilterAfterBattleNthRecognition", &EssenceFilterAfterBattleNthRecognition{})
 }

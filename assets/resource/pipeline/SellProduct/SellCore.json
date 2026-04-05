@@ -1,6 +1,6 @@
 {
-    "SellProductAtSell": {
-        "desc": "开始售卖货品",
+    "SellProductSellLoop": {
+        "desc": "售卖循环，按优先级依次换货并尝试售卖",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -9,30 +9,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductChangeGoodsAtBeginning",
-            "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
+            "[Anchor]SellProductSellAttempt1",
+            "[Anchor]SellProductSellAttempt2",
+            "[Anchor]SellProductSellAttempt3",
+            "[Anchor]SellProductSellAttempt4",
+            "SellProductSellLoopEnd"
+        ]
+    },
+    "SellProductAtSell": {
+        "desc": "货品已换好，检查货物库存并尝试售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
             "SellProductClickBarRight",
             "SellProductDragBar"
-        ]
-    },
-    "SellProductChangeGoodsAtBeginning": {
-        "desc": "在售卖开始时更换货品。这是为了确保货物按优先级售卖。",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        // 仅在售卖流程开始时尝试更换一次货品
-        "anchor": {
-            "SellProductChangeGoodsAtBeginning": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductChangeGoodsAtBeginningAction"
         ]
     },
     "SellProductZeroProductColorMatch": {
@@ -110,7 +108,7 @@
         "rate_limit": 0
     },
     "SellProductZeroProductAfterChangeStillEmpty": {
-        "desc": "更换货品后仍无货，进入换据点流程",
+        "desc": "换货后货物仍不足，尝试下一次售卖配置",
         "recognition": "And",
         "all_of": [
             "SellProductZeroProduct"
@@ -118,6 +116,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
         }
@@ -192,13 +193,14 @@
             "SellProduct/SellProductBarRight.png"
         ],
         "method": 10001,
+        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "target_offset": [
-            40,
-            21,
-            -30,
-            -43
+            7,
+            16,
+            -21,
+            -32
         ],
         // 单击后需要等待一会儿再交易
         "post_wait_freezes": 80,
@@ -295,5 +297,11 @@
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
+    },
+    "SellProductSellLoopEnd": {
+        "desc": "售卖循环结束，所有售卖尝试完成",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

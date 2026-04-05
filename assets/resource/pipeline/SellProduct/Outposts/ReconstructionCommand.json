@@ -1,0 +1,307 @@
+{
+    // ===== 售卖点顶层节点 =====
+    "SellProductReconstructionCommand": {
+        "desc": "重建指挥部售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSell",
+            "[JumpBack]SellProductGoToReconstructionCommand"
+        ]
+    },
+    // ===== 售卖锚点节点 =====
+    "SellProductReconstructionCommandSell": {
+        "desc": "重建指挥部售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
+            "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
+            "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
+            "SellProductSellAttempt4": "SellProductReconstructionCommandSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    // ===== 在指定据点的识别节点 =====
+    "SellProductInReconstructionCommand": {
+        "desc": "在重建指挥部",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandText",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 前往据点导航节点 =====
+    "SellProductGoToReconstructionCommand": {
+        "desc": "前往重建指挥部据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInReconstructionCommand"
+        ]
+    },
+    // ===== 标签页文本检查（小文本） =====
+    "SellProductCheckReconstructionCommandTabText": {
+        "desc": "检查重建指挥部文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "(?i)Reconstruction\\s*HQ",
+            "再建管理本部",
+            "Reconstruction Hc"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 据点内大字文本检查 =====
+    "SellProductCheckReconstructionCommandText": {
+        "desc": "检查重建指挥部大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "(?i)Reconstruction\\s*HQ",
+            "再建管理本部",
+            "Reconstruction Hc"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 售卖尝试 1 =====
+    "SellProductReconstructionCommandSellAttempt1": {
+        "desc": "重建指挥部第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 2 =====
+    "SellProductReconstructionCommandSellAttempt2": {
+        "desc": "重建指挥部第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 3 =====
+    "SellProductReconstructionCommandSellAttempt3": {
+        "desc": "重建指挥部第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 4 =====
+    "SellProductReconstructionCommandSellAttempt4": {
+        "desc": "重建指挥部第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 优先物品 1 =====
+    "SellProductReconstructionCommandSelectItem1": {
+        "desc": "重建指挥部售卖优先物品1",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 2 =====
+    "SellProductReconstructionCommandSelectItem2": {
+        "desc": "重建指挥部售卖优先物品2",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 3 =====
+    "SellProductReconstructionCommandSelectItem3": {
+        "desc": "重建指挥部售卖优先物品3",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 4 =====
+    "SellProductReconstructionCommandSelectItem4": {
+        "desc": "重建指挥部售卖优先物品4",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    }
+}

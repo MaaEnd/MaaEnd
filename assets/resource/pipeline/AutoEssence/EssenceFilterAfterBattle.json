@@ -94,8 +94,9 @@
             "discard_unmatched": false,
             //是否输出基质规划（这个分支任务暂时用不了）
             "export_calculator_script": false,
-            //是否跳过上锁基质（这个分支任务暂时用不了）
-            "skip_locked_row": false
+            //是否跳过缩略图锁定/废弃标记（战利品分支暂不按行收集；与库存 attach 字段一致）
+            "skip_thumb_lock": false,
+            "skip_thumb_discard": false
         }
     },
     //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上

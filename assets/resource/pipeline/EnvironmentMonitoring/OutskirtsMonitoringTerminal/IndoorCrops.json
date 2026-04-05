@@ -209,7 +209,7 @@
         ]
     },
     "GoToIndoorCropsNotAtStartPos": {
-        "desc": "不在室内作物任务开始位置附近",
+        "desc": "不在室内作物任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToIndoorCropsRecheckStartPos",
+            "GoToIndoorCropsReEnterMap"
+        ]
+    },
+    "GoToIndoorCropsRecheckStartPos": {
+        "desc": "传送后再次检查是否已在室内作物任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        240,
+                        695,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToIndoorCropsMapTrackerMove"
         ]
+    },
+    "GoToIndoorCropsReEnterMap": {
+        "desc": "传送后仍未到达室内作物任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity4"
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsFinalCheckStartPos",
+            "GoToIndoorCropsStartPosFailed"
+        ]
+    },
+    "GoToIndoorCropsFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在室内作物任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        240,
+                        695,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsStartPosFailed": {
+        "desc": "室内作物传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToIndoorCropsMapTrackerMove": {
         "desc": "前往室内作物",

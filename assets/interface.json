@@ -1,8 +1,8 @@
 {
     "interface_version": 2,
     "name": "MaaEnd",
-    "description": "MaaEnd 终末地小助手，绝赞开发中！",
-    "version": "v114514.0.0",
+    "description": "$description.file",
+    "version": "v0.1.0",
     "contact": "$contact.file",
     "license": "locales/LICENSE_SHORT.md",
     "welcome": "README.md",

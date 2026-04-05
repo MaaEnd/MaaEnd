@@ -14,8 +14,6 @@ import (
 
 var stockBillRe = regexp.MustCompile(`(\d+\.?\d*)万?/`)
 
-const stockBillNodeName = "AutoStockpileGetStockBill"
-
 type quantityUpperBound struct {
 	MaxBuy            int
 	CappedQuantity    int
@@ -103,7 +101,7 @@ func runStockBillOCR(ctx *maa.Context, img image.Image) (int, bool) {
 		return 0, false
 	}
 
-	texts := extractOCRTexts(detail)
+	texts := ocrTextCandidates(detail, ocrTextPolicyBestOnly)
 	amount, ok := parseStockBillAmount(texts)
 	if !ok {
 		log.Warn().

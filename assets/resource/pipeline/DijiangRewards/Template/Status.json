@@ -149,8 +149,8 @@
                 "method": 40,
                 "lower": [
                     [
-                        39,
-                        255,
+                        35,
+                        150,
                         100
                     ],
                     [
@@ -161,7 +161,7 @@
                 ],
                 "upper": [
                     [
-                        39,
+                        42,
                         255,
                         200
                     ],
@@ -249,8 +249,19 @@
             }
         }
     },
-    "GrowthChamberCheckTargetEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
+    "GrowthChamberCheckTargetNotEmpty": {
+        "desc": "[培养舱·培养] 检查当前培养对象基核数量和本体数量是否足够",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GrowthChamberCheckSeedNotEmpty",
+                    "GrowthChamberCheckPlantNotEmpty"
+                ]
+            }
+        }
+    },
+    "GrowthChamberCheckSeedNotEmpty": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -263,6 +274,29 @@
                 ],
                 "expected": [
                     "^[^0].*$"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GrowthChamberCheckPlantNotEmpty": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrowthChamberSelectTarget",
+                "roi_offset": [
+                    -69,
+                    43,
+                    28,
+                    2
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "^拥有\\s*[1-9]\\d*$",
+                    "^持有\\s*[1-9]\\d*$",
+                    "(?i)^Owned\\s*[1-9]\\d*$",
+                    "^総在庫\\s*[1-9]\\d*$"
                 ],
                 "only_rec": true,
                 "order_by": "Vertical"

@@ -19,16 +19,45 @@
                 ]
             }
         ],
+        "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[JumpBack]ProtocolSpaceTeamChoose",
             "ProtocolSpacePopupSanityLow",
-            "ProtocolSpaceEnterSpaceConfirm"
+            "ProtocolSpaceEnterSpacePrepareSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
         }
+    },
+    "ProtocolSpaceEnterSpacePrepareSuccess": {
+        "desc": "进入协议空间准备界面成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]ProtocolSpaceTeamChoose",
+            "ProtocolSpaceEnterSpaceConfirm"
+        ]
     },
     "ProtocolSpaceTeamChooseTextRecognition": {
         "desc": "识别协议空间队伍",
@@ -146,15 +175,79 @@
         "all_of": [
             "ProtocolSpaceIn"
         ],
+        "pre_delay": 0,
         "post_wait_freezes": 200,
+        "post_delay": 0,
         "next": [
-            "ProtocolSpaceTouchStartTouch",
-            "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
-            "[JumpBack]ProtocolSpaceTouchStartNotFound"
+            "ProtocolSpaceEnterSpaceSprint1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入协议空间成功"
         }
+    },
+    "ProtocolSpaceEnterSpaceSprint1": {
+        "desc": "尝试第一次冲刺（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceIn"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "contact": 1,
+        "post_delay": 600,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceSprint2"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSprint2": {
+        "desc": "尝试第二次冲刺",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceIn"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "contact": 1,
+        "post_delay": 600,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceSprint3"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSprint3": {
+        "desc": "尝试第三次冲刺",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceIn"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "contact": 1,
+        "post_delay": 600,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
+            "[JumpBack]ProtocolSpaceTouchStartNotFound"
+        ]
     },
     "ProtocolSpaceTouchStartMoveToTarget": {
         "desc": "向目标移动",
@@ -169,7 +262,7 @@
                     0,
                     0
                 ],
-                "expected": 0,
+                "expected": 1,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
@@ -180,7 +273,7 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 0,
+        "post_delay": 300,
         "focus": {
             "Node.Recognition.Succeeded": "向开始点移动"
         }
@@ -250,7 +343,7 @@
                     0,
                     0
                 ],
-                "expected": 1,
+                "expected": 0,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
@@ -261,7 +354,7 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 0,
+        "post_delay": 300,
         "focus": {
             "Node.Recognition.Succeeded": "向退出点移动"
         }
@@ -342,6 +435,26 @@
             130
         ]
     },
+    "ProtocolSpaceRewardUsePermitSanityLow": {
+        "desc": "使用理智消耗许可时理智不足",
+        "recognition": "OCR",
+        "roi": [
+            680,
+            530,
+            90,
+            35
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "next": [
+            "ProtocolSpaceRewardDontUsePermit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
+        }
+    },
     "ProtocolSpaceRewardSanityLow": {
         "desc": "理智不足",
         "recognition": "OCR",
@@ -398,7 +511,7 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceRewardSanityLow",
+            "ProtocolSpaceRewardUsePermitSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {

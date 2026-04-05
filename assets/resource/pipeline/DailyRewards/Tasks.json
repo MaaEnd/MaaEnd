@@ -3,6 +3,7 @@
         "desc": "日常任务入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DailyTaskInMenu",
             "[JumpBack]SceneEnterMenuOperationalManual"
@@ -30,6 +31,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DailyTaskEnterTab"
         ]
@@ -51,10 +53,11 @@
                 ]
             }
         },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]DailyTaskClaimSingleReward",
             "[JumpBack]DailyTaskClaimActivityRewards",
@@ -96,10 +99,13 @@
                 "threshold": 0.9
             }
         ],
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "post_delay": 400, // 画面变化太小了，不适合wait_freeze
+        "rate_limit": 0
     },
     "DailyTaskClaimActivityRewards": {
         "desc": "领取活跃度奖励",
@@ -126,6 +132,7 @@
                 "count": 20
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -137,6 +144,8 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneNoticeRewardsConfirm"
         ]
@@ -182,10 +191,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    800,
-                    200,
-                    400,
-                    380
+                    330,
+                    520,
+                    500,
+                    100
                 ],
                 "expected": [
                     "今日活跃度已达上限",

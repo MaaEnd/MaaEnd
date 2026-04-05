@@ -94,6 +94,44 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "EssenceThumbLock": {
+        "desc": "检测缩略图已锁定小图标（单模板）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "template": "EssenceFilter/ThumbLock.png",
+                "method": 5,
+                "threshold": 0.65
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "EssenceThumbDiscard": {
+        "desc": "检测缩略图已废弃小图标（单模板）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "template": "EssenceFilter/ThumbDiscard.png",
+                "method": 5,
+                "threshold": 0.65
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "EssenceFilterDiscardItemLog": {
         "desc": "日志：即将废弃 Essence",
         "pre_delay": 0,

@@ -6,10 +6,11 @@
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
-                "SeizeEntrustTaskisSwipeMiddle",
                 "SeizeEntrustTaskisGoDepotNodeWorld"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -29,7 +30,7 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeEntrustTaskisWalkingToDepotNode"
+                        "SeizeEntrustTaskSelectDestination"
                     ],
                     "pipeline_override": {
                         "SeizeEntrustTaskGoDepotNode": {
@@ -65,74 +66,33 @@
                 "Win32-Front"
             ]
         },
-        "SeizeEntrustTaskisSwipeMiddle": {
-            "type": "switch",
-            "label": "$task.SeizeEntrustTaskisSwipeMiddle.label",
-            "description": "$task.SeizeEntrustTaskisSwipeMiddle.description",
+        "SeizeEntrustTaskSelectDestination": {
+            "type": "select",
+            "label": "选择要传送到的锚点",
+            "description": "",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "仓储节点上方锚点",
                     "option": [
-                        "SeizeEntrustTaskisSwipeALL"
+                        "SeizeEntrustTaskisWalkingToDepotNode"
                     ],
                     "pipeline_override": {
-                        "SeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskSwipeDown": {
-                            "enabled": false
+                        "isSeizeEntrustTaskInMap": {
+                            "next": [
+                                "isSeizeEntrustTaskInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity5"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "仓储节点左侧锚点",
                     "pipeline_override": {
-                        "SeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskSwipeDown": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeEntrustTaskisSwipeALL": {
-            "type": "switch",
-            "label": "$task.SeizeEntrustTaskisSwipeALL.label",
-            "description": "$task.SeizeEntrustTaskisSwipeALL.description",
-            "cases": [
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": true
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": false
-                        },
-                        "SeizeEntrustTaskInDownSwipeMiddle": {
-                            "enabled": true
+                        "isSeizeEntrustTaskInMap": {
+                            "next": [
+                                "isSeizeEntrustTaskInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity6"
+                            ]
                         }
                     }
                 }

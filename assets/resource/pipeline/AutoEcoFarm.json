@@ -4,8 +4,8 @@
         "next": [
             //"AutoEcoFarmExitErr",
             "_AutoEcoFarmPrepareStart",
-            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
-            "_AutoEcoFarmGotoWulinEcoFarmStart",
+            "_AutoEcoFarmInitStartValleyIV",
+            "_AutoEcoFarmInitStartWulin",
             "_AutoEcoFarmEndStart",
             "AutoEcoFarmExit"
         ]

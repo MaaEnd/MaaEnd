@@ -209,7 +209,7 @@
         ]
     },
     "GoToAncientTreeNotAtStartPos": {
-        "desc": "不在古树任务开始位置附近",
+        "desc": "不在古树任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToAncientTreeRecheckStartPos",
+            "GoToAncientTreeReEnterMap"
+        ]
+    },
+    "GoToAncientTreeRecheckStartPos": {
+        "desc": "传送后再次检查是否已在古树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToAncientTreeMapTrackerMove"
         ]
+    },
+    "GoToAncientTreeReEnterMap": {
+        "desc": "传送后仍未到达古树任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley7"
+            ]
+        },
+        "next": [
+            "GoToAncientTreeFinalCheckStartPos",
+            "GoToAncientTreeStartPosFailed"
+        ]
+    },
+    "GoToAncientTreeFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在古树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToAncientTreeMapTrackerMove"
+        ]
+    },
+    "GoToAncientTreeStartPosFailed": {
+        "desc": "古树传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToAncientTreeMapTrackerMove": {
         "desc": "前往古树",

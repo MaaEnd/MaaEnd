@@ -126,7 +126,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -167,7 +168,7 @@
                     500
                 ],
                 "expected": [
-                    "当前任务",
+                    "当期任务",
                     "當期任務",
                     "Current Mission",
                     "今期クエスト",
@@ -184,7 +185,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -242,7 +244,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -300,7 +303,8 @@
                     40
                 ],
                 "template": [
-                    "DailyRewards/ProtocolNewSwitch.png"
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
                 ],
                 "threshold": 0.9
             }
@@ -338,7 +342,7 @@
                     200
                 ],
                 "expected": [
-                    "一键领取",
+                    "键领取",
                     "快速領取",
                     "(?i)Claim\\s*All",
                     "一括受取",
@@ -393,7 +397,7 @@
                     200
                 ],
                 "expected": [
-                    "一键领取",
+                    "键领取",
                     "快速領取",
                     "(?i)Claim\\s*All",
                     "一括受取",

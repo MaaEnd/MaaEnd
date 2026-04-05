@@ -60,6 +60,8 @@
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",
+    "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",
+
     "essencefilter.no_locked": "本次未锁定任何目标基质。",
     "essencefilter.loot_summary.title": "战利品摘要：",
     "essencefilter.loot_summary.weapon_col": "武器",
@@ -118,6 +120,8 @@
     "essencefilter.focus.finish.summary": "筛选完成！共历遍物品：%d，确认锁定物品：%d",
     "essencefilter.focus.finish.ext_future": "扩展规则「未来可期」命中：%d 个",
     "essencefilter.focus.finish.ext_practical": "扩展规则「实用基质」命中：%d 个",
+    "essencefilter.focus.plan.no_feasible_location_plans": "当前没有可行地点方案，仅展示未毕业武器列表。",
+
     "tasker.process_warning.title": "⚠️ 警告：检测到黑名单进程正在运行",
     "tasker.process_warning.detected": "🔍 检测到的进程：",
     "tasker.process_warning.impact": "💡 这些进程会干扰图像识别",

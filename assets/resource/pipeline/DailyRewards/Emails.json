@@ -98,9 +98,9 @@
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 75 // K
+                "custom_action": "AutoAltClickAction"
             }
         },
         "post_wait_freezes": 400,

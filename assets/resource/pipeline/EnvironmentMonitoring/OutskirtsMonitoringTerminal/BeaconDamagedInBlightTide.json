@@ -209,7 +209,7 @@
         ]
     },
     "GoToBeaconDamagedInBlightTideNotAtStartPos": {
-        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近",
+        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToBeaconDamagedInBlightTideRecheckStartPos",
+            "GoToBeaconDamagedInBlightTideReEnterMap"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTideRecheckStartPos": {
+        "desc": "传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        640,
+                        255,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToBeaconDamagedInBlightTideMapTrackerMove"
         ]
+    },
+    "GoToBeaconDamagedInBlightTideReEnterMap": {
+        "desc": "传送后仍未到达侵蚀潮中损坏的信标任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity0"
+            ]
+        },
+        "next": [
+            "GoToBeaconDamagedInBlightTideFinalCheckStartPos",
+            "GoToBeaconDamagedInBlightTideStartPosFailed"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTideFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        640,
+                        255,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToBeaconDamagedInBlightTideMapTrackerMove"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTideStartPosFailed": {
+        "desc": "侵蚀潮中损坏的信标传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToBeaconDamagedInBlightTideMapTrackerMove": {
         "desc": "前往侵蚀潮中损坏的信标",

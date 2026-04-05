@@ -209,7 +209,7 @@
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos": {
-        "desc": "不在储备站周围的生态环境任务开始位置附近",
+        "desc": "不在储备站周围的生态环境任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToEcologyNearTheFieldLogisticsDepotRecheckStartPos",
+            "GoToEcologyNearTheFieldLogisticsDepotReEnterMap"
+        ]
+    },
+    "GoToEcologyNearTheFieldLogisticsDepotRecheckStartPos": {
+        "desc": "传送后再次检查是否已在储备站周围的生态环境任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        689.6,
+                        917.3,
+                        6.0,
+                        5.5
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
         ]
+    },
+    "GoToEcologyNearTheFieldLogisticsDepotReEnterMap": {
+        "desc": "传送后仍未到达储备站周围的生态环境任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity8"
+            ]
+        },
+        "next": [
+            "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos",
+            "GoToEcologyNearTheFieldLogisticsDepotStartPosFailed"
+        ]
+    },
+    "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在储备站周围的生态环境任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        689.6,
+                        917.3,
+                        6.0,
+                        5.5
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
+        ]
+    },
+    "GoToEcologyNearTheFieldLogisticsDepotStartPosFailed": {
+        "desc": "储备站周围的生态环境传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove": {
         "desc": "前往储备站周围的生态环境",

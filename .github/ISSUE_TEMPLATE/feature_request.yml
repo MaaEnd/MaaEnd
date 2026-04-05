@@ -9,7 +9,20 @@ body:
       description: |
         请描述您希望添加的功能，以及使用场景。
     validations:
-      required: false
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志文件
+      description: |
+        💡 点击界面上“运行日志”右上角的 🗄️ 导出日志文件。  
+        ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip` 文件** ⚠️  
+        ❌ 不要复制文字发送。  
+        ❌ 不要截图日志。
+        提交日志可以帮助维护者判断是否是 bug 还是真正需要的新功能。
+    validations:
+      required: true
 
   - type: input
     id: version
@@ -23,6 +36,6 @@ body:
     id: additional
     attributes:
       label: 其他信息
-      description: 日志、截图等
+      description: 软件和游戏截图等
     validations:
       required: false

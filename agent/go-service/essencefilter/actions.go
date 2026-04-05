@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
+	"image"
 	"regexp"
 	"sort"
 	"strconv"
@@ -57,11 +58,22 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
+	var essenceMode EssenceMode
+	switch {
+	case opts.FlawlessEssence && opts.PureEssence:
+		essenceMode = EssenceModeBoth
+	case opts.FlawlessEssence:
+		essenceMode = EssenceModeFlawlessOnly
+	default:
+		essenceMode = EssenceModePureOnly
+	}
+
 	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
 	st.Reset()
 	st.PipelineOpts = *opts
 	st.InputLanguage = inputLocale
 	st.MatchEngine = engine
+	st.EssenceMode = essenceMode
 
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
@@ -249,6 +261,24 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 
 // --- RowCollect / RowNextItem / Finish / SwipeCalibrate（同一 case：行遍历与网格）---
 
+// rowCollectThumbHit returns thumbnail lock/discard mark for RowCollect per skip_thumb_lock / skip_thumb_discard.
+func rowCollectThumbHit(ctx *maa.Context, img image.Image, thumbROI []int, skipLock, skipDiscard bool) bool {
+	param := map[string]any{"roi": thumbROI}
+	switch {
+	case skipLock && skipDiscard:
+		d, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{"EssenceThumbMarked": param})
+		return err == nil && d != nil && d.Hit
+	case skipLock:
+		d, err := ctx.RunRecognition("EssenceThumbLock", img, map[string]any{"EssenceThumbLock": param})
+		return err == nil && d != nil && d.Hit
+	case skipDiscard:
+		d, err := ctx.RunRecognition("EssenceThumbDiscard", img, map[string]any{"EssenceThumbDiscard": param})
+		return err == nil && d != nil && d.Hit
+	default:
+		return false
+	}
+}
+
 // EssenceFilterRowCollectAction - collect boxes in a row (TemplateMatch + ColorMatch), then RowNextItem
 type EssenceFilterRowCollectAction struct{}
 
@@ -279,7 +309,10 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	st.RowBoxes = st.RowBoxes[:0]
 	st.PhysicalItemCount = len(results)
 
-	skipMarked := st.PipelineOpts.SkipLockedRow
+	skipLock := st.PipelineOpts.SkipThumbLock
+	skipDiscard := st.PipelineOpts.SkipThumbDiscard
+	anyThumbSkip := skipLock || skipDiscard
+	boundaryHit := false
 
 	for _, res := range results {
 		tm, ok := res.AsTemplateMatch()
@@ -298,7 +331,6 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		colorMatched := false
 		for _, et := range st.EssenceTypes {
 			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
-				// 直接传递 roi 切片
 				"EssenceColorMatch": map[string]any{"roi": roi, "lower": et.Range.Lower, "upper": et.Range.Upper},
 			})
 			if err != nil {
@@ -310,9 +342,24 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			}
 		}
 
+		// Flawless-only boundary: if box didn't match flawless, probe pure in the same pass.
+		// First pure hit means we've reached the tier boundary (inventory is sorted flawless-first).
+		if !colorMatched && !boundaryHit && st.EssenceMode == EssenceModeFlawlessOnly {
+			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
+				"EssenceColorMatch": map[string]any{
+					"roi":   roi,
+					"lower": PureEssenceMeta.Range.Lower,
+					"upper": PureEssenceMeta.Range.Upper,
+				},
+			})
+			if err == nil && cDetail != nil && cDetail.Hit {
+				boundaryHit = true
+			}
+		}
+
 		if colorMatched {
 			isMarked := false
-			if skipMarked {
+			if anyThumbSkip {
 				margin := 10
 				bx1, by1 := boxArr[0]-margin, boxArr[1]-margin
 				if bx1 < 0 {
@@ -328,14 +375,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 				roiW := int(float64(bw) * 0.30)
 				roiH := int(float64(bh) * 0.35)
 
-				thumbDetail, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{
-					"EssenceThumbMarked": map[string]any{
-						"roi": []int{roiX, roiY, roiW, roiH},
-					},
-				})
-				if err == nil && thumbDetail != nil && thumbDetail.Hit {
-					isMarked = true
-				}
+				isMarked = rowCollectThumbHit(ctx, img, []int{roiX, roiY, roiW, roiH}, skipLock, skipDiscard)
 			}
 
 			if !isMarked {
@@ -353,7 +393,20 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").Int("len_results", len(results)).Int("valid_boxes", len(st.RowBoxes)).Msg("color match done")
 
-	if skipMarked && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
+	if boundaryHit {
+		st.EncounteredTierBoundary = true
+		log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").
+			Msg("flawless-only: pure essence detected, tier boundary reached")
+		if len(st.RowBoxes) == 0 {
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
+			return true
+		}
+		st.RowIndex = 0
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+		return true
+	}
+
+	if anyThumbSkip && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
 		reportColoredByKey(ctx, st, "#11cf00", "focus.row.all_marked", st.CurrentRow)
 	}
 
@@ -395,6 +448,12 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		return true
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
+		if st.EncounteredTierBoundary {
+			log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").
+				Msg("tier boundary: skipping remaining rows and tail-scan")
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
+			return true
+		}
 		if (st.PhysicalItemCount == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
 			rowsDone := st.CurrentRow
 			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
@@ -457,7 +516,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 const firstRowTargetY = 86       //首行Y
 const calibrateTolerance = 8     //校准误差
 const calibrateScrollRatio = 1.1 //校准滑动比例
-const calibrateSwipeMin = 8      //校准滑动最小值
+const calibrateSwipeMin = 13     //校准滑动最小值（13px）
 const calibrateSwipeMax = 40     //校准滑动最大值
 
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY

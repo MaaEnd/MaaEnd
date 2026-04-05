@@ -40,7 +40,6 @@
             "協約空間"
         ],
         "action": "Click",
-        "post_wait_freezes": 200,
         "next": [
             "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
         ]
@@ -59,12 +58,13 @@
             "員養成",
             "Operator Progression"
         ],
+        "pre_wait_freezes": 200,
         "action": "Click",
         "anchor": {
             "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
             "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 400,
         "next": [
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
@@ -76,11 +76,11 @@
         "desc": "滚动右侧模拟空间列表",
         "action": "Swipe",
         "begin": [
-            850,
+            950,
             500
         ],
         "end": [
-            850,
+            950,
             280
         ],
         "end_hold": 200
@@ -136,8 +136,8 @@
             0
         ],
         "expected": [
-            "前往",
-            "Go"
+            "查看",
+            "View"
         ]
     },
     "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable": {

@@ -209,7 +209,7 @@
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastNotAtStartPos": {
-        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
+        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos",
+            "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap"
+        ]
+    },
+    "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos": {
+        "desc": "传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
         ]
+    },
+    "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap": {
+        "desc": "传送后仍未到达肚子鼓气后发光的吐虫长股兽任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley7"
+            ]
+        },
+        "next": [
+            "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos",
+            "GoToInflatedAndGlowingBugspittingLankybeastStartPosFailed"
+        ]
+    },
+    "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
+        ]
+    },
+    "GoToInflatedAndGlowingBugspittingLankybeastStartPosFailed": {
+        "desc": "肚子鼓气后发光的吐虫长股兽传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove": {
         "desc": "前往肚子鼓气后发光的吐虫长股兽",

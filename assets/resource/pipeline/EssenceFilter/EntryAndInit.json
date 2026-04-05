@@ -95,5 +95,23 @@
         "focus": {
             "Node.Action.Succeeded": "任务完成"
         }
+    },
+    "EssenceFilterTierBoundaryFlawlessNotice": {
+        "desc": "仅选无暇：检测到高纯基质，提示后结束",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.EssenceFilter.focus.tier_boundary_flawless"
+        }
     }
 }

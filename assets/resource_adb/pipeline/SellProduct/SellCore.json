@@ -14,13 +14,5 @@
             109,
             26
         ]
-    },
-    "SellProductClickBarRight": {
-        "target_offset": [
-            7,
-            8,
-            -19,
-            -15
-        ]
     }
 }

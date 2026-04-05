@@ -40,7 +40,6 @@
                 "template": [
                     "Common/Button/LevelUpButton.png"
                 ],
-                "method": 10001,
                 "threshold": 0.9
             }
         },
@@ -62,7 +61,6 @@
                 "template": [
                     "Common/Button/LevelUpButtonHover.png"
                 ],
-                "method": 10001,
                 "threshold": 0.9
             }
         },

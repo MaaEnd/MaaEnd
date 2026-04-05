@@ -1,0 +1,21 @@
+//引用节点：MapTracker、万能跳转
+//
+//节点从Start进入，开始前必须要在地图界面
+//节点从Exit离开，这里关联下一个阶段的节点
+{
+    //通用出入口
+    "_AutoEcoFarmGotoEcoFarmStart": {
+        "desc": "这块代码是用来前往农场的",
+        "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+            "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmAnchor",
+            "_AutoEcoFarmGotoEcoFarmExit"
+        ]
+    },
+    "_AutoEcoFarmGotoEcoFarmExit": {
+        "next": [
+            //到目的地后开始识别农田并靠近
+            "_AutoEcoFarmFindFarmlandStart"
+        ]
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "MouseMoveResetExampleNode1": {
+        "desc": "执行第一个node",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "MouseMoveResetExampleNode2"
+        ]
+    },
+    "MouseMoveResetExampleNode2": {
+        "desc": "执行第二个node",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "MouseMoveResetExampleFinish"
+        ]
+    },
+    "MouseMoveResetExampleFinish": {
+        "desc": "执行结束"
+    }
+}

@@ -26,6 +26,11 @@ jobs:
       contents: read
       issues: write
     steps:
+      - name: Install DMP analysis tools
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall -y minidump-stackwalk dump_syms
+
       # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
       # 详细使用文档：https://github.com/MistEO/ai-issue-analysis
       # 最佳实践参考：

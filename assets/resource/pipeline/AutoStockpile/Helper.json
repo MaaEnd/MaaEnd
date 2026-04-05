@@ -82,9 +82,8 @@
                     20
                 ],
                 "expected": [
-                    ".*"
+                    "\\d"
                 ],
-                "only_rec": true,
                 "color_filter": "AutoStockpileGetQuotaAdditionFilter"
             }
         },
@@ -156,9 +155,8 @@
                     20
                 ],
                 "expected": [
-                    ".*"
+                    "\\d"
                 ],
-                "only_rec": true,
                 "color_filter": "AutoStockpileGetQuotaFilter"
             }
         },
@@ -201,9 +199,8 @@
                     25
                 ],
                 "expected": [
-                    ".*"
-                ],
-                "only_rec": true
+                    "\\d"
+                ]
             }
         },
         "pre_delay": 0,

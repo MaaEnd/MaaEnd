@@ -1,5 +1,5 @@
-- User Group: 755643532
-- Developer Group: 1072587329 (Development group, welcome to join and contribute, but user issues are not handled here)
+- User Group: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)
+- Developer Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Development group, welcome to join and contribute, but user issues are not handled here)
 - Website: [maaend.com](https://maaend.com)
 - Source Code: [GitHub](https://github.com/MaaEnd/MaaEnd)
-- Issue Reports: [issue](https://github.com/MaaEnd/MaaEnd/issues)
+- Issue Reports: [GitHub Issue](https://github.com/MaaEnd/MaaEnd/issues)

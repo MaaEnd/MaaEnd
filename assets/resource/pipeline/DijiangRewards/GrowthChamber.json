@@ -106,7 +106,13 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
+            "target": [
+                207,
+                28,
+                869,
+                452
+            ],
             "timeout": 1000
         },
         "pre_delay": 0,
@@ -123,13 +129,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    484,
-                    213,
-                    726,
-                    283
+                    459,
+                    277,
+                    770,
+                    434
                 ],
                 "expected": [
-                    "再次种植"
+                    "再次培养"
                 ]
             }
         },
@@ -239,10 +245,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    80,
-                    200,
-                    301,
-                    383
+                    91,
+                    218,
+                    289,
+                    265
                 ],
                 "expected": [
                     // @i18n-skip
@@ -274,7 +280,7 @@
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckTargetEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
+                    "GrowthChamberCheckTargetNotEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
                 ],
                 "box_index": 1
             }
@@ -289,8 +295,55 @@
             "[JumpBack]GrowthChamberGrowConfirm",
             "GrowthChamberSeedExtract",
             "GrowthChamberGrowExit",
+            "GrowthChamberReturn",
+            "GrowthChamberGrowListEnd"
+        ]
+    },
+    "GrowthChamberGrowListEnd": {
+        "desc": "翻到种植列表最末尾",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberScrollEnd",
+                    "GrowthChamberBackButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "GrowthChamberReturn"
         ]
+    },
+    "GrowthChamberScrollEnd": {
+        "desc": "[培养舱·培养] 在选择对象界面已经滑动到最底部",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    377,
+                    549,
+                    30,
+                    24
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    1,
+                    175
+                ],
+                "upper": [
+                    0,
+                    3,
+                    201
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
     },
     "GrowthChamberGrowConfirm": {
         "desc": "[培养舱·培养] 点击确认开始培养",
@@ -332,6 +385,15 @@
             }
         },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                64,
+                122,
+                407,
+                486
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -349,7 +411,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GrowthChamberBackToMain"
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberSeedExtract": {
@@ -368,7 +430,32 @@
         },
         "next": [
             "GrowthChamberSeedExtractConfirm",
-            "GrowthChamberNoMaterials"
+            "GrowthChamberNoMaterials",
+            "GrowthChamberReturnGrowView"
+        ]
+    },
+    "GrowthChamberReturnGrowView": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "培养",
+                    "培養",
+                    "(?i)Grow"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberSeedExtractConfirm": {
@@ -441,7 +528,7 @@
         ]
     },
     "GrowthChamberNoMaterials": {
-        "desc": "[培养舱·基核] 原料不足时停止任务",
+        "desc": "[培养舱·基核] 原料不足时返回目标列表并重新查找候选",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -462,35 +549,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GrowthChamberBackExtract"
-        ]
-    },
-    "GrowthChamberBackExtract": {
-        "desc": "[培养舱·基核] 在提取界面点击返回按钮",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GrowthChamberBackButton"
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "timeout": 1000,
-            "target": true
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GrowthChamberBackToMain"
+            "GrowthChamberGrowBack"
         ]
     },
     "GrowthChamberBackToMain": {
@@ -519,7 +578,6 @@
     },
     "GrowthChamberTargetNotFound": {
         "desc": "[培养舱·培养] 在选择对象界面滑动查找目标",
-        "max_hit": 12,
         "recognition": {
             "type": "And",
             "param": {

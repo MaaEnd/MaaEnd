@@ -1,0 +1,236 @@
+{
+    "__SceneCheckYellowColor": {
+        "desc": "检查颜色准确性:黄色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckYellowColorSuccess",
+            "__SceneCheckYellowColorFailed",
+            "EmptyNode"
+        ]
+    },
+    "__SceneCheckYellowColorSuccess": {
+        "desc": "检查颜色准确性:黄色 成功",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    480,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    30,
+                    255,
+                    1
+                ],
+                "upper": [
+                    30,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckYellowColorFailed": {
+        "desc": "检查颜色准确性:黄色 失败",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/LoadingIcon.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckColorFailedScreenShot"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
+        }
+    },
+    "__SceneCheckTealColor": {
+        "desc": "检查颜色准确性:青色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckTealColorSuccess",
+            "__SceneCheckTealColorFailed",
+            "EmptyNode"
+        ]
+    },
+    "__SceneCheckTealColorSuccess": {
+        "desc": "检查颜色准确性:青色 成功",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    518,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    90,
+                    255,
+                    1
+                ],
+                "upper": [
+                    90,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckTealColorFailed": {
+        "desc": "检查颜色准确性:青色 失败",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/LoadingIcon.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckColorFailedScreenShot"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
+        }
+    },
+    "__SceneCheckPurpleColor": {
+        "desc": "检查颜色准确性:紫色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckPurpleColorSuccess",
+            "__SceneCheckPurpleColorFailed",
+            "EmptyNode"
+        ]
+    },
+    "__SceneCheckPurpleColorSuccess": {
+        "desc": "检查颜色准确性:紫色 成功",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    553,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    150,
+                    255,
+                    1
+                ],
+                "upper": [
+                    150,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckPurpleColorFailed": {
+        "desc": "检查颜色准确性:紫色 失败",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/LoadingIcon.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckColorFailedScreenShot"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
+        }
+    },
+    "__SceneCheckColorFailedScreenShot": {
+        "desc": "检查颜色准确性失败时，截图保存到 debug 目录",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Screencap"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckOSD": {
+        "desc": "检查窗口是否有遮挡",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckOSDFailed",
+            "EmptyNode"
+        ]
+    },
+    "__SceneCheckOSDFailed": {
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            30
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请尝试关闭帧率显示</span>"
+        }
+    }
+}

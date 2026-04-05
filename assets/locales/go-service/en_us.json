@@ -67,6 +67,7 @@
 
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
+    "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
 
     "essencefilter.no_locked": "No target essences locked this run.",
     "essencefilter.loot_summary.title": "Loot Summary:",
@@ -126,6 +127,7 @@
     "essencefilter.focus.finish.summary": "Filtering complete! Visited: %d, locked: %d.",
     "essencefilter.focus.finish.ext_future": "Extension rule \"Future-promising\" hits: %d",
     "essencefilter.focus.finish.ext_practical": "Extension rule \"Practical\" hits: %d",
+    "essencefilter.focus.plan.no_feasible_location_plans": "No feasible location plans found. Showing only the ungraduated weapon list.",
 
     "tasker.process_warning.title": "⚠️ Warning: Blacklisted process detected",
     "tasker.process_warning.detected": "🔍 Detected: ",

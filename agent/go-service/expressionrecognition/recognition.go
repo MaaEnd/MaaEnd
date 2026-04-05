@@ -68,13 +68,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	log.Info().
-		Str("component", "ExpressionRecognition").
-		Str("expression", params.Expression).
-		Str("resolved_expression", resolvedExpression).
-		Interface("values", values).
-		Bool("matched", matched).
-		Msg("expression evaluated")
+	logEvaluationResult(params.Expression, resolvedExpression, values, matched)
 
 	if !matched {
 		return nil, false
@@ -91,6 +85,16 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Box:    arg.Roi,
 		Detail: string(detailJSON),
 	}, true
+}
+
+func logEvaluationResult(expression string, resolvedExpression string, values map[string]int, matched bool) {
+	log.Info().
+		Str("component", "ExpressionRecognition").
+		Str("expression", expression).
+		Str("resolved_expression", resolvedExpression).
+		Interface("values", values).
+		Bool("matched", matched).
+		Msg("expression evaluated")
 }
 
 func parseParams(raw string) (*Params, error) {
