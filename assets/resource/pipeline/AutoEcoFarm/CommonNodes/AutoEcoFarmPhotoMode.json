@@ -1,4 +1,23 @@
 {
+    "AutoEcoFarmEnterCameraModeFailKeyUp": {
+        "desc": "进入拍照模式失败时松开R，避免长按占用，并退出拍照子流程",
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                1065,
+                551,
+                62,
+                51
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
     "AutoEcoFarmEnterCameraModeKeyDownR": {
         "desc": "通过长按R进入拍照模式",
         "recognition": "And",
@@ -8,7 +27,7 @@
         "action": "KeyDown",
         "key": 82, // R 0x52
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 1065,
                 551,
@@ -20,7 +39,7 @@
             "AutoEcoFarmEnterCameraModeChooseCamera"
         ],
         "on_error": [
-            "AutoEcoFarmExitErr"
+            "AutoEcoFarmEnterCameraModeFailKeyUp"
         ]
     },
     "_AutoEcoFarmExitCameraMode": {
@@ -88,7 +107,7 @@
             "AutoEcoFarmEnterCameraModeKeyUpR"
         ],
         "on_error": [
-            "AutoEcoFarmExitErr"
+            "AutoEcoFarmEnterCameraModeFailKeyUp"
         ]
     },
     "AutoEcoFarmEnterCameraModeKeyUpR": {
@@ -99,7 +118,7 @@
             "AutoEcoFarmClickPhotoScene"
         ],
         "on_error": [
-            "AutoEcoFarmExitErr"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     ///////点击画面部分
@@ -124,7 +143,7 @@
             "_AutoEcoFarmHideFactoryFacilities"
         ],
         "on_error": [
-            "AutoEcoFarmExitErr"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "AutoEcoFarmPhotoScene": {
@@ -182,7 +201,7 @@
             "_AutoEcoFarmJumpBack"
         ],
         "on_error": [
-            "AutoEcoFarmExitErr"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmFindShowFactoryFacilities": {
