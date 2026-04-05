@@ -303,7 +303,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 548,
                 589,
