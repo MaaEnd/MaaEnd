@@ -45,7 +45,7 @@
                 "recognition": "OCR",
                 "roi": "item_text",
                 "order_by": "Vertical",
-                "rec_only": true
+                "only_rec": true
             }
         ]
     },

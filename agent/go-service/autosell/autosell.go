@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var scanedItemNameList []string
+var scannedItemNameList []string
 
 type AutoSellPriceCompareRecognition struct{}
 
@@ -88,14 +88,14 @@ func (a *AutoSellItemRecordAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 
 	switch params.RecordType {
 	case "init":
-		scanedItemNameList = []string{}
+		scannedItemNameList = []string{}
 		log.Info().Msg("Cleared scanned item name list")
 	case "record":
-		if slices.Contains(scanedItemNameList, params.ItemName) {
+		if slices.Contains(scannedItemNameList, params.ItemName) {
 			log.Info().Str("item_name", params.ItemName).Msg("Item name already recorded, skipping")
 			return true
 		}
-		scanedItemNameList = append(scanedItemNameList, params.ItemName)
+		scannedItemNameList = append(scannedItemNameList, params.ItemName)
 		log.Info().Str("item_name", params.ItemName).Msg("Recorded scanned item name")
 	}
 	return true
@@ -109,7 +109,9 @@ type scanItem struct {
 type AutoSellStockRedistributionOpenItemTextRecognition struct{}
 
 func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
 	detail, recoErr := ctx.RunRecognition("AutoSellStockRedistributionOpenItemText", arg.Img)
 	if recoErr != nil || detail == nil {
 		log.Error().Err(recoErr).Msg("Failed to run AutoSellStockRedistributionOpenItemText")
@@ -130,14 +132,14 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 	}
 	// Results.Best是空，暂时只能这样获取
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Msg("Failed to parse DetailJson from AutoSellFriendsPriceRecognition")
+		log.Error().Err(detailJsonErr).Msg("Failed to parse DetailJson from AutoSellStockRedistributionOpenItemTextRecognition")
 		return nil, false
 	}
 
 	var resultItem scanItem
 
 	for _, item := range detailJson.Filtered {
-		if slices.Contains(scanedItemNameList, item.Text) {
+		if slices.Contains(scannedItemNameList, item.Text) {
 			log.Info().Str("item_name", item.Text).Msg("Item name already recorded, skipping")
 			continue
 		}
@@ -219,6 +221,11 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
 	}
 
+	if len(resultItem.Box) != 4 {
+		log.Error().Msg("Invalid bounding box in recognition result")
+		return false
+	}
+
 	override := map[string]any{
 		"AutoSellStockRedistributionItemOpen": map[string]any{
 			"target": maa.Rect{
@@ -254,3 +261,11 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 	}
 	return true
 }
+
+// Compile-time interface checks
+var (
+	_ maa.CustomRecognitionRunner = (*AutoSellPriceCompareRecognition)(nil)
+	_ maa.CustomActionRunner      = (*AutoSellItemRecordAction)(nil)
+	_ maa.CustomRecognitionRunner = (*AutoSellStockRedistributionOpenItemTextRecognition)(nil)
+	_ maa.CustomActionRunner      = (*AutoSellStockRedistributionOpenItemTextAction)(nil)
+)
