@@ -19,6 +19,7 @@
 
     "autosell.price_compare_ok": "인식 가격: %d, 최저 가격: %d, 조건 충족",
     "autosell.price_compare_fail": "인식 가격: %d, 최저 가격: %d, 조건 불충족",
+    "autosell.check_item_price": "%s 물자 가격 확인 중",
 
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",

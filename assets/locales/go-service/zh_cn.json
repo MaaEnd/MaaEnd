@@ -19,6 +19,7 @@
 
     "autosell.price_compare_ok": "识别价格: %d,最低价格: %d，符合条件",
     "autosell.price_compare_fail": "识别价格: %d,最低价格: %d，不符合条件",
+    "autosell.check_item_price": "检查物资 %s 价格",
 
     "autostockpile.recognition_done": "识别完成，共识别到 %d 个商品",
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",

@@ -200,6 +200,7 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 		},
 	}
 
+	maafocus.Print(ctx, i18n.T("autosell.check_item_price", resultItem.Text))
 	_, err := ctx.RunTask("AutoSellStockRedistributionItemOpen", override)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run AutoSellStockRedistributionItemOpen")

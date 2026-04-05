@@ -88,7 +88,7 @@
         "recognition": "Custom",
         "custom_recognition": "AutoSellPriceCompareRecognition",
         "custom_recognition_param": {
-            "lowest_price": 6000
+            "lowest_price": 4500
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -206,7 +206,7 @@
         ]
     },
     "AutoSellFriendsPricesExpectedBuyClick": {
-        "desc": "点击购买",
+        "desc": "点击售卖",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2"
@@ -218,7 +218,10 @@
         "action": "Click",
         "next": [
             "AutoSellFriendsPricesExpectedBuyRecord"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "售卖成功"
+        }
     },
     "AutoSellFriendsPricesExpectedBuyRecord": {
         "desc": "记录已经购买的物品",

@@ -19,6 +19,7 @@
 
     "autosell.price_compare_ok": "Recognized price: %d, Minimum price: %d, meets condition",
     "autosell.price_compare_fail": "Recognized price: %d, Minimum price: %d, does not meet condition",
+    "autosell.check_item_price": "Checking price for %s",
 
     "autostockpile.recognition_done": "Recognition complete, %d items found",
     "autostockpile.no_qualifying_product": "No qualifying items found (%s)",

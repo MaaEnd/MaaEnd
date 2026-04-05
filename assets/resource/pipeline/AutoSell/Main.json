@@ -133,14 +133,17 @@
                     133.36
                 ],
                 [
-                    186.65,
-                    128.72
+                    187.65,
+                    129.72
                 ]
             ]
         },
         "next": [
             "AutoSellEnterStockRedistribution"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "正在走向物资调度终端"
+        }
     },
     "AutoSellEnterStockRedistribution": {
         "desc": "进入物资调度页面",
@@ -266,7 +269,10 @@
         },
         "next": [
             "AutoSellEnterStockRedistributionSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "四号谷地物资检查完毕，前往武陵物资检查"
+        }
     },
     "AutoSellEnterStockRedistributionOpenItemWulingFinish": {
         "desc": "当前武陵物资调度界面item打开完成，任务结束",
@@ -286,6 +292,9 @@
         "rate_limit": 0,
         "anchor": {
             "AutoSellEnterStockRedistributionAreaSwitchAnchor": ""
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "武陵物资检查完毕，任务结束"
         }
     },
     "AutoSellFinish": {

@@ -19,6 +19,7 @@
 
     "autosell.price_compare_ok": "認識価格: %d、最低価格: %d、条件を満たします",
     "autosell.price_compare_fail": "認識価格: %d、最低価格: %d、条件を満たしません",
+    "autosell.check_item_price": "物資 %s の価格を確認中",
 
     "autostockpile.recognition_done": "認識完了。商品を%d件検出しました",
     "autostockpile.no_qualifying_product": "条件を満たす商品がありません (%s)",
