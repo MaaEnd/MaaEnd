@@ -1,6 +1,8 @@
 # 开发手册 - 信用点商店维护文档
 
-本文用于说明 `CreditShopping`（信用点商店）的整体结构、购买优先级、获取信用点联动、刷新策略，以及 `assets/tasks/CreditShopping.json` 中各个 `interface` 选项如何覆盖 Pipeline 行为，便于后续维护与扩展。
+本文用于说明 `CreditShopping`（信用点商店）的整体结构、购买优先级、获取信用点联动、刷新策略，以及 `assets/tasks/CreditShopping.json` 中各个 `interface` 选项如何覆盖 Pipeline 行为，便于后续维护与扩展。  
+该文档撰写与2026年4月5日  
+[fix:修复基建|信用点商店bug (#1868)](https://github.com/MaaEnd/MaaEnd/commit/1687671cb0dd87b737d24d52b8331f23f0e92a5c) 提交之后
 
 ## 文件概览
 
