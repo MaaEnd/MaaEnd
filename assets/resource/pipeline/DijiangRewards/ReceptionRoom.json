@@ -32,6 +32,54 @@
     "ReceptionRoomClueExchangeWait": {
         "desc": "等待情报交流结束",
         "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "ReceptionRoomExchangeEnd1",
+                    "ReceptionRoomExchangeEnd2"
+                ]
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomClueExchangeConfirm"
+        ]
+    },
+    "ReceptionRoomExchangeEnd2": {
+        "desc": "[会客室·线索] 识别到信用点增加",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    961,
+                    0,
+                    319,
+                    92
+                ],
+                "lower": [
+                    32,
+                    190,
+                    160
+                ],
+                "upper": [
+                    32,
+                    210,
+                    250
+                ],
+                "method": 40,
+                "count": 10
+            }
+        }
+    },
+    "ReceptionRoomExchangeEnd1": {
+        "desc": "[会客室·线索] 识别到情报交流结束的弹窗",
+        "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
@@ -48,14 +96,7 @@
                     "정보 교류 종료"
                 ]
             }
-        },
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomClueExchangeConfirm"
-        ]
+        }
     },
     "ReceptionRoomClueExchangeConfirm": {
         "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
@@ -93,7 +134,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
@@ -101,7 +142,7 @@
                 100
             ]
         },
-        "pre_delay": 3000, // 等待可能出现的情报交流结束弹窗
+        //"pre_delay": 3000, // 等待可能出现的情报交流结束弹窗
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
