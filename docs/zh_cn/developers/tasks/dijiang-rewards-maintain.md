@@ -355,7 +355,7 @@
 | --- | --- | --- | --- |
 | `ClueSetting=Yes` | 无直接 Pipeline 覆盖 | 展开 `ClueSend`、`ClueStockLimit` | 允许用户自定义赠送策略 |
 | `ClueSetting=No` | `ReceptionRoomSendCluesSelectClues` | `max_hit=3` | 默认最多赠送 3 次，限制单次任务的赠送规模 |
-| `ClueSetting=No` | `ClueItemCount` | `expected=^(?:[3-9]&#124;[1-9]\\d+)$` | 默认单种线索库存大于等于 3 才赠送，也就是“每种保留 2 个” |
+| `ClueSetting=No` | `ClueItemCount` | `expected=^(?:[3-9]\|[1-9]\\d+)$` | 默认单种线索库存大于等于 3 才赠送，也就是“每种保留 2 个” |
 | `ClueSend` | `ReceptionRoomSendCluesSelectClues` | `max_hit={MaxClueSend}` | 把“最多赠送几次”直接映射到节点命中次数 |
 | `ClueStockLimit=1/2` | `ClueItemCount` | 改 OCR 正则阈值 | 把“库存上限”落实到赠送目标筛选条件 |
 

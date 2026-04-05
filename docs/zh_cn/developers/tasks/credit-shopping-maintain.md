@@ -107,9 +107,9 @@
 
 实际规则如下：
 
-- `Priority1Items` 的关键词会同时写到 `BuyFirstOCR` 和 `BuyFirstOCR_CanNotAfford`
+- `CreditShoppingPriority1Items` 的关键词会同时写到 `BuyFirstOCR` 和 `BuyFirstOCR_CanNotAfford`
 - Go 会把两边 `attach` 合并去重，生成同一份白名单正则
-- `Priority2Items` 和 `Priority3Items` 则分别只改各自档位
+- `CreditShoppingPriority2Items` 和 `CreditShoppingPriority3Items` 则分别只改各自档位
 - 如果某一档没有任何勾选项，Go 会把对应 `expected` 改成 `a^`，等价于“永不匹配”
 
 这套设计的好处是：
