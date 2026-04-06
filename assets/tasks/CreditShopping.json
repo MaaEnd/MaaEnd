@@ -109,7 +109,7 @@
                     "name": "Yes",
                     "option": [
                         "CreditShoppingPriority1AutoGetCredits",
-                        "CreditShoppingPriority1CheckReserveThreshold",
+                        "CreditShoppingPriority1UnconditionalPurchase",
                         "CreditShoppingPriority1Items",
                         "CreditShoppingPriority1DiscountValue"
                     ],
@@ -191,10 +191,10 @@
                 }
             ]
         },
-        "CreditShoppingPriority1CheckReserveThreshold": {
+        "CreditShoppingPriority1UnconditionalPurchase": {
             "type": "switch",
-            "label": "$option.CreditShoppingCheckReserveThreshold.label",
-            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -724,7 +724,7 @@
                     "name": "Yes",
                     "option": [
                         "CreditShoppingPriority2AutoGetCredits",
-                        "CreditShoppingPriority2CheckReserveThreshold",
+                        "CreditShoppingPriority2UnconditionalPurchase",
                         "CreditShoppingPriority2Items",
                         "CreditShoppingPriority2DiscountValue"
                     ],
@@ -806,10 +806,10 @@
                 }
             ]
         },
-        "CreditShoppingPriority2CheckReserveThreshold": {
+        "CreditShoppingPriority2UnconditionalPurchase": {
             "type": "switch",
-            "label": "$option.CreditShoppingCheckReserveThreshold.label",
-            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
             "default_case": "No",
             "cases": [
                 {
@@ -1211,7 +1211,7 @@
                     "name": "Yes",
                     "option": [
                         "CreditShoppingPriority3AutoGetCredits",
-                        "CreditShoppingPriority3CheckReserveThreshold",
+                        "CreditShoppingPriority3UnconditionalPurchase",
                         "CreditShoppingPriority3Items",
                         "CreditShoppingPriority3DiscountValue"
                     ],
@@ -1293,10 +1293,10 @@
                 }
             ]
         },
-        "CreditShoppingPriority3CheckReserveThreshold": {
+        "CreditShoppingPriority3UnconditionalPurchase": {
             "type": "switch",
-            "label": "$option.CreditShoppingCheckReserveThreshold.label",
-            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
             "default_case": "No",
             "cases": [
                 {

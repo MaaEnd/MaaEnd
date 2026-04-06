@@ -59,7 +59,7 @@
 - 入口节点：`CreditShoppingBuyPriority1`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `BuyFirstOCR`、折扣命中 `IsDiscountPriority1`
 - 默认附带：
-    - `CreditShoppingPriority1CheckReserveThreshold=Yes`，即“无条件购买”，跳过保留信用点阈值检查
+    - `CreditShoppingPriority1UnconditionalPurchase=Yes`，即“无条件购买”，跳过保留信用点阈值检查
     - `CreditShoppingPriority1AutoGetCredits=Yes`，即买不起时允许触发自动获取信用点
 
 这档通常用于“即使信用点快见底也值得买”的商品。
@@ -69,7 +69,7 @@
 - 入口节点：`CreditShoppingBuyPriority2`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `Priority2OCR`、折扣命中 `IsDiscountPriority2`
 - 默认附带：
-    - `CreditShoppingPriority2CheckReserveThreshold=No`，即需要满足保留信用点阈值
+    - `CreditShoppingPriority2UnconditionalPurchase=No`，即需要满足保留信用点阈值
     - `CreditShoppingPriority2AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
 
 ### 购买物品选项3
@@ -77,7 +77,7 @@
 - 入口节点：`CreditShoppingBuyPriority3`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `Priority3OCR`、折扣命中 `IsDiscountPriority3`
 - 默认附带：
-    - `CreditShoppingPriority3CheckReserveThreshold=No`，即需要满足保留信用点阈值
+    - `CreditShoppingPriority3UnconditionalPurchase=No`，即需要满足保留信用点阈值
     - `CreditShoppingPriority3AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
 
 ### 为什么保留阈值改成放在三档购买之后
