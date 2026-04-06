@@ -55,7 +55,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "SceneNoticeRewardsConfirmWithAnchor": "SceneExampleRewardNext"
+            "SceneNoticeRewardsConfirmNextAnchor": "SceneExampleRewardNext"
         },
         "next": [
             "SceneNoticeRewardsConfirmWithAnchor"
