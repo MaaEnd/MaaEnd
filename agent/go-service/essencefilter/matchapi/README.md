@@ -93,7 +93,7 @@ if err != nil {
 | `Kind`                      | `Weapons`        | `SkillIDs` / `SkillsChinese`                     | `ShouldLock`          | `ShouldDiscard`    | `Reason` 格式                                                    |
 | --------------------------- | ---------------- | ------------------------------------------------ | --------------------- | ------------------ | ---------------------------------------------------------------- |
 | `MatchExact`                | 非空（可能多把） | 长度 3，对应目标组合                             | `true`                | `false`            | `reason.exact.*` 模板（按 `locale` 渲染；武器名列表按语言 join） |
-| `MatchFuturePromising`      | 通常为空         | 三槽为 OCR 技能文本；`SkillIDs` 为各槽池解析 ID（未识别为 `0`） | `LockFuturePromising` | `false`            | `reason.future_promising` 模板（按 `locale` 渲染）               |
+| `MatchFuturePromising`      | 通常为空         | 三槽为 OCR 技能文本；`SkillIDs` 为 `0,0,0`       | `LockFuturePromising` | `false`            | `reason.future_promising` 模板（按 `locale` 渲染）               |
 | `MatchSlot3Level3Practical` | 视规则而定       | 规范槽位技能                                     | `LockSlot3Practical`  | `false`            | `reason.slot3_practical` 模板（按 `locale` 渲染）                |
 | `MatchNone`                 | 空               | `SkillIDs` 空；`SkillsChinese` 仍为 OCR 三槽文本 | `false`               | `DiscardUnmatched` | `reason.no_match` 模板（按 `locale` 渲染）                       |
 
