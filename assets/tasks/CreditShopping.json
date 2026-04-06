@@ -258,19 +258,14 @@
             "type": "switch",
             "label": "$option.CreditShoppingCheckReserveThreshold.label",
             "description": "$option.CreditShoppingCheckReserveThreshold.description",
-            "default_case": "No",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority1": {
                             "recognition": {
-                                "type": "And",
-                                "param": {
-                                    "all_of": [
-                                        "CreditShoppingReserveCreditSatisfied"
-                                    ]
-                                }
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -280,7 +275,12 @@
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority1": {
                             "recognition": {
-                                "type": "DirectHit"
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
                             }
                         }
                     }
@@ -840,19 +840,14 @@
             "type": "switch",
             "label": "$option.CreditShoppingCheckReserveThreshold.label",
             "description": "$option.CreditShoppingCheckReserveThreshold.description",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority2": {
                             "recognition": {
-                                "type": "And",
-                                "param": {
-                                    "all_of": [
-                                        "CreditShoppingReserveCreditSatisfied"
-                                    ]
-                                }
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -862,7 +857,12 @@
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority2": {
                             "recognition": {
-                                "type": "DirectHit"
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
                             }
                         }
                     }
@@ -1294,19 +1294,14 @@
             "type": "switch",
             "label": "$option.CreditShoppingCheckReserveThreshold.label",
             "description": "$option.CreditShoppingCheckReserveThreshold.description",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority3": {
                             "recognition": {
-                                "type": "And",
-                                "param": {
-                                    "all_of": [
-                                        "CreditShoppingReserveCreditSatisfied"
-                                    ]
-                                }
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -1316,7 +1311,12 @@
                     "pipeline_override": {
                         "CreditShoppingReserveCreditCheckPriority3": {
                             "recognition": {
-                                "type": "DirectHit"
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
                             }
                         }
                     }

@@ -297,9 +297,9 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "CreditShoppingReserveCreditCheckPriority1",
             "BuyFirstOCR",
-            "IsDiscountPriority1"
+            "IsDiscountPriority1",
+            "CreditShoppingReserveCreditCheckPriority1"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -322,9 +322,9 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "CreditShoppingReserveCreditCheckPriority2",
             "Priority2OCR",
-            "IsDiscountPriority2"
+            "IsDiscountPriority2",
+            "CreditShoppingReserveCreditCheckPriority2"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -346,9 +346,9 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "CreditShoppingReserveCreditCheckPriority3",
             "Priority3OCR",
-            "IsDiscountPriority3"
+            "IsDiscountPriority3",
+            "CreditShoppingReserveCreditCheckPriority3"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
