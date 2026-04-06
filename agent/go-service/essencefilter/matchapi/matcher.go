@@ -133,15 +133,9 @@ func (e *Engine) skillNameByID(id int, pool []SkillPool) string {
 
 // matchEssenceSkills matches one OCR input to an exact target skill combination.
 func (e *Engine) matchEssenceSkills(ocrSkills [3]string, targets []SkillCombination) (*SkillCombinationMatch, bool) {
-	e.ensureSlotIndices()
-
-	var ocrIDs [3]int
-	for i, skill := range ocrSkills {
-		id, ok := e.matchSkillIDEnhanced(i+1, skill)
-		if !ok {
-			return nil, false
-		}
-		ocrIDs[i] = id
+	ocrIDs := e.resolveOCRSkillsToSlotIDs(ocrSkills)
+	if ocrIDs[0] == 0 || ocrIDs[1] == 0 || ocrIDs[2] == 0 {
+		return nil, false
 	}
 
 	var matchedWeapons []WeaponData
@@ -186,6 +180,20 @@ func (e *Engine) matchFuturePromising(ocrSkills [3]string, levels [3]int, minTot
 	}
 	sum := levels[0] + levels[1] + levels[2]
 	return sum >= minTotal
+}
+
+// resolveOCRSkillsToSlotIDs maps slot-ordered OCR texts (after reorderByPoolAssignmentIfPossible) to
+// slot-1/2/3 pool skill IDs via matchSkillIDEnhanced — same path as exact matching (matchEssenceSkills).
+// Slots that do not match any pool entry stay 0.
+func (e *Engine) resolveOCRSkillsToSlotIDs(ocrSkills [3]string) [3]int {
+	e.ensureSlotIndices()
+	var ids [3]int
+	for slot := 1; slot <= 3; slot++ {
+		if id, ok := e.matchSkillIDEnhanced(slot, ocrSkills[slot-1]); ok {
+			ids[slot-1] = id
+		}
+	}
+	return ids
 }
 
 func (e *Engine) matchSlot3Level3Practical(ocrSkills [3]string, levels [3]int, minLevel int) (match *SkillCombinationMatch, slot3Level int, ok bool) {

@@ -289,12 +289,8 @@ func runUnifiedSkillDecision(
 
 		if matchResult.ShouldLock {
 			st.MatchedCount++
-			var key string
-			if matchResult.Kind == matchapi.MatchFuturePromising {
-				key = futurePromisingSummaryKey(ocr.Skills, ocr.Levels)
-			} else {
-				key = skillCombinationKey(matchResult.SkillIDs)
-			}
+			// 与精准匹配相同，均用 skillCombinationKey（未来可期时 SkillIDs 为各槽池解析出的 ID，未识别槽为 0）。
+			key := skillCombinationKey(matchResult.SkillIDs)
 			if key != "" {
 				if s, ok := st.MatchedCombinationSummary[key]; ok {
 					s.Count++

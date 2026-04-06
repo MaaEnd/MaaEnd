@@ -10,7 +10,7 @@
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `types.go`         | 数据类型与常量（运行选项、`input_language`、基质颜色等）；匹配所需数据结构由 `matchapi` 提供                                       |
 | `state.go`         | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()`；持有 `matchapi.Engine` 与统计结果                               |
-| `filter.go`        | 小工具：`skillCombinationKey`（用于 UI 统计聚合）                                                                                  |
+| `filter.go`        | 小工具：`skillCombinationKey`（精准与扩展规则战利品聚合均用技能 ID 列表）                                                          |
 | `ui.go`            | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（结果来自 `matchapi`）                                             |
 | `actions.go`       | 所有 CustomAction：Init / OCR 库存与 Trace / CheckItem·CheckItemLevel·SkillDecision / RowCollect·RowNextItem·Finish·SwipeCalibrate |
 | `options.go`       | 从节点 attach 读取 `EssenceFilterOptions`、 rarity/essence 列表格式化                                                              |

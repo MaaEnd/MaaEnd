@@ -180,9 +180,10 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 
 		// 当需要锁定时，优先返回实际触发锁定的规则 Kind，以保证锁定原因/统计与实际一致。
 		if futureLocks {
+			fpIDs := e.resolveOCRSkillsToSlotIDs(ocrSkills)
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
-				SkillIDs:      []int{0, 0, 0},
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
@@ -207,9 +208,10 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 
 		// 不锁定时保持现有优先级：FuturePromising 结果在两者都命中时优先用于展示字段。
 		if futureMatched {
+			fpIDs := e.resolveOCRSkillsToSlotIDs(ocrSkills)
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
-				SkillIDs:      []int{0, 0, 0},
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
