@@ -115,6 +115,18 @@ func isMatchTraceEnabled() bool {
 	return v == "1" || v == "true" || v == "on" || v == "yes"
 }
 
+// futurePromisingOCRToSlotIDs fills MatchFuturePromising SkillIDs from slot-ordered OCR; 0 means unmatched for that slot.
+func (e *Engine) futurePromisingOCRToSlotIDs(ocrSkills [3]string) [3]int {
+	e.ensureSlotIndices()
+	var ids [3]int
+	for i, skill := range ocrSkills {
+		if id, ok := e.matchSkillIDEnhanced(i+1, skill); ok {
+			ids[i] = id
+		}
+	}
+	return ids
+}
+
 // MatchOCR matches one OCR result and returns a unified MatchResult.
 func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult, error) {
 	targets, err := e.getTargetsByRarity(opts)
@@ -180,7 +192,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 
 		// 当需要锁定时，优先返回实际触发锁定的规则 Kind，以保证锁定原因/统计与实际一致。
 		if futureLocks {
-			fpIDs := e.resolveOCRSkillsToSlotIDs(ocrSkills)
+			fpIDs := e.futurePromisingOCRToSlotIDs(ocrSkills)
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
 				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
@@ -208,7 +220,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 
 		// 不锁定时保持现有优先级：FuturePromising 结果在两者都命中时优先用于展示字段。
 		if futureMatched {
-			fpIDs := e.resolveOCRSkillsToSlotIDs(ocrSkills)
+			fpIDs := e.futurePromisingOCRToSlotIDs(ocrSkills)
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
 				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
