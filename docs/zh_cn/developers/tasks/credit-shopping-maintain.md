@@ -93,8 +93,13 @@
 这意味着：
 
 - 三档购买都会先尝试自己的购买识别。
-- 是否受保留信用点阈值限制，不再由 `next` 顺序决定，而是由各自的 `CreditShoppingReserveCreditCheckPriority{N}` 控制。
+- 是否受保留信用点阈值限制，不再由 `next` 顺序决定，而是由各自的 `CreditShoppingPriority{N}ReserveCreditGate` 控制。
 - 如果三档购买都不命中，最后才由统一的 `CreditShoppingReserveCredit` 负责“低于阈值则结束任务”的兜底退出。
+
+这里的命名约定是：
+
+- `CreditShoppingPriority{N}ReserveCreditGate`：某一档购买在执行前是否需要通过保留信用点阈值检查的准入节点。
+- `CreditShoppingReserveCredit`：当三档购买都未命中后，统一负责“当前信用点已经低于保留阈值，应结束任务”的兜底退出节点。
 
 维护时如果想改变“哪些商品要无视保留阈值”，应该优先调整各档位的“无条件购买”开关，而不是再把 `CreditShoppingReserveCredit` 插回购买节点中间。
 
@@ -416,5 +421,5 @@
 3. 新增商品时，`assets/tasks/CreditShopping.json`、`BuyItem.json`、`BuyItemFocus.json`、`assets/locales/interface/*.json` 是否同步修改。
 4. 若改了获取信用点逻辑，`NeedCredit.json` 中的 `ReceptionRoomSendCluesEntry_NeedCredit`、`ReceptionRoomSendCluesSelectClues_NeedCredit`、`ClueItemCount_NeedCredit` 是否与任务选项语义一致。
 5. 若改了刷新策略，`RefreshItem`、`CanNotFlash`、`CreditShoppingPrudentRefresh` 的先后关系是否仍正确。
-6. 若改了优先级语义，`CreditShoppingReserveCreditCheckPriority1/2/3` 与 `CreditShoppingReserveCredit` 的职责划分是否仍清晰。
+6. 若改了优先级语义，`CreditShoppingPriority1/2/3ReserveCreditGate` 与 `CreditShoppingReserveCredit` 的职责划分是否仍清晰。
 7. 若改了自动补信用逻辑，`AutoGetCreditsBuyPriority1/2/3` 是否与三个购买物品选项中的 `AutoGetCredits` 开关保持一致。

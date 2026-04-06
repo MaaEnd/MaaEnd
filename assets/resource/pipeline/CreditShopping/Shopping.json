@@ -155,19 +155,19 @@
             }
         }
     },
-    "CreditShoppingReserveCreditCheckPriority1": {
-        "desc": "优先购买是否检测信用点阈值",
+    "CreditShoppingPriority1ReserveCreditGate": {
+        "desc": "优先购买的保留信用点准入判断",
         "recognition": "DirectHit"
     },
-    "CreditShoppingReserveCreditCheckPriority2": {
-        "desc": "普通购买1是否检测信用点阈值",
+    "CreditShoppingPriority2ReserveCreditGate": {
+        "desc": "普通购买1的保留信用点准入判断",
         "recognition": "And",
         "all_of": [
             "CreditShoppingReserveCreditSatisfied"
         ]
     },
-    "CreditShoppingReserveCreditCheckPriority3": {
-        "desc": "普通购买2是否检测信用点阈值",
+    "CreditShoppingPriority3ReserveCreditGate": {
+        "desc": "普通购买2的保留信用点准入判断",
         "recognition": "And",
         "all_of": [
             "CreditShoppingReserveCreditSatisfied"
@@ -281,7 +281,7 @@
             "CanAfford",
             "BuyFirstOCR",
             "IsDiscountPriority1",
-            "CreditShoppingReserveCreditCheckPriority1"
+            "CreditShoppingPriority1ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -306,7 +306,7 @@
             "CanAfford",
             "Priority2OCR",
             "IsDiscountPriority2",
-            "CreditShoppingReserveCreditCheckPriority2"
+            "CreditShoppingPriority2ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -330,7 +330,7 @@
             "CanAfford",
             "Priority3OCR",
             "IsDiscountPriority3",
-            "CreditShoppingReserveCreditCheckPriority3"
+            "CreditShoppingPriority3ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,

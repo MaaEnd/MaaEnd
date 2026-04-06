@@ -200,7 +200,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority1": {
+                        "CreditShoppingPriority1ReserveCreditGate": {
                             "recognition": {
                                 "type": "DirectHit"
                             }
@@ -210,7 +210,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority1": {
+                        "CreditShoppingPriority1ReserveCreditGate": {
                             "recognition": {
                                 "type": "And",
                                 "param": {
@@ -815,7 +815,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority2": {
+                        "CreditShoppingPriority2ReserveCreditGate": {
                             "recognition": {
                                 "type": "DirectHit"
                             }
@@ -825,7 +825,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority2": {
+                        "CreditShoppingPriority2ReserveCreditGate": {
                             "recognition": {
                                 "type": "And",
                                 "param": {
@@ -1302,7 +1302,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority3": {
+                        "CreditShoppingPriority3ReserveCreditGate": {
                             "recognition": {
                                 "type": "DirectHit"
                             }
@@ -1312,7 +1312,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingReserveCreditCheckPriority3": {
+                        "CreditShoppingPriority3ReserveCreditGate": {
                             "recognition": {
                                 "type": "And",
                                 "param": {
