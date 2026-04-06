@@ -61,7 +61,6 @@
         "next": [
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
-            "[JumpBack]GrowthChamberGrowAgain",
             "GrowthChamberExit"
         ],
         "focus": {
@@ -120,11 +119,14 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberGrowAgain"
+        ]
     },
     "GrowthChamberGrowAgain": {
         "desc": "[培养舱·再培养] 识别“再次种植”按钮并点击,和培养冲突",
-        "enabled": false,
+        "enabled": true,
         "recognition": {
             "type": "OCR",
             "param": {
