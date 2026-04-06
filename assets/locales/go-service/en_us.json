@@ -40,7 +40,7 @@
     "autostockpile.no_goods_recognized": "No goods recognized",
     "autostockpile.no_qualifying_goods": "No qualifying goods",
 
-    "autostockpile.qty_reserve_disabled": "Dispatch ticket reserve disabled",
+    "autostockpile.qty_below_threshold_buy": "Buying because price is below threshold",
     "autostockpile.qty_overflow_invalid": "Anti-overflow target quantity invalid",
     "autostockpile.qty_overflow_buy": "Buying anti-overflow quantity",
 

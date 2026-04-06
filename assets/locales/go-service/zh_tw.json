@@ -37,7 +37,7 @@
     "autostockpile.no_goods_recognized": "未識別到商品",
     "autostockpile.no_qualifying_goods": "沒有滿足條件的商品",
 
-    "autostockpile.qty_reserve_disabled": "未啟用保留調度券",
+    "autostockpile.qty_below_threshold_buy": "低於閾值購買",
     "autostockpile.qty_overflow_invalid": "防溢出目標數量無效",
     "autostockpile.qty_overflow_buy": "按防溢出數量購買",
 

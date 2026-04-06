@@ -40,7 +40,7 @@
     "autostockpile.no_goods_recognized": "인식된 상품이 없습니다",
     "autostockpile.no_qualifying_goods": "조건을 만족하는 상품이 없습니다",
 
-    "autostockpile.qty_reserve_disabled": "조달권 남기기를 사용하지 않았습니다",
+    "autostockpile.qty_below_threshold_buy": "임계값보다 낮아 구매합니다",
     "autostockpile.qty_overflow_invalid": "오버플로 방지 목표 수량이 잘못되었습니다",
     "autostockpile.qty_overflow_buy": "오버플로 방지 수량만큼 구매합니다",
 

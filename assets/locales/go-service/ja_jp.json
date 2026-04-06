@@ -40,7 +40,7 @@
     "autostockpile.no_goods_recognized": "商品を認識できませんでした",
     "autostockpile.no_qualifying_goods": "条件を満たす商品がありません",
 
-    "autostockpile.qty_reserve_disabled": "配送券の予約を有効にしていません",
+    "autostockpile.qty_below_threshold_buy": "しきい値を下回っているため購入します",
     "autostockpile.qty_overflow_invalid": "オーバーフロー防止の目標数量が無効です",
     "autostockpile.qty_overflow_buy": "オーバーフロー防止数量で購入します",
 

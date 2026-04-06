@@ -269,7 +269,7 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "Minimum selling price (large volatility)",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "Minimum selling price (extreme volatility)",
     "task.AutoStockpile.label": "📦 Auto Stockpile",
-    "task.AutoStockpile.description": "Purchase elastic demand supplies, based on big data AI intelligent calculation to derive the best purchasing strategy.",
+    "task.AutoStockpile.description": "Purchase elastic demand supplies, based on big data intelligent calculation to derive the best purchasing strategy.",
     "task.AutoStockpile.option.AutoStockpileValleyIV.label": "Valley IV",
     "task.AutoStockpile.option.AutoStockpileWuling.label": "Wuling",
     "option.AutoBuyAndSell.label": "Auto Buy/Sell",
