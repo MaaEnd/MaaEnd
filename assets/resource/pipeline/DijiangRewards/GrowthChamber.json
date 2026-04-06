@@ -220,7 +220,7 @@
         },
         "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 1000,
             "target": [
                 79,
@@ -671,7 +671,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 80
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -745,6 +752,16 @@
         "pre_delay": 0,
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
