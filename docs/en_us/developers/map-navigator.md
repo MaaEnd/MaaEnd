@@ -47,12 +47,9 @@ Moves the character automatically along the given path and executes extra action
 **Common Optional Parameters (`custom_action_param`)**:
 
 - `map_name`: String, default empty. Used as the initial zone context. If your `path` already contains `ZONE` declaration nodes, you usually do not need to set it.
-- `path_trim`: Boolean, default `false`. When enabled, MapNavigator tries to attach the current position to a more suitable point on the route before navigation starts, instead of forcing the run from the very first point. This is useful when reusing the same route and the character's initial standing position may vary slightly.
 - `arrival_timeout`: Positive integer, default `60000`. Maximum allowed time for a single target point before it is considered unreachable, in milliseconds.
-- `sprint_threshold`: Positive real number, default `25.0`. Distance threshold used for automatic sprint judgment.
-- `enable_rejoin`: Boolean, default `true`. Whether the navigator is allowed to try reconnecting to the route after a slight drift, minor blockage, or mid-route detachment.
-
-Besides the fields above, the current implementation also contains several internal tuning parameters related to rejoin strategy and local driver details. Those are more like internal algorithm control knobs, and are not recommended as regular public-facing development interfaces. If you really need them, read the implementation first before relying on them.
+- `sprint_threshold`: Positive real number, default `25.0`. Threshold for the estimated contiguous runnable segment ahead, rather than only the straight-line distance to the current point.
+- Other unknown top-level fields: currently ignored silently.
 
 #### `path` Data Structure
 
@@ -86,7 +83,7 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 - `JUMP`: Jump upon arrival.
 - `FIGHT`: Attack once upon arrival.
 - `INTERACT`: Interact upon arrival.
-- `TRANSFER`: Reach the point precisely, then wait for an external mechanism to relocate the character to the next reachable segment.
+- `TRANSFER`: Stop at the point and wait for an external mechanism to move the character to the next segment, then continue from following waypoints.
 - `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
 - `HEADING`: Turn the camera to the specified heading, then tap `W` once.
 
@@ -130,7 +127,7 @@ A positionless node. It turns the camera to the specified heading, then taps `W`
 `MapNavigateAction` is an Action node, so it does not expose a stable structured recognition output like a Recognition node does. In practice, its result is mainly reflected as:
 
 - If the entire route is completed successfully, the Action returns success.
-- If severe timeout, rejoin failure, long-term localization loss, or similar problems occur midway, the Action returns failure.
+- If a fast-fail condition is hit midway (sustained no-progress timeout / sustained divergence timeout), the Action returns failure.
 
 So in Pipeline, it is generally best treated as an atomic action: "**either the whole path finishes, or the node fails**."
 
@@ -174,8 +171,6 @@ The most common usage is simply to paste the `path` copied from the recording to
 }
 ```
 
-If you want the navigator to resume from a closer position when re-entering the same route repeatedly, you can also add common optional parameters:
-
 ```json
 {
     "MyNavigateNode": {
@@ -183,7 +178,6 @@ If you want the navigator to resume from a closer position when re-entering the 
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "path_trim": true,
             "arrival_timeout": 45000,
             "path": [
                 {
@@ -212,7 +206,7 @@ If you want the navigator to resume from a closer position when re-entering the 
 
 > [!WARNING]
 >
-> Adjacent path points should still be reasonably traversable one after another. Do not expect the navigator to clip through geometry, route around highly complex obstacles, or understand business-specific mechanisms automatically. For special segments such as portal transitions, jump pads, falling, or lift-like mechanisms, explicitly split them using `PORTAL`, `TRANSFER`, or separate business nodes.
+> Adjacent path points should still be reasonably traversable one after another. Do not expect the navigator to clip through geometry, route around highly complex obstacles, or understand business-specific mechanisms automatically. For special segments such as portal transitions, jump pads, falling, or lift-like mechanisms, explicitly split them using `PORTAL`, `TRANSFER`, and separate business nodes.
 
 ---
 
@@ -224,10 +218,13 @@ It supports:
 
 1. Connecting directly to the current game window and recording real movement traces.
 2. Automatically adding `ZONE` and `PORTAL` semantics based on zone changes.
-3. Deleting points, dragging points, changing actions, and editing strict-arrival settings in the GUI.
+3. Deleting points, dragging points, changing coordinate-point actions, and editing strict-arrival settings in the GUI.
 4. Importing existing JSON / JSONC files, recursively searching recognizable `path` data, and continuing editing.
 5. One-click copying of the canonical `path` that can be pasted directly into `custom_action_param.path`.
 6. A separate `Assert Mode` for manually selecting a map and drawing a rectangle, then exporting a `MapLocateAssertLocation` node.
+
+One extra note: the current GUI editor mainly round-trips coordinate-bearing path points, plus the `ZONE` declarations derived from zone information.  
+Positionless control nodes such as `HEADING` are not part of the normal GUI point-editing workflow, so it is safer to add or maintain them manually after exporting the `path`.
 
 ### Running the Tool
 
@@ -285,7 +282,7 @@ During recording, the tool reads part of the keyboard state and records action p
 - Pressing `F` records `INTERACT`.
 - Holding `Shift` or the right mouse button records `SPRINT`.
 
-One important note: points with stronger business semantics such as `FIGHT` and `TRANSFER` are **not inferred automatically during recording**. The usual workflow is to stop recording first, then manually change those points to the desired action in the GUI.
+One important note: points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` are **not inferred automatically during recording**. The usual workflow is to stop recording first, then manually change those points to the desired action in the GUI.
 
 So the most basic workflow is simply:
 
@@ -334,6 +331,9 @@ At this point, you can handle the remaining details directly in the GUI.
 - `Strict`: mark the current point as a strict-arrival point.
 - `🗑`: delete the currently selected point.
 
+The action dropdown currently targets coordinate-point actions, which in practice means `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER`.  
+Control nodes such as `HEADING` are outside this GUI action-chain model.
+
 **Undo / Redo:**
 
 - `Ctrl+Z`: undo.
@@ -343,7 +343,7 @@ In practice, these are usually the only edits you really need:
 
 1. Delete points that are too dense and not meaningful.
 2. Change key interaction points to `INTERACT` or enable `Strict`.
-3. Change points that need jumping, sprinting, or transfer behavior into the corresponding action.
+3. Change points that need jumping, sprinting, external transfer, or zone-transition behavior into the corresponding action (for example `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
 4. Check whether the points before and after a zone transition are placed reasonably.
 
 #### Step 5: Copy the `path` and paste it into Pipeline
@@ -393,6 +393,6 @@ This mode does not modify the current path data. It simply reuses the same map r
 
 1. Record when possible. Try not to hand-write an entire path. Actually walking the route once is usually more accurate than filling coordinates in by feel. If the precision of path points recorded while running and sprinting feels insufficient, just walk more slowly.
 2. Keep the starting point stable. Before recording, stabilize the character's position and camera as much as possible. This reduces later editing work.
-3. Use special action points sparingly and precisely. Especially for `INTERACT`, `TRANSFER`, and `PORTAL`, only place them where they are truly needed.
+3. Use special action points sparingly and precisely. Especially for `INTERACT`, `TRANSFER`, `PORTAL`, and `HEADING`, only place them where they are truly needed. Also remember that `HEADING` is a control node, so it is usually safest to maintain it manually after GUI export.
 4. Always inspect zone-transition routes carefully. Automatically adding `PORTAL` only helps supplement semantics; it does not mean every cross-zone boundary is naturally valid.
 5. The outer Pipeline still needs proper entry checks and failure fallback. Navigation is not your business flow itself, so do not push all exception handling into a single `MapNavigateAction`.

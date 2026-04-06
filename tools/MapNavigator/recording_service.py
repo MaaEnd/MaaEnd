@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import ctypes
 import json
 import subprocess
 import threading
 import time
 from typing import Callable
 
+from connection_models import RecordingSessionConfig
+from connectors import build_recording_connector
 from model import ActionType, PathPoint, PathRecorder, is_key_pressed, normalize_zone_id
 from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env
 
@@ -45,6 +46,7 @@ class RecordingService:
         self._agent_process: subprocess.Popen[str] | None = None
         self._worker_thread: threading.Thread | None = None
         self._running_event = threading.Event()
+        self._session_config: RecordingSessionConfig | None = None
         self._last_record_log_signature: tuple[object, ...] | None = None
         self._last_record_log_at = 0.0
         self._last_skip_log_signature: tuple[object, ...] | None = None
@@ -54,10 +56,11 @@ class RecordingService:
     def is_running(self) -> bool:
         return self._running_event.is_set()
 
-    def start(self) -> None:
+    def start(self, session_config: RecordingSessionConfig) -> None:
         if self.is_running:
             return
 
+        self._session_config = session_config
         self._recorder = PathRecorder()
         self._last_record_log_signature = None
         self._last_record_log_at = 0.0
@@ -72,6 +75,9 @@ class RecordingService:
 
     def _run(self) -> None:
         try:
+            if self._session_config is None:
+                raise RuntimeError("录制会话配置缺失。")
+
             agent_id = f"MapLocatorAgent_{int(time.time())}"
             if not CPP_AGENT_EXE.exists():
                 raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
@@ -89,19 +95,14 @@ class RecordingService:
             print("Opening runtime library...")
             self._open_runtime_library()
 
-            print("Searching for game window...")
-            hwnd = self._find_game_window()
-            if not hwnd:
-                raise RuntimeError("未找到游戏窗口，请确保游戏已运行且未被最小化。")
-            print(f"Found game window: {hwnd:#x}")
-
             print("Connecting controller...")
-            controller = self._runtime.Win32Controller(hWnd=hwnd)
-            controller.post_connection().wait()
+            connector = build_recording_connector(self._runtime, self._session_config)
+            controller = connector.connect()
             print("Controller connected.")
 
             print("Connecting AgentClient...")
             resource = self._runtime.Resource()
+            connector.attach_resource(resource)
             client = self._runtime.AgentClient(identifier=agent_id)
             client.bind(resource)
             client.connect()
@@ -120,7 +121,10 @@ class RecordingService:
                 raise RuntimeError("Tasker 初始化失败。")
             print("Tasker initialized.")
 
-            self._on_status("● 正在录制轨迹... (Space:跳跃 F:交互 Shift:分层)", "#ef4444")
+            self._on_status(
+                f"● 正在录制轨迹 [{self._session_config.display_name()}] (Space:跳跃 F:交互 Shift:分层)",
+                "#ef4444",
+            )
 
             while self._running_event.is_set():
                 action = self._read_action_from_keyboard()
@@ -137,6 +141,7 @@ class RecordingService:
         finally:
             self._running_event.clear()
             self._shutdown_agent()
+            self._session_config = None
 
     def _open_runtime_library(self) -> None:
         try:
@@ -145,39 +150,6 @@ class RecordingService:
             # 兼容重复初始化场景，不影响后续流程。
             print(f"Opening runtime library at {MAAFW_BIN_DIR}... Error: {exc}")
             return
-
-    @staticmethod
-    def _find_game_window() -> int:
-        enum_windows = ctypes.windll.user32.EnumWindows
-        enum_windows_proc = ctypes.WINFUNCTYPE(
-            ctypes.c_bool,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-        )
-        get_window_text = ctypes.windll.user32.GetWindowTextW
-        is_window_visible = ctypes.windll.user32.IsWindowVisible
-
-        result = [0]
-
-        def foreach(hwnd, _l_param):
-            if not is_window_visible(hwnd):
-                return True
-
-            title_buffer = ctypes.create_unicode_buffer(512)
-            get_window_text(hwnd, title_buffer, 512)
-            title = title_buffer.value
-
-            if not title:
-                return True
-
-            if title.strip() == "Endfield":
-                result[0] = hwnd
-                return False
-            return True
-
-        cb = enum_windows_proc(foreach)
-        enum_windows(cb, 0)
-        return result[0]
 
     @staticmethod
     def _read_action_from_keyboard() -> ActionType:
