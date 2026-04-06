@@ -126,7 +126,7 @@
     },
     "GrowthChamberGrowAgain": {
         "desc": "[培养舱·再培养] 识别“再次种植”按钮并点击,和培养冲突",
-        "enabled": true,
+        "enabled": false,
         "recognition": {
             "type": "OCR",
             "param": {
