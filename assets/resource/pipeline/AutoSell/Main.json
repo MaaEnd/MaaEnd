@@ -93,212 +93,121 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellStockRedistributionItemNext",
             "[JumpBack]SceneWaitLoadingExit",
-            "AutoSellEnterShipSuccess"
+            "[JumpBack]AutoSellShipEnterStockRedistribution"
         ]
     },
-    "AutoSellEnterShipSuccess": {
-        "desc": "进入好友船成功的标志",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            100,
-            100
-        ],
-        "template": "VisitFriends/ShipEscButton.png",
-        "threshold": 0.9,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "OMVBase01"
-                },
-                [
-                    192,
-                    141
-                ],
-                [
-                    187,
-                    141,
-                    true
-                ]
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterShipSuccess2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "正在走向物资调度终端"
-        }
-    },
-    "AutoSellEnterShipSuccess2": {
-        "desc": "cpp寻路转向太慢了，容易走到别的房间回不来，因此写两段能快速转向",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            100,
-            100
-        ],
-        "template": "VisitFriends/ShipEscButton.png",
-        "threshold": 0.9,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "OMVBase01"
-                },
-                [
-                    187,
-                    141
-                ],
-                [
-                    187,
-                    131,
-                    true
-                ]
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistribution"
-        ]
-    },
-    // "AutoSellEnterShipSuccess": {
-    //     "desc": "进入好友船成功的标志，go寻路走向终点不稳定",
-    //     "recognition": "TemplateMatch",
-    //     "roi": [
-    //         0,
-    //         0,
-    //         100,
-    //         100
-    //     ],
-    //     "template": "VisitFriends/ShipEscButton.png",
-    //     "threshold": 0.9,
-    //     "pre_delay": 0,
-    //     "post_delay": 0,
-    //     "pre_wait_freezes": 100,
-    //     "rate_limit": 0,
-    //     "action": "Custom",
-    //     "custom_action": "MapTrackerMove",
-    //     "custom_action_param": {
-    //         "map_name": "base01_lv003",
-    //         "path": [
-    //             [
-    //                 196.9,
-    //                 143.6
-    //             ],
-    //             [
-    //                 190.3,
-    //                 143.6
-    //             ],
-    //             [
-    //                 190.3,
-    //                 139.1
-    //             ]
-    //         ]
-    //     },
-    //     "focus": {
-    //         "Node.Action.Starting": "正在走向物资调度终端"
-    //     },
-    //     "next": [
-    //         "AutoSellEnterStockRedistribution"
-    //     ]
-    // },
-    "AutoSellEnterStockRedistribution": {
-        "desc": "进入物资调度页面",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -600,
-            -350,
-            600,
-            350
-        ],
-        "template": "AutoSell/StockRedistributionButton.png",
-        "threshold": 0.9,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistributionSuccess"
-        ]
-    },
-    "AutoSellEnterStockRedistributionSuccess": {
-        "desc": "成功进入物资调度页面",
+    "AutoSellStockRedistributionItemNext": {
+        "desc": "进入物资调度界面，继续任务",
         "recognition": "And",
         "all_of": [
             "InFriendsStockRedistribution"
         ],
-        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor"
+            "[JumpBack][Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor",
+            "AutoSellEnterStockRedistributionOpenItem",
+            "AutoSellEnterStockRedistributionOpenItemFinish"
         ]
     },
     "AutoSellEnterStockRedistributionAreaSwitchValleyIV": {
         "desc": "切换地区到四号谷地",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            600,
-            150
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    600,
+                    150
+                ],
+                "template": [
+                    "AutoSell/StockRedistributionValleyIVChoose.png",
+                    "AutoSell/StockRedistributionValleyIVNotChoose.png"
+                ],
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    15,
+                    0,
+                    0
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    80,
+                    80,
+                    80
+                ],
+                "connected": true,
+                "count": 300
+            }
         ],
-        "template": [
-            "AutoSell/StockRedistributionValleyIVChoose.png",
-            "AutoSell/StockRedistributionValleyIVNotChoose.png"
-        ],
-        "threshold": 0.9,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistributionOpenItem",
-            "AutoSellEnterStockRedistributionOpenItemFinish"
-        ]
+        "rate_limit": 0
     },
     "AutoSellEnterStockRedistributionAreaSwitchWuling": {
         "desc": "切换地区到武陵",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            600,
-            150
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    600,
+                    150
+                ],
+                "template": [
+                    "AutoSell/StockRedistributionWulingChoose.png",
+                    "AutoSell/StockRedistributionWulingNotChoose.png"
+                ],
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    15,
+                    0,
+                    0
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    80,
+                    80,
+                    80
+                ],
+                "connected": true,
+                "count": 300
+            }
         ],
-        "template": [
-            "AutoSell/StockRedistributionWulingChoose.png",
-            "AutoSell/StockRedistributionWulingNotChoose.png"
-        ],
-        "threshold": 0.9,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistributionOpenItem",
-            "AutoSellEnterStockRedistributionOpenItemFinish"
-        ]
+        "rate_limit": 0
     },
     "AutoSellEnterStockRedistributionOpenItem": {
         "desc": "打开目标物资调度界面下一个待识别item",
@@ -345,7 +254,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellEnterStockRedistributionSuccess"
+            "AutoSellStockRedistributionItemNext"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "四号谷地物资检查完毕，前往武陵物资检查"

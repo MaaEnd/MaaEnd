@@ -1,0 +1,154 @@
+{
+    "AutoSellShipEnterStockRedistribution": {
+        "desc": "从飞船走向弹性需求物资界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "VisitFriends/ShipEscButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "OMVBase01"
+                },
+                [
+                    192,
+                    141
+                ],
+                [
+                    187,
+                    141,
+                    true
+                ]
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellShipEnterStockRedistribution2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "正在走向物资调度终端"
+        }
+    },
+    "AutoSellShipEnterStockRedistribution2": {
+        "desc": "cpp寻路转向太慢了，容易走到别的房间回不来，因此写两段能快速转向",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "VisitFriends/ShipEscButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "OMVBase01"
+                },
+                [
+                    187,
+                    141
+                ],
+                [
+                    187,
+                    131,
+                    true
+                ]
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistribution"
+        ]
+    },
+    // "AutoSellEnterShipSuccess": {
+    //     "desc": "进入好友船成功的标志，go寻路走向终点不稳定",
+    //     "recognition": "TemplateMatch",
+    //     "roi": [
+    //         0,
+    //         0,
+    //         100,
+    //         100
+    //     ],
+    //     "template": "VisitFriends/ShipEscButton.png",
+    //     "threshold": 0.9,
+    //     "pre_delay": 0,
+    //     "post_delay": 0,
+    //     "pre_wait_freezes": 100,
+    //     "rate_limit": 0,
+    //     "action": "Custom",
+    //     "custom_action": "MapTrackerMove",
+    //     "custom_action_param": {
+    //         "map_name": "base01_lv003",
+    //         "path": [
+    //             [
+    //                 196.9,
+    //                 143.6
+    //             ],
+    //             [
+    //                 190.3,
+    //                 143.6
+    //             ],
+    //             [
+    //                 190.3,
+    //                 139.1
+    //             ]
+    //         ]
+    //     },
+    //     "focus": {
+    //         "Node.Action.Starting": "正在走向物资调度终端"
+    //     },
+    //     "next": [
+    //         "AutoSellEnterStockRedistribution"
+    //     ]
+    // },
+    "AutoSellEnterStockRedistribution": {
+        "desc": "进入物资调度页面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            -350,
+            600,
+            350
+        ],
+        "template": "AutoSell/StockRedistributionButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistributionSuccess"
+        ]
+    },
+    "AutoSellEnterStockRedistributionSuccess": {
+        "desc": "成功进入物资调度页面",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistribution"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
