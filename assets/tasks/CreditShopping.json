@@ -219,6 +219,22 @@
                     "pipeline_override": {
                         "CreditShoppingBuyPriority1": {
                             "enabled": false
+                        },
+                        "AutoGetCreditsBuyPriority1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }
@@ -738,6 +754,22 @@
                     "pipeline_override": {
                         "CreditShoppingBuyPriority2": {
                             "enabled": false
+                        },
+                        "AutoGetCreditsBuyPriority2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }
@@ -1129,6 +1161,22 @@
                     "pipeline_override": {
                         "CreditShoppingBuyPriority3": {
                             "enabled": false
+                        },
+                        "AutoGetCreditsBuyPriority3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }
