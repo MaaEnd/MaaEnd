@@ -7,7 +7,8 @@
             "description": "$task.CreditShopping.description",
             "option": [
                 "CreditShoppingReserve",
-                "CreditShoppingGetCreditsSetting",
+                "CreditShoppingClueSend",
+                "CreditShoppingClueStockLimit",
                 "CreditShoppingPriority1",
                 "CreditShoppingPriority2",
                 "CreditShoppingPriority3",
@@ -19,107 +20,6 @@
         }
     ],
     "option": {
-        "CreditShoppingGetCreditsSetting": {
-            "type": "switch",
-            "label": "$option.CreditShoppingGetCreditsSetting.label",
-            "description": "$option.CreditShoppingGetCreditsSetting.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "AutoGetCredits",
-                        "CreditShoppingSendCluesWhenInsufficient"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoGetCredits": {
-                            "recognition": {
-                                "type": "OCR",
-                                "param": {
-                                    "roi": [
-                                        0,
-                                        0,
-                                        1,
-                                        1
-                                    ],
-                                    "expected": [
-                                        "a^"
-                                    ]
-                                }
-                            }
-                        },
-                        "ReceptionRoomSendCluesEntry_NeedCredit": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoGetCredits": {
-            "type": "switch",
-            "label": "$option.AutoGetCredits.label",
-            "description": "$option.AutoGetCredits.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {}
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoGetCredits": {
-                            "recognition": {
-                                "type": "OCR",
-                                "param": {
-                                    "roi": [
-                                        0,
-                                        0,
-                                        1,
-                                        1
-                                    ],
-                                    "expected": [
-                                        "a^"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "CreditShoppingSendCluesWhenInsufficient": {
-            "type": "switch",
-            "label": "$option.CreditShoppingSendCluesWhenInsufficient.label",
-            "description": "$option.CreditShoppingSendCluesWhenInsufficient.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "CreditShoppingClueSend",
-                        "CreditShoppingClueStockLimit"
-                    ],
-                    "pipeline_override": {
-                        "ReceptionRoomSendCluesEntry_NeedCredit": {
-                            "enabled": true,
-                            "max_hit": 1
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "ReceptionRoomSendCluesEntry_NeedCredit": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
         "CreditShoppingClueSend": {
             "type": "input",
             "label": "$option.CreditShoppingClueSend.label",
@@ -135,6 +35,10 @@
                 }
             ],
             "pipeline_override": {
+                "ReceptionRoomSendCluesEntry_NeedCredit": {
+                    "enabled": true,
+                    "max_hit": "{MaxClueSendWhenInsufficient}"
+                },
                 "ReceptionRoomSendCluesSelectClues_NeedCredit": {
                     "max_hit": "{MaxClueSendWhenInsufficient}"
                 }
@@ -199,12 +103,12 @@
         "CreditShoppingPriority1": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority1.label",
-            "description": "$option.CreditShoppingPriority1.description",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority1AutoGetCredits",
                         "CreditShoppingPriority1CheckReserveThreshold",
                         "CreditShoppingPriority1Items",
                         "CreditShoppingPriority1DiscountValue"
@@ -234,6 +138,39 @@
                                 }
                             }
                         },
+                        "AutoGetCreditsBuyPriority1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
                         "AutoGetCreditsBuyPriority1": {
                             "recognition": {
                                 "type": "OCR",
@@ -781,12 +718,12 @@
         "CreditShoppingPriority2": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority2.label",
-            "description": "$option.CreditShoppingPriority2.description",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority2AutoGetCredits",
                         "CreditShoppingPriority2CheckReserveThreshold",
                         "CreditShoppingPriority2Items",
                         "CreditShoppingPriority2DiscountValue"
@@ -816,6 +753,39 @@
                                 }
                             }
                         },
+                        "AutoGetCreditsBuyPriority2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
                         "AutoGetCreditsBuyPriority2": {
                             "recognition": {
                                 "type": "OCR",
@@ -1235,12 +1205,12 @@
         "CreditShoppingPriority3": {
             "type": "switch",
             "label": "$option.CreditShoppingPriority3.label",
-            "description": "$option.CreditShoppingPriority3.description",
             "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority3AutoGetCredits",
                         "CreditShoppingPriority3CheckReserveThreshold",
                         "CreditShoppingPriority3Items",
                         "CreditShoppingPriority3DiscountValue"
@@ -1270,6 +1240,39 @@
                                 }
                             }
                         },
+                        "AutoGetCreditsBuyPriority3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
                         "AutoGetCreditsBuyPriority3": {
                             "recognition": {
                                 "type": "OCR",
