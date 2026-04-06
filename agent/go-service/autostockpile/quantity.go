@@ -19,18 +19,18 @@ type quantityDecision struct {
 func resolveQuantityDecision(selection SelectionResult, data RecognitionData) quantityDecision {
 	switch {
 	case selection.CurrentPrice < selection.Threshold:
-		return resolveThresholdQuantityDecision(data.Quota.Current)
+		return resolveThresholdQuantityDecision()
 	case data.Quota.Overflow > 0:
 		return resolveOverflowQuantityDecision(data.Quota)
 	default:
-		return resolveThresholdQuantityDecision(data.Quota.Current)
+		return resolveThresholdQuantityDecision()
 	}
 }
 
-func resolveThresholdQuantityDecision(quotaCurrent int) quantityDecision {
+func resolveThresholdQuantityDecision() quantityDecision {
 	return quantityDecision{
 		Mode:   quantityModeSwipeMax,
-		Reason: i18n.T("autostockpile.qty_reserve_disabled"),
+		Reason: i18n.T("autostockpile.qty_below_threshold_buy"),
 	}
 }
 
