@@ -3,16 +3,13 @@ name: Sync QQ Groups
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           show-progress: false
 
       - name: Fetch index.json and update README
@@ -35,5 +32,11 @@ jobs:
       - name: Commit and push
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
-          message: "chore: sync QQ group info in README"
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "chore: sync QQ group info in README
+
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            [skip changelog]"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
