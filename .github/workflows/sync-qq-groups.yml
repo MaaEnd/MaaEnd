@@ -1,8 +1,6 @@
 name: Sync QQ Groups
 
 on:
-  repository_dispatch:
-    types: [sync-qq-groups]
   workflow_dispatch:
 
 permissions:
@@ -34,16 +32,8 @@ jobs:
           sed -i "s|\*\*用户 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**用户 QQ 群**: [$USER_GROUP]($USER_LINK)|" README.md
           sed -i "s|\*\*开发 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**开发 QQ 群**: [$DEV_GROUP]($DEV_LINK)|" README.md
 
-      - name: Check for changes
-        id: diff
-        run: |
-          git diff --quiet && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
-
       - name: Commit and push
-        if: steps.diff.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "chore: sync QQ group info in README"
-          git push
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          message: "chore: sync QQ group info in README"
