@@ -32,7 +32,7 @@
                     951,
                     563
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
                 "method": 5,
                 "threshold": 0.6,
@@ -56,7 +56,7 @@
                     40,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
                 "threshold": 0.6,
                 "order_by": "Score"
@@ -79,7 +79,7 @@
                     675,
                     243
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
                 "threshold": 0.6,
                 "order_by": "Score"
