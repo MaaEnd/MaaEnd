@@ -213,7 +213,7 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 
 	// 翻译有缘再写
 	targetPrice := 4600
-	var targetName string
+	targetName := "unknown"
 	if k := firstContainedKeyword(resultItem.Text, moderatePriceKeywords); k != "" {
 		targetPrice = param.ModeratePrice
 		targetName = k
