@@ -112,7 +112,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	newSelection, newQuantityDecision, err := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
 	if err != nil {
-		return stopTaskWithFocus(ctx, AbortReasonGoodsTierInvalidFatal, err)
+		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
 
 	if priceChanged {

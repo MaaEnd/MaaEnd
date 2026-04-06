@@ -98,7 +98,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
 	if err != nil {
-		return stopTaskWithFocus(ctx, AbortReasonGoodsTierInvalidFatal, err)
+		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
 	if !selection.Selected {
 		log.Info().

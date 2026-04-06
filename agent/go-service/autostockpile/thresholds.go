@@ -16,10 +16,10 @@ func resolveTierThreshold(tierID string, cfg SelectionConfig) (int, error) {
 
 	threshold, ok := cfg.PriceLimits[tierID]
 	if !ok {
-		return 0, fmt.Errorf("tier %q is not configured in price_limits", tierID)
+		return 0, newThresholdConfigError("price_limits."+tierID, fmt.Errorf("tier %q is not configured in price_limits", tierID))
 	}
 	if threshold <= 0 {
-		return 0, fmt.Errorf("tier %q has invalid threshold %d", tierID, threshold)
+		return 0, newThresholdConfigError("price_limits."+tierID, fmt.Errorf("tier %q has invalid threshold %d", tierID, threshold))
 	}
 
 	return threshold, nil
