@@ -119,7 +119,7 @@ func MatchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id strin
 }
 
 // ParseTierFromID 从商品 ID 中提取 Tier 信息。
-// 例如：输入 "ValleyIV/OriginiumSaplings.Tier3" 返回 "ValleyIVTier3"
+// 例如：输入 "ValleyIV/OriginiumSaplings.Tier3" 返回 "ValleyIV.Tier3"
 func ParseTierFromID(id string) string {
 	parts := strings.Split(id, "/")
 	if len(parts) < 2 {
@@ -139,7 +139,7 @@ func ParseTierFromID(id string) string {
 		return ""
 	}
 
-	return region + tierPart
+	return region + "." + tierPart
 }
 
 // BuildTemplatePath 根据商品 ID 构造模板路径。

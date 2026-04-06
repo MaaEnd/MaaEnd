@@ -33,7 +33,7 @@ func buildPriceLimitsForRegion(region string) (PriceLimitConfig, error) {
 
 	priceLimits := make(PriceLimitConfig, len(tierBases))
 	for tierSuffix, tierBase := range tierBases {
-		priceLimits[region+tierSuffix] = regionBase + tierBase
+		priceLimits[region+"."+tierSuffix] = regionBase + tierBase
 	}
 	return priceLimits, nil
 }

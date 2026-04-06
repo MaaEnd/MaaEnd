@@ -93,13 +93,12 @@ If you need different pricing behavior, update the Go defaults in code rather th
 
 ## Threshold Resolution Mechanism
 
-The system determines the purchase threshold using the following priority:
+The system currently uses **strict region-tier key lookups** to determine the purchase threshold:
 
-1. **Region-tier default generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from `region_base + tier_base`.
-2. **Region fallback threshold**: `buildSelectionConfig()` uses the minimum positive value from that region's generated table as `FallbackThreshold`.
-3. **Global default**: If the generated table has no positive value, `thresholds.go` falls back to `defaultFallbackBuyThreshold` (800), which is defined in `types.go`.
+1. **Region-tier defaults generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from the `region_base + tier_base` formula.
+2. **Strict `price_limits` resolution in `thresholds.go`**: `resolveTierThreshold()` uses `GoodsItem.Tier` as the lookup key directly. Missing keys, empty tiers, or invalid thresholds all return errors and are handled upstream as fatal failures.
 
-Current generated defaults include `ValleyIVTier1=600`, `ValleyIVTier2=900`, `ValleyIVTier3=1200`, `WulingTier1=1200`, and `WulingTier2=1500`.
+Current generated defaults include `ValleyIV.Tier1=600`, `ValleyIV.Tier2=900`, `ValleyIV.Tier3=1200`, `Wuling.Tier1=1200`, and `Wuling.Tier2=1500`.
 
 ## Runtime Override Behavior
 
@@ -168,7 +167,7 @@ To support a new general tier for a region, also maintain the following:
 
 1. **Default Thresholds**: Add the new tier base to `tierBases` in `agent/go-service/autostockpile/strategy.go`.
 
-If no tier base is provided for a new tier, it will fall back to the minimum positive region threshold or `defaultFallbackBuyThreshold` (800). The task will continue, but purchase decisions might not be ideal.
+If a new tier is missing from `tierBases`, `buildPriceLimitsForRegion()` will not generate the corresponding key. Once that tier is recognized, `resolveTierThreshold()` will fail because the exact `{Region}.Tier{N}` key is missing, and the task will stop with a fatal error.
 
 ## Adding Regions
 
@@ -228,5 +227,5 @@ Ensure the following after any changes:
 - **Missing `item_map.json`**: Adding images without mapping prevents OCR names from being linked to item IDs, leading to incomplete recognition.
 - **Missing Images**: Adding mappings without templates prevents clicking the items.
 - **Missing `custom_action_param.Region` on `AutoStockpileDecision{Region}`**: Adding a region without setting the decision node's region causes the recognition/task flow to fail immediately.
-- **Missing Default Threshold Inputs**: New tiers or regions without matching entries in `strategy.go` (`tierBases` / `regionBases`) will use fallback values, which may not match expectations.
+- **Missing Default Threshold Inputs**: If `strategy.go` (`tierBases` / `regionBases`) does not generate the exact `{Region}.Tier{N}` key for a recognized tier, strict threshold lookup will fail and the task will stop as a fatal error.
 - **Extra Dots in Filenames**: Using extra `.` characters in filenames interferes with parsing the item name and tier.

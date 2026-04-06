@@ -93,13 +93,12 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ## 阈值解析机制
 
-系统按以下优先级决定购买阈值：
+系统当前使用**严格的地区-档位查表**来决定购买阈值：
 
 1. **`strategy.go` 生成的地区-档位默认值**：`buildPriceLimitsForRegion()` 按 `region_base + tier_base` 公式生成各档位阈值。
-2. **地区 fallback 阈值**：`buildSelectionConfig()` 会从该地区生成出的阈值表中取最小正值作为 `FallbackThreshold`。
-3. **全局默认值**：如果该地区生成出的阈值表里没有正值，`thresholds.go` 会回退到 `types.go` 中定义的 `defaultFallbackBuyThreshold` (800)。
+2. **`thresholds.go` 严格命中 `price_limits`**：`resolveTierThreshold()` 会直接使用 `GoodsItem.Tier` 作为 key 查表；key 缺失、为空或阈值非法都会返回错误，并由上游按 fatal 语义中止流程。
 
-当前生成出的默认值包括：`ValleyIVTier1=600`、`ValleyIVTier2=900`、`ValleyIVTier3=1200`、`WulingTier1=1200`、`WulingTier2=1500`。
+当前生成出的默认值包括：`ValleyIV.Tier1=600`、`ValleyIV.Tier2=900`、`ValleyIV.Tier3=1200`、`Wuling.Tier1=1200`、`Wuling.Tier2=1500`。
 
 ## 运行时覆盖行为
 
@@ -169,7 +168,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 1. 在 `agent/go-service/autostockpile/strategy.go` 的 `tierBases` 中补充该档位的基础值。
 
-如果新档位没有配置基础值，运行时会按“当前地区最小正阈值 -> `defaultFallbackBuyThreshold` (800)”的顺序回退。流程可以继续，但购买结果不一定符合预期。
+如果新档位没有在 `tierBases` 中配置基础值，`buildPriceLimitsForRegion()` 就不会生成对应 key；后续一旦识别到该档位，`resolveTierThreshold()` 会因为缺少精确的 `{Region}.Tier{N}` 配置而直接报错并按 fatal 终止。
 
 ---
 
@@ -231,5 +230,5 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 - **只加图片，不加 `item_map.json`**：OCR 名称无法映射到商品 ID，识别结果不完整。
 - **只加 `item_map.json`，不加图片**：能匹配到名称，但无法完成模板点击。
 - **新增地区但没在 `DecisionLoop.json` 的 `AutoStockpileDecision{Region}` 节点设置 `custom_action_param.Region`**：运行时会因地区缺失或非法直接报错并中止识别/任务。
-- **新增档位或地区但没在 `strategy.go` 补默认阈值输入**：流程可能继续执行，但购买阈值会退回 fallback，不一定符合预期。
+- **新增档位或地区但没在 `strategy.go` 补默认阈值输入**：运行时不会为缺失档位生成对应的 `{Region}.Tier{N}` key；一旦识别到该档位，严格查表会直接失败，并按 fatal 语义中止流程。
 - **文件名里带额外 `.`**：会影响商品名与 `Tier` 的解析。
