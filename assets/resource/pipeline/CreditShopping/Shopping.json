@@ -207,7 +207,7 @@
         }
     },
     "AutoGetCredits": {
-        "desc": "已启用购买物品买不起时自动去基建获取（选项：获取信用点）",
+        "desc": "已启用购买物品买不起时自动去基建获取（由 CreditShoppingPriority1AutoGetCredits / CreditShoppingPriority2AutoGetCredits / CreditShoppingPriority3AutoGetCredits 控制）",
         "max_hit": 1,
         "recognition": "Or",
         "any_of": [
