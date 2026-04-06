@@ -30,17 +30,17 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 
 ## ✨ Features
 
-- 🎁 **One-click preset scenes**: Daily Full, Quick Daily, Realtime Assist, and Essence Farming are all bundled as ready-to-use presets, so common setups are only one click away. ✨
+- 🎁 **One-click preset scenes**: Daily Full, Quick Daily, Realtime Assist, and Essence Farming are all bundled as ready-to-use presets, so common setups are only one-click away. ✨
 - 🎮 **Real-time early-game assistant**: The helper keeps watching the screen and fills in key actions on demand, so you can stay focused on exploration and progression. ✨
     - **Auto story**: Skip dialogue, choose branches intelligently, and speed through story scenes when needed.
-    - **Interaction handling**: Auto click tutorial guides, flip manuals, tap to continue, and close archive / voice panels without the usual frantic clicking.
+    - **Interaction handling**: Auto click tutorial guides, flip manuals, tap to continue, and close archive/voice panels without the usual frantic clicking.
     - **Combat assistance**: Auto basic attacks, dodges, skills, ultimates, combo skills, and target lock to keep fights smooth.
     - **Auto loot**: Picks up shiny drops and gathering points automatically so fewer resources slip by.
     - **Convenience actions**: Quick teleport confirmation and auto zipline support make traversal much faster.
     - **Puzzle helper**: Run into a puzzle while exploring? Let the AI solve it on the spot, or switch to the dedicated `🧩 Solve Puzzle` task.
     - **Petting**: Yes, petting support is here too - especially handy together with auto loot. 🐾
 - 🧩 **Puzzle Master**: Fast puzzle solving with single-run, loop, and demo-only modes for both practical use and learning.
-- 💎 **Essence filtering**: Smart essence recognition with automatic lock / discard behavior based on weapon rarity, essence type, and extra rules. ✨
+- 💎 **Essence filtering**: Smart essence recognition with automatic lock/discard behavior based on weapon rarity, essence type, and extra rules. ✨
 - 🎱 **Essence farming**: Automatically challenges heavy silt points, supports repeated runs, reward claiming, and post-battle essence filtering in one flow.
 - 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
 - ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
@@ -55,7 +55,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 💳 **Credit shop purchasing**: Auto-buy credit shop items with support for priorities, discounts, reserve thresholds, and credit-gain linkage.
 - 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in batches - great for batteries, ores, sand leaves, and other stored goods.
 - 📐 **Blueprint porter**: Batch import blueprints, intelligently parse share codes or messy text, and get building plans in place with far less manual work.
-- 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection / placement / gifting in one go.
+- 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection/placement/gifting in one go.
 - 🤝 **Visit friends**: Automatically visits friends and handles production assistance plus intel exchange as part of the routine.
 - 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
 - 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
