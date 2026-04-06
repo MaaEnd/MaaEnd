@@ -315,8 +315,6 @@
     "option.CreditShoppingClueStockLimit.description": "단서 종류별로 계산합니다. 특정 종류의 단서가 이 수량을 넘으면 연동 흐름에서 해당 종류를 우선으로 선물합니다.",
     "option.CreditShoppingClueStockLimit.cases.1.label": "1",
     "option.CreditShoppingClueStockLimit.cases.2.label": "2",
-    "option.RefreshGetCredits.label": "새로고침 비용이 부족할 때도 제강호 접견실에서 크레딧 획득을 시도합니다.",
-    "option.RefreshGetCredits.description": "기본값은 비활성화입니다. 활성화하면 새로고침 크레딧이 부족할 때 독립적인 크레딧 획득 흐름을 발동합니다. 비활성화하면 새로고침 크레딧 부족으로는 발동하지 않습니다. 구매 물품을 살 수 없을 때 발동할지는 각 구매 물품 옵션의 `크레딧 자동 획득` 스위치 설정을 따릅니다.",
     "option.DiscountValue.label": "할인율",
     "option.DiscountValue.description": "할인율 선택",
     "option.DiscountValue.cases.-99%.label": "-99%",

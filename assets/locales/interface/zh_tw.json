@@ -315,8 +315,6 @@
     "option.CreditShoppingClueStockLimit.description": "按單種線索庫存計算；當某一種線索數量超過設定值時，聯動任務會優先嘗試贈送該種線索。",
     "option.CreditShoppingClueStockLimit.cases.1.label": "1",
     "option.CreditShoppingClueStockLimit.cases.2.label": "2",
-    "option.RefreshGetCredits.label": "刷新額度不足時同樣會嘗試從帝江號會客室取得信用點。",
-    "option.RefreshGetCredits.description": "預設關閉。開啟後，刷新信用點不足時會觸發獨立的取得信用點流程；關閉時刷新信用點不足不會觸發。購買物品買不起時是否觸發，取決於各購買物品選項中的「自動取得信用點」開關。",
     "option.DiscountValue.label": "折扣比例",
     "option.DiscountValue.description": "選擇折扣比例",
     "option.DiscountValue.cases.-99%.label": "-99%",

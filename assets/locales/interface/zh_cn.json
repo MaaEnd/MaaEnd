@@ -315,8 +315,6 @@
     "option.CreditShoppingClueStockLimit.description": "按单种线索库存计算；当某一种线索数量超过设定值时，联动任务会优先尝试赠送该种线索。",
     "option.CreditShoppingClueStockLimit.cases.1.label": "1",
     "option.CreditShoppingClueStockLimit.cases.2.label": "2",
-    "option.RefreshGetCredits.label": "刷新额度不足同样会尝试从帝江号会客室获取信用点。",
-    "option.RefreshGetCredits.description": "默认关闭。开启后，刷新信用点不足时会触发独立的获取信用点流程；关闭时刷新信用点不足不会触发。购买物品买不起时是否触发，取决于各购买物品选项中的“自动获取信用点”开关。",
     "option.DiscountValue.label": "折扣比例",
     "option.DiscountValue.description": "选择折扣比例",
     "option.DiscountValue.cases.-99%.label": "-99%",
