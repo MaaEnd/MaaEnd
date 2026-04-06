@@ -205,6 +205,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority1CheckReserveThreshold",
                         "CreditShoppingPriority1Items",
                         "CreditShoppingPriority1DiscountValue"
                     ],
@@ -218,7 +219,20 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyPriority1": {
-                            "enabled": false
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         },
                         "AutoGetCreditsBuyPriority1": {
                             "recognition": {
@@ -234,6 +248,39 @@
                                         "a^"
                                     ]
                                 }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1CheckReserveThreshold": {
+            "type": "switch",
+            "label": "$option.CreditShoppingCheckReserveThreshold.label",
+            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority1": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority1": {
+                            "recognition": {
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -740,6 +787,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority2CheckReserveThreshold",
                         "CreditShoppingPriority2Items",
                         "CreditShoppingPriority2DiscountValue"
                     ],
@@ -753,7 +801,20 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyPriority2": {
-                            "enabled": false
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         },
                         "AutoGetCreditsBuyPriority2": {
                             "recognition": {
@@ -769,6 +830,39 @@
                                         "a^"
                                     ]
                                 }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2CheckReserveThreshold": {
+            "type": "switch",
+            "label": "$option.CreditShoppingCheckReserveThreshold.label",
+            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority2": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority2": {
+                            "recognition": {
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -1147,6 +1241,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "CreditShoppingPriority3CheckReserveThreshold",
                         "CreditShoppingPriority3Items",
                         "CreditShoppingPriority3DiscountValue"
                     ],
@@ -1160,7 +1255,20 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyPriority3": {
-                            "enabled": false
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
                         },
                         "AutoGetCreditsBuyPriority3": {
                             "recognition": {
@@ -1176,6 +1284,39 @@
                                         "a^"
                                     ]
                                 }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3CheckReserveThreshold": {
+            "type": "switch",
+            "label": "$option.CreditShoppingCheckReserveThreshold.label",
+            "description": "$option.CreditShoppingCheckReserveThreshold.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority3": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingReserveCreditCheckPriority3": {
+                            "recognition": {
+                                "type": "DirectHit"
                             }
                         }
                     }
@@ -1712,6 +1853,15 @@
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
+                            }
+                        }
+                    }
+                },
+                "CreditShoppingReserveCreditSatisfied": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}>={ReserveCreditThreshold}"
                             }
                         }
                     }
