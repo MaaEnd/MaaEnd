@@ -1,4 +1,4 @@
-package quantizedsliding
+package bettersliding
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type parsedQuantizedSlidingParams struct {
+type parsedBetterSlidingParams struct {
 	target            int
 	quantityBox       []int
 	quantityFilter    *quantityFilterParam
@@ -20,7 +20,7 @@ type parsedQuantizedSlidingParams struct {
 	clampTargetToMax  bool
 }
 
-func parseQuantizedSlidingParam(customActionParam string) (quantizedSlidingParam, error) {
+func parseBetterSlidingParam(customActionParam string) (quantizedSlidingParam, error) {
 	var params quantizedSlidingParam
 	if err := json.Unmarshal([]byte(customActionParam), &params); err != nil {
 		return quantizedSlidingParam{}, err
@@ -29,8 +29,8 @@ func parseQuantizedSlidingParam(customActionParam string) (quantizedSlidingParam
 	return params, nil
 }
 
-func (a *QuantizedSlidingAction) loadActionParams(customActionParam string) bool {
-	params, err := parseQuantizedSlidingParam(customActionParam)
+func (a *BetterSlidingAction) loadActionParams(customActionParam string) bool {
+	params, err := parseBetterSlidingParam(customActionParam)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -49,12 +49,12 @@ func (a *QuantizedSlidingAction) loadActionParams(customActionParam string) bool
 	return true
 }
 
-func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingParam) (parsedQuantizedSlidingParams, bool) {
+func (a *BetterSlidingAction) normalizeActionParams(params quantizedSlidingParam) (parsedBetterSlidingParams, bool) {
 	if params.Quantity.Target <= 0 {
 		a.logger.Error().
 			Int("target", params.Quantity.Target).
 			Msg("invalid target, must be greater than 0")
-		return parsedQuantizedSlidingParams{}, false
+		return parsedBetterSlidingParams{}, false
 	}
 
 	increaseButton, err := normalizeButtonParam(params.IncreaseButton)
@@ -62,7 +62,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		a.logger.Error().
 			Err(err).
 			Msg("failed to normalize increase button")
-		return parsedQuantizedSlidingParams{}, false
+		return parsedBetterSlidingParams{}, false
 	}
 
 	decreaseButton, err := normalizeButtonParam(params.DecreaseButton)
@@ -70,7 +70,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		a.logger.Error().
 			Err(err).
 			Msg("failed to normalize decrease button")
-		return parsedQuantizedSlidingParams{}, false
+		return parsedBetterSlidingParams{}, false
 	}
 
 	centerPointOffset, err := normalizeCenterPointOffset(params.CenterPointOffset)
@@ -78,7 +78,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		a.logger.Error().
 			Err(err).
 			Msg("failed to normalize center point offset")
-		return parsedQuantizedSlidingParams{}, false
+		return parsedBetterSlidingParams{}, false
 	}
 
 	quantityFilter, err := normalizeQuantityFilter(params.QuantityFilter)
@@ -86,7 +86,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		a.logger.Error().
 			Err(err).
 			Msg("failed to normalize quantity filter")
-		return parsedQuantizedSlidingParams{}, false
+		return parsedBetterSlidingParams{}, false
 	}
 
 	quantityOnlyRec := false
@@ -94,7 +94,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		quantityOnlyRec = *params.Quantity.OnlyRec
 	}
 
-	return parsedQuantizedSlidingParams{
+	return parsedBetterSlidingParams{
 		target:            params.Quantity.Target,
 		quantityBox:       append([]int(nil), params.Quantity.Box...),
 		quantityFilter:    quantityFilter,
@@ -108,7 +108,7 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 	}, true
 }
 
-func (a *QuantizedSlidingAction) applyActionParams(params parsedQuantizedSlidingParams) {
+func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams) {
 	a.Target = params.target
 	a.QuantityBox = params.quantityBox
 	a.QuantityFilter = params.quantityFilter
@@ -121,7 +121,7 @@ func (a *QuantizedSlidingAction) applyActionParams(params parsedQuantizedSliding
 	a.ClampTargetToMax = params.clampTargetToMax
 }
 
-func (a *QuantizedSlidingAction) logParsedActionParams() {
+func (a *BetterSlidingAction) logParsedActionParams() {
 	parseLog := a.logger.Info().
 		Int("target", a.Target).
 		Ints("quantity_box", a.QuantityBox).
@@ -144,7 +144,7 @@ func (a *QuantizedSlidingAction) logParsedActionParams() {
 	parseLog.Msg("parsed custom action parameters")
 }
 
-func (a *QuantizedSlidingAction) initLogger(taskName string) {
+func (a *BetterSlidingAction) initLogger(taskName string) {
 	a.logger = log.With().
 		Str("component", quantizedSlidingActionName).
 		Str("task", taskName).

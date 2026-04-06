@@ -1,6 +1,6 @@
-# 开发手册 - QuantizedSliding 参考文档
+# 开发手册 - BetterSliding 参考文档
 
-`QuantizedSliding` 是一个通过 `Custom` 动作类型调用的 go-service 自定义动作，用于处理"拖动滑条选择数量，但目标值是离散档位"的界面。
+`BetterSliding` 是一个通过 `Custom` 动作类型调用的 go-service 自定义动作，用于处理"拖动滑条选择数量，但目标值是离散档位"的界面。
 
 适合下面这类场景：
 
@@ -10,13 +10,13 @@
 
 当前实现位于：
 
-- Go 动作包：`agent/go-service/quantizedsliding/`
-- 包内注册：`agent/go-service/quantizedsliding/register.go`
+- Go 动作包：`agent/go-service/bettersliding/`
+- 包内注册：`agent/go-service/bettersliding/register.go`
 - go-service 总注册入口：`agent/go-service/register.go`
-- 公共 Pipeline：`assets/resource/pipeline/QuantizedSliding/Main.json` 与 `Helper.json`
+- 公共 Pipeline：`assets/resource/pipeline/BetterSliding/Main.json` 与 `Helper.json`
 - 现有接入示例：`assets/resource/pipeline/AutoStockpile/Purchase.json` 中的 `AutoStockpileSwipeSpecificQuantity`
 
-其中 `agent/go-service/quantizedsliding/` 已按职责拆分为多个文件：
+其中 `agent/go-service/bettersliding/` 已按职责拆分为多个文件：
 
 | 文件           | 作用                                       |
 | -------------- | ------------------------------------------ |
@@ -27,20 +27,20 @@
 | `overrides.go` | Pipeline override 构造逻辑                 |
 | `ocr.go`       | typed-first 的识别框/数量读取辅助逻辑      |
 | `normalize.go` | 按钮参数归一化与基础计算辅助               |
-| `register.go`  | 向 go-service 注册 `QuantizedSliding` 动作 |
+| `register.go`  | 向 go-service 注册 `BetterSliding` 动作 |
 
 ## 执行模式
 
-`QuantizedSliding` 当前有两种执行模式：
+`BetterSliding` 当前有两种执行模式：
 
-1. **对外调用模式**：当业务任务以 `custom_action: "QuantizedSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `QuantizedSlidingMain` 开始执行整条内部节点链。
-2. **内部节点模式**：在当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
+1. **对外调用模式**：当业务任务以 `custom_action: "BetterSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `BetterSlidingMain` 开始执行整条内部节点链。
+2. **内部节点模式**：在当前节点本身就是 `BetterSlidingMain`、`BetterSlidingFindStart`、`BetterSlidingGetMaxQuantity`、`BetterSlidingFindEnd`、`BetterSlidingCheckQuantity`、`BetterSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
 
 业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
 
 ## 它是怎么工作的
 
-`QuantizedSliding` 不是"按固定百分比滑到某个位置"，而是一个**先探测、再计算、再微调**的流程。
+`BetterSliding` 不是"按固定百分比滑到某个位置"，而是一个**先探测、再计算、再微调**的流程。
 
 整体步骤如下：
 
@@ -62,7 +62,7 @@ clickX = startX + (endX - startX) * numerator / denominator
 clickY = startY + (endY - startY) * numerator / denominator
 ```
 
-计算出的 `[clickX, clickY]` 会被动态写入公共节点 `QuantizedSlidingPreciseClick` 的 `action.param.target`。
+计算出的 `[clickX, clickY]` 会被动态写入公共节点 `BetterSlidingPreciseClick` 的 `action.param.target`。
 
 ## 调用方式
 
@@ -73,7 +73,7 @@ clickY = startY + (endY - startY) * numerator / denominator
     "action": {
         "type": "Custom",
         "param": {
-            "custom_action": "QuantizedSliding",
+            "custom_action": "BetterSliding",
             "custom_action_param": {
                 "GreenMask": false,
                 "Quantity": {
@@ -108,7 +108,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 | `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                          |
 | `ClampTargetToMax`  | `bool`                  | 否   | 为 `true` 时，若 `Quantity.Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
 
-`CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
+`CenterPointOffset` 用于微调 `BetterSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
 - `x` 为水平方向偏移，负数表示向左，正数表示向右；
 - `y` 为垂直方向偏移，负数表示向上，正数表示向下；
@@ -116,7 +116,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ### `QuantityFilter`
 
-`QuantityFilter` 是一个**可选增强项**。不传时，仅表示不启用 `QuantizedSlidingGetQuantity` 的颜色过滤预处理；传入后，会先对该 OCR 结果做颜色过滤，再识别数字。
+`QuantityFilter` 是一个**可选增强项**。不传时，仅表示不启用 `BetterSlidingGetQuantity` 的颜色过滤预处理；传入后，会先对该 OCR 结果做颜色过滤，再识别数字。
 
 最小示例：
 
@@ -139,7 +139,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ### 数量解析策略
 
-Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路径为口径。当前 Go 侧只从 `QuantizedSlidingGetQuantity` 的 `Results.Best.AsOCR().Text` 读取文本，然后从该文本中提取**全部数字字符**。
+Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路径为口径。当前 Go 侧只从 `BetterSlidingGetQuantity` 的 `Results.Best.AsOCR().Text` 读取文本，然后从该文本中提取**全部数字字符**。
 
 这意味着：
 
@@ -193,30 +193,30 @@ Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路�
 
 ## 依赖的公共节点
 
-`QuantizedSliding` 内部依赖 `assets/resource/pipeline/QuantizedSliding/` 下的公共节点。其中 `Helper.json` 包含基础识别节点：
+`BetterSliding` 内部依赖 `assets/resource/pipeline/BetterSliding/` 下的公共节点。其中 `Helper.json` 包含基础识别节点：
 
-- `QuantizedSlidingSwipeButton`：识别滑块模板 `QuantizedSliding/SwipeButton.png`
-- `QuantizedSlidingGetQuantity`：OCR 当前数量
-- `QuantizedSlidingQuantityFilter`：辅助 `GetQuantity` 的颜色过滤
+- `BetterSlidingSwipeButton`：识别滑块模板 `BetterSliding/SwipeButton.png`
+- `BetterSlidingGetQuantity`：OCR 当前数量
+- `BetterSlidingQuantityFilter`：辅助 `GetQuantity` 的颜色过滤
 
 `Main.json` 包含主流程节点：
 
-- `QuantizedSlidingSwipeToMax`：拖到最大值
-- `QuantizedSlidingCheckQuantity`：判断是否需要微调
-- `QuantizedSlidingIncreaseQuantity` / `QuantizedSlidingDecreaseQuantity`：执行加减按钮点击
-- `QuantizedSlidingDone`：成功结束
+- `BetterSlidingSwipeToMax`：拖到最大值
+- `BetterSlidingCheckQuantity`：判断是否需要微调
+- `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity`：执行加减按钮点击
+- `BetterSlidingDone`：成功结束
 
 有两点最关键：
 
-1. 必须能稳定识别滑块模板 `QuantizedSliding/SwipeButton.png`；
+1. 必须能稳定识别滑块模板 `BetterSliding/SwipeButton.png`；
 2. `Quantity.Box` 对应的 OCR 必须能稳定读出数字。
 
 只要这两个前提不成立，后面的比例计算再准确也没有意义。
 
 当前 Go 侧的识别读取策略也有明确边界：
 
-- 滑块识别框优先从 `QuantizedSlidingSwipeButton` 的 `Results.Best.AsTemplateMatch()` 读取；
-- 数量文本来自 `QuantizedSlidingGetQuantity`，并固定读取 `Results.Best.AsOCR().Text`；
+- 滑块识别框优先从 `BetterSlidingSwipeButton` 的 `Results.Best.AsTemplateMatch()` 读取；
+- 数量文本来自 `BetterSlidingGetQuantity`，并固定读取 `Results.Best.AsOCR().Text`；
 - `only_rec` 是当前数量 OCR 的唯一实现口径。
 
 对维护者来说，`Best`、`Filtered` 与 fallback 不是可以随意互换的数据来源，而是当前实现的一部分约束。
@@ -242,10 +242,10 @@ Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路�
 
 ### 2. 准备滑块模板
 
-`QuantizedSliding` 默认使用公共模板节点 `QuantizedSlidingSwipeButton`，其模板路径是：
+`BetterSliding` 默认使用公共模板节点 `BetterSlidingSwipeButton`，其模板路径是：
 
 ```text
-assets/resource/image/QuantizedSliding/SwipeButton.png
+assets/resource/image/BetterSliding/SwipeButton.png
 ```
 
 如果目标界面的滑块样式与现有模板不一致，需要先补模板资源或调整公共节点。
@@ -289,7 +289,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
     "action": {
         "type": "Custom",
         "param": {
-            "custom_action": "QuantizedSliding",
+            "custom_action": "BetterSliding",
             "custom_action_param": {
                 "GreenMask": false,
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
@@ -339,7 +339,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 加减按钮无法识别或无法点击；
 - 微调次数过多仍未收敛。
 
-当前实现会把单次微调点击次数限制在 `0 ~ 30` 之间，`QuantizedSlidingCheckQuantity` 的 `max_hit` 为 `4`。如果走满后仍未到目标值，就会失败并进入 `QuantizedSlidingFail`。
+当前实现会把单次微调点击次数限制在 `0 ~ 30` 之间，`BetterSlidingCheckQuantity` 的 `max_hit` 为 `4`。如果走满后仍未到目标值，就会失败并进入 `BetterSlidingFail`。
 
 ## 为什么还需要微调按钮
 
@@ -373,7 +373,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 接入后，至少检查下面这些点：
 
-1. 滑块模板 `QuantizedSliding/SwipeButton.png` 是否能稳定命中。
+1. 滑块模板 `BetterSliding/SwipeButton.png` 是否能稳定命中。
 2. `Quantity.Box` 是否基于 **1280×720**，且 OCR 能稳定读出数字。
 3. `Direction` 是否与"最大值所在方向"一致。
 4. `IncreaseButton` / `DecreaseButton` 是否优先使用模板路径。
@@ -385,15 +385,15 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 如果需要继续追实现，建议按下面顺序看：
 
-1. `agent/go-service/quantizedsliding/register.go`：确认动作注册名。
-2. `agent/go-service/quantizedsliding/handlers.go`：看 `Run()` 如何区分"对外调用模式"和"内部节点模式"。
-3. `agent/go-service/quantizedsliding/nodes.go`：看公共动作名、内部节点名与 override key 常量。
-4. `agent/go-service/quantizedsliding/params.go`：看参数解析与归一化。
-5. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
-6. `agent/go-service/quantizedsliding/ocr.go`：看 typed-first 的数量与识别框提取逻辑。
-7. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
-8. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
-9. `assets/resource/pipeline/QuantizedSliding/Helper.json`：看基础识别节点配置。
+1. `agent/go-service/bettersliding/register.go`：确认动作注册名。
+2. `agent/go-service/bettersliding/handlers.go`：看 `Run()` 如何区分"对外调用模式"和"内部节点模式"。
+3. `agent/go-service/bettersliding/nodes.go`：看公共动作名、内部节点名与 override key 常量。
+4. `agent/go-service/bettersliding/params.go`：看参数解析与归一化。
+5. `agent/go-service/bettersliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
+6. `agent/go-service/bettersliding/ocr.go`：看 typed-first 的数量与识别框提取逻辑。
+7. `agent/go-service/bettersliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
+8. `assets/resource/pipeline/BetterSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
+9. `assets/resource/pipeline/BetterSliding/Helper.json`：看基础识别节点配置。
 
 ## 相关文档
 

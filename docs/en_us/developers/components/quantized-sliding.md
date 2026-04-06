@@ -1,6 +1,6 @@
-# Development Guide - QuantizedSliding Reference Document
+# Development Guide - BetterSliding Reference Document
 
-`QuantizedSliding` is a go-service custom action invoked through the `Custom` action type. It handles interfaces where you drag a slider to choose a quantity, but the target value is a discrete level rather than a continuous value.
+`BetterSliding` is a go-service custom action invoked through the `Custom` action type. It handles interfaces where you drag a slider to choose a quantity, but the target value is a discrete level rather than a continuous value.
 
 It is suitable for scenarios like these:
 
@@ -10,13 +10,13 @@ It is suitable for scenarios like these:
 
 The current implementation is located at:
 
-- Go action package: `agent/go-service/quantizedsliding/`
-- Package-local registration: `agent/go-service/quantizedsliding/register.go`
+- Go action package: `agent/go-service/bettersliding/`
+- Package-local registration: `agent/go-service/bettersliding/register.go`
 - go-service global registration entry: `agent/go-service/register.go`
-- Shared Pipeline: `assets/resource/pipeline/QuantizedSliding/Main.json` and `Helper.json`
+- Shared Pipeline: `assets/resource/pipeline/BetterSliding/Main.json` and `Helper.json`
 - Existing integration example: `AutoStockpileSwipeSpecificQuantity` in `assets/resource/pipeline/AutoStockpile/Purchase.json`
 
-`agent/go-service/quantizedsliding/` is now split by responsibility:
+`agent/go-service/bettersliding/` is now split by responsibility:
 
 | File           | Responsibility                                                         |
 | -------------- | ---------------------------------------------------------------------- |
@@ -27,20 +27,20 @@ The current implementation is located at:
 | `overrides.go` | Pipeline override construction                                         |
 | `ocr.go`       | Typed-first recognition helpers for hit box and quantity reads         |
 | `normalize.go` | Button parameter normalization and basic calculation helpers           |
-| `register.go`  | Registers the `QuantizedSliding` action into go-service                |
+| `register.go`  | Registers the `BetterSliding` action into go-service                |
 
 ## Execution modes
 
-`QuantizedSliding` currently has two execution modes:
+`BetterSliding` currently has two execution modes:
 
-1. **External invocation mode**: when a business task calls it with `custom_action: "QuantizedSliding"`, the Go side automatically constructs the internal Pipeline override and starts running the full internal flow from `QuantizedSlidingMain` through its downstream nodes.
-2. **Internal node mode**: when the current node itself is one of `QuantizedSlidingMain`, `QuantizedSlidingFindStart`, `QuantizedSlidingGetMaxQuantity`, `QuantizedSlidingFindEnd`, `QuantizedSlidingCheckQuantity`, or `QuantizedSlidingDone`, the Go side directly handles that specific stage.
+1. **External invocation mode**: when a business task calls it with `custom_action: "BetterSliding"`, the Go side automatically constructs the internal Pipeline override and starts running the full internal flow from `BetterSlidingMain` through its downstream nodes.
+2. **Internal node mode**: when the current node itself is one of `BetterSlidingMain`, `BetterSlidingFindStart`, `BetterSlidingGetMaxQuantity`, `BetterSlidingFindEnd`, `BetterSlidingCheckQuantity`, or `BetterSlidingDone`, the Go side directly handles that specific stage.
 
 The business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
 
 ## How it works
 
-`QuantizedSliding` does not simply "swipe to a fixed percentage." Instead, it uses a **detect, calculate, then fine-tune** flow.
+`BetterSliding` does not simply "swipe to a fixed percentage." Instead, it uses a **detect, calculate, then fine-tune** flow.
 
 The overall steps are:
 
@@ -62,7 +62,7 @@ clickX = startX + (endX - startX) * numerator / denominator
 clickY = startY + (endY - startY) * numerator / denominator
 ```
 
-The computed `[clickX, clickY]` is then dynamically written into `QuantizedSlidingPreciseClick.action.param.target`.
+The computed `[clickX, clickY]` is then dynamically written into `BetterSlidingPreciseClick.action.param.target`.
 
 ## How to call it
 
@@ -73,7 +73,7 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
     "action": {
         "type": "Custom",
         "param": {
-            "custom_action": "QuantizedSliding",
+            "custom_action": "BetterSliding",
             "custom_action_param": {
                 "GreenMask": false,
                 "Quantity": {
@@ -108,7 +108,7 @@ Commonly used fields are:
 | `CenterPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                                                          |
 | `ClampTargetToMax`  | `bool`                  | No       | If `true`, when `Quantity.Target` exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately).                                |
 
-`CenterPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
+`CenterPointOffset` is used to fine-tune the final click position for `BetterSlidingPreciseClick`. Its format must be `[x, y]`:
 
 - `x` is the horizontal offset. Negative moves left, positive moves right.
 - `y` is the vertical offset. Negative moves up, positive moves down.
@@ -116,7 +116,7 @@ Commonly used fields are:
 
 ### `QuantityFilter`
 
-`QuantityFilter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `QuantizedSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
+`QuantityFilter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `BetterSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
 
 Minimal example:
 
@@ -139,7 +139,7 @@ Constraints and limits:
 
 ### Quantity parsing strategy
 
-Starting from Stage 1, quantity reading is standardized on the `only_rec` path represented by `Quantity.OnlyRec`. The current Go implementation reads text only from `Results.Best.AsOCR().Text` under `QuantizedSlidingGetQuantity`, then extracts **all digit characters** from that text.
+Starting from Stage 1, quantity reading is standardized on the `only_rec` path represented by `Quantity.OnlyRec`. The current Go implementation reads text only from `Results.Best.AsOCR().Text` under `BetterSlidingGetQuantity`, then extracts **all digit characters** from that text.
 
 That means:
 
@@ -193,30 +193,30 @@ Because of that, when `Direction` is set incorrectly, the most common result is 
 
 ## Shared nodes it depends on
 
-Internally, `QuantizedSliding` depends on shared nodes in `assets/resource/pipeline/QuantizedSliding/`. The `Helper.json` contains basic recognition nodes:
+Internally, `BetterSliding` depends on shared nodes in `assets/resource/pipeline/BetterSliding/`. The `Helper.json` contains basic recognition nodes:
 
-- `QuantizedSlidingSwipeButton`: recognizes the slider template `QuantizedSliding/SwipeButton.png`
-- `QuantizedSlidingGetQuantity`: OCR for the current quantity
-- `QuantizedSlidingQuantityFilter`: color filtering helper for `GetQuantity`
+- `BetterSlidingSwipeButton`: recognizes the slider template `BetterSliding/SwipeButton.png`
+- `BetterSlidingGetQuantity`: OCR for the current quantity
+- `BetterSlidingQuantityFilter`: color filtering helper for `GetQuantity`
 
 `Main.json` contains the main flow nodes:
 
-- `QuantizedSlidingSwipeToMax`: drags to the maximum value
-- `QuantizedSlidingCheckQuantity`: determines whether fine-tuning is needed
-- `QuantizedSlidingIncreaseQuantity` / `QuantizedSlidingDecreaseQuantity`: clicks the increase/decrease buttons
-- `QuantizedSlidingDone`: successful exit
+- `BetterSlidingSwipeToMax`: drags to the maximum value
+- `BetterSlidingCheckQuantity`: determines whether fine-tuning is needed
+- `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity`: clicks the increase/decrease buttons
+- `BetterSlidingDone`: successful exit
 
 Two points are the most critical:
 
-1. The slider template `QuantizedSliding/SwipeButton.png` must be recognized reliably.
+1. The slider template `BetterSliding/SwipeButton.png` must be recognized reliably.
 2. The OCR for `Quantity.Box` must be able to read numbers reliably.
 
 If either of these prerequisites is not met, more accurate proportional calculations will not help.
 
 The current Go-side recognition reading rules are intentionally narrow:
 
-- The slider hit box is read from `QuantizedSlidingSwipeButton` and prefers `Results.Best.AsTemplateMatch()`.
-- The quantity text is read from `QuantizedSlidingGetQuantity`, and always comes from `Results.Best.AsOCR().Text`.
+- The slider hit box is read from `BetterSlidingSwipeButton` and prefers `Results.Best.AsTemplateMatch()`.
+- The quantity text is read from `BetterSlidingGetQuantity`, and always comes from `Results.Best.AsOCR().Text`.
 - `only_rec` is the sole implementation contract for quantity OCR.
 
 For maintainers, this means `Best`, `Filtered`, and fallback parsing are not interchangeable in the current implementation.
@@ -242,10 +242,10 @@ Not suitable when:
 
 ### 2. Prepare the slider template
 
-By default, `QuantizedSliding` uses the shared template node `QuantizedSlidingSwipeButton`, whose template path is:
+By default, `BetterSliding` uses the shared template node `BetterSlidingSwipeButton`, whose template path is:
 
 ```text
-assets/resource/image/QuantizedSliding/SwipeButton.png
+assets/resource/image/BetterSliding/SwipeButton.png
 ```
 
 If the target screen uses a different slider-handle style, add a matching template resource or adjust the shared node first.
@@ -289,7 +289,7 @@ See the actual usage currently in this repository:
     "action": {
         "type": "Custom",
         "param": {
-            "custom_action": "QuantizedSliding",
+            "custom_action": "BetterSliding",
             "custom_action_param": {
                 "GreenMask": false,
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
@@ -339,7 +339,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Purchase.json` (node: `Au
 - The increase/decrease buttons cannot be recognized or clicked;
 - Too many fine-tuning attempts still do not converge.
 
-The current implementation clamps a single fine-tuning branch to the range `0 ~ 30`, and `QuantizedSlidingCheckQuantity` has `max_hit = 4`. If those limits are exhausted and the target value is still not reached, the flow fails and enters `QuantizedSlidingFail`.
+The current implementation clamps a single fine-tuning branch to the range `0 ~ 30`, and `BetterSlidingCheckQuantity` has `max_hit = 4`. If those limits are exhausted and the target value is still not reached, the flow fails and enters `BetterSlidingFail`.
 
 ## Why fine-tuning buttons are still needed
 
@@ -373,7 +373,7 @@ This is much faster than relying only on repeated button clicks, and much more s
 
 After integration, check at least the following:
 
-1. Whether the slider template `QuantizedSliding/SwipeButton.png` can be matched reliably.
+1. Whether the slider template `BetterSliding/SwipeButton.png` can be matched reliably.
 2. Whether `Quantity.Box` is based on **1280×720**, and OCR can read digits reliably.
 3. Whether `Direction` matches the direction where the maximum value lies.
 4. Whether `IncreaseButton` / `DecreaseButton` use template paths whenever possible.
@@ -385,15 +385,15 @@ After integration, check at least the following:
 
 If you need to follow the implementation further, review in this order:
 
-1. `agent/go-service/quantizedsliding/register.go`: confirm the registered action name.
-2. `agent/go-service/quantizedsliding/handlers.go`: see how `Run()` distinguishes external invocation mode from internal node mode.
-3. `agent/go-service/quantizedsliding/nodes.go`: see the shared action name, internal node names, and override keys.
-4. `agent/go-service/quantizedsliding/params.go`: see parameter parsing and normalization.
-5. `agent/go-service/quantizedsliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
-6. `agent/go-service/quantizedsliding/ocr.go`: see typed-first quantity and hit box extraction logic.
-7. `agent/go-service/quantizedsliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
-8. `assets/resource/pipeline/QuantizedSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
-9. `assets/resource/pipeline/QuantizedSliding/Helper.json`: see basic recognition node configuration.
+1. `agent/go-service/bettersliding/register.go`: confirm the registered action name.
+2. `agent/go-service/bettersliding/handlers.go`: see how `Run()` distinguishes external invocation mode from internal node mode.
+3. `agent/go-service/bettersliding/nodes.go`: see the shared action name, internal node names, and override keys.
+4. `agent/go-service/bettersliding/params.go`: see parameter parsing and normalization.
+5. `agent/go-service/bettersliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
+6. `agent/go-service/bettersliding/ocr.go`: see typed-first quantity and hit box extraction logic.
+7. `agent/go-service/bettersliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
+8. `assets/resource/pipeline/BetterSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
+9. `assets/resource/pipeline/BetterSliding/Helper.json`: see basic recognition node configuration.
 
 ## Related documents
 

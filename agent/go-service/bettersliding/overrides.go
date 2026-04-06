@@ -1,4 +1,4 @@
-package quantizedsliding
+package bettersliding
 
 import (
 	"encoding/json"
@@ -31,14 +31,14 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 	}
 
 	override := map[string]any{
-		nodeQuantizedSlidingSwipeToMax: map[string]any{
+		nodeBetterSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
 					"end": append([]int(nil), end...),
 				},
 			},
 		},
-		nodeQuantizedSlidingGetQuantity: map[string]any{
+		nodeBetterSlidingGetQuantity: map[string]any{
 			"recognition": map[string]any{
 				"param": map[string]any{
 					"roi":      quantityParam["roi"],
@@ -52,13 +52,13 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 		return override
 	}
 
-	quantityParam["color_filter"] = nodeQuantizedSlidingQuantityFilter
-	override[nodeQuantizedSlidingGetQuantity] = map[string]any{
+	quantityParam["color_filter"] = nodeBetterSlidingQuantityFilter
+	override[nodeBetterSlidingGetQuantity] = map[string]any{
 		"recognition": map[string]any{
 			"param": quantityParam,
 		},
 	}
-	override[nodeQuantizedSlidingQuantityFilter] = map[string]any{
+	override[nodeBetterSlidingQuantityFilter] = map[string]any{
 		"recognition": map[string]any{
 			"param": map[string]any{
 				"method": quantityFilter.Method,
@@ -73,18 +73,18 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 
 func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, greenMask bool) map[string]any {
 	override := map[string]any{
-		nodeQuantizedSlidingDone: map[string]any{
-			"enabled": nextNode == nodeQuantizedSlidingDone,
+		nodeBetterSlidingDone: map[string]any{
+			"enabled": nextNode == nodeBetterSlidingDone,
 		},
-		nodeQuantizedSlidingIncreaseQuantity: map[string]any{
-			"enabled": nextNode == nodeQuantizedSlidingIncreaseQuantity,
+		nodeBetterSlidingIncreaseQuantity: map[string]any{
+			"enabled": nextNode == nodeBetterSlidingIncreaseQuantity,
 		},
-		nodeQuantizedSlidingDecreaseQuantity: map[string]any{
-			"enabled": nextNode == nodeQuantizedSlidingDecreaseQuantity,
+		nodeBetterSlidingDecreaseQuantity: map[string]any{
+			"enabled": nextNode == nodeBetterSlidingDecreaseQuantity,
 		},
 	}
 
-	if nextNode != nodeQuantizedSlidingIncreaseQuantity && nextNode != nodeQuantizedSlidingDecreaseQuantity {
+	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
 		return override
 	}
 
@@ -123,10 +123,10 @@ func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode 
 
 func resolveButtonHelperNode(nextNode string) string {
 	switch nextNode {
-	case nodeQuantizedSlidingIncreaseQuantity:
-		return nodeQuantizedSlidingIncreaseButton
-	case nodeQuantizedSlidingDecreaseQuantity:
-		return nodeQuantizedSlidingDecreaseButton
+	case nodeBetterSlidingIncreaseQuantity:
+		return nodeBetterSlidingIncreaseButton
+	case nodeBetterSlidingDecreaseQuantity:
+		return nodeBetterSlidingDecreaseButton
 	default:
 		return ""
 	}

@@ -75,7 +75,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "QuantizedSliding",
+                "custom_action": "BetterSliding",
                 "custom_action_param": {
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",

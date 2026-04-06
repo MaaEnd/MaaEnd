@@ -1,4 +1,4 @@
-package quantizedsliding
+package bettersliding
 
 import (
 	"fmt"

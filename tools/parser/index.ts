@@ -29,7 +29,7 @@ const customActParser: PropSelector = (name, param, utils) => {
         tryAddTaskArray(utils, result, obj, 'ignore')
       }
     }
-  } else if (name === 'QuantizedSliding') {
+  } else if (name === 'BetterSliding') {
     for (const [key, obj] of utils.parseObject(param)) {
       if (key === 'IncreaseButton' || key === 'DecreaseButton') {
         tryAddTemplate(utils, result, obj)

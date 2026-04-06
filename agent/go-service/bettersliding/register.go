@@ -1,8 +1,8 @@
-package quantizedsliding
+package bettersliding
 
 import maa "github.com/MaaXYZ/maa-framework-go/v4"
 
 // Register registers the quantized sliding custom action.
 func Register() {
-	maa.AgentServerRegisterCustomAction(quantizedSlidingActionName, &QuantizedSlidingAction{})
+	maa.AgentServerRegisterCustomAction(quantizedSlidingActionName, &BetterSlidingAction{})
 }

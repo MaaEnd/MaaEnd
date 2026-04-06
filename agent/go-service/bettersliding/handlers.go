@@ -1,4 +1,4 @@
-package quantizedsliding
+package bettersliding
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
 			Str("component", quantizedSlidingActionName).
@@ -18,7 +18,7 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 
 	a.initLogger(arg.CurrentTaskName)
 
-	if !isQuantizedSlidingActionNode(arg.CurrentTaskName) {
+	if !isBetterSlidingActionNode(arg.CurrentTaskName) {
 		return a.runInternalPipeline(ctx, arg)
 	}
 
@@ -29,20 +29,20 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	return a.dispatchActionNode(ctx, arg)
 }
 
-func (a *QuantizedSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	switch arg.CurrentTaskName {
-	case nodeQuantizedSlidingMain:
+	case nodeBetterSlidingMain:
 		return a.handleMain(ctx, arg)
-	case nodeQuantizedSlidingFindStart:
+	case nodeBetterSlidingFindStart:
 		return a.handleFindStart(ctx, arg)
-	case nodeQuantizedSlidingGetMaxQuantity:
+	case nodeBetterSlidingGetMaxQuantity:
 		return a.handleGetMaxQuantity(ctx, arg)
-	case nodeQuantizedSlidingFindEnd:
+	case nodeBetterSlidingFindEnd:
 		return a.handleFindEnd(ctx, arg)
-	case nodeQuantizedSlidingCheckQuantity:
+	case nodeBetterSlidingCheckQuantity:
 		return a.handleCheckQuantity(ctx, arg)
-	case nodeQuantizedSlidingDone:
+	case nodeBetterSlidingDone:
 		return a.handleDone(ctx, arg)
 	default:
 		a.logger.Warn().Msg("unknown current task name")
@@ -50,7 +50,7 @@ func (a *QuantizedSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.C
 	}
 }
 
-func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionArg) bool {
 	a.resetState()
 
 	if ctx == nil {
@@ -99,7 +99,7 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 	return true
 }
 
-func (a *QuantizedSlidingAction) handleFindStart(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleFindStart(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil || arg.RecognitionDetail == nil {
 		a.logger.Error().Msg("recognition detail is nil")
 		return false
@@ -116,7 +116,7 @@ func (a *QuantizedSlidingAction) handleFindStart(_ *maa.Context, arg *maa.Custom
 	return true
 }
 
-func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -183,7 +183,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 	return true
 }
 
-func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -235,7 +235,7 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 	clickY := startY + (endY-startY)*numerator/denominator
 
 	if err := ctx.OverridePipeline(map[string]any{
-		nodeQuantizedSlidingPreciseClick: map[string]any{
+		nodeBetterSlidingPreciseClick: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
 					"target": []int{clickX, clickY},
@@ -258,7 +258,7 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 	return true
 }
 
-func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -277,7 +277,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 
 	switch {
 	case currentQuantity == a.Target:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -293,13 +293,13 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		a.logger.Info().
 			Int("current_quantity", currentQuantity).
 			Int("target", a.Target).
-			Str("next", nodeQuantizedSlidingDone).
+			Str("next", nodeBetterSlidingDone).
 			Msg("quantity matched target")
 		return true
 	case currentQuantity < a.Target:
 		diff := a.Target - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -321,13 +321,13 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.IncreaseButton.logValue()).
-			Str("next", nodeQuantizedSlidingIncreaseQuantity).
+			Str("next", nodeBetterSlidingIncreaseQuantity).
 			Msg("quantity below target, branch to increase")
 		return true
 	default:
 		diff := currentQuantity - a.Target
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -349,20 +349,20 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.DecreaseButton.logValue()).
-			Str("next", nodeQuantizedSlidingDecreaseQuantity).
+			Str("next", nodeBetterSlidingDecreaseQuantity).
 			Msg("quantity above target, branch to decrease")
 		return true
 	}
 }
 
-func (a *QuantizedSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg) bool {
 	a.logger.Info().
 		Int("target", a.Target).
 		Msg("quantity adjustment completed")
 	return true
 }
 
-func (a *QuantizedSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -377,7 +377,7 @@ func (a *QuantizedSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	detail, err := ctx.RunTask(nodeQuantizedSlidingMain, override)
+	detail, err := ctx.RunTask(nodeBetterSlidingMain, override)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -408,7 +408,7 @@ func (a *QuantizedSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.
 	return true
 }
 
-func isQuantizedSlidingActionNode(taskName string) bool {
+func isBetterSlidingActionNode(taskName string) bool {
 	for _, nodeName := range quantizedSlidingActionNodes {
 		if taskName == nodeName {
 			return true
@@ -418,7 +418,7 @@ func isQuantizedSlidingActionNode(taskName string) bool {
 	return false
 }
 
-func (a *QuantizedSlidingAction) resetState() {
+func (a *BetterSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
 	a.maxQuantity = 0
@@ -429,7 +429,7 @@ func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
 		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
 	}
 	if maxQuantity == 1 && target == 1 {
-		return nodeQuantizedSlidingDone, nil
+		return nodeBetterSlidingDone, nil
 	}
 
 	return "", nil

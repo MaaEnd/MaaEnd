@@ -525,7 +525,7 @@
     "resource/image/MapTracker/map/map02_lv003": "b47e72628b812d1a8a34fa9f28cb9a27255d74405d51182a5b2395db2f226867",
     "resource/image/MapTracker/BigMapZoomOut": "1a895419d93c782c6ae56124b460bf6ccd40948c3156c7722b1b7d5790f5ee3b",
     "resource/image/MapTracker/BigMapZoomIn": "be8184878ba4b345abae591bbcee78273d6ea7f954eed285065b1aa5f8ded050",
-    "resource/image/QuantizedSliding/SwipeButton": "5cb0944d3df029d6eaa7c064afc555c6bcaf43a9069cc2d57bc82769723ab143",
+    "resource/image/BetterSliding/SwipeButton": "5cb0944d3df029d6eaa7c064afc555c6bcaf43a9069cc2d57bc82769723ab143",
     "resource/image/AutoStockpile/ElasticGoodsButtonSelected": "b0e75c85fffe9a7f69605c33a548db2ce46c037eaf7888da1257df9313e088a8",
     "resource/image/AutoStockpile/MarketMark": "f8a68118e486690c11701587062a671c4fb0e3698e5a14e0f255758dcc6e1f91",
     "resource/image/AutoStockpile/ElasticGoodsButtonSide": "b8016527a677f7267e37acb9220f4025a5cf92233f4d4e76824500c104fa6717",

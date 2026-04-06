@@ -1,4 +1,4 @@
-package quantizedsliding
+package bettersliding
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func readHitBox(detail *maa.RecognitionDetail) ([]int, bool) {
 		return nil, false
 	}
 
-	candidate := findRecognitionDetailByName(detail, nodeQuantizedSlidingSwipeButton)
+	candidate := findRecognitionDetailByName(detail, nodeBetterSlidingSwipeButton)
 	if candidate == nil {
 		candidate = detail
 	}
@@ -38,7 +38,7 @@ func readQuantityText(detail *maa.RecognitionDetail) string {
 		return ""
 	}
 
-	candidate := findRecognitionDetailByName(detail, nodeQuantizedSlidingGetQuantity)
+	candidate := findRecognitionDetailByName(detail, nodeBetterSlidingGetQuantity)
 	if candidate == nil {
 		candidate = detail
 	}
