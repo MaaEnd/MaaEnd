@@ -98,7 +98,6 @@ func getFriendItemsRoi(ctx *maa.Context, arg *maa.CustomRecognitionArg) ([]maa.R
 		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemEnterButton")
 		return nil, false
 	}
-	var friendItemRoiOffset = maa.Rect{-1140, -30, 1175, 65} // 按钮映射到整个item的偏移
 	var rois []maa.Rect
 	for _, m := range detail_items.Results.Filtered {
 		detail, ok := m.AsTemplateMatch()
@@ -107,11 +106,11 @@ func getFriendItemsRoi(ctx *maa.Context, arg *maa.CustomRecognitionArg) ([]maa.R
 		}
 		box := detail.Box
 		rois = append(rois, maa.Rect{
-			box.X() + friendItemRoiOffset.X(),
-			box.Y() + friendItemRoiOffset.Y(),
-			box.Width() + friendItemRoiOffset.Width(),
-			box.Height() + friendItemRoiOffset.Height(),
-		})
+			0,
+			box.Y() - 30,
+			1280,
+			box.Height() + 65,
+		}) // 识别区偏移为整个水平范围，保留原有高度映射
 	}
 	return rois, true
 }
