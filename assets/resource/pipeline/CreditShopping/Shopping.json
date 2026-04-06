@@ -346,7 +346,7 @@
         ]
     },
     "CreditShoppingBuyBlacklist": {
-        "desc": "强制购买剩余可购物品（选项：购买选项均未命中时操作=购买黑名单物品）",
+        "desc": "强制购买剩余可购物品（选项：购买选项均未命中时操作=购买任意物品）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",

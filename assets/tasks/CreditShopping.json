@@ -1680,7 +1680,6 @@
         "CreditShoppingForce": {
             "type": "select",
             "label": "$option.CreditShoppingForce.label",
-            "description": "$option.CreditShoppingForce.description",
             "default_case": "Exit",
             "cases": [
                 {
@@ -1688,7 +1687,7 @@
                     "label": "$option.CreditShoppingForce.cases.Exit.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "enabled": false //不购买黑名单物品
+                            "enabled": false //不购买任意物品
                         },
                         "RefreshItem": {
                             "enabled": false //不刷新
@@ -1703,7 +1702,7 @@
                     "label": "$option.CreditShoppingForce.cases.IgnoreBlackList.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "enabled": true //允许购买黑名单物品
+                            "enabled": true //允许购买任意物品
                         },
                         "RefreshItem": {
                             "enabled": false //不刷新
@@ -1718,7 +1717,7 @@
                     "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "enabled": false //不购买黑名单物品
+                            "enabled": false //不购买任意物品
                         },
                         "RefreshItem": {
                             "enabled": true //允许刷新
