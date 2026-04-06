@@ -43,18 +43,20 @@
         "desc": "识别到降序，变成升序",
         "max_hit": 1,
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    44,
-                    648,
-                    351,
-                    35
+                    325,
+                    630,
+                    100,
+                    60
                 ],
-                "expected": [
-                    "降序",
-                    "(?i)DESC",
-                    "降順"
+                "template": [
+                    "GearAssembly/Filter.png",
+                    "GearAssembly/FilterHover.png"
+                ],
+                "threshold": [
+                    0.8
                 ]
             }
         },
