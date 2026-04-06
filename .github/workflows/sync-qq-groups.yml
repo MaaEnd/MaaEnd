@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
           show-progress: false
 
       - name: Fetch index.json and update README
@@ -35,5 +35,5 @@ jobs:
       - name: Commit and push
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.PAT_TOKEN }}
+          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
           message: "chore: sync QQ group info in README"
