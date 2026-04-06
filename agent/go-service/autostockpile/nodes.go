@@ -18,6 +18,4 @@ const (
 	overflowQuotaAdditionNodeName  = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName            = "AutoStockpileLocateGoods"
 	goodsPriceNodeName             = "AutoStockpileGetGoods"
-	autoStockpileDecisionValleyIV  = "AutoStockpileDecisionValleyIV"
-	autoStockpileDecisionWuling    = "AutoStockpileDecisionWuling"
 )

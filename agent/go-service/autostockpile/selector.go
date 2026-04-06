@@ -121,7 +121,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if quantityDecision.Mode == quantityModeSkip {
 		log.Info().
 			Str("component", "autostockpile").
-			Str("selection_mode", formatSelectionMode(selection, *data, cfg)).
+			Str("selection_mode", formatSelectionMode(selection, *data)).
 			Str("quantity_mode", string(quantityDecision.Mode)).
 			Str("quantity_reason", quantityDecision.Reason).
 			Int("quota_current", data.Quota.Current).
@@ -168,7 +168,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		},
 	})
 
-	selectionMode := formatSelectionMode(selection, *data, cfg)
+	selectionMode := formatSelectionMode(selection, *data)
 	quantityLog := log.Info().
 		Str("component", "autostockpile").
 		Str("selection_mode", selectionMode).
@@ -342,7 +342,7 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	return false
 }
 
-func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {
+func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
 	}
