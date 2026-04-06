@@ -27,7 +27,7 @@
     "autostockpile.recognition_done": "認識完了。商品を%d件検出しました",
     "autostockpile.no_qualifying_product": "条件を満たす商品がありません (%s)",
     "autostockpile.hit_but_skip": "商品に一致しましたが、最終的に購入しません（%s）",
-    "autostockpile.product_selected": "【%s】%s (価格 %d)",
+    "autostockpile.product_selected": "「%s」%s (価格 %d)",
     "autostockpile.reconcile_price_corrected": "価格認識エラーを検出しました(%d -> %d)。再選択しています",
     "autostockpile.reconcile_decision_unchanged": "判断は変わっていません。そのまま続行します",
     "autostockpile.recognition_early_end": "認識フェーズが早期終了しました",

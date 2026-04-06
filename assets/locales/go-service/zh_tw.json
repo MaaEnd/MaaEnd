@@ -24,7 +24,7 @@
     "autostockpile.recognition_done": "識別完成，共識別到 %d 個商品",
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最終不購買（%s）",
-    "autostockpile.product_selected": "【%s】%s (價格 %d)",
+    "autostockpile.product_selected": "「%s」%s (價格 %d)",
     "autostockpile.reconcile_price_corrected": "檢測到價格辨識錯誤(%d -> %d)，正在重新選擇",
     "autostockpile.reconcile_decision_unchanged": "決策未變化，繼續執行",
     "autostockpile.recognition_early_end": "識別階段提前結束",
