@@ -60,7 +60,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
 - 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
-- 💊 **Utility helpers**: One-click emergency sanity medication use is supported, and Android setups can launch the game directly too.
+- 💊 **Emergency sanity medication**: One-click emergency sanity medication use saves you a step. 💊
 - 💻 **Multi-platform support**: Supports PC (`Win32` default / background / foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
 
 ## 🛠️ Developer Guide
