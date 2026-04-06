@@ -106,9 +106,9 @@ func getFriendItemsRoi(ctx *maa.Context, arg *maa.CustomRecognitionArg) ([]maa.R
 		}
 		box := detail.Box
 		rois = append(rois, maa.Rect{
-			0,
+			8,
 			box.Y() - 30,
-			1280,
+			1205,
 			box.Height() + 65,
 		}) // 识别区偏移为整个水平范围，保留原有高度映射
 	}
