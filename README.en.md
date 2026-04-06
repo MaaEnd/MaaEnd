@@ -42,14 +42,23 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🧩 **Puzzle Master**: Fast puzzle solving with single-run, loop, and demo-only modes for both practical use and learning.
 - 💎 **Essence filtering**: Smart essence recognition with automatic lock / discard behavior based on weapon rarity, essence type, and extra rules. ✨
 - 🎱 **Essence farming**: Automatically challenges heavy silt points, supports repeated runs, reward claiming, and post-battle essence filtering in one flow.
-- 🌿 **Foreground gameplay helpers**: Environment Monitoring, Protocol Space, Eco Farm, outdoor resource gathering, and operator gift delivery are all supported.
+- 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
+- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
+- 🌾 **Eco Farm**: Handles harvesting, planting, and watering, and can also tidy up your bag before and after the run.
+- 🧺 **Auto resource gathering**: Follows outdoor gathering routes automatically to collect as many field resources as possible.
+- 🎁 **Operator gift delivery**: Automatically heads to the contact desk, gives a gift to an operator, and collects the return gift if available.
 - 🔫 **Armory upgrades & production**: Weapon upgrades, gear crafting, simple crafting, and batch simple crafting all help cut down repetitive progression work. 💪
-- 💰 **Auto trading & logistics**: Stockpiling, selling flexible-demand goods, selling products at outposts, delivery forwarding / accept-only / pack-only flows, and commission snatching are all covered. 💸
+- 💰 **Auto trading/reselling**: Combines stockpiling with flexible-demand goods selling, helping you watch profit margins and manage vouchers more easily. 💸
+- 🛒 **Sell Products**: Automatically exchanges products at each outpost into vouchers so you can skip the repetitive clicks.
+- 🚚 **Delivery jobs**: Supports full accept-and-forward flows, accept-only mode, and pack-only mode, with per-region toggles.
+- 🌆 **Commission snatching**: Automatically grabs commissions from the list and can continue with depot-node routing when configured.
 - 💳 **Credit shop purchasing**: Auto-buy credit shop items with support for priorities, discounts, reserve thresholds, and credit-gain linkage.
 - 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in batches - great for batteries, ores, sand leaves, and other stored goods.
 - 📐 **Blueprint porter**: Batch import blueprints, intelligently parse share codes or messy text, and get building plans in place with far less manual work.
 - 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection / placement / gifting in one go.
-- 👥 **Social helpers**: Visit friends, send batch friend requests, and clear Baker conversation messages without doing everything by hand. 🤝
+- 🤝 **Visit friends**: Automatically visits friends and handles production assistance plus intel exchange as part of the routine.
+- 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
+- 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
 - 💊 **Utility helpers**: One-click emergency sanity medication use is supported, and Android setups can launch the game directly too.
 - 💻 **Multi-platform support**: Supports PC (`Win32` default / background / foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
