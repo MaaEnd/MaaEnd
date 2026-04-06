@@ -83,7 +83,10 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	cfg := buildSelectionConfig(region)
+	cfg, err := buildSelectionConfig(region)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
+	}
 
 	bypassThresholdFilter := result.hasOverflow()
 	if bypassThresholdFilter {
@@ -93,7 +96,10 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Msg("allow all goods mode enabled")
 	}
 
-	selection, quantityDecision := computeDecision(*data, cfg, bypassThresholdFilter)
+	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonGoodsTierInvalidFatal, err)
+	}
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -187,14 +193,17 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 }
 
 // SelectBestProduct 按阈值与利润分数选择当前应购买的最佳商品。
-func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) SelectionResult {
+func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, error) {
 	if len(data.Goods) == 0 {
-		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}, nil
 	}
 
 	candidates := make([]candidateGoods, 0, len(data.Goods))
 	for _, goods := range data.Goods {
-		threshold := resolveTierThreshold(goods.Tier, cfg)
+		threshold, err := resolveTierThreshold(goods.Tier, cfg)
+		if err != nil {
+			return SelectionResult{}, err
+		}
 		score := threshold - goods.Price
 
 		log.Debug().
@@ -219,7 +228,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	}
 
 	if len(candidates) == 0 {
-		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_qualifying_goods")}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_qualifying_goods")}, nil
 	}
 
 	sort.SliceStable(candidates, func(i, j int) bool {
@@ -244,7 +253,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 		Threshold:     best.threshold,
 		CurrentPrice:  best.goods.Price,
 		Score:         best.score,
-	}
+	}, nil
 }
 
 func shouldRouteSkip(reason AbortReason) bool {

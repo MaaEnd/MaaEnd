@@ -8,34 +8,21 @@ import (
 	"strings"
 )
 
-func minPositiveThreshold(priceLimits PriceLimitConfig) int {
-	min := 0
-	for _, threshold := range priceLimits {
-		if threshold <= 0 {
-			continue
-		}
-		if min == 0 || threshold < min {
-			min = threshold
-		}
+func resolveTierThreshold(tierID string, cfg SelectionConfig) (int, error) {
+	tierID = strings.TrimSpace(tierID)
+	if tierID == "" {
+		return 0, fmt.Errorf("tier is empty")
 	}
-	if min > 0 {
-		return min
-	}
-	return defaultFallbackBuyThreshold
-}
 
-func resolveTierThreshold(tierID string, cfg SelectionConfig) int {
-	if threshold, ok := cfg.PriceLimits[tierID]; ok && threshold > 0 {
-		return threshold
+	threshold, ok := cfg.PriceLimits[tierID]
+	if !ok {
+		return 0, fmt.Errorf("tier %q is not configured in price_limits", tierID)
 	}
-	return resolveFallbackThreshold(cfg.FallbackThreshold)
-}
+	if threshold <= 0 {
+		return 0, fmt.Errorf("tier %q has invalid threshold %d", tierID, threshold)
+	}
 
-func resolveFallbackThreshold(raw int) int {
-	if raw > 0 {
-		return raw
-	}
-	return defaultFallbackBuyThreshold
+	return threshold, nil
 }
 
 type thresholdConfigError struct {

@@ -110,7 +110,10 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	bypassThresholdFilter := updatedData.Quota.Overflow > 0
 
-	newSelection, newQuantityDecision := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
+	newSelection, newQuantityDecision, err := computeDecision(updatedData, state.EffectiveConfig, bypassThresholdFilter)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonGoodsTierInvalidFatal, err)
+	}
 
 	if priceChanged {
 		maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))

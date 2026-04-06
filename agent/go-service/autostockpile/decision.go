@@ -1,11 +1,14 @@
 package autostockpile
 
-func computeDecision(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, quantityDecision) {
-	selection := SelectBestProduct(data, cfg, bypassThresholdFilter)
+func computeDecision(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, quantityDecision, error) {
+	selection, err := SelectBestProduct(data, cfg, bypassThresholdFilter)
+	if err != nil {
+		return SelectionResult{}, quantityDecision{}, err
+	}
 	if !selection.Selected {
-		return selection, quantityDecision{}
+		return selection, quantityDecision{}, nil
 	}
 
 	decision := resolveQuantityDecision(selection, data)
-	return selection, decision
+	return selection, decision, nil
 }

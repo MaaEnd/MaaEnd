@@ -89,8 +89,7 @@ type SelectionResult struct {
 
 // SelectionConfig 表示 AutoStockpile 的商品选择配置。
 type SelectionConfig struct {
-	FallbackThreshold int              `json:"fallback_threshold"`
-	PriceLimits       PriceLimitConfig `json:"price_limits"`
+	PriceLimits PriceLimitConfig `json:"price_limits"`
 }
 
 // PriceLimitConfig 按档位 ID 保存商品购买阈值。
@@ -161,7 +160,3 @@ func absInt(v int) int {
 	}
 	return v
 }
-
-const (
-	defaultFallbackBuyThreshold = 800
-)

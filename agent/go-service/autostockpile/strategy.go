@@ -1,5 +1,7 @@
 package autostockpile
 
+import "fmt"
+
 const (
 	regionBaseValleyIV = 0
 	regionBaseWuling   = 600
@@ -23,26 +25,27 @@ var tierBases = map[string]int{
 }
 
 // buildPriceLimitsForRegion 根据地区名称，通过 region_base + tier_base 公式计算各档位的价格阈值。
-// 若 region 不在 regionBases 中，返回空 map。
-func buildPriceLimitsForRegion(region string) PriceLimitConfig {
+func buildPriceLimitsForRegion(region string) (PriceLimitConfig, error) {
 	regionBase, ok := regionBases[region]
 	if !ok {
-		return make(PriceLimitConfig)
+		return nil, fmt.Errorf("region %q is not configured", region)
 	}
 
 	priceLimits := make(PriceLimitConfig, len(tierBases))
 	for tierSuffix, tierBase := range tierBases {
 		priceLimits[region+tierSuffix] = regionBase + tierBase
 	}
-	return priceLimits
+	return priceLimits, nil
 }
 
 // buildSelectionConfig 根据地区名称构建商品选择配置，使用公式计算价格阈值。
-func buildSelectionConfig(region string) SelectionConfig {
-	priceLimits := buildPriceLimitsForRegion(region)
-	fallbackThreshold := minPositiveThreshold(priceLimits)
-	return SelectionConfig{
-		PriceLimits:       priceLimits,
-		FallbackThreshold: fallbackThreshold,
+func buildSelectionConfig(region string) (SelectionConfig, error) {
+	priceLimits, err := buildPriceLimitsForRegion(region)
+	if err != nil {
+		return SelectionConfig{}, err
 	}
+
+	return SelectionConfig{
+		PriceLimits: priceLimits,
+	}, nil
 }
