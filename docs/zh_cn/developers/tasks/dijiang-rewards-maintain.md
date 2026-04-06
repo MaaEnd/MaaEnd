@@ -1,8 +1,7 @@
 # 开发手册 - 基建任务维护文档
 
 本文用于说明 `DijiangRewards`（基建任务）的整体结构、四个阶段任务的职责，以及 `assets/tasks/DijiangRewards.json` 中各个 `interface` 选项对 Pipeline 的覆盖逻辑和设计原因，便于后续维护与扩展。  
-该文档撰写与2026年4月5日
-[fix:修复基建|信用点商店bug (#1868)](https://github.com/MaaEnd/MaaEnd/commit/1687671cb0dd87b737d24d52b8331f23f0e92a5c) 提交之后
+该文档最近更新于 2026 年 4 月 7 日，已同步 [fix(GrowthChamber): 修复“再次种植”按钮可能会被忽略 (#2003)](https://github.com/MaaEnd/MaaEnd/pull/2003)
 
 ## 文件概览
 
@@ -17,7 +16,7 @@
 | 恢复心情       | `assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json`       | 处理总控中枢的好友助力恢复心情                            |
 | 会客室         | `assets/resource/pipeline/DijiangRewards/ReceptionRoom.json`         | 处理线索收集、接收、放置、赠予、线索交流                  |
 | 制造舱         | `assets/resource/pipeline/DijiangRewards/Manufacturing.json`         | 处理收菜、补货、助力                                      |
-| 培养舱         | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json`         | 处理领取，以及普通培养 / 再次培养这两个互斥分支和提取基核 |
+| 培养舱         | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json`         | 处理领取、领奖后的再次种植分支、普通培养，以及提取基核    |
 | 公共状态模板   | `assets/resource/pipeline/DijiangRewards/Template/Location.json`     | 维护各舱室界面定位节点                                    |
 | 公共文本模板   | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | 维护按钮/状态文本 OCR 模板                                |
 | 补充状态模板   | `assets/resource/pipeline/DijiangRewards/Template/Status.json`       | 维护红点、数量、培养库存等辅助识别                        |
@@ -88,27 +87,28 @@
 进入培养舱后，任务会先确认自己已经处在培养舱详情界面（`GrowthChamberMain` -> `GrowthChamberViewIn`），然后依次尝试：
 
 1. 领取培养奖励
-2. 在“普通培养”和“再次培养”两个互斥分支中择一执行
-3. 退出培养舱
+2. 如当前配置开启 `GrowAgain`，则在领奖关闭后尝试“再次种植”
+3. 否则进入普通培养，或直接退出培养舱
 
 培养舱是整个任务里最依赖 `interface` 覆盖的阶段。它的基础骨架没有很复杂，但很多行为都不是直接写死在 `GrowthChamber.json` 里，而是由 `assets/tasks/DijiangRewards.json` 在运行前改写。
 
-如果不考虑任何界面选项，只看默认 Pipeline，培养舱的默认行为其实是“领奖 + 普通培养 + 退出”；“再次培养”分支默认关闭（`GrowthChamberGrowAgain` 默认 `enabled=false`），只有被 `interface` 显式开启后才会替代普通培养分支。基于这个前提，默认流程可以拆成下面几步：
+如果不考虑任何界面选项，只看默认 Pipeline，培养舱的默认行为其实是“领奖 + 普通培养 + 退出”；“再次种植”分支默认关闭（`GrowthChamberGrowAgain` 默认 `enabled=false`），只有被 `interface` 显式开启后才会在领奖关闭后插入一次尝试。基于这个前提，默认流程可以拆成下面几步：
 
 1. 先确认当前已经回到培养舱详情页（`GrowthChamberViewIn`）。
 2. 如果画面上出现“全部收取”，就先领取作物（`GrowthChamberClaimReward`）。
-3. 如果当前配置允许普通培养，并且能识别到“培养”按钮，就进入选材界面（`GrowthChamberGrow`）。这里不是批量培养，而是在 9 个培养目标中挑一个继续处理。
-4. 进入选材界面后，会按这个顺序循环尝试（`GrowthChamberGrowViewIn`）：
+3. 领奖完成后，会先关闭奖励界面（`GrowthChamberClaimRewardClose`）；只有在 `GrowAgain` 模式下，这里才会继续跳到 `GrowthChamberGrowAgain` 去尝试“再次种植”按钮。
+4. 如果当前配置允许普通培养，并且能识别到“培养”按钮，就进入选材界面（`GrowthChamberGrow`）。这里不是批量培养，而是在 9 个培养目标中挑一个继续处理。
+5. 进入选材界面后，会按这个顺序循环尝试（`GrowthChamberGrowViewIn`）：
     1. 如有需要，先调整排序方式或排序方向（`GrowthChamberSortBy`、`GrowthChamberSortOrder`）
     2. 在当前列表里寻找符合条件的目标（`GrowthChamberFindTarget`）
     3. 当前屏没找到就向下滚一屏继续找（`GrowthChamberTargetNotFound`）
     4. 如果已经没有可做动作，就返回培养舱详情页（`GrowthChamberReturn`）
-5. 真正执行点击前，任务会先确认这一行同时满足两个条件：名称符合当前配置的目标范围，并且这一行的“作物数量”或“基核数量”至少有一个大于 0（`GrowthChamberSelectTarget` + `GrowthChamberCheckTargetNotEmpty`；后者默认等价于 `GrowthChamberCheckSeedNotEmpty` 或 `GrowthChamberCheckPlantNotEmpty`）。
-6. 点击目标后，会根据后续画面进入三个互斥结果之一：
+6. 真正执行点击前，任务会先确认这一行同时满足两个条件：名称符合当前配置的目标范围，并且这一行的“作物数量”或“基核数量”至少有一个大于 0（`GrowthChamberSelectTarget` + `GrowthChamberCheckTargetNotEmpty`；后者默认等价于 `GrowthChamberCheckSeedNotEmpty` 或 `GrowthChamberCheckPlantNotEmpty`）。
+7. 点击目标后，会根据后续画面进入三个互斥结果之一：
     1. 可以直接开始培养，就点确认开始培养（`GrowthChamberGrowConfirm`）
     2. 需要先补基核，就进入“前往提取基核”分支（`GrowthChamberSeedExtract`）
     3. 当前配置不允许提取基核，就直接退回列表（`GrowthChamberGrowExit`）
-7. 一次处理完成后，会回到培养舱详情页或选材页，再继续判断是否还有后续动作（回到 `GrowthChamberViewIn` 或 `GrowthChamberGrowViewIn`）。
+8. 一次处理完成后，会回到培养舱详情页或选材页，再继续判断是否还有后续动作（回到 `GrowthChamberViewIn` 或 `GrowthChamberGrowViewIn`）。
 
 真正需要重点维护的是第 4 到第 6 步，因为这里的“排序谁来开、找什么目标、什么情况下允许点进去、点进去后要不要提取基核”，几乎都由 `interface` 选项决定。
 
@@ -123,7 +123,7 @@
 
 #### `SelectToGrow` 决定“培养大方向”
 
-这是培养舱的主开关。它先决定“进入培养舱以后，到底是只领奖、走再次培养，还是进入普通选材培养”。
+这是培养舱的主开关。它先决定“进入培养舱以后，到底是只领奖、走领奖后的再次种植，还是进入普通选材培养”。
 
 ##### `SelectToGrow=DoNothing`
 
@@ -140,13 +140,18 @@
 实际动作：
 
 - 关闭“进入选材界面”的普通培养入口（`GrowthChamberGrow.enabled=false`）。
-- 打开“再次培养”入口（`GrowthChamberGrowAgain.enabled=true`）。
+- 打开“再次种植”入口（`GrowthChamberGrowAgain.enabled=true`）。
 
-对应到实际行为，就是在培养舱详情页不再进入“挑材料”的那条链，而是改成优先尝试：
+对应到实际行为，就是在培养舱详情页不再进入“挑材料”的那条链，而是改成在领奖关闭后优先尝试：
 
-1. 命中“再次培养”按钮
-2. 点击后进入确认再次培养
+1. 命中“再次种植”按钮
+2. 点击后进入确认再次种植
 3. 点击确认后直接回培养舱主界面
+
+这里有一个本次更新后很容易漏掉的细节：
+
+- `GrowthChamberGrowAgain` 不再直接挂在 `GrowthChamberViewIn.next` 里，而是由 `GrowthChamberClaimRewardClose.next` 触发。
+- 这意味着 `GrowAgain` 模式优先处理的是“领奖之后立刻再次种植”的场景，而不是在培养舱详情页无条件直接点“再次种植”。
 
 这个模式完全绕开选材列表，因此：
 
@@ -386,15 +391,15 @@
 
 #### 2. `GrowAgain`
 
-| 覆盖节点                 | 覆盖内容        | 原因                     |
-| ------------------------ | --------------- | ------------------------ |
-| `GrowthChamberGrow`      | `enabled=false` | 避免与普通培养入口冲突   |
-| `GrowthChamberGrowAgain` | `enabled=true`  | 强制优先走“再次培养”分支 |
+| 覆盖节点                 | 覆盖内容        | 原因                             |
+| ------------------------ | --------------- | -------------------------------- |
+| `GrowthChamberGrow`      | `enabled=false` | 避免与普通培养入口冲突           |
+| `GrowthChamberGrowAgain` | `enabled=true`  | 在领奖关闭后启用“再次种植”分支   |
 
 设计原因：
 
-- `GrowthChamberViewIn` 里同时挂了 `GrowthChamberGrow` 和 `GrowthChamberGrowAgain`。
-- 两者是互斥分支，`GrowAgain` 必须显式关闭普通培养，避免识别到“培养”按钮后提前走错路。
+- `GrowthChamberViewIn` 现在只直接挂 `GrowthChamberClaimReward`、`GrowthChamberGrow` 和 `GrowthChamberExit`；`GrowthChamberGrowAgain` 改为由 `GrowthChamberClaimRewardClose.next` 触发。
+- `GrowAgain` 仍然必须显式关闭普通培养，避免领奖关闭后或后续回到详情页时，又命中“培养”按钮而走回普通培养链。
 
 #### 3. `Any`
 
@@ -508,6 +513,7 @@
 如果改其中一项，最好顺手检查：
 
 - `GrowthChamberViewIn.next`
+- `GrowthChamberClaimRewardClose.next`
 - `GrowthChamberFindTarget`
 - `GrowthChamberCheckTargetNotEmpty`
 - `GrowthChamberSeedExtract`
