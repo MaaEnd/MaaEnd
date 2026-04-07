@@ -163,7 +163,7 @@
         "recognition": "Custom",
         "custom_recognition": "VisitFriendsMenuScanDetailAssistRecognition",
         "custom_recognition_param": {
-            "name": "aaa#1234"
+            "friend_name": "aaa#1234"
         },
         "pre_delay": 0,
         "post_delay": 0,
