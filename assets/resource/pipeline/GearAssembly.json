@@ -37,7 +37,7 @@
         "next": [
             "GearAssemblyGoToStandalone",
             "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblyClickProduceBtn"
+            "GearAssemblyDirectlyAssemble"
         ]
     },
     "GearAssemblySwitchAscending": {
@@ -89,12 +89,12 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -123,10 +123,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GearAssemblyComplete"
-        ]
+        "rate_limit": 0
     },
     "GearAssemblyCloseProductPopup": {
         "desc": "装备制造完成确认",
@@ -143,45 +140,14 @@
                 "threshold": 0.9
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GearAssemblyComplete"
-        ]
-    },
-    "GearAssemblyCreationFinish": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0
-    },
-    "GearAssemblyComplete": {
-        "desc": "四号谷地中继器.jpg",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "GearAssemblyCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
+        "rate_limit": 0
     },
     "GearAssemblyGoToStandalone": {
         "desc": "前往装备数量更少的独立装备制造，以便执行自动选择，附：没招了怎么延时那么大",
@@ -217,8 +183,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
-            "GearAssemblyGetGearPosition"
+            "GearAssemblyEnsureInStandalone"
         ]
     },
     "GearAssemblyCheckIfReachedScrollEnd": {
@@ -246,6 +211,9 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GearAssemblyGetGearPositionFinal"
         ]
@@ -253,19 +221,11 @@
     "GearAssemblyCheckIfScreenIsUnstable": {
         "desc": "检查画面是否不稳定",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    996,
-                    90,
-                    80,
-                    60
-                ],
-                "template": [
-                    "GearAssembly/Def.png"
-                ],
-                "threshold": [
-                    0.8
+                "any_of": [
+                    "GearAssemblyCheckForWhiteButton",
+                    "GearAssemblyCheckForRedButton"
                 ]
             }
         },
@@ -399,6 +359,8 @@
         "rate_limit": 0
     },
     "GearAssemblyNoAvailableGear": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "无可制造装备"
         }
@@ -526,5 +488,114 @@
             "GearAssemblyCheckIfReachedScrollEnd",
             "GearAssemblySwipeToNextRow"
         ]
+    },
+    "GearAssemblyEnsureInStandalone": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    200,
+                    0,
+                    150,
+                    60
+                ],
+                "template": [
+                    "GearAssembly/Standalone.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ]
+    },
+    "GearAssemblyCheckForWhiteButton": {
+        "desc": "检查是否有白色按钮 (配方未解锁)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    996,
+                    630,
+                    270,
+                    60
+                ],
+                "lower": [
+                    [
+                        225,
+                        225,
+                        225
+                    ]
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 2000
+            }
+        }
+    },
+    "GearAssemblyCannotAssemble": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "无法制造"
+        }
+    },
+    "GearAssemblyDirectlyAssemble": {
+        "desc": "中继节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyCannotAssemble"
+        ]
+    },
+    "GearAssemblyCheckForRedButton": {
+        "desc": "检查是否有红色按钮 (材料不足)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    996,
+                    630,
+                    270,
+                    60
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        150,
+                        80
+                    ]
+                ],
+                "upper": [
+                    [
+                        5,
+                        220,
+                        150
+                    ]
+                ],
+                "count": 2000
+            }
+        }
     }
 }
