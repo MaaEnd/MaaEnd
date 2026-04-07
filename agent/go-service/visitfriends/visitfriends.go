@@ -629,6 +629,7 @@ var (
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanTargetFriendOpenRecognition{}
 	_ maa.CustomActionRunner      = &VisitFriendsMenuScanTargetFriendOpenAction{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailAssistRecognition{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailClueExchangeRecognition{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFinishRecognition{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFullRecognition{}
 	_ maa.CustomActionRunner      = &VisitFriendsMenuClueExchangeAction{}
