@@ -158,7 +158,7 @@
     "option.ProductionAssistType.label": "生產助力模式",
     "option.ProductionAssistType.ProductionAssistControlNexus.label": "助力總控中樞",
     "option.ProductionAssistType.ProductionAssistMFGCabin.label": "助力製造艙",
-    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "製造培養艙",
+    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "助力培養艙",
     "option.VisitFriendsRemark.label": "優先拜訪有備註的好友",
     "option.StageTaskSetting.label": "階段任務設定",
     "option.StageTaskSetting.description": "開啟後可分別控制恢復心情、會客室、製造艙、培養艙這幾個階段任務的開關。",
