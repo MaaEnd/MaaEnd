@@ -219,7 +219,7 @@
         ]
     },
     "GearAssemblyCheckIfScreenIsUnstable": {
-        "desc": "检查画面是否不稳定",
+        "desc": "检查画面是否不稳定 (无有效按钮)",
         "recognition": {
             "type": "Or",
             "param": {
