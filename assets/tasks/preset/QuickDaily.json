@@ -8,7 +8,11 @@
                 {
                     "name": "VisitFriends",
                     "option": {
-                        "ProductionAssistType": "ProductionAssistAll"
+                        "ProductionAssistType": [
+                            "ProductionAssistControlNexus",
+                            "ProductionAssistMFGCabin",
+                            "ProductionAssistGrowthChamber"
+                        ]
                     }
                 },
                 {

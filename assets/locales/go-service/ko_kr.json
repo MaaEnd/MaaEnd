@@ -16,6 +16,7 @@
     "visitfriends.can_mfg_cabin": "제조 캐빈 지원",
     "visitfriends.can_growth_chamber": "성장실 지원",
     "visitfriends.current_counts": "현재 지원 횟수: %d, 단서 교환 횟수: %d",
+    "visitfriends.check_friend": "친구 확인 중: %s",
 
     "autosell.price_compare_ok": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 충족",
     "autosell.price_compare_fail": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 불충족",

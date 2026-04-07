@@ -15,6 +15,7 @@
     "visitfriends.can_mfg_cabin": "助力制造舱",
     "visitfriends.can_growth_chamber": "助力生长舱",
     "visitfriends.current_counts": "当前助力次数：%d，线索交换次数：%d",
+    "visitfriends.check_friend": "检查好友 %s",
     "autosell.price_compare_ok": "识别最高价格: %d，最低售卖价格: %d，符合条件",
     "autosell.price_compare_fail": "识别最高价格: %d，最低售卖价格: %d，不符合条件",
     "autosell.check_item_price_moderate": "检查物资 %s 价格，该物资价格变动适中",

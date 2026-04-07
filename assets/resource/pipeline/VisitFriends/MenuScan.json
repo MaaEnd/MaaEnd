@@ -4,20 +4,51 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanScrollFinish",
             "VisitFriendsMenuScanFriendsFull",
-            "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
+            "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
+            "VisitFriendsMenuScanScrollFinish",
             "[JumpBack]VisitFriendsMenuScanScrollList"
         ]
     },
-    "VisitFriendsMenuScanTargetFriendOpen": {
+    "VisitFriendsMenuScanTargetFriendRemarkOpen": {
         "desc": "前往需要拜访的好友",
         "recognition": "Custom",
         "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition_param": {
+            "only_remark_friends": true
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
-        "post_delay": 0
+        "custom_action_param": {
+            "param_attach_node": "VisitFriendsMenuScanTargetFriendRemarkOpen"
+        },
+        "post_delay": 0,
+        "attach": {
+            "control_nexus_assist": false,
+            "mfg_cabin_assist": false,
+            "growth_chamber_assist": false
+        }
+    },
+    "VisitFriendsMenuScanTargetFriendNormalOpen": {
+        "desc": "前往需要拜访的好友",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition_param": {
+            "only_remark_friends": false
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
+        "custom_action_param": {
+            "param_attach_node": "VisitFriendsMenuScanTargetFriendNormalOpen"
+        },
+        "post_delay": 0,
+        "attach": {
+            "control_nexus_assist": false,
+            "mfg_cabin_assist": false,
+            "growth_chamber_assist": false
+        }
     },
     "VisitFriendsMenuScanScrollFinish": {
         "desc": "判断是否滚动完成",
@@ -68,19 +99,50 @@
             "Node.Action.Succeeded": "向下滑动好友列表"
         }
     },
+    "VisitFriendsMenuScanDetail": {
+        "desc": "识别进入好友船的按钮",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailClueExchange"
+        ]
+    },
+    "VisitFriendsMenuScanDetailClueExchange": {
+        "desc": "识别是否可以线索交换",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanDetailClueExchangeRecognition",
+        "custom_recognition_param": {
+            "friend_name": "aaa#123",
+            "enter_button_box": [
+                0,
+                0,
+                100,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailOpen",
+            "VisitFriendsMenuScanDetailFinish"
+        ]
+    },
     "VisitFriendsMenuScanDetailOpen": {
         "desc": "识别进入好友船的按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -150,
-            135,
-            150,
-            460
+        "target": [
+            -100,
+            0,
+            100,
+            100
         ],
-        "template": "VisitFriends/EnterButton.png",
-        "threshold": 0.9,
-        "pre_delay": 0,
-        "action": "Click",
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -90,17 +152,18 @@
                 100
             ]
         },
+        "action": "Click",
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanDetailSave"
+            "VisitFriendsMenuScanDetailSaveAssist"
         ]
     },
-    "VisitFriendsMenuScanDetailSave": {
-        "desc": "保存好友船详情",
+    "VisitFriendsMenuScanDetailSaveAssist": {
+        "desc": "保存好友船助力详情",
         "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanDetailSaveRecognition",
+        "custom_recognition": "VisitFriendsMenuScanDetailAssistRecognition",
         "custom_recognition_param": {
-            "index": 0
+            "name": "aaa#1234"
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -117,6 +180,11 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 400,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuScanDetailFinish": {
+        "desc": "完成好友详情识别",
+        "pre_delay": 0,
         "post_delay": 0
     }
 }

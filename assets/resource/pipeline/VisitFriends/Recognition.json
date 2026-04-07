@@ -24,6 +24,27 @@
             ".*#.*"
         ]
     },
+    "VisitFriendsRecognitionItemWithName": {
+        "desc": "识别好友名称",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            {
+                "recognition": "OCR",
+                "roi": "VisitFriendsRecognitionItemEnterButton",
+                "roi_offset": [
+                    -1050,
+                    -30,
+                    300,
+                    5
+                ],
+                "expected": [
+                    ".*#.*"
+                ],
+                "order_by": "Vertical"
+            }
+        ]
+    },
     "VisitFriendsRecognitionItemClueExchange": {
         "desc": "识别线索交换",
         "recognition": "TemplateMatch",
@@ -32,6 +53,24 @@
             111,
             85,
             95
+        ],
+        "template": "VisitFriends/ClueExchangeAvailable.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemClueExchangeByEnterButton": {
+        "desc": "根据进入按钮偏移识别线索交换",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1159,
+            111,
+            85,
+            95
+        ],
+        "roi_offset": [
+            -20,
+            -30,
+            60,
+            60
         ],
         "template": "VisitFriends/ClueExchangeAvailable.png",
         "threshold": 0.9

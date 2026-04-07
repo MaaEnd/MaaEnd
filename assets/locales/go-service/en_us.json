@@ -16,6 +16,7 @@
     "visitfriends.can_mfg_cabin": "assist MFG Cabin",
     "visitfriends.can_growth_chamber": "assist Growth Chamber",
     "visitfriends.current_counts": "Assist count: %d, Clue exchange count: %d",
+    "visitfriends.check_friend": "Checking friend %s",
 
     "autosell.price_compare_ok": "Recognized highest price: %d, minimum selling price: %d, meets condition",
     "autosell.price_compare_fail": "Recognized highest price: %d, minimum selling price: %d, does not meet condition",

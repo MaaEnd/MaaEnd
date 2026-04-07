@@ -15,6 +15,7 @@
     "visitfriends.can_mfg_cabin": "助力製造艙",
     "visitfriends.can_growth_chamber": "助力生長艙",
     "visitfriends.current_counts": "當前助力次數：%d，線索交換次數：%d",
+    "visitfriends.check_friend": "檢查好友 %s",
     "autosell.price_compare_ok": "識別最高價格: %d，最低售賣價格: %d，符合條件",
     "autosell.price_compare_fail": "識別最高價格: %d，最低售賣價格: %d，不符合條件",
     "autosell.check_item_price_moderate": "檢查物資 %s 價格，該物資價格變動適中",

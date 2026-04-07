@@ -16,6 +16,7 @@
     "visitfriends.can_mfg_cabin": "製造キャビンを支援",
     "visitfriends.can_growth_chamber": "成長室を支援",
     "visitfriends.current_counts": "支援回数: %d、手がかり交換回数: %d",
+    "visitfriends.check_friend": "フレンドを確認中: %s",
 
     "autosell.price_compare_ok": "認識した最高価格: %d、最低販売価格: %d、条件を満たします",
     "autosell.price_compare_fail": "認識した最高価格: %d、最低販売価格: %d、条件を満たしません",
