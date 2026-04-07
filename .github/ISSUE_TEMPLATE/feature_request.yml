@@ -9,7 +9,9 @@ body:
       description: |
         🚀 请详细描述您希望添加的功能，以及使用场景。  
         💡 除“我希望添加XXX功能”外，也请描述“为什么需要它”、“我可以达到什么效果/目的”。  
-        ⚠️ 很多时候您的提议可能已经实现，只是没有找到入口，或是实现方式与预期稍有偏差。
+        ⚠️ 很多时候您的提议可能已经实现，只是没有找到入口，或是实现方式与预期稍有偏差。或者您未更新所以您不能使用  
+        所以建议您更新到**最新公测版而不是最新正式版**，检查有没有您需要的功能再反馈   
+        🚫 **否则您的提议可能会被直接关闭！**
     validations:
       required: true
 
@@ -29,7 +31,7 @@ body:
     id: version
     attributes:
       label: MaaEnd 版本
-      placeholder: "例如: v1.1.0"
+      placeholder: "例如: v2.5.0-beta.4"
     validations:
       required: false
 
