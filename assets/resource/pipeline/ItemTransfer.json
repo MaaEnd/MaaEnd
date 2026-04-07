@@ -1,12 +1,21 @@
 {
     "ItemTransfer": {
-        "desc": "由于半透明问题，在 tasks 中提供 AutoTeleport 导航选项，自动将用户传送到帝江号会客室并将视角抬至最高；由于只能使用前台控制器，默认不开启",
+        "desc": "在 tasks 中对默认 false 的 前置(next) 任务进行 override",
         "recognition": "DirectHit",
         "next": [
-            "ItemTransferClearBag"
+            "ItemTransferStart",
+            "ItemTransferClearBag",
+            "ItemTransferSwitchRepoToOrigin"
         ]
     },
     "ItemTransferStart": {
+        "enabled": false,
+        "next": [
+            "ItemTransferStartAtReceptionRoom",
+            "[JumpBack]SceneEnterWorldDijiang2"
+        ]
+    },
+    "ItemTransferStartAtReceptionRoom": {
         "desc": "识别“拜访好友”以确认在帝江号会客室开始",
         "recognition": "OCR",
         "roi": [
@@ -53,27 +62,21 @@
         "key": 66, // B
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferClearBag"
+            "ItemTransferClearBag",
+            "ItemTransferSwitchRepoToOrigin"
         ]
     },
     "ItemTransferClearBag": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    896,
-                    497,
-                    57,
-                    41
-                ],
-                "template": [
-                    "AutoEcoFarm/autoecofarmQuickStash.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "template": "AutoEcoFarm/autoecofarmQuickStash.png",
+        "roi": [
+            896,
+            497,
+            57,
+            41
+        ],
+        "action": "Click",
         "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]

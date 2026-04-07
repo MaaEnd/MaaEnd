@@ -389,6 +389,7 @@
     "option.ClaimSimulationArea.label": "Area",
     "task.ItemTransfer.label": "🐌 Inventory Transfer",
     "task.ItemTransfer.description": "Batch transfer specified items between different regions. At the Dijiang <span style=\"color: #C62828\">Reception Room teleport point</span>, <span style=\"color: #C62828\">raise the camera to the highest</span> and <span style=\"color: #C62828\">use the ceiling as background</span>.",
+    "task.ItemTransfer.option.AutoCleanBag.description": "Click \"Quick Stash\" before transfer starts. Do not specify a warehouse for Quick Stash.",
     "task.ItemTransfer.item_not_found": "Failed to find target item, scrolled back to top but recognition failed",
     "task.ItemTransfer.bag_return_completed": "Destination warehouse is full, remaining items have been returned to origin warehouse",
     "option.ItemTransferWhatToTransfer.label": "Item to Transfer",
