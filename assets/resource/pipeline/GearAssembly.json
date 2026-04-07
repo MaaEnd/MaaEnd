@@ -35,6 +35,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "GearAssemblyGoToStandalone",
             "[JumpBack]GearAssemblySwitchAscending",
             "GearAssemblyClickProduceBtn"
         ]
@@ -175,9 +176,355 @@
     },
     "GearAssemblyComplete": {
         "desc": "四号谷地中继器.jpg",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "GearAssemblyCreationFinish",
             "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "GearAssemblyGoToStandalone": {
+        "desc": "前往装备数量更少的独立装备制造，以便执行自动选择，附：没招了怎么延时那么大",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    250,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "独立装备制造"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyGetGearPosition"
+        ]
+    },
+    "GearAssemblyCheckIfReachedScrollEnd": {
+        "desc": "检查是否滑动到底部",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    445,
+                    625,
+                    15,
+                    20
+                ],
+                "lower": [
+                    [
+                        220,
+                        220,
+                        220
+                    ]
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "next": [
+            "GearAssemblyGetGearPositionFinal"
+        ]
+    },
+    "GearAssemblyCheckIfScreenIsUnstable": {
+        "desc": "检查画面是否不稳定",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    996,
+                    90,
+                    80,
+                    60
+                ],
+                "template": [
+                    "GearAssembly/Def.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblySwipeToNextRow": {
+        "desc": "滑动到下一行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    -50
+                ],
+                "end": [
+                    [
+                        70,
+                        20,
+                        30,
+                        1
+                    ],
+                    [
+                        100,
+                        20,
+                        30,
+                        1
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ],
+        "on_error": [
+            "GearAssemblySwipeToNextRowLigtly"
+        ]
+    },
+    "GearAssemblyGetGearPositionFinal": {
+        "desc": "收尾，使用offset_roi处理余下装备",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GearAssemblyGetGearPositionWithOffset",
+                    "GearAssemblyGetGearPosition"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyGetGearPositionFinalHelper",
+            "GearAssemblyNoAvailableGear"
+        ]
+    },
+    "GearAssemblyGetGearPositionWithOffset": {
+        "desc": "点击第一个可制造装备(带偏移版)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GearAssemblyGetGearPositionFinal",
+                "roi_offset": [
+                    -5,
+                    100,
+                    10,
+                    400
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblyNoAvailableGear": {
+        "focus": {
+            "Node.Action.Succeeded": "无可制造装备"
+        }
+    },
+    "GearAssemblySwipeToNextRowLigtly": {
+        "desc": "滑动到下一行",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    1000,
+                    630,
+                    255,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        70,
+                        20,
+                        30,
+                        1
+                    ],
+                    [
+                        100,
+                        20,
+                        30,
+                        1
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ]
+    },
+    "GearAssemblyGetGearPositionFinalHelper": {
+        "desc": "优化在mpe下的显示，使得自循环看起来不那么绕",
+        "max_hit": 6,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GearAssemblyGetGearPositionFinal"
+        ]
+    },
+    "GearAssemblyGetGearPosition": {
+        "desc": "点击第一个可制造装备",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    35,
+                    50,
+                    100,
+                    590
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblySwipeToNextRow"
         ]
     }
 }
