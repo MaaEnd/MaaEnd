@@ -4,7 +4,7 @@
         "recognition": "DirectHit",
         "next": [
             "ItemTransferStart",
-            "ItemTransferClearBag",
+            "ItemTransferPreClearBag",
             "ItemTransferSwitchRepoToOrigin"
         ]
     },
@@ -62,11 +62,11 @@
         "key": 66, // B
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferClearBag",
+            "ItemTransferPreClearBag",
             "ItemTransferSwitchRepoToOrigin"
         ]
     },
-    "ItemTransferClearBag": {
+    "ItemTransferPreClearBag": {
         "enabled": false,
         "recognition": "TemplateMatch",
         "template": "AutoEcoFarm/autoecofarmQuickStash.png",
