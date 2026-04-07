@@ -158,7 +158,7 @@
     "option.ProductionAssistType.label": "생산 지원 모드",
     "option.ProductionAssistType.ProductionAssistControlNexus.label": "총괄 제어 넥서스 지원",
     "option.ProductionAssistType.ProductionAssistMFGCabin.label": "제조 캐빈 지원",
-    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "제조 배양실",
+    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "배양실 지원",
     "option.VisitFriendsRemark.label": "메모가 있는 친구 우선 방문",
     "option.StageTaskSetting.label": "단계 작업 설정",
     "option.StageTaskSetting.description": "활성화하면 기분 회복, 접견실, 제조실, 배양실 단계를 각각 켜거나 끌 수 있습니다.",
