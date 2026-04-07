@@ -96,12 +96,12 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 
 	detail, recoErr := ctx.RunRecognition("VisitFriendsRecognitionItemWithName", arg.Img)
 	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Str("component", "visitfriends").Str("step", "scan_item_name").Msg("run recognition")
+		log.Error().Err(recoErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("run recognition")
 		return nil, false
 	}
 
 	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
-		log.Warn().Str("component", "visitfriends").Str("step", "scan_item_name").Msg("recognition miss")
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("recognition miss")
 		return nil, false
 	}
 
@@ -114,16 +114,16 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 	}
 	// Results.Best是空，暂时只能这样获取
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[0].DetailJson), &detailButtonJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Str("component", "visitfriends").Str("step", "scan_item_name").Msg("parse detail json")
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("parse detail json")
 		return nil, false
 	}
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailNameJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Str("component", "visitfriends").Str("step", "scan_item_name").Msg("parse detail json")
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("parse detail json")
 		return nil, false
 	}
 
 	if len(detailNameJson.Filtered) != len(detailButtonJson.Filtered) {
-		log.Warn().Str("component", "visitfriends").Str("step", "scan_item_name").Msg("name recognition count not equal button recognition count")
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("name recognition count not equal button recognition count")
 		return nil, false
 	}
 
@@ -132,7 +132,7 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 
 	for i := range detailNameJson.Filtered {
 		if len(detailNameJson.Filtered[i].Text) == 0 {
-			log.Warn().Str("component", "visitfriends").Str("step", "scan_item_name").Int("index", i).Msg("name recognition text is empty")
+			log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Int("index", i).Msg("name recognition text is empty")
 			continue
 		}
 
@@ -162,7 +162,7 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 
 	resultJson, err := json.Marshal(targetItem)
 	if err != nil {
-		log.Error().Err(err).Str("component", "visitfriends").Str("step", "scan_item_name").Msg("marshal result json")
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("marshal result json")
 		return nil, false
 	}
 
@@ -177,7 +177,7 @@ type VisitFriendsMenuScanTargetFriendOpenAction struct{}
 func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
 	if !ok {
-		log.Error().Str("component", "visitfriends").Str("step", "open_item").Msg("get custom result")
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("get custom result")
 		return false
 	}
 
@@ -185,7 +185,7 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 	if err := json.Unmarshal([]byte(customResult.Detail), &resultItem); err != nil {
 		log.Error().
 			Err(err).
-			Str("component", "visitfriends").Str("step", "open_item_text").
+			Str("component", "VisitFriends").Str("step", "open_item_text").
 			Msg("parse custom result")
 		return false
 	}
@@ -202,7 +202,7 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 
 	raw, err := ctx.GetNodeJSON(actionParams.ParamAttachNode)
 	if err != nil || raw == "" {
-		log.Error().Err(err).Str("component", "visitfriends").Str("step", "open_item").Msg("get node json for custom action param")
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "open_item").Msg("get node json for custom action param")
 		return false
 	}
 
@@ -214,18 +214,18 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 		} `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(raw), &nodeWithAttach); err != nil {
-		log.Error().Err(err).Str("component", "visitfriends").Str("step", "open_item").Msg("parse node attach for visit friends open action")
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "open_item").Msg("parse node attach for visit friends open action")
 		return false
 	}
 	params := nodeWithAttach.Attach
 
 	if !params.ControlNexusAssist && !params.MFGCabinAssist && !params.GrowthChamberAssist {
-		log.Error().Str("component", "visitfriends").Str("step", "open_item").Msg("no assist enabled, skip open item action")
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("no assist enabled, skip open item action")
 		return false
 	}
 
 	if len(resultItem.ButtonBox) < 4 {
-		log.Error().Str("component", "visitfriends").Str("step", "open_item").Msg("button box length error")
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("button box length error")
 		return false
 	}
 
@@ -282,7 +282,7 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 
 		if !foundTarget {
 			log.Error().
-				Str("component", "visitfriends").
+				Str("component", "VisitFriends").
 				Str("step", "open_item").
 				Str("friend_name", resultItem.NameText).
 				Msg("opened friend not found in scanned items")
@@ -522,12 +522,12 @@ type VisitFriendsMenuScanScrollFinishRecognition struct{}
 func (r *VisitFriendsMenuScanScrollFinishRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	detail, recoErr := ctx.RunRecognition("VisitFriendsRecognitionItemWithName", arg.Img)
 	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Str("component", "visitfriends").Str("step", "scan_finish_name").Msg("run recognition")
+		log.Error().Err(recoErr).Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("run recognition")
 		return nil, false
 	}
 
 	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
-		log.Warn().Str("component", "visitfriends").Str("step", "scan_finish_name").Msg("recognition miss")
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("recognition miss")
 		return nil, false
 	}
 
@@ -540,18 +540,18 @@ func (r *VisitFriendsMenuScanScrollFinishRecognition) Run(ctx *maa.Context, arg 
 	}
 	// Results.Best是空，暂时只能这样获取
 	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Str("component", "visitfriends").Str("step", "scan_finish_name").Msg("parse detail json")
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("parse detail json")
 		return nil, false
 	}
 
 	if len(detailJson.Filtered) == 0 {
-		log.Info().Str("component", "visitfriends").Str("step", "scan_finish_name").Msg("no item found")
+		log.Info().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("no item found")
 		return nil, false
 	}
 
 	lastDetailItem := detailJson.Filtered[len(detailJson.Filtered)-1]
 	if len(lastDetailItem.Text) == 0 {
-		log.Info().Str("component", "visitfriends").Str("step", "scan_finish_name").Msg("last item has no name")
+		log.Info().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("last item has no name")
 		return nil, false
 	}
 
