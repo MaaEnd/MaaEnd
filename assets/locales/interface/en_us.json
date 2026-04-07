@@ -158,7 +158,7 @@
     "option.ProductionAssistType.label": "Production Assist Mode",
     "option.ProductionAssistType.ProductionAssistControlNexus.label": "Assist Control Nexus",
     "option.ProductionAssistType.ProductionAssistMFGCabin.label": "Assist MFG Cabin",
-    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "Manufacturing Growth Chamber",
+    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "Assist Growth Chamber",
     "option.VisitFriendsRemark.label": "Prioritize friends with remarks",
     "option.StageTaskSetting.label": "Stage Task Settings",
     "option.StageTaskSetting.description": "Enable to control the mood recovery, Reception Room, Manufacturing, and Growth Chamber stages individually.",
