@@ -279,7 +279,7 @@
             "GearAssemblyGetGearPosition"
         ],
         "on_error": [
-            "GearAssemblySwipeToNextRowLigtly"
+            "GearAssemblySwipeToNextRowLightly"
         ]
     },
     "GearAssemblyGetGearPositionFinal": {
@@ -365,7 +365,7 @@
             "Node.Action.Succeeded": "无可制造装备"
         }
     },
-    "GearAssemblySwipeToNextRowLigtly": {
+    "GearAssemblySwipeToNextRowLightly": {
         "desc": "滑动到下一行",
         "recognition": {
             "type": "DirectHit",
