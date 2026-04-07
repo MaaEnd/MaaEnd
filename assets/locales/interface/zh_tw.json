@@ -557,7 +557,7 @@
     "option.DailyTaskCreation.label": "簡易製作",
     "option.DailyTaskCreation.desc": "自動進行一次簡易製作以獲取活躍度",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_tw.md",
-    "contact.file": "locales/interface/CONTACT/CONTACT.zh_tw.md",
+    "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_tw.md",
     "operator.Perlica": "佩麗卡",
     "operator.Yvonne": "伊馮",
     "operator.Ardelia": "艾爾黛拉",

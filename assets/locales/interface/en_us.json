@@ -557,7 +557,7 @@
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.en_us.md",
-    "contact.file": "locales/interface/CONTACT/CONTACT.en_us.md",
+    "contact.file": "https://end.maafw.com/CONTACT/CONTACT.en_us.md",
     "operator.Perlica": "Perlica",
     "operator.Yvonne": "Yvonne",
     "operator.Ardelia": "Ardelia",

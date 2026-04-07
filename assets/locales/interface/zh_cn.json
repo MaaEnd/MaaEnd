@@ -557,7 +557,7 @@
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_cn.md",
-    "contact.file": "locales/interface/CONTACT/CONTACT.zh_cn.md",
+    "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_cn.md",
     "operator.Perlica": "佩丽卡",
     "operator.Yvonne": "伊冯",
     "operator.Ardelia": "艾尔黛拉",
