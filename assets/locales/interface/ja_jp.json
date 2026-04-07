@@ -158,7 +158,7 @@
     "option.ProductionAssistType.label": "生産支援モード",
     "option.ProductionAssistType.ProductionAssistControlNexus.label": "総合制御中枢を支援",
     "option.ProductionAssistType.ProductionAssistMFGCabin.label": "製造艙を支援",
-    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "製造培養艙",
+    "option.ProductionAssistType.ProductionAssistGrowthChamber.label": "培養艙を支援",
     "option.VisitFriendsRemark.label": "メモ付きフレンドを優先",
     "option.StageTaskSetting.label": "段階タスク設定",
     "option.StageTaskSetting.description": "有効にすると、気分回復、応接室、製造室、培養室の各段階を個別に切り替えられます。",
