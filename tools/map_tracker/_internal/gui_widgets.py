@@ -23,14 +23,34 @@ class BasePage:
         self.stepper: Any = None
         self.buttons: list[Button] = []
 
-    def render_page(self) -> None:
-        # Any explicit render request should mark the page dirty.
+    def hook_enter(self, stepper: Any):
+        """Attaches to stepper and prepare the page for rendering."""
+        self.stepper = stepper
+        # PageStepper owns the real cv2 window; use its name to avoid resizing
+        # a non-existent page-local window.
+        if hasattr(stepper, "window_name"):
+            self.window_name = stepper.window_name
+        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
+        self.render_request()
+
+    def hook_idle(self):
+        """Execute idle hook for background updates."""
+        pass
+
+    def hook_exit(self):
+        """Lifecycle hook called when page leaves the stack."""
+        pass
+
+    def render_request(self) -> None:
+        """Requests the page to be re-rendered on next loop tick."""
         self._needs_render = True
 
-    def _render(self, drawer: Drawer) -> None:
+    def _render_once(self, drawer: Drawer) -> None:
+        """Subclasses should implement this method to render a single frame without handling buttons."""
         pass
 
     def render(self) -> Any:
+        """Renders the page if needed and return the image to be displayed."""
         now = time.monotonic()
         btn_needs_render = any(b.needs_render for b in self.buttons)
         if (
@@ -42,7 +62,7 @@ class BasePage:
             self._needs_render = False
             drawer = Drawer.new(self.window_w, self.window_h)
 
-            self._render(drawer)
+            self._render_once(drawer)
 
             for btn in self.buttons:
                 btn.render(drawer)
@@ -50,48 +70,29 @@ class BasePage:
             return drawer.get_image()
         return None
 
-    def on_enter(self, stepper: Any):
-        """Attach to stepper and prepare the page for rendering."""
-        self.stepper = stepper
-        # PageStepper owns the real cv2 window; use its name to avoid resizing
-        # a non-existent page-local window.
-        if hasattr(stepper, "window_name"):
-            self.window_name = stepper.window_name
-        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
-        self.render_page()
-
-    def on_exit(self):
-        """Lifecycle hook called when page leaves the stack."""
-        pass
-
     def handle_mouse(self, event, x: int, y: int, flags, param):
-        """Dispatch mouse input to buttons first, then page handler."""
+        """Dispatches mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
         for btn in self.buttons:
             if btn.handle_mouse(event, x, y):
-                self.render_page()
+                self.render_request()
                 return
         self._on_mouse(event, x, y, flags, param)
 
     def _on_mouse(self, event, x: int, y: int, flags, param) -> None:
+        """Subclasses can override this method to handle mouse events not consumed by buttons."""
         pass
 
     def handle_key(self, key: int):
-        """Dispatch key input to buttons first, then page handler."""
+        """Dispatches key input to buttons first, then page handler."""
         for btn in self.buttons:
             if btn.handle_key(key):
-                self.render_page()
+                self.render_request()
                 return
         self._on_key(key)
 
     def _on_key(self, key: int) -> None:
-        pass
-
-    def handle_idle(self):
-        """Execute idle hook for background updates."""
-        self._on_idle()
-
-    def _on_idle(self) -> None:
+        """Subclasses can override this method to handle key events not consumed by buttons."""
         pass
 
 
@@ -145,8 +146,8 @@ class StepPage(BasePage):
                 )
             )
 
-    def on_enter(self, stepper: "PageStepper"):
-        super().on_enter(stepper)
+    def hook_enter(self, stepper: "PageStepper"):
+        super().hook_enter(stepper)
 
     def _render_header(self, drawer: Drawer) -> None:
         h = self.HEADER_H
@@ -166,7 +167,7 @@ class StepPage(BasePage):
         drawer.rect((0, y1), (self.WINDOW_W, y2), color=0x0A0A14, thickness=-1)
         drawer.line((0, y1), (self.WINDOW_W, y1), color=0x444455, thickness=2)
 
-    def _render(self, drawer: Drawer):
+    def _render_once(self, drawer: Drawer):
         drawer.rect(
             (0, 0),
             (self.WINDOW_W, self.WINDOW_H),
@@ -288,18 +289,18 @@ class PageStepper:
     def push_step(self, page: BasePage) -> None:
         """Push a new page and enter it."""
         if self.current_step:
-            self.current_step.on_exit()
+            self.current_step.hook_exit()
         self.step_history.append(page)
-        page.on_enter(self)
+        page.hook_enter(self)
         self.request_render()
 
     def pop_step(self) -> BasePage | None:
         """Pop current page when history allows and restore previous page."""
         if len(self.step_history) > 1:
             popped = self.step_history.pop()
-            popped.on_exit()
+            popped.hook_exit()
             if self.current_step:
-                self.current_step.on_enter(self)
+                self.current_step.hook_enter(self)
             self.request_render()
             return popped
         return None
@@ -312,7 +313,7 @@ class PageStepper:
     def request_render(self):
         """Request current step to render on next loop tick."""
         if self.current_step:
-            self.current_step.render_page()
+            self.current_step.render_request()
 
     def _handle_mouse(self, event, x, y, flags, param):
         if self.current_step:
@@ -333,7 +334,7 @@ class PageStepper:
             if not page:
                 break
 
-            page.handle_idle()
+            page.hook_idle()
 
             rendered_img = page.render()
             if rendered_img is not None:

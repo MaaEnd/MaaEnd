@@ -77,7 +77,7 @@ def _handle_view_mouse(
         else:
             page.view.zoom_out()
         page.view.set_view_origin(mx - x / page.view.zoom, my - y / page.view.zoom)
-        page.render_page()
+        page.render_request()
         return True
 
     # Right-drag panning.
@@ -93,7 +93,7 @@ def _handle_view_mouse(
         dy = (y - page.pan_start[1]) / page.view.zoom
         page.view.pan_by(-dx, -dy)
         page.pan_start = (x, y)
-        page.render_page()
+        page.render_request()
         return True
     return False
 
@@ -227,9 +227,7 @@ class PathEditPage(BasePage):
         self.action_dragging = False
 
         self.location_service = LocationService()
-        self._recording_start_time = 0.0
         self._recording_last_ts = 0.0
-        self._recording_last_poll = 0.0
         self._recorded_path: list[list[float]] = []
         self._recorded_keys: set[tuple[float, float, float]] = set()
 
@@ -290,6 +288,12 @@ class PathEditPage(BasePage):
                 self._finish_button,
             ]
         )
+
+    def hook_idle(self) -> None:
+        self._update_recording()
+
+    def hook_exit(self) -> None:
+        self.location_service.cleanup()
 
     # ------------------------------------------------------------------
     # Helpers
@@ -355,7 +359,7 @@ class PathEditPage(BasePage):
         self.map_path = target_path
         self.img = img
         self._map_layer = MapImageLayer(self.view, self.img)
-        self.render_page()
+        self.render_request()
 
     def _sync_tier_by_log_map(self, log_map_name: str) -> None:
         if len(self._tier_maps) <= 1:
@@ -385,23 +389,26 @@ class PathEditPage(BasePage):
 
     def _start_recording(self):
         if not self.location_service.start_recording(self.map_name):
-            self._update_status(0xFC4040, "Cannot start recording.")
-            print(f"  {_Y}Failed to start location recording.{_0}")
-            self.render_page()
+            error_msg = "Cannot start recording."
+            try:
+                item = self.location_service.result_queue.get_nowait()
+                if isinstance(item, Exception):
+                    error_msg = str(item)
+            except queue.Empty:
+                pass
+            self._update_status(0xFC4040, error_msg)
+            self.render_request()
             return
-        print(f"  {_G}Started location recording.{_0}")
-        self._recording_start_time = time.time()
-        self._recording_last_ts = self._recording_start_time
-        self._recording_last_poll = 0.0
+        self._recording_last_ts = time.time()
         self._recorded_path = []
         self._recorded_keys.clear()
         self._update_status(0x78DCFF, "Realtime path recording started.")
-        self.render_page()
+        self.render_request()
 
     def _stop_recording(self):
         self.location_service.stop_recording()
         self._update_status(0xD2D200, "Realtime path recording stopped.")
-        self.render_page()
+        self.render_request()
 
     def _toggle_recording(self):
         if self.location_service.is_recording:
@@ -412,11 +419,11 @@ class PathEditPage(BasePage):
     def _on_click_save(self):
         if self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_page()
+            self.render_request()
 
     def _on_click_record(self):
         self._toggle_recording()
-        self.render_page()
+        self.render_request()
 
     def _on_click_back(self):
         if self.stepper and len(self.stepper.step_history) > 1:
@@ -479,12 +486,11 @@ class PathEditPage(BasePage):
             if self._recorded_path:
                 last_point = self._recorded_path[-1]
                 self.view.maybe_center_to(last_point[0], last_point[1])
-            self._update_status(0x78DCFF, f"Location recoding is working normally.")
-            self.render_page()
+            self._update_status(0x78DCFF, "Location recording is working normally.")
+            self.render_request()
         elif exception:
-            self._update_status(0xD2D200, f"Location recoding currently unavailable.")
-            print(f"  {_Y}Error during location recording: {exception}{_0}")
-            self.render_page()
+            self._update_status(0xD2D200, "Location recording currently unavailable.")
+            self.render_request()
 
         return updated
 
@@ -517,9 +523,7 @@ class PathEditPage(BasePage):
             "recorded_keys": set(self._recorded_keys),
             "selected_idx": self.selected_idx,
             "recording_active": self.location_service.is_recording,
-            "recording_start_time": self._recording_start_time,
             "recording_last_ts": self._recording_last_ts,
-            "recording_last_poll": self._recording_last_poll,
         }
         result: list[list[int]] = []
         for point in self._recorded_path:
@@ -552,11 +556,7 @@ class PathEditPage(BasePage):
             self.location_service.start_recording(self.map_name)
         else:
             self.location_service.stop_recording()
-        self._recording_start_time = float(
-            self._quick_undo_state["recording_start_time"]
-        )
         self._recording_last_ts = float(self._quick_undo_state["recording_last_ts"])
-        self._recording_last_poll = float(self._quick_undo_state["recording_last_poll"])
         self._quick_undo_state = None
         self._update_status(0xD2D200, "Reverted the generated path.")
 
@@ -585,7 +585,7 @@ class PathEditPage(BasePage):
     # Rendering overrides
     # ------------------------------------------------------------------
 
-    def _render(self, drawer: Drawer) -> None:
+    def _render_once(self, drawer: Drawer) -> None:
         self._map_layer.render(drawer)
         self._render_content(drawer)
 
@@ -820,7 +820,7 @@ class PathEditPage(BasePage):
                 if self.action_dragging and self.drag_idx != -1:
                     self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                     self.action_moved = True
-                    self.render_page()
+                    self.render_request()
                     return
 
                 dx = x - self.action_down_pos[0]
@@ -834,17 +834,17 @@ class PathEditPage(BasePage):
                             self._coord1(mx),
                             self._coord1(my),
                         ]
-                        self.render_page()
+                        self.render_request()
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                 self.action_dragging = True
-                self.render_page()
+                self.render_request()
                 return
 
             # Keep crosshair and hover feedback responsive.
-            self.render_page()
+            self.render_request()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
             # Sidebar action buttons are handled by BasePage/Button.
@@ -863,11 +863,11 @@ class PathEditPage(BasePage):
 
             if self._hit_button(x, y, self._btn_quick_generate_rect):
                 self._generate_path_from_recorded()
-                self.render_page()
+                self.render_request()
                 return
             if self._hit_button(x, y, self._btn_quick_undo_rect):
                 self._undo_generate_path()
-                self.render_page()
+                self.render_request()
                 return
 
             # ── Map area clicks ─────────────────────────────────
@@ -879,7 +879,7 @@ class PathEditPage(BasePage):
             if self.action_down_idx != -1:
                 self.drag_idx = self.action_down_idx
                 self.selected_idx = self.action_down_idx
-                self.render_page()
+                self.render_request()
 
         elif event == cv2.EVENT_LBUTTONUP:
             if self.action_dragging and self.drag_idx != -1:
@@ -903,7 +903,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
                             )
-                            self.render_page()
+                            self.render_request()
                     elif self.action_down_pos == (x, y):
                         inserted = False
                         for i in range(1, len(self.points)):
@@ -926,7 +926,7 @@ class PathEditPage(BasePage):
                                     f"Added Point #{i} ({mx:.1f}, {my:.1f})",
                                 )
                                 inserted = True
-                                self.render_page()
+                                self.render_request()
                                 break
                         if not inserted:
                             self.points.append([self._coord1(mx), self._coord1(my)])
@@ -935,7 +935,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Added Point #{self.selected_idx} ({mx:.1f}, {my:.1f})",
                             )
-                            self.render_page()
+                            self.render_request()
 
             self.action_down_idx = -1
             self.action_mouse_down = False
@@ -953,15 +953,9 @@ class PathEditPage(BasePage):
             self.done = True
         elif key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_page()
+            self.render_request()
         elif key in (ord("r"), ord("R")):
             self._toggle_recording()
-
-    def _on_idle(self) -> None:
-        self._update_recording()
-
-    def on_exit(self) -> None:
-        self.location_service.cleanup()
 
     # ------------------------------------------------------------------
     # Main loop
@@ -1091,7 +1085,7 @@ class AreaEditPage(BasePage):
     def _on_click_save(self):
         if self.pipeline_context and self.is_dirty and self.target is not None:
             self._do_save()
-            self.render_page()
+            self.render_request()
 
     def _on_click_back(self):
         if self.stepper and len(self.stepper.step_history) > 1:
@@ -1158,7 +1152,7 @@ class AreaEditPage(BasePage):
 
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
 
-    def _render(self, drawer: Drawer) -> None:
+    def _render_once(self, drawer: Drawer) -> None:
         self._map_layer.render(drawer)
         if self.target is not None:
             x, y, w, h = self.target
@@ -1215,15 +1209,15 @@ class AreaEditPage(BasePage):
             self._drawing = True
             self._draw_start = (mx, my)
             self.target = [mx, my, 0.0, 0.0]
-            self.render_page()
+            self.render_request()
             return
 
         if event == cv2.EVENT_MOUSEMOVE:
             if self._drawing and self._draw_start is not None:
                 self.target = self._normalized_target(self._draw_start, (mx, my))
-                self.render_page()
+                self.render_request()
                 return
-            self.render_page()
+            self.render_request()
 
         if event == cv2.EVENT_LBUTTONUP and self._drawing:
             self._drawing = False
@@ -1231,7 +1225,7 @@ class AreaEditPage(BasePage):
                 self.target = self._normalized_target(self._draw_start, (mx, my))
                 self._draw_start = None
                 self._update_status(0x78DCFF, "Updated target area.")
-                self.render_page()
+                self.render_request()
 
     def _on_key(self, key: int) -> None:
         if key == 27:
@@ -1248,7 +1242,7 @@ class AreaEditPage(BasePage):
             and self.target is not None
         ):
             self._do_save()
-            self.render_page()
+            self.render_request()
 
     def run(self) -> list[float] | None:
         super().run()
@@ -1534,8 +1528,7 @@ class EditorAdapterStep(BasePage):
         self.editor = None
         self._finished_once = False
 
-    def on_enter(self, stepper: PageStepper):
-        """Create (if needed) and enter the embedded path editor."""
+    def hook_enter(self, stepper: PageStepper):
         if not self.editor:
             self.editor = PathEditPage(
                 self.map_name,
@@ -1546,15 +1539,18 @@ class EditorAdapterStep(BasePage):
         # Returning from ExportStep should allow finishing again.
         self._finished_once = False
         self.editor.done = False
-        self.editor.on_enter(stepper)
+        self.editor.hook_enter(stepper)
 
-    def on_exit(self):
-        """Forward exit lifecycle to the embedded editor."""
+    def hook_idle(self):
+        if self.editor is None:
+            return
+        self.editor.hook_idle()
+
+    def hook_exit(self):
         if self.editor:
-            self.editor.on_exit()
+            self.editor.hook_exit()
 
     def render(self):
-        """Render editor frame and handle transition to export step."""
         if self.editor is None:
             return None
         if self.editor.done and not self._finished_once:
@@ -1570,14 +1566,12 @@ class EditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def handle_mouse(self, event, x, y, flags, param):
-        """Forward mouse events to the embedded editor."""
+    def _on_mouse(self, event, x, y, flags, param):
         if self.editor is None:
             return
         self.editor.handle_mouse(event, x, y, flags, param)
 
-    def handle_key(self, key):
-        """Handle adapter-level shortcuts and forward remaining keys."""
+    def _on_key(self, key):
         if self.editor is None:
             return
         if key == 27:
@@ -1596,12 +1590,6 @@ class EditorAdapterStep(BasePage):
             )
             return
         self.editor.handle_key(key)
-
-    def handle_idle(self):
-        """Forward idle ticks to the embedded editor."""
-        if self.editor is None:
-            return
-        self.editor.handle_idle()
 
 
 class ExportStep(StepPage):
@@ -1786,7 +1774,7 @@ class RegionEditorAdapterStep(BasePage):
         self.editor = None
         self._finished_once = False
 
-    def on_enter(self, stepper: PageStepper):
+    def hook_enter(self, stepper: PageStepper):
         if not self.editor:
             self.editor = AreaEditPage(
                 self.map_name,
@@ -1796,11 +1784,16 @@ class RegionEditorAdapterStep(BasePage):
             )
         self._finished_once = False
         self.editor.done = False
-        self.editor.on_enter(stepper)
+        self.editor.hook_enter(stepper)
 
-    def on_exit(self):
+    def hook_idle(self):
+        if self.editor is None:
+            return
+        self.editor.hook_idle()
+
+    def hook_exit(self):
         if self.editor:
-            self.editor.on_exit()
+            self.editor.hook_exit()
 
     def render(self):
         if self.editor is None:
@@ -1823,12 +1816,12 @@ class RegionEditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def handle_mouse(self, event, x, y, flags, param):
+    def _on_mouse(self, event, x, y, flags, param):
         if self.editor is None:
             return
         self.editor.handle_mouse(event, x, y, flags, param)
 
-    def handle_key(self, key):
+    def _on_key(self, key):
         if self.editor is None:
             return
         if key == 27:
@@ -1850,11 +1843,6 @@ class RegionEditorAdapterStep(BasePage):
             )
             return
         self.editor.handle_key(key)
-
-    def handle_idle(self):
-        if self.editor is None:
-            return
-        self.editor.handle_idle()
 
 
 class App(PageStepper):

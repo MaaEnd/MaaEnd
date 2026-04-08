@@ -3,7 +3,7 @@ import os
 import re
 import math
 import base64
-from typing import Literal, NamedTuple
+from typing import Literal, TypeAlias
 
 _R = "\033[31m"
 _G = "\033[32m"
@@ -27,9 +27,9 @@ except ImportError:
     sys.exit(1)
 
 
-Point = tuple[int, int]
-Color = int  # 0xRRGGBB
-MapType = Literal["normal", "tier", "base", "dung"]
+Point: TypeAlias = tuple[int, int]
+Color: TypeAlias = int  # 0xRRGGBB
+MapType: TypeAlias = Literal["normal", "tier", "base", "dung"]
 
 
 ICON_DATA = {
