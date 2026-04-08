@@ -178,11 +178,22 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		practicalLocks := practicalMatched && opts.LockSlot3Practical
 		shouldLock := futureLocks || practicalLocks
 
+		// 未来可期命中时，利用 matchSkillIDEnhanced 将 OCR 文本解析为各槽 ID（未识别为 0），替代原先的硬编码 0,0,0。
+		var fpIDs [3]int
+		if futureMatched {
+			e.ensureSlotIndices()
+			for i, skill := range ocrSkills {
+				if id, ok := e.matchSkillIDEnhanced(i+1, skill); ok {
+					fpIDs[i] = id
+				}
+			}
+		}
+
 		// 当需要锁定时，优先返回实际触发锁定的规则 Kind，以保证锁定原因/统计与实际一致。
 		if futureLocks {
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
-				SkillIDs:      []int{0, 0, 0},
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
@@ -209,7 +220,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		if futureMatched {
 			return &MatchResult{
 				Kind:          MatchFuturePromising,
-				SkillIDs:      []int{0, 0, 0},
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],

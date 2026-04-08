@@ -47,13 +47,12 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
-            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
+            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
-            "RefreshGetCredits",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
             "RefreshItem",
@@ -80,13 +79,12 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
-            "CreditShoppingReserveCredit",
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
+            "CreditShoppingReserveCredit",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
-            "RefreshGetCredits",
             "CreditShippingCanNotToBuy",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
@@ -145,6 +143,36 @@
             "Node.Recognition.Succeeded": "$task.CreditShopping.reserve_credit_reached"
         }
     },
+    "CreditShoppingReserveCreditSatisfied": {
+        "desc": "信用点高于等于保留阈值（选项：保留信用点阈值）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}>=300"
+                }
+            }
+        }
+    },
+    "CreditShoppingPriority1ReserveCreditGate": {
+        "desc": "优先购买的保留信用点准入判断",
+        "recognition": "DirectHit"
+    },
+    "CreditShoppingPriority2ReserveCreditGate": {
+        "desc": "普通购买1的保留信用点准入判断",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingReserveCreditSatisfied"
+        ]
+    },
+    "CreditShoppingPriority3ReserveCreditGate": {
+        "desc": "普通购买2的保留信用点准入判断",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingReserveCreditSatisfied"
+        ]
+    },
     "CreditShoppingReserveCreditOCRInternal": {
         "desc": "识别当前信用点",
         "recognition": "OCR",
@@ -179,28 +207,14 @@
         }
     },
     "AutoGetCredits": {
-        "desc": "白名单物品买不起时自动去基建获取（选项：获取信用点）",
+        "desc": "已启用购买物品买不起时自动去基建获取（由 CreditShoppingPriority1AutoGetCredits / CreditShoppingPriority2AutoGetCredits / CreditShoppingPriority3AutoGetCredits 控制）",
         "max_hit": 1,
         "recognition": "Or",
         "any_of": [
-            "AutoGetCreditsBuyPriority1"
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsBuyPriority2",
+            "AutoGetCreditsBuyPriority3"
         ],
-        "next": [
-            "GoToNeedCredit"
-        ]
-    },
-    "RefreshGetCredits": {
-        "desc": "刷新信用点不足触发获取信用点，默认关闭，由任务选项开启",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CanNotFlash"
-                ]
-            }
-        },
         "next": [
             "GoToNeedCredit"
         ]
@@ -259,14 +273,15 @@
         "box_index": 4
     },
     "CreditShoppingBuyPriority1": {
-        "desc": "优先购买（选项：优先购买物品、折扣设置；不遵守保留信用点阈值）",
+        "desc": "优先购买（选项：优先购买物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
             "BuyFirstOCR",
-            "IsDiscountPriority1"
+            "IsDiscountPriority1",
+            "CreditShoppingPriority1ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -283,14 +298,15 @@
     },
     "CreditShoppingBuyPriority2": {
         //"enabled": false,
-        "desc": "普通购买1（选项：普通购买1物品、折扣设置；遵守保留信用点阈值）",
+        "desc": "普通购买1（选项：普通购买1物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
             "Priority2OCR",
-            "IsDiscountPriority2"
+            "IsDiscountPriority2",
+            "CreditShoppingPriority2ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -306,14 +322,15 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "普通购买2（选项：普通购买2物品、折扣设置；遵守保留信用点阈值）",
+        "desc": "普通购买2（选项：普通购买2物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
             "Priority3OCR",
-            "IsDiscountPriority3"
+            "IsDiscountPriority3",
+            "CreditShoppingPriority3ReserveCreditGate"
         ],
         "box_index": 4,
         "pre_wait_freezes": 100,
@@ -329,7 +346,7 @@
         ]
     },
     "CreditShoppingBuyBlacklist": {
-        "desc": "强制购买剩余可购物品（选项：信用点低于刷新阈值后操作=购买黑名单物品）",
+        "desc": "强制购买剩余可购物品（选项：购买选项均未命中时操作=购买任意物品）",
         "recognition": "And",
         "all_of": [
             "CreditIcon",

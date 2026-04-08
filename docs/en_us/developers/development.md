@@ -130,8 +130,6 @@ MaaEnd uses `maa-tools` to provide node testing, which is used to verify whether
 The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
 
 - [AutoStockpile Maintenance Documentation](./auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
-- [CreditShopping Maintenance Documentation](./tasks/credit-shopping-maintain.md): This document explains the purchase priorities, credit-gain linkage, refresh strategy, and item extension points for `CreditShopping`.
-- [DijiangRewards Maintenance Documentation](./tasks/dijiang-rewards-maintain.md): This document explains the main flow, stage responsibilities, and how `interface` options override Pipeline behavior for `DijiangRewards`.
 
 ## Code Specifications
 

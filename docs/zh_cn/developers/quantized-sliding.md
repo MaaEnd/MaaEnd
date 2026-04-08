@@ -34,7 +34,7 @@
 `QuantizedSliding` 当前有两种执行模式：
 
 1. **对外调用模式**：当业务任务以 `custom_action: "QuantizedSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `QuantizedSlidingMain` 开始执行整条内部节点链。
-2. **内部节点模式**：当当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
+2. **内部节点模式**：在当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
 
 业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
 

@@ -6,9 +6,56 @@
         "custom_action": "VisitFriendsMainAction",
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenu",
-            "[JumpBack]SceneEnterMenuFriends"
+            "[JumpBack]VisitFriendsRemark",
+            "[JumpBack]VisitFriendsNormal",
+            "VisitFriendsFakeTrue"
         ]
+    },
+    "VisitFriendsRemark": {
+        "desc": "拜访带备注的好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld",
+                "SceneEnterMenuFriends"
+            ]
+        },
+        "anchor": {
+            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendRemarkOpen"
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拜访带备注的好友"
+        }
+    },
+    "VisitFriendsNormal": {
+        "desc": "拜访普通好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld",
+                "SceneEnterMenuFriends"
+            ]
+        },
+        "anchor": {
+            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendNormalOpen"
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拜访所有好友"
+        }
     },
     "VisitFriendsMenu": {
         "desc": "识别是否位于好友列表界面",

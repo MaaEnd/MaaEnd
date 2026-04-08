@@ -1,50 +1,56 @@
 {
+    "AutoSellStockRedistributionItemTicketRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            1280,
+            500
+        ],
+        "template": [
+            "AutoSell/SellTicketItemValleyIV.png",
+            "AutoSell/SellTicketItemWuling.png"
+        ],
+        "threshold": 0.9
+    },
+    "AutoSellStockRedistributionItemNameAreaRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemTicketRecognition",
+        "roi_offset": [
+            -70,
+            35,
+            135,
+            10
+        ],
+        "lower": [
+            61,
+            60,
+            60
+        ],
+        "upper": [
+            81,
+            80,
+            80
+        ],
+        "count": 100
+    },
     "AutoSellStockRedistributionOpenItemText": {
         "desc": "识别物资调度界面中的item",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "ticket_icon",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    200,
-                    1280,
-                    500
-                ],
-                "template": [
-                    "AutoSell/SellTicketItemValleyIV.png",
-                    "AutoSell/SellTicketItemWuling.png"
-                ],
-                "threshold": 0.9
-            },
-            {
-                "sub_name": "item_text",
-                "recognition": "ColorMatch",
-                "roi": "ticket_icon",
-                "roi_offset": [
-                    -70,
-                    35,
-                    135,
-                    10
-                ],
-                "lower": [
-                    61,
-                    60,
-                    60
-                ],
-                "upper": [
-                    81,
-                    80,
-                    80
-                ],
-                "connected": true,
-                "count": 100
-            },
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
             {
                 "recognition": "OCR",
-                "roi": "item_text",
-                "only_rec": true,
+                "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+                "roi_offset": [
+                    -10,
+                    -10,
+                    10,
+                    20
+                ],
                 "order_by": "Vertical"
             }
         ]

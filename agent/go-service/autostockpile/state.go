@@ -22,7 +22,7 @@ var (
 )
 
 func copyRecognitionData(src RecognitionData) RecognitionData {
-	dst := src // copies scalar fields (Quota, Sunday, StockBillAmount, StockBillAvailable)
+	dst := src
 	dst.Goods = append([]GoodsItem(nil), src.Goods...)
 	return dst
 }

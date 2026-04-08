@@ -10,7 +10,8 @@
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
-                "DestinationRegion"
+                "DestinationRegion",
+                "PreClearBag"
             ],
             "controller": [
                 "Win32-Window",
@@ -36,11 +37,8 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ItemTransfer": {
-                            "next": [
-                                "ItemTransferStart",
-                                "[JumpBack]SceneEnterWorldDijiang2"
-                            ]
+                        "ItemTransferStart": {
+                            "enabled": true
                         }
                     }
                 }
@@ -3486,6 +3484,24 @@
                 }
             ],
             "default_case": "Wuling"
+        },
+        "PreClearBag": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "$task.ItemTransfer.option.PreClearBag.description",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferPreClearBag": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         }
     }
 }

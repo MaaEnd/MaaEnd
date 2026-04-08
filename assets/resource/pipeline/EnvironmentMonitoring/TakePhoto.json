@@ -20,8 +20,9 @@
             "EnterCameraModeMenuButton",
             "InWorld"
         ],
-        "action": "ClickKey",
-        "key": 70, // F 0x46
+        "box_index": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "next": [
             "EnvironmentMonitoringWaitShutterButton"
         ]

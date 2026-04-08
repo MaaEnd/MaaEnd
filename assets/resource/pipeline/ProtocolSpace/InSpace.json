@@ -200,7 +200,7 @@
             80
         ],
         "contact": 1,
-        "post_delay": 600,
+        "post_delay": 1000,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "ProtocolSpaceEnterSpaceSprint2"
@@ -221,7 +221,7 @@
             80
         ],
         "contact": 1,
-        "post_delay": 600,
+        "post_delay": 1000,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "ProtocolSpaceEnterSpaceSprint3"
@@ -242,7 +242,7 @@
             80
         ],
         "contact": 1,
-        "post_delay": 600,
+        "post_delay": 1000,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
@@ -273,7 +273,7 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 300,
+        "post_delay": 600,
         "focus": {
             "Node.Recognition.Succeeded": "向开始点移动"
         }
@@ -317,8 +317,9 @@
                 ]
             }
         ],
-        "action": "ClickKey",
-        "key": 70,
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "next": [
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
@@ -354,7 +355,7 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 300,
+        "post_delay": 600,
         "focus": {
             "Node.Recognition.Succeeded": "向退出点移动"
         }
@@ -398,8 +399,9 @@
                 ]
             }
         ],
-        "action": "ClickKey",
-        "key": 70,
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "next": [
             "ProtocolSpaceReward"
         ],

@@ -1,5 +1,0 @@
-- 用戶群: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)
-- 開發群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （幹活群，歡迎加入一起開發，但不受理用戶問題）
-- 官網: [maaend.com](https://maaend.com)
-- 開源代碼: [GitHub](https://github.com/MaaEnd/MaaEnd)
-- 問題反饋: [GitHub Issue](https://github.com/MaaEnd/MaaEnd/issues)

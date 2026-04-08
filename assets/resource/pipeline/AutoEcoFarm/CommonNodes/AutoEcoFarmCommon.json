@@ -151,7 +151,8 @@
                 ],
                 "template": [
                     "AutoEcoFarm/autoecofarmQuickStash.png"
-                ]
+                ],
+                "order_by": "Score"
             }
         },
         "action": {
@@ -174,7 +175,8 @@
                 ],
                 "template": [
                     "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png"
-                ]
+                ],
+                "order_by": "Score"
             }
         },
         "action": {

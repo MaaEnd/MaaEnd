@@ -289,6 +289,26 @@ func runUnifiedSkillDecision(
 
 		if matchResult.ShouldLock {
 			st.MatchedCount++
+			// 与精准匹配相同，均用 skillCombinationKey（未来可期时 SkillIDs 为各槽池解析出的 ID，未识别槽为 0）。
+			key := skillCombinationKey(matchResult.SkillIDs)
+			if key != "" {
+				if s, ok := st.MatchedCombinationSummary[key]; ok {
+					s.Count++
+				} else {
+					weapons := append([]matchapi.WeaponData(nil), matchResult.Weapons...)
+					if len(weapons) == 0 {
+						// 无关联武器名时，用一条占位武器承载扩展规则说明（与 reportExtRule 同文案），沿用既有战利品摘要渲染
+						weapons = []matchapi.WeaponData{{ChineseName: reason, Rarity: 3}}
+					}
+					st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
+						SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
+						SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
+						OCRSkills:     append([]string(nil), skills...),
+						Weapons:       weapons,
+						Count:         1,
+					}
+				}
+			}
 			reportExtRule(ctx, reason, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {

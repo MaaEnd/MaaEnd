@@ -1,6 +1,6 @@
 # 开发手册 - AutoStockpile 维护文档
 
-本文说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、任务选项（全局开关 / 地区阈值 / 保留调度券）与地区扩展应如何维护。
+本文说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、任务选项（地区开关）与地区扩展应如何维护。
 
 当前实现由两部分协作组成：
 
@@ -11,18 +11,18 @@
 
 AutoStockpile 的核心维护点如下：
 
-| 模块              | 路径                                                       | 作用                                                 |
-| ----------------- | ---------------------------------------------------------- | ---------------------------------------------------- |
-| 商品名称映射      | `agent/go-service/autostockpile/item_map.json`             | 将 OCR 商品名映射到内部商品 ID                       |
-| 商品模板图        | `assets/resource/image/AutoStockpile/Goods/`               | 商品详情页模板匹配用图                               |
-| 任务选项          | `assets/tasks/AutoStockpile.json`                          | 用户可配置的全局开关、地区开关、价格阈值与保留调度券 |
-| 地区入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Main.json`         | 定义各地区子任务入口与锚点映射                       |
-| 囤货入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Entry.json`        | 进入弹性物资调度界面并滑动至底部                     |
-| 决策循环 Pipeline | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | 执行识别、决策、复核、跳过等核心流程                 |
-| 购买流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | 执行购买数量调整、购买、取消等操作                   |
-| 识别节点默认配置  | `assets/resource/pipeline/AutoStockpile/Helper.json`       | 溢出检测、商品 OCR、模板匹配等识别节点的默认参数     |
-| Go 识别/决策逻辑  | `agent/go-service/autostockpile/`                          | 运行时覆盖识别节点、解析结果、应用阈值               |
-| 多语言文案        | `assets/locales/interface/*.json`                          | AutoStockpile 任务与选项文案                         |
+| 模块              | 路径                                                       | 作用                                             |
+| ----------------- | ---------------------------------------------------------- | ------------------------------------------------ |
+| 商品名称映射      | `agent/go-service/autostockpile/item_map.json`             | 将 OCR 商品名映射到内部商品 ID                   |
+| 商品模板图        | `assets/resource/image/AutoStockpile/Goods/`               | 商品详情页模板匹配用图                           |
+| 任务选项          | `assets/tasks/AutoStockpile.json`                          | 用户可配置的地区开关（四号谷地 / 武陵）          |
+| 地区入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Main.json`         | 定义各地区子任务入口与锚点映射                   |
+| 囤货入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Entry.json`        | 进入弹性物资调度界面并滑动至底部                 |
+| 决策循环 Pipeline | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | 执行识别、决策、复核、跳过等核心流程             |
+| 购买流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | 执行购买数量调整、购买、取消等操作               |
+| 识别节点默认配置  | `assets/resource/pipeline/AutoStockpile/Helper.json`       | 溢出检测、商品 OCR、模板匹配等识别节点的默认参数 |
+| Go 识别/决策逻辑  | `agent/go-service/autostockpile/`                          | 运行时覆盖识别节点、解析结果、应用阈值           |
+| 多语言文案        | `assets/locales/interface/*.json`                          | AutoStockpile 任务与选项文案                     |
 
 ## 命名规则
 
@@ -74,44 +74,31 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 >
 > `agent/go-service/autostockpile` 会在注册阶段调用 `InitItemMap("zh_cn")`。初始化失败仅记录警告日志，不会阻止服务启动。但若后续需要解析商品名称或验证地区时 `item_map` 仍不可用，相关操作会失败。商品映射文件 `item_map.json` 已嵌入二进制中。
 
-### 当前任务选项与 attach 键
+### 当前任务选项
 
-当前 `assets/tasks/AutoStockpile.json` 中，任务选项通过 `pipeline_override` 写入 `AutoStockpileDecisionAttach` 节点的 `attach` 字段，供 Go 服务统一读取。实际写入的键如下：
+当前 `assets/tasks/AutoStockpile.json` 中，任务选项仅有两个地区开关：
 
-| 作用               | 任务选项 / 输入项                             | attach 键                         |
-| ------------------ | --------------------------------------------- | --------------------------------- |
-| 溢出时放宽阈值     | `AutoStockpileOverflowBuyLowPriceGoods`       | `overflow_mode=true`              |
-| 周日放宽阈值       | `AutoStockpileBuyAllGoodsOnSunday`            | `sunday_mode=true`                |
-| 四号谷地价格阈值   | `ValleyIVTier1PriceLimit` / `Tier2` / `Tier3` | `price_limits_ValleyIV.Tier1/2/3` |
-| 四号谷地保留调度券 | `ValleyIVReserveStockBillAmount`              | `reserve_stock_bill_ValleyIV`     |
-| 武陵价格阈值       | `WulingTier1PriceLimit` / `Tier2`             | `price_limits_Wuling.Tier1/2`     |
-| 武陵保留调度券     | `WulingReserveStockBillAmount`                | `reserve_stock_bill_Wuling`       |
+| 任务选项                | 作用                                              |
+| ----------------------- | ------------------------------------------------- |
+| `AutoStockpileValleyIV` | 通过 `pipeline_override.enabled` 启用四号谷地节点 |
+| `AutoStockpileWuling`   | 通过 `pipeline_override.enabled` 启用武陵节点     |
 
-`AutoStockpileValleyIV`、`AutoStockpileWuling` 两个地区开关本身不写入 `attach`，而是通过 `pipeline_override.enabled` 分别控制 `Main.json` 中对应地区节点是否启用。
+地区开关不写入 `attach`。Go Service 当前使用以下内建行为：
+
+- **溢出时放宽阈值**：仅当识别结果中的 `Quota.Overflow > 0` 时，`selector.go` 才会自动放宽阈值；当前没有用户配置项，也没有 attach 覆盖入口。
+- **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base` 公式生成；当前任务选项和 attach 都不会覆盖它。
+- **保留调度券**：当前未作为运行时决策输入实现。识别结果只传递配额与商品数据，下游决策流程也不会消费任何保留调度券状态。
+
+如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是写手动 `attach` 覆盖。当前 AutoStockpile 流程不会读取基于 attach 的价格阈值、溢出开关或保留调度券配置。
 
 ## 阈值解析机制
 
-系统按以下优先级决定购买阈值：
+系统当前使用**严格的地区-档位查表**来决定购买阈值：
 
-1. **显式地区档位阈值**：读取任务选项中配置的 `price_limits_{Region}.Tier{N}`。
-2. **地区最小正阈值**：若未配置当前档位阈值，则取该地区所有已配置价格中的最小正值。
-3. **attach 中的 fallback_threshold**：若存在且为正整数，使用该值。当前任务选项未暴露此配置，但 Go 解析逻辑支持从 attach 中读取。
-4. **全局默认值**：若上述均不可用，回退至 `defaultFallbackBuyThreshold` (800)。
+1. **`strategy.go` 生成的地区-档位默认值**：`buildPriceLimitsForRegion()` 按 `region_base + tier_base` 公式生成各档位阈值。
+2. **`thresholds.go` 严格命中 `price_limits`**：`resolveTierThreshold()` 会直接使用 `GoodsItem.Tier` 作为 key 查表；key 缺失、为空或阈值非法都会返回错误，并由上游按 fatal 语义中止流程。
 
-默认的按档位阈值表（如 `ValleyIVTier1` 对应 800）维护在 `agent/go-service/autostockpile/thresholds.go` 中，而非 `options.go`。
-
-> [!TIP]
->
-> 阈值相关输入与 attach 值都必须是**正整数**。空字符串、`0`、负值不会触发"回退"，而是会被任务输入校验或 Go 解析逻辑直接判为无效配置。
-
-## 保留调度券 (Stock Bill)
-
-AutoStockpile 支持保留一定数量的调度券。
-
-- **输入单位**：用户在界面输入的值单位为"万"（如输入 60 表示 60万）。
-- **解析逻辑**：Go 代码解析 `reserve_stock_bill_{Region}` 选项，将其数值乘以 10000 得到实际保留额度。若结果超过 `math.MaxInt/10000` 会报错。
-- **前置依赖**：保留调度券功能仅在对应地区启用保留开关时生效。启用后必须能正确识别当前调度券余额（OCR）。若 OCR 失败，或余额小于等于保留额度，识别阶段会提前结束并跳过购买流程。
-- **购买限制**：若当前调度券余额扣除保留额度后不足以购买目标商品，将限制购买数量或跳过。
+当前生成出的默认值包括：`ValleyIV.Tier1=600`、`ValleyIV.Tier2=900`、`ValleyIV.Tier3=1200`、`Wuling.Tier1=1200`、`Wuling.Tier2=1500`。
 
 ## 运行时覆盖行为
 
@@ -177,13 +164,11 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 - 在 `item_map.json` 中新增对应的 `{BaseName}.Tier{N}` 映射。
 - 在 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下新增对应模板图。
 
-如果是要让某个地区的任务配置支持一个新的通用档位（例如给 `Wuling` 增加 `Tier3` 输入项），还需要继续维护以下内容：
+如果是要让某个地区支持新的通用档位，需继续维护以下内容：
 
-1. 在 `assets/tasks/AutoStockpile.json` 中补充对应地区的 `price_limits_{Region}.Tier{N}` 输入与 `pipeline_override.attach` 键。
-2. 在 `agent/go-service/autostockpile/thresholds.go` 的 `autoStockpileDefaultPriceLimits` 中补充该档位默认值。
-3. 在 `assets/locales/interface/*.json` 中补充新档位的 label / description。
+1. 在 `agent/go-service/autostockpile/strategy.go` 的 `tierBases` 中补充该档位的基础值。
 
-如果新档位没有配置专属阈值，运行时会按"当前地区最小正阈值 -> `fallback_threshold`（如有）-> `defaultFallbackBuyThreshold` (800)"的顺序回退。流程可以继续，但购买结果不一定符合预期。
+如果新档位没有在 `tierBases` 中配置基础值，`buildPriceLimitsForRegion()` 就不会生成对应 key；后续一旦识别到该档位，`resolveTierThreshold()` 会因为缺少精确的 `{Region}.Tier{N}` 配置而直接报错并按 fatal 终止。
 
 ---
 
@@ -200,9 +185,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 文件：`assets/tasks/AutoStockpile.json`
 
-- 新增 `AutoStockpile{NewRegion}` 开关。
-- 新增 `price_limits_{NewRegion}.Tier{N}` 对应的价格输入项与 `pipeline_override.attach` 键。
-- 如需支持保留调度券，增加对应的开关 / 输入项，以及 `reserve_stock_bill_{NewRegion}` attach 键。
+- 新增 `AutoStockpile{NewRegion}` 开关，通过 `pipeline_override.enabled` 控制 `Main.json` 中对应地区节点是否启用。
 
 ### 3. Pipeline 节点
 
@@ -224,9 +207,10 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 5. 补充默认值
 
-文件：`agent/go-service/autostockpile/thresholds.go`
+文件：`agent/go-service/autostockpile/strategy.go`
 
-- 在 `autoStockpileDefaultPriceLimits` 中为新地区各档位补齐默认价格。
+- 在 `regionBases` 中补充新地区。
+- 确认共享的 `tierBases` 已覆盖该地区需要支持的档位。
 
 ### 6. 国际化
 
@@ -238,15 +222,13 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 1. `item_map.json` 中的 value 是否是 `{Region}/{BaseName}.Tier{N}`，且与图片文件名一致。
 2. 模板图是否放在 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下。
-3. `assets/tasks/AutoStockpile.json` 中的键名是否为 `price_limits_{Region}.Tier{N}`。若启用保留调度券，对应 `reserve_stock_bill_{Region}` 是否也已补齐。
-4. 新增档位时，`agent/go-service/autostockpile/thresholds.go` 与 `assets/locales/interface/*.json` 是否同步修改。
-5. 新增地区时，`Main.json`、`DecisionLoop.json`（尤其是 `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`）、`assets/tasks/AutoStockpile.json`、`item_map.json`、`thresholds.go`、`assets/locales/interface/*.json` 是否同步修改。
+3. 新增档位时，`agent/go-service/autostockpile/strategy.go` 的 `tierBases` 是否补充了对应基础值。
+4. 新增地区时，`Main.json`、`DecisionLoop.json`（尤其是 `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`）、`assets/tasks/AutoStockpile.json`、`item_map.json`、`strategy.go`、`assets/locales/interface/*.json` 是否同步修改。
 
 ## 常见坑
 
 - **只加图片，不加 `item_map.json`**：OCR 名称无法映射到商品 ID，识别结果不完整。
 - **只加 `item_map.json`，不加图片**：能匹配到名称，但无法完成模板点击。
 - **新增地区但没在 `DecisionLoop.json` 的 `AutoStockpileDecision{Region}` 节点设置 `custom_action_param.Region`**：运行时会因地区缺失或非法直接报错并中止识别/任务。
-- **新增档位但没配阈值**：虽然流程可能继续执行，但购买阈值会退回 fallback，不一定符合预期。
-- **新增地区但漏配 `reserve_stock_bill_{Region}`**：价格阈值可以独立工作，但该地区无法通过任务选项启用"保留调度券"。
+- **新增档位或地区但没在 `strategy.go` 补默认阈值输入**：运行时不会为缺失档位生成对应的 `{Region}.Tier{N}` key；一旦识别到该档位，严格查表会直接失败，并按 fatal 语义中止流程。
 - **文件名里带额外 `.`**：会影响商品名与 `Tier` 的解析。

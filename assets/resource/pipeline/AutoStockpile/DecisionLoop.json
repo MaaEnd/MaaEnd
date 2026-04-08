@@ -49,9 +49,6 @@
             "AutoStockpileClearDecisionHitCount"
         ]
     },
-    "AutoStockpileDecisionAttach": {
-        "desc": "承载 AutoStockpile 决策配置的固定合同节点；任务选项 attach 写入此处，供 Go 服务统一读取，请勿随意改名或删除(临时方案)"
-    },
     "AutoStockpileClearDecisionHitCount": {
         "desc": "清除中继节点MaxHit",
         "pre_delay": 0,
@@ -103,12 +100,12 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        "pre_wait_freezes": 0,
+        "pre_delay": 80,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -118,15 +115,20 @@
     "AutoStockpileEnsureDetailFrameStable": {
         "desc": "确保详情页已经加载完成",
         "recognition": {
-            "type": "And",
+            "type": "TemplateMatch",
             "param": {
-                "all_of": [
-                    "CloseButtonType1"
+                "roi": [
+                    170,
+                    120,
+                    50,
+                    50
+                ],
+                "template": [
+                    "AutoStockpile/Cart.png"
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_wait_freezes": {
+        "pre_wait_freezes": {
             "time": 80,
             "target": [
                 1000,
@@ -136,6 +138,7 @@
             ],
             "threshold": 0.98
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -152,12 +155,12 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -170,9 +173,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "跳过本次购买"
         }
@@ -181,38 +181,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
         "focus": {
             "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
         }
-    },
-    "AutoStockpileReconcilePriceFilter": {
-        "desc": "过滤调度券图标",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        40
-                    ]
-                ],
-                "upper": [
-                    [
-                        5,
-                        5,
-                        120
-                    ]
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "AutoStockpileReconcileDecision": {
         "desc": "根据详情页价格校正并重算决策",
@@ -234,7 +205,6 @@
                         ""
                     ]
                 ],
-                "color_filter": "AutoStockpileReconcilePriceFilter",
                 "order_by": "Vertical"
             }
         },

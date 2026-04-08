@@ -124,7 +124,7 @@
                         }
                     }
                 ],
-                "box_index": 0
+                "box_index": 1
             }
         },
         "next": [
@@ -198,7 +198,7 @@
                         }
                     }
                 ],
-                "box_index": 0
+                "box_index": 1
             }
         },
         "post_wait_freezes": 1000,

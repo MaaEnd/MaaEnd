@@ -5,7 +5,6 @@
 namespace mapnavigator
 {
 
-class LocalDriverLite;
 class MotionController;
 class ActionWrapper;
 
@@ -27,7 +26,6 @@ public:
     ActionExecutor(
         ActionWrapper* action_wrapper,
         MotionController* motion_controller,
-        LocalDriverLite* local_driver,
         bool enable_local_driver);
 
     ActionExecutionResult Execute(ActionType action) override;
@@ -35,7 +33,6 @@ public:
 private:
     ActionWrapper* action_wrapper_;
     MotionController* motion_controller_;
-    LocalDriverLite* local_driver_;
     bool enable_local_driver_;
 };
 

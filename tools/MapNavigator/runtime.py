@@ -10,9 +10,23 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INSTALL_DIR = PROJECT_ROOT / "install"
 AGENT_DIR = INSTALL_DIR / "agent"
 MAAFW_BIN_DIR = INSTALL_DIR / "maafw"
-CPP_AGENT_EXE = AGENT_DIR / "cpp-algo.exe"
 RESOURCE_DIR = PROJECT_ROOT / "assets" / "resource"
 MAP_IMAGE_DIR = RESOURCE_DIR / "image"
+RESOURCE_ADB_DIR = PROJECT_ROOT / "assets" / "resource_adb"
+
+
+def _resolve_cpp_agent_executable() -> Path:
+    candidates = [
+        AGENT_DIR / "cpp-algo.exe",
+        AGENT_DIR / "cpp-algo",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
+
+
+CPP_AGENT_EXE = _resolve_cpp_agent_executable()
 
 
 def get_agent_env() -> dict[str, str]:
@@ -36,8 +50,10 @@ class MaaRuntime:
     Library: Any
     Resource: Any
     Win32Controller: Any
+    AdbController: Any
     Tasker: Any
     AgentClient: Any
+    Toolkit: Any
 
 
 def load_maa_runtime() -> MaaRuntime | None:
@@ -56,10 +72,22 @@ def load_maa_runtime() -> MaaRuntime | None:
         print(f"Error loading Maa runtime: {exc}")
         return None
 
+    try:
+        from maa.controller import AdbController
+    except ImportError:
+        AdbController = None
+
+    try:
+        from maa.toolkit import Toolkit
+    except ImportError:
+        Toolkit = None
+
     return MaaRuntime(
         Library=Library,
         Resource=Resource,
         Win32Controller=Win32Controller,
+        AdbController=AdbController,
         Tasker=Tasker,
         AgentClient=AgentClient,
+        Toolkit=Toolkit,
     )
