@@ -3,6 +3,7 @@ import os
 import re
 import math
 import base64
+import tkinter as tk
 from typing import Literal, TypeAlias
 
 _R = "\033[31m"
@@ -39,6 +40,7 @@ ICON_DATA = {
 }
 
 _GLOBAL_ICON_CACHE: dict[str, np.ndarray | None] = {}
+_TK: tk.Tk | None = None
 
 
 def get_icon_image(icon_name: str | None) -> np.ndarray | None:
@@ -61,6 +63,20 @@ def get_icon_image(icon_name: str | None) -> np.ndarray | None:
     except Exception:
         _GLOBAL_ICON_CACHE[icon_name] = None
         return None
+
+
+def clipboard_copy_text(text: str) -> bool:
+    global _TK
+    try:
+        if _TK is None:
+            _TK = tk.Tk()
+            _TK.withdraw()
+        _TK.clipboard_clear()
+        _TK.clipboard_append(text)
+        _TK.update()
+        return True
+    except Exception:
+        return False
 
 
 class MapName:

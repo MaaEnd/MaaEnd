@@ -75,6 +75,13 @@ class LocationService:
             except (queue.Empty, queue.Full):
                 pass
 
+    def _clear_queue(self) -> None:
+        while True:
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                break
+
     def _ensure_initialized(self) -> None:
         if self._maa_interface is not None:
             return
@@ -109,6 +116,7 @@ class LocationService:
             self._push(e)
             return False
         self._expected_map_name = expected_map_name
+        self._clear_queue()
         self._is_recording = True
         self._stop_event.clear()
         if self._thread is None or not self._thread.is_alive():

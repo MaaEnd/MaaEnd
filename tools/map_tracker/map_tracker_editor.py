@@ -28,6 +28,7 @@ from _internal.core_utils import (
     ViewportManager,
     Layer,
     MapImageLayer,
+    clipboard_copy_text,
 )
 from _internal.gui_widgets import (
     BasePage,
@@ -98,26 +99,6 @@ def _handle_view_mouse(
     return False
 
 
-class _RealtimePathLayer(Layer):
-    def __init__(self, view: ViewportManager, page: "PathEditPage"):
-        super().__init__(view)
-        self._page = page
-
-    def render(self, drawer: Drawer) -> None:
-        points = self._page._recorded_path
-        if len(points) < 2:
-            return
-        for i in range(1, len(points)):
-            psx, psy = self.view.get_view_coords(points[i - 1][0], points[i - 1][1])
-            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
-            drawer.line(
-                (psx, psy),
-                (sx, sy),
-                color=0x22BBFF,
-                thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
-            )
-
-
 class _PathLayer(Layer):
     def __init__(self, view: ViewportManager, page: "PathEditPage"):
         super().__init__(view)
@@ -125,6 +106,7 @@ class _PathLayer(Layer):
 
     def render(self, drawer: Drawer) -> None:
         points = self._page.points
+        active_idx = self._page._get_active_point_idx()
         # Draw path lines
         for i in range(len(points)):
             sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
@@ -140,12 +122,20 @@ class _PathLayer(Layer):
         # Draw point circles
         for i in range(len(points)):
             sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            radius = int(self._page.POINT_RADIUS * max(0.5, self.view.zoom**0.5))
             drawer.circle(
                 (sx, sy),
-                int(self._page.POINT_RADIUS * max(0.5, self.view.zoom**0.5)),
-                color=0xFFA500 if i == self._page.drag_idx else 0xFF0000,
+                radius,
+                color=0xFFA500 if i == active_idx else 0xFF0000,
                 thickness=-1,
             )
+            if i == self._page.selected_idx and self.view.zoom >= 1.0:
+                drawer.circle(
+                    (sx, sy),
+                    max(1, radius - 1),
+                    color=0xFF0000,
+                    thickness=int(self._page.LINE_WIDTH * self.view.zoom**0.5),
+                )
 
         # Draw point index labels
         for i in range(len(points)):
@@ -168,7 +158,8 @@ class PathEditPage(BasePage):
 
     SIDEBAR_W: int = 240
     STATUS_BAR_H: int = 32
-    QUICK_BAR_H = 32
+    HISTORY_LIMIT = 100
+    REALTIME_UNDO_GAP_SEC = 1.0
     LINE_WIDTH = 1.5
     POINT_RADIUS = 4.25
     POINT_SELECTION_THRESHOLD = 10
@@ -213,7 +204,6 @@ class PathEditPage(BasePage):
         self._point_snapshot: list[list] = [list(p) for p in self.points]
         self.pipeline_context = pipeline_context  # None → N mode
         self._path_layer = _PathLayer(self.view, self)
-        self._realtime_layer = _RealtimePathLayer(self.view, self)
         self._fit_view_to_points_or_map()
 
         self.drag_idx = -1
@@ -225,20 +215,23 @@ class PathEditPage(BasePage):
         self.action_down_pos = (0, 0)
         self.action_moved = False
         self.action_dragging = False
+        self._drag_history_pushed = False
 
         self.location_service = LocationService()
-        self._recording_last_ts = 0.0
-        self._recorded_path: list[list[float]] = []
-        self._recorded_keys: set[tuple[float, float, float]] = set()
+        self._undo_stack: list[dict] = []
+        self._redo_stack: list[dict] = []
+        self._realtime_last_point_ts: float | None = None
+        self._realtime_segment_has_checkpoint = False
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
         self._btn_record_rect: tuple | None = None
         self._btn_back_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
-        self._btn_quick_generate_rect: tuple | None = None
-        self._btn_quick_undo_rect: tuple | None = None
-        self._quick_undo_state: dict | None = None
+        self._btn_delete_rect: tuple | None = None
+        self._btn_copy_rect: tuple | None = None
+        self._btn_undo_rect: tuple | None = None
+        self._btn_redo_rect: tuple | None = None
 
         # Tier map selector in sidebar (shown only when tier maps exist)
         self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
@@ -280,12 +273,28 @@ class PathEditPage(BasePage):
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
+        self._delete_button = Button(
+            (-100, -100, -90, -90),
+            "[Del] Delete",
+            base_color=0x8C2A22,
+            on_click=self._delete_selected_point,
+            font_scale=0.42,
+        )
+        self._copy_button = Button(
+            (-100, -100, -90, -90),
+            "[C] Copy",
+            base_color=0x2E6FD1,
+            on_click=self._copy_selected_point,
+            font_scale=0.42,
+        )
         self.buttons.extend(
             [
                 self._save_button,
                 self._record_button,
                 self._back_button,
                 self._finish_button,
+                self._delete_button,
+                self._copy_button,
             ]
         )
 
@@ -303,6 +312,175 @@ class PathEditPage(BasePage):
     def is_dirty(self) -> bool:
         """True when current points differ from the initial snapshot."""
         return self.points != self._point_snapshot
+
+    def _get_selected_point(self) -> tuple[int, list[float]] | None:
+        active_idx = self._get_active_point_idx()
+        if active_idx >= 0:
+            return active_idx, self.points[active_idx]
+        return None
+
+    def _get_active_point_idx(self) -> int:
+        if 0 <= self.drag_idx < len(self.points):
+            return self.drag_idx
+        if 0 <= self.selected_idx < len(self.points):
+            return self.selected_idx
+        return -1
+
+    def _reset_realtime_undo_collection(self) -> None:
+        self._realtime_last_point_ts = None
+        self._realtime_segment_has_checkpoint = False
+
+    def _capture_point_state(self) -> dict:
+        return {
+            "points": [list(p) for p in self.points],
+            "selected_idx": self.selected_idx,
+        }
+
+    def _restore_point_state(self, state: dict) -> None:
+        self.points = [
+            [self._coord1(p[0]), self._coord1(p[1])] for p in state.get("points", [])
+        ]
+        selected_idx = int(state.get("selected_idx", -1))
+        if not self.points or selected_idx < 0:
+            self.selected_idx = -1
+        else:
+            self.selected_idx = min(selected_idx, len(self.points) - 1)
+        if self.drag_idx >= len(self.points):
+            self.drag_idx = -1
+
+    def _replace_points(
+        self,
+        new_points: list[list[float]],
+        *,
+        selected_idx: int | None = None,
+        push_history: bool = True,
+    ) -> bool:
+        normalized_points = [
+            [self._coord1(p[0]), self._coord1(p[1])] for p in new_points
+        ]
+        next_selected_idx = self.selected_idx if selected_idx is None else selected_idx
+        next_state = {
+            "points": normalized_points,
+            "selected_idx": next_selected_idx,
+        }
+        current_state = self._capture_point_state()
+        if next_state == current_state:
+            return False
+        if push_history:
+            self._reset_realtime_undo_collection()
+            self._push_current_state_to_undo()
+        self._restore_point_state(next_state)
+        return True
+
+    def _push_current_state_to_undo(self) -> None:
+        current_state = self._capture_point_state()
+        if not self._undo_stack or self._undo_stack[-1] != current_state:
+            self._undo_stack.append(current_state)
+            if len(self._undo_stack) > self.HISTORY_LIMIT:
+                self._undo_stack.pop(0)
+        self._redo_stack.clear()
+
+    def _undo_points_change(self) -> None:
+        if not self._undo_stack:
+            return
+        self._reset_realtime_undo_collection()
+        current_state = self._capture_point_state()
+        previous_state = self._undo_stack.pop()
+        if not self._redo_stack or self._redo_stack[-1] != current_state:
+            self._redo_stack.append(current_state)
+            if len(self._redo_stack) > self.HISTORY_LIMIT:
+                self._redo_stack.pop(0)
+        self._restore_point_state(previous_state)
+        self._update_status(0xD2D200, "Reverted the previous point change.")
+        self.render_request()
+
+    def _redo_points_change(self) -> None:
+        if not self._redo_stack:
+            return
+        self._reset_realtime_undo_collection()
+        current_state = self._capture_point_state()
+        next_state = self._redo_stack.pop()
+        if not self._undo_stack or self._undo_stack[-1] != current_state:
+            self._undo_stack.append(current_state)
+            if len(self._undo_stack) > self.HISTORY_LIMIT:
+                self._undo_stack.pop(0)
+        self._restore_point_state(next_state)
+        self._update_status(0x78DCFF, "Reapplied the reverted point change.")
+        self.render_request()
+
+    def _append_realtime_point(self, x: float, y: float) -> bool:
+        ts = time.time()
+        new_point = [self._coord1(x), self._coord1(y)]
+        if self.points and new_point == self.points[-1]:
+            self._realtime_last_point_ts = ts
+            return False
+
+        next_points = [list(p) for p in self.points]
+        # Keep the old "generate from recorded history" pop-then-append simplifier.
+        if len(next_points) >= 2 and self._can_simplify(
+            tuple(next_points[-2]), tuple(next_points[-1]), tuple(new_point)
+        ):
+            next_points.pop()
+        next_points.append(new_point)
+
+        should_push_checkpoint = False
+        if self._realtime_last_point_ts is None:
+            self._realtime_segment_has_checkpoint = False
+        else:
+            delta = ts - self._realtime_last_point_ts
+            if delta > self.REALTIME_UNDO_GAP_SEC:
+                should_push_checkpoint = True
+                self._realtime_segment_has_checkpoint = False
+            elif not self._realtime_segment_has_checkpoint:
+                should_push_checkpoint = True
+                self._realtime_segment_has_checkpoint = True
+
+        if should_push_checkpoint:
+            self._push_current_state_to_undo()
+
+        if not self._replace_points(next_points, push_history=False):
+            self._realtime_last_point_ts = ts
+            return False
+        self._realtime_last_point_ts = ts
+
+        if not self.action_mouse_down and not self.panning:
+            self.view.maybe_center_to(new_point[0], new_point[1])
+        return True
+
+    def _delete_selected_point(self) -> None:
+        selected = self._get_selected_point()
+        if selected is None:
+            return
+        del_idx, deleted_point = selected
+        next_points = [list(p) for p in self.points]
+        next_points.pop(del_idx)
+        next_selected_idx = min(del_idx, len(next_points) - 1) if next_points else -1
+        self._replace_points(
+            next_points,
+            selected_idx=next_selected_idx,
+            push_history=True,
+        )
+        if self.drag_idx == del_idx:
+            self.drag_idx = -1
+        elif self.drag_idx > del_idx:
+            self.drag_idx -= 1
+        self._update_status(
+            0x78DCFF,
+            f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
+        )
+        self.render_request()
+
+    def _copy_selected_point(self) -> None:
+        selected = self._get_selected_point()
+        if selected is None:
+            return
+        point_idx, point = selected
+        text = json.dumps([self._coord1(point[0]), self._coord1(point[1])])
+        if clipboard_copy_text(text):
+            self._update_status(0x50DC50, f"Copied Point #{point_idx} coordinates.")
+        else:
+            self._update_status(0xFC4040, "Failed to copy point coordinates.")
+        self.render_request()
 
     def _fit_view_to_points_or_map(self) -> None:
         if self.points:
@@ -399,10 +577,12 @@ class PathEditPage(BasePage):
             self._update_status(0xFC4040, error_msg)
             self.render_request()
             return
-        self._recording_last_ts = time.time()
-        self._recorded_path = []
-        self._recorded_keys.clear()
-        self._update_status(0x78DCFF, "Realtime path recording started.")
+        if self._replace_points([], selected_idx=-1, push_history=True):
+            self._update_status(
+                0x78DCFF, "Realtime path recording started from empty path."
+            )
+        else:
+            self._update_status(0x78DCFF, "Realtime path recording started.")
         self.render_request()
 
     def _stop_recording(self):
@@ -438,54 +618,28 @@ class PathEditPage(BasePage):
         if not self.location_service.is_recording:
             return False
 
-        # Process all available locations from queue
         updated = False
         exception = None
         while True:
             try:
-                # Non-blocking get from queue
                 result = self.location_service.result_queue.get_nowait()
                 if isinstance(result, Exception):
                     exception = result
                     continue
 
-                # Extract location data
                 map_name, x, y = result["map_name"], result["x"], result["y"]
-                ts = time.time()
-                if ts < self._recording_last_ts:
-                    continue
 
-                # Update tier if needed
                 if map_name:
                     self._sync_tier_by_log_map(map_name)
 
-                # Skip duplicates
-                key = (ts, x, y)
-                if key in self._recorded_keys:
-                    self._recording_last_ts = max(self._recording_last_ts, ts)
-                    continue
-                if self._recorded_path and [x, y] == self._recorded_path[-1]:
-                    self._recording_last_ts = max(self._recording_last_ts, ts)
-                    continue
-
-                # Add new point
-                self._recorded_path.append([x, y])
-                self._recorded_keys.add(key)
-                self._recording_last_ts = max(self._recording_last_ts, ts)
-                updated = True
+                updated = self._append_realtime_point(x, y) or updated
             except queue.Empty:
                 break
             except Exception as e:
                 print(f"  {_Y}Error processing location queue: {e}{_0}")
                 break
 
-        # Update view if we got new data
         if updated:
-            if self._quick_undo_state and self._recorded_path:
-                self._quick_undo_state = None
-            if self._recorded_path:
-                last_point = self._recorded_path[-1]
-                self.view.maybe_center_to(last_point[0], last_point[1])
             self._update_status(0x78DCFF, "Location recording is working normally.")
             self.render_request()
         elif exception:
@@ -513,52 +667,6 @@ class PathEditPage(BasePage):
         ) / (d_prev_next * math.hypot(mid_next_dx, mid_next_dy) + 1e-6)
         # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
         return sin_prev_next_sub_mid_next * (d_prev_next + 1) < k
-
-    def _generate_path_from_recorded(self):
-        if len(self._recorded_path) < 2:
-            return
-        self._quick_undo_state = {
-            "points": [list(p) for p in self.points],
-            "recorded_path": [list(p) for p in self._recorded_path],
-            "recorded_keys": set(self._recorded_keys),
-            "selected_idx": self.selected_idx,
-            "recording_active": self.location_service.is_recording,
-            "recording_last_ts": self._recording_last_ts,
-        }
-        result: list[list[int]] = []
-        for point in self._recorded_path:
-            if len(result) < 2:
-                result.append([point[0], point[1]])
-                continue
-            p2 = result[-2]
-            p1 = result[-1]
-            if self._can_simplify(p2, p1, point):
-                result.pop()  # Remove p1
-            result.append([point[0], point[1]])
-        self.points = result
-        self.selected_idx = len(self.points) - 1 if self.points else -1
-        self._recorded_path = []
-        self._recorded_keys.clear()
-        self.location_service.stop_recording()
-        self._update_status(
-            0x50DC50, f"Generated path from realtime history ({len(self.points)} pts)"
-        )
-
-    def _undo_generate_path(self):
-        if not self._quick_undo_state:
-            return
-        self.points = [list(p) for p in self._quick_undo_state["points"]]
-        self._recorded_path = [list(p) for p in self._quick_undo_state["recorded_path"]]
-        self._recorded_keys = set(self._quick_undo_state["recorded_keys"])
-        self.selected_idx = int(self._quick_undo_state["selected_idx"])
-        was_recording = bool(self._quick_undo_state["recording_active"])
-        if was_recording:
-            self.location_service.start_recording(self.map_name)
-        else:
-            self.location_service.stop_recording()
-        self._recording_last_ts = float(self._quick_undo_state["recording_last_ts"])
-        self._quick_undo_state = None
-        self._update_status(0xD2D200, "Reverted the generated path.")
 
     def _get_map_coords(self, screen_x, screen_y):
         mx, my = self.view.get_real_coords(screen_x, screen_y)
@@ -595,7 +703,6 @@ class PathEditPage(BasePage):
         self._render_ui(drawer)
 
     def _render_content(self, drawer: Drawer) -> None:
-        self._realtime_layer.render(drawer)
         self._path_layer.render(drawer)
 
     def _update_status(self, color, message: str) -> None:
@@ -621,7 +728,6 @@ class PathEditPage(BasePage):
     def _render_ui(self, drawer: Drawer) -> None:
         self._render_status_bar(drawer)
         self._render_sidebar_bg(drawer)
-        self._render_quick_bar(drawer)
         self._render_sidebar(drawer)
 
     @staticmethod
@@ -631,67 +737,65 @@ class PathEditPage(BasePage):
         x1, y1, x2, y2 = rect
         return x1 <= x <= x2 and y1 <= y <= y2
 
-    def _render_quick_bar(self, drawer: "Drawer"):
-        x1 = self.SIDEBAR_W
-        x2 = self.window_w
-        y2 = max(0, self.window_h - self.STATUS_BAR_H)
-        y1 = max(0, y2 - self.QUICK_BAR_H)
-        self._btn_quick_generate_rect = None
-        self._btn_quick_undo_rect = None
+    def _render_attribute_panel(
+        self,
+        drawer: "Drawer",
+        *,
+        x0: int,
+        y0: int,
+        panel_w: int,
+    ) -> int:
+        selected = self._get_selected_point()
+        hidden_rect = (-100, -100, -90, -90)
+        self._delete_button.rect = hidden_rect
+        self._copy_button.rect = hidden_rect
+        self._btn_delete_rect = None
+        self._btn_copy_rect = None
 
-        if self._quick_undo_state and len(self._recorded_path) == 0:
-            drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
-            prompt = "You can undo the previous path generation."
-            drawer.text(prompt, (x1 + 10, y2 - 10), 0.45, color=0xFFFFFF)
+        if selected is None:
+            return y0
 
-            btn_label = "[Undo!]"
-            btn_size = drawer.get_text_size(btn_label, 0.45)
-            btn_pad_x = 12
-            btn_pad_y = 6
-            btn_w = btn_size[0] + btn_pad_x * 2
-            btn_h = btn_size[1] + btn_pad_y * 2
-            btn_x2 = x2 - 10
-            btn_x1 = btn_x2 - btn_w
-            btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
-            btn_y2 = btn_y1 + btn_h
-            self._btn_quick_undo_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
-            drawer.rect(
-                (btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB44022, thickness=-1
-            )
-            drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
-            drawer.text_centered(
-                btn_label,
-                (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
-                0.45,
-                color=0xFFFFFF,
-            )
-            return
+        point_idx, point = selected
+        panel_h = 108
+        x1 = x0
+        y1 = y0
+        x2 = x0 + panel_w
+        y2 = y1 + panel_h
+        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+        drawer.text("[ Attribute ]", (x1 + 8, y1 + 16), 0.45, color=0x40FFFF)
 
-        if len(self._recorded_path) < 2:
-            return
-
-        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
-        prompt = "Do you want to generate a new path from the realtime path record?"
-        prompt_x = x1 + 10
-        prompt_y = y2 - 10
-        drawer.text(prompt, (prompt_x, prompt_y), 0.45, color=0x50DC50)
-
-        btn_label = "[Sure!]"
-        btn_size = drawer.get_text_size(btn_label, 0.45)
-        btn_pad_x = 12
-        btn_pad_y = 6
-        btn_w = btn_size[0] + btn_pad_x * 2
-        btn_h = btn_size[1] + btn_pad_y * 2
-        btn_x2 = x2 - 10
-        btn_x1 = btn_x2 - btn_w
-        btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
-        btn_y2 = btn_y1 + btn_h
-        self._btn_quick_generate_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
-        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0x1C8A1C, thickness=-1)
-        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
-        drawer.text_centered(
-            btn_label, (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y), 0.45, color=0xFFFFFF
+        item_y1 = y1 + 24
+        item_y2 = item_y1 + 42
+        drawer.rect((x1 + 2, item_y1), (x2 - 2, item_y2), color=0x132B4F, thickness=-1)
+        cy_mark = item_y1 + (item_y2 - item_y1) // 2
+        mark_x = x1 + 14
+        drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
+        drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
+        drawer.text(
+            f"Point #{point_idx}", (x1 + 26, item_y1 + 16), 0.42, color=0xFFFFFF
         )
+        detail_line = f"No. {point_idx} | ({point[0]:.1f}, {point[1]:.1f})"
+        drawer.text(detail_line, (x1 + 26, item_y2 - 8), 0.36, color=0xC8C8C8)
+
+        btn_h = 30
+        btn_gap = 8
+        btn_y0 = item_y2 + 8
+        btn_y1 = btn_y0 + btn_h
+        btn_w = (panel_w - btn_gap) // 2
+
+        self._btn_delete_rect = (x0, btn_y0, x0 + btn_w, btn_y1)
+        self._delete_button.rect = self._btn_delete_rect
+        self._delete_button.text = "[Del] Delete"
+        self._delete_button.text_color = 0xFFFFFF
+
+        copy_x0 = x0 + btn_w + btn_gap
+        self._btn_copy_rect = (copy_x0, btn_y0, copy_x0 + btn_w, btn_y1)
+        self._copy_button.rect = self._btn_copy_rect
+        self._copy_button.text = "[C] Copy"
+        self._copy_button.text_color = 0xFFFFFF
+
+        return y2 + 12
 
     def _render_sidebar(self, drawer: "Drawer"):
         self._render_sidebar_bg(drawer)
@@ -704,7 +808,7 @@ class PathEditPage(BasePage):
         drawer.text("[ Mouse Tips ]", (pad, cy), 0.5, color=0x40FFFF)
         cy += 10
         tips = [
-            "Left Click: Add/Delete Point",
+            "Left Click: Select/Add Point",
             "Left Drag: Move Point",
             "Right Drag: Move Map",
             "Scroll: Zoom",
@@ -726,6 +830,10 @@ class PathEditPage(BasePage):
         self._record_button.rect = hidden_rect
         self._back_button.rect = hidden_rect
         self._finish_button.rect = hidden_rect
+        self._delete_button.rect = hidden_rect
+        self._copy_button.rect = hidden_rect
+        self._btn_undo_rect = None
+        self._btn_redo_rect = None
 
         if has_pipeline:
             save_y0 = cy
@@ -770,9 +878,15 @@ class PathEditPage(BasePage):
         self._finish_button.text_color = 0xFFFFFF
         cy = finish_y1 + 12
 
-        # ── Tier selector (main + tier_*) ─────────────────────────────
         self._tier_selector_rect = None
-        if len(self._tier_maps) > 1:
+        if self._get_selected_point() is not None:
+            cy = self._render_attribute_panel(
+                drawer,
+                x0=pad,
+                y0=cy,
+                panel_w=btn_w,
+            )
+        elif len(self._tier_maps) > 1:
             tier_h = self._tier_selector.get_height()
             self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
             self._tier_selector.render(
@@ -784,18 +898,74 @@ class PathEditPage(BasePage):
         # Status messages moved to map area status bar
 
         # ── Status section (bottom) ──────────────────────────────────────
-        drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 75), 0.45, color=0xD2D200)
+        status_zoom_y = h - 80
+        status_point_y = h - 55
+        history_btn_h = 22
+        history_btn_y0 = h - 32
+        history_btn_y1 = history_btn_y0 + history_btn_h
+        history_btn_gap = 8
+        history_btn_w = (btn_w - history_btn_gap) // 2
 
-        if 0 <= self.selected_idx < len(self.points):
-            p = self.points[self.selected_idx]
-            line = f"Point #{self.selected_idx} ({p[0]:.1f}, {p[1]:.1f})"
+        drawer.text(
+            f"Zoom: {self.view.zoom:.2f}x", (pad, status_zoom_y), 0.45, color=0xD2D200
+        )
+
+        active_point = self._get_selected_point()
+        if active_point is not None:
+            point_idx, p = active_point
+            line = f"Point #{point_idx} ({p[0]:.1f}, {p[1]:.1f})"
         else:
             line = f"Points: {len(self.points)}"
-        drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF)
-        record_line = f"History: {len(self._recorded_path)}"
-        if self.location_service.is_recording:
-            record_line += " (Recording)"
-        drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF)
+        drawer.text(line, (pad, status_point_y), 0.45, color=0xFFFFFF)
+
+        def _render_history_button(
+            label: str,
+            rect: tuple[int, int, int, int],
+            *,
+            enabled: bool,
+            color: int,
+        ) -> None:
+            bx1, by1, bx2, by2 = rect
+            drawer.rect(
+                (bx1, by1),
+                (bx2, by2),
+                color=color if enabled else 0x303030,
+                thickness=-1,
+            )
+            drawer.rect((bx1, by1), (bx2, by2), color=0xB4B4B4, thickness=1)
+            drawer.text_centered(
+                label,
+                ((bx1 + bx2) // 2, by2 - 5),
+                0.38,
+                color=0xFFFFFF if enabled else 0x707070,
+            )
+
+        self._btn_undo_rect = (
+            pad,
+            history_btn_y0,
+            pad + history_btn_w,
+            history_btn_y1,
+        )
+        _render_history_button(
+            "[Z] Undo",
+            self._btn_undo_rect,
+            enabled=bool(self._undo_stack),
+            color=0xB44022,
+        )
+
+        redo_x0 = pad + history_btn_w + history_btn_gap
+        self._btn_redo_rect = (
+            redo_x0,
+            history_btn_y0,
+            redo_x0 + history_btn_w,
+            history_btn_y1,
+        )
+        _render_history_button(
+            "[Y] Redo",
+            self._btn_redo_rect,
+            enabled=bool(self._redo_stack),
+            color=0x2E6FD1,
+        )
 
     # ------------------------------------------------------------------
     # Mouse / keyboard / idle
@@ -818,7 +988,15 @@ class PathEditPage(BasePage):
         if event == cv2.EVENT_MOUSEMOVE:
             if self.action_mouse_down:
                 if self.action_dragging and self.drag_idx != -1:
-                    self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
+                    next_points = [list(p) for p in self.points]
+                    next_points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
+                    changed = self._replace_points(
+                        next_points,
+                        selected_idx=self.drag_idx,
+                        push_history=not self._drag_history_pushed,
+                    )
+                    if changed and not self._drag_history_pushed:
+                        self._drag_history_pushed = True
                     self.action_moved = True
                     self.render_request()
                     return
@@ -830,15 +1008,31 @@ class PathEditPage(BasePage):
                     if self.action_down_idx != -1:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
-                        self.points[self.drag_idx] = [
+                        next_points = [list(p) for p in self.points]
+                        next_points[self.drag_idx] = [
                             self._coord1(mx),
                             self._coord1(my),
                         ]
+                        changed = self._replace_points(
+                            next_points,
+                            selected_idx=self.drag_idx,
+                            push_history=not self._drag_history_pushed,
+                        )
+                        if changed and not self._drag_history_pushed:
+                            self._drag_history_pushed = True
                         self.render_request()
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
-                self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
+                next_points = [list(p) for p in self.points]
+                next_points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
+                changed = self._replace_points(
+                    next_points,
+                    selected_idx=self.drag_idx,
+                    push_history=not self._drag_history_pushed,
+                )
+                if changed and not self._drag_history_pushed:
+                    self._drag_history_pushed = True
                 self.action_dragging = True
                 self.render_request()
                 return
@@ -847,8 +1041,22 @@ class PathEditPage(BasePage):
             self.render_request()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
+            if self._hit_button(x, y, self._btn_undo_rect):
+                self._undo_points_change()
+                self.render_request()
+                return
+            if self._hit_button(x, y, self._btn_redo_rect):
+                self._redo_points_change()
+                self.render_request()
+                return
+
             # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
+                if self._get_selected_point() is not None:
+                    self.selected_idx = -1
+                    self._update_status(0xD2D200, "Cleared point selection.")
+                    self.render_request()
+                    return
                 if self._tier_selector_rect is not None:
                     idx = self._tier_selector.handle_click(
                         x,
@@ -861,21 +1069,13 @@ class PathEditPage(BasePage):
                             self._switch_active_map(selected_map)
                 return
 
-            if self._hit_button(x, y, self._btn_quick_generate_rect):
-                self._generate_path_from_recorded()
-                self.render_request()
-                return
-            if self._hit_button(x, y, self._btn_quick_undo_rect):
-                self._undo_generate_path()
-                self.render_request()
-                return
-
             # ── Map area clicks ─────────────────────────────────
             self.action_down_idx = self._get_point_at(x, y)
             self.action_mouse_down = True
             self.action_down_pos = (x, y)
             self.action_moved = False
             self.action_dragging = False
+            self._drag_history_pushed = False
             if self.action_down_idx != -1:
                 self.drag_idx = self.action_down_idx
                 self.selected_idx = self.action_down_idx
@@ -887,21 +1087,13 @@ class PathEditPage(BasePage):
             else:
                 if not (self.action_moved and self.action_down_idx == -1):
                     if self.action_down_idx != -1:
-                        del_idx = self.action_down_idx
-                        if 0 <= del_idx < len(self.points):
-                            deleted_point = self.points[del_idx]
-                            self.points.pop(del_idx)
-                            if self.drag_idx == del_idx:
-                                self.drag_idx = -1
-                            elif self.drag_idx > del_idx:
-                                self.drag_idx -= 1
-                            if self.selected_idx == del_idx:
-                                self.selected_idx = -1
-                            elif self.selected_idx > del_idx:
-                                self.selected_idx -= 1
+                        select_idx = self.action_down_idx
+                        if 0 <= select_idx < len(self.points):
+                            self.selected_idx = select_idx
+                            selected_point = self.points[select_idx]
                             self._update_status(
                                 0x78DCFF,
-                                f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
+                                f"Selected Point #{select_idx} ({selected_point[0]:.1f}, {selected_point[1]:.1f})",
                             )
                             self.render_request()
                     elif self.action_down_pos == (x, y):
@@ -917,10 +1109,15 @@ class PathEditPage(BasePage):
                                 self.points[i],
                                 threshold=map_threshold,
                             ):
-                                self.points.insert(
+                                next_points = [list(p) for p in self.points]
+                                next_points.insert(
                                     i, [self._coord1(mx), self._coord1(my)]
                                 )
-                                self.selected_idx = i
+                                self._replace_points(
+                                    next_points,
+                                    selected_idx=i,
+                                    push_history=True,
+                                )
                                 self._update_status(
                                     0x78DCFF,
                                     f"Added Point #{i} ({mx:.1f}, {my:.1f})",
@@ -929,11 +1126,17 @@ class PathEditPage(BasePage):
                                 self.render_request()
                                 break
                         if not inserted:
-                            self.points.append([self._coord1(mx), self._coord1(my)])
-                            self.selected_idx = len(self.points) - 1
+                            next_points = [list(p) for p in self.points]
+                            next_points.append([self._coord1(mx), self._coord1(my)])
+                            next_selected_idx = len(next_points) - 1
+                            self._replace_points(
+                                next_points,
+                                selected_idx=next_selected_idx,
+                                push_history=True,
+                            )
                             self._update_status(
                                 0x78DCFF,
-                                f"Added Point #{self.selected_idx} ({mx:.1f}, {my:.1f})",
+                                f"Added Point #{next_selected_idx} ({mx:.1f}, {my:.1f})",
                             )
                             self.render_request()
 
@@ -942,6 +1145,7 @@ class PathEditPage(BasePage):
             self.action_down_pos = (0, 0)
             self.action_moved = False
             self.action_dragging = False
+            self._drag_history_pushed = False
 
     def _on_key(self, key: int) -> None:
         if key == 27:  # Esc
@@ -956,6 +1160,15 @@ class PathEditPage(BasePage):
             self.render_request()
         elif key in (ord("r"), ord("R")):
             self._toggle_recording()
+            self.render_request()
+        elif key in (46, 0x2E0000):
+            self._delete_selected_point()
+        elif key in (ord("c"), ord("C")):
+            self._copy_selected_point()
+        elif key in (ord("z"), ord("Z")):
+            self._undo_points_change()
+        elif key in (ord("y"), ord("Y")):
+            self._redo_points_change()
 
     # ------------------------------------------------------------------
     # Main loop
