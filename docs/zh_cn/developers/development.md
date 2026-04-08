@@ -154,7 +154,7 @@ MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/
 
 以下是基于 Custom 的可复用节点，具有高业务化的特点，在需要调用时可以酌情使用，但**根据 [Go Service 代码规范](#go-service-代码规范) 和 [Cpp Algo 代码规范](#cpp-algo-代码规范) 您不应该在非必要情况下使用以下这些节点**，具体原因已在这两部分文档指出。
 
-- [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
+- [MapTracker 参考文档](./map-tracker.md)：小地图定位、自动寻路的相关节点（Go 语言版），以及路径编辑工具。
 - [MapNavigator 参考文档](./map-navigator.md)：路径录制工具与 `MapNavigateAction` 自动导航节点。
 - [Custom 动作与识别参考文档](./custom.md)：通过 `Custom` 节点调用 go-service 中的自定义动作与自定义识别逻辑。
 - [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
