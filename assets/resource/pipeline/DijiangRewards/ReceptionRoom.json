@@ -52,7 +52,19 @@
         }
     },
     "ReceptionRoomExchangeEnd2": {
-        "desc": "[会客室·线索] 识别到信用点增加",
+        "desc": "[会客室·线索] 识别到信用点增加,且在会客室界面，确认情报交流结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomExchangeEnd2ColorHit",
+                    "InReceptionRoom"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomExchangeEnd2ColorHit": {
+        "desc": "识别到信用点增加",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -66,7 +78,7 @@
                 "lower": [
                     32,
                     190,
-                    160
+                    200
                 ],
                 "upper": [
                     32,
