@@ -3,6 +3,7 @@ package autostockpile
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -75,35 +76,11 @@ func resolveGoodsRegionFromCustomActionParam(raw any) (string, error) {
 	return region, nil
 }
 
-func loadSwipeSpecificQuantityCustomActionParam(ctx *maa.Context) (map[string]any, error) {
-	if ctx == nil {
-		return nil, fmt.Errorf("context is nil")
-	}
-
-	node, err := ctx.GetNode(swipeSpecificQuantityNodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	if node.Action == nil {
-		return nil, fmt.Errorf("node %s missing action", swipeSpecificQuantityNodeName)
-	}
-
-	param, ok := node.Action.Param.(*maa.CustomActionParam)
-	if !ok || param == nil {
-		return nil, fmt.Errorf("node %s action param type %T is not *maa.CustomActionParam", swipeSpecificQuantityNodeName, node.Action.Param)
-	}
-
-	return normalizeCustomActionParam(param.CustomActionParam)
-}
-
 func normalizeCustomActionParam(raw any) (map[string]any, error) {
 	switch value := raw.(type) {
 	case map[string]any:
 		cloned := make(map[string]any, len(value))
-		for key, item := range value {
-			cloned[key] = item
-		}
+		maps.Copy(cloned, value)
 		return cloned, nil
 	case string:
 		var nested any

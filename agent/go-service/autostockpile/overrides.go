@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func buildSelectionPipelineOverride(ctx *maa.Context, selection SelectionResult, decision quantityDecision) (map[string]any, error) {
+func buildSelectionPipelineOverride(_ *maa.Context, selection SelectionResult, decision quantityDecision) (map[string]any, error) {
 	override := map[string]any{
 		relayNodeDecisionReadyNodeName: map[string]any{
 			"enabled": false,
@@ -28,36 +28,15 @@ func buildSelectionPipelineOverride(ctx *maa.Context, selection SelectionResult,
 		return override, nil
 	}
 
-	customActionParam, err := loadSwipeSpecificQuantityCustomActionParam(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	override[swipeSpecificQuantityNodeName] = buildSwipeSpecificQuantityOverride(customActionParam, decision.Target)
+	override[swipeSpecificQuantityNodeName] = buildSwipeSpecificQuantityOverride(decision.Target)
 	return override, nil
 }
 
-func buildSwipeSpecificQuantityOverride(customActionParam map[string]any, target int) map[string]any {
-	clonedParam := make(map[string]any, len(customActionParam))
-	for key, item := range customActionParam {
-		clonedParam[key] = item
-	}
-
-	quantityParam := map[string]any{}
-	if rawQuantity, ok := clonedParam["Quantity"].(map[string]any); ok {
-		for key, item := range rawQuantity {
-			quantityParam[key] = item
-		}
-	}
-	quantityParam["Target"] = target
-	clonedParam["Quantity"] = quantityParam
-
+func buildSwipeSpecificQuantityOverride(target int) map[string]any {
 	return map[string]any{
 		"enabled": true,
-		"action": map[string]any{
-			"param": map[string]any{
-				"custom_action_param": clonedParam,
-			},
+		"attach": map[string]any{
+			"Target": target,
 		},
 	}
 }
