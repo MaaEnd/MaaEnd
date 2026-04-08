@@ -58,7 +58,7 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		return false
 	}
 
-	if len(a.QuantityBox) != 4 {
+	if !a.SwipeOnlyMode && len(a.QuantityBox) != 4 {
 		a.logger.Error().
 			Ints("quantity_box", a.QuantityBox).
 			Msg("invalid quantity box, expected [x,y,w,h]")
@@ -74,11 +74,26 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		return false
 	}
 
-	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.QuantityOnlyRec)
+	override := buildMainInitializationOverride(
+		end,
+		a.QuantityBox,
+		a.QuantityFilter,
+		a.QuantityOnlyRec,
+		a.SwipeButton,
+		a.GreenMask,
+	)
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
 		return false
+	}
+
+	// Swipe-only mode: clear next items for SwipeToMax so it runs one-shot.
+	if a.SwipeOnlyMode {
+		if err := ctx.OverrideNext(nodeBetterSlidingSwipeToMax, []maa.NextItem{}); err != nil {
+			a.logger.Error().Err(err).Msg("failed to clear swipe-to-max next items for swipe-only mode")
+			return false
+		}
 	}
 
 	initializationLog := a.logger.Info().
@@ -86,7 +101,8 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
 		Bool("green_mask", a.GreenMask).
-		Bool("quantity_filter_enabled", a.QuantityFilter != nil)
+		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
+		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.QuantityFilter != nil {
 		initializationLog = initializationLog.
@@ -133,8 +149,85 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 	}
 
 	a.maxQuantity = maxQuantity
+	a.OriginalTarget = a.Target
 
-	// 先钳制 Target，再计算 nextNode，避免 maxQuantity==1 时的除零问题
+	resolved, resolveErr := resolveTarget(a.Target, a.TargetType, a.TargetReverse, a.maxQuantity)
+	if resolveErr != nil {
+		a.logger.Error().
+			Err(resolveErr).
+			Int("target", a.Target).
+			Str("target_type", a.TargetType).
+			Bool("target_reverse", a.TargetReverse).
+			Msg("failed to resolve target")
+		return false
+	}
+
+	if resolved != a.Target {
+		a.logger.Info().
+			Int("original_target", a.OriginalTarget).
+			Int("resolved_target", resolved).
+			Str("target_type", a.TargetType).
+			Bool("target_reverse", a.TargetReverse).
+			Int("max_quantity", a.maxQuantity).
+			Msg("target resolved")
+	}
+	a.Target = resolved
+
+	a.exceeded = false
+	outOfRange := a.Target > a.maxQuantity
+	if a.TargetType == "Value" && a.TargetReverse && a.Target < 1 {
+		outOfRange = true
+	}
+
+	if a.ExceedingOverrideEnable != "" {
+		if outOfRange {
+			a.exceeded = true
+			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, true)); err != nil {
+				a.logger.Error().Err(err).
+					Str("override_node", a.ExceedingOverrideEnable).
+					Msg("failed to override exceeding enable=true state")
+				return false
+			}
+
+			if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
+				logEvent := a.logger.Error().
+					Err(err).
+					Int("max_quantity", a.maxQuantity).
+					Int("target", a.Target).
+					Str("next", nodeBetterSlidingDone)
+				if errors.Is(err, errCheckQuantityBranchNextOverride) {
+					logEvent.Msg("failed to override next for exceeding branch")
+				} else {
+					logEvent.Msg("failed to override pipeline for exceeding branch")
+				}
+
+				return false
+			}
+
+			a.logger.Warn().
+				Int("original_target", a.OriginalTarget).
+				Int("resolved_target", a.Target).
+				Int("max_quantity", a.maxQuantity).
+				Str("override_node", a.ExceedingOverrideEnable).
+				Msg("target out of range: exceeding override applied, branching to done")
+			return true
+		}
+
+		if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, false)); err != nil {
+			a.logger.Error().Err(err).
+				Str("override_node", a.ExceedingOverrideEnable).
+				Msg("failed to override exceeding disable state")
+			return false
+		}
+	} else if a.Target < 1 || (a.Target > a.maxQuantity && !a.ClampTargetToMax) {
+		a.logger.Error().
+			Int("resolved_target", a.Target).
+			Int("max_quantity", a.maxQuantity).
+			Msg("target out of range and no exceeding override configured")
+		return false
+	}
+
+	// Clamp Target before calculating nextNode to avoid division-by-zero when maxQuantity==1.
 	if a.ClampTargetToMax && a.maxQuantity < a.Target {
 		originalTarget := a.Target
 		a.Target = a.maxQuantity
@@ -368,7 +461,23 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	override, err := buildInternalPipelineOverride(arg.CustomActionParam)
+	merged := mergeAttachParams(ctx, arg.CurrentTaskName, arg.CustomActionParam)
+
+	raw, err := parseBetterSlidingParam(merged)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Str("caller", arg.CurrentTaskName).
+			Msg("failed to parse merged custom_action_param")
+		return false
+	}
+
+	parsed, ok := a.normalizeActionParams(raw)
+	if !ok {
+		return false
+	}
+
+	override, err := buildInternalPipelineOverride(merged)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -391,6 +500,25 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Msg("internal quantized sliding pipeline returned nil detail")
 		return false
 	}
+
+	if parsed.swipeOnlyMode {
+		a.logger.Info().
+			Str("caller", arg.CurrentTaskName).
+			Int64("subtask_id", detail.ID).
+			Str("subtask_status", detail.Status.String()).
+			Bool("swipe_only_mode", true).
+			Msg("internal quantized sliding pipeline finished (swipe-only)")
+
+		if !a.exceeded && parsed.exceedingOverrideEnable != "" {
+			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(parsed.exceedingOverrideEnable, false)); err != nil {
+				a.logger.Error().Err(err).Msg("failed to apply exceeding override after swipe-only")
+				return false
+			}
+		}
+
+		return true
+	}
+
 	if !detail.Status.Success() {
 		a.logger.Error().
 			Str("caller", arg.CurrentTaskName).
@@ -398,6 +526,13 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Str("subtask_status", detail.Status.String()).
 			Msg("internal quantized sliding pipeline failed")
 		return false
+	}
+
+	if !a.exceeded && a.ExceedingOverrideEnable != "" {
+		if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, false)); err != nil {
+			a.logger.Error().Err(err).Msg("failed to apply exceeding override after internal pipeline")
+			return false
+		}
 	}
 
 	a.logger.Info().
@@ -422,6 +557,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
 	a.maxQuantity = 0
+	a.exceeded = false
 }
 
 func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {

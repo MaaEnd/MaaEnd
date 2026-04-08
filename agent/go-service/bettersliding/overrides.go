@@ -24,7 +24,7 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool) map[string]any {
+func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool, swipeButton string, greenMask bool) map[string]any {
 	quantityParam := map[string]any{
 		"roi":      append([]int(nil), quantityBox...),
 		"only_rec": quantityOnlyRec,
@@ -46,6 +46,17 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 				},
 			},
 		},
+	}
+
+	if swipeButton != "" {
+		override[nodeBetterSlidingSwipeButton] = map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"template":   []string{swipeButton},
+					"green_mask": greenMask,
+				},
+			},
+		}
 	}
 
 	if quantityFilter == nil {
@@ -138,6 +149,14 @@ func resolveButtonHelperNode(nextNode string) string {
 		return nodeBetterSlidingDecreaseButton
 	default:
 		return ""
+	}
+}
+
+func buildExceedingOverrideEnable(nodeName string, enabled bool) map[string]any {
+	return map[string]any{
+		nodeName: map[string]any{
+			"enabled": enabled,
+		},
 	}
 }
 

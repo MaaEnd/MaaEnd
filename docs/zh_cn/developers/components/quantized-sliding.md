@@ -95,18 +95,24 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 常用字段如下：
 
-| 字段                | 类型                    | 必填 | 说明                                                                                                                                                       |
-| ------------------- | ----------------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GreenMask`         | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。                                                                                     |
-| `Quantity.Target`   | `int`（正整数）         | 是   | 目标数量。最终希望调到的档位值，必须大于 0。                                                                                                               |
-| `Quantity.Box`      | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                             |
-| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                        |
-| `Quantity.OnlyRec`  | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。当前默认值为 `false`；若显式传入，则按传入值覆盖。Go 侧仍只从 `Results.Best.AsOCR().Text` 读取数量文本。               |
-| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                                 |
-| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。可传模板路径，也可传坐标。                                                                                                                 |
-| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。可传模板路径，也可传坐标。                                                                                                                 |
-| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                          |
-| `ClampTargetToMax`  | `bool`                  | 否   | 为 `true` 时，若 `Quantity.Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
+| 字段                      | 类型                    | 必填  | 说明                                                                                                                                                       |
+| ------------------------- | ----------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GreenMask`               | `bool`                  | 否    | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。                                                                                     |
+| `Quantity.Target`         | `int`（正整数）         | 是*   | 目标数量。最终希望调到的档位值，正常模式下必须大于 0。仅滑动模式下忽略。                                                                                     |
+| `Quantity.Box`            | `int[4]`                | 是*   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。仅滑动模式下忽略。                                                                                             |
+| `QuantityFilter`          | `object`                | 否    | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                        |
+| `Quantity.OnlyRec`        | `bool`                  | 否    | 是否为数量 OCR 节点启用 `only_rec`。当前默认值为 `false`；若显式传入，则按传入值覆盖。Go 侧仍只从 `Results.Best.AsOCR().Text` 读取数量文本。               |
+| `Direction`               | `string`                | 是    | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                                 |
+| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是*   | "增加数量"按钮。可传模板路径，也可传坐标。仅滑动模式下忽略。                                                                                                 |
+| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是*   | "减少数量"按钮。可传模板路径，也可传坐标。仅滑动模式下忽略。                                                                                                 |
+| `CenterPointOffset`       | `int[2]`                | 否    | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                          |
+| `ClampTargetToMax`        | `bool`                  | 否    | 为 `true` 时，若 `Quantity.Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
+| `SwipeButton`             | `string`                | 否    | 自定义滑块模板路径。提供时覆盖 `BetterSlidingSwipeButton` 节点的默认模板。路径相对于 `resource/image/` 目录。默认 `""`（使用共享默认模板）。                    |
+| `ExceedingOverrideEnable` | `string`                | 否    | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。用于目标无法到达时触发降级分支。默认 `""`（禁用，动作直接失败）。   |
+| `TargetType`              | `string`                | 否    | 如何解释 `Target`。`"Value"`（默认）：绝对离散计数。`"Percentage"`：`maxQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, maxQuantity]`。                      |
+| `TargetReverse`           | `bool`                  | 否    | 为 `true` 时反向计算目标：Value 模式为 `maxQuantity - target`；Percentage 模式为 `round(maxQuantity * (100 - target) / 100)`。默认 `false`。                    |
+
+\* 正常模式下必填；仅滑动模式下忽略。
 
 `CenterPointOffset` 用于微调 `BetterSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
@@ -175,6 +181,152 @@ Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路�
 如果传入 `[x, y]`，内部会自动补成 `[x, y, 1, 1]`。
 
 另外，实际从 JSON 反序列化进入 Go 后，这类数组可能表现为 `[]float64` 或 `[]any`，当前实现会自动归一化为整数数组；但如果长度既不是 `2` 也不是 `4`，动作会直接报错返回失败。
+
+## 仅滑动模式
+
+如果你只需要将滑块拖到最大位置，而不需要读取数量或进行微调，可以使用**仅滑动模式**。
+
+仅滑动模式在**同时满足**以下条件时自动激活：
+
+- `Quantity.Box` 未提供（或为空）；
+- `Quantity.Target` 未提供（或为 `0`）；
+- `IncreaseButton` 未提供；
+- `DecreaseButton` 未提供。
+
+在此模式下，`BetterSliding` 执行 `SwipeToMax` 拖动后立即返回成功，跳过 OCR、比例点击和微调。`SwipeButton` 仍然有效——你可以在仅滑动模式下提供自定义滑块模板路径。
+
+最小示例：
+
+```json
+"SomeTaskSwipeToMax": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right"
+            }
+        }
+    }
+}
+```
+
+使用自定义滑块模板：
+
+```json
+"SomeTaskSwipeToMax": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "SwipeButton": "MyFeature/MySlider.png"
+            }
+        }
+    }
+}
+```
+
+## 附加参数
+
+`TargetType`、`TargetReverse` 和 `Target` 可以通过调用节点的 `attach` 块传递，而不是硬编码在 `custom_action_param` 中。这允许单个节点动态改变目标，而无需复制完整的参数字符串。
+
+当调用节点上存在 `attach` 块时，其值优先于 `custom_action_param` 中的对应字段。
+
+### `TargetType`
+
+| 取值           | 行为                                                                             |
+| -------------- | -------------------------------------------------------------------------------- |
+| `"Value"`      | （默认）`Quantity.Target` 是绝对离散计数。                                       |
+| `"Percentage"` | `Quantity.Target` 是百分比（1–100）。Go 侧计算 `round(max * t/100)` 并将结果钳制到 `[1, maxQuantity]`。 |
+
+### `TargetReverse`
+
+为 `true` 时，从范围的**远端**计算目标：
+
+- `Value` 模式：有效目标 = `maxQuantity - Quantity.Target`
+- `Percentage` 模式：有效目标 = `round(maxQuantity * (100 - Quantity.Target) / 100)`，钳制到 `[1, maxQuantity]`
+
+对于 `Value + TargetReverse`，计算结果**不会**被钳制——可能小于 `1`。此时动作会失败，除非设置了 `ExceedingOverrideEnable`（见下文）。
+
+### 附加参数示例
+
+```json
+"SomeTaskAdjustQuantity": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "Quantity": {
+                    "Box": [340, 430, 200, 140],
+                    "OnlyRec": true
+                },
+                "QuantityFilter": {
+                    "lower": [20, 150, 150],
+                    "upper": [35, 255, 255],
+                    "method": 40
+                }
+            }
+        }
+    },
+    "attach": {
+        "Target": 50,
+        "TargetType": "Percentage",
+        "TargetReverse": false
+    }
+}
+```
+
+在上面的例子中，`Target` 从 `attach` 读取并注入到 `Quantity.Target`，因此滑块目标是当前最大值的 50%。
+
+## 超出范围覆盖启用
+
+当解析后的目标超出可滑动范围时，此参数决定失败时的行为。
+
+### 超出范围条件
+
+- `解析后的目标 > maxQuantity` —— 总是超出范围。
+- `TargetType = "Value"` 且 `TargetReverse = true` 且 `maxQuantity - target < 1` —— 计算值为负或零，视为超出范围。
+
+### 优先于 `ClampTargetToMax`
+
+`ExceedingOverrideEnable` 在 `ClampTargetToMax` **之前**评估。当设置了 `ExceedingOverrideEnable` 时：
+
+1. 如果超出范围：将指定 Pipeline 节点的 `enabled` 设为 `true`，流程直接分支到 `BetterSlidingDone`，`BetterSliding` 返回**成功**。
+2. 如果在范围内：将指定 Pipeline 节点的 `enabled` 设为 `false`，正常流程继续（包括任何 `ClampTargetToMax` 逻辑）。
+
+当**未**设置 `ExceedingOverrideEnable` 且目标超出范围（包括 `Value + TargetReverse` 产生 `< 1` 的情况），动作立即返回 **false**，`ClampTargetToMax` 不会被应用。
+
+### 示例
+
+```json
+"SomeTaskAdjustWithFallback": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "ExceedingOverrideEnable": "SomeFallbackNode",
+                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "Quantity": {
+                    "Target": 999,
+                    "Box": [340, 430, 200, 140],
+                    "OnlyRec": true
+                }
+            }
+        }
+    }
+}
+```
+
+如果游戏当前库存上限小于 `999`，`SomeFallbackNode` 将被启用，`BetterSliding` 返回成功，允许流程通过 `SomeFallbackNode` 继续执行替代处理。
 
 ## 方向约定
 

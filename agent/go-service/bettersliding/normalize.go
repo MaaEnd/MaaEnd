@@ -2,6 +2,7 @@ package bettersliding
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -137,4 +138,90 @@ func centerPoint(rect []int, offset [2]int) (int, int) {
 		return 0, 0
 	}
 	return rect[0] + rect[2]/2 + offset[0], rect[1] + rect[3]/2 + offset[1]
+}
+
+// normalizeTargetType normalizes a TargetType string, returning the canonical
+// form ("Value" or "Percentage"). An empty string defaults to "Value".
+func normalizeTargetType(raw string) (string, error) {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return "Value", nil
+	}
+
+	switch strings.ToLower(s) {
+	case "value":
+		return "Value", nil
+	case "percentage":
+		return "Percentage", nil
+	default:
+		return "", fmt.Errorf("invalid TargetType %q, expected \"Value\" or \"Percentage\"", raw)
+	}
+}
+
+// resolveTarget computes the effective discrete target from TargetType and TargetReverse.
+//
+//	Value + !Reverse → target unchanged.
+//	Value + Reverse  → maxQuantity - target (may be < 1 for upper-layer handling).
+//	Percentage + !Reverse → round(maxQuantity * target / 100), clamped to [1, maxQuantity].
+//	Percentage + Reverse  → round(maxQuantity * (100-target) / 100), clamped to [1, maxQuantity].
+func resolveTarget(target int, targetType string, targetReverse bool, maxQuantity int) (int, error) {
+	switch targetType {
+	case "Value":
+		if !targetReverse {
+			return target, nil
+		}
+
+		return maxQuantity - target, nil
+
+	case "Percentage":
+		if target == 0 {
+			return 0, fmt.Errorf("percentage target must be greater than 0")
+		}
+
+		if target > 100 {
+			return 0, fmt.Errorf("percentage target must be at most 100, got %d", target)
+		}
+
+		var factor float64
+		if !targetReverse {
+			factor = float64(target) / 100.0
+		} else {
+			factor = float64(100-target) / 100.0
+		}
+
+		resolved := int(math.Round(float64(maxQuantity) * factor))
+		if resolved < 1 {
+			resolved = 1
+		}
+
+		if resolved > maxQuantity {
+			resolved = maxQuantity
+		}
+
+		return resolved, nil
+
+	default:
+		return 0, fmt.Errorf("invalid target type %q", targetType)
+	}
+}
+
+// isButtonParamAbsent returns true when the button parameter is nil or an empty string.
+func isButtonParamAbsent(btn any) bool {
+	if btn == nil {
+		return true
+	}
+	if s, ok := btn.(string); ok {
+		return strings.TrimSpace(s) == ""
+	}
+
+	return false
+}
+
+// isSwipeOnlyMode returns true when the parameter set indicates swipe-only operation:
+// no Quantity.Box, no Quantity.Target, no IncreaseButton, and no DecreaseButton.
+func isSwipeOnlyMode(params quantizedSlidingParam) bool {
+	return len(params.Quantity.Box) == 0 &&
+		params.Quantity.Target == 0 &&
+		isButtonParamAbsent(params.IncreaseButton) &&
+		isButtonParamAbsent(params.DecreaseButton)
 }

@@ -6,14 +6,26 @@ import (
 )
 
 type quantizedSlidingParam struct {
-	Quantity          quantityParam        `json:"Quantity"`
-	QuantityFilter    *quantityFilterParam `json:"QuantityFilter"`
-	GreenMask         bool                 `json:"GreenMask"`
-	Direction         string               `json:"Direction"`
-	IncreaseButton    any                  `json:"IncreaseButton"`
-	DecreaseButton    any                  `json:"DecreaseButton"`
-	CenterPointOffset any                  `json:"CenterPointOffset"`
-	ClampTargetToMax  bool                 `json:"ClampTargetToMax"`
+	Quantity                quantityParam        `json:"Quantity"`
+	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
+	GreenMask               bool                 `json:"GreenMask"`
+	Direction               string               `json:"Direction"`
+	IncreaseButton          any                  `json:"IncreaseButton"`
+	DecreaseButton          any                  `json:"DecreaseButton"`
+	SwipeButton             string               `json:"SwipeButton"`
+	ExceedingOverrideEnable string               `json:"ExceedingOverrideEnable"`
+	TargetType              string               `json:"TargetType"`
+	TargetReverse           bool                 `json:"TargetReverse"`
+	CenterPointOffset       any                  `json:"CenterPointOffset"`
+	ClampTargetToMax        bool                 `json:"ClampTargetToMax"`
+}
+
+// attachParam holds parameters read from the caller node's attach block
+// via mergeAttachParams. Pointer types distinguish "absent" from "zero value".
+type attachParam struct {
+	Target        *int    `json:"Target"`
+	TargetType    *string `json:"TargetType"`
+	TargetReverse *bool   `json:"TargetReverse"`
 }
 
 type quantityParam struct {
@@ -29,36 +41,47 @@ type quantityFilterParam struct {
 	Method int   `json:"method"`
 }
 
-// BetterSlidingAction 实现量化滑动选择功能,用于处理游戏中需要通过滑动选择数量的 UI 场景。
-// 该动作会自动识别滑动条的起点和终点位置,根据目标数量精确计算点击位置,
-// 并通过微调按钮进行最终调整以达到目标值。
+// BetterSlidingAction handles slider-based quantity selection UIs.
+// It recognizes slider endpoints, computes a proportional click position from
+// the target quantity, and fine-tunes via increase/decrease buttons.
 //
-// 参数说明:
-//   - Quantity.Target: 目标数量
-//   - Quantity.Box: OCR 识别数量的 ROI 区域 [x,y,w,h]
-//   - QuantityFilter: 可选的数量 OCR 颜色过滤参数
-//   - Quantity.OnlyRec: 是否为数量 OCR 节点启用 only_rec
-//   - GreenMask: 顶层参数，默认值为 false，进入 TemplateMatch 协议层后映射为 green_mask，用于滑块模板和加减按钮模板匹配
-//   - Direction: 滑动方向 (left/right/up/down)
-//   - IncreaseButton: 增加数量按钮的模板路径或坐标
-//   - DecreaseButton: 减少数量按钮的模板路径或坐标
-//   - CenterPointOffset: 滑动条中心点坐标偏移量
-//   - ClampTargetToMax: 为 true 时，若 Quantity.Target 超过 maxQuantity，自动将目标值钳制为 maxQuantity 并继续（默认 false 时直接失败）
+// Parameter fields:
+//   - Quantity.Target: target quantity (overridden by attach.Target when present)
+//   - Quantity.Box: OCR ROI [x,y,w,h] for reading the quantity
+//   - QuantityFilter: optional color filter for quantity OCR
+//   - Quantity.OnlyRec: enable only_rec for the quantity OCR node
+//   - GreenMask: map to green_mask in TemplateMatch for slider/button templates
+//   - Direction: swipe direction (left/right/up/down)
+//   - IncreaseButton: increase button template path or coordinates
+//   - DecreaseButton: decrease button template path or coordinates
+//   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
+//   - ClampTargetToMax: clamp target to maxQuantity instead of failing (default false)
+//   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
+//   - ExceedingOverrideEnable: Pipeline node name to enable when target is out of range
+//   - TargetType: "Value" (default) or "Percentage"
+//   - TargetReverse: reverse target calculation
 type BetterSlidingAction struct {
-	Target            int
-	QuantityBox       []int
-	QuantityFilter    *quantityFilterParam
-	QuantityOnlyRec   bool
-	GreenMask         bool
-	Direction         string
-	IncreaseButton    buttonTarget
-	DecreaseButton    buttonTarget
-	CenterPointOffset [2]int
-	ClampTargetToMax  bool
+	Target                  int
+	QuantityBox             []int
+	QuantityFilter          *quantityFilterParam
+	QuantityOnlyRec         bool
+	GreenMask               bool
+	Direction               string
+	IncreaseButton          buttonTarget
+	DecreaseButton          buttonTarget
+	CenterPointOffset       [2]int
+	ClampTargetToMax        bool
+	SwipeButton             string
+	ExceedingOverrideEnable string
+	TargetType              string
+	TargetReverse           bool
+	SwipeOnlyMode           bool
+	OriginalTarget          int
 
 	startBox    []int
 	endBox      []int
 	maxQuantity int
+	exceeded    bool
 	logger      zerolog.Logger
 }
 
