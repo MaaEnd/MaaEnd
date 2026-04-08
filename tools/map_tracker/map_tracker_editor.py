@@ -1,6 +1,7 @@
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
+#     "maafw>=5",
 #     "opencv-python>=4",
 # ]
 # ///
@@ -12,6 +13,7 @@ import os
 import math
 import json
 import time
+import queue
 from typing import NamedTuple
 
 from _internal.core_utils import (
@@ -225,7 +227,6 @@ class PathEditPage(BasePage):
         self.action_dragging = False
 
         self.location_service = LocationService()
-        self._recording_active = False
         self._recording_start_time = 0.0
         self._recording_last_ts = 0.0
         self._recording_last_poll = 0.0
@@ -383,7 +384,12 @@ class PathEditPage(BasePage):
             print(f"  {_Y}Failed to save path to file.{_0}")
 
     def _start_recording(self):
-        self._recording_active = True
+        if not self.location_service.start_recording(self.map_name):
+            self._update_status(0xFC4040, "Cannot start recording.")
+            print(f"  {_Y}Failed to start location recording.{_0}")
+            self.render_page()
+            return
+        print(f"  {_G}Started location recording.{_0}")
         self._recording_start_time = time.time()
         self._recording_last_ts = self._recording_start_time
         self._recording_last_poll = 0.0
@@ -393,12 +399,12 @@ class PathEditPage(BasePage):
         self.render_page()
 
     def _stop_recording(self):
-        self._recording_active = False
+        self.location_service.stop_recording()
         self._update_status(0xD2D200, "Realtime path recording stopped.")
         self.render_page()
 
     def _toggle_recording(self):
-        if self._recording_active:
+        if self.location_service.is_recording:
             self._stop_recording()
         else:
             self._start_recording()
@@ -422,48 +428,64 @@ class PathEditPage(BasePage):
         self.done = True
 
     def _update_recording(self):
-        if not self._recording_active:
-            return False
-        now = time.time()
-        if now - self._recording_last_poll < 0.5:
-            return False
-        self._recording_last_poll = now
-
-        locations = self.location_service.get_locations(
-            self.map_name, self._recording_last_ts
-        )
-        if not locations:
+        if not self.location_service.is_recording:
             return False
 
+        # Process all available locations from queue
         updated = False
-        for loc in locations:
-            ts = loc.timestamp
-            if ts < self._recording_last_ts:
-                continue
-            if loc.map_name:
-                self._sync_tier_by_log_map(loc.map_name)
+        exception = None
+        while True:
+            try:
+                # Non-blocking get from queue
+                result = self.location_service.result_queue.get_nowait()
+                if isinstance(result, Exception):
+                    exception = result
+                    continue
 
-            x = loc.x
-            y = loc.y
-            key = (ts, x, y)
-            if key in self._recorded_keys:
-                self._recording_last_ts = max(self._recording_last_ts, ts)
-                continue
-            if self._recorded_path and [x, y] == self._recorded_path[-1]:
-                self._recording_last_ts = max(self._recording_last_ts, ts)
-                continue
-            self._recorded_path.append([x, y])
-            self._recorded_keys.add(key)
-            self._recording_last_ts = max(self._recording_last_ts, ts)
-            updated = True
+                # Extract location data
+                map_name, x, y = result["map_name"], result["x"], result["y"]
+                ts = time.time()
+                if ts < self._recording_last_ts:
+                    continue
 
+                # Update tier if needed
+                if map_name:
+                    self._sync_tier_by_log_map(map_name)
+
+                # Skip duplicates
+                key = (ts, x, y)
+                if key in self._recorded_keys:
+                    self._recording_last_ts = max(self._recording_last_ts, ts)
+                    continue
+                if self._recorded_path and [x, y] == self._recorded_path[-1]:
+                    self._recording_last_ts = max(self._recording_last_ts, ts)
+                    continue
+
+                # Add new point
+                self._recorded_path.append([x, y])
+                self._recorded_keys.add(key)
+                self._recording_last_ts = max(self._recording_last_ts, ts)
+                updated = True
+            except queue.Empty:
+                break
+            except Exception as e:
+                print(f"  {_Y}Error processing location queue: {e}{_0}")
+                break
+
+        # Update view if we got new data
         if updated:
             if self._quick_undo_state and self._recorded_path:
                 self._quick_undo_state = None
             if self._recorded_path:
                 last_point = self._recorded_path[-1]
                 self.view.maybe_center_to(last_point[0], last_point[1])
+            self._update_status(0x78DCFF, f"Location recoding is working normally.")
             self.render_page()
+        elif exception:
+            self._update_status(0xD2D200, f"Location recoding currently unavailable.")
+            print(f"  {_Y}Error during location recording: {exception}{_0}")
+            self.render_page()
+
         return updated
 
     @staticmethod
@@ -494,7 +516,7 @@ class PathEditPage(BasePage):
             "recorded_path": [list(p) for p in self._recorded_path],
             "recorded_keys": set(self._recorded_keys),
             "selected_idx": self.selected_idx,
-            "recording_active": self._recording_active,
+            "recording_active": self.location_service.is_recording,
             "recording_start_time": self._recording_start_time,
             "recording_last_ts": self._recording_last_ts,
             "recording_last_poll": self._recording_last_poll,
@@ -513,7 +535,7 @@ class PathEditPage(BasePage):
         self.selected_idx = len(self.points) - 1 if self.points else -1
         self._recorded_path = []
         self._recorded_keys.clear()
-        self._recording_active = False
+        self.location_service.stop_recording()
         self._update_status(
             0x50DC50, f"Generated path from realtime history ({len(self.points)} pts)"
         )
@@ -525,7 +547,11 @@ class PathEditPage(BasePage):
         self._recorded_path = [list(p) for p in self._quick_undo_state["recorded_path"]]
         self._recorded_keys = set(self._quick_undo_state["recorded_keys"])
         self.selected_idx = int(self._quick_undo_state["selected_idx"])
-        self._recording_active = bool(self._quick_undo_state["recording_active"])
+        was_recording = bool(self._quick_undo_state["recording_active"])
+        if was_recording:
+            self.location_service.start_recording(self.map_name)
+        else:
+            self.location_service.stop_recording()
         self._recording_start_time = float(
             self._quick_undo_state["recording_start_time"]
         )
@@ -721,7 +747,7 @@ class PathEditPage(BasePage):
         self._record_button.text_color = 0xFFFFFF
         self._record_button.text = (
             "[R] Stop Path Recording"
-            if self._recording_active
+            if self.location_service.is_recording
             else "[R] Record Realtime Path"
         )
         cy = record_y1 + 8
@@ -767,7 +793,7 @@ class PathEditPage(BasePage):
             line = f"Points: {len(self.points)}"
         drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF)
         record_line = f"History: {len(self._recorded_path)}"
-        if self._recording_active:
+        if self.location_service.is_recording:
             record_line += " (Recording)"
         drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF)
 
@@ -933,6 +959,9 @@ class PathEditPage(BasePage):
 
     def _on_idle(self) -> None:
         self._update_recording()
+
+    def on_exit(self) -> None:
+        self.location_service.cleanup()
 
     # ------------------------------------------------------------------
     # Main loop
