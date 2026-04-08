@@ -261,7 +261,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "DailyTaskUpgradeWeaponIsValid"
+            "DailyTaskUpgradeWeaponIsValid",
+            "DailyTaskStart"
         ]
     },
     "DailyTaskCreation": {
@@ -288,7 +289,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "DailyTaskCreationIsValid"
+            "DailyTaskCreationIsValid",
+            "DailyTaskStart"
         ]
     },
     "DailyTaskAssemble": {
@@ -316,7 +318,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "DailyTaskAssembleIsValid"
+            "DailyTaskAssembleIsValid",
+            "DailyTaskStart"
         ]
     },
     "DailyTaskCreationIsValid": {
