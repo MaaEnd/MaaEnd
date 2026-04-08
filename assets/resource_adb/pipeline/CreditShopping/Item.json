@@ -57,10 +57,10 @@
     },
     "Priority2OCR": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
+            -126,
+            48,
+            125,
+            1
         ]
     },
     "IsDiscountPriority2": {
