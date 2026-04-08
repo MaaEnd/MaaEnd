@@ -522,9 +522,10 @@
             "param": {
                 "all_of": [
                     "ClueItem",
+                    "ClueItemCountColor",
                     "ClueItemCount"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,

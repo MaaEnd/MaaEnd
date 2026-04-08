@@ -184,17 +184,43 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "ClueItem",
+                "roi": "ClueItemCountColor",
                 "roi_offset": [
-                    165,
-                    0,
-                    -46,
-                    0
+                    -1,
+                    -1,
+                    2,
+                    2
                 ],
                 "expected": [
                     "^(20|[3-9]|1[0-9])$"
                 ],
                 "only_rec": true
+            }
+        }
+    },
+    "ClueItemCountColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ClueItem",
+                "roi_offset": [
+                    102,
+                    -24,
+                    61,
+                    52
+                ],
+                "lower": [
+                    158,
+                    159,
+                    157
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10,
+                "connected": true
             }
         }
     },
