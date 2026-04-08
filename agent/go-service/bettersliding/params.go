@@ -98,9 +98,9 @@ func (a *BetterSlidingAction) normalizeActionParams(params quantizedSlidingParam
 		}, true
 	}
 
-	if params.Quantity.Target <= 0 {
+	if params.Target <= 0 {
 		a.logger.Error().
-			Int("target", params.Quantity.Target).
+			Int("target", params.Target).
 			Msg("invalid target, must be greater than 0")
 		return parsedBetterSlidingParams{}, false
 	}
@@ -143,7 +143,7 @@ func (a *BetterSlidingAction) normalizeActionParams(params quantizedSlidingParam
 	}
 
 	return parsedBetterSlidingParams{
-		target:                  params.Quantity.Target,
+		target:                  params.Target,
 		quantityBox:             append([]int(nil), params.Quantity.Box...),
 		quantityFilter:          quantityFilter,
 		quantityOnlyRec:         quantityOnlyRec,
@@ -267,13 +267,7 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 	if targetRaw, has := attachKeys["Target"]; has {
 		var target int
 		if err := json.Unmarshal(targetRaw, &target); err == nil {
-			q, _ := paramMap["Quantity"].(map[string]any)
-			if q == nil {
-				q = make(map[string]any)
-				paramMap["Quantity"] = q
-			}
-
-			q["Target"] = float64(target)
+			paramMap["Target"] = float64(target)
 		}
 	}
 

@@ -218,10 +218,10 @@ func isButtonParamAbsent(btn any) bool {
 }
 
 // isSwipeOnlyMode returns true when the parameter set indicates swipe-only operation:
-// no Quantity.Box, no Quantity.Target, no IncreaseButton, and no DecreaseButton.
+// no Quantity.Box, no Target, and no IncreaseButton/DecreaseButton.
 func isSwipeOnlyMode(params quantizedSlidingParam) bool {
 	return len(params.Quantity.Box) == 0 &&
-		params.Quantity.Target == 0 &&
+		params.Target == 0 &&
 		isButtonParamAbsent(params.IncreaseButton) &&
 		isButtonParamAbsent(params.DecreaseButton)
 }

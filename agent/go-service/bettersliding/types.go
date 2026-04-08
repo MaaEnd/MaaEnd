@@ -6,6 +6,7 @@ import (
 )
 
 type quantizedSlidingParam struct {
+	Target                  int                  `json:"Target"`
 	Quantity                quantityParam        `json:"Quantity"`
 	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
 	GreenMask               bool                 `json:"GreenMask"`
@@ -29,7 +30,6 @@ type attachParam struct {
 }
 
 type quantityParam struct {
-	Target  int   `json:"Target"`
 	Box     []int `json:"Box"`
 	OnlyRec *bool `json:"OnlyRec"`
 }
@@ -46,7 +46,7 @@ type quantityFilterParam struct {
 // the target quantity, and fine-tunes via increase/decrease buttons.
 //
 // Parameter fields:
-//   - Quantity.Target: target quantity (overridden by attach.Target when present)
+//   - Target: target quantity (overridden by attach.Target when present)
 //   - Quantity.Box: OCR ROI [x,y,w,h] for reading the quantity
 //   - QuantityFilter: optional color filter for quantity OCR
 //   - Quantity.OnlyRec: enable only_rec for the quantity OCR node

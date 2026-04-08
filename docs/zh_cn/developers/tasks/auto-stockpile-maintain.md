@@ -108,7 +108,7 @@ Go Service 在运行时会动态覆盖 Pipeline 节点的参数：
 - **AutoStockpileGetGoods**：覆盖识别 `roi`。
 - **AutoStockpileSelectedGoodsClick**：覆盖 `template`、ROI 的 `y` 坐标以及 `enabled` 状态。
 - **AutoStockpileRelayNodeDecisionReady**：覆盖 `enabled` 状态。
-- **AutoStockpileSwipeSpecificQuantity**：覆盖 `Quantity.Target` 数值与 `enabled` 状态。
+- **AutoStockpileSwipeSpecificQuantity**：覆盖 `Target` 数值与 `enabled` 状态。
 - **AutoStockpileSwipeMax**：覆盖 `enabled` 状态。
 
 当决策未找到合格商品或需要跳过时，Go 会重置购买分支相关节点（`AutoStockpileRelayNodeDecisionReady`、`AutoStockpileSelectedGoodsClick`、`AutoStockpileSwipeSpecificQuantity`、`AutoStockpileSwipeMax`）的启用状态（全部设为 `enabled: false`），并通过 `OverrideNext` 将流程导向跳过分支。
