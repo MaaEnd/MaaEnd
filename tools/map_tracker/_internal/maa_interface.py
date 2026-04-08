@@ -54,7 +54,7 @@ class MaaInterface:
             return
 
         # Win32
-        def _calc_window_likelyhood(window: DesktopWindow):
+        def _calc_window_likelihood(window: DesktopWindow):
             return (
                 int(window.class_name == MaaInterface.TARGET_WINDOW_CLASS) * 1
                 + int(window.window_name == MaaInterface.TARGET_WINDOW_NAME) * 2
@@ -65,7 +65,7 @@ class MaaInterface:
             all_windows = sorted(
                 self.toolkit.find_desktop_windows(), key=lambda w: w.hwnd
             )
-            all_windows_likelihood = list(map(_calc_window_likelyhood, all_windows))
+            all_windows_likelihood = list(map(_calc_window_likelihood, all_windows))
             max_likelihood = max(all_windows_likelihood)
         except Exception as e:
             raise MaaInitializationError("Failed to fetch window list") from e
@@ -126,13 +126,34 @@ class MaaInterface:
             raise MaaInitializationError(f"Failed to start agent: {e}") from e
 
     def dispose_agent(self):
-        if self.agent_client and self.agent_client.connected:
-            self.agent_client.disconnect()
-            self.agent_client = None
-        if self.agent_process and self.agent_process.poll() is None:
-            self.agent_process.terminate()
-            self.agent_process.wait(timeout=3)
-            self.agent_process = None
+        if self.agent_client is not None:
+            try:
+                if self.agent_client.connected:
+                    self.agent_client.disconnect()
+            except Exception:
+                pass
+            finally:
+                self.agent_client = None
+
+        process = self.agent_process
+        self.agent_process = None
+        if process is None:
+            return
+
+        try:
+            if process.poll() is not None:
+                return
+            process.terminate()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                try:
+                    process.wait(timeout=3)
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     def do_infer(self) -> MapTrackerInferResult:
         if self.controller is None:
