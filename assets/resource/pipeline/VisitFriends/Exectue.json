@@ -1,16 +1,19 @@
 {
     "VisitFriendsEnterShip": {
         "desc": "识别进入好友船的按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -150,
-            135,
-            150,
-            460
-        ],
-        "template": "VisitFriends/EnterButton.png",
-        "threshold": 0.9,
         "action": "Click",
+        "target": [
+            -100,
+            0,
+            100,
+            100
+        ],
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -516,7 +519,7 @@
         //     -60,
         //     0,
         //     0
-        // ]
+        // ],
         "post_delay": 0
     }
 }

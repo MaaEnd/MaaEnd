@@ -4,6 +4,7 @@
 
 #include "MaaFramework/MaaAPI.h"
 
+#include "Backend/backend.h"
 #include "navi_domain_types.h"
 
 namespace mapnavigator
@@ -24,9 +25,10 @@ public:
     const char* unsupported_reason() const;
     double DefaultTurnUnitsPerDegree() const;
 
-    void KeyDownSync(int key_code, int delay_millis);
-    void KeyUpSync(int key_code, int delay_millis);
-    void ClickKeySync(int key_code, int hold_millis);
+    void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis);
+    void TriggerJumpSync(int hold_millis);
+    void TriggerInteractSync(int hold_millis);
+    void PulseForwardSync(int hold_millis);
     void TriggerSprintSync();
     void ResetForwardWalkSync(int release_millis);
     void ClickMouseLeftSync();
@@ -34,20 +36,10 @@ public:
     void MouseRightDownSync(int delay_millis);
     void MouseRightUpSync(int delay_millis);
 
-    void SendRelativeMoveNative(int dx, int dy);
+    bool SendViewDeltaSync(int dx, int dy);
 
 private:
     std::unique_ptr<IInputBackend> backend_;
-};
-
-class NativeMouseTurnActuator : public ITurnActuator
-{
-public:
-    explicit NativeMouseTurnActuator(ActionWrapper& action_wrapper);
-    TurnActuationResult TurnByUnits(int units, int duration_millis) override;
-
-private:
-    ActionWrapper& action_wrapper_;
 };
 
 } // namespace mapnavigator

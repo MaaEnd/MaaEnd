@@ -49,5 +49,21 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": []
+    },
+    "SceneExampleRewardAndNext": {
+        "desc": "奖励接口使用示例，完成后继续业务流程",
+        "pre_delay": 0,
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "SceneExampleRewardNext"
+        },
+        "post_delay": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmWithAnchor"
+        ]
+    },
+    "SceneExampleRewardNext": {
+        "desc": "后续业务流程",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

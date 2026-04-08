@@ -4,6 +4,8 @@ import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from connection_models import AdbConnectionConfig, RecordingSessionConfig, Win32ConnectionConfig
+from connectors import list_adb_devices, resolve_adb_path
 from history_store import UndoRedoHistory
 from json_import import (
     export_assert_location_node,
@@ -30,11 +32,15 @@ from point_editing import PointEditingService
 from recording_service import RecordingService
 from renderer_tk import MapRenderer
 from runtime import MAP_IMAGE_DIR, configure_runtime_env, load_maa_runtime
+from settings_store import MapNavigatorSettings, MapNavigatorSettingsStore
 from zone_index import ZoneState
 
 
 class RouteEditorApp:
     """轨迹录制与编辑 GUI。"""
+
+    BOX_SELECT_MODIFIER_MASK = 0x0004
+    DRAG_ACTIVATION_DISTANCE = 4
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
@@ -43,6 +49,9 @@ class RouteEditorApp:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
         configure_runtime_env()
+        self.settings_store = MapNavigatorSettingsStore()
+        self.settings = self.settings_store.load()
+
         runtime = load_maa_runtime()
         self.recording_service: RecordingService | None = None
         if runtime:
@@ -65,6 +74,14 @@ class RouteEditorApp:
         self.strict_var = tk.BooleanVar(value=False)
         self.action_chain_var = tk.StringVar(value="Run")
         self.locator_debug_var = tk.StringVar(value="Locator: --")
+        self.connection_kind_var = tk.StringVar(value=self.settings.connection_kind)
+        self.win32_window_title_var = tk.StringVar(value=self.settings.win32_window_title)
+        self.adb_path_var = tk.StringVar(value=self.settings.adb_path or resolve_adb_path(""))
+        self.adb_target_var = tk.StringVar(value=self.settings.adb_address)
+        self.connection_summary_var = tk.StringVar(value="")
+        self.discovered_adb_devices = []
+        self.adb_device_labels: list[str] = []
+        self.adb_label_to_address: dict[str, str] = {}
 
         # 领域服务
         self.zone_state = ZoneState()
@@ -91,16 +108,21 @@ class RouteEditorApp:
         self.is_dragging = False
         self.is_box_selecting = False
         self.is_assert_selecting = False
+        self.is_pan_candidate = False
         self.box_select_start_x = 0
         self.box_select_start_y = 0
         self.assert_start_world_x = 0.0
         self.assert_start_world_y = 0.0
         self.assert_rect_world: tuple[float, float, float, float] | None = None
+        self.pointer_down_x = 0
+        self.pointer_down_y = 0
         self._redraw_pending = False
 
         self._build_layout()
         self.renderer = MapRenderer(self.canvas, root, MAP_IMAGE_DIR)
         self._bind_events()
+        self._sync_connection_controls()
+        self._refresh_connection_summary()
         self._sync_assert_controls()
         self._refresh_zone_label()
 
@@ -183,6 +205,12 @@ class RouteEditorApp:
         )
         self.slider_density.pack(side=tk.LEFT)
 
+        self.btn_zoom_out = tk.Button(density_frame, text="-", command=self.zoom_out, width=3)
+        self.btn_zoom_out.pack(side=tk.LEFT, padx=(6, 2))
+
+        self.btn_zoom_in = tk.Button(density_frame, text="+", command=self.zoom_in, width=3)
+        self.btn_zoom_in.pack(side=tk.LEFT, padx=(0, 6))
+
         self.disable_optimization_check = tk.Checkbutton(
             density_frame,
             text="禁优化",
@@ -260,6 +288,46 @@ class RouteEditorApp:
         )
         self.btn_del_point.pack(side=tk.LEFT, padx=2)
 
+        connection_row = tk.Frame(toolbar_frame)
+        connection_row.pack(fill=tk.X, pady=(4, 0))
+
+        tk.Label(connection_row, text="连接:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.connection_kind_combo = ttk.Combobox(
+            connection_row,
+            values=["Win32 窗口", "ADB 设备"],
+            width=10,
+            state="readonly",
+        )
+        self.connection_kind_combo.set("ADB 设备" if self.connection_kind_var.get() == "adb" else "Win32 窗口")
+        self.connection_kind_combo.pack(side=tk.LEFT, padx=(0, 8))
+        self.connection_kind_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_connection_kind_changed())
+
+        self.connection_controls_frame = tk.Frame(connection_row)
+        self.connection_controls_frame.pack(side=tk.LEFT)
+
+        self.win32_label = tk.Label(self.connection_controls_frame, text="窗口标题:", font=("Microsoft YaHei", 9))
+        self.win32_label.pack(side=tk.LEFT, padx=(0, 4))
+        self.win32_entry = tk.Entry(self.connection_controls_frame, textvariable=self.win32_window_title_var, width=18)
+        self.win32_entry.pack(side=tk.LEFT, padx=(0, 10))
+
+        self.adb_path_label = tk.Label(self.connection_controls_frame, text="ADB:", font=("Microsoft YaHei", 9))
+        self.adb_path_entry = tk.Entry(self.connection_controls_frame, textvariable=self.adb_path_var, width=28)
+        self.btn_browse_adb = tk.Button(self.connection_controls_frame, text="浏览", command=self._browse_adb_path, width=5)
+        self.adb_target_label = tk.Label(self.connection_controls_frame, text="设备:", font=("Microsoft YaHei", 9))
+        self.adb_target_combo = ttk.Combobox(self.connection_controls_frame, textvariable=self.adb_target_var, width=34)
+        self.btn_refresh_adb = tk.Button(self.connection_controls_frame, text="刷新", command=self.refresh_adb_devices, width=5)
+
+        self.connection_summary_label = tk.Label(
+            connection_row,
+            textvariable=self.connection_summary_var,
+            font=("Consolas", 8),
+            fg="#475569",
+            anchor="w",
+        )
+        self.connection_summary_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(8, 0))
+
+        self.adb_target_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_adb_target_selected())
+
         self.status_label = tk.Label(
             self.root,
             text="准备就绪",
@@ -289,13 +357,24 @@ class RouteEditorApp:
         self.canvas.bind("<Button-3>", self.on_pan_start)
         self.canvas.bind("<B3-Motion>", self.on_pan_move)
         self.canvas.bind("<ButtonRelease-3>", self.on_pan_end)
-        self.canvas.bind("<MouseWheel>", self.on_scroll)
         self.canvas.bind("<Configure>", lambda _event: self.schedule_redraw(fast=True))
+        self.canvas.bind("<MouseWheel>", self.on_scroll)
+        self.canvas.bind("<Button-4>", self.on_scroll)
+        self.canvas.bind("<Button-5>", self.on_scroll)
 
         self.root.bind_all("<Control-z>", lambda _event: self.undo())
         self.root.bind_all("<Control-y>", lambda _event: self.redo())
         self.root.bind_all("<Delete>", self._on_delete_key)
         self.root.bind_all("<BackSpace>", self._on_delete_key)
+        self.root.bind_all("<plus>", lambda _event: self.zoom_in())
+        self.root.bind_all("<equal>", lambda _event: self.zoom_in())
+        self.root.bind_all("<KP_Add>", lambda _event: self.zoom_in())
+        self.root.bind_all("<minus>", lambda _event: self.zoom_out())
+        self.root.bind_all("<underscore>", lambda _event: self.zoom_out())
+        self.root.bind_all("<KP_Subtract>", lambda _event: self.zoom_out())
+        self.adb_path_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
+        self.adb_target_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
+        self.win32_window_title_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
 
     def _on_delete_key(self, event) -> None:
         widget = event.widget.focus_get() if hasattr(event.widget, "focus_get") else None
@@ -318,6 +397,175 @@ class RouteEditorApp:
 
     def _set_locator_debug(self, text: str) -> None:
         self.locator_debug_var.set(text)
+
+    def _connection_kind(self) -> str:
+        return "adb" if self.connection_kind_combo.get() == "ADB 设备" else "win32"
+
+    def _on_connection_kind_changed(self) -> None:
+        self.connection_kind_var.set(self._connection_kind())
+        self._sync_connection_controls()
+        self._refresh_connection_summary()
+        self._persist_settings()
+
+    def _sync_connection_controls(self) -> None:
+        is_adb = self._connection_kind() == "adb"
+
+        win32_widgets = [self.win32_label, self.win32_entry]
+        adb_widgets = [
+            self.adb_path_label,
+            self.adb_path_entry,
+            self.btn_browse_adb,
+            self.adb_target_label,
+            self.adb_target_combo,
+            self.btn_refresh_adb,
+        ]
+
+        for widget in win32_widgets:
+            if is_adb:
+                widget.pack_forget()
+            elif not widget.winfo_manager():
+                widget.pack(side=tk.LEFT, padx=(0, 4) if widget is self.win32_label else (0, 10))
+
+        if is_adb:
+            adb_pack_specs = [
+                (self.adb_path_label, {"side": tk.LEFT, "padx": (0, 4)}),
+                (self.adb_path_entry, {"side": tk.LEFT, "padx": (0, 4)}),
+                (self.btn_browse_adb, {"side": tk.LEFT, "padx": (0, 10)}),
+                (self.adb_target_label, {"side": tk.LEFT, "padx": (0, 4)}),
+                (self.adb_target_combo, {"side": tk.LEFT, "padx": (0, 4)}),
+                (self.btn_refresh_adb, {"side": tk.LEFT, "padx": (0, 8)}),
+            ]
+            for widget, pack_kwargs in adb_pack_specs:
+                if not widget.winfo_manager():
+                    widget.pack(**pack_kwargs)
+        else:
+            for widget in adb_widgets:
+                widget.pack_forget()
+
+        if is_adb and not self.adb_device_labels:
+            self.refresh_adb_devices()
+
+    def _refresh_connection_summary(self) -> None:
+        if self._connection_kind() == "adb":
+            adb_path = self.adb_path_var.get().strip() or "<PATH>"
+            target = self.adb_target_var.get().strip() or "未选择设备"
+            self.connection_summary_var.set(f"ADB: {adb_path} -> {target}")
+            return
+
+        title = self.win32_window_title_var.get().strip() or "Endfield"
+        self.connection_summary_var.set(f"Win32: title={title}")
+
+    def _browse_adb_path(self) -> None:
+        file_path = filedialog.askopenfilename(title="选择 adb 可执行文件")
+        if not file_path:
+            return
+        self.adb_path_var.set(file_path)
+        self._persist_settings()
+        self.refresh_adb_devices()
+
+    def _merge_recent_adb_targets(self, addresses: list[str]) -> list[str]:
+        merged: list[str] = []
+        for address in addresses + self.settings.recent_adb_targets:
+            normalized = address.strip()
+            if not normalized or normalized in merged:
+                continue
+            merged.append(normalized)
+        return merged[:10]
+
+    def _on_adb_target_selected(self) -> None:
+        selected = self.adb_target_var.get().strip()
+        mapped = self.adb_label_to_address.get(selected, selected)
+        if mapped != selected:
+            self.adb_target_var.set(mapped)
+        self._persist_settings()
+
+    def refresh_adb_devices(self) -> None:
+        adb_path = self.adb_path_var.get().strip()
+        resolved_path = resolve_adb_path(adb_path)
+
+        devices = list_adb_devices(adb_path)
+        self.discovered_adb_devices = devices
+        self.adb_label_to_address = {}
+        self.adb_device_labels = []
+        for device in devices:
+            label = device.display_name()
+            self.adb_device_labels.append(label)
+            self.adb_label_to_address[label] = device.address
+
+        recent_addresses = self._merge_recent_adb_targets([device.address for device in devices])
+        combo_values = self.adb_device_labels + [address for address in recent_addresses if address not in self.adb_device_labels]
+        self.adb_target_combo["values"] = combo_values
+
+        current_target = self.adb_target_var.get().strip()
+        if not current_target:
+            online_device = next((device.address for device in devices if device.state == "device"), "")
+            if online_device:
+                self.adb_target_var.set(online_device)
+
+        self._persist_settings()
+        if resolved_path:
+            self._set_status(f"已刷新 ADB 设备，共 {len(devices)} 个。", "#10b981")
+        else:
+            self._set_status("未找到 adb，可手动指定 adb 路径。", "#f59e0b")
+
+    def _build_recording_session(self) -> RecordingSessionConfig:
+        kind = self._connection_kind()
+        session = RecordingSessionConfig(
+            kind=kind,
+            win32=Win32ConnectionConfig(window_title=self.win32_window_title_var.get().strip() or "Endfield"),
+            adb=AdbConnectionConfig(
+                adb_path=self.adb_path_var.get().strip(),
+                address=self.adb_target_var.get().strip(),
+            ),
+        )
+        return session
+
+    def _persist_settings(self) -> None:
+        self.settings = MapNavigatorSettings(
+            connection_kind=self._connection_kind(),
+            adb_path=self.adb_path_var.get().strip(),
+            adb_address=self.adb_target_var.get().strip(),
+            win32_window_title=self.win32_window_title_var.get().strip() or "Endfield",
+            recent_adb_targets=self._merge_recent_adb_targets(
+                [self.adb_target_var.get().strip()] + self.settings.recent_adb_targets
+            ),
+        )
+        try:
+            self.settings_store.save(self.settings)
+        except Exception:
+            return
+
+    @staticmethod
+    def _is_box_select_modifier_pressed(event) -> bool:
+        return bool(getattr(event, "state", 0) & RouteEditorApp.BOX_SELECT_MODIFIER_MASK)
+
+    @staticmethod
+    def _movement_exceeded_threshold(start_x: int, start_y: int, current_x: int, current_y: int) -> bool:
+        return (
+            abs(current_x - start_x) > RouteEditorApp.DRAG_ACTIVATION_DISTANCE
+            or abs(current_y - start_y) > RouteEditorApp.DRAG_ACTIVATION_DISTANCE
+        )
+
+    def _zoom_view(self, factor: float, focus_x: int | None = None, focus_y: int | None = None) -> None:
+        if focus_x is None or focus_y is None:
+            focus_x = self.canvas.winfo_width() // 2
+            focus_y = self.canvas.winfo_height() // 2
+
+        world_x, world_y = self.renderer.canvas_to_world(focus_x, focus_y)
+        new_scale = self.renderer.view_scale * factor
+        new_scale = max(0.002, min(500.0, new_scale))
+
+        new_off_x = focus_x / new_scale - world_x
+        new_off_y = focus_y / new_scale - world_y
+
+        self.renderer.set_viewport(new_scale, new_off_x, new_off_y)
+        self.schedule_redraw(fast=True)
+
+    def zoom_in(self) -> None:
+        self._zoom_view(1.25)
+
+    def zoom_out(self) -> None:
+        self._zoom_view(0.8)
 
     def _on_optimization_mode_changed(self) -> None:
         slider_state = tk.DISABLED if self.disable_optimization_var.get() else tk.NORMAL
@@ -531,22 +779,23 @@ class RouteEditorApp:
     def on_close(self) -> None:
         if self.recording_service and self.recording_service.is_running:
             self.recording_service.stop()
+        self._persist_settings()
         self.root.destroy()
 
     # ---- 视图交互 ----
     def on_scroll(self, event) -> None:
-        factor = 1.25 if event.delta > 0 else 0.8
-        mouse_x, mouse_y = event.x, event.y
-        world_x, world_y = self.renderer.canvas_to_world(mouse_x, mouse_y)
-
-        new_scale = self.renderer.view_scale * factor
-        new_scale = max(0.002, min(500.0, new_scale))
-
-        new_off_x = mouse_x / new_scale - world_x
-        new_off_y = mouse_y / new_scale - world_y
-
-        self.renderer.set_viewport(new_scale, new_off_x, new_off_y)
-        self.schedule_redraw(fast=True)
+        delta = getattr(event, "delta", 0)
+        if delta:
+            factor = 1.25 if float(delta) > 0 else 0.8
+        else:
+            button_num = getattr(event, "num", 0)
+            if button_num == 4:
+                factor = 1.25
+            elif button_num == 5:
+                factor = 0.8
+            else:
+                return
+        self._zoom_view(factor, focus_x=event.x, focus_y=event.y)
 
     def on_pan_start(self, event) -> None:
         self.is_panning = True
@@ -556,7 +805,6 @@ class RouteEditorApp:
     def on_pan_move(self, event) -> None:
         if not self.is_panning:
             return
-
         dx = (event.x - self.drag_start_x) / self.renderer.view_scale
         dy = (event.y - self.drag_start_y) / self.renderer.view_scale
         self.renderer.view_offset_x += dx
@@ -781,12 +1029,18 @@ class RouteEditorApp:
         if self.recording_service.is_running:
             return
 
+        session = self._build_recording_session()
+        if session.kind == "adb" and not session.adb.address:
+            messagebox.showerror("连接错误", "请选择 ADB 设备或手动填写设备序列号/地址。")
+            return
+
+        self._persist_settings()
         self.btn_start.config(state=tk.DISABLED)
         self.btn_stop.config(state=tk.NORMAL)
-        self._set_status("● 正在启动识别引擎...", "#3b82f6")
+        self._set_status(f"● 正在启动识别引擎... [{session.display_name()}]", "#3b82f6")
         self._set_locator_debug("Locator: waiting for first result...")
         try:
-            self.recording_service.start()
+            self.recording_service.start(session)
         except Exception as exc:
             self._on_recording_error(str(exc))
 
@@ -825,7 +1079,10 @@ class RouteEditorApp:
     def _reset_ui(self) -> None:
         self.btn_start.config(state=tk.NORMAL)
         self.btn_stop.config(state=tk.DISABLED)
-        self._set_status("录制结束。鼠标滚轮缩放，右键平移，左键拖拽点微调，Ctrl+点击增减选，Ctrl+左键框选批量操作。", "#10b981")
+        self._set_status(
+            "录制结束。鼠标滚轮缩放，右键平移，左键空白拖拽也可平移，左键单击空白插点，左键拖拽点微调，Ctrl+点击增减选，Ctrl+左键框选批量操作。也可用 +/- 按钮或键盘 +/- 缩放。",
+            "#10b981",
+        )
 
     # ---- 撤销与重做 ----
     def push_undo(self) -> None:
@@ -866,6 +1123,8 @@ class RouteEditorApp:
                 messagebox.showinfo("提示", "请先在 Assert 模式下选择地图。")
                 return
             self.is_dragging = False
+            self.is_pan_candidate = False
+            self.is_panning = False
             self.is_box_selecting = False
             self.is_assert_selecting = True
             self.assert_start_world_x, self.assert_start_world_y = self.renderer.canvas_to_world(event.x, event.y)
@@ -878,9 +1137,11 @@ class RouteEditorApp:
             self.schedule_redraw(fast=True)
             return
 
-        if event.state & 0x0004:
+        if self._is_box_select_modifier_pressed(event):
             self.is_box_selecting = True
             self.is_dragging = False
+            self.is_pan_candidate = False
+            self.is_panning = False
             self.box_select_start_x = event.x
             self.box_select_start_y = event.y
             self._show_selection_rect(event.x, event.y, event.x, event.y)
@@ -888,23 +1149,16 @@ class RouteEditorApp:
 
         idx_in_zone = self.get_node_at(event.x, event.y)
         if idx_in_zone is None:
-            self.push_undo()
             self.is_dragging = False
-            self._clear_selection()
-            world_x, world_y = self.renderer.canvas_to_world(event.x, event.y)
-            self.point_editor.insert_point(
-                points=self.points,
-                zone_indices=self.zone_point_global_indices,
-                current_zone=self.zone_state.current_zone(),
-                action_name=self.action_menu.get(),
-                strict_arrival=self.strict_var.get(),
-                world_x=world_x,
-                world_y=world_y,
-            )
-            self._on_points_structure_changed(redraw_fast=False)
+            self.is_panning = False
+            self.is_pan_candidate = True
+            self.pointer_down_x = event.x
+            self.pointer_down_y = event.y
             return
 
         self.push_undo()
+        self.is_pan_candidate = False
+        self.is_panning = False
         self._set_selection([idx_in_zone], primary_idx=idx_in_zone)
         self.is_dragging = True
 
@@ -999,6 +1253,24 @@ class RouteEditorApp:
             self._show_selection_rect(self.box_select_start_x, self.box_select_start_y, event.x, event.y)
             return
 
+        if self.is_pan_candidate:
+            if not self._movement_exceeded_threshold(self.pointer_down_x, self.pointer_down_y, event.x, event.y):
+                return
+            self.is_pan_candidate = False
+            self.is_panning = True
+            self.drag_start_x, self.drag_start_y = event.x, event.y
+            self.canvas.config(cursor="fleur")
+            return
+
+        if self.is_panning:
+            dx = (event.x - self.drag_start_x) / self.renderer.view_scale
+            dy = (event.y - self.drag_start_y) / self.renderer.view_scale
+            self.renderer.view_offset_x += dx
+            self.renderer.view_offset_y += dy
+            self.drag_start_x, self.drag_start_y = event.x, event.y
+            self.schedule_redraw(fast=True)
+            return
+
         if not self.is_dragging:
             return
 
@@ -1053,6 +1325,28 @@ class RouteEditorApp:
             self._hide_selection_rect()
             self.is_box_selecting = False
             self.schedule_redraw(fast=True)
+            return
+
+        if self.is_panning:
+            self.is_panning = False
+            self.canvas.config(cursor="cross")
+            return
+
+        if self.is_pan_candidate:
+            self.is_pan_candidate = False
+            self.push_undo()
+            self._clear_selection()
+            world_x, world_y = self.renderer.canvas_to_world(event.x, event.y)
+            self.point_editor.insert_point(
+                points=self.points,
+                zone_indices=self.zone_point_global_indices,
+                current_zone=self.zone_state.current_zone(),
+                action_name=self.action_menu.get(),
+                strict_arrival=self.strict_var.get(),
+                world_x=world_x,
+                world_y=world_y,
+            )
+            self._on_points_structure_changed(redraw_fast=False)
             return
 
         self.is_dragging = False

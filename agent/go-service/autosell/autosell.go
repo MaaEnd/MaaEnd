@@ -165,6 +165,22 @@ func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Contex
 	}, true
 }
 
+// firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。
+func firstContainedKeyword(s string, subs []string) string {
+	for _, sub := range subs {
+		if strings.Contains(s, sub) {
+			return sub
+		}
+	}
+	return ""
+}
+
+var (
+	moderatePriceKeywords = []string{"锚点", "悬空", "巫术", "天使", "岳硏", "冬虫", "武陵", "武侠"}
+	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体"}
+	massivePriceKeywords  = []string{"源石", "警戒", "硬脑", "边角"}
+)
+
 type AutoSellStockRedistributionOpenItemTextAction struct{}
 
 func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -196,31 +212,26 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 	}
 
 	// 翻译有缘再写
-	var targetPrice = 4600
-	if strings.Contains(resultItem.Text, "锚点") ||
-		strings.Contains(resultItem.Text, "悬空") ||
-		strings.Contains(resultItem.Text, "巫术") ||
-		strings.Contains(resultItem.Text, "天使") ||
-		strings.Contains(resultItem.Text, "岳硏") ||
-		strings.Contains(resultItem.Text, "冬虫") ||
-		strings.Contains(resultItem.Text, "武陵") ||
-		strings.Contains(resultItem.Text, "武侠") {
+	targetPrice := 4600
+	targetName := "unknown"
+	if k := firstContainedKeyword(resultItem.Text, moderatePriceKeywords); k != "" {
 		targetPrice = param.ModeratePrice
+		targetName = k
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_moderate", resultItem.Text))
-	} else if strings.Contains(resultItem.Text, "谷地水") ||
-		strings.Contains(resultItem.Text, "团结") ||
-		strings.Contains(resultItem.Text, "塞什") ||
-		strings.Contains(resultItem.Text, "星体") {
+	} else if k := firstContainedKeyword(resultItem.Text, largePriceKeywords); k != "" {
 		targetPrice = param.LargePrice
+		targetName = k
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_large", resultItem.Text))
-	} else if strings.Contains(resultItem.Text, "源石") ||
-		strings.Contains(resultItem.Text, "警戒") ||
-		strings.Contains(resultItem.Text, "硬脑") ||
-		strings.Contains(resultItem.Text, "边角") {
+	} else if k := firstContainedKeyword(resultItem.Text, massivePriceKeywords); k != "" {
 		targetPrice = param.MassivePrice
+		targetName = k
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", resultItem.Text))
 	} else {
-		log.Warn().Str("component", "autosell").Str("step", "open_item_text").Str("item_name", resultItem.Text).Msg("unknown item, default price")
+		log.Warn().
+			Str("component", "autosell").
+			Str("step", "open_item_text").
+			Str("item_name", resultItem.Text).
+			Msg("unknown item, default price")
 		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
 	}
 
@@ -236,6 +247,26 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 				resultItem.Box[1],
 				resultItem.Box[2],
 				resultItem.Box[3],
+			},
+		},
+		"AutoSellStockRedistributionItemTicketByText": map[string]any{
+			"roi": maa.Rect{
+				resultItem.Box[0],
+				resultItem.Box[1],
+				resultItem.Box[2],
+				resultItem.Box[3],
+			},
+		},
+		"AutoSellStockRedistributionItemCountEmpty": map[string]any{
+			"custom_action_param": map[string]any{
+				"item_name":   resultItem.Text,
+				"record_type": "record",
+			},
+		},
+		"AutoSellSellGoodsEmpty": map[string]any{
+			"custom_action_param": map[string]any{
+				"item_name":   resultItem.Text,
+				"record_type": "record",
 			},
 		},
 		"AutoSellFriendsPricesUnExpected": map[string]any{
@@ -255,9 +286,12 @@ func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, ar
 				"lowest_price": targetPrice,
 			},
 		},
+		"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
+			"expected": targetName,
+		},
 	}
 
-	_, err := ctx.RunTask("AutoSellStockRedistributionItemOpen", override)
+	_, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
 	if err != nil {
 		log.Error().Err(err).Str("component", "autosell").Str("step", "open_item_text").Msg("run task")
 		return false

@@ -61,7 +61,6 @@
         "next": [
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
-            "[JumpBack]GrowthChamberGrowAgain",
             "GrowthChamberExit"
         ],
         "focus": {
@@ -120,7 +119,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberGrowAgain"
+        ]
     },
     "GrowthChamberGrowAgain": {
         "desc": "[培养舱·再培养] 识别“再次种植”按钮并点击,和培养冲突",
@@ -220,7 +222,7 @@
         },
         "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 1000,
             "target": [
                 79,
@@ -671,7 +673,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 80
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -745,6 +754,16 @@
         "pre_delay": 0,
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0

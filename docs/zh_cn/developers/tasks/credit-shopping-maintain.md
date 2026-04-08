@@ -1,8 +1,8 @@
 # 开发手册 - 信用点商店维护文档
 
 本文用于说明 `CreditShopping`（信用点商店）的整体结构、购买优先级、获取信用点联动、刷新策略，以及 `assets/tasks/CreditShopping.json` 中各个 `interface` 选项如何覆盖 Pipeline 行为，便于后续维护与扩展。  
-该文档撰写与2026年4月5日  
-[fix:修复基建|信用点商店bug (#1868)](https://github.com/MaaEnd/MaaEnd/commit/1687671cb0dd87b737d24d52b8331f23f0e92a5c) 提交之后
+该文档更新于 2026 年 4 月 6 日  
+[perf:每个购买选项都会接受信用点阈值限制(#1980)](https://github.com/MaaEnd/MaaEnd/pull/1980) 提交之后
 
 ## 文件概览
 
@@ -37,59 +37,71 @@
 6. 后续循环进入 `CreditShoppingScanItem`，按固定顺序判断：
     1. 是否需要先去补信用点
     2. 是否命中优先购买 1
-    3. 是否触发保留信用点阈值
-    4. 是否命中优先购买 2
-    5. 是否命中优先购买 3
+    3. 是否命中优先购买 2
+    4. 是否命中优先购买 3
+    5. 是否触发保留信用点阈值
     6. 是否因刷新策略进入“已用尽刷新次数后直接买”或“稳健刷新改直购”
-    7. 是否按强制策略购买黑名单或执行刷新
+    7. 是否按强制策略购买任意物品或执行刷新
     8. 若以上都不命中，则结束任务
 
 这里最关键的设计点是：
 
 - `CreditShoppingInit` 只执行一次，把复杂的“多选物品列表 -> OCR 正则”转换放到 Go 中做。
 - `CreditShoppingScanItem` 的 `next` 顺序本身就是业务优先级，维护时不要只看单个节点，要把整个扫描顺序一起看。
-- `Priority1` 与 `Priority2/3` 语义不同：前者**不遵守**保留信用点阈值，后两档**遵守**保留阈值。
+- 三档购买都可以分别配置“无条件购买”和“自动获取信用点”，当前默认值分别是：购买物品选项 1 为开启/开启，购买物品选项 2 为关闭/关闭，购买物品选项 3 为关闭/关闭。
 
 ## 购买优先级模型
 
 当前任务把商品分成 3 档：
 
-### Priority1
+### 购买物品选项1
 
 - 入口节点：`CreditShoppingBuyPriority1`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `BuyFirstOCR`、折扣命中 `IsDiscountPriority1`
-- 语义：高优先级白名单，**不受** `CreditShoppingReserve` 限制
+- 默认附带：
+    - `CreditShoppingPriority1UnconditionalPurchase=Yes`，即“无条件购买”，跳过保留信用点阈值检查
+    - `CreditShoppingPriority1AutoGetCredits=Yes`，即买不起时允许触发自动获取信用点
 
 这档通常用于“即使信用点快见底也值得买”的商品。
 
-### Priority2
+### 购买物品选项2
 
 - 入口节点：`CreditShoppingBuyPriority2`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `Priority2OCR`、折扣命中 `IsDiscountPriority2`
-- 语义：普通购买 1，**受** `CreditShoppingReserve` 限制
+- 默认附带：
+    - `CreditShoppingPriority2UnconditionalPurchase=No`，即需要满足保留信用点阈值
+    - `CreditShoppingPriority2AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
 
-### Priority3
+### 购买物品选项3
 
 - 入口节点：`CreditShoppingBuyPriority3`
 - 识别条件：商品存在、未售罄、买得起、名称命中 `Priority3OCR`、折扣命中 `IsDiscountPriority3`
-- 语义：普通购买 2，**受** `CreditShoppingReserve` 限制
+- 默认附带：
+    - `CreditShoppingPriority3UnconditionalPurchase=No`，即需要满足保留信用点阈值
+    - `CreditShoppingPriority3AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
 
-### 为什么保留阈值夹在 Priority1 和 Priority2 之间
+### 为什么保留阈值改成放在三档购买之后
 
 `CreditShoppingScanItem.next` 的顺序是：
 
 1. `AutoGetCredits`
 2. `CreditShoppingBuyPriority1`
-3. `CreditShoppingReserveCredit`
-4. `CreditShoppingBuyPriority2`
-5. `CreditShoppingBuyPriority3`
+3. `CreditShoppingBuyPriority2`
+4. `CreditShoppingBuyPriority3`
+5. `CreditShoppingReserveCredit`
 
 这意味着：
 
-- `Priority1` 会在保留阈值检查前执行，因此不会被拦住。
-- 一旦命中 `CreditShoppingReserveCredit`，流程就直接结束，不会继续尝试 `Priority2/3`。
+- 三档购买都会先尝试自己的购买识别。
+- 是否受保留信用点阈值限制，不再由 `next` 顺序决定，而是由各自的 `CreditShoppingPriority{N}ReserveCreditGate` 控制。
+- 如果三档购买都不命中，最后才由统一的 `CreditShoppingReserveCredit` 负责“低于阈值则结束任务”的兜底退出。
 
-维护时如果想改变“哪些商品要无视保留阈值”，应该调整优先级分组，而不是修改 `CreditShoppingReserveCredit` 本身。
+这里的命名约定是：
+
+- `CreditShoppingPriority{N}ReserveCreditGate`：某一档购买在执行前是否需要通过保留信用点阈值检查的准入节点。
+- `CreditShoppingReserveCredit`：当三档购买都未命中后，统一负责“当前信用点已经低于保留阈值，应结束任务”的兜底退出节点。
+
+维护时如果想改变“哪些商品要无视保留阈值”，应该优先调整各档位的“无条件购买”开关，而不是再把 `CreditShoppingReserveCredit` 插回购买节点中间。
 
 ## 运行时参数覆盖
 
@@ -142,37 +154,47 @@
 
 ## 获取信用点联动
 
-`CreditShopping` 支持在“想买但买不起”或“准备刷新但信用不足”时，临时跳去基建补信用。
-
-### `CreditShoppingGetCreditsSetting`
-
-这是获取信用点联动的总开关：
-
-- `Yes`：继续显示 `AutoGetCredits` 和 `CreditShoppingSendCluesWhenInsufficient`
-- `No`：把 `AutoGetCredits` 的 OCR 改成 `a^`，同时关闭 `ReceptionRoomSendCluesEntry_NeedCredit`
-
-也就是说，关掉这个总开关后，整个“信用不足时去基建补信用”的链路都不会触发。
+`CreditShopping` 支持在“某档购买想买但买不起”时，临时跳去基建补信用。
 
 ### `AutoGetCredits`
 
-它控制的是“遇到白名单商品买不起时，要不要跳去基建”：
+自动获取信用点不再是顶层总开关，而是挂在三个购买物品选项下面：
+
+- `CreditShoppingPriority1AutoGetCredits`
+- `CreditShoppingPriority2AutoGetCredits`
+- `CreditShoppingPriority3AutoGetCredits`
+
+它们分别控制：
+
+- 该购买物品选项里的目标商品买不起时，是否允许触发自动补信用
+- 关闭时，通过把对应 `AutoGetCreditsBuyPriority{N}` 的识别改成 `a^` 来禁用触发
+
+汇总入口仍然是 `Shopping.json` 的 `AutoGetCredits`：
 
 - 节点：`AutoGetCredits`
-- 触发来源：`AutoGetCreditsBuyPriority1`
+- 触发来源：`AutoGetCreditsBuyPriority1`、`AutoGetCreditsBuyPriority2`、`AutoGetCreditsBuyPriority3`
+- 触发方式：三者做 `Or`，任意一档命中即跳到 `GoToNeedCredit`
 
-当前实现只对 `Priority1` 的“买不起”场景自动补信用，不会因为 `Priority2/3` 买不起而跳基建。
+这意味着自动补信用的触发，不再只属于购买物品选项 1，而是由各档位独立控制。
 
-### `CreditShoppingSendCluesWhenInsufficient`
+### 赠送线索设置
 
-这个选项控制去基建后，是否允许在“无法直接开始线索交流”时，额外尝试赠送线索。
+顶层不再有“获取信用点设置”分组，当前只保留两项与送线索相关的设置：
 
-- `No`：`ReceptionRoomSendCluesEntry_NeedCredit.enabled=false`
-- `Yes`：打开 `ReceptionRoomSendCluesEntry_NeedCredit`，并继续展开 `CreditShoppingClueSend` 与 `CreditShoppingClueStockLimit`
+- `CreditShoppingClueSend`
+- `CreditShoppingClueStockLimit`
 
 其中：
 
-- `CreditShoppingClueSend` 会把 `ReceptionRoomSendCluesSelectClues_NeedCredit.max_hit` 改成自定义赠送次数
+- `CreditShoppingClueSend` 会同时覆盖：
+    - `ReceptionRoomSendCluesEntry_NeedCredit.max_hit`
+    - `ReceptionRoomSendCluesSelectClues_NeedCredit.max_hit`
 - `CreditShoppingClueStockLimit` 会通过覆盖 `ClueItemCount_NeedCredit.expected`，决定“库存达到多少才算可赠送”
+
+`CreditShoppingClueSend` 当前支持输入 `0`：
+
+- `0`：表示不赠送线索
+- `1+`：表示一次联动流程中最多赠送对应次数
 
 默认阈值 `2` 的实际含义是“单种线索库存至少有 3 个才送”，也就是默认保留 2 个。
 
@@ -207,30 +229,23 @@
 - 关闭 `RefreshItem`
 - 关闭 `CreditShippingCanNotToBuy`
 
-语义是：没有合适商品就直接结束，不买黑名单，也不刷新。
+语义是：没有合适商品就直接结束，不购买任意物品，也不刷新。
 
 ### `CreditShoppingForce=IgnoreBlackList`
 
 - 打开 `CreditShoppingBuyBlacklist`
 - 关闭刷新相关节点
 
-语义是：白名单都处理完后，只要还有买得起、未售罄的商品，就继续买，即使它不在白名单里。
+语义是：三个购买物品选项都未命中后，只要还有买得起、未售罄的商品，就继续购买任意物品。
 
 ### `CreditShoppingForce=Refresh`
 
 - 关闭 `CreditShoppingBuyBlacklist`
 - 打开 `RefreshItem`
 - 打开 `CreditShippingCanNotToBuy`
-- 继续展开 `RefreshGetCredits` 与 `PrudentRefresh`
+- 继续展开 `PrudentRefresh`
 
 语义是：没有合适商品时，优先考虑刷新商店。
-
-### `RefreshGetCredits`
-
-这个开关只在 `Force=Refresh` 下出现，用于处理“想刷新，但信用点连刷新费都不够”的情况：
-
-- `Yes`：启用 `RefreshGetCredits`，命中 `CanNotFlash` 时跳去 `NeedCredit`
-- `No`：不触发这条补信用链路
 
 ### `PrudentRefresh`
 
@@ -346,24 +361,30 @@
 
 如果只维护可购买分支，信用不足时不会正确触发补信用逻辑。
 
-### 3. 误以为 `Priority2/3` 也会自动补信用
+### 3. 误以为自动补信用只属于购买物品选项1
+
+当前不是。
+
+自动跳去基建补信用接在 `AutoGetCreditsBuyPriority1/2/3` 三个分支上，是否允许触发由各自购买物品选项下的 `AutoGetCredits` 开关决定。
+
+### 4. 误以为刷新费不足也会自动补信用
 
 当前不会。
 
-自动跳去基建补信用只接在 `Priority1` 的买不起分支，以及可选的“刷新费不足”分支上。若要扩展到 `Priority2/3`，需要同时调整 `AutoGetCredits` 的识别来源与文档说明。
+`RefreshGetCredits` 相关任务选项已经删除，刷新额度不足不会再触发独立的补信用流程。当前自动补信用只会由“某档购买项买不起”触发。
 
-### 4. 误以为 `PrudentRefresh` 受保留信用阈值控制
+### 5. 误以为 `PrudentRefresh` 受保留信用阈值控制
 
 不是。
 
 `CreditShoppingReserve` 和 `PrudentRefreshThreshold` 是两套独立条件：
 
-- 前者控制是否继续尝试 `Priority2/3`
+- 前者控制各购买档位自己的阈值判断，以及最终是否兜底退出
 - 后者控制刷新前是否改为直接购买
 
 两者不要混用。
 
-### 5. 忘了检查 `next` 顺序
+### 6. 忘了检查 `next` 顺序
 
 `CreditShopping` 很多行为不是靠单个开关决定，而是靠 `CreditShoppingScanItem.next` 的先后顺序决定。
 
@@ -399,5 +420,6 @@
 2. `CreditShoppingInit` 是否还能正常执行 `CreditShoppingParseParams`。
 3. 新增商品时，`assets/tasks/CreditShopping.json`、`BuyItem.json`、`BuyItemFocus.json`、`assets/locales/interface/*.json` 是否同步修改。
 4. 若改了获取信用点逻辑，`NeedCredit.json` 中的 `ReceptionRoomSendCluesEntry_NeedCredit`、`ReceptionRoomSendCluesSelectClues_NeedCredit`、`ClueItemCount_NeedCredit` 是否与任务选项语义一致。
-5. 若改了刷新策略，`RefreshItem`、`CanNotFlash`、`RefreshGetCredits`、`CreditShoppingPrudentRefresh` 的先后关系是否仍正确。
-6. 若改了优先级语义，`CreditShoppingScanItem.next` 中 `CreditShoppingReserveCredit` 是否仍位于 `Priority1` 与 `Priority2` 之间。
+5. 若改了刷新策略，`RefreshItem`、`CanNotFlash`、`CreditShoppingPrudentRefresh` 的先后关系是否仍正确。
+6. 若改了优先级语义，`CreditShoppingPriority1/2/3ReserveCreditGate` 与 `CreditShoppingReserveCredit` 的职责划分是否仍清晰。
+7. 若改了自动补信用逻辑，`AutoGetCreditsBuyPriority1/2/3` 是否与三个购买物品选项中的 `AutoGetCredits` 开关保持一致。

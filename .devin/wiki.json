@@ -1,0 +1,131 @@
+{
+    "repo_notes": [
+        {
+            "content": "【语言要求】所有 wiki 页面的标题、正文、描述、图表标签等内容必须使用简体中文撰写。引用的外部链接优先使用中文版本（如 docs/zh_cn/ 下的文档）。技术术语可保留英文原文，但解释说明部分使用中文。",
+            "author": "maintainer"
+        },
+        {
+            "content": "MaaEnd 是基于 MaaFramework 和 MXU 开发的游戏自动化辅助工具，面向《明日方舟：终末地》（Arknights: Endfield）。项目采用 Pipeline JSON 低代码 + Go Service 自定义扩展的架构：主体业务流程由 JSON 驱动，复杂图像算法和特殊交互逻辑由 Go 编写的 agent/go-service 实现。前端界面由 MXU（基于 Tauri + Vue）提供。",
+            "author": "maintainer"
+        },
+        {
+            "content": "项目核心目录结构：assets/resource/pipeline/ 是所有 Pipeline 任务逻辑（JSON 低代码）；assets/resource/image/ 是模板匹配所需的截图资源（基准分辨率 720p）；assets/resource/model/ 存放 OCR 和目标检测模型；agent/go-service/ 是 Go 自定义识别器/动作的源码；assets/tasks/ 定义用户可见的任务列表；assets/interface.json 是 MaaFramework 项目接口入口；assets/locales/ 存放国际化翻译文件；docs/ 下有中英文开发者和用户文档；tools/ 包含辅助脚本和 Pipeline 生成工具。",
+            "author": "maintainer"
+        },
+        {
+            "content": "Pipeline 低代码机制说明：每个 Pipeline JSON 文件定义一组节点（Node），每个节点包含识别（recognition）和动作（action）两部分，遵循“识别→操作→识别”的状态驱动循环。识别算法包括 TemplateMatch、OCR、Custom 等；动作类型包括 Click、Swipe、Key、Custom 等。节点之间通过 next 字段链接形成有向图。所有坐标和图片以 1280×720 分辨率为基准。",
+            "author": "maintainer"
+        },
+        {
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、map-tracker/、quantizedsliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
+            "author": "maintainer"
+        },
+        {
+            "content": "项目支持的平台：PC 端（Win32 默认/后台/前台控制器）和安卓端（ADB 控制器）。安卓端的适配资源位于 assets/resource_adb/ 目录下，与 PC 端的 assets/resource/ 平行存在。",
+            "author": "maintainer"
+        },
+        {
+            "content": "核心功能模块包括：实时开荒辅助（自动剧情、辅助战斗、自动拾取等）、拼图求解（AI 图像识别解谜）、基质筛选与刷取、协议空间自动刷取、环境监测、生态农场、自动采集、送货任务、委托抢单、倒卖系统、信用点购物、蓝图导入、基建任务、好友拜访等。参见 README.md 获取完整功能列表。",
+            "author": "maintainer"
+        }
+    ],
+    "pages": [
+        {
+            "title": "项目概述",
+            "purpose": "介绍 MaaEnd 项目的定位、面向的游戏（明日方舟：终末地）、核心功能列表、技术栈（MaaFramework + MXU + Go）和支持的平台（PC/安卓）。引用 README.md 和 docs/zh_cn/ 文档。"
+        },
+        {
+            "title": "系统架构",
+            "purpose": "描述项目整体架构：Pipeline JSON 低代码层、Go Service 扩展层、MXU 前端层、MaaFramework 底层框架的关系。包含架构图、数据流图和模块间通信方式。引用 AGENTS.md 和 docs/zh_cn/developers/development.md。",
+            "parent": "项目概述"
+        },
+        {
+            "title": "目录结构",
+            "purpose": "详细说明项目目录布局：assets/（resource/pipeline、resource/image、resource/model、tasks、interface.json、locales、config、data）、agent/go-service/、docs/、tools/、scripts/ 等各目录的职责和内容。",
+            "parent": "项目概述"
+        },
+        {
+            "title": "Pipeline 低代码系统",
+            "purpose": "深入解析 Pipeline JSON 的工作机制：节点结构（recognition + action + next）、状态驱动循环、识别算法（TemplateMatch、OCR、Custom 等）、动作类型（Click、Swipe、Key、Custom 等）、流程控制字段（next、interrupt、timeout、on_error 等）。引用 assets/resource/pipeline/ 目录下的实际 JSON 文件作为示例。"
+        },
+        {
+            "title": "场景管理器",
+            "purpose": "文档化 SceneManager 模块（assets/resource/pipeline/SceneManager/）的设计：如何识别当前游戏场景、场景切换逻辑、与其他任务模块的衔接方式。引用 docs/zh_cn/developers/scene-manager.md。",
+            "parent": "Pipeline 低代码系统"
+        },
+        {
+            "title": "通用节点与按钮处理",
+            "purpose": "说明 assets/resource/pipeline/Common/ 目录下的通用可复用节点，包括通用按钮点击（Common/Button/）、私有工具节点（__Private/）、角色控制器衔接等。引用 docs/zh_cn/developers/common-buttons.md。",
+            "parent": "Pipeline 低代码系统"
+        },
+        {
+            "title": "Go Service 扩展",
+            "purpose": "详解 agent/go-service/ 的架构：入口 main.go、注册机制 register.go、各功能子包的组织方式、CustomRecognition 和 CustomAction 接口、与 Pipeline 的交互方式、日志和错误处理约定。"
+        },
+        {
+            "title": "基质筛选模块",
+            "purpose": "文档化 essencefilter 子包（agent/go-service/essencefilter/）的实现：OCR 词条识别、匹配引擎（matchapi/）、筛选规则配置、状态管理、战斗后识别流程。该模块是最复杂的 Go Service 模块之一。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "拼图求解模块",
+            "purpose": "文档化 puzzle-solver 子包（agent/go-service/puzzle-solver/）的实现：图像识别拼图状态、求解算法、与 Pipeline 的注册和交互方式。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "地图追踪与导航",
+            "purpose": "文档化 map-tracker 子包（agent/go-service/map-tracker/）的实现：大地图推理、视口计算、移动控制。以及 Pipeline 层的 MapLocator、MapTracker 模块。引用 docs/zh_cn/developers/map-tracker.md 和 docs/zh_cn/developers/map-navigator.md 和 docs/zh_cn/developers/map-locator.md。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "辅助战斗系统",
+            "purpose": "文档化自动战斗相关模块：Go 层的 autofight 子包（技能释放、闪避、锁定目标等逻辑）和 Pipeline 层的 AutoFight 目录。引用 docs/zh_cn/developers/auto-fight.md 和 docs/zh_cn/developers/character-controller.md。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "量子化滑动",
+            "purpose": "文档化 quantizedsliding 子包（agent/go-service/quantizedsliding/）的实现：归一化处理、OCR 识别、节点逻辑、覆盖机制。引用 docs/zh_cn/developers/quantized-sliding.md。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "任务功能模块总览",
+            "purpose": "总览所有用户可见的自动化任务功能：日常奖励、协议空间、环境监测、生态农场、自动采集、倒卖系统、送货任务、委托抢单、信用点购物、基质刷取、蓝图导入、基建任务、好友系统等。说明 assets/tasks/ 的任务定义方式和预设场景机制。"
+        },
+        {
+            "title": "自动囤货与倒卖",
+            "purpose": "文档化 AutoStockpile 模块：Go 层的 autostockpile 子包（商品扫描、策略决策、数量计算、状态管理）和 Pipeline 层的 AutoStockpile 和 AutoSell 目录。引用 docs/zh_cn/developers/auto-stockpile-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "信用点购物",
+            "purpose": "文档化 CreditShopping 模块：Go 层的 creditshopping 子包和 Pipeline 层目录。引用 docs/zh_cn/developers/tasks/credit-shopping-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "实时开荒辅助",
+            "purpose": "文档化 RealTimeTask 模块（assets/resource/pipeline/RealTimeTask/）：实时识别画面、自动剧情跳过、交互处理（指引光标、翻说明书等）、自动拾取、便捷操作（传送确认、滑滑索）、拍一拍等功能的 Pipeline 实现。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "多端适配",
+            "purpose": "说明 PC 端（Win32）和安卓端（ADB）的适配方案：assets/resource/ 与 assets/resource_adb/ 的差异、控制器抽象层（agent/go-service/pkg/control/）、interface.json 中的控制器配置。"
+        },
+        {
+            "title": "国际化与本地化",
+            "purpose": "文档化 assets/locales/ 的多语言体系：interface 层翻译（任务名称、描述）、go-service 层翻译、支持的语言列表（zh_cn、zh_tw、en_us、ja_jp、ko_kr）、翻译文件的组织规范。"
+        },
+        {
+            "title": "辅助工具与脚本",
+            "purpose": "文档化 tools/ 目录下的辅助工具：Pipeline 生成器（pipeline-generate/）、基质筛选工具（essence_filter/）、地图导航工具（MapNavigator/）、工作区初始化脚本（setup_workspace.py）等。"
+        },
+        {
+            "title": "开发指南",
+            "purpose": "汇总面向开发者的信息：环境搭建（Git、Python、Node.js、pnpm、Go）、本地部署流程、Pipeline 编码规范、Go Service 编码规范、代码格式化（Prettier）、提交与审查要点。引用 docs/zh_cn/developers/development.md 和 docs/zh_cn/developers/getting-started.md 和 AGENTS.md。"
+        },
+        {
+            "title": "节点测试与调试",
+            "purpose": "说明如何测试和调试 Pipeline 节点：MaaFramework 提供的调试工具、节点测试方法、日志分析方式。引用 docs/zh_cn/developers/node-testing.md。",
+            "parent": "开发指南"
+        }
+    ]
+}

@@ -49,9 +49,6 @@
             "AutoStockpileClearDecisionHitCount"
         ]
     },
-    "AutoStockpileDecisionAttach": {
-        "desc": "承载 AutoStockpile 决策配置的固定合同节点；任务选项 attach 写入此处，供 Go 服务统一读取，请勿随意改名或删除(临时方案)"
-    },
     "AutoStockpileClearDecisionHitCount": {
         "desc": "清除中继节点MaxHit",
         "pre_delay": 0,

@@ -1,14 +1,18 @@
 #include <algorithm>
 #include <filesystem>
+#include <string_view>
 #include <thread>
 #include <vector>
 
 #include <MaaFramework/MaaAPI.h>
+#include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
 #include <MaaUtils/Platform.h>
 #ifdef _WIN32
 #include <MaaUtils/SafeWindows.hpp>
+#else
+#include <unistd.h>
 #endif
 #include "../utils.h"
 
@@ -86,12 +90,20 @@ struct MapLocateAssertLocationOutput
 fs::path getExeDir()
 {
 #ifdef _WIN32
-    wchar_t buf[4096] = { 0 };
-    GetModuleFileNameW(nullptr, buf, 4096);
-    return fs::path(buf).parent_path();
+    const auto process_path = MAA_NS::get_process_path(GetCurrentProcessId());
 #else
-    return fs::read_symlink("/proc/self/exe").parent_path();
+    const auto process_path = MAA_NS::get_process_path(::getpid());
 #endif
+    if (process_path && !process_path->empty()) {
+        return process_path->parent_path();
+    }
+
+    std::error_code ec;
+    const fs::path cwd = fs::current_path(ec);
+    if (!ec && !cwd.empty()) {
+        return cwd;
+    }
+    return {};
 }
 
 class ScopedImageBuffer
@@ -225,6 +237,55 @@ bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
     return position.x >= left && position.x < right && position.y >= top && position.y < bottom;
 }
 
+std::string DetectControllerType(MaaContext* context)
+{
+    if (context == nullptr) {
+        return {};
+    }
+
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        return {};
+    }
+
+    MaaController* controller = MaaTaskerGetController(tasker);
+    if (controller == nullptr) {
+        return {};
+    }
+
+    MaaStringBuffer* buffer = MaaStringBufferCreate();
+    if (buffer == nullptr) {
+        return {};
+    }
+
+    std::string controller_type;
+    if (MaaControllerGetInfo(controller, buffer) && !MaaStringBufferIsEmpty(buffer)) {
+        const char* raw = MaaStringBufferGet(buffer);
+        if (raw != nullptr && raw[0] != '\0') {
+            const auto info = json::parse(raw).value_or(json::object {});
+            if (info.contains("type") && info.at("type").is_string()) {
+                controller_type = info.at("type").as_string();
+            }
+        }
+    }
+
+    MaaStringBufferDestroy(buffer);
+    return controller_type;
+}
+
+bool UsesAdbMinimapRoi(std::string_view controller_type)
+{
+    auto equals_ignore_case = [controller_type](std::string_view candidate) {
+        return controller_type.size() == candidate.size() &&
+               std::ranges::equal(controller_type, candidate, [](char lhs, char rhs) {
+                   return std::tolower(static_cast<unsigned char>(lhs)) ==
+                          std::tolower(static_cast<unsigned char>(rhs));
+               });
+    };
+
+    return equals_ignore_case("adb") || equals_ignore_case("playcover") || equals_ignore_case("play_cover");
+}
+
 bool TryLocateOnMinimap(
     MaaContext* context,
     const MaaImageBuffer* image,
@@ -259,15 +320,14 @@ bool TryLocateOnMinimap(
         return false;
     }
 
-    cv::Mat image_mat = to_mat(actual_image);
-    cv::Rect roi(MinimapROIOriginX, MinimapROIOriginY, MinimapROIWidth, MinimapROIHeight);
-    roi = roi & cv::Rect(0, 0, image_mat.cols, image_mat.rows);
-    if (roi.empty()) {
+    cv::Mat minimap;
+    const cv::Mat image_mat = to_mat(actual_image);
+    if (!TryExtractMinimap(image_mat, UsesAdbMinimapRoi(DetectControllerType(context)), &minimap)) {
         LogError << "MapLocateRecognition: ROI empty";
         return false;
     }
 
-    *out_result = locator->locate(image_mat(roi), options);
+    *out_result = locator->locate(minimap, options);
     return true;
 }
 

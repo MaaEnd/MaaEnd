@@ -55,23 +55,14 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	goodsCount := 0
-	stockBillAmount := 0
-	stockBillAvailable := false
-	sunday := false
 	if result.Data != nil {
 		goodsCount = len(result.Data.Goods)
-		stockBillAmount = result.Data.StockBillAmount
-		stockBillAvailable = result.Data.StockBillAvailable
-		sunday = result.Data.Sunday
 	}
 
 	log.Info().
 		Str("component", "autostockpile").
 		Bool("overflow", result.hasOverflow()).
-		Bool("sunday", sunday).
 		Str("abort_reason", string(result.AbortReason)).
-		Int("stock_bill_amount", stockBillAmount).
-		Bool("stock_bill_available", stockBillAvailable).
 		Int("goods_count", goodsCount).
 		Msg("recognition result parsed")
 
@@ -92,24 +83,23 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	cfg, abortReason, err := getSelectionConfigFromNode(ctx, decisionAttachNodeName, region)
+	cfg, err := buildSelectionConfig(region)
 	if err != nil {
-		return stopTaskWithFocus(ctx, abortReason, err)
+		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
 	}
 
-	// OverflowMode intentionally shares the same threshold-bypass path as SundayMode.
-	// Although the option key is named AutoStockpileOverflowBuyLowPriceGoods,
-	// the expected behavior is to allow above-threshold purchases when stock is overflowing.
-	bypassThresholdFilter := (result.hasOverflow() && cfg.OverflowMode) || (data.Sunday && cfg.SundayMode)
+	bypassThresholdFilter := result.hasOverflow()
 	if bypassThresholdFilter {
 		log.Info().
 			Str("component", "autostockpile").
-			Bool("overflow_allow", result.hasOverflow() && cfg.OverflowMode).
-			Bool("sunday_allow", data.Sunday && cfg.SundayMode).
+			Bool("overflow_allow", result.hasOverflow()).
 			Msg("allow all goods mode enabled")
 	}
 
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
+	if err != nil {
+		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
+	}
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -128,23 +118,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	if err != nil {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, i18n.T("autostockpile.hit_skip_purchase"))
-	}
 	if quantityDecision.Mode == quantityModeSkip {
-		quantitySkipLog := log.Info().
+		log.Info().
 			Str("component", "autostockpile").
-			Str("selection_mode", formatSelectionMode(selection, *data, cfg)).
+			Str("selection_mode", formatSelectionMode(selection, *data)).
 			Str("quantity_mode", string(quantityDecision.Mode)).
 			Str("quantity_reason", quantityDecision.Reason).
-			Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 			Int("quota_current", data.Quota.Current).
 			Int("quota_overflow", data.Quota.Overflow).
-			Int("reserve_stock_bill", cfg.ReserveStockBill)
-		if quantityDecision.ConstraintApplied {
-			quantitySkipLog = quantitySkipLog.Int("max_buy", quantityDecision.MaxBuy)
-		}
-		quantitySkipLog.Msg("quantity decision requested skip short-circuit")
+			Msg("quantity decision requested skip short-circuit")
 		maafocus.Print(ctx, i18n.T("autostockpile.hit_but_skip", quantityDecision.Reason))
 		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
@@ -186,7 +168,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		},
 	})
 
-	selectionMode := formatSelectionMode(selection, *data, cfg)
+	selectionMode := formatSelectionMode(selection, *data)
 	quantityLog := log.Info().
 		Str("component", "autostockpile").
 		Str("selection_mode", selectionMode).
@@ -195,35 +177,33 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("threshold", selection.Threshold).
 		Int("price", selection.CurrentPrice).
 		Int("score", selection.Score).
-		Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 		Int("quota_current", data.Quota.Current).
 		Int("quota_overflow", data.Quota.Overflow).
-		Int("reserve_stock_bill", cfg.ReserveStockBill).
 		Str("quantity_mode", string(quantityDecision.Mode)).
 		Str("quantity_reason", quantityDecision.Reason).
 		Bool("swipe_max_enabled", quantityDecision.Mode == quantityModeSwipeMax).
 		Bool("swipe_specific_quantity_enabled", quantityDecision.Mode == quantityModeSwipeSpecificQuantity)
-	if quantityDecision.ConstraintApplied {
-		quantityLog = quantityLog.Int("max_buy", quantityDecision.MaxBuy)
-	}
 	if quantityDecision.Mode == quantityModeSwipeSpecificQuantity {
 		quantityLog = quantityLog.Int("quantity_target", quantityDecision.Target)
 	}
 	quantityLog.Msg("product selected and pipeline overridden")
-	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", selectionMode, selection.ProductName, selection.CurrentPrice, selection.Threshold, formatQuantityText(quantityDecision)))
+	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", selectionMode, selection.ProductName, selection.CurrentPrice))
 
 	return true
 }
 
 // SelectBestProduct 按阈值与利润分数选择当前应购买的最佳商品。
-func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) SelectionResult {
+func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, error) {
 	if len(data.Goods) == 0 {
-		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}, nil
 	}
 
 	candidates := make([]candidateGoods, 0, len(data.Goods))
 	for _, goods := range data.Goods {
-		threshold := resolveTierThreshold(goods.Tier, cfg)
+		threshold, err := resolveTierThreshold(goods.Tier, cfg)
+		if err != nil {
+			return SelectionResult{}, err
+		}
 		score := threshold - goods.Price
 
 		log.Debug().
@@ -248,7 +228,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	}
 
 	if len(candidates) == 0 {
-		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_qualifying_goods")}
+		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_qualifying_goods")}, nil
 	}
 
 	sort.SliceStable(candidates, func(i, j int) bool {
@@ -273,7 +253,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 		Threshold:     best.threshold,
 		CurrentPrice:  best.goods.Price,
 		Score:         best.score,
-	}
+	}, nil
 }
 
 func shouldRouteSkip(reason AbortReason) bool {
@@ -362,14 +342,11 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	return false
 }
 
-func formatSelectionMode(selection SelectionResult, data RecognitionData, cfg SelectionConfig) string {
+func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
 	}
-	if cfg.SundayMode && data.Sunday {
-		return i18n.T("autostockpile.mode_sunday_clear")
-	}
-	if cfg.OverflowMode && data.Quota.Overflow > 0 {
+	if data.Quota.Overflow > 0 {
 		return i18n.T("autostockpile.mode_overflow")
 	}
 	return i18n.T("autostockpile.mode_low_price")

@@ -8,7 +8,7 @@
         "action": "KeyDown",
         "key": 82, // R 0x52
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 1065,
                 551,
@@ -17,10 +17,27 @@
             ]
         },
         "next": [
-            "AutoEcoFarmEnterCameraModeChooseCamera"
-        ],
-        "on_error": [
-            "AutoEcoFarmExitErr"
+            "AutoEcoFarmEnterCameraModeChooseCamera",
+            "AutoEcoFarmEnterCameraModeFailKeyUp"
+        ]
+    },
+    "AutoEcoFarmEnterCameraModeFailKeyUp": {
+        "desc": "未出现选相机界面时松开R（next 兜底，不用 on_error），再 JumpBack",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                1065,
+                551,
+                62,
+                51
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmExitCameraMode": {
@@ -35,7 +52,8 @@
                     51
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmBigCamera.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": {
@@ -69,7 +87,8 @@
                     464
                 ],
                 "template": "Common/CameraMode.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -84,9 +103,6 @@
         },
         "next": [
             "AutoEcoFarmEnterCameraModeKeyUpR"
-        ],
-        "on_error": [
-            "AutoEcoFarmExitErr"
         ]
     },
     "AutoEcoFarmEnterCameraModeKeyUpR": {
@@ -95,9 +111,6 @@
         "key": 82, // R 0x52
         "next": [
             "AutoEcoFarmClickPhotoScene"
-        ],
-        "on_error": [
-            "AutoEcoFarmExitErr"
         ]
     },
     ///////点击画面部分
@@ -120,9 +133,6 @@
         },
         "next": [
             "_AutoEcoFarmHideFactoryFacilities"
-        ],
-        "on_error": [
-            "AutoEcoFarmExitErr"
         ]
     },
     "AutoEcoFarmPhotoScene": {
@@ -136,6 +146,7 @@
         ],
         "template": "AutoEcoFarm/AutoEcoFarmPhotoScene.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "action": "Click"
     },
     "AutoEcoFarmPhotoSceneIsWhite": {
@@ -177,9 +188,6 @@
         "action": "Click",
         "next": [
             "_AutoEcoFarmJumpBack"
-        ],
-        "on_error": [
-            "AutoEcoFarmExitErr"
         ]
     },
     "_AutoEcoFarmFindShowFactoryFacilities": {

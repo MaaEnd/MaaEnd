@@ -39,7 +39,8 @@
                 ],
                 "template": [
                     "AutoEcoFarm/autoecofarmTeamIcon.png"
-                ]
+                ],
+                "order_by": "Score"
             }
         },
         "next": []
@@ -57,7 +58,8 @@
                 ],
                 "template": [
                     "AutoEcoFarm/autoecofarmTeamIcon.png"
-                ]
+                ],
+                "order_by": "Score"
             }
         },
         "next": []

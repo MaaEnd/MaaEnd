@@ -7,6 +7,7 @@
             "description": "$task.ItemTransfer.description",
             "option": [
                 "AutoTeleport",
+                "PreClearBag",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
@@ -36,16 +37,31 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ItemTransfer": {
-                            "next": [
-                                "ItemTransferStart",
-                                "[JumpBack]SceneEnterWorldDijiang2"
-                            ]
+                        "ItemTransferStart": {
+                            "enabled": true
                         }
                     }
                 }
             ],
             "default_case": "No"
+        },
+        "PreClearBag": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "$task.ItemTransfer.option.PreClearBag.description",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferPreClearBag": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         },
         "WhatToTransfer": {
             "type": "select",

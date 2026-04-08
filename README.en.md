@@ -30,32 +30,38 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 
 ## ✨ Features
 
-- 🎁 **One‑click preset scenes**: Daily routines, quick claiming rewards, AFK assistance, trading & reselling, Essence farming, and more. Common scenarios can be switched with a single click to save configuration time.
-- 🎮 **Real‑time early‑game assistant**: On‑screen recognition with just‑in‑time automation to handle key operations so you can focus on playing.
-    - **Auto story**: Skip dialogues, intelligently choose branches, and fast‑forward story segments in one click (or enjoy the story slowly if you prefer).
-    - **Interaction handling**: Auto click guidance cursors, flip manuals/pages, tap to continue, close archive voice, and more — no more frantic clicking.
-    - **Combat assistance**: Auto basic attacks, dodges, skills, ultimates, and chains; supports target locking and focus fire to make battles easier.
-    - **Auto loot**: Pick up every shiny drop and gathering point automatically so you never miss any resources.
-    - **Convenience actions**: Instant teleport confirmations, auto zipline usage, and faster traversal.
-    - **Puzzle helper**: Encounter a puzzle while exploring? Let the AI solve it in seconds (you can also enable the looped "🧩 Solve Puzzle").
-    - **Petting**: Pet mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
-- 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
-- 💎 **Essence filtering**: Smart recognition of essence stats, automatically locking and keeping optimal ones for easy junk clearing.
-- 🎱 **Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
-- 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks!
-- ⚔️ **Protocol Space**: Automatically consume sanity to farm Protocol Space rewards until it's fully depleted, your best helper for clearing sanity!
-- 🔫 **Armory upgrade & assembly**: Automate weapon enhancement and gear assembly to free your hands and boost power easily.
-- 💰 **Auto trading/reselling**: Automatically identify and buy the most profitable goods, auto visit friends' ships to sell in one go; or just get purchase recommendations to maximize profit! 💸
-- 🛒 **Sell Products**: Automatically exchange products at bases into coupons/vouchers; let MaaEnd handle the repetitive clicking.
-- 💳 **Credit shop purchasing**: Auto‑buy credit shop items based on your configured wish list so you can "AFK shop" safely.
-- 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in one batch (batteries/ore/sand leaves etc.).
-- 🔨 **Batch simple crafting**: Select items in simple crafting and let MaaEnd handle batch production (remember to clear some bag space first).
-- 📐 **Blueprint porter**: A boon for builders. Batch import blueprints, parse share codes or messy text intelligently, and set up industrial lines at high efficiency.
-- 🎁 **Base tasks**: Automatically collect base outputs, restock, and manage clues (collect/place in one go). Clue exchanging can also be automated (though we do not strongly recommend toggling it on).
-- 👥 **Batch friend requests**: Send friend requests in bulk by UID instead of entering them one by one manually.
-- 📅 **Daily automation**: Clear daily rewards in one click (missions/battle pass/mail/storage, simulation space rewards, encyclopedia notifications, simple handbook rewards, Baker dialogues, friend visits, etc.).
-- 🚚 **Commission secretary**: Accept and forward delivery commissions (toggle by region). Supports "snatching" commissions from the list.
-- 💻 **Multi‑platform support**: Works on PC (Win32 API) and Android (ADB), so you can enjoy MaaEnd wherever you play.
+- 🎁 **One-click preset scenes**: Daily Full, Quick Daily, Realtime Assist, and Essence Farming are all bundled as ready-to-use presets, so common setups are only one-click away. ✨
+- 🎮 **Real-time early-game assistant**: The helper keeps watching the screen and fills in key actions on demand, so you can stay focused on exploration and progression. ✨
+    - **Auto story**: Skip dialogue, choose branches intelligently, and speed through story scenes when needed.
+    - **Interaction handling**: Auto click tutorial guides, flip manuals, tap to continue, and close archive/voice panels without the usual frantic clicking.
+    - **Combat assistance**: Auto basic attacks, dodges, skills, ultimates, combo skills, and target lock to keep fights smooth.
+    - **Auto loot**: Picks up shiny drops and gathering points automatically so fewer resources slip by.
+    - **Convenience actions**: Quick teleport confirmation and auto zipline support make traversal much faster.
+    - **Puzzle helper**: Run into a puzzle while exploring? Let the AI solve it on the spot, or switch to the dedicated `🧩 Solve Puzzle` task.
+    - **Petting**: Yes, petting support is here too - especially handy together with auto loot. 🐾
+- 🧩 **Puzzle Master**: Fast puzzle solving with single-run, loop, and demo-only modes for both practical use and learning.
+- 💎 **Essence filtering**: Smart essence recognition with automatic lock/discard behavior based on weapon rarity, essence type, and extra rules. ✨
+- 🎱 **Essence farming**: Automatically challenges heavy silt points, supports repeated runs, reward claiming, and post-battle essence filtering in one flow.
+- 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
+- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
+- 🌾 **Eco Farm**: Handles harvesting, planting, and watering, and can also tidy up your bag before and after the run.
+- 🧺 **Auto resource gathering**: Follows outdoor gathering routes automatically to collect as many field resources as possible.
+- 🎁 **Operator gift delivery**: Automatically heads to the contact desk, gives a gift to an operator, and collects the return gift if available.
+- 🔫 **Armory upgrades & production**: Weapon upgrades, gear crafting, simple crafting, and batch simple crafting all help cut down repetitive progression work. 💪
+- 💰 **Auto trading/reselling**: Combines stockpiling with flexible-demand goods selling, helping you watch profit margins and manage vouchers more easily. 💸
+- 🛒 **Sell Products**: Automatically exchanges products at each outpost into vouchers so you can skip the repetitive clicks.
+- 🚚 **Delivery jobs**: Supports full accept-and-forward flows, accept-only mode, and pack-only mode, with per-region toggles.
+- 🌆 **Commission snatching**: Automatically grabs commissions from the list and can continue with depot-node routing when configured.
+- 💳 **Credit shop purchasing**: Auto-buy credit shop items with support for priorities, discounts, reserve thresholds, and credit-gain linkage.
+- 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in batches - great for batteries, ores, sand leaves, and other stored goods.
+- 📐 **Blueprint porter**: Batch import blueprints, intelligently parse share codes or messy text, and get building plans in place with far less manual work.
+- 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection/placement/gifting in one go.
+- 🤝 **Visit friends**: Automatically visits friends and handles production assistance plus intel exchange as part of the routine.
+- 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
+- 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
+- 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
+- 💊 **Emergency sanity medication**: One-click emergency sanity medication use saves you a step. 💊
+- 💻 **Multi-platform support**: Supports PC (`Win32` default / background / foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
 
 ## 🛠️ Developer Guide
 

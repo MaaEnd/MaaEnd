@@ -6,24 +6,24 @@
 namespace mapnavigator
 {
 
-constexpr int32_t kKeyW = 'W';
-constexpr int32_t kKeyA = 'A';
-constexpr int32_t kKeyS = 'S';
-constexpr int32_t kKeyD = 'D';
-constexpr int32_t kKeyF = 'F';
-constexpr int32_t kKeySpace = 0x20; // VK_SPACE
-
 constexpr int32_t kWorkWidth = 1280;
-constexpr int32_t kWorkHeight = 720;
-constexpr int32_t kWorkCx = kWorkWidth / 2;
-constexpr int32_t kWorkCy = kWorkHeight / 2;
-constexpr int32_t kHoverTouchContactId = 0;
-constexpr int32_t kPrimaryTouchContactId = 1;
-constexpr int32_t kDefaultTouchPressure = 0;
 
 // --- ActionWrapper Constants ---
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
+
+struct AdbTouchTurnProfile
+{
+    double default_units_per_degree = 3.0;
+    int32_t swipe_duration_ms = 100;
+    int32_t post_swipe_settle_ms = 0;
+};
+
+inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
+constexpr double kAdbTurnScaleMinUnitsPerDegree = 1.0;
+constexpr double kAdbTurnScaleMaxUnitsPerDegree = 4.0;
+constexpr double kWin32TurnScaleMinUnitsPerDegree = 1.0;
+constexpr double kWin32TurnScaleMaxUnitsPerDegree = 50.0;
 
 inline int ComputeTurn360Units(int32_t screen_width)
 {
@@ -47,27 +47,33 @@ constexpr int32_t kActionInteractAttempts = 5;
 constexpr int32_t kActionInteractHoldMs = 100;
 constexpr int32_t kAutoSprintCooldownMs = 1500;
 constexpr int32_t kWalkResetReleaseMs = 120;
-constexpr int32_t kWalkResetSettleMs = 100;
 constexpr double kSamePointActionChainDistance = 0.2;
 
-// --- NaviController Constants ---
+// --- Navigation Mainline Constants ---
 constexpr int32_t kLocatorWaitMaxRetries = 100;
 constexpr int32_t kLocatorWaitIntervalMs = 100;
 constexpr int32_t kWaitAfterFirstTurnMs = 300;
 constexpr double kLookaheadRadius = 2.5;
 constexpr double kStrictArrivalLookaheadRadius = 2.0;
-constexpr double kStrictArrivalWalkResetDistance = 5.0;
 constexpr double kMicroThreshold = 3.0;
-constexpr double kRunSpeedMps = 5.5;
 constexpr int32_t kLocatorRetryIntervalMs = 20;
-constexpr double kMaxErrorYawWithoutStop = 90.0;
+constexpr int32_t kHighLatencyCaptureMs = 180;
 constexpr int32_t kStopWaitMs = 150;
-constexpr int32_t kStableFramesThreshold = 15;
-constexpr int32_t kMaxLatencyForCorrectionMs = 80;
-constexpr double kMaxYawDeviationForCorrection = 5.0;
 constexpr int32_t kTargetTickMs = 33;
-constexpr int32_t kMinSleepMs = 5;
 constexpr int32_t kPostHeadingForwardPulseMs = 60;
+constexpr int32_t kSerialRouteRetryDelayMs = 180;
+constexpr double kBootstrapOwnershipProjectionCorridor = 3.0;
+constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;
+constexpr double kBootstrapOwnershipProjectionMiddleThreshold = 0.60;
+constexpr double kBootstrapOwnershipContinueBiasDistance = 0.5;
+constexpr double kBootstrapOwnershipMaxDistance = 18.0;
+constexpr double kSerialRouteHeadingEpsilon = 2.0;
+constexpr double kSerialRoutePathFollowLookahead = 1.5;
+constexpr double kSerialRouteDeviationThreshold = 1.5;
+constexpr double kSerialRouteDeviationFailThreshold = 3.0;
+constexpr double kSerialRouteCompensationMinDistance = 1.0;
+
+// --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
 constexpr int32_t kZoneConfirmStableFrames = 2;
@@ -75,81 +81,89 @@ constexpr int32_t kRelocationRetryIntervalMs = 120;
 constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
 constexpr double kRelocationResumeMinDistance = 3.0;
-constexpr double kRelocationDirectResumeDistance = 15.0;
-constexpr int32_t kRespawnRecoveryPauseMs = 2000;
-constexpr int32_t kRespawnSuppressAfterZoneTransitionMs = 1500;
-constexpr double kRespawnTeleportDistance = 8.0;
-constexpr double kRespawnDistanceIncreaseThreshold = 5.0;
 constexpr int32_t kZoneBlindRecoveryStartMs = 700;
 constexpr int32_t kZoneBlindRecoveryIntervalMs = 900;
 constexpr int32_t kZoneBlindStrafePulseMs = 220;
-constexpr int32_t kTurnLearningMinSampleUnits = 30;
-constexpr double kTurnLearningMinObservedDegrees = 3.0;
-constexpr double kTurnLearningMaxObservedDegrees = 180.0;
-constexpr double kTurnLearningMinCommandDegrees = 5.0;
-constexpr double kTurnLearningMaxCommandDegrees = 170.0;
-constexpr double kTurnBootstrapMinCommandDegrees = 2.5;
-constexpr double kTurnBootstrapTriggerMinDegrees = 4.0;
-constexpr double kTurnBootstrapResidualRatio = 0.20;
-constexpr double kTurnBootstrapResidualDegrees = 8.0;
-constexpr double kTurnProbeTriggerMinDegrees = 8.0;
-constexpr double kTurnProbeMinObservedDegrees = 1.5;
-constexpr double kTurnProbeMaxDegreesPerCycle = 45.0;
-constexpr double kTurnProbeResidualRatio = 0.35;
-constexpr double kTurnProbeResidualDegrees = 12.0;
-constexpr double kTurnProbeSuccessDegrees = 6.0;
-constexpr double kTurnProbeOvershootResidualDegrees = 20.0;
-constexpr double kTurnProbeOvershootResidualRatio = 0.75;
-constexpr int32_t kTurnProbeMoveMs = 120;
-constexpr int32_t kTurnProbePauseMs = 100;
-constexpr int32_t kTurnProbeMaxCycles = 3;
-constexpr int32_t kTurnFeedbackMinHoldMs = 220;
-constexpr int32_t kTurnFeedbackPollIntervalMs = 50;
-constexpr int32_t kTurnFeedbackTimeoutMs = 500;
-constexpr int32_t kTurnFeedbackStableHits = 2;
-constexpr double kTurnFeedbackStableAngleDegrees = 1.5;
-constexpr double kTurnContinuousLearningMinDegrees = 10.0;
-constexpr int32_t kTurnBootstrapTargetSamples = 3;
-constexpr double kTurnScaleSmoothingAlpha = 0.15;
-constexpr double kTurnScaleMinUnitsPerDegree = 4.0;
-constexpr double kTurnScaleMaxUnitsPerDegree = 40.0;
-constexpr double kAdaptiveActivationYawMismatchDegrees = 18.0;
-constexpr double kAdaptiveActivationSevereYawMismatchDegrees = 55.0;
-constexpr int32_t kAdaptiveActivationStallMs = 2200;
-constexpr double kAdaptiveActivationMinDistance = 6.0;
-constexpr double kAdaptiveActivationDistanceSlack = 0.75;
+
+struct TurnFeedbackConfig
+{
+    int32_t min_hold_ms = 220;
+    int32_t poll_interval_ms = 50;
+    int32_t timeout_ms = 500;
+    int32_t stable_hits = 2;
+    double stable_angle_degrees = 1.5;
+};
+
+struct TurnProbeConfig
+{
+    double trigger_min_degrees = 8.0;
+    double min_observed_degrees = 1.5;
+    double max_degrees_per_cycle = 45.0;
+    double residual_ratio = 0.35;
+    double residual_degrees = 12.0;
+    double success_degrees = 6.0;
+    double overshoot_residual_degrees = 20.0;
+    double overshoot_residual_ratio = 0.75;
+    int32_t move_ms = 120;
+    int32_t pause_ms = 100;
+    int32_t max_cycles = 3;
+};
+
+struct TurnLearningConfig
+{
+    double min_sample_units = 30;
+    double min_observed_degrees = 3.0;
+    double max_observed_degrees = 180.0;
+    double min_command_degrees = 5.0;
+    double max_command_degrees = 170.0;
+    double bootstrap_min_command_degrees = 2.5;
+    double bootstrap_trigger_min_degrees = 4.0;
+    double bootstrap_residual_ratio = 0.20;
+    double bootstrap_residual_degrees = 8.0;
+    double continuous_learning_min_degrees = 10.0;
+    int32_t bootstrap_target_samples = 3;
+    double turn_scale_smoothing_alpha = 0.382;
+    double turn_scale_min_units_per_degree = 1.0;
+    double turn_scale_max_units_per_degree = 4.0;
+};
+
+struct TurnLifecycleConfig
+{
+    int32_t adb_input_landing_buffer_ms = 120;
+    int32_t pending_poll_interval_ms = 40;
+    int32_t review_grace_ms = 220;
+    int32_t trim_retry_cooldown_ms = 90;
+    int32_t trim_retry_request_grace_ms = 220;
+    int32_t trim_retry_max_count = 1;
+    double min_confirmed_observed_degrees = 1.5;
+    double min_expected_completion_ratio = 0.55;
+    double confirmed_residual_ratio = 0.35;
+    double confirmed_residual_degrees = 2.0;
+    double trim_retry_max_request_degrees = 18.0;
+    double trim_retry_min_residual_degrees = 3.0;
+    double trim_retry_scale = 0.65;
+    double trim_retry_min_degrees = 2.0;
+    double trim_retry_max_degrees = 8.0;
+};
+
+inline constexpr TurnFeedbackConfig kTurnFeedbackConfig {};
+inline constexpr TurnProbeConfig kTurnProbeConfig {};
+inline constexpr TurnLearningConfig kTurnLearningConfig {};
+inline constexpr TurnLifecycleConfig kTurnLifecycleConfig {};
+
 constexpr double kNoProgressDistanceEpsilon = 0.5;
+constexpr double kRouteProgressEpsilon = 0.5;
 constexpr double kNoProgressMinDistance = 3.0;
-constexpr int32_t kArrivalTimeoutMinRecoveryAttempts = 4;
+constexpr double kMeasurementDefaultPositionQuantum = 0.25;
 constexpr double kWaypointPassThroughCorridor = 3.0;
 constexpr double kZoneTransitionIsolationDistance = 5.0;
 constexpr double kPortalCommitDistance = 4.0;
-constexpr double kPortalTransitionDriftFreezeDistance = 20.0;
-constexpr double kRejoinReverseRejectDegrees = 150.0;
-constexpr double kRejoinCloseApproachDistance = 4.0;
-constexpr double kRejoinHeadingPenaltyWeight = 0.03;
-constexpr double kRejoinBacktrackPenaltyPerNode = 1.25;
-constexpr double kRejoinForwardBonusPerNode = 0.15;
-constexpr int32_t kRejoinForwardBonusMaxNodes = 6;
-constexpr double kRejoinSegmentPreferenceBonus = 0.75;
-constexpr double kRejoinSegmentFrontThreshold = 0.35;
-constexpr double kRejoinSegmentMiddleThreshold = 0.60;
-constexpr double kRejoinSegmentContinueBiasDistance = 0.5;
-constexpr int32_t kLocalDriverBlockDetectMs = 350;
-constexpr double kLocalDriverProgressDistanceDelta = 0.35;
-constexpr double kLocalDriverProgressMoveDelta = 0.30;
-constexpr double kLocalDriverJumpPreferredYawDegrees = 8.0;
-constexpr double kZoneTransitionJumpPreferredYawDegrees = 20.0;
-constexpr double kLocalDriverSideAvoidYawDegrees = 10.0;
 constexpr double kLocalDriverTurnInPlaceYawDegrees = 55.0;
 constexpr int32_t kTurnInPlaceStallMs = 600;
+constexpr double kSevereDivergenceYawDegrees = 85.0;
+constexpr double kSevereDivergenceDistance = 5.0;
+constexpr int32_t kSevereDivergenceStallMs = 800;
 constexpr int32_t kPostTurnForwardCommitMs = 500;
 constexpr double kPostTurnForwardCommitMinDegrees = 15.0;
-constexpr int32_t kLocalDriverMicroCommitMs = 450;
-constexpr int32_t kLocalDriverJumpCommitMs = 500;
-constexpr int32_t kLocalDriverRecoverCommitMs = 650;
-constexpr int32_t kLocalDriverJumpCooldownMs = 900;
-constexpr int32_t kLocalDriverMicroFailuresBeforeRecover = 2;
-constexpr int32_t kLocalDriverRecoverFailuresBeforeRejoin = 2;
 
 } // namespace mapnavigator

@@ -32,10 +32,11 @@
                     951,
                     563
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
                 "method": 5,
-                "threshold": 0.4
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -55,8 +56,10 @@
                     40,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -71,13 +74,15 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    22,
+                    336,
                     406,
-                    1230,
-                    299
+                    675,
+                    243
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -148,7 +153,6 @@
         "next": [
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
-            "[JumpBack]_AutoEcoFarmSwipeToGround",
             "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
