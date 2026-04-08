@@ -34,7 +34,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingFindStart"
+            "BetterSlidingClearMaxHit"
         ]
     },
     "BetterSlidingFindEnd": {
@@ -95,11 +95,10 @@
                 ]
             }
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingClearMaxHit"
+            "BetterSlidingJumpBackNode"
         ]
     },
     "BetterSlidingClearMaxHit": {
@@ -111,7 +110,8 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "BetterSlidingCheckQuantity"
+                        "BetterSlidingCheckQuantity",
+                        "BetterSlidingMoveMouse"
                     ]
                 }
             }
@@ -119,7 +119,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingJumpBackNode"
+            "BetterSlidingFindStart"
         ]
     },
     "BetterSlidingJumpBackNode": {
@@ -154,7 +154,6 @@
             }
         },
         "repeat": 1,
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -192,7 +191,6 @@
                 ]
             }
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -222,7 +220,8 @@
         "next": [
             "BetterSlidingDone",
             "BetterSlidingIncreaseQuantity",
-            "BetterSlidingDecreaseQuantity"
+            "BetterSlidingDecreaseQuantity",
+            "[JumpBack]BetterSlidingMoveMouse"
         ]
     },
     "BetterSlidingIncreaseQuantity": {
@@ -241,11 +240,27 @@
             }
         },
         "repeat": 1,
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "BetterSlidingJumpBackNode"
         ]
+    },
+    "BetterSlidingMoveMouse": {
+        "desc": "避免遮挡",
+        "max_hit": 4,
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    1250,
+                    690,
+                    10,
+                    10
+                ]
+            }
+        },
+        "post_delay": 0
     }
 }
