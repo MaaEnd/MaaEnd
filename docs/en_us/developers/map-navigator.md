@@ -249,10 +249,13 @@ uv run main.py
 
 Before recording, make sure:
 
-1. The project development environment has already been set up according to the development guide, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
-2. The Python dependencies `maafw` and `Pillow` are installed.
-3. The game is already running and the window is **not minimized**.
-4. The character is already standing near the route starting point you want to record.
+1. The project development environment has already been set up according to the development guide, especially `install/agent/cpp-algo.exe` and `install/maafw`.
+2. The Python dependencies `maafw`, `Pillow`, and `pynput` are installed.
+3. **Windows**: The tool must be run **as Administrator**. Otherwise, the G/X hotkeys may not be captured by the system when the game (an elevated process) is in the foreground. `main.py` auto-detects this and triggers a UAC elevation prompt on startup.
+4. **macOS**: On the first run, you need to grant permission in **System Settings → Privacy & Security → Input Monitoring** for your terminal or Python interpreter, otherwise global hotkeys will have no effect.
+5. The game is already running and the window is **not minimized** (if using Win32 connection).
+6. `adb` is available and the target emulator/device is visible in the device list (if using ADB).
+7. The character is already standing near the starting point of the route you want to record.
 
 ### Recommended Workflow
 
@@ -275,12 +278,16 @@ If the environment is incomplete or the game window cannot be found, the tool re
 
 After recording starts, go back to the game and simply **walk the route the way you want the character to execute it later**.
 
-During recording, the tool reads part of the keyboard state and records action points automatically:
+During recording, the following hotkeys are available:
 
-- With no special key pressed, it records `RUN`.
-- Pressing `Space` records `JUMP`.
-- Pressing `F` records `INTERACT`.
-- Holding `Shift` or the right mouse button records `SPRINT`.
+| Hotkey | Function |
+|--------|----------|
+| `G` | 📋 **Copy the current coordinates** to the clipboard as `[x, y]` (does not affect recorded data, can be pressed any time) |
+| `X` | 📌 **Force-insert a strict-arrival waypoint** at the current exact position into the recorded data |
+
+> [!TIP]
+>
+> Use `G` to quickly capture coordinates of interest without interrupting the recording flow. Use `X` to mark key positions (interaction points, portal triggers, etc.) — these points are guaranteed to be recorded and will not be removed by path optimization.
 
 One important note: points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` are **not inferred automatically during recording**. The usual workflow is to stop recording first, then manually change those points to the desired action in the GUI.
 
@@ -288,11 +295,8 @@ So the most basic workflow is simply:
 
 1. Click Start Recording.
 2. Go into the game and run the route normally.
-3. Press Space when a jump is needed.
-4. Press F when interaction is needed.
-5. Come back and click Stop when finished.
-
-That is exactly the primary workflow the tool was designed for.
+3. Press `X` at key positions to force-pin them (e.g. interaction triggers, jump-pad landings).
+4. Come back and click Stop when finished.
 
 #### Step 3: Stop recording and review the automatically cleaned-up result
 
@@ -338,11 +342,12 @@ Control nodes such as `HEADING` are outside this GUI action-chain model.
 
 - `Ctrl+Z`: undo.
 - `Ctrl+Y`: redo.
+- `C`: copy the coordinates of the currently selected point to the clipboard as `[x, y]` (supports multi-select for line-by-line output).
 
 In practice, these are usually the only edits you really need:
 
 1. Delete points that are too dense and not meaningful.
-2. Change key interaction points to `INTERACT` or enable `Strict`.
+2. Change key interaction points to `INTERACT` and enable `Strict` (points placed with the `X` hotkey during recording are already strict-arrival and will survive path optimization automatically).
 3. Change points that need jumping, sprinting, external transfer, or zone-transition behavior into the corresponding action (for example `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
 4. Check whether the points before and after a zone transition are placed reasonably.
 

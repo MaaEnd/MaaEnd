@@ -643,5 +643,8 @@
     "resource/image/AutoEcoFarm/AutoEcoFarmFarmlandWithBack": "92730cc3614d219d3ca52cfa998ba4a044129507dd904328c16ed213ed9d6985",
     "resource/image/GearAssembly/Filter": "d6f041670d2c656f402bd287ce57889c5a087295326e17235c8359556344044d",
     "resource/image/GearAssembly/FilterHover": "8a5a950cafd5d17d089a69abf1a1ee90857e80873522904bddfe9d7380905a67",
-    "resource/image/GearAssembly/Standalone": "aee99d9025e1879546432746a12a29d5c8f1c772e1c7d743aad581951e696f2e"
+    "resource/image/GearAssembly/Standalone": "aee99d9025e1879546432746a12a29d5c8f1c772e1c7d743aad581951e696f2e",
+    "resource/image/AutoStockpile/StableGoodsButtonSelected": "1d3587eaa63893756c36bef880610f7ee7538e6cfed62d0d98bab577fcbe9616",
+    "resource/image/AutoStockpile/Cart": "4c991860e607fe0e9db4625c6829f62b4004689326bcde2ad74dc415cf893f80",
+    "resource/image/AutoStockpile/ElasticGoodsButtonSideSelected": "433f8440536f26f4b35a7555f28c7126d1ea8d639b07eee37dbdc8258bba5062"
 }

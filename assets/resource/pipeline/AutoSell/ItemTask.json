@@ -460,6 +460,7 @@
         "all_of": [
             "InFriendsStockRedistribution"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -478,7 +479,8 @@
             10,
             20
         ],
-        "expected": "锚点"
+        "expected": "锚点",
+        "only_rec": true
     },
     "AutoSellStockRedistributionItemFindText": {
         "desc": "打开物资调度item界面",

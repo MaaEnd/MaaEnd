@@ -340,29 +340,13 @@
         "pre_delay": 0,
         "post_wait_freezes": 100,
         "post_delay": 0,
-        "next": [
-            "DailyTaskCraftingCreationFinish",
-            "[JumpBack]CraftingStart"
-        ]
-    },
-    "DailyTaskCraftingCreationFinish": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "CraftingStart"
+            ]
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "DailyTaskStart"
         ]
@@ -387,29 +371,13 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "DailyTaskGearAssemblyCreationFinish",
-            "[JumpBack]GearAssemblyStart"
-        ]
-    },
-    "DailyTaskGearAssemblyCreationFinish": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GearAssemblyStart"
+            ]
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "DailyTaskStart"
         ]
@@ -434,29 +402,13 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "DailyTaskWeaponUpgradeWeaponFinished",
-            "[JumpBack]WeaponUpgradeStart"
-        ]
-    },
-    "DailyTaskWeaponUpgradeWeaponFinished": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "WeaponUpgradeStart"
+            ]
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "DailyTaskStart"
         ]

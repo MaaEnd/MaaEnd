@@ -5,3 +5,4 @@
 
 Pillow>=10.0.0
 maafw
+pynput>=1.7.0

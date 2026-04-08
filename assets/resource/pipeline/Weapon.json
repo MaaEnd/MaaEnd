@@ -153,7 +153,7 @@
                 140
             ]
         },
-        "post_delay": 1500, // 等待可能出现的材料返还弹窗
+        "post_delay": 3000, // 等待可能出现的材料返还弹窗
         "next": [
             "[JumpBack]SceneNoticeRewardsConfirm",
             "WeaponUpgradeWeaponFinished",

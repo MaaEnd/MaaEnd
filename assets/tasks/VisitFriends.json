@@ -7,7 +7,7 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "VisitFriendsRemark",
-                "ProductionAssistType"
+                "ProductionAssistControl"
             ],
             "controller": [
                 "Win32-Window",
@@ -43,9 +43,9 @@
                 }
             ]
         },
-        "ProductionAssistType": {
+        "ProductionAssistControl": {
             "type": "checkbox",
-            "label": "$option.ProductionAssistType.label",
+            "label": "$option.ProductionAssistControl.label",
             "default_case": [
                 "ProductionAssistControlNexus",
                 "ProductionAssistMFGCabin",
@@ -54,7 +54,7 @@
             "cases": [
                 {
                     "name": "ProductionAssistControlNexus",
-                    "label": "$option.ProductionAssistType.ProductionAssistControlNexus.label",
+                    "label": "$option.ProductionAssistControl.ProductionAssistControlNexus.label",
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendNormalOpen": {
                             "attach": {
@@ -70,7 +70,7 @@
                 },
                 {
                     "name": "ProductionAssistMFGCabin",
-                    "label": "$option.ProductionAssistType.ProductionAssistMFGCabin.label",
+                    "label": "$option.ProductionAssistControl.ProductionAssistMFGCabin.label",
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendNormalOpen": {
                             "attach": {
@@ -86,7 +86,7 @@
                 },
                 {
                     "name": "ProductionAssistGrowthChamber",
-                    "label": "$option.ProductionAssistType.ProductionAssistGrowthChamber.label",
+                    "label": "$option.ProductionAssistControl.ProductionAssistGrowthChamber.label",
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendNormalOpen": {
                             "attach": {

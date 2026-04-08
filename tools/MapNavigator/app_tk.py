@@ -36,6 +36,13 @@ from settings_store import MapNavigatorSettings, MapNavigatorSettingsStore
 from zone_index import ZoneState
 
 
+def _compact_number(value: float) -> int | float:
+    rounded = round(float(value), 2)
+    if rounded.is_integer():
+        return int(rounded)
+    return rounded
+
+
 class RouteEditorApp:
     """轨迹录制与编辑 GUI。"""
 
@@ -61,6 +68,8 @@ class RouteEditorApp:
                 on_finished=lambda raw_path: self.root.after(0, lambda: self._on_recording_finished(raw_path)),
                 on_error=lambda err: self.root.after(0, lambda: self._on_recording_error(err)),
                 on_locator_detail=lambda text: self.root.after(0, lambda: self._set_locator_debug(text)),
+                on_clipboard=lambda clip, status: self.root.after(0, lambda: self._on_recording_clipboard(clip, status)),
+                on_force_waypoint=lambda x, y, z: self.root.after(0, lambda: self._on_recording_force_waypoint(x, y, z)),
             )
 
         # 轨迹数据状态
@@ -372,6 +381,8 @@ class RouteEditorApp:
         self.root.bind_all("<minus>", lambda _event: self.zoom_out())
         self.root.bind_all("<underscore>", lambda _event: self.zoom_out())
         self.root.bind_all("<KP_Subtract>", lambda _event: self.zoom_out())
+        self.root.bind_all("<c>", self._on_copy_coord_key)
+        self.root.bind_all("<C>", self._on_copy_coord_key)
         self.adb_path_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
         self.adb_target_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
         self.win32_window_title_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
@@ -391,6 +402,67 @@ class RouteEditorApp:
             return
 
         self.delete_selected_point()
+
+    def _on_copy_coord_key(self, event) -> None:
+        """C 键：复制当前选中点坐标到剪贴板（编辑模式）。"""
+        widget = event.widget.focus_get() if hasattr(event.widget, "focus_get") else None
+        if widget is None and hasattr(self.root, "focus_get"):
+            widget = self.root.focus_get()
+
+        text_like_types = [tk.Entry, tk.Text]
+        for ttk_widget_name in ("Entry", "Combobox", "Spinbox"):
+            ttk_widget_type = getattr(ttk, ttk_widget_name, None)
+            if ttk_widget_type is not None:
+                text_like_types.append(ttk_widget_type)
+        if isinstance(widget, tuple(text_like_types)):
+            return
+
+        # 如果正在录制，由录制服务的 G 键处理，C 键不重复
+        if self.recording_service and self.recording_service.is_running:
+            return
+
+        # 编辑模式：复制选中点坐标
+        self._normalize_selection_state()
+        if not self.selected_indices:
+            self._set_status("请先选中一个点再按 C 复制坐标。", "#f59e0b")
+            return
+
+        zone_indices = self.zone_point_global_indices
+        selected = sorted(self.selected_indices)
+        if len(selected) == 1:
+            point = self.points[zone_indices[selected[0]]]
+            coord_text = f"[{_compact_number(point['x'])}, {_compact_number(point['y'])}]"
+            zone_id = normalize_zone_id(point.get("zone", ""))
+            status = f"📋 已复制坐标: {coord_text}"
+            if zone_id:
+                status += f"  (zone: {zone_id})"
+        else:
+            coords = []
+            for idx in selected:
+                point = self.points[zone_indices[idx]]
+                coords.append(f"[{_compact_number(point['x'])}, {_compact_number(point['y'])}]")
+            coord_text = ",\n".join(coords)
+            status = f"📋 已复制 {len(selected)} 个点的坐标"
+
+        self.root.clipboard_clear()
+        self.root.clipboard_append(coord_text)
+        self.root.update()
+        self._set_status(status, "#10b981")
+
+    def _on_recording_clipboard(self, clip_text: str, status_text: str) -> None:
+        """录制线程请求将坐标写入剪贴板时的回调。"""
+        try:
+            self.root.clipboard_clear()
+            self.root.clipboard_append(clip_text)
+            self.root.update()
+        except Exception:
+            pass
+        self._set_status(status_text, "#10b981")
+
+    def _on_recording_force_waypoint(self, x: float, y: float, zone: str) -> None:
+        """录制线程强制打点时的回调，仅更新状态栏提醒。"""
+        coord_text = f"[{_compact_number(x)}, {_compact_number(y)}]"
+        self._set_status(f"📌 已在当前位置强制打点: {coord_text}  (zone: {zone})", "#10b981")
 
     def _set_status(self, text: str, color: str) -> None:
         self.status_label.config(text=text, fg=color)
@@ -1080,7 +1152,7 @@ class RouteEditorApp:
         self.btn_start.config(state=tk.NORMAL)
         self.btn_stop.config(state=tk.DISABLED)
         self._set_status(
-            "录制结束。鼠标滚轮缩放，右键平移，左键空白拖拽也可平移，左键单击空白插点，左键拖拽点微调，Ctrl+点击增减选，Ctrl+左键框选批量操作。也可用 +/- 按钮或键盘 +/- 缩放。",
+            "录制结束。鼠标滚轮缩放，右键平移，左键单击空白插点，左键拖拽点微调，Ctrl+框选批量操作。C 键复制选中点坐标。",
             "#10b981",
         )
 
