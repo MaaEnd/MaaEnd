@@ -36,6 +36,7 @@ from _internal.gui_widgets import (
     StepPage,
     PageStepper,
     Button,
+    SwitchWidget,
     ScrollableListWidget,
     TextInputWidget,
     MapImageSelectStep,
@@ -239,6 +240,13 @@ class PathEditPage(BasePage):
         self._tier_maps = self._collect_tier_maps(self._main_map_name)
         if len(self._tier_maps) > 1:
             self._tier_selector.set_items(self._tier_maps, selected_data=self.map_name)
+        self._recorder_mode_switch = SwitchWidget(
+            "Loop",
+            "Once",
+            is_left_selected=True,
+            on_changed=self._on_recorder_mode_changed,
+        )
+        self._recorder_switch_rect: tuple[int, int, int, int] | None = None
 
         # Sidebar action buttons rendered by BasePage.
         self._save_button = Button(
@@ -251,25 +259,23 @@ class PathEditPage(BasePage):
         )
         self._record_button = Button(
             (-100, -100, -90, -90),
-            "[R] Record Realtime Path",
+            "[Enter] Start Recording",
             base_color=0x1A40B8,
-            hotkey=(ord("r"), ord("R")),
+            hotkey=(10, 13),
             on_click=self._on_click_record,
             font_scale=0.42,
         )
         self._back_button = Button(
             (-100, -100, -90, -90),
-            "[Esc] Back",
+            "Back",
             base_color=0x4C4C64,
-            hotkey=27,
             on_click=self._on_click_back,
             font_scale=0.45,
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "[Enter] Finish",
-            base_color=0xB44022,
-            hotkey=(10, 13),
+            "Finish",
+            base_color=0x3C643C,
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
@@ -329,6 +335,30 @@ class PathEditPage(BasePage):
     def _reset_realtime_undo_collection(self) -> None:
         self._realtime_last_point_ts = None
         self._realtime_segment_has_checkpoint = False
+
+    @property
+    def is_loop_record_mode(self) -> bool:
+        return self._recorder_mode_switch.get_value()
+
+    def _on_recorder_mode_changed(self, is_left_selected: bool) -> None:
+        if not is_left_selected and self.location_service.is_recording:
+            self._stop_recording()
+        self.render_request()
+
+    def _capture_single_location(self) -> None:
+        try:
+            result = self.location_service.infer_once(self.map_name)
+            map_name, x, y = result["map_name"], result["x"], result["y"]
+            if map_name:
+                self._sync_tier_by_log_map(map_name)
+            updated = self._append_realtime_point(x, y)
+            self._update_status(
+                0x50DC50 if updated else 0xD2D200,
+                "Captured current coordinate.",
+            )
+        except Exception as e:
+            self._update_status(0xFC4040, f"Single coordinate capture failed: {e}")
+        self.render_request()
 
     def _capture_point_state(self) -> dict:
         return {
@@ -412,8 +442,11 @@ class PathEditPage(BasePage):
         ts = time.time()
         new_point = [self._coord1(x), self._coord1(y)]
         if self.points and new_point == self.points[-1]:
+            target_idx = len(self.points) - 1
+            selection_changed = self.selected_idx != target_idx
+            self.selected_idx = target_idx
             self._realtime_last_point_ts = ts
-            return False
+            return selection_changed
 
         next_points = [list(p) for p in self.points]
         # Keep the old "generate from recorded history" pop-then-append simplifier.
@@ -422,6 +455,7 @@ class PathEditPage(BasePage):
         ):
             next_points.pop()
         next_points.append(new_point)
+        target_idx = len(next_points) - 1
 
         should_push_checkpoint = False
         if self._realtime_last_point_ts is None:
@@ -438,7 +472,11 @@ class PathEditPage(BasePage):
         if should_push_checkpoint:
             self._push_current_state_to_undo()
 
-        if not self._replace_points(next_points, push_history=False):
+        if not self._replace_points(
+            next_points,
+            selected_idx=target_idx,
+            push_history=False,
+        ):
             self._realtime_last_point_ts = ts
             return False
         self._realtime_last_point_ts = ts
@@ -602,7 +640,10 @@ class PathEditPage(BasePage):
             self.render_request()
 
     def _on_click_record(self):
-        self._toggle_recording()
+        if self.is_loop_record_mode:
+            self._toggle_recording()
+        else:
+            self._capture_single_location()
         self.render_request()
 
     def _on_click_back(self):
@@ -802,6 +843,22 @@ class PathEditPage(BasePage):
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
+        divider_color = 0x18202C
+
+        def _draw_section_divider(
+            y: int,
+            *,
+            gap_before: int = 0,
+            gap_after: int = 12,
+        ) -> int:
+            y += gap_before
+            drawer.line(
+                (pad, y),
+                (sw - pad, y),
+                color=divider_color,
+                thickness=1,
+            )
+            return y + gap_after
 
         # ── Tips section ─────────────────────────────────────────────────
         cy = pad + 15
@@ -816,7 +873,18 @@ class PathEditPage(BasePage):
         for line in tips:
             cy += 20
             drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8)
-        cy += 15  # small gap after tips
+        cy = _draw_section_divider(cy, gap_before=12, gap_after=16)
+
+        drawer.text("[ Recorder ]", (pad, cy), 0.5, color=0x40FFFF)
+        cy += 12
+        switch_h = 26
+        self._recorder_switch_rect = (pad, cy, sw - pad, cy + switch_h)
+        self._recorder_mode_switch.render(
+            drawer,
+            self._recorder_switch_rect,
+            font_scale=0.4,
+        )
+        cy += switch_h + 12
 
         # ── Buttons ──────────────────────────────────────────────────────
         btn_h = 30
@@ -851,34 +919,23 @@ class PathEditPage(BasePage):
         record_y1 = cy + btn_h
         self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
         self._record_button.rect = self._btn_record_rect
-        self._record_button.base_color = 0x1A40B8
+        if self.is_loop_record_mode:
+            is_recording = self.location_service.is_recording
+            self._record_button.base_color = 0xB44022 if is_recording else 0x1A40B8
+            self._record_button.text = (
+                "[Enter] Stop Recording"
+                if is_recording
+                else "[Enter] Start Recording"
+            )
+        else:
+            self._record_button.base_color = 0x1A40B8
+            self._record_button.text = "[Enter] Get Location"
         self._record_button.text_color = 0xFFFFFF
-        self._record_button.text = (
-            "[R] Stop Path Recording"
-            if self.location_service.is_recording
-            else "[R] Record Realtime Path"
-        )
-        cy = record_y1 + 8
-
-        back_y0 = cy
-        back_y1 = cy + btn_h
-        self._btn_back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
-        self._back_button.rect = self._btn_back_rect
-        self._back_button.text = "[Esc] Back"
-        self._back_button.base_color = 0x4C4C64
-        self._back_button.text_color = 0xFFFFFF
-        cy = back_y1 + 8
-
-        finish_y0 = cy
-        finish_y1 = cy + btn_h
-        self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
-        self._finish_button.rect = self._btn_finish_rect
-        self._finish_button.text = "[Enter] Finish"
-        self._finish_button.base_color = 0xB44022
-        self._finish_button.text_color = 0xFFFFFF
-        cy = finish_y1 + 12
+        cy = record_y1 + 12
+        cy = _draw_section_divider(cy, gap_after=14)
 
         self._tier_selector_rect = None
+        rendered_info_panel = False
         if self._get_selected_point() is not None:
             cy = self._render_attribute_panel(
                 drawer,
@@ -886,6 +943,7 @@ class PathEditPage(BasePage):
                 y0=cy,
                 panel_w=btn_w,
             )
+            rendered_info_panel = True
         elif len(self._tier_maps) > 1:
             tier_h = self._tier_selector.get_height()
             self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
@@ -894,6 +952,29 @@ class PathEditPage(BasePage):
                 self._tier_selector_rect,
                 font_scale=0.4,
             )
+            cy += tier_h + 12
+            rendered_info_panel = True
+        if rendered_info_panel:
+            cy = _draw_section_divider(cy, gap_after=12)
+
+        back_y0 = cy
+        back_y1 = cy + btn_h
+        self._btn_back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
+        self._back_button.rect = self._btn_back_rect
+        self._back_button.text = "Back"
+        self._back_button.base_color = 0x4C4C64
+        self._back_button.text_color = 0xFFFFFF
+        cy = back_y1 + 8
+
+        finish_y0 = cy
+        finish_y1 = cy + btn_h
+        self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
+        self._finish_button.rect = self._btn_finish_rect
+        self._finish_button.text = "Finish"
+        self._finish_button.base_color = 0x3C643C
+        self._finish_button.text_color = 0xFFFFFF
+        cy = finish_y1 + 12
+        cy = _draw_section_divider(cy, gap_after=8)
 
         # Status messages moved to map area status bar
 
@@ -1052,6 +1133,16 @@ class PathEditPage(BasePage):
 
             # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
+                if (
+                    self._recorder_switch_rect is not None
+                    and self._recorder_mode_switch.handle_click(
+                        x,
+                        y,
+                        self._recorder_switch_rect,
+                    )
+                ):
+                    self.render_request()
+                    return
                 if self._get_selected_point() is not None:
                     self.selected_idx = -1
                     self._update_status(0xD2D200, "Cleared point selection.")
@@ -1148,18 +1239,8 @@ class PathEditPage(BasePage):
             self._drag_history_pushed = False
 
     def _on_key(self, key: int) -> None:
-        if key == 27:  # Esc
-            if self.stepper and len(self.stepper.step_history) > 1:
-                self.stepper.pop_step()
-            else:
-                self.done = True
-        elif key in (10, 13):  # Enter
-            self.done = True
-        elif key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
+        if key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_request()
-        elif key in (ord("r"), ord("R")):
-            self._toggle_recording()
             self.render_request()
         elif key in (46, 0x2E0000):
             self._delete_selected_point()
@@ -1231,17 +1312,15 @@ class AreaEditPage(BasePage):
         )
         self._back_button = Button(
             (-100, -100, -90, -90),
-            "[Esc] Back",
+            "Back",
             base_color=0x4C4C64,
-            hotkey=27,
             on_click=self._on_click_back,
             font_scale=0.45,
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "[Enter] Finish",
-            base_color=0xB44022,
-            hotkey=(10, 13),
+            "Finish",
+            base_color=0x3C643C,
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
@@ -1441,14 +1520,7 @@ class AreaEditPage(BasePage):
                 self.render_request()
 
     def _on_key(self, key: int) -> None:
-        if key == 27:
-            if self.stepper and len(self.stepper.step_history) > 1:
-                self.stepper.pop_step()
-            else:
-                self.done = True
-        elif key in (10, 13):
-            self.done = True
-        elif (
+        if (
             key in (ord("s"), ord("S"))
             and self.pipeline_context
             and self.is_dirty
@@ -1787,21 +1859,6 @@ class EditorAdapterStep(BasePage):
     def _on_key(self, key):
         if self.editor is None:
             return
-        if key == 27:
-            # We want ESC to mean "BACK to wizard"!
-            self.editor.stepper.pop_step()
-            return
-        elif key == 13:  # Enter = Next (Export)
-            # Advance to Export step if we want to save
-            self.editor.stepper.push_step(
-                ExportStep(
-                    self.editor.points,
-                    self.import_context,
-                    self.map_name,
-                    node_type=NODE_TYPE_MOVE,
-                )
-            )
-            return
         self.editor.handle_key(key)
 
 
@@ -2036,24 +2093,6 @@ class RegionEditorAdapterStep(BasePage):
 
     def _on_key(self, key):
         if self.editor is None:
-            return
-        if key == 27:
-            self.editor.stepper.pop_step()
-            return
-        elif key in (10, 13):
-            target = (
-                self.editor.target
-                if self.editor.target is not None
-                else [0.0, 0.0, 0.0, 0.0]
-            )
-            self.editor.stepper.push_step(
-                ExportStep(
-                    target,
-                    self.import_context,
-                    self.map_name,
-                    node_type=NODE_TYPE_ASSERT_LOCATION,
-                )
-            )
             return
         self.editor.handle_key(key)
 

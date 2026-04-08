@@ -586,6 +586,101 @@ class RadioSelectWidget:
             drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
 
 
+class SwitchWidget:
+    """Simple two-state switch with both labels always visible."""
+
+    def __init__(
+        self,
+        left_label: str,
+        right_label: str,
+        *,
+        is_left_selected: bool = True,
+        on_changed: Callable[[bool], None] | None = None,
+    ):
+        self.left_label = left_label
+        self.right_label = right_label
+        self.is_left_selected = is_left_selected
+        self.on_changed = on_changed
+        self.hovered = False
+
+    def get_value(self) -> bool:
+        return self.is_left_selected
+
+    def set_value(self, is_left_selected: bool) -> bool:
+        changed = self.is_left_selected != is_left_selected
+        self.is_left_selected = is_left_selected
+        if changed and self.on_changed is not None:
+            self.on_changed(self.is_left_selected)
+        return changed
+
+    def toggle(self) -> bool:
+        return self.set_value(not self.is_left_selected)
+
+    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> bool:
+        x1, y1, x2, y2 = rect
+        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+        self.hovered = in_rect
+        if not in_rect:
+            return False
+        self.toggle()
+        return True
+
+    def render(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.42,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        w = max(2, x2 - x1)
+        mid_x = x1 + w // 2
+
+        base_color = 0x0A0A14
+        border_color = 0x223044 if not self.hovered else 0x3C5370
+        active_color = 0x132B4F
+        active_border = 0x6E95D2
+        inactive_color = 0xC8C8C8
+
+        drawer.rect((x1, y1), (x2, y2), color=base_color, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
+        drawer.line((mid_x, y1 + 1), (mid_x, y2 - 1), color=border_color, thickness=1)
+
+        active_rect = (
+            (x1 + 2, y1 + 2, mid_x - 1, y2 - 2)
+            if self.is_left_selected
+            else (mid_x + 1, y1 + 2, x2 - 2, y2 - 2)
+        )
+        drawer.rect(
+            (active_rect[0], active_rect[1]),
+            (active_rect[2], active_rect[3]),
+            color=active_color,
+            thickness=-1,
+        )
+        drawer.rect(
+            (active_rect[0], active_rect[1]),
+            (active_rect[2], active_rect[3]),
+            color=active_border,
+            thickness=1,
+        )
+
+        cy = y1 + (y2 - y1) // 2 + 5
+        left_cx = x1 + (mid_x - x1) // 2
+        right_cx = mid_x + (x2 - mid_x) // 2
+        drawer.text_centered(
+            self.left_label,
+            (left_cx, cy),
+            font_scale,
+            color=0xFFFFFF if self.is_left_selected else inactive_color,
+        )
+        drawer.text_centered(
+            self.right_label,
+            (right_cx, cy),
+            font_scale,
+            color=inactive_color if self.is_left_selected else 0xFFFFFF,
+        )
+
+
 class ScrollableListWidget:
     """Scrollable list widget."""
 

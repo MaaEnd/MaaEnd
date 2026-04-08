@@ -35,6 +35,7 @@ class LocationService:
         self._maa_interface: MaaInterface | None = None
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
+        self._infer_lock = threading.Lock()
         self._is_recording = False
         self._expected_map_name: str | None = None
         self._inference_interval = inference_interval
@@ -95,7 +96,8 @@ class LocationService:
                 self._stop_event.wait(0.1)
                 continue
             try:
-                result = self._maa_interface.do_infer()
+                with self._infer_lock:
+                    result = self._maa_interface.do_infer()
                 if not self._is_map_match(result["map_name"], self._expected_map_name):
                     raise ValueError(
                         f"Location map mismatch, expected '{self._expected_map_name}', got '{result['map_name']}'"
@@ -134,6 +136,16 @@ class LocationService:
             self.stop_recording()
             return False
         return self.start_recording(expected_map_name)
+
+    def infer_once(self, expected_map_name: str) -> MapTrackerInferResult:
+        self._ensure_initialized()
+        with self._infer_lock:
+            result = self._maa_interface.do_infer()
+        if not self._is_map_match(result["map_name"], expected_map_name):
+            raise ValueError(
+                f"Location map mismatch, expected '{expected_map_name}', got '{result['map_name']}'"
+            )
+        return result
 
     def cleanup(self) -> None:
         self._is_recording = False
