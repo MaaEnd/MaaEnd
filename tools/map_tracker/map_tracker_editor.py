@@ -903,17 +903,7 @@ class PathEditPage(BasePage):
         self._btn_undo_rect = None
         self._btn_redo_rect = None
 
-        if has_pipeline:
-            save_y0 = cy
-            save_y1 = cy + btn_h
-            self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
-            self._save_button.rect = self._btn_save_rect
-            self._save_button.text = "[S] Save"
-            self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
-            self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
-            cy = save_y1 + 8
-        else:
-            self._btn_save_rect = None
+        self._btn_save_rect = None
 
         record_y0 = cy
         record_y1 = cy + btn_h
@@ -966,12 +956,22 @@ class PathEditPage(BasePage):
         self._back_button.text_color = 0xFFFFFF
         cy = back_y1 + 8
 
+        if has_pipeline:
+            save_y0 = cy
+            save_y1 = cy + btn_h
+            self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
+            self._save_button.rect = self._btn_save_rect
+            self._save_button.text = "[S] Save"
+            self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
+            self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
+            cy = save_y1 + 8
+
         finish_y0 = cy
         finish_y1 = cy + btn_h
         self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
         self._finish_button.rect = self._btn_finish_rect
         self._finish_button.text = "Finish"
-        self._finish_button.base_color = 0x3C643C
+        self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
         cy = finish_y1 + 12
         cy = _draw_section_divider(cy, gap_after=8)
@@ -1432,15 +1432,21 @@ class AreaEditPage(BasePage):
         self._back_button.rect = hidden_rect
         self._finish_button.rect = hidden_rect
 
-        if self.pipeline_context is not None:
+        self._back_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        self._back_button.base_color = 0x4C4C64
+        self._back_button.text_color = 0xFFFFFF
+        cy += btn_h + 8
+
+        has_pipeline = self.pipeline_context is not None
+        if has_pipeline:
             self._save_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
             self._save_button.base_color = 0x64C800 if self.is_dirty else 0x3C643C
             self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
             cy += btn_h + 8
 
-        self._back_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
-        cy += btn_h + 8
         self._finish_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
+        self._finish_button.text_color = 0xFFFFFF
 
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
 
