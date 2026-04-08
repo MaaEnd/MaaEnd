@@ -1,0 +1,10 @@
+{
+    "CloseButtonType2": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}
