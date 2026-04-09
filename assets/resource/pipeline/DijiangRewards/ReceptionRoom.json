@@ -276,7 +276,16 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 100,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                1073,
+                0,
+                117,
+                56
+            ],
+            "timeout": 2000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -466,10 +475,10 @@
         "post_wait_freezes": {
             "time": 150,
             "target": [
-                731,
-                137,
-                549,
-                235
+                1073,
+                0,
+                117,
+                56
             ],
             "timeout": 2000
         },
@@ -500,6 +509,16 @@
                 303
             ],
             "timeout": 1000
+        },
+        "pre_wait_freezes": {
+            "time": 150,
+            "target": [
+                1073,
+                0,
+                117,
+                56
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -795,6 +814,16 @@
             "CloseButtonType1"
         ],
         "pre_delay": 0,
+        "pre_wait_freezes": {
+            "time": 150,
+            "target": [
+                1073,
+                0,
+                117,
+                56
+            ],
+            "timeout": 2000
+        },
         "action": {
             "type": "Click"
         },
