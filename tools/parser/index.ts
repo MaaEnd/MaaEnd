@@ -31,7 +31,7 @@ const customActParser: PropSelector = (name, param, utils) => {
     }
   } else if (name === 'BetterSliding') {
     for (const [key, obj] of utils.parseObject(param)) {
-      if (key === 'IncreaseButton' || key === 'DecreaseButton') {
+      if (key === 'IncreaseButton' || key === 'DecreaseButton' || key === 'SwipeButton') {
         tryAddTemplate(utils, result, obj)
       }
     }

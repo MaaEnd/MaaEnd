@@ -477,6 +477,8 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
+	a.applyActionParams(parsed)
+
 	override, err := buildInternalPipelineOverride(merged)
 	if err != nil {
 		a.logger.Error().
@@ -501,7 +503,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	if parsed.swipeOnlyMode {
+	if a.SwipeOnlyMode {
 		a.logger.Info().
 			Str("caller", arg.CurrentTaskName).
 			Int64("subtask_id", detail.ID).
@@ -509,8 +511,8 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Bool("swipe_only_mode", true).
 			Msg("internal quantized sliding pipeline finished (swipe-only)")
 
-		if !a.exceeded && parsed.exceedingOverrideEnable != "" {
-			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(parsed.exceedingOverrideEnable, false)); err != nil {
+		if !a.exceeded && a.ExceedingOverrideEnable != "" {
+			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, false)); err != nil {
 				a.logger.Error().Err(err).Msg("failed to apply exceeding override after swipe-only")
 				return false
 			}
