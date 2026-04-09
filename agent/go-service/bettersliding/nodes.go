@@ -1,7 +1,7 @@
 package bettersliding
 
 const (
-	quantizedSlidingActionName = "BetterSliding"
+	betterSlidingActionName = "BetterSliding"
 
 	nodeBetterSlidingMain           = "BetterSlidingMain"
 	nodeBetterSlidingFindStart      = "BetterSlidingFindStart"
@@ -25,7 +25,7 @@ const (
 	nodeBetterSlidingDecreaseQuantity  = "BetterSlidingDecreaseQuantity"
 )
 
-var quantizedSlidingActionNodes = []string{
+var betterSlidingActionNodes = []string{
 	nodeBetterSlidingMain,
 	nodeBetterSlidingFindStart,
 	nodeBetterSlidingGetMaxQuantity,

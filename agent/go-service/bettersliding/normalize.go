@@ -141,39 +141,39 @@ func centerPoint(rect []int, offset [2]int) (int, int) {
 }
 
 // normalizeTargetType normalizes a TargetType string, returning the canonical
-// form ("Value" or "Percentage"). An empty string defaults to "Value".
+// form (TargetTypeValue or TargetTypePercentage). An empty string defaults to TargetTypeValue.
 func normalizeTargetType(raw string) (string, error) {
 	s := strings.TrimSpace(raw)
 	if s == "" {
-		return "Value", nil
+		return TargetTypeValue, nil
 	}
 
 	switch strings.ToLower(s) {
 	case "value":
-		return "Value", nil
+		return TargetTypeValue, nil
 	case "percentage":
-		return "Percentage", nil
+		return TargetTypePercentage, nil
 	default:
-		return "", fmt.Errorf("invalid TargetType %q, expected \"Value\" or \"Percentage\"", raw)
+		return "", fmt.Errorf("invalid TargetType %q, expected %q or %q", raw, TargetTypeValue, TargetTypePercentage)
 	}
 }
 
 // resolveTarget computes the effective discrete target from TargetType and TargetReverse.
 //
-//	Value + !Reverse → target unchanged.
-//	Value + Reverse  → maxQuantity - target (may be < 1 for upper-layer handling).
-//	Percentage + !Reverse → round(maxQuantity * target / 100), clamped to [1, maxQuantity].
-//	Percentage + Reverse  → round(maxQuantity * (100-target) / 100), clamped to [1, maxQuantity].
+//	TargetTypeValue + !Reverse → target unchanged.
+//	TargetTypeValue + Reverse  → maxQuantity - target (may be < 1 for upper-layer handling).
+//	TargetTypePercentage + !Reverse → round(maxQuantity * target / 100), clamped to [1, maxQuantity].
+//	TargetTypePercentage + Reverse  → round(maxQuantity * (100-target) / 100), clamped to [1, maxQuantity].
 func resolveTarget(target int, targetType string, targetReverse bool, maxQuantity int) (int, error) {
 	switch targetType {
-	case "Value":
+	case TargetTypeValue:
 		if !targetReverse {
 			return target, nil
 		}
 
 		return maxQuantity - target, nil
 
-	case "Percentage":
+	case TargetTypePercentage:
 		if target == 0 {
 			return 0, fmt.Errorf("percentage target must be greater than 0")
 		}
@@ -219,7 +219,7 @@ func isButtonParamAbsent(btn any) bool {
 
 // isSwipeOnlyMode returns true when the parameter set indicates swipe-only operation:
 // no Quantity.Box, no Target, and no IncreaseButton/DecreaseButton.
-func isSwipeOnlyMode(params quantizedSlidingParam) bool {
+func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return len(params.Quantity.Box) == 0 &&
 		params.Target == 0 &&
 		isButtonParamAbsent(params.IncreaseButton) &&

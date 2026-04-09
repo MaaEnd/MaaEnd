@@ -27,7 +27,7 @@ The current implementation is located at:
 | `overrides.go` | Pipeline override construction                                         |
 | `ocr.go`       | Typed-first recognition helpers for hit box and quantity reads         |
 | `normalize.go` | Button parameter normalization and basic calculation helpers           |
-| `register.go`  | Registers the `BetterSliding` action into go-service                |
+| `register.go`  | Registers the `BetterSliding` action into go-service                   |
 
 ## Execution modes
 
@@ -76,8 +76,8 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
             "custom_action": "BetterSliding",
             "custom_action_param": {
                 "GreenMask": false,
+                "Target": 1,
                 "Quantity": {
-                    "Target": 1,
                     "Box": [360, 490, 110, 70],
                     "OnlyRec": false
                 },
@@ -102,28 +102,28 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 
 The following 3 fields can be written either in `custom_action_param` or overridden by the caller node's `attach`; in external invocation mode, `attach` has higher priority.
 
-| Field           | Type             | Required | Description |
-| --------------- | ---------------- | -------- | ----------- |
-| `Target`        | `int` (positive) | Yes*     | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. If the target needs to vary by caller node, prefer passing it through `attach.Target`. |
+| Field           | Type             | Required | Description                                                                                                                                                                                                                                                                                  |
+| --------------- | ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`        | `int` (positive) | Yes\*    | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. If the target needs to vary by caller node, prefer passing it through `attach.Target`.                                                                   |
 | `TargetType`    | `string`         | No       | How to interpret `Target`. `"Value"` (default): absolute discrete count. `"Percentage"`: percentage (1–100) of `maxQuantity`, rounded and clamped to `[1, maxQuantity]`. If one shared node setup needs different target semantics by caller, prefer passing it through `attach.TargetType`. |
-| `TargetReverse` | `bool`           | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`. |
+| `TargetReverse` | `bool`           | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`.                                       |
 
 ### Parameters that can only be passed through `custom_action_param`
 
 Other than the 3 fields above, all remaining parameters are currently read only from `custom_action_param`:
 
-| Field                     | Type                    | Required | Description |
-| ------------------------- | ----------------------- | -------- | ----------- |
-| `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`. |
-| `Quantity.Box`            | `int[4]`                | Yes*     | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode. |
-| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy. |
-| `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`. |
-| `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation. |
-| `IncreaseButton`          | `string` or `int[2\|4]` | Yes*     | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode. |
-| `DecreaseButton`          | `string` or `int[2\|4]` | Yes*     | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode. |
-| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`. |
-| `ClampTargetToMax`        | `bool`                  | No       | If `true`, when the target exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately). |
-| `SwipeButton`             | `string`                | No       | Custom slider template path. When provided, overrides the `BetterSlidingSwipeButton` node's default template. Path is relative to the `resource/image/` directory. Default: `""` (use the shared default template). |
+| Field                     | Type                    | Required | Description                                                                                                                                                                                                                                                                             |
+| ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`.                                                                                                                                                                |
+| `Quantity.Box`            | `int[4]`                | Yes\*    | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode.                                                                                                                                                                                     |
+| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                                                                               |
+| `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`.                                                         |
+| `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                                                                                                                |
+| `IncreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
+| `DecreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
+| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                                                                                                                  |
+| `ClampTargetToMax`        | `bool`                  | No       | If `true`, when the target exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately).                                                                                               |
+| `SwipeButton`             | `string`                | No       | Custom slider template path. When provided, overrides the `BetterSlidingSwipeButton` node's default template. Path is relative to the `resource/image/` directory. Default: `""` (use the shared default template).                                                                     |
 | `ExceedingOverrideEnable` | `string`                | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. Useful for triggering a fallback branch when the target cannot be reached. Default: `""` (disabled — the action fails immediately instead). |
 
 \* Required in normal mode; ignored in swipe-only mode.
@@ -156,16 +156,6 @@ Constraints and limits:
 - You can treat it as an approximate color-based binarization step for the quantity area before OCR;
 - If the interfering digits use exactly the same color as the target digits, `QuantityFilter` cannot fundamentally separate them, so tightening `Quantity.Box` is still the first choice;
 - `QuantityFilter` improves OCR preprocessing, but it is not a substitute for an inaccurate `Quantity.Box`.
-
-### Quantity parsing strategy
-
-Starting from Stage 1, quantity reading is standardized on the `only_rec` path represented by `Quantity.OnlyRec`. The current Go implementation reads text only from `Results.Best.AsOCR().Text` under `BetterSlidingGetQuantity`, then extracts **all digit characters** from that text.
-
-That means:
-
-- `Results.Filtered` is no longer manually concatenated;
-- `DetailJson` is no longer part of the formal reading contract;
-- `Results.Best` is the only quantity OCR path used by the implementation.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
@@ -268,9 +258,9 @@ Notes:
 
 ### `TargetType`
 
-| Value          | Behavior                                                                             |
-| -------------- | ------------------------------------------------------------------------------------ |
-| `"Value"`      | (default) `Target` is an absolute discrete count.                           |
+| Value          | Behavior                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `"Value"`      | (default) `Target` is an absolute discrete count.                                                                        |
 | `"Percentage"` | `Target` is a percentage (1–100). The Go side computes `round(max * t/100)` and clamps the result to `[1, maxQuantity]`. |
 
 ### `TargetReverse`
@@ -348,141 +338,9 @@ When `ExceedingOverrideEnable` is **not** set and the target is out of range (in
                 "Direction": "right",
                 "ExceedingOverrideEnable": "SomeFallbackNode",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-                "Quantity": {
-                    "Target": 999,
-                    "Box": [340, 430, 200, 140],
-                    "OnlyRec": true
-                }
-            }
-        }
-    }
-}
-```
-
-If the game's current stock maximum is less than `999`, `SomeFallbackNode` will be enabled and `BetterSliding` returns success, allowing the pipeline to continue through `SomeFallbackNode` for alternative handling.
-
-## Direction convention
-
-`Direction` determines which direction is treated as "toward the maximum value." The current implementation uses these hardcoded override end regions:
-
-- `right` / `up`: `[1260, 10, 10, 10]`
-- `left` / `down`: `[10, 700, 10, 10]`
-
-This does not mean the slider handle literally moves along the screen diagonal. The current implementation simply overrides the `Swipe` node with a sufficiently distant end region to force the slider toward the corresponding endpoint.
-
-Because of that, when `Direction` is set incorrectly, the most common result is not "slightly off," but rather:
-
-- The maximum value is recognized incorrectly;
-- The slider is not pushed to the real endpoint;
-- All subsequent proportional clicks are shifted.
-
-## Shared nodes it depends on
-
-Internally, `BetterSliding` depends on shared nodes in `assets/resource/pipeline/BetterSliding/`. The `Helper.json` contains basic recognition nodes:
-
-- `BetterSlidingSwipeButton`: recognizes the slider template `BetterSliding/SwipeButton.png`
-- `BetterSlidingGetQuantity`: OCR for the current quantity
-- `BetterSlidingQuantityFilter`: color filtering helper for `GetQuantity`
-
-`Main.json` contains the main flow nodes:
-
-- `BetterSlidingSwipeToMax`: drags to the maximum value
-- `BetterSlidingCheckQuantity`: determines whether fine-tuning is needed
-- `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity`: clicks the increase/decrease buttons
-- `BetterSlidingDone`: successful exit
-
-Two points are the most critical:
-
-1. The slider template `BetterSliding/SwipeButton.png` must be recognized reliably.
-2. The OCR for `Quantity.Box` must be able to read numbers reliably.
-
-If either of these prerequisites is not met, more accurate proportional calculations will not help.
-
-The current Go-side recognition reading rules are intentionally narrow:
-
-- The slider hit box is read from `BetterSlidingSwipeButton` and prefers `Results.Best.AsTemplateMatch()`.
-- The quantity text is read from `BetterSlidingGetQuantity`, and always comes from `Results.Best.AsOCR().Text`.
-- `only_rec` is the sole implementation contract for quantity OCR.
-
-For maintainers, this means `Best`, `Filtered`, and fallback parsing are not interchangeable in the current implementation.
-
-## Integration steps
-
-It is recommended to integrate it in the following order.
-
-### 1. Confirm that the scenario is a good fit
-
-Suitable when:
-
-- The target quantity is a discrete value;
-- The current value can be read;
-- Dragging to the maximum reveals the upper bound;
-- Clickable increase/decrease buttons exist to compensate for errors.
-
-Not suitable when:
-
-- There is no readable number;
-- There are no increase/decrease buttons as a fallback;
-- The slider is not linearly quantized, or click position does not have a monotonic relationship with quantity.
-
-### 2. Prepare the slider template
-
-By default, `BetterSliding` uses the shared template node `BetterSlidingSwipeButton`, whose template path is:
-
-```text
-assets/resource/image/BetterSliding/SwipeButton.png
-```
-
-If the target screen uses a different slider-handle style, add a matching template resource or adjust the shared node first.
-
-### 3. Calibrate the quantity OCR region
-
-Fill `Quantity.Box` with the region where the current quantity is displayed.
-
-Note:
-
-- You must use **1280×720** as the baseline resolution;
-- The OCR node currently uses `expected: "\\d+"`, meaning it expects digits only;
-- On the Go side, **all digit characters** are extracted from the OCR text and then converted to an integer.
-
-That means:
-
-- `Qty 12` is usually parsed as `12`;
-- `12/99` is parsed as `1299`, not `12`;
-- If OCR frequently misreads digits as letters, the whole action will fail.
-
-So `Quantity.Box` must not only "read digits," but should also avoid including unrelated numeric groups whenever possible.
-If screen constraints make `Quantity.Box` difficult to shrink further, but the target digits have a stable color, combine it with `QuantityFilter` to suppress the background or nearby interfering digits before OCR.
-
-### 4. Choose how to locate the buttons
-
-The recommended priority is:
-
-1. **Template path**: most stable;
-2. `[x, y, w, h]`: second best;
-3. `[x, y]`: only use this when the button position is extremely stable.
-
-### 5. Call it in the business task
-
-See the actual usage currently in this repository:
-
-```json
-"AutoStockpileSwipeSpecificQuantity": {
-    "desc": "滑动到指定数值",
-    "enabled": false,
-    "pre_delay": 0,
-    "action": {
-        "type": "Custom",
-        "param": {
-            "custom_action": "BetterSliding",
-            "custom_action_param": {
-                "GreenMask": false,
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                 "Direction": "right",
-                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                "Target": 1,
                 "Quantity": {
-                    "Target": 1,
                     "Box": [340, 430, 200, 140],
                     "OnlyRec": true
                 },
@@ -553,7 +411,7 @@ This is much faster than relying only on repeated button clicks, and much more s
 - **Using only button coordinates without a recognition fallback**: small UI shifts can make clicks miss.
 - **Assuming the slider template is universally reusable**: the shared template may fail if different screens use different slider styles.
 - **Using a target value above the limit**: `Target > maxQuantity` fails immediately by default. Set `ClampTargetToMax: true` to automatically clamp to the maximum value instead of failing, but note that the actual final quantity will be `maxQuantity`, not the original `Target`.
-- **Adding redundant hard waits**: this shared flow already uses `post_wait_freezes`, so business integration should not stack many more hard delays on top.
+- **Adding redundant hard waits**: avoid stacking many hard delays on top of the internal flow; rely on the built-in rate limiting and max_hit mechanisms instead.
 
 ## Self-checklist
 
@@ -578,7 +436,7 @@ If you need to follow the implementation further, review in this order:
 5. `agent/go-service/bettersliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
 6. `agent/go-service/bettersliding/ocr.go`: see typed-first quantity and hit box extraction logic.
 7. `agent/go-service/bettersliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
-8. `assets/resource/pipeline/BetterSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
+8. `assets/resource/pipeline/BetterSliding/Main.json`: see default shared-node configuration such as `max_hit`, `pre_delay`, `post_delay`, `rate_limit`, and default `next` relationships.
 9. `assets/resource/pipeline/BetterSliding/Helper.json`: see basic recognition node configuration.
 
 ## Related documents

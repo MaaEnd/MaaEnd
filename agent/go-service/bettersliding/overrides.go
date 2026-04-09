@@ -203,8 +203,8 @@ func buildInternalPipelineOverride(customActionParam string) (map[string]any, er
 		return nil, err
 	}
 
-	override := make(map[string]any, len(quantizedSlidingActionNodes))
-	for _, nodeName := range quantizedSlidingActionNodes {
+	override := make(map[string]any, len(betterSlidingActionNodes))
+	for _, nodeName := range betterSlidingActionNodes {
 		override[nodeName] = map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{

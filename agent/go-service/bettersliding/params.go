@@ -26,10 +26,10 @@ type parsedBetterSlidingParams struct {
 	swipeOnlyMode           bool
 }
 
-func parseBetterSlidingParam(customActionParam string) (quantizedSlidingParam, error) {
-	var params quantizedSlidingParam
+func parseBetterSlidingParam(customActionParam string) (betterSlidingParam, error) {
+	var params betterSlidingParam
 	if err := json.Unmarshal([]byte(customActionParam), &params); err != nil {
-		return quantizedSlidingParam{}, err
+		return betterSlidingParam{}, err
 	}
 
 	return params, nil
@@ -55,7 +55,7 @@ func (a *BetterSlidingAction) loadActionParams(customActionParam string) bool {
 	return true
 }
 
-func (a *BetterSlidingAction) normalizeActionParams(params quantizedSlidingParam) (parsedBetterSlidingParams, bool) {
+func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (parsedBetterSlidingParams, bool) {
 	swipeButton := strings.TrimSpace(params.SwipeButton)
 	exceedingOverrideEnable := strings.TrimSpace(params.ExceedingOverrideEnable)
 
@@ -209,7 +209,7 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 
 func (a *BetterSlidingAction) initLogger(taskName string) {
 	a.logger = log.With().
-		Str("component", quantizedSlidingActionName).
+		Str("component", betterSlidingActionName).
 		Str("task", taskName).
 		Logger()
 }
@@ -268,6 +268,13 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		var target int
 		if err := json.Unmarshal(targetRaw, &target); err == nil {
 			paramMap["Target"] = float64(target)
+		} else {
+			log.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.Target").
+				Str("value", string(targetRaw)).
+				Msg("mergeAttachParams: failed to parse attach.Target, skipping field merge")
 		}
 	}
 
@@ -275,6 +282,13 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		var tt string
 		if err := json.Unmarshal(ttRaw, &tt); err == nil {
 			paramMap["TargetType"] = tt
+		} else {
+			log.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.TargetType").
+				Str("value", string(ttRaw)).
+				Msg("mergeAttachParams: failed to parse attach.TargetType, skipping field merge")
 		}
 	}
 
@@ -282,6 +296,13 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		var tr bool
 		if err := json.Unmarshal(trRaw, &tr); err == nil {
 			paramMap["TargetReverse"] = tr
+		} else {
+			log.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.TargetReverse").
+				Str("value", string(trRaw)).
+				Msg("mergeAttachParams: failed to parse attach.TargetReverse, skipping field merge")
 		}
 	}
 

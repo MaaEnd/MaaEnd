@@ -11,7 +11,7 @@ import (
 func (a *BetterSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
-			Str("component", quantizedSlidingActionName).
+			Str("component", betterSlidingActionName).
 			Msg("got nil custom action arg")
 		return false
 	}
@@ -175,7 +175,7 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 
 	a.exceeded = false
 	outOfRange := a.Target > a.maxQuantity
-	if a.TargetType == "Value" && a.TargetReverse && a.Target < 1 {
+	if a.TargetType == TargetTypeValue && a.TargetReverse && a.Target < 1 {
 		outOfRange = true
 	}
 
@@ -484,7 +484,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		a.logger.Error().
 			Err(err).
 			Str("caller", arg.CurrentTaskName).
-			Msg("failed to build internal quantized sliding pipeline override")
+			Msg("failed to build internal BetterSliding pipeline override")
 		return false
 	}
 
@@ -493,13 +493,13 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		a.logger.Error().
 			Err(err).
 			Str("caller", arg.CurrentTaskName).
-			Msg("failed to run internal quantized sliding pipeline")
+			Msg("failed to run internal BetterSliding pipeline")
 		return false
 	}
 	if detail == nil {
 		a.logger.Error().
 			Str("caller", arg.CurrentTaskName).
-			Msg("internal quantized sliding pipeline returned nil detail")
+			Msg("internal BetterSliding pipeline returned nil detail")
 		return false
 	}
 
@@ -509,7 +509,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Int64("subtask_id", detail.ID).
 			Str("subtask_status", detail.Status.String()).
 			Bool("swipe_only_mode", true).
-			Msg("internal quantized sliding pipeline finished (swipe-only)")
+			Msg("internal BetterSliding pipeline finished (swipe-only)")
 
 		if !a.exceeded && a.ExceedingOverrideEnable != "" {
 			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, false)); err != nil {
@@ -526,7 +526,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Str("caller", arg.CurrentTaskName).
 			Int64("subtask_id", detail.ID).
 			Str("subtask_status", detail.Status.String()).
-			Msg("internal quantized sliding pipeline failed")
+			Msg("internal BetterSliding pipeline failed")
 		return false
 	}
 
@@ -541,12 +541,12 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		Str("caller", arg.CurrentTaskName).
 		Int64("subtask_id", detail.ID).
 		Str("subtask_status", detail.Status.String()).
-		Msg("internal quantized sliding pipeline completed")
+		Msg("internal BetterSliding pipeline completed")
 	return true
 }
 
 func isBetterSlidingActionNode(taskName string) bool {
-	for _, nodeName := range quantizedSlidingActionNodes {
+	for _, nodeName := range betterSlidingActionNodes {
 		if taskName == nodeName {
 			return true
 		}

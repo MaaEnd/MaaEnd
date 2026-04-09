@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type quantizedSlidingParam struct {
+type betterSlidingParam struct {
 	Target                  int                  `json:"Target"`
 	Quantity                quantityParam        `json:"Quantity"`
 	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
@@ -58,7 +58,7 @@ type quantityFilterParam struct {
 //   - ClampTargetToMax: clamp target to maxQuantity instead of failing (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
 //   - ExceedingOverrideEnable: Pipeline node name to enable when target is out of range
-//   - TargetType: "Value" (default) or "Percentage"
+//   - TargetType: TargetTypeValue (default) or TargetTypePercentage
 //   - TargetReverse: reverse target calculation
 type BetterSlidingAction struct {
 	Target                  int
@@ -99,6 +99,12 @@ func (b buttonTarget) logValue() any {
 }
 
 const maxClickRepeat = 30
+
+// TargetType constants for canonical target type values.
+const (
+	TargetTypeValue      = "Value"
+	TargetTypePercentage = "Percentage"
+)
 
 var defaultCenterPointOffset = [2]int{-10, 0}
 
