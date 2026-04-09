@@ -25,24 +25,11 @@ func buildSwipeEnd(direction string) ([]int, error) {
 }
 
 func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam, quantityOnlyRec bool, swipeButton string, greenMask bool) map[string]any {
-	quantityParam := map[string]any{
-		"roi":      append([]int(nil), quantityBox...),
-		"only_rec": quantityOnlyRec,
-	}
-
 	override := map[string]any{
 		nodeBetterSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
 					"end": append([]int(nil), end...),
-				},
-			},
-		},
-		nodeBetterSlidingGetQuantity: map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"roi":      quantityParam["roi"],
-					"only_rec": quantityParam["only_rec"],
 				},
 			},
 		},
@@ -57,6 +44,24 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 				},
 			},
 		}
+	}
+
+	if len(quantityBox) == 0 {
+		return override
+	}
+
+	quantityParam := map[string]any{
+		"roi":      append([]int(nil), quantityBox...),
+		"only_rec": quantityOnlyRec,
+	}
+
+	override[nodeBetterSlidingGetQuantity] = map[string]any{
+		"recognition": map[string]any{
+			"param": map[string]any{
+				"roi":      quantityParam["roi"],
+				"only_rec": quantityParam["only_rec"],
+			},
+		},
 	}
 
 	if quantityFilter == nil {
