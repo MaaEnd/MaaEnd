@@ -101,6 +101,16 @@
             }
         },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1200,
+                313,
+                27,
+                13
+            ],
+            "timeout": 1000
+        },
         "action": {
             "type": "Custom",
             "param": {
