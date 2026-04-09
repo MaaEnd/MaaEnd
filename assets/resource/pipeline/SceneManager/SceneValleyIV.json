@@ -697,15 +697,6 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -100,
-                300,
-                100,
-                300
-            ]
-        },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"

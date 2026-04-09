@@ -1,12 +1,13 @@
-import json
 import os
+import queue
 import re
-from datetime import datetime, timezone
-from typing import NamedTuple
+import threading
+from typing import TypeAlias
 
 from .core_utils import MapName
+from .maa_interface import MaaInterface, MapTrackerInferResult, MaaRuntimeError
 
-SERVICE_LOG_FILE = "install/debug/go-service.log"
+QueueItem: TypeAlias = MapTrackerInferResult | Exception
 
 
 def unique_map_key(name: str) -> str:
@@ -27,48 +28,29 @@ def unique_map_key(name: str) -> str:
         return stem.lower()
 
 
-class LocationRecord(NamedTuple):
-    map_name: str
-    x: float
-    y: float
-    timestamp: float
-    raw: dict
-
-
 class LocationService:
-    """Read locations from a jsonl service log."""
+    """Unified location service with integrated MAA lifecycle and async inference."""
 
-    MESSAGE_KEYWORDS = ("Map tracking inference completed",)
+    def __init__(self, *, inference_interval: float = 0.3, queue_size: int = 5):
+        self._maa_interface: MaaInterface | None = None
+        self._thread: threading.Thread | None = None
+        self._stop_event = threading.Event()
+        self._infer_lock = threading.Lock()
+        self._is_recording = False
+        self._expected_map_name: str | None = None
+        self._inference_interval = inference_interval
+        self._queue: queue.Queue[QueueItem] = queue.Queue(maxsize=queue_size)
 
-    def __init__(self, log_file: str = SERVICE_LOG_FILE):
-        self.log_file = log_file
-        self._offset = 0
-        self._buffer = b""
-        self._last_map_key: str | None = None
-        self._last_start_time = 0.0
+    @property
+    def is_recording(self) -> bool:
+        return self._is_recording
 
-    def _parse_timestamp(self, value) -> float | None:
-        if isinstance(value, (int, float)):
-            return float(value)
-        if isinstance(value, str):
-            try:
-                return float(value)
-            except ValueError:
-                pass
-            try:
-                if value.endswith("Z"):
-                    value = value[:-1] + "+00:00"
-                parsed = datetime.fromisoformat(value)
-                if parsed.tzinfo is None:
-                    parsed = parsed.replace(tzinfo=timezone.utc)
-                return parsed.timestamp()
-            except ValueError:
-                return None
-        return None
+    @property
+    def result_queue(self) -> queue.Queue[QueueItem]:
+        return self._queue
 
     @staticmethod
     def _main_map_key(name: str) -> str:
-        """Return a tier-insensitive key for map matching."""
         try:
             parsed = MapName.parse(name)
             return f"{parsed.map_id}:{parsed.map_level_id}"
@@ -77,107 +59,108 @@ class LocationService:
             stem = re.sub(r"_tier_\w+$", "", stem, flags=re.IGNORECASE)
             return stem.lower()
 
-    def _is_map_match(self, log_map_name: str, expected_map_name: str) -> bool:
-        if unique_map_key(log_map_name) == unique_map_key(expected_map_name):
+    def _is_map_match(self, inferred_map_name: str, expected_map_name: str) -> bool:
+        if unique_map_key(inferred_map_name) == unique_map_key(expected_map_name):
             return True
-        return self._main_map_key(log_map_name) == self._main_map_key(expected_map_name)
-
-    def _parse_location_line(self, line: str) -> LocationRecord | None:
-        # Quick check
-        if not any(kw in line for kw in self.MESSAGE_KEYWORDS):
-            return None
-
-        # Full parse
-        try:
-            data_obj = json.loads(line)
-        except Exception:
-            return None
-        if not isinstance(data_obj, dict):
-            return None
-
-        log_map_name = data_obj.get("MapName")
-        x = data_obj.get("X")
-        y = data_obj.get("Y")
-
-        if not log_map_name or x is None or y is None:
-            return None
-
-        try:
-            x = float(x)
-            y = float(y)
-        except (TypeError, ValueError):
-            return None
-
-        ts = None
-        for key in ("time", "timestamp", "ts"):
-            if key in data_obj:
-                ts = self._parse_timestamp(data_obj.get(key))
-                if ts is not None:
-                    break
-        if ts is None:
-            return None
-
-        return LocationRecord(
-            map_name=str(log_map_name), x=x, y=y, timestamp=ts, raw=data_obj
+        return self._main_map_key(inferred_map_name) == self._main_map_key(
+            expected_map_name
         )
 
-    def get_locations(
-        self, expected_map_name: str, start_time: float
-    ) -> list[LocationRecord]:
-        if not os.path.exists(self.log_file):
-            return []
-
-        map_key = unique_map_key(expected_map_name)
-        if self._last_map_key != map_key or start_time < self._last_start_time:
-            self._offset = 0
-            self._buffer = b""
-        self._last_map_key = map_key
-        self._last_start_time = start_time
-
-        results: list[LocationRecord] = []
+    def _push(self, item: QueueItem) -> None:
         try:
-            with open(self.log_file, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                end_pos = f.tell()
-                if end_pos < self._offset:
-                    self._offset = 0
-                    self._buffer = b""
-                if end_pos > self._offset:
-                    f.seek(self._offset, os.SEEK_SET)
-                    data = f.read(end_pos - self._offset)
-                    self._offset = end_pos
-                    if data:
-                        self._buffer += data
+            self._queue.put_nowait(item)
+        except queue.Full:
+            try:
+                self._queue.get_nowait()
+                self._queue.put_nowait(item)
+            except (queue.Empty, queue.Full):
+                pass
 
-            if self._buffer:
-                lines = self._buffer.split(b"\n")
-                self._buffer = lines[-1]
-                for raw in lines[:-1]:
-                    if not raw:
-                        continue
-                    line = raw.decode("utf-8", errors="ignore")
-                    if not line.strip():
-                        continue
-                    record = self._parse_location_line(line)
-                    if record is None:
-                        continue
-                    if not self._is_map_match(record.map_name, expected_map_name):
-                        continue
-                    if record.timestamp < start_time:
-                        continue
-                    results.append(record)
-        except Exception:
-            return []
+    def _clear_queue(self) -> None:
+        while True:
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                break
 
-        results.sort(key=lambda item: item.timestamp)
-        deduped: list[LocationRecord] = []
-        last_xy: tuple[float, float] | None = None
-        for item in results:
-            x = item.x
-            y = item.y
-            xy = (round(x, 1), round(y, 1))
-            if last_xy == xy:
+    def _ensure_initialized(self) -> None:
+        if self._maa_interface is not None:
+            return
+        self._maa_interface = MaaInterface()
+        self._maa_interface.init_controller()
+        self._maa_interface.init_agent()
+
+    def _loop(self) -> None:
+        while not self._stop_event.is_set():
+            if not self._is_recording or self._expected_map_name is None:
+                self._stop_event.wait(0.1)
                 continue
-            deduped.append(item)
-            last_xy = xy
-        return deduped
+            try:
+                with self._infer_lock:
+                    result = self._maa_interface.do_infer()
+                if not self._is_map_match(result["map_name"], self._expected_map_name):
+                    raise ValueError(
+                        f"Location map mismatch, expected '{self._expected_map_name}', got '{result['map_name']}'"
+                    )
+                self._push(result)
+            except MaaRuntimeError as e:
+                self._push(e)
+            except Exception as e:
+                self._push(e)
+            self._stop_event.wait(self._inference_interval)
+
+    def start_recording(self, expected_map_name: str) -> bool:
+        if self._is_recording:
+            return True
+        try:
+            self._ensure_initialized()
+        except Exception as e:
+            self._push(e)
+            return False
+        self._expected_map_name = expected_map_name
+        self._clear_queue()
+        self._is_recording = True
+        self._stop_event.clear()
+        if self._thread is None or not self._thread.is_alive():
+            self._thread = threading.Thread(
+                target=self._loop, name="LocationServiceThread", daemon=True
+            )
+            self._thread.start()
+        return True
+
+    def stop_recording(self) -> None:
+        self._is_recording = False
+
+    def toggle_recording(self, expected_map_name: str) -> bool:
+        if self._is_recording:
+            self.stop_recording()
+            return False
+        return self.start_recording(expected_map_name)
+
+    def infer_once(self, expected_map_name: str) -> MapTrackerInferResult:
+        self._ensure_initialized()
+        with self._infer_lock:
+            result = self._maa_interface.do_infer()
+        if not self._is_map_match(result["map_name"], expected_map_name):
+            raise ValueError(
+                f"Location map mismatch, expected '{expected_map_name}', got '{result['map_name']}'"
+            )
+        return result
+
+    def cleanup(self) -> None:
+        self._is_recording = False
+        self._stop_event.set()
+        if self._thread is not None and self._thread.is_alive():
+            self._thread.join(timeout=3.0)
+        self._thread = None
+        while not self._queue.empty():
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                break
+        if self._maa_interface is not None:
+            try:
+                self._maa_interface.dispose_agent()
+            except Exception:
+                pass
+            self._maa_interface = None

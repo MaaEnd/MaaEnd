@@ -1,16 +1,19 @@
 {
     "VisitFriendsEnterShip": {
         "desc": "识别进入好友船的按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -150,
-            135,
-            150,
-            460
-        ],
-        "template": "VisitFriends/EnterButton.png",
-        "threshold": 0.9,
         "action": "Click",
+        "target": [
+            -100,
+            0,
+            100,
+            100
+        ],
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -40,15 +43,38 @@
     },
     "VisitFriendsEnterShipSuccess": {
         "desc": "进入好友船成功的标志",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            100,
-            100
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    10,
+                    272,
+                    231,
+                    64
+                ],
+                "expected": [
+                    "打开访客终端",
+                    "打開訪客終端",
+                    "Guest Terminal",
+                    "訪問端末",
+                    "방문자 단말기"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "VisitFriends/ShipEscButton.png"
+                ],
+                "threshold": 0.9
+            }
         ],
-        "template": "VisitFriends/ShipEscButton.png",
-        "threshold": 0.9,
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 89, // Y
@@ -265,9 +291,9 @@
                 "sub_name": "icon",
                 "recognition": "TemplateMatch",
                 "roi": [
-                    100,
+                    40,
                     400,
-                    200,
+                    260,
                     200
                 ],
                 "template": "VisitFriends/TerminalControlNexus.png",
@@ -516,7 +542,7 @@
         //     -60,
         //     0,
         //     0
-        // ]
+        // ],
         "post_delay": 0
     }
 }

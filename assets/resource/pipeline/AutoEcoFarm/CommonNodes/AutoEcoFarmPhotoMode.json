@@ -8,7 +8,7 @@
         "action": "KeyDown",
         "key": 82, // R 0x52
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 1065,
                 551,
@@ -17,7 +17,27 @@
             ]
         },
         "next": [
-            "AutoEcoFarmEnterCameraModeChooseCamera"
+            "AutoEcoFarmEnterCameraModeChooseCamera",
+            "AutoEcoFarmEnterCameraModeFailKeyUp"
+        ]
+    },
+    "AutoEcoFarmEnterCameraModeFailKeyUp": {
+        "desc": "未出现选相机界面时松开R（next 兜底，不用 on_error），再 JumpBack",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                1065,
+                551,
+                62,
+                51
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmExitCameraMode": {
@@ -32,7 +52,8 @@
                     51
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmBigCamera.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": {
@@ -51,8 +72,7 @@
             ]
         },
         "next": [
-            //接回工作的节点
-            "_AutoEcoFarmFindMenuLoop"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "AutoEcoFarmEnterCameraModeChooseCamera": {
@@ -67,7 +87,8 @@
                     464
                 ],
                 "template": "Common/CameraMode.png",
-                "threshold": 0.8
+                "threshold": 0.8,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -89,8 +110,7 @@
         "action": "KeyUp",
         "key": 82, // R 0x52
         "next": [
-            "AutoEcoFarmClickPhotoScene",
-            "_AutoEcoFarmExitCameraMode"
+            "AutoEcoFarmClickPhotoScene"
         ]
     },
     ///////点击画面部分
@@ -112,8 +132,7 @@
             ]
         },
         "next": [
-            "_AutoEcoFarmHideFactoryFacilities",
-            "_AutoEcoFarmExitCameraMode"
+            "_AutoEcoFarmHideFactoryFacilities"
         ]
     },
     "AutoEcoFarmPhotoScene": {
@@ -127,6 +146,7 @@
         ],
         "template": "AutoEcoFarm/AutoEcoFarmPhotoScene.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "action": "Click"
     },
     "AutoEcoFarmPhotoSceneIsWhite": {
@@ -166,14 +186,9 @@
             "_AutoEcoFarmFindHideFactoryFacilities"
         ],
         "action": "Click",
-        //每次操作后休息30秒等队友完成工作
-        "post_delay": 30000,
         "next": [
-            "_AutoEcoFarmExitCameraMode"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
-        }
+            "_AutoEcoFarmJumpBack"
+        ]
     },
     "_AutoEcoFarmFindShowFactoryFacilities": {
         "desc": "[识别节点]关这个字",

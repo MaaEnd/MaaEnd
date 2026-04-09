@@ -11,7 +11,7 @@
         ]
     },
     "AutoStockpileValleyIV": {
-        "desc": "自动囤货四号谷地节点",
+        "desc": "[Config覆盖] 自动囤货四号谷地节点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -39,7 +39,7 @@
         }
     },
     "AutoStockpileWuling": {
-        "desc": "自动囤货武陵节点",
+        "desc": "[Config覆盖] 自动囤货武陵节点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,

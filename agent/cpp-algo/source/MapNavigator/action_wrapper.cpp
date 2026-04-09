@@ -1,13 +1,13 @@
 #include <MaaUtils/Logger.h>
 
+#include "Backend/backend.h"
 #include "action_wrapper.h"
-#include "input_backend.h"
 
 namespace mapnavigator
 {
 
 ActionWrapper::ActionWrapper(MaaContext* context)
-    : backend_(CreateInputBackend(context, MaaTaskerGetController(MaaContextGetTasker(context))))
+    : backend_(CreateInputBackend(MaaTaskerGetController(MaaContextGetTasker(context))))
 {
 }
 
@@ -43,19 +43,24 @@ double ActionWrapper::DefaultTurnUnitsPerDegree() const
     return backend_->default_turn_units_per_degree();
 }
 
-void ActionWrapper::KeyDownSync(int key_code, int delay_millis)
+void ActionWrapper::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
 {
-    backend_->KeyDownSync(key_code, delay_millis);
+    backend_->SetMovementStateSync(forward, left, backward, right, delay_millis);
 }
 
-void ActionWrapper::KeyUpSync(int key_code, int delay_millis)
+void ActionWrapper::TriggerJumpSync(int hold_millis)
 {
-    backend_->KeyUpSync(key_code, delay_millis);
+    backend_->TriggerJumpSync(hold_millis);
 }
 
-void ActionWrapper::ClickKeySync(int key_code, int hold_millis)
+void ActionWrapper::TriggerInteractSync(int hold_millis)
 {
-    backend_->ClickKeySync(key_code, hold_millis);
+    backend_->TriggerInteractSync(hold_millis);
+}
+
+void ActionWrapper::PulseForwardSync(int hold_millis)
+{
+    backend_->PulseForwardSync(hold_millis);
 }
 
 void ActionWrapper::TriggerSprintSync()
@@ -83,21 +88,9 @@ void ActionWrapper::MouseRightUpSync(int delay_millis)
     backend_->MouseRightUpSync(delay_millis);
 }
 
-void ActionWrapper::SendRelativeMoveNative(int dx, int dy)
+bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
 {
-    backend_->SendRelativeMoveSync(dx, dy);
-}
-
-NativeMouseTurnActuator::NativeMouseTurnActuator(ActionWrapper& action_wrapper)
-    : action_wrapper_(action_wrapper)
-{
-}
-
-TurnActuationResult NativeMouseTurnActuator::TurnByUnits(int units, int duration_millis)
-{
-    (void)duration_millis;
-    action_wrapper_.SendRelativeMoveNative(units, 0);
-    return { units };
+    return backend_->SendViewDeltaSync(dx, dy);
 }
 
 } // namespace mapnavigator

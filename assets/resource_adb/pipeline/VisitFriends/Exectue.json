@@ -1,0 +1,12 @@
+{
+    "VisitFriendsEnterShipSuccess": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "VisitFriendsWorldShipExitToMenuFriends": {
+        "action": {
+            "type": "Click"
+        }
+    }
+}

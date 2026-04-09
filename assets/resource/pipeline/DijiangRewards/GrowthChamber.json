@@ -61,7 +61,6 @@
         "next": [
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
-            "[JumpBack]GrowthChamberGrowAgain",
             "GrowthChamberExit"
         ],
         "focus": {
@@ -107,12 +106,28 @@
         },
         "pre_wait_freezes": {
             "time": 200,
+            "target": [
+                512,
+                387,
+                191,
+                42
+            ],
             "timeout": 1000
         },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberGrowAgain",
+            "GrowthChamberFakeTrue"
+        ]
+    },
+    "GrowthChamberFakeTrue": {
+        "desc": "空节点",
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -129,7 +144,7 @@
                     434
                 ],
                 "expected": [
-                    "再次种植"
+                    "再次培养"
                 ]
             }
         },
@@ -214,7 +229,7 @@
         },
         "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 1000,
             "target": [
                 79,
@@ -449,7 +464,7 @@
             "type": "Click"
         },
         "next": [
-            "GrowthChamberViewIn"
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberSeedExtractConfirm": {
@@ -522,7 +537,7 @@
         ]
     },
     "GrowthChamberNoMaterials": {
-        "desc": "[培养舱·基核] 原料不足时停止任务",
+        "desc": "[培养舱·基核] 原料不足时返回目标列表并重新查找候选",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -665,7 +680,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 80
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -739,6 +761,16 @@
         "pre_delay": 0,
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0

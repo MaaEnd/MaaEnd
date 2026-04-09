@@ -1,9 +1,7 @@
 package quantizedsliding
 
 import (
-	"encoding/json"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -35,7 +33,7 @@ func readHitBox(detail *maa.RecognitionDetail) ([]int, bool) {
 	return nil, false
 }
 
-func readQuantityText(detail *maa.RecognitionDetail, concatAllFilteredDigits bool) string {
+func readQuantityText(detail *maa.RecognitionDetail) string {
 	if detail == nil {
 		return ""
 	}
@@ -45,29 +43,11 @@ func readQuantityText(detail *maa.RecognitionDetail, concatAllFilteredDigits boo
 		candidate = detail
 	}
 
-	if concatAllFilteredDigits {
-		if text := joinFilteredOCRText(candidate.Results); text != "" {
-			return text
-		}
-	} else {
-		if text := readBestOCRText(candidate.Results); text != "" {
-			return text
-		}
-	}
-
-	if text := extractOCRTextFromDetailJSON(candidate.DetailJson); text != "" {
-		return text
-	}
-
-	if candidate != detail {
-		return extractOCRTextFromDetailJSON(detail.DetailJson)
-	}
-
-	return ""
+	return readBestOCRText(candidate.Results)
 }
 
-func readQuantityValue(detail *maa.RecognitionDetail, concatAllFilteredDigits bool) (int, error) {
-	text := readQuantityText(detail, concatAllFilteredDigits)
+func readQuantityValue(detail *maa.RecognitionDetail) (int, error) {
+	text := readQuantityText(detail)
 	if text == "" {
 		return 0, fmt.Errorf("ocr text not found in recognition detail")
 	}
@@ -132,120 +112,4 @@ func readTemplateMatchBestBox(detail *maa.RecognitionDetail) ([]int, bool) {
 	}
 
 	return []int{tm.Box.X(), tm.Box.Y(), tm.Box.Width(), tm.Box.Height()}, true
-}
-
-func joinFilteredOCRText(results *maa.RecognitionResults) string {
-	if results == nil || len(results.Filtered) == 0 {
-		return ""
-	}
-
-	fragments := make([]ocrFragment, 0, len(results.Filtered))
-	for _, result := range results.Filtered {
-		if result == nil {
-			continue
-		}
-
-		ocrResult, ok := result.AsOCR()
-		if !ok {
-			continue
-		}
-
-		text := strings.TrimSpace(ocrResult.Text)
-		if text == "" {
-			continue
-		}
-
-		fragments = append(fragments, ocrFragment{
-			text: text,
-			x:    ocrResult.Box.X(),
-			y:    ocrResult.Box.Y(),
-		})
-	}
-
-	if len(fragments) == 0 {
-		return ""
-	}
-
-	sort.SliceStable(fragments, func(i int, j int) bool {
-		if fragments[i].y != fragments[j].y {
-			return fragments[i].y < fragments[j].y
-		}
-
-		return fragments[i].x < fragments[j].x
-	})
-
-	var builder strings.Builder
-	for _, fragment := range fragments {
-		builder.WriteString(fragment.text)
-	}
-
-	return builder.String()
-}
-
-type ocrFragment struct {
-	text string
-	x    int
-	y    int
-}
-
-func extractOCRTextFromDetailJSON(detailJSON string) string {
-	detailJSON = strings.TrimSpace(detailJSON)
-	if detailJSON == "" || detailJSON == "null" {
-		return ""
-	}
-
-	var direct struct {
-		Best struct {
-			Detail json.RawMessage `json:"detail"`
-			Text   string          `json:"text"`
-		} `json:"best"`
-		Detail json.RawMessage `json:"detail"`
-		Text   string          `json:"text"`
-	}
-	if err := json.Unmarshal([]byte(detailJSON), &direct); err == nil {
-		if text := strings.TrimSpace(direct.Best.Text); text != "" {
-			return text
-		}
-		if text := strings.TrimSpace(direct.Text); text != "" {
-			return text
-		}
-		if text := extractOCRTextFromRawJSON(direct.Best.Detail); text != "" {
-			return text
-		}
-		if text := extractOCRTextFromRawJSON(direct.Detail); text != "" {
-			return text
-		}
-	}
-
-	var combined struct {
-		Detail []struct {
-			Detail json.RawMessage `json:"detail"`
-			Text   string          `json:"text"`
-		} `json:"detail"`
-	}
-	if err := json.Unmarshal([]byte(detailJSON), &combined); err == nil {
-		for _, item := range combined.Detail {
-			if text := strings.TrimSpace(item.Text); text != "" {
-				return text
-			}
-			if text := extractOCRTextFromRawJSON(item.Detail); text != "" {
-				return text
-			}
-		}
-	}
-
-	return ""
-}
-
-func extractOCRTextFromRawJSON(raw json.RawMessage) string {
-	if len(raw) == 0 {
-		return ""
-	}
-
-	var detailString string
-	if err := json.Unmarshal(raw, &detailString); err == nil {
-		return extractOCRTextFromDetailJSON(detailString)
-	}
-
-	return extractOCRTextFromDetailJSON(string(raw))
 }

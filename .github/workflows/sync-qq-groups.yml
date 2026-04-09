@@ -1,0 +1,42 @@
+name: Sync QQ Groups
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          show-progress: false
+
+      - name: Fetch index.json and update README
+        run: |
+          DATA=$(curl -sf https://end.maafw.com/index.json) || exit 0
+
+          USER_GROUP=$(echo "$DATA" | jq -r '.qq_groups.user.number // empty')
+          USER_LINK=$(echo "$DATA" | jq -r '.qq_groups.user.link // empty')
+          DEV_GROUP=$(echo "$DATA" | jq -r '.qq_groups.dev.number // empty')
+          DEV_LINK=$(echo "$DATA" | jq -r '.qq_groups.dev.link // empty')
+
+          if [ -z "$USER_GROUP" ] || [ -z "$USER_LINK" ] || [ -z "$DEV_GROUP" ] || [ -z "$DEV_LINK" ]; then
+            echo "Missing fields in index.json, skipping"
+            exit 0
+          fi
+
+          sed -i "s|\*\*用户 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**用户 QQ 群**: [$USER_GROUP]($USER_LINK)|" README.md
+          sed -i "s|\*\*开发 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**开发 QQ 群**: [$DEV_GROUP]($DEV_LINK)|" README.md
+
+      - name: Commit and push
+        uses: actions-js/push@master
+        with:
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "chore: sync QQ group info in README
+
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            [skip changelog]"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

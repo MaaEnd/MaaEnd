@@ -101,6 +101,16 @@
             }
         },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1200,
+                313,
+                27,
+                13
+            ],
+            "timeout": 1000
+        },
         "action": {
             "type": "Custom",
             "param": {
@@ -145,6 +155,48 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentUnlockClose",
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentUnlockClose": {
+        "desc": "关闭地区建设解锁弹窗",
+        "recognition": "And",
+        "all_of": [
+            "CheckRegionalDevelopmentText",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    400,
+                    150,
+                    450,
+                    180
+                ],
+                "expected": [
+                    "解锁",
+                    "解鎖",
+                    "contents added",
+                    "解放",
+                    "해제"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                400,
+                150,
+                450,
+                180
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -289,7 +341,8 @@
                     80
                 ],
                 "template": [
-                    "SceneManager/ValuableEntry.png"
+                    "SceneManager/ValuableEntry.png",
+                    "SceneManager/ValuableEntry2.png"
                 ]
             }
         },
@@ -1233,7 +1286,10 @@
                     425,
                     80
                 ],
-                "template": "SceneManager/ShoppingEntry.png"
+                "template": [
+                    "SceneManager/ShoppingEntry.png",
+                    "SceneManager/ShoppingEntry2.png"
+                ]
             }
         },
         "pre_delay": 0,

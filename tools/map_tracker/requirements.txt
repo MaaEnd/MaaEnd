@@ -1,1 +1,2 @@
-opencv-python
+maafw>=5
+opencv-python>=4

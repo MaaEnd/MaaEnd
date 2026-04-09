@@ -1,5 +1,4 @@
 // SellProduct 数据源
-// 基于 settlement_trade_outposts.json 自动构建物品列表（取所有繁荣度等级的并集）
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -58,24 +57,51 @@ const SETTLEMENT_MAP = {
     stm_tundra_1: {
         RegionPrefix: "ValleyIV",
         LocationId: "RefugeeCamp",
-        NodePrefix: "RefugeeCamp",
+        TextExpected: [
+            "难民暂居处",
+            "難民暫居處",
+            "(?i)Refugee\\s*Camp",
+            "仮設居住地",
+        ],
     },
     stm_tundra_2: {
         RegionPrefix: "ValleyIV",
         LocationId: "InfrastructureOutpost",
-        NodePrefix: "InfrastructureOutpost",
+        TextExpected: [
+            "基建前站",
+            "(?i)Infra\\s*-\\s*Station",
+            "建設基地",
+        ],
     },
     stm_tundra_3: {
         RegionPrefix: "ValleyIV",
         LocationId: "ReconstructionCommand",
-        NodePrefix: "ReconstructionCommand",
+        TextExpected: [
+            "重建指挥部",
+            "重建指揮部",
+            "(?i)Reconstruction\\s*HQ",
+            "再建管理本部",
+            "Reconstruction Hc",
+        ],
     },
     stm_hongs_1: {
         RegionPrefix: "Wuling",
         LocationId: "SkyKingFlats",
-        NodePrefix: "SkyKingFlats",
+        TextExpected: [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+        ],
     },
 };
+
+const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce((acc, [settlementId, config]) => {
+    acc[config.RegionPrefix] = acc[config.RegionPrefix] || [];
+    acc[config.RegionPrefix].push(`${config.RegionPrefix}${config.LocationId}`);
+    return acc;
+}, {});
 
 // ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
 const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
@@ -104,18 +130,29 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
                     b[1].unitPrice - a[1].unitPrice,
             )
             .map(([key]) => key);
-        return { ...config, items };
+        return {
+            ...config,
+            LocationDesc: settlement.settlementName.CN,
+            items,
+        };
     },
 );
 
 // ===== 构建 cases 数组 =====
 function buildItemCases(nodePrefix, itemNum, itemIds) {
     const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
+    const attemptKey = `SellProduct${nodePrefix}SellAttempt${itemNum}`;
     const cases = [
         {
             name: "无",
             pipeline_override: {
                 [selectKey]: { enabled: false },
+                [attemptKey]: {
+                    anchor: {
+                        SellProductSelectNewGood: selectKey,
+                        SellProductPriorityGoodMissHandler: "",
+                    },
+                },
             },
         },
     ];
@@ -128,6 +165,13 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                     enabled: true,
                     expected: item.expected,
                 },
+                [attemptKey]: {
+                    anchor: {
+                        SellProductSelectNewGood: selectKey,
+                        SellProductPriorityGoodMissHandler:
+                            "SellProductPriorityGoodMissWarning",
+                    },
+                },
             },
             label: item.label,
         });
@@ -135,13 +179,16 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
     return cases;
 }
 
-// ===== 导出数据 =====
-export default LOCATIONS.map((loc) => ({
+export const settlementFlatRows = LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
+    SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
     LocationId: loc.LocationId,
-    NodePrefix: loc.NodePrefix,
-    ItemCases1: buildItemCases(loc.NodePrefix, 1, loc.items),
-    ItemCases2: buildItemCases(loc.NodePrefix, 2, loc.items),
-    ItemCases3: buildItemCases(loc.NodePrefix, 3, loc.items),
-    ItemCases4: buildItemCases(loc.NodePrefix, 4, loc.items),
+    LocationDesc: loc.LocationDesc,
+    TextExpected: loc.TextExpected,
+    ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
+    ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
+    ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
+    ItemCases4: buildItemCases(loc.LocationId, 4, loc.items),
 }));
+
+export default settlementFlatRows;

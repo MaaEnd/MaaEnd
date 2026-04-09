@@ -95,11 +95,58 @@ struct YoloCoarseResult
     int infer_margin = 0;
 };
 
+struct MinimapRoiConfig
+{
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+};
+
 // roi及搜索相关常量
-constexpr int MinimapROIOriginX = 49;
-constexpr int MinimapROIOriginY = 51;
-constexpr int MinimapROIWidth = 118;
-constexpr int MinimapROIHeight = 120;
+constexpr MinimapRoiConfig kDefaultMinimapRoi { 49, 51, 118, 120 };
+constexpr double kAdbMinimapFullImageScale = 0.8;
+constexpr int kAdbMinimapXOffset = 0;
+constexpr int kAdbMinimapYOffset = -7;
+constexpr MinimapRoiConfig kAdbMinimapRoi {
+    kDefaultMinimapRoi.x + kAdbMinimapXOffset,
+    kDefaultMinimapRoi.y + kAdbMinimapYOffset,
+    kDefaultMinimapRoi.width,
+    kDefaultMinimapRoi.height,
+};
+constexpr int MinimapROIOriginX = kDefaultMinimapRoi.x;
+constexpr int MinimapROIOriginY = kDefaultMinimapRoi.y;
+constexpr int MinimapROIWidth = kDefaultMinimapRoi.width;
+constexpr int MinimapROIHeight = kDefaultMinimapRoi.height;
+
+inline const MinimapRoiConfig& GetMinimapRoiConfig(bool use_adb_minimap_roi)
+{
+    return use_adb_minimap_roi ? kAdbMinimapRoi : kDefaultMinimapRoi;
+}
+
+inline bool TryExtractMinimap(const cv::Mat& image, bool use_adb_minimap_roi, cv::Mat* out_minimap)
+{
+    if (out_minimap == nullptr || image.empty()) {
+        return false;
+    }
+
+    cv::Mat scaled_image = image;
+    if (use_adb_minimap_roi && kAdbMinimapFullImageScale != 1.0) {
+        cv::resize(image, scaled_image, cv::Size(), kAdbMinimapFullImageScale, kAdbMinimapFullImageScale, cv::INTER_AREA);
+    }
+
+    const auto& roi_config = GetMinimapRoiConfig(use_adb_minimap_roi);
+    const cv::Rect roi(roi_config.x, roi_config.y, roi_config.width, roi_config.height);
+    const cv::Rect image_bounds(0, 0, scaled_image.cols, scaled_image.rows);
+    const cv::Rect clipped_roi = roi & image_bounds;
+    if (clipped_roi.width != roi.width || clipped_roi.height != roi.height || clipped_roi.width <= 0 || clipped_roi.height <= 0) {
+        return false;
+    }
+
+    *out_minimap = scaled_image(clipped_roi).clone();
+    return !out_minimap->empty();
+}
+
 constexpr int MaxLostTrackingCount = 3;
 constexpr double MinMatchScore = 0.7;
 constexpr double MobileSearchRadius = 50.0;

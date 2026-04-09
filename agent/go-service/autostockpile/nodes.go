@@ -7,7 +7,6 @@ const (
 	autoStockpileReconcileDecisionActionName = "AutoStockpile.ReconcileDecision"
 	autoStockpileRecognitionName             = "AutoStockpile.Recognition"
 
-	decisionAttachNodeName         = "AutoStockpileDecisionAttach"
 	relayNodeDecisionReadyNodeName = "AutoStockpileRelayNodeDecisionReady"
 	selectedGoodsClickNodeName     = "AutoStockpileSelectedGoodsClick"
 	selectedGoodsClickResetY       = 180
@@ -19,7 +18,4 @@ const (
 	overflowQuotaAdditionNodeName  = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName            = "AutoStockpileLocateGoods"
 	goodsPriceNodeName             = "AutoStockpileGetGoods"
-	stockBillNodeName              = "AutoStockpileGetStockBill"
-	autoStockpileDecisionValleyIV  = "AutoStockpileDecisionValleyIV"
-	autoStockpileDecisionWuling    = "AutoStockpileDecisionWuling"
 )

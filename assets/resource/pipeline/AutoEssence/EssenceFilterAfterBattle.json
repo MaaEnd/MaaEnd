@@ -13,6 +13,7 @@
     //4、任务结束后会自己点击退出战利品界面（你就不用另外点击退出了），然后Jumpback回来
     //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
     //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
+    //7、EssenceFilterInitAction 对 EssenceFilterAfterBattleInit：首次进入战后流程时完整初始化；同一任务内再次进入时仅清本轮 UI 遍历状态并保留累计锁定统计；基质刷取开启「战后基质筛选」时由 AutoEssenceAfterBattleRunEndLootReport（[JumpBack]、max_hit=1，体力不足与整次结束共用）调用 EssenceFilterFinishAction 输出汇总
     "EssenceFilterAfterBattleStart": {
         "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
         "enabled": false,

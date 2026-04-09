@@ -93,14 +93,15 @@
                     80
                 ],
                 "template": [
-                    "CheckEmail/email.png"
+                    "CheckEmail/email.png",
+                    "CheckEmail/email2.png"
                 ]
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 75 // K
+                "custom_action": "AutoAltClickAction"
             }
         },
         "post_wait_freezes": 400,

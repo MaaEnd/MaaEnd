@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "MaaFramework/MaaAPI.h"
+#include <MaaFramework/MaaAPI.h>
 
 #include "../MapLocator/MapLocator.h"
 #include "navi_domain_types.h"
@@ -32,6 +32,7 @@ public:
 private:
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
+    bool uses_adb_minimap_roi_ = false;
     bool last_capture_was_held_ = false;
     bool last_capture_was_black_screen_ = false;
     int held_fix_streak_ = 0;

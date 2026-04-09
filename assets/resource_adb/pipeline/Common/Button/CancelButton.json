@@ -1,0 +1,14 @@
+{
+    "__CancelButtonType1Icon": {
+        "threshold": 0.7
+    },
+    "__CancelButtonType1HoverIcon": {
+        "threshold": 0.7
+    },
+    "__CancelButtonType1LineIcon": {
+        "threshold": 0.7
+    },
+    "__CancelButtonType1LineHoverIcon": {
+        "threshold": 0.7
+    }
+}

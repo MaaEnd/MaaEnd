@@ -2,8 +2,6 @@
 
 #include <chrono>
 #include <string>
-#include <string_view>
-#include <utility>
 
 #include "navi_config.h"
 
@@ -36,30 +34,6 @@ enum class ActionType
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_
 };
-
-inline bool TryActionTypeFromString(std::string_view str, ActionType* out_action)
-{
-#define NAVI_X_(name) { #name, ActionType::name },
-    static constexpr std::pair<std::string_view, ActionType> kMap[] = { NAVI_ACTION_TYPES(NAVI_X_) };
-#undef NAVI_X_
-
-    for (auto [name, type] : kMap) {
-        if (name == str) {
-            if (out_action != nullptr) {
-                *out_action = type;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-inline ActionType ActionTypeFromString(std::string_view str)
-{
-    ActionType action = ActionType::RUN;
-    TryActionTypeFromString(str, &action);
-    return action;
-}
 
 struct Waypoint
 {
@@ -96,8 +70,6 @@ struct Waypoint
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
 
     bool IsZoneDeclaration() const { return action == ActionType::ZONE; }
-
-    bool WaitsForRelocation() const { return action == ActionType::TRANSFER; }
 
     bool IsControlNode() const { return !has_position; }
 
@@ -157,6 +129,42 @@ struct NaviPosition
 struct TurnActuationResult
 {
     int units_sent = 0;
+    std::chrono::milliseconds expected_elapsed {};
+    bool requires_completion_tracking = false;
+};
+
+struct TurnCommandResult
+{
+    bool issued = false;
+    double issued_delta_degrees = 0.0;
+    bool consumed_pending_retry = false;
+};
+
+enum class TurnActionKind
+{
+    SteeringTrim,
+    TurnInPlace,
+    HeadingAlign,
+    ExactTarget,
+    RouteResume,
+};
+
+enum class MotionPredictMode
+{
+    Idle,
+    Walk,
+    Sprint,
+    Corrective,
+};
+
+enum class LocalDriverAction
+{
+    Forward,
+    ForwardLeft,
+    ForwardRight,
+    JumpForward,
+    RecoverLeft,
+    RecoverRight,
 };
 
 class ITurnActuator

@@ -17,6 +17,7 @@ public:
     bool initialize(const MapLocatorConfig& config);
     bool isInitialized() const;
     LocateResult locate(const cv::Mat& minimap, const LocateOptions& options = LocateOptions());
+    YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
 
     void resetTrackingState();
 

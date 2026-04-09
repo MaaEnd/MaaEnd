@@ -1,12 +1,12 @@
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <meojson/json.hpp>
-
 #include <MaaUtils/Logger.h>
+#include <meojson/json.hpp>
 
 #include "MapNavigator.h"
 #include "navi_controller.h"
@@ -42,6 +42,33 @@ bool TryReadBool(const json::value& value, bool& out)
     return true;
 }
 
+bool LooksLikeActionToken(const std::string& text)
+{
+    if (text.empty()) {
+        return false;
+    }
+    return std::all_of(text.begin(), text.end(), [](char ch) {
+        return std::isupper(static_cast<unsigned char>(ch)) || ch == '_';
+    });
+}
+
+bool IsActionKeywordCaseInsensitive(const std::string& text)
+{
+    std::string normalized;
+    normalized.reserve(text.size());
+    for (char ch : text) {
+        normalized.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
+    }
+
+#define NAVI_X_(name)      \
+    if (normalized == #name) { \
+        return true;       \
+    }
+    NAVI_ACTION_TYPES(NAVI_X_)
+#undef NAVI_X_
+    return false;
+}
+
 bool TryParseActionType(const json::value& value, ActionType& out_action)
 {
     if (!value.is_string()) {
@@ -70,25 +97,17 @@ bool TryAppendActionList(const json::value& value, std::vector<ActionType>& out_
     if (!value.is_array()) {
         return false;
     }
+    if (value.as_array().empty()) {
+        return true;
+    }
 
-    bool appended = false;
     for (const auto& item : value.as_array()) {
         if (!TryParseActionType(item, parsed_action)) {
-            continue;
+            return false;
         }
         out_actions.push_back(parsed_action);
-        appended = true;
     }
-    return appended;
-}
-
-ActionType ParseActionType(const json::value& value, ActionType fallback = ActionType::RUN)
-{
-    ActionType out = fallback;
-    if (TryParseActionType(value, out)) {
-        return out;
-    }
-    return fallback;
+    return true;
 }
 
 bool TryReadZoneId(const json::object& obj, std::string& out_zone_id)
@@ -188,9 +207,15 @@ bool AppendArrayWaypoint(const json::array& p, std::vector<Waypoint>& out_waypoi
         if (TryAppendActionList(p[i], actions)) {
             continue;
         }
-        if (p[i].is_string()) {
-            zone_id = p[i].as_string();
+        if (!p[i].is_string()) {
+            return false;
         }
+
+        const std::string extra_text = p[i].as_string();
+        if (LooksLikeActionToken(extra_text) || IsActionKeywordCaseInsensitive(extra_text)) {
+            return false;
+        }
+        zone_id = extra_text;
     }
 
     AppendExpandedWaypoints(tx, ty, actions, zone_id, strict_arrival, out_waypoints);
@@ -206,14 +231,29 @@ bool AppendObjectWaypoint(const json::object& obj, std::vector<Waypoint>& out_wa
     if (obj.contains("action")) {
         const auto& act = obj.at("action");
         if (act.is_array()) {
-            TryAppendActionList(act, actions);
+            if (!TryAppendActionList(act, actions)) {
+                return false;
+            }
+        }
+        else if (act.is_string() && LooksLikeActionToken(act.as_string())) {
+            ActionType parsed_action = ActionType::RUN;
+            if (!TryParseActionType(act, parsed_action)) {
+                return false;
+            }
+            actions.push_back(parsed_action);
         }
         else {
-            actions.push_back(ParseActionType(act, ActionType::RUN));
+            ActionType parsed_action = ActionType::RUN;
+            if (!TryParseActionType(act, parsed_action)) {
+                return false;
+            }
+            actions.push_back(parsed_action);
         }
     }
     if (obj.contains("actions")) {
-        TryAppendActionList(obj.at("actions"), actions);
+        if (!TryAppendActionList(obj.at("actions"), actions)) {
+            return false;
+        }
     }
 
     std::string zone_id = zone_context;
@@ -306,25 +346,29 @@ MaaBool MAA_CALL MapNavigateActionRun(
         NaviParam param;
 
         param.map_name = options.get("map_name", param.map_name);
-        param.path_trim = options.get("path_trim", param.path_trim);
         param.arrival_timeout = options.get("arrival_timeout", param.arrival_timeout);
         param.sprint_threshold = options.get("sprint_threshold", param.sprint_threshold);
-        param.enable_rejoin = options.get("enable_rejoin", param.enable_rejoin);
-        param.rejoin_abort_distance = options.get("rejoin_abort_distance", param.rejoin_abort_distance);
-        param.rejoin_candidate_limit = options.get("rejoin_candidate_limit", param.rejoin_candidate_limit);
-        param.rejoin_backtrack_window = options.get("rejoin_backtrack_window", param.rejoin_backtrack_window);
-        param.rejoin_retry_timeout = options.get("rejoin_retry_timeout", param.rejoin_retry_timeout);
         param.enable_local_driver = options.get("enable_local_driver", param.enable_local_driver);
 
         std::string zone_context = param.map_name;
         if (options.contains("path") && options.at("path").is_array()) {
             const auto& path = options.at("path").as_array();
-            for (const auto& point : path) {
-                AppendParsedWaypoints(point, param.path, zone_context);
+            for (size_t index = 0; index < path.size(); ++index) {
+                if (AppendParsedWaypoints(path[index], param.path, zone_context)) {
+                    continue;
+                }
+                LogError << "Failed to parse MapNavigator waypoint in path array." << VAR(index);
+                return MAA_FALSE;
             }
         }
         else {
-            AppendParsedWaypoints(*options_opt, param.path, zone_context);
+            const bool looks_like_single_waypoint = options.contains("x") || options.contains("y") || options.contains("action")
+                                                    || options.contains("actions") || options.contains("angle")
+                                                    || options.contains("heading") || options.contains("yaw");
+            if (looks_like_single_waypoint && !AppendParsedWaypoints(*options_opt, param.path, zone_context)) {
+                LogError << "Failed to parse MapNavigator waypoint from custom_action_param object.";
+                return MAA_FALSE;
+            }
         }
 
         if (!param.path.empty()) {

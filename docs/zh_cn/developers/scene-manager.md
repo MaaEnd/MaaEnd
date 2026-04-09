@@ -18,7 +18,7 @@
 SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织成 **有层级的跳转链**：
 
 - 每个场景接口的 `next` 列表中，包含「直接成功」的识别节点，以及若干「回退」节点
-- 当当前路径无法识别时，会 `[JumpBack]` 到更基础的场景接口，由该接口负责先进入前置场景，再重新尝试
+- 在当前路径无法识别时，会 `[JumpBack]` 到更基础的场景接口，由该接口负责先进入前置场景，再重新尝试
 - 最底层是 `SceneAnyEnterWorld`（进入任意大世界），它是多数场景跳转的起点
 
 例如，`SceneEnterMenuProtocolPass`（进入通行证菜单）的 `next` 为：

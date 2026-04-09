@@ -124,7 +124,7 @@
                         "_AutoEcoFarmGotoTarget": {
                             "enabled": true
                         },
-                        "_AutoEcoFarmHideFactoryFacilities": {
+                        "_AutoEcoFarmWaitForTeammate": {
                             "post_delay": 60000,
                             "focus": {
                                 "Node.Action.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"

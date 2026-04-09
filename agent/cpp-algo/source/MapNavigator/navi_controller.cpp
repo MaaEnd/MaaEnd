@@ -3,15 +3,12 @@
 #include "../MapLocator/MapLocateAction.h"
 #include "action_executor.h"
 #include "action_wrapper.h"
-#include "local_driver_lite.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "navigation_session.h"
 #include "navigation_state_machine.h"
 #include "position_provider.h"
-#include "route_rejoin.h"
-#include "zone_transition_controller.h"
 
 namespace mapnavigator
 {
@@ -61,20 +58,14 @@ bool NaviController::Navigate(const NaviParam& param)
     NavigationSession session(param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");
 
-    RouteRejoinPlanner rejoin_planner(param.rejoin_abort_distance, param.rejoin_candidate_limit, param.rejoin_backtrack_window);
-    LocalDriverLite local_driver;
     MotionController motion_controller(&action_wrapper, &position_provider, &session, &pos, param.enable_local_driver, is_stopping);
-    ZoneTransitionController zone_transition_controller(&motion_controller, &position_provider, &session, &pos, &local_driver, is_stopping);
-    ActionExecutor action_executor(&action_wrapper, &motion_controller, &local_driver, param.enable_local_driver);
+    ActionExecutor action_executor(&action_wrapper, &motion_controller, param.enable_local_driver);
     NavigationStateMachine state_machine(
         param,
         &action_wrapper,
         &position_provider,
         &session,
-        &rejoin_planner,
         &motion_controller,
-        &zone_transition_controller,
-        &local_driver,
         &action_executor,
         &pos,
         is_stopping);

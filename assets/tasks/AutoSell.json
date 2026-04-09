@@ -1,0 +1,99 @@
+{
+    "task": [
+        {
+            "name": "AutoSell",
+            "label": "$task.AutoSell.label",
+            "entry": "AutoSellMain",
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "AutoSellPriceType"
+            ],
+            "group": [
+                "daily"
+            ]
+        }
+    ],
+    "option": {
+        "AutoSellPriceType": {
+            "type": "select",
+            "label": "$option.AutoSellPriceType.label",
+            "default_case": "AutoSellPriceTypeGlobal",
+            "cases": [
+                {
+                    "name": "AutoSellPriceTypeGlobal",
+                    "label": "$option.AutoSellPriceTypeGlobal.label",
+                    "option": [
+                        "AutoSellPriceGlobal"
+                    ]
+                },
+                {
+                    "name": "AutoSellPriceTypePerCategory",
+                    "label": "$option.AutoSellPriceTypePerCategory.label",
+                    "option": [
+                        "AutoSellPricePerCategory"
+                    ]
+                }
+            ]
+        },
+        "AutoSellPriceGlobal": {
+            "type": "input",
+            "label": "$option.AutoSellPriceGlobal.label",
+            "inputs": [
+                {
+                    "name": "AutoSellPriceGlobalValue",
+                    "label": "$option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "4600"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellEnterStockRedistributionOpenItem": {
+                    "custom_action_param": {
+                        "moderate_price": "{AutoSellPriceGlobalValue}",
+                        "large_price": "{AutoSellPriceGlobalValue}",
+                        "massive_price": "{AutoSellPriceGlobalValue}"
+                    }
+                }
+            }
+        },
+        "AutoSellPricePerCategory": {
+            "type": "input",
+            "label": "$option.AutoSellPricePerCategory.label",
+            "inputs": [
+                {
+                    "name": "AutoSellPricePerCategoryModeratePriceVolatilityValue",
+                    "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryModeratePriceVolatilityValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "4600"
+                },
+                {
+                    "name": "AutoSellPricePerCategoryLargePriceVolatilityValue",
+                    "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "5000"
+                },
+                {
+                    "name": "AutoSellPricePerCategoryMassivePriceVolatilityValue",
+                    "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "5300"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellEnterStockRedistributionOpenItem": {
+                    "custom_action_param": {
+                        "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
+                        "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
+                        "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}"
+                    }
+                }
+            }
+        }
+    }
+}

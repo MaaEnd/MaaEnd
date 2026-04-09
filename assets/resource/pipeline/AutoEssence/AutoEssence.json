@@ -570,7 +570,7 @@
         }
     },
     "AutoEssenceLowSp": {
-        "desc": "识别理智不足的弹窗，识别到之后结束任务",
+        "desc": "识别理智不足的弹窗；开启战后筛选时先汇总再结束，否则直接结束",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -584,8 +584,19 @@
             }
         },
         "action": {
-            "type": "StopTask"
+            "type": "DoNothing"
         },
+        "next": [
+            "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+            "AutoEssenceLowSpStopTask"
+        ],
+        "focus": {
+            "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
+        }
+    },
+    "AutoEssenceLowSpStopTask": {
+        "desc": "体力不足分支最终停止任务并展示提示",
+        "action": "StopTask",
         "focus": {
             "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
         }
@@ -619,12 +630,26 @@
     "AutoEssenceOnSuccess": {
         "desc": "成功完成一次基质刷取后的守卫节点",
         "next": [
-            // 可以在此添加 "AutoEssenceMain" 来实现循环刷取
+            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> OnComplete（汇总无自有 next，JumpBack 后继续 OnComplete）
+            "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
             "AutoEssenceOnComplete"
         ],
         "focus": {
             "Node.Action.Starting": "✅已完成一次基质刷取"
         }
+    },
+    "AutoEssenceAfterBattleRunEndLootReport": {
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续 OnComplete 或体力不足 StopTask；默认关闭",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterFinishAction"
+            }
+        },
+        "post_delay": 0
     },
     "AutoEssenceOnComplete": {
         "desc": "成功完成了所有基质刷取，安全结束任务",

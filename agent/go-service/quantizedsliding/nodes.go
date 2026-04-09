@@ -14,6 +14,8 @@ const (
 	nodeQuantizedSlidingGetQuantity      = "QuantizedSlidingGetQuantity"
 	nodeQuantizedSlidingQuantityFilter   = "QuantizedSlidingQuantityFilter"
 	nodeQuantizedSlidingSwipeButton      = "QuantizedSlidingSwipeButton"
+	nodeQuantizedSlidingIncreaseButton   = "QuantizedSlidingIncreaseButton"
+	nodeQuantizedSlidingDecreaseButton   = "QuantizedSlidingDecreaseButton"
 	nodeQuantizedSlidingPreciseClick     = "QuantizedSlidingPreciseClick"
 	nodeQuantizedSlidingClearMaxHit      = "QuantizedSlidingClearMaxHit"
 	nodeQuantizedSlidingJumpBackNode     = "QuantizedSlidingJumpBackNode"

@@ -36,6 +36,15 @@
                             "enabled": false
                         }
                     }
+                },
+                {
+                    "name": "Auto",
+                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Auto.label",
+                    "pipeline_override": {
+                        "GearAssemblyGoToStandalone": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         }

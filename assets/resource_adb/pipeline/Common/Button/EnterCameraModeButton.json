@@ -1,0 +1,6 @@
+{
+    "EnterCameraModeButton": {
+        "threshold": 0.7,
+        "action": "Click"
+    }
+}
