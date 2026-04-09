@@ -93,24 +93,38 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 
 ## Parameter description
 
-Commonly used fields are:
+`BetterSliding` parameters can be divided into two groups:
 
-| Field               | Type                    | Required | Description                                                                                                                                                                                                                     |
-| ------------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GreenMask`         | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`.                                                                                                        |
-| `Target`            | `int` (positive)        | Yes*     | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. **If the target needs to vary by caller node, prefer passing it through `attach.Target` instead of hard-coding it in `custom_action_param`.** |
-| `Quantity.Box`      | `int[4]`                | Yes*     | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode.                                                                                                                              |
-| `QuantityFilter`    | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                       |
-| `Quantity.OnlyRec`  | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`. |
-| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                                                        |
-| `IncreaseButton`    | `string` or `int[2\|4]` | Yes*     | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                |
-| `DecreaseButton`    | `string` or `int[2\|4]` | Yes*     | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                |
-| `CenterPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                                                          |
-| `ClampTargetToMax`  | `bool`                  | No       | If `true`, when `Target` exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately).                                        |
-| `SwipeButton`             | `string` | No       | Custom slider template path. When provided, overrides the `BetterSlidingSwipeButton` node's default template. Path is relative to the `resource/image/` directory. Default: `""` (use the shared default template).                                                                     |
-| `ExceedingOverrideEnable` | `string` | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. Useful for triggering a fallback branch when the target cannot be reached. Default: `""` (disabled — the action fails immediately instead). |
-| `TargetType`        | `string`                | No       | How to interpret `Target`. `"Value"` (default): absolute discrete count. `"Percentage"`: percentage (1–100) of `maxQuantity`, rounded and clamped to `[1, maxQuantity]`. **Like `Target`, this is better passed through `attach.TargetType` when one shared node setup needs different target semantics.** |
-| `TargetReverse`     | `bool`                  | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. **If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`.** |
+1. **Parameters that can be passed through the caller node's `attach`**: useful when one shared `custom_action_param` needs per-node runtime overrides.
+2. **Parameters that are only read from `custom_action_param`**: these are part of the action's own configuration and are not read from `attach`.
+
+### Parameters that can be passed through `attach`
+
+The following 3 fields can be written either in `custom_action_param` or overridden by the caller node's `attach`; in external invocation mode, `attach` has higher priority.
+
+| Field           | Type             | Required | Description |
+| --------------- | ---------------- | -------- | ----------- |
+| `Target`        | `int` (positive) | Yes*     | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. If the target needs to vary by caller node, prefer passing it through `attach.Target`. |
+| `TargetType`    | `string`         | No       | How to interpret `Target`. `"Value"` (default): absolute discrete count. `"Percentage"`: percentage (1–100) of `maxQuantity`, rounded and clamped to `[1, maxQuantity]`. If one shared node setup needs different target semantics by caller, prefer passing it through `attach.TargetType`. |
+| `TargetReverse` | `bool`           | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`. |
+
+### Parameters that can only be passed through `custom_action_param`
+
+Other than the 3 fields above, all remaining parameters are currently read only from `custom_action_param`:
+
+| Field                     | Type                    | Required | Description |
+| ------------------------- | ----------------------- | -------- | ----------- |
+| `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`. |
+| `Quantity.Box`            | `int[4]`                | Yes*     | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode. |
+| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy. |
+| `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`. |
+| `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation. |
+| `IncreaseButton`          | `string` or `int[2\|4]` | Yes*     | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode. |
+| `DecreaseButton`          | `string` or `int[2\|4]` | Yes*     | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode. |
+| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`. |
+| `ClampTargetToMax`        | `bool`                  | No       | If `true`, when the target exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately). |
+| `SwipeButton`             | `string`                | No       | Custom slider template path. When provided, overrides the `BetterSlidingSwipeButton` node's default template. Path is relative to the `resource/image/` directory. Default: `""` (use the shared default template). |
+| `ExceedingOverrideEnable` | `string`                | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. Useful for triggering a fallback branch when the target cannot be reached. Default: `""` (disabled — the action fails immediately instead). |
 
 \* Required in normal mode; ignored in swipe-only mode.
 
