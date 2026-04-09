@@ -202,6 +202,7 @@
     },
     "ReceptionRoomCollectClues": {
         "desc": "[会客室·收集线索] 识别需要收集线索的奖励",
+        "max_hit": 2,
         "recognition": {
             "type": "And",
             "param": {
