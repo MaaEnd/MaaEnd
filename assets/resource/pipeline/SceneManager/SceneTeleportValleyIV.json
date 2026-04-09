@@ -1,4 +1,85 @@
 {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub1Try0": {
+        "desc": "在地图界面找锚点 (枢纽区-枢纽基地电站)",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVTheHub"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "target": [
+                392.5,
+                498.6
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub2Try0": {
+        "desc": "在地图界面找锚点 (枢纽区-南部草甸)",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVTheHub"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "target": [
+                566.3,
+                561.2
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub3Try0": {
+        "desc": "在地图界面找锚点 (枢纽区-岩秋通道)",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVTheHub"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "target": [
+                474.4,
+                265.5
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1": {
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",

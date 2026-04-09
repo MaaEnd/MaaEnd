@@ -91,6 +91,29 @@
             }
         ]
     },
+    "InMapValleyIVTheHub": {
+        "desc": "在四号谷地-枢纽区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "枢纽区",
+                    "樞紐區",
+                    "(?i)The\\s*Hub",
+                    "中枢エリア",
+                    "거점 지역"
+                ]
+            }
+        ]
+    },
     "InMapValleyIVOriginiumSciencePark": {
         "desc": "在四号谷地-源石研究园地图界面",
         "recognition": "And",

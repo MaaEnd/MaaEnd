@@ -338,5 +338,44 @@
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
         ]
+    },
+    "SceneEnterWorldValleyIVTheHub1": {
+        "desc": "从任意界面进入四号谷地-枢纽区-枢纽基地电站大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub1Try0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
+    },
+    "SceneEnterWorldValleyIVTheHub2": {
+        "desc": "从任意界面进入四号谷地-枢纽区-南部草甸大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub2Try0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
+    },
+    "SceneEnterWorldValleyIVTheHub3": {
+        "desc": "从任意界面进入四号谷地-枢纽区-岩秋通道大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub3Try0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
     }
 }
