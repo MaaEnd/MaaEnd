@@ -45,8 +45,10 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "GrayCancelButton",
                     "YellowConfirmButtonType1"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -59,7 +61,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "GrayCancelButton"
+                    "GrayCancelButton",
+                    "YellowConfirmButtonType1"
                 ]
             }
         },
