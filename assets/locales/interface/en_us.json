@@ -540,6 +540,7 @@
     "option.AutoCollectRoute1.label": "Collect Route 1: Wuling City - Blighted Yuhua Leaf",
     "option.AutoCollectRoute2.label": "Collect Route 2: Wuling City - False Aggela",
     "option.AutoCollectRoute3.label": "Collect Route 3: Wuling City - Vitrodendra",
+    "option.AutoCollectRoute4.label": "Collect Route 4: Valley IV - Pure Vitrodendra",
     "group.daily.label": "Daily Routine",
     "group.daily.description": "Common reward, base, trading, and progression tasks for regular logins.",
     "group.realtime.label": "Real-time Assist",

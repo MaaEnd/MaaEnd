@@ -540,6 +540,7 @@
     "option.AutoCollectRoute1.label": "採集ルート1：武陵城内-侵蝕玉華葉",
     "option.AutoCollectRoute2.label": "採集ルート2：武陵城内-岩アンゲロス葉",
     "option.AutoCollectRoute3.label": "採集ルート3：武陵城内-至晶鋭葉",
+    "option.AutoCollectRoute4.label": "採集ルート4：四号谷底-純晶多歯葉",
     "group.daily.label": "日常タスク",
     "group.daily.description": "ログイン後によく使う報酬受取・基地・経営・育成タスク。",
     "group.realtime.label": "リアルタイム補助",

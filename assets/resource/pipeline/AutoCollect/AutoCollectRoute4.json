@@ -1,0 +1,333 @@
+{
+    "AutoCollectRoute4Start": {
+        "next": [
+            "AutoCollectRoute4AssertLocation",
+            "[JumpBack]SceneEnterWorldValleyIVPowerPlateau1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线4"
+        }
+    },
+    "AutoCollectRoute4End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute4AssertLocation": {
+        "desc": "传送到收集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                670,
+                220,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectRoute4GotoFind1"
+        ]
+    },
+    "AutoCollectRoute4GotoFind1": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    674,
+                    225
+                ],
+                [
+                    673,
+                    225
+                ],
+                [
+                    672,
+                    226
+                ],
+                [
+                    670,
+                    226
+                ],
+                [
+                    644,
+                    240
+                ],
+                [
+                    624,
+                    240
+                ],
+                [
+                    622,
+                    239
+                ],
+                [
+                    605,
+                    235
+                ],
+                [
+                    602,
+                    235
+                ],
+                [
+                    573,
+                    248
+                ],
+                [
+                    566,
+                    251
+                ],
+                [
+                    537,
+                    263
+                ],
+                [
+                    534,
+                    263
+                ],
+                [
+                    532,
+                    264
+                ],
+                [
+                    529,
+                    264
+                ],
+                [
+                    527,
+                    265
+                ],
+                [
+                    522,
+                    265
+                ],
+                [
+                    520,
+                    266
+                ],
+                [
+                    512,
+                    267
+                ],
+                [
+                    510,
+                    266
+                ],
+                [
+                    505,
+                    266
+                ],
+                [
+                    503,
+                    265
+                ],
+                [
+                    499,
+                    265
+                ],
+                [
+                    499,
+                    261,
+                    true
+                ],
+                [
+                    499,
+                    261
+                ],
+                [
+                    492,
+                    253
+                ],
+                [
+                    487,
+                    253
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind2": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    484,
+                    255,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind3": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    483.01,
+                    256.02,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind4": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    481,
+                    257
+                ],
+                [
+                    480,
+                    259,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind5"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind5": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    481,
+                    259,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind6"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind6": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    482,
+                    258,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind7"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind7": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    485,
+                    264,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind8"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute4GotoFind8": {
+        "desc": "前往收集点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    487,
+                    263,
+                    true
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute4End"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}
