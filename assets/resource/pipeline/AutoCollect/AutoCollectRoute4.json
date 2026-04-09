@@ -19,10 +19,10 @@
         "custom_recognition_param": {
             "zone_id": "ValleyIV_Base",
             "target": [
-                670,
-                220,
-                20,
-                20
+                650,
+                210,
+                30,
+                30
             ]
         },
         "action": "DoNothing",
