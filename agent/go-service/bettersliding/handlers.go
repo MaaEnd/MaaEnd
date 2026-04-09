@@ -503,6 +503,15 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
+	if !detail.Status.Success() {
+		a.logger.Error().
+			Str("caller", arg.CurrentTaskName).
+			Int64("subtask_id", detail.ID).
+			Str("subtask_status", detail.Status.String()).
+			Msg("internal BetterSliding pipeline failed")
+		return false
+	}
+
 	if a.SwipeOnlyMode {
 		a.logger.Info().
 			Str("caller", arg.CurrentTaskName).
@@ -519,15 +528,6 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		}
 
 		return true
-	}
-
-	if !detail.Status.Success() {
-		a.logger.Error().
-			Str("caller", arg.CurrentTaskName).
-			Int64("subtask_id", detail.ID).
-			Str("subtask_status", detail.Status.String()).
-			Msg("internal BetterSliding pipeline failed")
-		return false
 	}
 
 	if !a.exceeded && a.ExceedingOverrideEnable != "" {
