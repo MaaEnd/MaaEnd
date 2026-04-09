@@ -72,7 +72,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            // "AutoSellEnterStockRedistribution"
+            "AutoSellEnterStockRedistribution"
         ]
     },
     // "AutoSellShipEnterStockRedistribution": {
