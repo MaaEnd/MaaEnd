@@ -10,93 +10,120 @@
     },
     "GearAssemblyCheckIsAssemblePage": {
         "desc": "检测是否处于 [装备制作]",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            263,
-            117
-        ],
-        "expected": [
-            "套组装备",
-            "套裝裝備",
-            "(?i)Set\\s*Gear",
-            "セット装備",
-            "装备",
-            "裝備",
-            "(?i)Gear",
-            "装備"
-        ],
-        "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblyClickProduceBtn"
-        ]
-    },
-    "GearAssemblySwitchAscending": {
-        "desc": "识别到降序，变成升序",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    44,
-                    648,
-                    351,
-                    35
+                    0,
+                    0,
+                    263,
+                    117
                 ],
                 "expected": [
-                    "降序",
-                    "(?i)DESC",
-                    "降順"
+                    "套组装备",
+                    "套裝裝備",
+                    "(?i)Set\\s*Gear",
+                    "セット装備",
+                    "装备",
+                    "裝備",
+                    "(?i)Gear",
+                    "装備"
                 ]
             }
         },
-        "action": {
-            "type": "Click"
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGoToStandalone",
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblyDirectlyAssemble"
+        ]
+    },
+    "GearAssemblySwitchAscending": {
+        "desc": "识别到降序，变成升序",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    325,
+                    630,
+                    100,
+                    60
+                ],
+                "template": [
+                    "GearAssembly/Filter.png",
+                    "GearAssembly/FilterHover.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
         },
-        "post_wait_freezes": 1
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GearAssemblyClickProduceBtn": {
         "desc": "点击制作按钮",
-        "recognition": "OCR",
-        "roi": [
-            1134,
-            614,
-            139,
-            95
-        ],
-        "expected": [
-            "制作",
-            "製作",
-            "(?i)Craft",
-            "確定"
-        ],
-        "action": "Click",
-        "post_wait_freezes": 100,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1134,
+                    614,
+                    139,
+                    95
+                ],
+                "expected": [
+                    "制作",
+                    "製作",
+                    "(?i)Craft",
+                    "確定"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GearAssemblyCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
-            // 检查下是不是进入成功页面
+            "GearAssemblyCheckMaterialEnough",
             "GearAssemblyCloseProductPopup"
         ]
     },
     "GearAssemblyCheckMaterialEnough": {
         "desc": "检测背包是否已满，背包已满直接结束",
-        "recognition": "OCR",
-        "roi": [
-            409,
-            81,
-            439,
-            82
-        ],
-        "expected": [
-            "空间已满",
-            "空間已滿",
-            "可销毁或丢弃部分",
-            "可銷毀或丟棄部分"
-        ],
-        "next": [
-            "GearAssemblyCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    409,
+                    81,
+                    439,
+                    82
+                ],
+                "expected": [
+                    "空间已满",
+                    "空間已滿",
+                    "可销毁或丢弃部分",
+                    "可銷毀或丟棄部分"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GearAssemblyCloseProductPopup": {
         "desc": "装备制造完成确认",
@@ -108,36 +135,467 @@
                     581,
                     100,
                     109
-                ], //扩大识图区域，避免界面微调导致识别失败
+                ],
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9
             }
         },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblyGoToStandalone": {
+        "desc": "前往装备数量更少的独立装备制造，以便执行自动选择，附：没招了怎么延时那么大",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    250,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "独立装备制造"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GearAssemblyCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
+            "GearAssemblyEnsureInStandalone"
         ]
     },
-    "GearAssemblyCreationFinish": {
+    "GearAssemblyCheckIfReachedScrollEnd": {
+        "desc": "检查是否滑动到底部",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    445,
+                    625,
+                    15,
+                    20
+                ],
+                "lower": [
+                    [
+                        220,
+                        220,
+                        220
+                    ]
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPositionFinal"
+        ]
+    },
+    "GearAssemblyCheckIfScreenIsUnstable": {
+        "desc": "检查画面是否不稳定 (无有效按钮)",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GearAssemblyCheckForWhiteButton",
+                    "GearAssemblyCheckForRedButton"
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblySwipeToNextRow": {
+        "desc": "滑动到下一行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    -50
+                ],
+                "end": [
+                    [
+                        70,
+                        20,
+                        30,
+                        1
+                    ],
+                    [
+                        100,
+                        20,
+                        30,
+                        1
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ],
+        "on_error": [
+            "GearAssemblySwipeToNextRowLightly"
+        ]
+    },
+    "GearAssemblyGetGearPositionFinal": {
+        "desc": "收尾，使用offset_roi处理余下装备",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GearAssemblyGetGearPositionWithOffset",
+                    "GearAssemblyGetGearPosition"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyGetGearPositionFinalHelper",
+            "GearAssemblyNoAvailableGear"
+        ]
+    },
+    "GearAssemblyGetGearPositionWithOffset": {
+        "desc": "点击第一个可制造装备(带偏移版)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GearAssemblyGetGearPositionFinal",
+                "roi_offset": [
+                    -5,
+                    100,
+                    10,
+                    400
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblyNoAvailableGear": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "无可制造装备"
+        }
+    },
+    "GearAssemblySwipeToNextRowLightly": {
+        "desc": "滑动到下一行",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    1000,
+                    630,
+                    255,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        70,
+                        20,
+                        30,
+                        1
+                    ],
+                    [
+                        100,
+                        20,
+                        30,
+                        1
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ]
+    },
+    "GearAssemblyGetGearPositionFinalHelper": {
+        "desc": "优化在mpe下的显示，使得自循环看起来不那么绕",
+        "max_hit": 6,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GearAssemblyGetGearPositionFinal"
+        ]
+    },
+    "GearAssemblyGetGearPosition": {
+        "desc": "点击第一个可制造装备",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    35,
+                    50,
+                    100,
+                    590
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                380,
+                90,
+                225,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblySwipeToNextRow"
+        ]
+    },
+    "GearAssemblyEnsureInStandalone": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -200,
-                    0,
                     200,
-                    200
+                    0,
+                    150,
+                    60
                 ],
                 "template": [
-                    "SceneManager/WorldMenu.png"
+                    "GearAssembly/Standalone.png"
                 ],
-                "green_mask": true
+                "threshold": [
+                    0.8
+                ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ]
+    },
+    "GearAssemblyCheckForWhiteButton": {
+        "desc": "检查是否有白色按钮 (配方未解锁)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    996,
+                    630,
+                    270,
+                    60
+                ],
+                "lower": [
+                    [
+                        225,
+                        225,
+                        225
+                    ]
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 2000
+            }
+        }
+    },
+    "GearAssemblyCannotAssemble": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "无法制造"
+        }
+    },
+    "GearAssemblyDirectlyAssemble": {
+        "desc": "中继节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "[JumpBack]GearAssemblyCheckIfScreenIsUnstable",
+            "GearAssemblyCannotAssemble"
+        ]
+    },
+    "GearAssemblyCheckForRedButton": {
+        "desc": "检查是否有红色按钮 (材料不足)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    996,
+                    630,
+                    270,
+                    60
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        150,
+                        80
+                    ]
+                ],
+                "upper": [
+                    [
+                        5,
+                        220,
+                        150
+                    ]
+                ],
+                "count": 2000
+            }
+        }
     }
 }

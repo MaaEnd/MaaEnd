@@ -6,12 +6,8 @@
             "entry": "VisitFriendsMain",
             "description": "$task.VisitFriends.description",
             "option": [
-                "ProductionAssistType"
-            ],
-            "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
-                "Win32-Front"
+                "VisitFriendsRemark",
+                "ProductionAssistControl"
             ],
             "group": [
                 "daily"
@@ -19,33 +15,82 @@
         }
     ],
     "option": {
-        "ProductionAssistType": {
-            "type": "select",
-            "label": "$option.ProductionAssistType.label",
-            "default_case": "ProductionAssistAll",
+        "VisitFriendsRemark": {
+            "type": "switch",
+            "label": "$option.VisitFriendsRemark.label",
+            "default_case": "No",
             "cases": [
                 {
-                    "name": "ProductionAssistAll",
-                    "label": "$option.ProductionAssistType.ProductionAssistAll.label"
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsRemark": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
-                    "name": "ProductionAssistOnlyGrowthChamber",
-                    "label": "$option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label",
+                    "name": "No",
                     "pipeline_override": {
-                        "VisitFriendsMenuScanTargetFriendOpen": {
-                            "custom_recognition_param": {
-                                "assist_mode": "only_growth_chamber"
+                        "VisitFriendsRemark": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ProductionAssistControl": {
+            "type": "checkbox",
+            "label": "$option.ProductionAssistControl.label",
+            "default_case": [
+                "ProductionAssistControlNexus",
+                "ProductionAssistMFGCabin",
+                "ProductionAssistGrowthChamber"
+            ],
+            "cases": [
+                {
+                    "name": "ProductionAssistControlNexus",
+                    "label": "$option.ProductionAssistControl.ProductionAssistControlNexus.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "control_nexus_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "control_nexus_assist": true
                             }
                         }
                     }
                 },
                 {
-                    "name": "ProductionAssistWithoutControlNexus",
-                    "label": "$option.ProductionAssistType.ProductionAssistWithoutControlNexus.label",
+                    "name": "ProductionAssistMFGCabin",
+                    "label": "$option.ProductionAssistControl.ProductionAssistMFGCabin.label",
                     "pipeline_override": {
-                        "VisitFriendsMenuScanTargetFriendOpen": {
-                            "custom_recognition_param": {
-                                "assist_mode": "without_control_nexus"
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "mfg_cabin_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "mfg_cabin_assist": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProductionAssistGrowthChamber",
+                    "label": "$option.ProductionAssistControl.ProductionAssistGrowthChamber.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "growth_chamber_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "growth_chamber_assist": true
                             }
                         }
                     }

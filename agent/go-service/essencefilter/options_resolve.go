@@ -23,12 +23,12 @@ type EssenceFilterOptionsPatch struct {
 	Slot3MinLevel            *int  `json:"slot3_min_level"`
 	LockSlot3Practical       *bool `json:"lock_slot3_practical"`
 
-	DiscardUnmatched       *bool   `json:"discard_unmatched"`
-	ExportCalculatorScript *bool   `json:"export_calculator_script"`
-	SkipThumbLock          *bool   `json:"skip_thumb_lock"`
-	SkipThumbDiscard       *bool   `json:"skip_thumb_discard"`
+	DiscardUnmatched       *bool `json:"discard_unmatched"`
+	ExportCalculatorScript *bool `json:"export_calculator_script"`
+	SkipThumbLock          *bool `json:"skip_thumb_lock"`
+	SkipThumbDiscard       *bool `json:"skip_thumb_discard"`
 	// Legacy: when both SkipThumbLock and SkipThumbDiscard are absent in the same patch, maps to both.
-	SkipLockedRow *bool `json:"skip_locked_row"`
+	SkipLockedRow *bool   `json:"skip_locked_row"`
 	InputLanguage *string `json:"input_language"`
 }
 

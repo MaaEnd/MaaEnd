@@ -42,7 +42,15 @@ func buildSwipeSpecificQuantityOverride(customActionParam map[string]any, target
 	for key, item := range customActionParam {
 		clonedParam[key] = item
 	}
-	clonedParam["Target"] = target
+
+	quantityParam := map[string]any{}
+	if rawQuantity, ok := clonedParam["Quantity"].(map[string]any); ok {
+		for key, item := range rawQuantity {
+			quantityParam[key] = item
+		}
+	}
+	quantityParam["Target"] = target
+	clonedParam["Quantity"] = quantityParam
 
 	return map[string]any{
 		"enabled": true,

@@ -1,0 +1,98 @@
+{
+    "NotSoldOut": {
+        "roi_offset": [
+            -117,
+            -168,
+            173,
+            189
+        ]
+    },
+    "CanNotAfford": {
+        "roi_offset": [
+            124,
+            165,
+            -124,
+            -181
+        ]
+    },
+    "CanAfford": {
+        "roi_offset": [
+            124,
+            165,
+            -124,
+            -181
+        ]
+    },
+    "BuyFirstOCR": {
+        "roi_offset": [
+            -126,
+            48,
+            125,
+            1
+        ]
+    },
+    "BuyFirstOCR_CanNotAfford": {
+        "roi_offset": [
+            -126,
+            48,
+            125,
+            1
+        ]
+    },
+    "IsDiscountPriority1": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    },
+    "IsDiscountPriority1_CanNotAfford": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    },
+    "Priority2OCR": {
+        "roi_offset": [
+            -126,
+            48,
+            125,
+            1
+        ]
+    },
+    "IsDiscountPriority2": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    },
+    "IsDiscountPriority2_CanNotAfford": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    },
+    "IsDiscountPriority3": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    },
+    "IsDiscountPriority3_CanNotAfford": {
+        "roi_offset": [
+            80,
+            -215,
+            -47,
+            11
+        ]
+    }
+}

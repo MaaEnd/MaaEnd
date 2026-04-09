@@ -209,7 +209,7 @@
         ]
     },
     "GoToCisternOriginiumSlugsNotAtStartPos": {
-        "desc": "不在蓄水源石虫任务开始位置附近",
+        "desc": "不在蓄水源石虫任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToCisternOriginiumSlugsRecheckStartPos",
+            "GoToCisternOriginiumSlugsReEnterMap"
+        ]
+    },
+    "GoToCisternOriginiumSlugsRecheckStartPos": {
+        "desc": "传送后再次检查是否已在蓄水源石虫任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToCisternOriginiumSlugsMapTrackerMove"
         ]
+    },
+    "GoToCisternOriginiumSlugsReEnterMap": {
+        "desc": "传送后仍未到达蓄水源石虫任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley7"
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsFinalCheckStartPos",
+            "GoToCisternOriginiumSlugsStartPosFailed"
+        ]
+    },
+    "GoToCisternOriginiumSlugsFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在蓄水源石虫任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsMapTrackerMove"
+        ]
+    },
+    "GoToCisternOriginiumSlugsStartPosFailed": {
+        "desc": "蓄水源石虫传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToCisternOriginiumSlugsMapTrackerMove": {
         "desc": "前往蓄水源石虫",

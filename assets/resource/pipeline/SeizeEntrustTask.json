@@ -68,9 +68,9 @@
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "798w",
+                        "sub_name": "WulingTpl",
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
                                     841,
@@ -78,11 +78,8 @@
                                     48,
                                     424
                                 ],
-                                "expected": [
-                                    "7.98",
-                                    "798",
-                                    "98",
-                                    "79.8"
+                                "template": [
+                                    "SeizeEntrustTask/wuling.png"
                                 ]
                             }
                         }
@@ -91,12 +88,32 @@
                         "recognition": {
                             "type": "OCR",
                             "param": {
-                                "roi": "798w",
+                                "roi": "WulingTpl",
                                 "roi_offset": [
-                                    -234,
-                                    -39,
-                                    57,
-                                    17
+                                    0,
+                                    30,
+                                    0,
+                                    -20
+                                ],
+                                "expected": [
+                                    "7.98",
+                                    "798",
+                                    "79.8"
+                                ],
+                                "only_rec": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "WulingTpl",
+                                "roi_offset": [
+                                    -215,
+                                    -6,
+                                    19,
+                                    -6
                                 ],
                                 "expected": [
                                     "武陵城",
@@ -106,7 +123,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "next": [
@@ -124,9 +142,9 @@
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "798w",
+                        "sub_name": "WulingTpl",
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
                                     841,
@@ -134,11 +152,8 @@
                                     48,
                                     424
                                 ],
-                                "expected": [
-                                    "7.98",
-                                    "798",
-                                    "98",
-                                    "79.8"
+                                "template": [
+                                    "SeizeEntrustTask/wuling.png"
                                 ]
                             }
                         }
@@ -147,12 +162,32 @@
                         "recognition": {
                             "type": "OCR",
                             "param": {
-                                "roi": "798w",
+                                "roi": "WulingTpl",
                                 "roi_offset": [
-                                    -234,
-                                    -39,
-                                    57,
-                                    17
+                                    0,
+                                    30,
+                                    0,
+                                    -20
+                                ],
+                                "expected": [
+                                    "7.98",
+                                    "798",
+                                    "79.8"
+                                ],
+                                "only_rec": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "WulingTpl",
+                                "roi_offset": [
+                                    -215,
+                                    -6,
+                                    19,
+                                    -6
                                 ],
                                 "expected": [
                                     "武陵城",
@@ -162,7 +197,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "post_wait_freezes": 1000,

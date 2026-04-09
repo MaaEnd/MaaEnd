@@ -23,44 +23,9 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "EndExchange_NeedCredit",
+            "[JumpBack]EndExchange_NeedCredit",
             "EntryReceptionRoom_NeedCredit"
-        ],
-        "on_error": [
-            "EntryReceptionRoom_NeedCredit_OnError"
         ]
-    },
-    "EntryReceptionRoom_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点（出错重试）",
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    485,
-                    0,
-                    336,
-                    260
-                ],
-                "expected": [
-                    "^会客室$",
-                    "^會客室$",
-                    "Reception"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "ReceptionRoom_NeedCredit",
-            "EndExchange_NeedCredit",
-            "EntryReceptionRoom_NeedCredit"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_reception_room_entry_failed",
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
     },
     "EndExchange_NeedCredit": {
         "desc": "[信用点商店联动任务·线索] 情报交流结束弹窗出现时点击确认结束",
@@ -74,33 +39,7 @@
                 "box_index": 1
             }
         },
-        "action": "Click",
-        "next": [
-            "ReceptionRoom_NeedCredit"
-        ],
-        "on_error": [
-            "EndExchange_NeedCredit_OnError"
-        ]
-    },
-    "EndExchange_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·线索] 情报交流结束弹窗出现时点击确认结束（出错重试）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "WhiteConfirmButtonType1",
-                    "WhiteButtonConfirmText"
-                ],
-                "box_index": 1
-            }
-        },
-        "action": "Click",
-        "next": [
-            "ReceptionRoom_NeedCredit"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
+        "action": "Click"
     },
     "ReceptionRoom_NeedCredit": {
         "desc": "[信用点商店联动任务·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
@@ -122,17 +61,24 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                375,
+                578
+            ]
+        },
         "next": [
-            "EndExchange_NeedCredit",
-            "StartExchange_NeedCredit",
+            "[JumpBack]EndExchange_NeedCredit",
+            "[JumpBack]StartExchange_NeedCredit",
+            "[JumpBack]ReceptionRoomSendCluesEntry_NeedCredit",
             "CanNotStartExchange_NeedCredit"
-        ],
-        "on_error": [
-            "ReceptionRoom_NeedCredit_OnError"
         ]
     },
-    "ReceptionRoom_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出（出错重试）",
+    "CanNotStartExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -142,12 +88,6 @@
                     165,
                     64
                 ],
-                "roi_offset": [
-                    0,
-                    0,
-                    193,
-                    0
-                ],
                 "expected": [
                     "会客室",
                     "會客室",
@@ -156,97 +96,6 @@
                     "Reception"
                 ]
             }
-        },
-        "next": [
-            "EndExchange_NeedCredit",
-            "StartExchange_NeedCredit",
-            "CanNotStartExchange_NeedCredit"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_exchange_start_failed",
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
-    },
-    "CanNotStartExchange_NeedCredit": {
-        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    327,
-                    428,
-                    864,
-                    283
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    89,
-                    0
-                ],
-                "expected": [
-                    "情报交流中",
-                    "情報交流中",
-                    "(?i)Exchanging\\s*Clues",
-                    "情報共有中",
-                    "集齐所有线索可开展情报交流",
-                    "集齊所有線索可開展情報交流",
-                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
-                    "手がかりをすべて集めると情報共有可能"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
-        ],
-        "on_error": [
-            "CanNotStartExchange_NeedCredit_OnError"
-        ]
-    },
-    "CanNotStartExchange_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务（出错重试）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    327,
-                    428,
-                    864,
-                    283
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    89,
-                    0
-                ],
-                "expected": [
-                    "情报交流中",
-                    "情報交流中",
-                    "(?i)Exchanging\\s*Clues",
-                    "情報共有中",
-                    "集齐所有线索可开展情报交流",
-                    "集齊所有線索可開展情報交流",
-                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
-                    "手がかりをすべて集めると情報共有可能"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "StartExchange_NeedCredit": {
@@ -269,36 +118,9 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "CloseExchangeRewards_NeedCredit"
-        ],
-        "on_error": [
-            "StartExchange_NeedCredit_OnError"
+            "CloseExchangeRewards_NeedCredit",
+            "EndExchange_NeedCredit"
         ]
-    },
-    "StartExchange_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·线索] 识别开始线索交流的按钮，点击进入线索交流（出错重试）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "YellowConfirmButtonType1",
-                    "StartExchangeText"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CloseExchangeRewards_NeedCredit"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
     },
     "CloseExchangeRewards_NeedCredit": {
         "recognition": {
@@ -316,24 +138,274 @@
         },
         "post_delay": 0,
         "timeout": 5000,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesEntry_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 在会客室点击「赠予」进入发送线索界面",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予",
+                    "贈予",
+                    "(?i)Send",
+                    "譲り渡す"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -300,
+                0,
+                300,
+                150
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
-        ],
-        "on_error": [
-            "CloseExchangeRewards_NeedCredit_OnError"
+            "ReceptionRoomSendCluesViewIn_NeedCredit",
+            "EndExchange_NeedCredit"
         ]
     },
-    "CloseExchangeRewards_NeedCredit_OnError": {
-        "desc": "[信用点商店联动任务·线索] 识别线索交流结束界面关闭按钮（出错重试）",
+    "ReceptionRoomSendCluesViewIn_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 进入赠予界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    11,
+                    6,
+                    360,
+                    51
+                ],
+                "expected": [
+                    "赠予自有线索",
+                    "贈予自有線索",
+                    "Send Local Clues",
+                    "SEND LOCAL CLUES",
+                    "譲り渡す"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 1000,
+            "target": [
+                -450,
+                -300,
+                450,
+                300
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]ReceptionRoomSendCluesSelectClues_NeedCredit",
+            "[JumpBack]ReceptionRoomSendCluesSwipe_NeedCredit",
+            "ReceptionRoomSendExit_NeedCredit"
+        ]
+    },
+    "ClueItemCount_NeedCredit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueItem",
+                "roi_offset": [
+                    165,
+                    0,
+                    -46,
+                    0
+                ],
+                "expected": [
+                    "^(20|[3-9]|1[0-9])$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSelectClues_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 在赠予界面选择自有库存数量最多且满足阈值的线索并点击，以便发送",
+        "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton",
-                    "CloseRewardsButtonText"
+                    "ClueItem",
+                    "ClueItemCount_NeedCredit"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                -450,
+                -300,
+                450,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend_NeedCredit"
+        ]
+    },
+    "ReceptionRoomSendCluesClickSend_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 在赠予界面点击发送按钮确认发送",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "ReceptionRoomSendCluesSelectFriend_NeedCredit",
+                    "ReceptionRoomSendCluesSendButton_NeedCredit"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesSelectFriend_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 先识别缺失线索的好友",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSendCluesFindColor_NeedCredit",
+                    "ReceptionRoomSendCluesColorSendButton_NeedCredit"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ReceptionRoomSendCluesFindColor_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别缺少线索的颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    967,
+                    0,
+                    313,
+                    720
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    200,
+                    255
+                ],
+                "upper": [
+                    28,
+                    200,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "ReceptionRoomSendCluesColorSendButton_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 根据缺失的颜色寻找对应的发送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "ReceptionRoomSendCluesFindColor_NeedCredit",
+                "roi_offset": [
+                    76,
+                    -46,
+                    253,
+                    79
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSendButton_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别赠予界面内的发送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    967,
+                    0,
+                    313,
+                    720
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSwipe_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 赠予界面内滑动列表以刷新可选线索数量",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    121,
+                    112,
+                    239,
+                    597
+                ],
+                "expected": [
+                    "线索",
+                    "線索",
+                    "Clue"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": -120
+            }
+        },
+        "timeout": 5000,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendExit_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 发送完成后关闭赠予界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -120,
+                    0,
+                    120,
+                    70
+                ],
+                "template": [
+                    "ClaimDijiangRewards/SendCluesBackButton.png"
                 ]
             }
         },
@@ -344,12 +416,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
+            "ReceptionRoom_NeedCredit"
+        ]
     }
 }

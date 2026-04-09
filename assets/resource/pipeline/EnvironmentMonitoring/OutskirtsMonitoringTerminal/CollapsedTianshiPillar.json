@@ -209,7 +209,7 @@
         ]
     },
     "GoToCollapsedTianshiPillarNotAtStartPos": {
-        "desc": "不在倒塌的天师桩任务开始位置附近",
+        "desc": "不在倒塌的天师桩任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToCollapsedTianshiPillarRecheckStartPos",
+            "GoToCollapsedTianshiPillarReEnterMap"
+        ]
+    },
+    "GoToCollapsedTianshiPillarRecheckStartPos": {
+        "desc": "传送后再次检查是否已在倒塌的天师桩任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        210,
+                        635,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToCollapsedTianshiPillarMapTrackerMove"
         ]
+    },
+    "GoToCollapsedTianshiPillarReEnterMap": {
+        "desc": "传送后仍未到达倒塌的天师桩任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley8"
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarFinalCheckStartPos",
+            "GoToCollapsedTianshiPillarStartPosFailed"
+        ]
+    },
+    "GoToCollapsedTianshiPillarFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在倒塌的天师桩任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        210,
+                        635,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarMapTrackerMove"
+        ]
+    },
+    "GoToCollapsedTianshiPillarStartPosFailed": {
+        "desc": "倒塌的天师桩传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToCollapsedTianshiPillarMapTrackerMove": {
         "desc": "前往倒塌的天师桩",

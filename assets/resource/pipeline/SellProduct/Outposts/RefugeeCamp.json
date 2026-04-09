@@ -1,0 +1,305 @@
+{
+    // ===== 售卖点顶层节点 =====
+    "SellProductRefugeeCamp": {
+        "desc": "难民暂居处售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampSell",
+            "[JumpBack]SellProductGoToRefugeeCamp"
+        ]
+    },
+    // ===== 售卖锚点节点 =====
+    "SellProductRefugeeCampSell": {
+        "desc": "难民暂居处售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProductRefugeeCampSellAttempt1",
+            "SellProductSellAttempt2": "SellProductRefugeeCampSellAttempt2",
+            "SellProductSellAttempt3": "SellProductRefugeeCampSellAttempt3",
+            "SellProductSellAttempt4": "SellProductRefugeeCampSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    // ===== 在指定据点的识别节点 =====
+    "SellProductInRefugeeCamp": {
+        "desc": "在难民暂居处",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampText",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 前往据点导航节点 =====
+    "SellProductGoToRefugeeCamp": {
+        "desc": "前往难民暂居处据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInRefugeeCamp"
+        ]
+    },
+    // ===== 标签页文本检查（小文本） =====
+    "SellProductCheckRefugeeCampTabText": {
+        "desc": "检查难民暂居处文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "(?i)Refugee\\s*Camp",
+            "仮設居住地"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 据点内大字文本检查 =====
+    "SellProductCheckRefugeeCampText": {
+        "desc": "检查难民暂居处大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "(?i)Refugee\\s*Camp",
+            "仮設居住地"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 售卖尝试 1 =====
+    "SellProductRefugeeCampSellAttempt1": {
+        "desc": "难民暂居处第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 2 =====
+    "SellProductRefugeeCampSellAttempt2": {
+        "desc": "难民暂居处第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 3 =====
+    "SellProductRefugeeCampSellAttempt3": {
+        "desc": "难民暂居处第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 4 =====
+    "SellProductRefugeeCampSellAttempt4": {
+        "desc": "难民暂居处第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 优先物品 1 =====
+    "SellProductRefugeeCampSelectItem1": {
+        "desc": "难民暂居处售卖优先物品1",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 2 =====
+    "SellProductRefugeeCampSelectItem2": {
+        "desc": "难民暂居处售卖优先物品2",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 3 =====
+    "SellProductRefugeeCampSelectItem3": {
+        "desc": "难民暂居处售卖优先物品3",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 4 =====
+    "SellProductRefugeeCampSelectItem4": {
+        "desc": "难民暂居处售卖优先物品4",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    }
+}

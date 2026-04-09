@@ -1,0 +1,18 @@
+{
+    "MouseMoveReset": {
+        "desc": "重置鼠标",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

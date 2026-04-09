@@ -8,15 +8,16 @@ import (
 )
 
 type parsedQuantizedSlidingParams struct {
-	target                  int
-	quantityBox             []int
-	quantityFilter          *quantityFilterParam
-	concatAllFilteredDigits bool
-	direction               string
-	increaseButton          buttonTarget
-	decreaseButton          buttonTarget
-	centerPointOffset       [2]int
-	clampTargetToMax        bool
+	target            int
+	quantityBox       []int
+	quantityFilter    *quantityFilterParam
+	quantityOnlyRec   bool
+	greenMask         bool
+	direction         string
+	increaseButton    buttonTarget
+	decreaseButton    buttonTarget
+	centerPointOffset [2]int
+	clampTargetToMax  bool
 }
 
 func parseQuantizedSlidingParam(customActionParam string) (quantizedSlidingParam, error) {
@@ -49,9 +50,9 @@ func (a *QuantizedSlidingAction) loadActionParams(customActionParam string) bool
 }
 
 func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingParam) (parsedQuantizedSlidingParams, bool) {
-	if params.Target <= 0 {
+	if params.Quantity.Target <= 0 {
 		a.logger.Error().
-			Int("target", params.Target).
+			Int("target", params.Quantity.Target).
 			Msg("invalid target, must be greater than 0")
 		return parsedQuantizedSlidingParams{}, false
 	}
@@ -88,16 +89,22 @@ func (a *QuantizedSlidingAction) normalizeActionParams(params quantizedSlidingPa
 		return parsedQuantizedSlidingParams{}, false
 	}
 
+	quantityOnlyRec := false
+	if params.Quantity.OnlyRec != nil {
+		quantityOnlyRec = *params.Quantity.OnlyRec
+	}
+
 	return parsedQuantizedSlidingParams{
-		target:                  params.Target,
-		quantityBox:             append([]int(nil), params.QuantityBox...),
-		quantityFilter:          quantityFilter,
-		concatAllFilteredDigits: params.ConcatAllFilteredDigits,
-		direction:               strings.ToLower(strings.TrimSpace(params.Direction)),
-		increaseButton:          increaseButton,
-		decreaseButton:          decreaseButton,
-		centerPointOffset:       centerPointOffset,
-		clampTargetToMax:        params.ClampTargetToMax,
+		target:            params.Quantity.Target,
+		quantityBox:       append([]int(nil), params.Quantity.Box...),
+		quantityFilter:    quantityFilter,
+		quantityOnlyRec:   quantityOnlyRec,
+		greenMask:         params.GreenMask,
+		direction:         strings.ToLower(strings.TrimSpace(params.Direction)),
+		increaseButton:    increaseButton,
+		decreaseButton:    decreaseButton,
+		centerPointOffset: centerPointOffset,
+		clampTargetToMax:  params.ClampTargetToMax,
 	}, true
 }
 
@@ -105,7 +112,8 @@ func (a *QuantizedSlidingAction) applyActionParams(params parsedQuantizedSliding
 	a.Target = params.target
 	a.QuantityBox = params.quantityBox
 	a.QuantityFilter = params.quantityFilter
-	a.ConcatAllFilteredDigits = params.concatAllFilteredDigits
+	a.QuantityOnlyRec = params.quantityOnlyRec
+	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
@@ -120,8 +128,9 @@ func (a *QuantizedSlidingAction) logParsedActionParams() {
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
+		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Bool("concat_all_filtered_digits", a.ConcatAllFilteredDigits).
+		Bool("quantity_only_rec", a.QuantityOnlyRec).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_max", a.ClampTargetToMax)
 

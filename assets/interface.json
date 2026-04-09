@@ -1,8 +1,8 @@
 {
     "interface_version": 2,
     "name": "MaaEnd",
-    "description": "MaaEnd 终末地小助手，绝赞开发中！",
-    "version": "v114514.0.0",
+    "description": "$description.file",
+    "version": "v0.1.0",
     "contact": "$contact.file",
     "license": "locales/LICENSE_SHORT.md",
     "welcome": "README.md",
@@ -134,7 +134,7 @@
         "tasks/DeliveryJobs.json",
         "tasks/SellProduct.json",
         "tasks/AutoStockpile.json",
-        "tasks/AutoResell.json",
+        "tasks/AutoSell.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
@@ -163,7 +163,6 @@
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
-        "tasks/preset/AutoTrading.json",
         "tasks/preset/EssenceFarming.json"
     ]
 }

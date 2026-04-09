@@ -13,7 +13,7 @@
         "post_delay": 0
     },
     "AutoCollectRoute2AssertLocation": {
-        "desc": "传送到收集地",
+        "desc": "传送到采集点",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -38,169 +38,70 @@
         ]
     },
     "AutoCollectRoute2GotoFind1": {
-        "desc": "前往收集地1",
+        "desc": "前往采集点1",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            629,
-                            527
+                            635.0,
+                            537.0
                         ],
                         [
-                            624,
-                            527
+                            630.0,
+                            533.3
                         ],
                         [
-                            624,
-                            526
+                            586.3,
+                            533.2
                         ],
                         [
-                            624,
-                            527
+                            586.3,
+                            530.8
                         ],
                         [
-                            624,
-                            524
+                            588.7,
+                            527.0
                         ],
                         [
-                            622,
-                            523
+                            591.3,
+                            519.6
                         ],
                         [
-                            611,
-                            523
+                            597.4,
+                            510.7
                         ],
                         [
-                            609,
-                            522
+                            595.0,
+                            503.3
                         ],
                         [
-                            604,
-                            523
+                            587.5,
+                            494.5
                         ],
                         [
-                            602,
-                            522
+                            582.5,
+                            489.5
                         ],
                         [
-                            593,
-                            523
+                            577.5,
+                            484.4
                         ],
                         [
-                            591,
-                            524
+                            572.5,
+                            479.5
                         ],
                         [
-                            578,
-                            524
+                            565.0,
+                            477.1
                         ],
                         [
-                            577,
-                            522
-                        ],
-                        [
-                            586,
-                            510
-                        ],
-                        [
-                            586,
-                            509
-                        ],
-                        [
-                            589,
-                            505
-                        ],
-                        [
-                            589,
-                            504
-                        ],
-                        [
-                            590,
-                            502
-                        ],
-                        [
-                            590,
-                            500
-                        ],
-                        [
-                            580,
-                            487
-                        ],
-                        [
-                            573,
-                            480
-                        ],
-                        [
-                            565.63,
-                            472.15
-                        ],
-                        [
-                            563.38,
-                            471.17
-                        ],
-                        [
-                            561.28,
-                            470.97
-                        ],
-                        [
-                            558.91,
-                            471.08
-                        ],
-                        [
-                            556,
-                            471
-                        ],
-                        [
-                            555,
-                            471
-                        ],
-                        [
-                            553,
-                            470
-                        ],
-                        [
-                            551,
-                            470
-                        ],
-                        [
-                            545,
-                            467
-                        ],
-                        [
-                            544,
-                            467
-                        ],
-                        [
-                            542,
-                            466
-                        ],
-                        [
-                            539,
-                            466
-                        ],
-                        [
-                            537,
-                            465
-                        ],
-                        [
-                            535,
-                            465
-                        ],
-                        [
-                            533,
-                            464
-                        ],
-                        [
-                            530,
-                            464
+                            532.5,
+                            472.0
                         ]
                     ]
                 }
@@ -214,22 +115,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind2": {
-        "desc": "前往收集地2",
+        "desc": "前往采集点2",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            523,
-                            459,
-                            true
+                            530.1,
+                            465.7
                         ]
                     ]
                 }
@@ -243,22 +140,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind3": {
-        "desc": "前往收集地3",
+        "desc": "前往采集点3",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            521,
-                            462,
-                            true
+                            528.8,
+                            469.6
                         ]
                     ]
                 }
@@ -272,22 +165,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind4": {
-        "desc": "前往收集地4",
+        "desc": "前往采集点4",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            523,
-                            464,
-                            true
+                            531.2,
+                            472.0
                         ]
                     ]
                 }
@@ -301,22 +190,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind5": {
-        "desc": "前往收集地5",
+        "desc": "前往采集点5",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            523,
-                            468,
-                            true
+                            531.3,
+                            475.8
                         ]
                     ]
                 }
@@ -330,22 +215,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind6": {
-        "desc": "前往收集地6",
+        "desc": "前往采集点6",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            525,
-                            470,
-                            true
+                            532.5,
+                            478.2
                         ]
                     ]
                 }
@@ -359,22 +240,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind7": {
-        "desc": "前往收集地7",
+        "desc": "前往采集点7",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            521,
-                            469,
-                            true
+                            530.1,
+                            476.9
                         ]
                     ]
                 }
@@ -388,27 +265,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind8": {
-        "desc": "前往收集地8",
+        "desc": "前往采集点8",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            521,
-                            472,
-                            true
-                        ],
-                        [
-                            518,
-                            469,
-                            true
+                            525.1,
+                            475.8
                         ]
                     ]
                 }
@@ -422,22 +290,18 @@
         ]
     },
     "AutoCollectRoute2GotoFind9": {
-        "desc": "前往收集地9",
+        "desc": "前往采集点9",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            516,
-                            465,
-                            true
+                            523.8,
+                            473.1
                         ]
                     ]
                 }

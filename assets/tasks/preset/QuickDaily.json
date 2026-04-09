@@ -8,14 +8,18 @@
                 {
                     "name": "VisitFriends",
                     "option": {
-                        "ProductionAssistType": "ProductionAssistAll"
+                        "ProductionAssistControl": [
+                            "ProductionAssistControlNexus",
+                            "ProductionAssistMFGCabin",
+                            "ProductionAssistGrowthChamber"
+                        ]
                     }
                 },
                 {
                     "name": "DijiangRewards",
                     "option": {
                         "AutoStartExchange": "Yes",
-                        "ProductionAssistanceWithoutTheControlNexus": "No",
+                        "StageTaskSetting": "No",
                         "ClueStockLimit": "2"
                     }
                 },

@@ -32,6 +32,66 @@
     "ReceptionRoomClueExchangeWait": {
         "desc": "等待情报交流结束",
         "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "ReceptionRoomExchangeEnd1",
+                    "ReceptionRoomExchangeEnd2"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomClueExchangeConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
+        }
+    },
+    "ReceptionRoomExchangeEnd2": {
+        "desc": "[会客室·线索] 识别到信用点增加,且在会客室界面，确认情报交流结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomExchangeEnd2ColorHit",
+                    "InReceptionRoom"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomExchangeEnd2ColorHit": {
+        "desc": "识别到信用点增加",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    961,
+                    0,
+                    319,
+                    92
+                ],
+                "method": 40,
+                "lower": [
+                    32,
+                    190,
+                    200
+                ],
+                "upper": [
+                    32,
+                    210,
+                    250
+                ],
+                "count": 10
+            }
+        }
+    },
+    "ReceptionRoomExchangeEnd1": {
+        "desc": "[会客室·线索] 识别到情报交流结束的弹窗",
+        "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
@@ -48,14 +108,7 @@
                     "정보 교류 종료"
                 ]
             }
-        },
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomClueExchangeConfirm"
-        ]
+        }
     },
     "ReceptionRoomClueExchangeConfirm": {
         "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
@@ -93,7 +146,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
@@ -101,7 +154,7 @@
                 100
             ]
         },
-        "pre_delay": 1500, // 等待可能出现的情报交流结束弹窗
+        //"pre_delay": 3000, // 等待可能出现的情报交流结束弹窗
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -410,7 +463,16 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 100,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                731,
+                137,
+                549,
+                235
+            ],
+            "timeout": 2000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -481,9 +543,10 @@
             "param": {
                 "all_of": [
                     "ClueItem",
+                    "ClueItemCountColor",
                     "ClueItemCount"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,

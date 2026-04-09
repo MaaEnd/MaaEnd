@@ -14,6 +14,44 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "QuantizedSlidingIncreaseButton": {
+        "desc": "定位增加数量按钮，具体模板会在运行时被 go 覆写",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "QuantizedSliding/SwipeButton.png"
+                ],
+                "green_mask": false,
+                "threshold": [
+                    0.8
+                ],
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "QuantizedSlidingDecreaseButton": {
+        "desc": "定位减少数量按钮，具体模板会在运行时被 go 覆写",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "QuantizedSliding/SwipeButton.png"
+                ],
+                "green_mask": false,
+                "threshold": [
+                    0.8
+                ],
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "QuantizedSlidingGetQuantity": {
         "desc": "识别当前选择的数量",
         "recognition": {
@@ -27,7 +65,8 @@
                 ],
                 "expected": [
                     "\\d+"
-                ]
+                ],
+                "only_rec": false
             }
         },
         "pre_delay": 0,

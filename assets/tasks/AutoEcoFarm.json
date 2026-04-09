@@ -45,16 +45,16 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
-                            "enable": true
+                        "_AutoEcoFarmInitStartValleyIV": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
-                            "enable": false
+                        "_AutoEcoFarmInitStartValleyIV": {
+                            "enabled": false
                         }
                     }
                 }
@@ -68,16 +68,16 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmGotoWulinEcoFarmStart": {
-                            "enable": true
+                        "_AutoEcoFarmInitStartWulin": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmGotoWulinEcoFarmStart": {
-                            "enable": false
+                        "_AutoEcoFarmInitStartWulin": {
+                            "enabled": false
                         }
                     }
                 }
@@ -124,7 +124,7 @@
                         "_AutoEcoFarmGotoTarget": {
                             "enabled": true
                         },
-                        "_AutoEcoFarmHideFactoryFacilities": {
+                        "_AutoEcoFarmWaitForTeammate": {
                             "post_delay": 60000,
                             "focus": {
                                 "Node.Action.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
@@ -147,7 +147,7 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "_AutoEcoFarmPrepareClearBagStart": {
-                            "enable": true
+                            "enabled": true
                         }
                     }
                 },
@@ -155,7 +155,7 @@
                     "name": "No",
                     "pipeline_override": {
                         "_AutoEcoFarmPrepareClearBagStart": {
-                            "enable": false
+                            "enabled": false
                         }
                     }
                 }
@@ -171,7 +171,7 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "_AutoEcoFarmEndClearBagStart": {
-                            "enable": true
+                            "enabled": true
                         }
                     }
                 },
@@ -179,7 +179,7 @@
                     "name": "No",
                     "pipeline_override": {
                         "_AutoEcoFarmEndClearBagStart": {
-                            "enable": false
+                            "enabled": false
                         }
                     }
                 }

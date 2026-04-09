@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from model import (
+    ACTION_NAME_LOOKUP,
     ActionType,
     PathPoint,
     coerce_action_chain,
@@ -452,8 +453,36 @@ def _read_action_name(node: dict[str, Any]) -> str:
     return ""
 
 
-def _parse_action_chain_value(value: Any) -> list[int]:
-    return coerce_action_chain(value, default=int(ActionType.RUN))
+def _looks_like_action_token(value: str) -> bool:
+    token = value.strip()
+    if not token:
+        return False
+    return bool(re.fullmatch(r"[A-Z_]+", token))
+
+
+def _is_reserved_action_keyword(value: str) -> bool:
+    token = value.strip().upper()
+    if not token:
+        return False
+    if token in ACTION_NAME_LOOKUP:
+        return True
+    return token in CONTROL_ACTION_NAMES
+
+
+def _try_parse_action_chain_value(value: Any) -> list[int] | None:
+    if isinstance(value, list):
+        parsed_actions: list[int] = []
+        for item in value:
+            parsed = try_parse_action_type(item)
+            if parsed is None:
+                return None
+            parsed_actions.append(parsed)
+        return coerce_action_chain(parsed_actions, default=int(ActionType.RUN))
+
+    parsed = try_parse_action_type(value)
+    if parsed is None:
+        return None
+    return coerce_action_chain(parsed, default=int(ActionType.RUN))
 
 
 def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
@@ -465,12 +494,18 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
     zone = _resolve_zone_hint(node, zone_hint)
     actions = [int(ActionType.RUN)]
     if "actions" in node:
-        actions = _parse_action_chain_value(node.get("actions"))
+        parsed_actions = _try_parse_action_chain_value(node.get("actions"))
+        if parsed_actions is None:
+            return None
+        actions = parsed_actions
     else:
         for key in ACTION_KEYS:
             if key not in node:
                 continue
-            actions = _parse_action_chain_value(node.get(key))
+            parsed_actions = _try_parse_action_chain_value(node.get(key))
+            if parsed_actions is None:
+                return None
+            actions = parsed_actions
             break
 
     return {
@@ -512,12 +547,22 @@ def _parse_point_list(node: list[Any], zone_hint: str) -> PathPoint | None:
             continue
 
         if isinstance(extra, str):
+            if _looks_like_action_token(extra) or _is_reserved_action_keyword(extra):
+                return None
             parsed_zone = normalize_zone_id(extra)
             if parsed_zone:
                 zone = parsed_zone
+                continue
+            continue
 
         if isinstance(extra, list):
-            actions.extend(_parse_action_chain_value(extra))
+            parsed_actions = _try_parse_action_chain_value(extra)
+            if parsed_actions is None:
+                return None
+            actions.extend(parsed_actions)
+            continue
+
+        return None
 
     actions = coerce_action_chain(actions, default=int(ActionType.RUN))
 

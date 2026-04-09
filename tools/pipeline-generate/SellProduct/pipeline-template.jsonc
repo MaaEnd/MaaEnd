@@ -1,0 +1,295 @@
+{
+    // ===== 售卖点顶层节点 =====
+    "SellProduct${LocationId}": {
+        "desc": "${LocationDesc}售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheck${LocationId}TabText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}Sell",
+            "[JumpBack]SellProductGoTo${LocationId}"
+        ]
+    },
+    // ===== 售卖锚点节点 =====
+    "SellProduct${LocationId}Sell": {
+        "desc": "${LocationDesc}售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProduct${LocationId}SellAttempt1",
+            "SellProductSellAttempt2": "SellProduct${LocationId}SellAttempt2",
+            "SellProductSellAttempt3": "SellProduct${LocationId}SellAttempt3",
+            "SellProductSellAttempt4": "SellProduct${LocationId}SellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    // ===== 在指定据点的识别节点 =====
+    "SellProductIn${LocationId}": {
+        "desc": "在${LocationDesc}",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheck${LocationId}Text",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 前往据点导航节点 =====
+    "SellProductGoTo${LocationId}": {
+        "desc": "前往${LocationDesc}据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${RegionPrefix}Outpost",
+            "SellProductCheck${LocationId}TabText"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductIn${LocationId}"
+        ]
+    },
+    // ===== 标签页文本检查（小文本） =====
+    "SellProductCheck${LocationId}TabText": {
+        "desc": "检查${LocationDesc}文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": "${TextExpected}",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 据点内大字文本检查 =====
+    "SellProductCheck${LocationId}Text": {
+        "desc": "检查${LocationDesc}大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": "${TextExpected}",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 售卖尝试 1 =====
+    "SellProduct${LocationId}SellAttempt1": {
+        "desc": "${LocationDesc}第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 2 =====
+    "SellProduct${LocationId}SellAttempt2": {
+        "desc": "${LocationDesc}第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 3 =====
+    "SellProduct${LocationId}SellAttempt3": {
+        "desc": "${LocationDesc}第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 4 =====
+    "SellProduct${LocationId}SellAttempt4": {
+        "desc": "${LocationDesc}第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 优先物品 1 =====
+    "SellProduct${LocationId}SelectItem1": {
+        "desc": "${LocationDesc}售卖优先物品1",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 2 =====
+    "SellProduct${LocationId}SelectItem2": {
+        "desc": "${LocationDesc}售卖优先物品2",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 3 =====
+    "SellProduct${LocationId}SelectItem3": {
+        "desc": "${LocationDesc}售卖优先物品3",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 4 =====
+    "SellProduct${LocationId}SelectItem4": {
+        "desc": "${LocationDesc}售卖优先物品4",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    }
+}

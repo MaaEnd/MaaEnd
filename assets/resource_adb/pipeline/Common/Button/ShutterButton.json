@@ -1,0 +1,5 @@
+{
+    "ShutterButton": {
+        "threshold": 0.7
+    }
+}

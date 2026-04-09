@@ -10,7 +10,8 @@
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
-                "DestinationRegion"
+                "DestinationRegion",
+                "PreClearBag"
             ],
             "controller": [
                 "Win32-Window",
@@ -36,11 +37,8 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ItemTransfer": {
-                            "next": [
-                                "ItemTransferStart",
-                                "[JumpBack]SceneEnterWorldDijiang2"
-                            ]
+                        "ItemTransferStart": {
+                            "enabled": true
                         }
                     }
                 }
@@ -316,6 +314,50 @@
                         "ItemTransferFindItemWithOCRBagReturn": {
                             "custom_action_param": {
                                 "item_name": "优质芽针针剂"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜矿",
+                    "label": "$item.CuprumOre",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Ore.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
                             }
                         }
                     }
@@ -1252,6 +1294,94 @@
                         "ItemTransferFindItemFallbackBagReturn": {
                             "custom_action_param": {
                                 "target_class": 108
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶",
+                    "label": "$item.CuprumBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜粉末",
+                    "label": "$item.CuprumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末"
                             }
                         }
                     }
@@ -3354,6 +3484,24 @@
                 }
             ],
             "default_case": "Wuling"
+        },
+        "PreClearBag": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "$task.ItemTransfer.option.PreClearBag.description",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferPreClearBag": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         }
     }
 }

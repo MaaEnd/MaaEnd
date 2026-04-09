@@ -209,7 +209,7 @@
         ]
     },
     "GoToRainbowFinNotAtStartPos": {
-        "desc": "不在七彩鳞任务开始位置附近",
+        "desc": "不在七彩鳞任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,8 +218,68 @@
             ]
         },
         "next": [
+            "GoToRainbowFinRecheckStartPos",
+            "GoToRainbowFinReEnterMap"
+        ]
+    },
+    "GoToRainbowFinRecheckStartPos": {
+        "desc": "传送后再次检查是否已在七彩鳞任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        125,
+                        815,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
             "GoToRainbowFinMapTrackerMove"
         ]
+    },
+    "GoToRainbowFinReEnterMap": {
+        "desc": "传送后仍未到达七彩鳞任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley10"
+            ]
+        },
+        "next": [
+            "GoToRainbowFinFinalCheckStartPos",
+            "GoToRainbowFinStartPosFailed"
+        ]
+    },
+    "GoToRainbowFinFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在七彩鳞任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        125,
+                        815,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToRainbowFinMapTrackerMove"
+        ]
+    },
+    "GoToRainbowFinStartPosFailed": {
+        "desc": "七彩鳞传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToRainbowFinMapTrackerMove": {
         "desc": "前往七彩鳞",

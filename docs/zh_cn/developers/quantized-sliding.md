@@ -34,7 +34,7 @@
 `QuantizedSliding` 当前有两种执行模式：
 
 1. **对外调用模式**：当业务任务以 `custom_action: "QuantizedSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `QuantizedSlidingMain` 开始执行整条内部节点链。
-2. **内部节点模式**：当当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
+2. **内部节点模式**：在当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
 
 业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
 
@@ -48,7 +48,7 @@
 2. 将滑块拖到最大值。
 3. OCR 识别当前最大可选数量。
 4. 再次识别滑块位置，记录滑动终点。
-5. 根据 `Target` 与 `maxQuantity` 计算精确点击位置。
+5. 根据 `Quantity.Target` 与 `maxQuantity` 计算精确点击位置。
 6. 点击该位置。
 7. OCR 再次识别当前数量；若仍不等于目标值，则通过加减按钮微调。
 8. 数量与目标一致后结束。
@@ -56,7 +56,7 @@
 其中第 5 步的精确点击位置按线性插值计算：
 
 ```text
-numerator = Target - 1
+numerator = Quantity.Target - 1
 denominator = maxQuantity - 1
 clickX = startX + (endX - startX) * numerator / denominator
 clickY = startY + (endY - startY) * numerator / denominator
@@ -75,9 +75,12 @@ clickY = startY + (endY - startY) * numerator / denominator
         "param": {
             "custom_action": "QuantizedSliding",
             "custom_action_param": {
-                "Target": 1,
-                "ConcatAllFilteredDigits": false,
-                "QuantityBox": [360, 490, 110, 70],
+                "GreenMask": false,
+                "Quantity": {
+                    "Target": 1,
+                    "Box": [360, 490, 110, 70],
+                    "OnlyRec": false
+                },
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
@@ -92,17 +95,18 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 常用字段如下：
 
-| 字段                      | 类型                    | 必填 | 说明                                                                                                                                               |
-| ------------------------- | ----------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`                  | `int`（正整数）         | 是   | 目标数量。最终希望调到的档位值，必须大于 0。                                                                                                       |
-| `QuantityBox`             | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                     |
-| `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                |
-| `ConcatAllFilteredDigits` | `bool`                  | 否   | 数量解析策略开关。`false`（默认）：只读 Go 侧 `Results.Best` 的 OCR 文本；`true`：读取 `Results.Filtered` 全片段，按 y 再 x 排序拼接后再解析数字。 |
-| `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                         |
-| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。可传模板路径，也可传坐标。                                                                                                         |
-| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。可传模板路径，也可传坐标。                                                                                                         |
-| `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                  |
-| `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若 `Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。  |
+| 字段                | 类型                    | 必填 | 说明                                                                                                                                                       |
+| ------------------- | ----------------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GreenMask`         | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。                                                                                     |
+| `Quantity.Target`   | `int`（正整数）         | 是   | 目标数量。最终希望调到的档位值，必须大于 0。                                                                                                               |
+| `Quantity.Box`      | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                                                                                                             |
+| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                        |
+| `Quantity.OnlyRec`  | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。当前默认值为 `false`；若显式传入，则按传入值覆盖。Go 侧仍只从 `Results.Best.AsOCR().Text` 读取数量文本。               |
+| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                                 |
+| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。可传模板路径，也可传坐标。                                                                                                                 |
+| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。可传模板路径，也可传坐标。                                                                                                                 |
+| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                          |
+| `ClampTargetToMax`  | `bool`                  | 否   | 为 `true` 时，若 `Quantity.Target` 超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。 |
 
 `CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
@@ -130,17 +134,18 @@ clickY = startY + (endY - startY) * numerator / denominator
 - 通道数量必须与 `method` 匹配：`4`（RGB）和 `40`（HSV）需要 3 个通道，`6`（GRAY）需要 1 个通道；
 - 当前仅支持**单组**颜色阈值，不支持 `[[...], [...]]` 这种多段范围；
 - 可以把它理解为对数量区域先做一次按颜色的"近似二值化"，尽量只留下目标数字再交给 OCR；
-- 如果干扰数字和目标数字颜色完全一致，`QuantityFilter` 也无法从根本上区分，这时仍应优先收紧 `QuantityBox`；
-- `QuantityFilter` 只是增强 OCR 预处理，不是 `QuantityBox` 选区不准时的替代品。
+- 如果干扰数字和目标数字颜色完全一致，`QuantityFilter` 也无法从根本上区分，这时仍应优先收紧 `Quantity.Box`；
+- `QuantityFilter` 只是增强 OCR 预处理，不是 `Quantity.Box` 选区不准时的替代品。
 
 ### 数量解析策略
 
-数量解析由 `ConcatAllFilteredDigits` 控制两种策略：
+Stage 1 起，数量读取统一以 `Quantity.OnlyRec` 对应的 `only_rec` 路径为口径。当前 Go 侧只从 `QuantizedSlidingGetQuantity` 的 `Results.Best.AsOCR().Text` 读取文本，然后从该文本中提取**全部数字字符**。
 
-- `false`（默认）：Go 侧从 `QuantizedSlidingGetQuantity` 的识别结果中读取 `Results.Best.AsOCR().Text`，然后从该单条文本中提取**全部数字字符**。
-- `true`：Go 侧读取 `Results.Filtered`，按 **y 升序、y 相同按 x 升序** 排序后拼接，再从拼接文本中提取**全部数字字符**。
+这意味着：
 
-`DetailJson` 仅作为 Go 侧 typed 路径取不到文本时的兼容兜底。`Results.Best`、`Results.Filtered` 与 `DetailJson` 不是 Pipeline JSON 字段，而是 Go 代码读取识别结果的内部路径。
+- 不再使用 `Results.Filtered` 做手工排序拼接；
+- 不再保留 `DetailJson` 作为正式读取口径；
+- `Results.Best` 是当前数量 OCR 的唯一实现路径。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
 
@@ -155,8 +160,8 @@ clickY = startY + (endY - startY) * numerator / denominator
 此时 go-service 会动态把对应分支节点改成 `TemplateMatch + Click`：
 
 - 模板阈值固定为 `0.8`
-- `green_mask` 固定为 `true`
-- 点击时使用 `target: true`，并附带 `target_offset: [5, 5, -5, -5]`
+- 顶层参数 `GreenMask` 默认值为 `false`，进入 TemplateMatch 协议层后映射为 `green_mask`
+- 点击时使用 `target: true`，并附带 `target_offset: [5, 5, -10, -10]`
 
 这种方式通常比硬编码坐标更稳，推荐优先使用。
 
@@ -204,15 +209,15 @@ clickY = startY + (endY - startY) * numerator / denominator
 有两点最关键：
 
 1. 必须能稳定识别滑块模板 `QuantizedSliding/SwipeButton.png`；
-2. `QuantityBox` 对应的 OCR 必须能稳定读出数字。
+2. `Quantity.Box` 对应的 OCR 必须能稳定读出数字。
 
 只要这两个前提不成立，后面的比例计算再准确也没有意义。
 
 当前 Go 侧的识别读取策略也有明确边界：
 
 - 滑块识别框优先从 `QuantizedSlidingSwipeButton` 的 `Results.Best.AsTemplateMatch()` 读取；
-- 数量文本来自 `QuantizedSlidingGetQuantity`：默认（`ConcatAllFilteredDigits: false`）只读 `Results.Best`；显式传 `true` 时改为按 y→x 顺序拼接 `Results.Filtered`；
-- `DetailJson` 只作为 typed 路径取不到文本时的兼容兜底。
+- 数量文本来自 `QuantizedSlidingGetQuantity`，并固定读取 `Results.Best.AsOCR().Text`；
+- `only_rec` 是当前数量 OCR 的唯一实现口径。
 
 对维护者来说，`Best`、`Filtered` 与 fallback 不是可以随意互换的数据来源，而是当前实现的一部分约束。
 
@@ -247,7 +252,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 ### 3. 标定数量 OCR 区域
 
-将当前数量显示区域填写到 `QuantityBox`。
+将当前数量显示区域填写到 `Quantity.Box`。
 
 注意：
 
@@ -261,8 +266,8 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - `12/99` 会被解析为 `1299`，而不是 `12`；
 - 如果 OCR 容易把数字识别成字母，整个动作就会失败。
 
-所以 `QuantityBox` 不仅要"能读到数字"，还要尽量避免把其他数字组一起框进去。
-如果画面限制导致 `QuantityBox` 无法再继续缩小，但目标数字颜色足够稳定，可以再配合 `QuantityFilter` 做颜色过滤，先压掉背景或旁边的干扰数字。
+所以 `Quantity.Box` 不仅要"能读到数字"，还要尽量避免把其他数字组一起框进去。
+如果画面限制导致 `Quantity.Box` 无法再继续缩小，但目标数字颜色足够稳定，可以再配合 `QuantityFilter` 做颜色过滤，先压掉背景或旁边的干扰数字。
 
 ### 4. 选择按钮定位方式
 
@@ -286,12 +291,15 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
         "param": {
             "custom_action": "QuantizedSliding",
             "custom_action_param": {
+                "GreenMask": false,
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "QuantityBox": [340, 430, 200, 140],
-                "Target": 1,
-                "ConcatAllFilteredDigits": true,
+                "Quantity": {
+                    "Target": 1,
+                    "Box": [340, 430, 200, 140],
+                    "OnlyRec": true
+                },
                 "QuantityFilter": {
                     "lower": [20, 150, 150],
                     "upper": [35, 255, 255],
@@ -318,16 +326,16 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 能识别到滑块起点；
 - 能成功拖到最大值；
 - 能 OCR 出最大值与当前值；
-- 目标值 `Target` 不大于最大值，或 `ClampTargetToMax` 为 `true`（此时 `Target` 会被钳制为 `maxQuantity`）；
+- 目标值 `Quantity.Target` 不大于最大值，或 `ClampTargetToMax` 为 `true`（此时目标值会被钳制为 `maxQuantity`）；
 - 若识别到的 `maxQuantity` 为 `1`，且目标值最终也是 `1`（包括被 `ClampTargetToMax` 钳制后的情况），流程会直接分支到成功，不会再走比例点击；
-- 经过精确点击与微调后，当前值最终等于 `Target`。
+- 经过精确点击与微调后，当前值最终等于 `Quantity.Target`。
 
 ### 常见失败条件
 
-- `QuantityBox` 不是 `[x, y, w, h]` 四元组；
+- `Quantity.Box` 不是 `[x, y, w, h]` 四元组；
 - `Direction` 不是 `left/right/up/down` 之一；
 - OCR 没有读到数字；
-- 最大值 `maxQuantity` 小于 `Target`，且 `ClampTargetToMax` 为 `false`（默认值）；当上限只有 `1` 且目标值仍大于 `1` 时，也属于这一类失败；
+- 最大值 `maxQuantity` 小于 `Quantity.Target`，且 `ClampTargetToMax` 为 `false`（默认值）；当上限只有 `1` 且目标值仍大于 `1` 时，也属于这一类失败；
 - 加减按钮无法识别或无法点击；
 - 微调次数过多仍未收敛。
 
@@ -355,10 +363,10 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - **把它当成普通滑动节点**：它本质上是一个完整子流程，不只是一次 `Swipe`。
 - **`Direction` 填反**：会导致"滑到最大值"这一步本身就不成立。
 - **OCR 框进了多个数字组**：例如 `12/99` 会被拼成 `1299`，不是自动取第一个数字。
-- **`QuantityBox` 截得太紧**：数字跳动或描边变化时 OCR 容易失败。
+- **`Quantity.Box` 截得太紧**：数字跳动或描边变化时 OCR 容易失败。
 - **只给按钮坐标，不做识别兜底**：界面轻微偏移后就可能点歪。
 - **滑块模板不通用**：不同界面滑块样式不一致时，公共模板可能失效。
-- **目标值超过上限**：`Target > maxQuantity` 默认会直接失败。设置 `ClampTargetToMax: true` 可自动将目标值钳制为最大值继续执行，但需注意最终实际数量为 `maxQuantity`，而非原始 `Target`。
+- **目标值超过上限**：`Quantity.Target > maxQuantity` 默认会直接失败。设置 `ClampTargetToMax: true` 可自动将目标值钳制为最大值继续执行，但需注意最终实际数量为 `maxQuantity`，而非原始 `Quantity.Target`。
 - **没有考虑冻结等待**：该公共流程内部已经使用了 `post_wait_freezes`，业务接入时不要再额外叠很多硬延迟。
 
 ## 自检清单
@@ -366,11 +374,11 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 接入后，至少检查下面这些点：
 
 1. 滑块模板 `QuantizedSliding/SwipeButton.png` 是否能稳定命中。
-2. `QuantityBox` 是否基于 **1280×720**，且 OCR 能稳定读出数字。
+2. `Quantity.Box` 是否基于 **1280×720**，且 OCR 能稳定读出数字。
 3. `Direction` 是否与"最大值所在方向"一致。
 4. `IncreaseButton` / `DecreaseButton` 是否优先使用模板路径。
-5. `Target` 是否有可能大于当前场景允许的最大值。
-6. 若启用了 `ClampTargetToMax`，调用方是否能处理"实际数量可能小于原始 `Target`"的情况。
+5. `Quantity.Target` 是否有可能大于当前场景允许的最大值。
+6. 若启用了 `ClampTargetToMax`，调用方是否能处理"实际数量可能小于原始 `Quantity.Target`"的情况。
 7. 失败分支是否有明确处理，例如提示、跳过或取消当前任务。
 
 ## 代码定位

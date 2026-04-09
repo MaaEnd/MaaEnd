@@ -49,9 +49,6 @@
             "AutoStockpileClearDecisionHitCount"
         ]
     },
-    "AutoStockpileDecisionAttach": {
-        "desc": "承载 AutoStockpile 决策配置的固定合同节点；任务选项 attach 写入此处，供 Go 服务统一读取，请勿随意改名或删除(临时方案)"
-    },
     "AutoStockpileClearDecisionHitCount": {
         "desc": "清除中继节点MaxHit",
         "pre_delay": 0,
@@ -84,7 +81,7 @@
         ]
     },
     "AutoStockpileSelectedGoodsClick": {
-        "desc": "点击决策选中的商品 (template)",
+        "desc": "[Go覆盖] 点击决策选中的商品 (template)",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
@@ -103,12 +100,12 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        "pre_wait_freezes": 0,
+        "pre_delay": 80,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -118,12 +115,28 @@
     "AutoStockpileEnsureDetailFrameStable": {
         "desc": "确保详情页已经加载完成",
         "recognition": {
-            "type": "And",
+            "type": "TemplateMatch",
             "param": {
-                "all_of": [
-                    "CloseButtonType1"
+                "roi": [
+                    170,
+                    120,
+                    50,
+                    50
+                ],
+                "template": [
+                    "AutoStockpile/Cart.png"
                 ]
             }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                1000,
+                240,
+                80,
+                30
+            ],
+            "threshold": 0.98
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -132,21 +145,67 @@
             "AutoStockpileReconcileDecision"
         ]
     },
+    "AutoStockpileBackToSelection": {
+        "desc": "返回选择界面，准备下一轮决策",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeDecision",
+            "AutoStockpileDecisionFailed"
+        ]
+    },
+    "AutoStockpileSkip": {
+        "desc": "决策未找到合格商品或提前结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "跳过本次购买"
+        }
+    },
+    "AutoStockpileDecisionFailed": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
+        }
+    },
     "AutoStockpileReconcileDecision": {
         "desc": "根据详情页价格校正并重算决策",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    990,
-                    485,
-                    70,
-                    35
+                    975,
+                    230,
+                    130,
+                    50
                 ],
                 "expected": [
-                    "^\\d{3,4}$"
+                    "\\d{3,4}"
                 ],
-                "only_rec": true
+                "replace": [
+                    [
+                        "[^\\d]",
+                        ""
+                    ]
+                ],
+                "order_by": "Vertical"
             }
         },
         "pre_delay": 0,
@@ -163,51 +222,5 @@
             "AutoStockpileRelayNodeDecisionReady",
             "AutoStockpileBackToSelection"
         ]
-    },
-    "AutoStockpileBackToSelection": {
-        "desc": "返回选择界面，准备下一轮决策",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileRelayNodeDecision",
-            "AutoStockpileDecisionFailed"
-        ]
-    },
-    "AutoStockpileSkip": {
-        "desc": "决策未找到合格商品或提前结束",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "跳过本次购买"
-        }
-    },
-    "AutoStockpileDecisionFailed": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
-        "focus": {
-            "Node.Recognition.Starting": "<span style=\"color: orange\">⚠️超过最大复核重试次数，已跳过地区</span>"
-        }
     }
 }

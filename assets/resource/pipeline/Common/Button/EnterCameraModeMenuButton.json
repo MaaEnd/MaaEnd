@@ -11,8 +11,8 @@
         "template": "Common/Button/EnterCameraModeMenuButton.png",
         "threshold": 0.9,
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 70, // F 0x46
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "post_wait_freezes": {
             "time": 80,
             "target": [

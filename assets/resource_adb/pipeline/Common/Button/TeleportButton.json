@@ -1,0 +1,8 @@
+{
+    "__TeleportButton": {
+        "threshold": 0.7
+    },
+    "__TeleportButtonHover": {
+        "threshold": 0.7
+    }
+}

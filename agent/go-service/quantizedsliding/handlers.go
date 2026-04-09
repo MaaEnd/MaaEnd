@@ -74,7 +74,7 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 		return false
 	}
 
-	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter)
+	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter, a.QuantityOnlyRec)
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
@@ -85,6 +85,7 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 		Str("direction", a.Direction).
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
+		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil)
 
 	if a.QuantityFilter != nil {
@@ -125,7 +126,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 
-	maxQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
+	maxQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse max quantity from ocr")
 		return false
@@ -153,7 +154,7 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 	if nextNode != "" {
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("max_quantity", a.maxQuantity).
@@ -268,7 +269,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	currentQuantity, err := readQuantityValue(arg.RecognitionDetail, a.ConcatAllFilteredDigits)
+	currentQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false
@@ -276,7 +277,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 
 	switch {
 	case currentQuantity == a.Target:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDone, buttonTarget{}, 0); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -298,7 +299,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 	case currentQuantity < a.Target:
 		diff := a.Target - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingIncreaseQuantity, a.IncreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -326,7 +327,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 	default:
 		diff := currentQuantity - a.Target
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDecreaseQuantity, a.DecreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeQuantizedSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).

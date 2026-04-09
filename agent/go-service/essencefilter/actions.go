@@ -23,8 +23,27 @@ const essenceMaxSinglePageInventory = 45
 // EssenceFilterInitAction - initialize filter
 type EssenceFilterInitAction struct{}
 
+// afterBattleInitResetPerLoot clears state that must be fresh for each战后战利品界面；引擎与锁定汇总保留在 RunState 上由首次完整 Init 建立。
+func afterBattleInitResetPerLoot(st *RunState) {
+	st.RowBoxes = nil
+	st.RowIndex = 0
+	st.CurrentSkills = [3]string{}
+	st.CurrentSkillLevels = [3]int{}
+	st.PhysicalItemCount = 0
+	st.EncounteredTierBoundary = false
+}
+
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("init start")
+
+	// EssenceFilterAfterBattleInit：每次战利品流程都会进入；仅首次做下方完整初始化，之后每次只做 afterBattleInitResetPerLoot。
+	if arg != nil && arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
+		if st := getRunState(); st != nil && st.MatchEngine != nil {
+			afterBattleInitResetPerLoot(st)
+			return true
+		}
+	}
+
 	engine, opts, err := EnsureMatchEngine(ctx, nil, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
@@ -516,7 +535,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 const firstRowTargetY = 86       //首行Y
 const calibrateTolerance = 8     //校准误差
 const calibrateScrollRatio = 1.1 //校准滑动比例
-const calibrateSwipeMin = 8      //校准滑动最小值
+const calibrateSwipeMin = 13     //校准滑动最小值（13px）
 const calibrateSwipeMax = 40     //校准滑动最大值
 
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
