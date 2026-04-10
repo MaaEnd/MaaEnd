@@ -315,15 +315,42 @@ def check_cmake_environment() -> bool:
     return False
 
 
-def cleanup_cmake_cache(build_dir: Path) -> None:
+def cleanup_cmake_cache(build_dir: Path, interactive_retry: bool = False) -> bool:
     """清理 CMake 缓存，避免不同 generator 之间切换冲突。"""
-    cache_file = build_dir / "CMakeCache.txt"
-    cmake_files_dir = build_dir / "CMakeFiles"
+    cache_paths = [build_dir / "CMakeCache.txt", build_dir / "CMakeFiles"]
 
-    if cache_file.exists():
-        cache_file.unlink(missing_ok=True)
-    if cmake_files_dir.exists() and cmake_files_dir.is_dir():
-        shutil.rmtree(cmake_files_dir)
+    while True:
+        cleanup_errors: list[tuple[Path, OSError]] = []
+
+        for cache_path in cache_paths:
+            if not cache_path.exists():
+                continue
+
+            try:
+                if cache_path.is_dir():
+                    shutil.rmtree(cache_path)
+                else:
+                    cache_path.unlink(missing_ok=True)
+            except (PermissionError, OSError) as exc:
+                cleanup_errors.append((cache_path, exc))
+
+        if not cleanup_errors:
+            return True
+
+        for cache_path, exc in cleanup_errors:
+            print(
+                f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_item_failed', path=cache_path, error=exc)}"
+            )
+
+        if interactive_retry and sys.stdin.isatty() and sys.stdout.isatty():
+            choice = input(
+                f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_prompt')}"
+            )
+            if choice.strip().lower() == "q":
+                return False
+            continue
+
+        return False
 
 
 def build_cpp_algo(
@@ -397,12 +424,19 @@ def build_cpp_algo(
     # cmake --preset <configure_preset>（按候选列表依次尝试）
     configure_preset = configure_preset_candidates[0]
     build_dir = cpp_algo_dir / "build"
-    if len(configure_preset_candidates) > 1:
-        cleanup_cmake_cache(build_dir)
+    if len(configure_preset_candidates) > 1 and not cleanup_cmake_cache(build_dir):
+        print(
+            f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_first_try_hint')}"
+        )
 
     for idx, preset in enumerate(configure_preset_candidates):
-        if idx > 0:
-            cleanup_cmake_cache(build_dir)
+        if idx > 0 and not cleanup_cmake_cache(
+            build_dir, interactive_retry=not ci_mode
+        ):
+            print(
+                f"  {Console.err(t('error'))} {t('cmake_cache_cleanup_fallback_aborted')}"
+            )
+            return False
 
         configure_cmd = [
             "cmake",
