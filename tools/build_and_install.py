@@ -230,7 +230,9 @@ def build_go_agent(
     if vendor_result.stdout:
         print(vendor_result.stdout)
     if vendor_result.returncode != 0:
-        print(f"  {Console.err(t('error'))} go mod vendor 失败: {vendor_result.stderr}")
+        print(
+            f"  {Console.err(t('error'))} {t('go_mod_vendor_failed')}: {vendor_result.stderr}"
+        )
         return False
     if vendor_result.stderr:
         print(vendor_result.stderr)
@@ -387,8 +389,10 @@ def build_cpp_algo(
 
     print(f"  {t('build_mode')}: {build_type}")
     print(f"  {t('target_platform')}: {resolved_os}/{resolved_arch}")
-    print(f"  Configure preset candidates: {', '.join(configure_preset_candidates)}")
-    print(f"  MaaDeps triplet: {maadeps_triplet}")
+    print(
+        f"  {t('cmake_configure_preset_candidates')}: {', '.join(configure_preset_candidates)}"
+    )
+    print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
     # cmake --preset <configure_preset>（按候选列表依次尝试）
     configure_preset = configure_preset_candidates[0]
@@ -434,14 +438,18 @@ def build_cpp_algo(
         if result.returncode == 0:
             configure_preset = preset
             if idx > 0:
-                print(f"  {Console.warn('WARN')} 已使用 {preset}")
+                print(
+                    f"  {Console.warn(t('warning'))} {t('cmake_fallback_preset_used', preset=preset)}"
+                )
             break
 
         # 失败时：如果还有下一个候选，继续尝试；否则报错退出
         if result.stderr:
             print(result.stderr)
         if idx < len(configure_preset_candidates) - 1:
-            print(f"  {Console.warn('WARN')} 预设 {preset} 配置失败，尝试下一个预设...")
+            print(
+                f"  {Console.warn(t('warning'))} {t('cmake_preset_configure_retry', preset=preset)}"
+            )
             continue
 
         print(f"  {t('error')} {t('cmake_configure_failed')}:")
@@ -582,7 +590,7 @@ def main():
     print(f"  {Console.ok('->')} {maafw_dir}")
 
     print()
-    print("=" * 50)
+    print(t("separator"))
     print(Console.ok(t("install_complete")))
 
     if not use_copy:
