@@ -44,9 +44,20 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton"
+                    "CloseRewardsButton",
+                    "CreditShoppingClaimConfirmText"
                 ]
             }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                512,
+                387,
+                191,
+                42
+            ],
+            "timeout": 1000
         },
         "action": {
             "type": "Click"
@@ -54,5 +65,37 @@
         "next": [
             "CreditShoppingShopping"
         ]
+    },
+    "CreditShoppingClaimConfirmText": {
+        "desc": "获得奖励后的文字提示确认",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseRewardsButtonText",
+                    "CreditShoppingBuySuccess"
+                ]
+            }
+        }
+    },
+    "CreditShoppingBuySuccess": {
+        "desc": "购买成功的文字提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "购买成功",
+                    "購買成功",
+                    "(?i)Purchased",
+                    "購入完了"
+                ]
+            }
+        }
     }
 }
