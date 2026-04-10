@@ -45,40 +45,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    290,
-                                    360,
-                                    670,
-                                    210
-                                ],
-                                "template": [
-                                    "SceneManager/DialogCancel.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    290,
-                                    360,
-                                    670,
-                                    210
-                                ],
-                                "template": [
-                                    "SceneManager/DialogConfirm.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "GrayCancelButton",
+                    "YellowConfirmButtonType1"
                 ],
                 "box_index": 1
             }
@@ -93,42 +61,9 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    290,
-                                    360,
-                                    670,
-                                    210
-                                ],
-                                "template": [
-                                    "SceneManager/DialogCancel.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    290,
-                                    360,
-                                    670,
-                                    210
-                                ],
-                                "template": [
-                                    "SceneManager/DialogConfirm.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
+                    "GrayCancelButton",
+                    "YellowConfirmButtonType1"
+                ]
             }
         },
         "action": {

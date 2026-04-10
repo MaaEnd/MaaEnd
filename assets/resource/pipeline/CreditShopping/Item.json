@@ -82,13 +82,12 @@
         "recognition": "OCR",
         "roi": "CanAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
-        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
-        "only_rec": true,
+        "expected": "^(嵌晶玉|武库配额)$", //这里是具体执行参数
         "order_by": "Vertical"
     },
     "BuyFirstOCR_CanNotAfford": {
@@ -96,13 +95,12 @@
         "recognition": "OCR",
         "roi": "CanNotAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "IsDiscountPriority1": {
@@ -142,13 +140,12 @@
         "recognition": "OCR",
         "roi": "CanAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "a^", //这里是具体执行参数
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "Priority2OCR_CanNotAfford": {
@@ -156,13 +153,12 @@
         "recognition": "OCR",
         "roi": "CanNotAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "a^", //这里是具体执行参数
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "IsDiscountPriority2": {
@@ -202,13 +198,12 @@
         "recognition": "OCR",
         "roi": "CanAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "a^", //这里是具体执行参数
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "Priority3OCR_CanNotAfford": {
@@ -216,13 +211,12 @@
         "recognition": "OCR",
         "roi": "CanNotAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "a^", //这里是具体执行参数
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "IsDiscountPriority3": {
@@ -262,13 +256,12 @@
         "recognition": "OCR",
         "roi": "CanAfford",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -115,
+            31,
+            118,
+            25
         ],
         "expected": "^(?!(协议棱柱组)$).*$", //这里是具体执行参数，匹配价格位置非空的商品
-        "only_rec": true,
         "order_by": "Vertical"
     },
     "IsDiscount": {

@@ -75,7 +75,8 @@
                     304
                 ],
                 "template": "Common/Button/WhiteConfirmButtonType1.png",
-                "threshold": 0.9
+                "threshold": 0.9,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -94,7 +95,8 @@
                     304
                 ],
                 "template": "Common/Button/WhiteConfirmButtonType1Hover.png",
-                "threshold": 0.9
+                "threshold": 0.9,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
