@@ -86,7 +86,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 地区开关不写入 `attach`。Go Service 当前使用以下内建行为：
 
 - **溢出时放宽阈值**：仅当识别结果中的 `Quota.Overflow > 0` 时，`selector.go` 才会自动放宽阈值；当前没有用户配置项，也没有 attach 覆盖入口。
-- **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base` 公式生成；当前任务选项和 attach 都不会覆盖它。
+- **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base + weekday_adjustment` 公式生成。生产路径默认使用 `GMT+8` 作为服务器时区，服务器日边界为 `04:00`；当前任务选项和 attach 都不会覆盖它。
 - **保留调度券**：当前未作为运行时决策输入实现。识别结果只传递配额与商品数据，下游决策流程也不会消费任何保留调度券状态。
 
 如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是写手动 `attach` 覆盖。当前 AutoStockpile 流程不会读取基于 attach 的价格阈值、溢出开关或保留调度券配置。
@@ -95,10 +95,24 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 系统当前使用**严格的地区-档位查表**来决定购买阈值：
 
-1. **`strategy.go` 生成的地区-档位默认值**：`buildPriceLimitsForRegion()` 按 `region_base + tier_base` 公式生成各档位阈值。
+1. **`strategy.go` 生成的地区-档位默认值**：`buildPriceLimitsForRegion()` 按 `region_base + tier_base + weekday_adjustment` 公式生成各档位阈值。
 2. **`thresholds.go` 严格命中 `price_limits`**：`resolveTierThreshold()` 会直接使用 `GoodsItem.Tier` 作为 key 查表；key 缺失、为空或阈值非法都会返回错误，并由上游按 fatal 语义中止流程。
 
 当前生成出的默认值包括：`ValleyIV.Tier1=600`、`ValleyIV.Tier2=900`、`ValleyIV.Tier3=1200`、`Wuling.Tier1=1200`、`Wuling.Tier2=1500`。
+
+weekday 偏移表如下：
+
+| 星期 | 偏移值 |
+| ---- | ------ |
+| 周一 | `-50`  |
+| 周二 | `0`    |
+| 周三 | `-150` |
+| 周四 | `-200` |
+| 周五 | `-250` |
+| 周六 | `-200` |
+| 周日 | `-50`  |
+
+在服务器日计算中，AutoStockpile 会先将当前时间转换到目标时区，再按 `04:00 ~ 次日 03:59` 视为同一个服务器日。当前生产路径默认使用 `GMT+8`。
 
 ## 运行时覆盖行为
 

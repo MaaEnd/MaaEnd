@@ -86,7 +86,7 @@ The current `assets/tasks/AutoStockpile.json` exposes only two region toggles:
 These toggles do not write to `attach`. The Go Service currently uses the following built-in behaviors:
 
 - **Overflow threshold bypass**: `selector.go` enables threshold bypass automatically only when recognition reports overflow (`Quota.Overflow > 0`); there is no user-facing or attach-based switch.
-- **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base` formula; no task option or attach override path is currently consumed.
+- **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base + weekday_adjustment` formula. The production path uses the default server timezone `GMT+8`, and the server-day boundary is `04:00`; no task option or attach override path is currently consumed.
 - **Reserve stock bill**: Not implemented as a runtime decision input. The recognition payload only carries quota and goods data, and the downstream decision flow does not consume any reserve-stock-bill state.
 
 If you need different pricing behavior, update the Go defaults in code rather than writing manual `attach` overrides. The current AutoStockpile flow does not read attach-based overrides for price limits, overflow handling, or reserve-stock-bill settings.
@@ -95,10 +95,24 @@ If you need different pricing behavior, update the Go defaults in code rather th
 
 The system currently uses **strict region-tier key lookups** to determine the purchase threshold:
 
-1. **Region-tier defaults generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from the `region_base + tier_base` formula.
+1. **Region-tier defaults generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from the `region_base + tier_base + weekday_adjustment` formula.
 2. **Strict `price_limits` resolution in `thresholds.go`**: `resolveTierThreshold()` uses `GoodsItem.Tier` as the lookup key directly. Missing keys, empty tiers, or invalid thresholds all return errors and are handled upstream as fatal failures.
 
 Current generated defaults include `ValleyIV.Tier1=600`, `ValleyIV.Tier2=900`, `ValleyIV.Tier3=1200`, `Wuling.Tier1=1200`, and `Wuling.Tier2=1500`.
+
+The weekday adjustment table is:
+
+| Weekday   | Adjustment |
+| --------- | ---------- |
+| Monday    | `-50`      |
+| Tuesday   | `0`        |
+| Wednesday | `-150`     |
+| Thursday  | `-200`     |
+| Friday    | `-250`     |
+| Saturday  | `-200`     |
+| Sunday    | `-50`      |
+
+For server-day calculation, AutoStockpile first converts the current time to the target timezone, then treats `04:00 ~ next 03:59` as the same server day. The production path currently uses `GMT+8`.
 
 ## Runtime Override Behavior
 
