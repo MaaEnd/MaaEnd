@@ -93,7 +93,8 @@
                     80
                 ],
                 "template": [
-                    "CheckEmail/email.png"
+                    "CheckEmail/email.png",
+                    "CheckEmail/email2.png"
                 ]
             }
         },

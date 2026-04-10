@@ -83,8 +83,7 @@
         },
         "next": [
             "CreditShoppingClaimConfirm",
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyFailed"
         ]
     }
 }

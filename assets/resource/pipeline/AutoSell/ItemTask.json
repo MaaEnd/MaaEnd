@@ -320,7 +320,6 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -338,8 +337,8 @@
         "action": "Click",
         "target_offset": [
             -75,
-            0,
             5,
+            -5,
             -10
         ],
         "post_delay": 0,
