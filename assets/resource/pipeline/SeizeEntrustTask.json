@@ -68,9 +68,9 @@
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "798w",
+                        "sub_name": "WulingTpl",
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
                                     841,
@@ -78,10 +78,8 @@
                                     48,
                                     424
                                 ],
-                                "expected": [
-                                    "7.98",
-                                    "798",
-                                    "79.8"
+                                "template": [
+                                    "SeizeEntrustTask/wuling.png"
                                 ]
                             }
                         }
@@ -90,12 +88,32 @@
                         "recognition": {
                             "type": "OCR",
                             "param": {
-                                "roi": "798w",
+                                "roi": "WulingTpl",
                                 "roi_offset": [
-                                    -234,
-                                    -39,
-                                    57,
-                                    17
+                                    0,
+                                    30,
+                                    0,
+                                    -20
+                                ],
+                                "expected": [
+                                    "7.98",
+                                    "798",
+                                    "79.8"
+                                ],
+                                "only_rec": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "WulingTpl",
+                                "roi_offset": [
+                                    -215,
+                                    -6,
+                                    19,
+                                    -6
                                 ],
                                 "expected": [
                                     "武陵城",
@@ -105,7 +123,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "next": [
@@ -123,9 +142,9 @@
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "798w",
+                        "sub_name": "WulingTpl",
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
                                     841,
@@ -133,10 +152,8 @@
                                     48,
                                     424
                                 ],
-                                "expected": [
-                                    "7.98",
-                                    "798",
-                                    "79.8"
+                                "template": [
+                                    "SeizeEntrustTask/wuling.png"
                                 ]
                             }
                         }
@@ -145,12 +162,32 @@
                         "recognition": {
                             "type": "OCR",
                             "param": {
-                                "roi": "798w",
+                                "roi": "WulingTpl",
                                 "roi_offset": [
-                                    -234,
-                                    -39,
-                                    57,
-                                    17
+                                    0,
+                                    30,
+                                    0,
+                                    -20
+                                ],
+                                "expected": [
+                                    "7.98",
+                                    "798",
+                                    "79.8"
+                                ],
+                                "only_rec": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "WulingTpl",
+                                "roi_offset": [
+                                    -215,
+                                    -6,
+                                    19,
+                                    -6
                                 ],
                                 "expected": [
                                     "武陵城",
@@ -160,7 +197,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "post_wait_freezes": 1000,
@@ -227,9 +265,18 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        },
         "next": [
             "isSeizeEntrustTaskSuccessful",
+            "isSeizeEntrustTaskSuccessful2",
             "isSeizeEntrustTaskNoSuccessful",
             "SeizeEntrustTaskNews"
         ],
@@ -381,13 +428,13 @@
     "isSeizeEntrustTaskDestinationWulingCity": {
         "desc": "滑到底后才会执行调度器，然后等待委托列表静止后再进入调度",
         "pre_wait_freezes": {
+            "time": 2000,
             "target": [
                 29,
                 166,
                 1222,
                 481
-            ],
-            "time": 2000
+            ]
         },
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTargetF1",
@@ -571,6 +618,31 @@
         "action": {
             "type": "Click",
             "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskGoDepotNode",
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "诶，好像失败了(｡•́︿•̀｡)",
+            "Node.Recognition.Succeeded": "抢到啦！！！"
+        }
+    },
+    "isSeizeEntrustTaskSuccessful2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    5,
+                    167,
+                    311,
+                    101
+                ],
+                "expected": [
+                    "请前往指定仓储节点接取货物",
+                    "送货任务"
+                ]
+            }
         },
         "next": [
             "SeizeEntrustTaskGoDepotNode",

@@ -134,7 +134,7 @@
         "tasks/DeliveryJobs.json",
         "tasks/SellProduct.json",
         "tasks/AutoStockpile.json",
-        "tasks/AutoResell.json",
+        "tasks/AutoSell.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
@@ -163,7 +163,6 @@
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
-        "tasks/preset/AutoTrading.json",
         "tasks/preset/EssenceFarming.json"
     ]
 }

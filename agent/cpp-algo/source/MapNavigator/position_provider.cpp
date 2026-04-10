@@ -1,7 +1,11 @@
 #include <chrono>
 #include <thread>
 
+#include <MaaFramework/Utility/MaaBuffer.h>
+#include <meojson/json.hpp>
+
 #include "../utils.h"
+#include "controller_type_utils.h"
 #include "position_provider.h"
 
 namespace mapnavigator
@@ -59,11 +63,38 @@ private:
     MaaImageBuffer* buffer_;
 };
 
+std::string DetectControllerType(MaaController* controller)
+{
+    if (controller == nullptr) {
+        return {};
+    }
+
+    MaaStringBuffer* buffer = MaaStringBufferCreate();
+    if (buffer == nullptr) {
+        return {};
+    }
+
+    std::string controller_type;
+    if (MaaControllerGetInfo(controller, buffer) && !MaaStringBufferIsEmpty(buffer)) {
+        const char* raw = MaaStringBufferGet(buffer);
+        if (raw != nullptr && raw[0] != '\0') {
+            const auto info = json::parse(raw).value_or(json::object {});
+            if (info.contains("type") && info.at("type").is_string()) {
+                controller_type = info.at("type").as_string();
+            }
+        }
+    }
+
+    MaaStringBufferDestroy(buffer);
+    return controller_type;
+}
+
 } // namespace
 
 PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator)
     : controller_(controller)
     , locator_(std::move(locator))
+    , uses_adb_minimap_roi_(IsAdbLikeControllerType(DetectControllerType(controller_)))
 {
 }
 
@@ -85,9 +116,8 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
 
     cv::Mat image = to_mat(buffer.Get());
     last_capture_was_black_screen_ = IsBlackScreen(image);
-    cv::Rect roi(maplocator::MinimapROIOriginX, maplocator::MinimapROIOriginY, maplocator::MinimapROIWidth, maplocator::MinimapROIHeight);
-    roi = roi & cv::Rect(0, 0, image.cols, image.rows);
-    if (roi.empty()) {
+    cv::Mat minimap;
+    if (!maplocator::TryExtractMinimap(image, uses_adb_minimap_roi_, &minimap)) {
         return false;
     }
 
@@ -95,7 +125,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     options.force_global_search = force_global_search;
     options.expected_zone_id = expected_zone_id;
 
-    const auto locate_result = locator_->locate(image(roi), options);
+    const auto locate_result = locator_->locate(minimap, options);
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         last_capture_was_held_ = false;
         held_fix_streak_ = 0;

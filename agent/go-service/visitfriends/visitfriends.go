@@ -19,8 +19,7 @@ type friendItem struct {
 }
 
 var (
-	menuKeyMap               = make(map[int]friendItem)
-	menuKeyNext              int
+	scannedFriendItems       []friendItem
 	maxAssistCount           = 5
 	maxClueExchangeCount     = 5
 	currentAssistCount       = 0
@@ -28,63 +27,11 @@ var (
 	lastScrollItemName       string
 )
 
-func getFriendItem(key int) (friendItem, bool) {
-	item, ok := menuKeyMap[key]
-	return item, ok
-}
-
-func registerFriendItem(name string) int {
-	menuKeyNext++
-	key := menuKeyNext
-	menuKeyMap[key] = friendItem{Name: name}
-	return key
-}
-
-func setFriendClueExchange(key int, enabled bool) bool {
-	item, ok := menuKeyMap[key]
-	if !ok {
-		return false
-	}
-	item.ClueExchange = enabled
-	menuKeyMap[key] = item
-	return true
-}
-
-func setFriendControlNexusAssist(key int, enabled bool) bool {
-	item, ok := menuKeyMap[key]
-	if !ok {
-		return false
-	}
-	item.ControlNexusAssist = enabled
-	menuKeyMap[key] = item
-	return true
-}
-
-func setFriendMFGCabinAssist(key int, enabled bool) bool {
-	item, ok := menuKeyMap[key]
-	if !ok {
-		return false
-	}
-	item.MFGCabinAssist = enabled
-	menuKeyMap[key] = item
-	return true
-}
-
-func setFriendGrowthChamberAssist(key int, enabled bool) bool {
-	item, ok := menuKeyMap[key]
-	if !ok {
-		return false
-	}
-	item.GrowthChamberAssist = enabled
-	menuKeyMap[key] = item
-	return true
-}
-
 func isFriendNameExist(name string) bool {
 	if name == "" {
 		return false
 	}
-	for _, item := range menuKeyMap {
+	for _, item := range scannedFriendItems {
 		if item.Name == name {
 			return true
 		}
@@ -92,78 +39,26 @@ func isFriendNameExist(name string) bool {
 	return false
 }
 
-func getFriendItemsRoi(ctx *maa.Context, arg *maa.CustomRecognitionArg) ([]maa.Rect, bool) {
-	detail_items, err := ctx.RunRecognition("VisitFriendsRecognitionItemEnterButton", arg.Img)
-	if err != nil || detail_items == nil {
-		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemEnterButton")
-		return nil, false
-	}
-	var friendItemRoiOffset = maa.Rect{-1140, -30, 1175, 65} // 按钮映射到整个item的偏移
-	var rois []maa.Rect
-	for _, m := range detail_items.Results.Filtered {
-		detail, ok := m.AsTemplateMatch()
-		if !ok {
+func upsertScannedFriendItem(item friendItem) {
+	for i := range scannedFriendItems {
+		if scannedFriendItems[i].Name != item.Name {
 			continue
 		}
-		box := detail.Box
-		rois = append(rois, maa.Rect{
-			box.X() + friendItemRoiOffset.X(),
-			box.Y() + friendItemRoiOffset.Y(),
-			box.Width() + friendItemRoiOffset.Width(),
-			box.Height() + friendItemRoiOffset.Height(),
-		})
+		if item.ClueExchange {
+			scannedFriendItems[i].ClueExchange = true
+		}
+		if item.ControlNexusAssist {
+			scannedFriendItems[i].ControlNexusAssist = true
+		}
+		if item.MFGCabinAssist {
+			scannedFriendItems[i].MFGCabinAssist = true
+		}
+		if item.GrowthChamberAssist {
+			scannedFriendItems[i].GrowthChamberAssist = true
+		}
+		return
 	}
-	return rois, true
-}
-
-func getFriendItemsName(ctx *maa.Context, arg *maa.CustomRecognitionArg, itemRoi maa.Rect) (string, bool) {
-	override := map[string]any{
-		"VisitFriendsRecognitionItemName": map[string]any{
-			"roi": maa.Rect{itemRoi.X() + 80, itemRoi.Y(), 300, 35},
-		},
-	}
-	detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemName", arg.Img, override)
-	if err != nil || detail == nil {
-		log.Error().
-			Str("component", "VisitFriends").
-			Str("step", "getFriendItemsName").
-			Str("recognition", "VisitFriendsRecognitionItemName").
-			Err(err).
-			Msg("run recognition failed")
-		return "", false
-	}
-	if detail.Results.Best == nil {
-		log.Error().
-			Str("component", "VisitFriends").
-			Str("step", "getFriendItemsName").
-			Str("recognition", "VisitFriendsRecognitionItemName").
-			Msg("no best result")
-		return "", false
-	}
-	name, ok := detail.Results.Best.AsOCR()
-	if !ok {
-		return "", false
-	}
-	return name.Text, true
-}
-
-func getFriendClueExchangeEnable(ctx *maa.Context, arg *maa.CustomRecognitionArg, itemRoi maa.Rect) (bool, bool) {
-	override := map[string]any{
-		"VisitFriendsRecognitionItemClueExchange": map[string]any{
-			"roi": maa.Rect{itemRoi.X() + itemRoi.Width() - 100, itemRoi.Y(), 100, itemRoi.Height()},
-		},
-	}
-	detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemClueExchange", arg.Img, override)
-	if err != nil || detail == nil {
-		log.Error().
-			Str("component", "VisitFriends").
-			Str("step", "getFriendClueExchangeEnable").
-			Str("recognition", "VisitFriendsRecognitionItemClueExchange").
-			Err(err).
-			Msg("run recognition failed")
-		return false, false
-	}
-	return detail.Hit, true
+	scannedFriendItems = append(scannedFriendItems, item)
 }
 
 type VisitFriendsMainAction struct{}
@@ -173,259 +68,355 @@ func (a *VisitFriendsMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		Str("component", "VisitFriends").
 		Str("step", "main_run").
 		Msg("start")
-	menuKeyMap = make(map[int]friendItem)
-	menuKeyNext = 0
+	scannedFriendItems = []friendItem{}
 	currentAssistCount = 0
 	currentClueExchangeCount = 0
 	lastScrollItemName = ""
 	return true
 }
 
-type scanTargetResult struct {
-	HasTarget           bool     `json:"has_target"`
-	Roi                 maa.Rect `json:"roi"`
-	ClueExchange        bool     `json:"clue_exchange"`
-	ControlNexusAssist  bool     `json:"control_nexus_assist"`
-	MFGCabinAssist      bool     `json:"mfg_cabin_assist"`
-	GrowthChamberAssist bool     `json:"growth_chamber_assist"`
+type scanResultItem struct {
+	ButtonBox []int  `json:"button_box"`
+	NameText  string `json:"name_text"`
 }
 
 type VisitFriendsMenuScanTargetFriendOpenRecognition struct{}
 
 func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	var params struct {
-		AssistMode string `json:"assist_mode"`
+		OnlyRemarkFriends bool `json:"only_remark_friends"`
 	}
+
 	if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err != nil {
 		log.Error().
 			Err(err).
 			Msg("failed to parse CustomRecognitionParam")
 		return nil, false
 	}
-	itemsRoi, ok := getFriendItemsRoi(ctx, arg)
-	if !ok {
-		log.Error().Msg("Failed to get friend items roi")
+
+	detail, recoErr := ctx.RunRecognition("VisitFriendsRecognitionItemWithName", arg.Img)
+	if recoErr != nil || detail == nil {
+		log.Error().Err(recoErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("run recognition")
 		return nil, false
 	}
 
-	result := scanTargetResult{
-		HasTarget: false,
+	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("recognition miss")
+		return nil, false
 	}
-	for _, roi := range itemsRoi {
-		result.Roi = roi
-		name, ok := getFriendItemsName(ctx, arg, roi)
-		if !ok {
-			log.Error().Msg("Failed to get friend item name")
+
+	var detailNameJson, detailButtonJson struct {
+		Filtered []struct {
+			Box   []int   `json:"box"`
+			Score float64 `json:"score"`
+			Text  string  `json:"text"`
+		} `json:"filtered"`
+	}
+	// Results.Best是空，暂时只能这样获取
+	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[0].DetailJson), &detailButtonJson); detailJsonErr != nil {
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("parse detail json")
+		return nil, false
+	}
+	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailNameJson); detailJsonErr != nil {
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("parse detail json")
+		return nil, false
+	}
+
+	if len(detailNameJson.Filtered) != len(detailButtonJson.Filtered) {
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("name recognition count not equal button recognition count")
+		return nil, false
+	}
+
+	var targetItem scanResultItem
+	hasTarget := false
+
+	for i := range detailNameJson.Filtered {
+		if len(detailNameJson.Filtered[i].Text) == 0 {
+			log.Warn().Str("component", "VisitFriends").Str("step", "scan_item_name").Int("index", i).Msg("name recognition text is empty")
 			continue
 		}
-		exist := isFriendNameExist(name)
+
+		if params.OnlyRemarkFriends {
+			// 如果只助力备注好友，且这个好友没有备注，则跳过
+			if !strings.Contains(detailNameJson.Filtered[i].Text, "(") && !strings.Contains(detailNameJson.Filtered[i].Text, "（") {
+				log.Debug().Str("name", detailNameJson.Filtered[i].Text).Msg("friend has no remark, skip")
+				continue
+			}
+		}
+
+		exist := isFriendNameExist(detailNameJson.Filtered[i].Text)
 		if exist {
-			log.Debug().Str("name", name).Msg("friend item already exist, skip")
+			log.Debug().Str("name", detailNameJson.Filtered[i].Text).Msg("friend item already exist, skip")
 			continue
 		}
-		index := registerFriendItem(name)
-		clueExchange, ok := getFriendClueExchangeEnable(ctx, arg, roi)
-		if !ok {
-			log.Error().Msg("Failed to get friend item clue exchange enable")
-			continue
-		}
-		setFriendClueExchange(index, clueExchange)
 
-		if currentAssistCount < maxAssistCount {
-			override := map[string]any{
-				"VisitFriendsMenuScanDetailOpen": map[string]any{
-					"roi": maa.Rect{roi.X() + roi.Width() - 100, roi.Y(), 100, roi.Height()},
-				},
-				"VisitFriendsMenuScanDetailSave": map[string]any{
-					"custom_recognition_param": map[string]any{
-						"index": index,
-					},
-				},
-			}
-			ctx.RunTask("VisitFriendsMenuScanDetailOpen", override)
-		}
-
-		if item, ok := menuKeyMap[index]; ok {
-			itemJSON, err := json.Marshal(item)
-			if err != nil {
-				log.Error().Err(err).Int("index", index).Msg("Failed to marshal friend item for logging")
-			} else {
-				log.Info().
-					Int("index", index).
-					RawJSON("item", itemJSON).
-					Msg("added friend item")
-			}
-		}
-
-		item, ok := getFriendItem(index)
-		missControlNexusAssist := false
-		missMFGCabinAssist := false
-		missGrowthChamberAssist := false
-		missClueExchange := false
-		switch params.AssistMode {
-		case "only_growth_chamber":
-			if currentAssistCount < maxAssistCount {
-				if item.GrowthChamberAssist {
-					result.GrowthChamberAssist = true
-					result.HasTarget = true
-				} else {
-					missGrowthChamberAssist = true
-				}
-			}
-		case "without_control_nexus":
-			if currentAssistCount < maxAssistCount {
-				if item.MFGCabinAssist {
-					result.MFGCabinAssist = true
-					result.HasTarget = true
-				} else {
-					missMFGCabinAssist = true
-				}
-				if item.GrowthChamberAssist {
-					result.GrowthChamberAssist = true
-					result.HasTarget = true
-				} else {
-					missGrowthChamberAssist = true
-				}
-			}
-		default:
-			if currentAssistCount < maxAssistCount {
-				if item.ControlNexusAssist {
-					result.ControlNexusAssist = true
-					result.HasTarget = true
-				} else {
-					missControlNexusAssist = true
-				}
-				if item.MFGCabinAssist {
-					result.MFGCabinAssist = true
-					result.HasTarget = true
-				} else {
-					missMFGCabinAssist = true
-				}
-				if item.GrowthChamberAssist {
-					result.GrowthChamberAssist = true
-					result.HasTarget = true
-				} else {
-					missGrowthChamberAssist = true
-				}
-			}
-		}
-		if currentClueExchangeCount < maxClueExchangeCount {
-			if item.ClueExchange {
-				result.ClueExchange = true
-				result.HasTarget = true
-			} else {
-				missClueExchange = true
-			}
-		}
-		if result.HasTarget {
-			break
-		}
-
-		var missParts []string
-		if missClueExchange {
-			missParts = append(missParts, i18n.T("visitfriends.clue_exchange"))
-		}
-		if missControlNexusAssist {
-			missParts = append(missParts, i18n.T("visitfriends.control_nexus_assist"))
-		}
-		if missMFGCabinAssist {
-			missParts = append(missParts, i18n.T("visitfriends.mfg_cabin_assist"))
-		}
-		if missGrowthChamberAssist {
-			missParts = append(missParts, i18n.T("visitfriends.growth_chamber_assist"))
-		}
-		message := i18n.T("visitfriends.friend_missing", strings.Join(missParts, i18n.Separator()))
-		maafocus.Print(ctx, message)
+		hasTarget = true
+		targetItem.NameText = detailNameJson.Filtered[i].Text
+		targetItem.ButtonBox = detailButtonJson.Filtered[i].Box
+		break
 	}
 
-	if !result.HasTarget {
+	if !hasTarget {
 		return nil, false
 	}
 
-	detailJSON, err := json.Marshal(result)
+	resultJson, err := json.Marshal(targetItem)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to marshal scan target result")
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "scan_item_name").Msg("marshal result json")
 		return nil, false
 	}
+
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
-		Detail: string(detailJSON),
+		Detail: string(resultJson),
 	}, true
 }
 
 type VisitFriendsMenuScanTargetFriendOpenAction struct{}
 
 func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	lastScrollItemName = "" // 打开好友后重置，避免上次滚动的好友和这次打开的好友名字一样导致误判滚动结束
-	if arg.RecognitionDetail == nil {
-		log.Error().Msg("VisitFriendsMenuScanTargetFriendOpenAction: RecognitionDetail is nil")
-		return false
-	}
-	if arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Results.Best == nil {
-		log.Error().Msg("VisitFriendsMenuScanTargetFriendOpenAction: Results or Best is nil")
-		return false
-	}
 	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
 	if !ok {
-		log.Error().Msg("VisitFriendsMenuScanTargetFriendOpenAction: failed to get custom recognition result")
-		return false
-	}
-	var result scanTargetResult
-	if err := json.Unmarshal([]byte(customResult.Detail), &result); err != nil {
-		log.Error().Err(err).Msg("VisitFriendsMenuScanTargetFriendOpenAction: failed to parse recognition detail")
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("get custom result")
 		return false
 	}
 
-	var canParts []string
-	if result.ClueExchange {
-		canParts = append(canParts, i18n.T("visitfriends.can_clue_exchange"))
-	}
-	if result.ControlNexusAssist {
-		canParts = append(canParts, i18n.T("visitfriends.can_control_nexus"))
-	}
-	if result.MFGCabinAssist {
-		canParts = append(canParts, i18n.T("visitfriends.can_mfg_cabin"))
-	}
-	if result.GrowthChamberAssist {
-		canParts = append(canParts, i18n.T("visitfriends.can_growth_chamber"))
-	}
-	if len(canParts) > 0 {
-		message := i18n.T("visitfriends.found_target_with", strings.Join(canParts, i18n.Separator()))
-		maafocus.Print(ctx, message)
-	} else {
-		maafocus.Print(ctx, i18n.T("visitfriends.found_target"))
+	var resultItem scanResultItem
+	if err := json.Unmarshal([]byte(customResult.Detail), &resultItem); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "VisitFriends").Str("step", "open_item_text").
+			Msg("parse custom result")
+		return false
 	}
 
-	override := map[string]any{
-		"VisitFriendsEnterShip": map[string]any{
-			"roi": result.Roi,
-		},
-		"VisitFriendsMenuClueExchange": map[string]any{
-			"enabled": result.ClueExchange,
-		},
-		"VisitFriendsMenuAssistControlNexus": map[string]any{
-			"enabled": result.ControlNexusAssist,
-		},
-		"VisitFriendsMenuAssistMFGCabin1": map[string]any{
-			"enabled": result.MFGCabinAssist,
-		},
-		"VisitFriendsMenuAssistMFGCabin2": map[string]any{
-			"enabled": result.MFGCabinAssist,
-		},
-		"VisitFriendsMenuAssistGrowthChamberSwipe": map[string]any{
-			"enabled": result.GrowthChamberAssist,
-		},
+	var actionParams struct {
+		ParamAttachNode string `json:"param_attach_node"`
 	}
-	ctx.RunTask("VisitFriendsEnterShip", override)
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &actionParams); err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to parse CustomActionParam")
+		return false
+	}
+
+	raw, err := ctx.GetNodeJSON(actionParams.ParamAttachNode)
+	if err != nil || raw == "" {
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "open_item").Msg("get node json for custom action param")
+		return false
+	}
+
+	var nodeWithAttach struct {
+		Attach struct {
+			ControlNexusAssist  bool `json:"control_nexus_assist"`
+			MFGCabinAssist      bool `json:"mfg_cabin_assist"`
+			GrowthChamberAssist bool `json:"growth_chamber_assist"`
+		} `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &nodeWithAttach); err != nil {
+		log.Error().Err(err).Str("component", "VisitFriends").Str("step", "open_item").Msg("parse node attach for visit friends open action")
+		return false
+	}
+	params := nodeWithAttach.Attach
+
+	if !params.ControlNexusAssist && !params.MFGCabinAssist && !params.GrowthChamberAssist {
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("no assist enabled, skip open item action")
+		return false
+	}
+
+	if len(resultItem.ButtonBox) < 4 {
+		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("button box length error")
+		return false
+	}
+
+	{
+		// 检查该好友有哪些可以助力
+		maafocus.Print(ctx, i18n.T("visitfriends.check_friend", resultItem.NameText))
+		enableOpen := currentAssistCount < maxAssistCount
+		override := map[string]any{
+			"VisitFriendsMenuScanDetailClueExchange": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"friend_name": resultItem.NameText,
+					"enter_button_box": maa.Rect{
+						resultItem.ButtonBox[0],
+						resultItem.ButtonBox[1],
+						resultItem.ButtonBox[2],
+						resultItem.ButtonBox[3],
+					},
+				},
+			},
+			"VisitFriendsMenuScanDetailOpen": map[string]any{
+				"enabled": enableOpen,
+				"target": maa.Rect{
+					resultItem.ButtonBox[0],
+					resultItem.ButtonBox[1],
+					resultItem.ButtonBox[2],
+					resultItem.ButtonBox[3],
+				},
+			},
+			"VisitFriendsMenuScanDetailSaveAssist": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"friend_name": resultItem.NameText,
+				},
+			},
+		}
+		_, err := ctx.RunTask("VisitFriendsMenuScanDetail", override)
+		if err != nil {
+			log.Error().Err(err).Msg("VisitFriendsMenuScanTargetFriendOpenAction: failed to run task")
+			return false
+		}
+	}
+
+	{
+		// 取出上一步检查的结果
+		foundTarget := false
+		var targetFriendItem friendItem
+		for i := range scannedFriendItems {
+			if scannedFriendItems[i].Name != resultItem.NameText {
+				continue
+			}
+
+			foundTarget = true
+			targetFriendItem = scannedFriendItems[i]
+		}
+
+		if !foundTarget {
+			log.Error().
+				Str("component", "VisitFriends").
+				Str("step", "open_item").
+				Str("friend_name", resultItem.NameText).
+				Msg("opened friend not found in scanned items")
+			return false
+		}
+
+		hasTarget := false
+		missControlNexusAssist := false
+		missMFGCabinAssist := false
+		missGrowthChamberAssist := false
+		missClueExchange := false
+		needControlNexusAssist := false
+		needMFGCabinAssist := false
+		needGrowthChamberAssist := false
+		needClueExchange := false
+
+		log.Debug().Any("targetFriendItem", targetFriendItem).Any("params", params).Msg("check target friend item and params")
+
+		if currentClueExchangeCount < maxClueExchangeCount {
+			if targetFriendItem.ClueExchange {
+				needClueExchange = true
+				hasTarget = true
+			} else {
+				missClueExchange = true
+			}
+		}
+		if currentAssistCount < maxAssistCount {
+			if params.ControlNexusAssist {
+				if targetFriendItem.ControlNexusAssist {
+					needControlNexusAssist = true
+					hasTarget = true
+				} else {
+					missControlNexusAssist = true
+				}
+			}
+			if params.MFGCabinAssist {
+				if targetFriendItem.MFGCabinAssist {
+					needMFGCabinAssist = true
+					hasTarget = true
+				} else {
+					missMFGCabinAssist = true
+				}
+			}
+			if params.GrowthChamberAssist {
+				if targetFriendItem.GrowthChamberAssist {
+					needGrowthChamberAssist = true
+					hasTarget = true
+				} else {
+					missGrowthChamberAssist = true
+				}
+			}
+		}
+
+		if !hasTarget {
+			var missParts []string
+			if missClueExchange {
+				missParts = append(missParts, i18n.T("visitfriends.clue_exchange"))
+			}
+			if missControlNexusAssist {
+				missParts = append(missParts, i18n.T("visitfriends.control_nexus_assist"))
+			}
+			if missMFGCabinAssist {
+				missParts = append(missParts, i18n.T("visitfriends.mfg_cabin_assist"))
+			}
+			if missGrowthChamberAssist {
+				missParts = append(missParts, i18n.T("visitfriends.growth_chamber_assist"))
+			}
+			message := i18n.T("visitfriends.friend_missing", strings.Join(missParts, i18n.Separator()))
+			maafocus.Print(ctx, message)
+			return true
+		}
+
+		var canParts []string
+		if currentClueExchangeCount < maxClueExchangeCount && targetFriendItem.ClueExchange {
+			canParts = append(canParts, i18n.T("visitfriends.can_clue_exchange"))
+		}
+		if params.ControlNexusAssist && targetFriendItem.ControlNexusAssist {
+			canParts = append(canParts, i18n.T("visitfriends.can_control_nexus"))
+		}
+		if params.MFGCabinAssist && targetFriendItem.MFGCabinAssist {
+			canParts = append(canParts, i18n.T("visitfriends.can_mfg_cabin"))
+		}
+		if params.GrowthChamberAssist && targetFriendItem.GrowthChamberAssist {
+			canParts = append(canParts, i18n.T("visitfriends.can_growth_chamber"))
+		}
+		if len(canParts) > 0 {
+			message := i18n.T("visitfriends.found_target_with", strings.Join(canParts, i18n.Separator()))
+			maafocus.Print(ctx, message)
+		} else {
+			maafocus.Print(ctx, i18n.T("visitfriends.found_target"))
+		}
+
+		lastScrollItemName = "" // 打开好友后重置，避免上次滚动的好友和这次打开的好友名字一样导致误判滚动结束
+		override := map[string]any{
+			"VisitFriendsEnterShip": map[string]any{
+				"target": maa.Rect{
+					resultItem.ButtonBox[0],
+					resultItem.ButtonBox[1],
+					resultItem.ButtonBox[2],
+					resultItem.ButtonBox[3],
+				},
+			},
+			"VisitFriendsMenuClueExchange": map[string]any{
+				"enabled": needClueExchange,
+			},
+			"VisitFriendsMenuAssistControlNexus": map[string]any{
+				"enabled": needControlNexusAssist,
+			},
+			"VisitFriendsMenuAssistMFGCabin1": map[string]any{
+				"enabled": needMFGCabinAssist,
+			},
+			"VisitFriendsMenuAssistMFGCabin2": map[string]any{
+				"enabled": needMFGCabinAssist,
+			},
+			"VisitFriendsMenuAssistGrowthChamberSwipe": map[string]any{
+				"enabled": needGrowthChamberAssist,
+			},
+		}
+		_, err := ctx.RunTask("VisitFriendsEnterShip", override)
+		if err != nil {
+			log.Error().Err(err).Msg("VisitFriendsMenuScanTargetFriendOpenAction: failed to run task")
+			return false
+		}
+	}
 
 	return true
 }
 
-type VisitFriendsMenuScanDetailSaveRecognition struct{}
+type VisitFriendsMenuScanDetailClueExchangeRecognition struct{}
 
-func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *VisitFriendsMenuScanDetailClueExchangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	var params struct {
-		Index int `json:"index"`
+		FriendName     string `json:"friend_name"`
+		EnterButtonBox []int  `json:"enter_button_box"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err != nil {
 		log.Error().
@@ -433,7 +424,65 @@ func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *m
 			Msg("failed to parse CustomRecognitionParam")
 		return nil, false
 	}
-	index := params.Index
+	var item = friendItem{
+		Name:                params.FriendName,
+		ClueExchange:        false,
+		ControlNexusAssist:  false,
+		MFGCabinAssist:      false,
+		GrowthChamberAssist: false,
+	}
+
+	if len(params.EnterButtonBox) != 4 {
+		log.Error().Msg("invalid EnterButtonBox in CustomRecognitionParam")
+		return nil, false
+	}
+
+	{
+		override := map[string]any{
+			"VisitFriendsRecognitionItemClueExchangeByEnterButton": map[string]any{
+				"roi": maa.Rect{
+					params.EnterButtonBox[0],
+					params.EnterButtonBox[1],
+					params.EnterButtonBox[2],
+					params.EnterButtonBox[3],
+				},
+			},
+		}
+		detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemClueExchangeByEnterButton", arg.Img, override)
+		if err != nil || detail == nil {
+			log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemClueExchangeByEnterButton")
+			return nil, false
+		}
+		item.ClueExchange = detail.Hit
+	}
+
+	upsertScannedFriendItem(item)
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: `{"custom": "fake result"}`,
+	}, true
+}
+
+type VisitFriendsMenuScanDetailAssistRecognition struct{}
+
+func (r *VisitFriendsMenuScanDetailAssistRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	var params struct {
+		FriendName string `json:"friend_name"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to parse CustomRecognitionParam")
+		return nil, false
+	}
+	var item = friendItem{
+		Name:                params.FriendName,
+		ClueExchange:        false,
+		ControlNexusAssist:  false,
+		MFGCabinAssist:      false,
+		GrowthChamberAssist: false,
+	}
 
 	{
 		detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemDetailControlNexusAssist", arg.Img)
@@ -441,8 +490,7 @@ func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *m
 			log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemDetailControlNexusAssist")
 			return nil, false
 		}
-		enabled := detail.Hit
-		setFriendControlNexusAssist(index, enabled)
+		item.ControlNexusAssist = detail.Hit
 	}
 	{
 		detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemDetailMFGCabinAssist", arg.Img)
@@ -450,8 +498,7 @@ func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *m
 			log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemDetailMFGCabinAssist")
 			return nil, false
 		}
-		enabled := detail.Hit
-		setFriendMFGCabinAssist(index, enabled)
+		item.MFGCabinAssist = detail.Hit
 	}
 	{
 		detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemDetailGrowthChamberAssist", arg.Img)
@@ -459,9 +506,10 @@ func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *m
 			log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemDetailGrowthChamberAssist")
 			return nil, false
 		}
-		enabled := detail.Hit
-		setFriendGrowthChamberAssist(index, enabled)
+		item.GrowthChamberAssist = detail.Hit
 	}
+
+	upsertScannedFriendItem(item)
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
@@ -472,31 +520,48 @@ func (r *VisitFriendsMenuScanDetailSaveRecognition) Run(ctx *maa.Context, arg *m
 type VisitFriendsMenuScanScrollFinishRecognition struct{}
 
 func (r *VisitFriendsMenuScanScrollFinishRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	itemsRoi, ok := getFriendItemsRoi(ctx, arg)
-	if !ok {
-		log.Error().Msg("Failed to get friend items roi")
+	detail, recoErr := ctx.RunRecognition("VisitFriendsRecognitionItemWithName", arg.Img)
+	if recoErr != nil || detail == nil {
+		log.Error().Err(recoErr).Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("run recognition")
 		return nil, false
 	}
 
-	if len(itemsRoi) == 0 {
-		log.Error().Msg("No friend items roi found")
+	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
+		log.Warn().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("recognition miss")
 		return nil, false
 	}
 
-	lastRoi := itemsRoi[len(itemsRoi)-1]
-	name, ok := getFriendItemsName(ctx, arg, lastRoi)
-	if !ok {
-		log.Error().Msg("Failed to get last friend item name")
+	var detailJson struct {
+		Filtered []struct {
+			Box   []int   `json:"box"`
+			Score float64 `json:"score"`
+			Text  string  `json:"text"`
+		} `json:"filtered"`
+	}
+	// Results.Best是空，暂时只能这样获取
+	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailJson); detailJsonErr != nil {
+		log.Error().Err(detailJsonErr).Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("parse detail json")
 		return nil, false
 	}
 
-	if lastScrollItemName != name {
-		lastScrollItemName = name
+	if len(detailJson.Filtered) == 0 {
+		log.Info().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("no item found")
 		return nil, false
 	}
 
-	log.Info().Str("name", name).Msg("last friend item name is same as previous, scroll finish")
-	detailJSON, _ := json.Marshal(map[string]string{"last_name": name})
+	lastDetailItem := detailJson.Filtered[len(detailJson.Filtered)-1]
+	if len(lastDetailItem.Text) == 0 {
+		log.Info().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("last item has no name")
+		return nil, false
+	}
+
+	if lastScrollItemName != lastDetailItem.Text {
+		lastScrollItemName = lastDetailItem.Text
+		return nil, false
+	}
+
+	log.Info().Str("name", lastDetailItem.Text).Msg("last friend item name is same as previous, scroll finish")
+	detailJSON, _ := json.Marshal(map[string]string{"last_name": lastDetailItem.Text})
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(detailJSON),
@@ -563,7 +628,8 @@ var (
 	_ maa.CustomActionRunner      = &VisitFriendsMainAction{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanTargetFriendOpenRecognition{}
 	_ maa.CustomActionRunner      = &VisitFriendsMenuScanTargetFriendOpenAction{}
-	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailSaveRecognition{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailAssistRecognition{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailClueExchangeRecognition{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFinishRecognition{}
 	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFullRecognition{}
 	_ maa.CustomActionRunner      = &VisitFriendsMenuClueExchangeAction{}

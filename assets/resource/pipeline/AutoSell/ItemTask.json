@@ -1,0 +1,511 @@
+{
+    "AutoSellStockRedistributionItemOpenPrepare": {
+        "desc": "打开物资调度item界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemCountEmpty",
+            "AutoSellStockRedistributionItemOpen"
+        ]
+    },
+    "AutoSellStockRedistributionItemTicketByText": {
+        "desc": "基于货物名称位置识别item界面的票券icon",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            1280,
+            500
+        ],
+        "roi_offset": [
+            0,
+            -60,
+            0,
+            40
+        ],
+        "template": [
+            "AutoSell/SellTicketItemValleyIV.png",
+            "AutoSell/SellTicketItemWuling.png"
+        ],
+        "threshold": 0.9
+    },
+    "AutoSellStockRedistributionItemCountEmpty": {
+        "desc": "物资调度数量为0",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketByText",
+            {
+                "sub_name": "count_text",
+                "recognition": "ColorMatch",
+                "roi": "AutoSellStockRedistributionItemTicketByText",
+                "roi_offset": [
+                    -70,
+                    -35,
+                    135,
+                    30
+                ],
+                "lower": [
+                    34,
+                    34,
+                    34
+                ],
+                "upper": [
+                    54,
+                    54,
+                    54
+                ],
+                "count": 500
+            },
+            {
+                "recognition": "OCR",
+                "roi": "count_text",
+                "roi_offset": [
+                    -10,
+                    -10,
+                    -50,
+                    20
+                ],
+                "expected": [
+                    "^(?=.*0)[^1-9]*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemRecordAction",
+        "custom_action_param": {
+            "item_name": "锚点厨具货组",
+            "record_type": "record"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemNext"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "物资数量为空，跳过"
+        }
+    },
+    "AutoSellStockRedistributionItemOpen": {
+        "desc": "打开物资调度item界面",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            100,
+            300,
+            1,
+            1
+        ],
+        // item左右20个像素无法点击
+        "target_offset": [
+            30,
+            -50,
+            -60,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellSellGoodsOpenSuccess": {
+        "desc": "打开出售物资界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsEmpty",
+            "AutoSellFriendsPricesOpen"
+        ]
+    },
+    "AutoSellSellGoodsEmpty": {
+        "desc": "物资出售界面没有物资可以出售",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    200,
+                    450,
+                    440,
+                    180
+                ],
+                "lower": [
+                    200,
+                    84,
+                    94
+                ],
+                "upper": [
+                    220,
+                    104,
+                    114
+                ],
+                "connected": true,
+                "count": 1000
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemRecordAction",
+        "custom_action_param": {
+            "item_name": "锚点厨具货组",
+            "record_type": "record"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToView0"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "没有可售卖的物资"
+        }
+    },
+    "AutoSellFriendsPricesOpen": {
+        "desc": "打开好友价格界面",
+        "recognition": "OCR",
+        "roi": [
+            850,
+            400,
+            300,
+            130
+        ],
+        "expected": [
+            "查看好友价格",
+            "查看好友價格",
+            "Friend's Price",
+            "フレンドの価格を確認",
+            "친구의 가격 보기"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesOpenSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesOpenSuccess": {
+        "desc": "打开好友价格界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionFriendsPrices",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    470,
+                    250,
+                    630,
+                    360
+                ],
+                "template": [
+                    "AutoSell/SellTicketFriendValleyIV.png",
+                    "AutoSell/SellTicketFriendWuling.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpected",
+            "AutoSellFriendsPricesUnExpected"
+        ]
+    },
+    "AutoSellFriendsPricesExpected": {
+        "desc": "价格符合预期",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellPriceCompareRecognition",
+        "custom_recognition_param": {
+            "lowest_price": 5000
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuy",
+            "AutoSellFriendsPricesExpectedGoTo"
+        ]
+    },
+    "AutoSellFriendsPricesUnExpected": {
+        "desc": "价格不符合预期",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemRecordAction",
+        "custom_action_param": {
+            "item_name": "锚点厨具货组",
+            "record_type": "record"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToSellGoods"
+        ]
+    },
+    "AutoSellFriendsPricesBackToSellGoods": {
+        "desc": "从好友价格界面返回到物资调度界面",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/FriendsPricesBack.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToView0"
+        ]
+    },
+    "AutoSellFriendsPricesBackToView0": {
+        "desc": "从好友价格界面返回到主界面",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemNext"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuy": {
+        "desc": "当前价格符合预期，在当前好友飞船上，可以直接购买",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceCurrentRecognition"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以购买"
+        }
+    },
+    "AutoSellFriendsPricesExpectedBuyBackToSellGoods": {
+        "desc": "从好友价格界面返回到物资调度界面",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/FriendsPricesBack.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+        "desc": "从好友价格界面返回到物资调度界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuySlide",
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuySlide": {
+        "desc": "从好友价格界面返回到物资调度界面调整滑块",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/ItemAddButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            -75,
+            5,
+            -5,
+            -10
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyClick": {
+        "desc": "点击售卖",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyRecord"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "售卖成功"
+        }
+    },
+    "AutoSellFriendsPricesExpectedBuyRecord": {
+        "desc": "记录已经购买的物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemRecordAction",
+        "custom_action_param": {
+            "item_name": "锚点厨具货组",
+            "record_type": "record"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemNext",
+            "[JumpBack]SceneNoticeRewardsConfirm"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedGoTo": {
+        "desc": "当前价格符合预期，需要前往好友飞船",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+                "roi_offset": [
+                    -260,
+                    -20,
+                    20,
+                    30
+                ],
+                "lower": [
+                    245,
+                    228,
+                    0
+                ],
+                "upper": [
+                    255,
+                    248,
+                    10
+                ],
+                "connected": true,
+                "count": 15
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            -30,
+            0,
+            0,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedGoToConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友不是最高价，前往拜访"
+        }
+    },
+    "AutoSellFriendsPricesExpectedGoToConfirm": {
+        "desc": "前往好友飞船确认",
+        "recognition": "OCR",
+        "roi": [
+            450,
+            250,
+            350,
+            240
+        ],
+        "expected": [
+            "前往",
+            "Visit",
+            "フレン",
+            "친구"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemFind",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]AutoSellShipEnterStockRedistribution"
+        ]
+    },
+    "AutoSellStockRedistributionItemFind": {
+        "desc": "进入物资调度界面，查找目标item",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistribution"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor",
+            "AutoSellStockRedistributionItemFindText"
+        ]
+    },
+    "AutoSellStockRedistributionItemFindTextRecognition": {
+        "desc": "识别目标item的文本区域",
+        "recognition": "OCR",
+        "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+        "roi_offset": [
+            -10,
+            -10,
+            10,
+            20
+        ],
+        "expected": "锚点",
+        "only_rec": true
+    },
+    "AutoSellStockRedistributionItemFindText": {
+        "desc": "打开物资调度item界面",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemFindTextRecognition"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        // item左右20个像素无法点击
+        "target_offset": [
+            30,
+            -50,
+            -40,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "打开指定物品"
+        }
+    }
+}

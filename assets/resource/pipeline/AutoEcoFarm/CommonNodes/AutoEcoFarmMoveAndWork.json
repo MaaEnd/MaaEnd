@@ -138,8 +138,10 @@
                     440,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -160,7 +162,8 @@
                     63
                 ],
                 "template": "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png",
-                "threshold": 0.7
+                "threshold": 0.7,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -180,7 +183,8 @@
                     31
                 ],
                 "template": "AutoEcoFarm/AutoecofarmWhitecloseblackgrouund.png",
-                "threshold": 0.7
+                "threshold": 0.7,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -303,7 +307,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 548,
                 589,
@@ -409,8 +413,10 @@
                     440,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.4
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
             }
         },
         "inverse": true,

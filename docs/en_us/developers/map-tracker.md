@@ -257,27 +257,30 @@ We provide a GUI tool script located at `/tools/map_tracker/map_tracker_editor.p
 2. **Create AssertLocation Node**: Draw a rectangle region on a map for [MapTrackerAssertLocation](#recognition-maptrackerassertlocation).
 3. **Import from Pipeline JSON**: Load either of the two node types above from an existing pipeline JSON file, edit them, and save directly back to the file.
 
-Simply install Python and the `opencv-python` package, then run the script with Python and follow the GUI instructions.
+### Environment Setup and Launch
 
-### Specific Usage of Path Editing
+Prepare a **Python runtime environment** and install the dependencies with the following command:
 
-**Mouse Operations**: Left-click to add, move, or delete waypoints; right-click to drag the map; scroll the mouse wheel to zoom.
+```bash
+pip install opencv-python maafw
+```
 
-**Common Buttons**:
+Then run the program with Python. The working directory must be the project root:
 
-- The Save button is only available when editing an existing path. Clicking it will save the modifications back to the original JSON file where the pipeline is located.
-- The Finish button ends editing. Then you can choose an export mode (for example, export JSON node text or a raw point list).
-- The Record Realtime Path button tries to connect to the location service and records in-game coordinates over time. See below for how to enable the service.
+```bash
+python tools/map_tracker/map_tracker_editor.py
+```
 
-**Positioning Service**:
+### How to Use
 
-To use real-time path recording, use the [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) VS Code extension to run the `MapTrackerTestLoop` node in `/assets/resource/pipeline/MapTracker.json`. Make sure Maa can capture the game window correctly (not blocked by other windows).
+**Mouse operations**: Left click can add, move, or select path points; right click can pan the map; the mouse wheel can be used to zoom.
 
-While that node is running, you can:
+**Path recording**: In the path editing page, two recording modes are available: **Loop** (continuous recording) and **Once** (single-point recording). In Loop mode, pressing the record button will continuously record the player's path points; in Once mode, each press of the record button records only one path point.
 
-1. Click the Record Realtime Path button in the sidebar.
-2. Move your character manually in-game; the tool records the traversed route automatically.
-3. Return to the tool and click Stop Path Recording when finished.
-4. Convert the recorded route in the operation area at the bottom into a path usable by MapTracker.
+> [!NOTE]
+>
+> To use path recording, make sure you have successfully set up the full environment according to the project's quick start guide.
 
-This workflow can significantly improve both efficiency and precision when creating path points.
+**Tier switching**: Some maps support tiers. You can view the different tiers in the Tiers List panel on the left.
+
+**Point properties**: Click a path point to view its coordinate information, and you can delete it or copy its coordinates.

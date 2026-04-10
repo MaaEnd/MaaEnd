@@ -15,8 +15,8 @@
     },
     "__AutoAltClickMouseClickAction": {
         "desc": "鼠标点击",
-        "pre_delay": 100, // delay = 0 有极小概率SeizeInput点不上
+        "pre_delay": 200, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
         "action": "Click",
-        "post_delay": 100
+        "post_delay": 200
     }
 }

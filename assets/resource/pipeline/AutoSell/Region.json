@@ -1,0 +1,68 @@
+{
+    "InFriendsStockRedistribution": {
+        "desc": "在好友弹性需求物资界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            70
+        ],
+        "expected": [
+            "弹性需求物资",
+            "彈性需求物資",
+            "Elastic Goods",
+            "時価商品",
+            "변동 수요 물자"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InFriendsStockRedistributionSellGoods": {
+        "desc": "在出售物资界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "出售物资",
+                    "出售物資",
+                    "Sell Goods",
+                    "商品販売",
+                    "물자 판매"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InFriendsStockRedistributionFriendsPrices": {
+        "desc": "在好友价格界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            200
+        ],
+        "expected": [
+            "好友价格",
+            "好友價格",
+            "Friends' Prices",
+            "フレンド価格",
+            "친구의 가격"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

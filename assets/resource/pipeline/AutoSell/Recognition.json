@@ -1,0 +1,137 @@
+{
+    "AutoSellStockRedistributionItemTicketRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            1280,
+            500
+        ],
+        "template": [
+            "AutoSell/SellTicketItemValleyIV.png",
+            "AutoSell/SellTicketItemWuling.png"
+        ],
+        "threshold": 0.9
+    },
+    "AutoSellStockRedistributionItemNameAreaRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemTicketRecognition",
+        "roi_offset": [
+            -70,
+            35,
+            135,
+            10
+        ],
+        "lower": [
+            61,
+            60,
+            60
+        ],
+        "upper": [
+            81,
+            80,
+            80
+        ],
+        "count": 100
+    },
+    "AutoSellStockRedistributionOpenItemText": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            {
+                "recognition": "OCR",
+                "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+                "roi_offset": [
+                    -10,
+                    -10,
+                    10,
+                    20
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "AutoSellFriendsPriceFirstTicketRecognition": {
+        "desc": "识别好友列表里第一个最高价格",
+        "recognition": "TemplateMatch",
+        "roi": [
+            470,
+            250,
+            630,
+            100
+        ],
+        "template": [
+            "AutoSell/SellTicketFriendValleyIV.png",
+            "AutoSell/SellTicketFriendWuling.png"
+        ],
+        "threshold": 0.9
+    },
+    "AutoSellFriendsPriceRecognition": {
+        "desc": "识别好友列表里第一个最高价格",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            {
+                "recognition": "OCR",
+                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+                "roi_offset": [
+                    30,
+                    0,
+                    32,
+                    0
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ]
+    },
+    "AutoSellFriendsPriceCurrentRecognition": {
+        "desc": "识别好友列表里第一个价格是否是当前",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            {
+                "sub_name": "current_area",
+                "recognition": "ColorMatch",
+                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+                "roi_offset": [
+                    -200,
+                    -20,
+                    150,
+                    20
+                ],
+                "lower": [
+                    245,
+                    228,
+                    0
+                ],
+                "upper": [
+                    255,
+                    248,
+                    10
+                ],
+                "connected": true,
+                "count": 100
+            },
+            {
+                "recognition": "OCR",
+                "roi": "current_area",
+                "expected": [
+                    "当前",
+                    "目前",
+                    "Current",
+                    "現在",
+                    "현재"
+                ],
+                "only_rec": true
+            }
+        ]
+    }
+}

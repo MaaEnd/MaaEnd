@@ -18,41 +18,5 @@
         "desc": "退出并返回任务失败",
         "action": "Custom",
         "custom_action": "325"
-    },
-    "AutoEcoFarmtest": {
-        "desc": "全屏寻找农田,识别到了后点击",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
-                ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "order_by": "Horizontal"
-            }
-        },
-        "next": [
-            "AutoEcoFarmtest2",
-            "AutoEcoFarmExit"
-        ]
-    },
-    "AutoEcoFarmtest2": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
-                "custom_recognition_param": {
-                    "RecognitionNodeName": "AutoEcoFarmtest",
-                    "XRatio": 0.5,
-                    "YRatio": 0.5
-                }
-            }
-        },
-        "next": [
-            "AutoEcoFarmExit"
-        ]
     }
 }

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ctypes
 import math
 import re
 from enum import IntEnum
@@ -295,12 +294,6 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
     return merged
 
 
-def is_key_pressed(vk_code: int) -> bool:
-    """读取 Windows 按键状态；在非 Windows 或调用失败时返回 False。"""
-    try:
-        return (ctypes.windll.user32.GetAsyncKeyState(vk_code) & 0x8000) != 0
-    except Exception:
-        return False
 
 
 def perpendicular_distance(point: PathPoint, line_start: PathPoint, line_end: PathPoint) -> float:
@@ -376,7 +369,7 @@ def simplify_path(path: list[PathPoint], density: int) -> list[PathPoint]:
 
     处理流程：
     1. 把 density (0-100) 映射为 RDP 阈值和最大段长。
-    2. 标记锚点：起终点、非 RUN 点、同区域内的明显转角点。
+    2. 标记锚点：起终点、非 RUN 点、strict 严格到达点、同区域内的明显转角点。
     3. 在锚点区间内执行 RDP。
     4. 对超长线段做等距插值，保证导航稳定性。
     """
@@ -389,7 +382,7 @@ def simplify_path(path: list[PathPoint], density: int) -> list[PathPoint]:
 
     anchor_indices = {0, len(path) - 1}
     for i in range(1, len(path) - 1):
-        if path[i]["action"] != ActionType.RUN:
+        if path[i]["action"] != ActionType.RUN or path[i].get("strict", False):
             anchor_indices.add(i)
             continue
 
@@ -454,7 +447,7 @@ class PathRecorder:
     def __init__(self) -> None:
         self.recorded_path: list[PathPoint] = []
 
-    def add_waypoint(self, x: float, y: float, action: int, zone_id: str = "") -> None:
+    def add_waypoint(self, x: float, y: float, action: int, zone_id: str = "", strict: bool = False) -> None:
         zone_name = normalize_zone_id(zone_id)
         if not zone_name:
             return
@@ -465,7 +458,7 @@ class PathRecorder:
                 "action": action,
                 "actions": [int(action)],
                 "zone": zone_name,
-                "strict": False,
+                "strict": strict,
             }
         )
 

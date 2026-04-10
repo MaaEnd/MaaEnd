@@ -103,14 +103,6 @@ func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []st
 	return texts
 }
 
-func firstOCRText(detail *maa.RecognitionDetail) (string, bool) {
-	texts := ocrTextCandidates(detail, ocrTextPolicyBestOnly)
-	if len(texts) == 0 {
-		return "", false
-	}
-	return texts[0], true
-}
-
 func bestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
 	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
 		return maa.Rect{}, false

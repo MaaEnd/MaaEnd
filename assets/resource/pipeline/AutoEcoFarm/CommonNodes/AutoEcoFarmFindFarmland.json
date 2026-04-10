@@ -192,7 +192,8 @@
                 "template": "AutoEcoFarm/AutoEcoFarmPlusGrey.png",
                 "green_mask": true,
                 "method": 5,
-                "threshold": 0.9
+                "threshold": 0.9,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -237,7 +238,9 @@
                     1280,
                     720
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "threshold": 0.7,
                 "order_by": "Horizontal"
             }
         }
@@ -263,9 +266,32 @@
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
+            "_AutoEcoFarmFarmlandStillVisibleRetry",
             "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
             "_AutoEcoFarmFindFarmlandExit"
+        ]
+    },
+    "_AutoEcoFarmFarmlandStillVisibleRetry": {
+        "desc": "点击后仍未匹配到追踪条等分支，但全屏仍能识别农田标记，则回到就近点击重试",
+        "max_hit": 3,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "threshold": 0.7,
+                "order_by": "Horizontal"
+            }
+        },
+        "next": [
+            "_AutoEcoFarmFindFarmlandCustom"
         ]
     },
     "_AutoEcoFarmIsMrarking": {

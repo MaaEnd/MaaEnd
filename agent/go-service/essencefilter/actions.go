@@ -23,8 +23,27 @@ const essenceMaxSinglePageInventory = 45
 // EssenceFilterInitAction - initialize filter
 type EssenceFilterInitAction struct{}
 
+// afterBattleInitResetPerLoot clears state that must be fresh for each战后战利品界面；引擎与锁定汇总保留在 RunState 上由首次完整 Init 建立。
+func afterBattleInitResetPerLoot(st *RunState) {
+	st.RowBoxes = nil
+	st.RowIndex = 0
+	st.CurrentSkills = [3]string{}
+	st.CurrentSkillLevels = [3]int{}
+	st.PhysicalItemCount = 0
+	st.EncounteredTierBoundary = false
+}
+
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("init start")
+
+	// EssenceFilterAfterBattleInit：每次战利品流程都会进入；仅首次做下方完整初始化，之后每次只做 afterBattleInitResetPerLoot。
+	if arg != nil && arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
+		if st := getRunState(); st != nil && st.MatchEngine != nil {
+			afterBattleInitResetPerLoot(st)
+			return true
+		}
+	}
+
 	engine, opts, err := EnsureMatchEngine(ctx, nil, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")

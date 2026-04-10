@@ -55,6 +55,6 @@ const (
 
 // Misc
 const (
-	RAW_MAP_BBOX_EXPAND_PX           = 20
+	RAW_MAP_BBOX_EXPAND_PX           = 40 // 2x minimap radius
 	FINE_APPROACH_COMPLETE_THRESHOLD = 0.5
 )

@@ -61,7 +61,6 @@
         "next": [
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
-            "[JumpBack]GrowthChamberGrowAgain",
             "GrowthChamberExit"
         ],
         "focus": {
@@ -108,10 +107,10 @@
         "pre_wait_freezes": {
             "time": 200,
             "target": [
-                207,
-                28,
-                869,
-                452
+                512,
+                387,
+                191,
+                42
             ],
             "timeout": 1000
         },
@@ -119,6 +118,16 @@
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberGrowAgain",
+            "GrowthChamberFakeTrue"
+        ]
+    },
+    "GrowthChamberFakeTrue": {
+        "desc": "空节点",
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -220,7 +229,7 @@
         },
         "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 1000,
             "target": [
                 79,
@@ -435,6 +444,7 @@
         ]
     },
     "GrowthChamberReturnGrowView": {
+        "desc": "[培养舱·基核] 在培养舱界面,点击培养重回流程",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -445,9 +455,9 @@
                     283
                 ],
                 "expected": [
-                    "培养",
-                    "培養",
-                    "(?i)Grow"
+                    "^培养$",
+                    "^培養$",
+                    "(?i)^Grow$"
                 ]
             }
         },
@@ -671,7 +681,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 80
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -745,6 +762,16 @@
         "pre_delay": 0,
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0

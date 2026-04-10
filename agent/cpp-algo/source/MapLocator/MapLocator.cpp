@@ -101,6 +101,7 @@ public:
     bool getIsInitialized() const { return isInitialized; }
 
     LocateResult locate(const cv::Mat& minimap, const LocateOptions& options);
+    YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
     void resetTrackingState();
     std::optional<MapPosition> getLastKnownPos() const;
 
@@ -128,7 +129,6 @@ private:
     std::optional<MapPosition> tryConstrainedFineSearch(const SearchExecutionContext& ctx);
     std::optional<MapPosition> tryLegacyCoarseSearch(const SearchExecutionContext& ctx);
 
-    YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
     void refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
     std::optional<LocateResult>
         tryTrackingLocate(const cv::Mat& minimap, const LocateOptions& options, const std::string& expectedZoneId, TimePoint now);
@@ -1222,6 +1222,11 @@ LocateResult MapLocator::locate(const cv::Mat& minimap, const LocateOptions& opt
         res.position->latencyMs = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     }
     return res;
+}
+
+YoloCoarseResult MapLocator::predictCoarse(const cv::Mat& minimap) const
+{
+    return pimpl->predictCoarse(minimap);
 }
 
 void MapLocator::resetTrackingState()

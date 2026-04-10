@@ -1,6 +1,6 @@
 {
     "AutoStockpileGetGoods": {
-        "desc": "对购买区域进行OCR",
+        "desc": "[Go覆盖] 对购买区域进行OCR",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -22,7 +22,7 @@
         "rate_limit": 0
     },
     "AutoStockpileLocateGoods": {
-        "desc": "定位商品，具体模板会在运行时被go覆写",
+        "desc": "[Go覆盖] 定位商品，具体模板会在运行时被go覆写",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -49,19 +49,18 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "lower": [
                     [
-                        0,
-                        0,
-                        70
+                        60,
+                        60,
+                        60
                     ]
                 ],
                 "upper": [
                     [
-                        5,
-                        10,
-                        120
+                        150,
+                        150,
+                        150
                     ]
                 ]
             }
@@ -76,66 +75,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    280,
-                    140,
+                    250,
                     120,
-                    20
+                    200,
+                    60
                 ],
                 "expected": [
-                    "\\d"
-                ],
-                "color_filter": "AutoStockpileGetQuotaAdditionFilter"
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockpileGetQuotaFilter": {
-        "desc": "去除背景干扰",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        100
-                    ]
-                ],
-                "upper": [
-                    [
-                        50,
-                        50,
-                        200
-                    ]
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockpileGetQuotaAdditionFilter": {
-        "desc": "去除背景干扰",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        0
-                    ]
-                ],
-                "upper": [
-                    [
-                        35,
-                        255,
-                        200
-                    ]
+                    "\\+\\d"
                 ]
             }
         },
@@ -149,15 +95,14 @@
             "type": "OCR",
             "param": {
                 "roi": [
+                    50,
                     120,
-                    140,
-                    160,
-                    20
+                    270,
+                    60
                 ],
                 "expected": [
-                    "\\d"
-                ],
-                "color_filter": "AutoStockpileGetQuotaFilter"
+                    "\\d/\\d"
+                ]
             }
         },
         "pre_delay": 0,
@@ -193,13 +138,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    1050,
-                    15,
-                    160,
-                    25
+                    1000,
+                    5,
+                    250,
+                    50
                 ],
                 "expected": [
-                    "\\d"
+                    "\\d[^\\d]?/"
                 ]
             }
         },

@@ -23,14 +23,34 @@ class BasePage:
         self.stepper: Any = None
         self.buttons: list[Button] = []
 
-    def render_page(self) -> None:
-        # Any explicit render request should mark the page dirty.
+    def hook_enter(self, stepper: Any):
+        """Attaches to stepper and prepare the page for rendering."""
+        self.stepper = stepper
+        # PageStepper owns the real cv2 window; use its name to avoid resizing
+        # a non-existent page-local window.
+        if hasattr(stepper, "window_name"):
+            self.window_name = stepper.window_name
+        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
+        self.render_request()
+
+    def hook_idle(self):
+        """Execute idle hook for background updates."""
+        pass
+
+    def hook_exit(self):
+        """Lifecycle hook called when page leaves the stack."""
+        pass
+
+    def render_request(self) -> None:
+        """Requests the page to be re-rendered on next loop tick."""
         self._needs_render = True
 
-    def _render(self, drawer: Drawer) -> None:
+    def _render_once(self, drawer: Drawer) -> None:
+        """Subclasses should implement this method to render a single frame without handling buttons."""
         pass
 
     def render(self) -> Any:
+        """Renders the page if needed and return the image to be displayed."""
         now = time.monotonic()
         btn_needs_render = any(b.needs_render for b in self.buttons)
         if (
@@ -42,7 +62,7 @@ class BasePage:
             self._needs_render = False
             drawer = Drawer.new(self.window_w, self.window_h)
 
-            self._render(drawer)
+            self._render_once(drawer)
 
             for btn in self.buttons:
                 btn.render(drawer)
@@ -50,48 +70,29 @@ class BasePage:
             return drawer.get_image()
         return None
 
-    def on_enter(self, stepper: Any):
-        """Attach to stepper and prepare the page for rendering."""
-        self.stepper = stepper
-        # PageStepper owns the real cv2 window; use its name to avoid resizing
-        # a non-existent page-local window.
-        if hasattr(stepper, "window_name"):
-            self.window_name = stepper.window_name
-        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
-        self.render_page()
-
-    def on_exit(self):
-        """Lifecycle hook called when page leaves the stack."""
-        pass
-
     def handle_mouse(self, event, x: int, y: int, flags, param):
-        """Dispatch mouse input to buttons first, then page handler."""
+        """Dispatches mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
         for btn in self.buttons:
             if btn.handle_mouse(event, x, y):
-                self.render_page()
+                self.render_request()
                 return
         self._on_mouse(event, x, y, flags, param)
 
     def _on_mouse(self, event, x: int, y: int, flags, param) -> None:
+        """Subclasses can override this method to handle mouse events not consumed by buttons."""
         pass
 
     def handle_key(self, key: int):
-        """Dispatch key input to buttons first, then page handler."""
+        """Dispatches key input to buttons first, then page handler."""
         for btn in self.buttons:
             if btn.handle_key(key):
-                self.render_page()
+                self.render_request()
                 return
         self._on_key(key)
 
     def _on_key(self, key: int) -> None:
-        pass
-
-    def handle_idle(self):
-        """Execute idle hook for background updates."""
-        self._on_idle()
-
-    def _on_idle(self) -> None:
+        """Subclasses can override this method to handle key events not consumed by buttons."""
         pass
 
 
@@ -145,8 +146,8 @@ class StepPage(BasePage):
                 )
             )
 
-    def on_enter(self, stepper: "PageStepper"):
-        super().on_enter(stepper)
+    def hook_enter(self, stepper: "PageStepper"):
+        super().hook_enter(stepper)
 
     def _render_header(self, drawer: Drawer) -> None:
         h = self.HEADER_H
@@ -166,7 +167,7 @@ class StepPage(BasePage):
         drawer.rect((0, y1), (self.WINDOW_W, y2), color=0x0A0A14, thickness=-1)
         drawer.line((0, y1), (self.WINDOW_W, y1), color=0x444455, thickness=2)
 
-    def _render(self, drawer: Drawer):
+    def _render_once(self, drawer: Drawer):
         drawer.rect(
             (0, 0),
             (self.WINDOW_W, self.WINDOW_H),
@@ -288,18 +289,18 @@ class PageStepper:
     def push_step(self, page: BasePage) -> None:
         """Push a new page and enter it."""
         if self.current_step:
-            self.current_step.on_exit()
+            self.current_step.hook_exit()
         self.step_history.append(page)
-        page.on_enter(self)
+        page.hook_enter(self)
         self.request_render()
 
     def pop_step(self) -> BasePage | None:
         """Pop current page when history allows and restore previous page."""
         if len(self.step_history) > 1:
             popped = self.step_history.pop()
-            popped.on_exit()
+            popped.hook_exit()
             if self.current_step:
-                self.current_step.on_enter(self)
+                self.current_step.hook_enter(self)
             self.request_render()
             return popped
         return None
@@ -312,7 +313,7 @@ class PageStepper:
     def request_render(self):
         """Request current step to render on next loop tick."""
         if self.current_step:
-            self.current_step.render_page()
+            self.current_step.render_request()
 
     def _handle_mouse(self, event, x, y, flags, param):
         if self.current_step:
@@ -333,7 +334,7 @@ class PageStepper:
             if not page:
                 break
 
-            page.handle_idle()
+            page.hook_idle()
 
             rendered_img = page.render()
             if rendered_img is not None:
@@ -583,6 +584,101 @@ class RadioSelectWidget:
             else:
                 drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
             drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
+
+
+class SwitchWidget:
+    """Simple two-state switch with both labels always visible."""
+
+    def __init__(
+        self,
+        left_label: str,
+        right_label: str,
+        *,
+        is_left_selected: bool = True,
+        on_changed: Callable[[bool], None] | None = None,
+    ):
+        self.left_label = left_label
+        self.right_label = right_label
+        self.is_left_selected = is_left_selected
+        self.on_changed = on_changed
+        self.hovered = False
+
+    def get_value(self) -> bool:
+        return self.is_left_selected
+
+    def set_value(self, is_left_selected: bool) -> bool:
+        changed = self.is_left_selected != is_left_selected
+        self.is_left_selected = is_left_selected
+        if changed and self.on_changed is not None:
+            self.on_changed(self.is_left_selected)
+        return changed
+
+    def toggle(self) -> bool:
+        return self.set_value(not self.is_left_selected)
+
+    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> bool:
+        x1, y1, x2, y2 = rect
+        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+        self.hovered = in_rect
+        if not in_rect:
+            return False
+        self.toggle()
+        return True
+
+    def render(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.42,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        w = max(2, x2 - x1)
+        mid_x = x1 + w // 2
+
+        base_color = 0x0A0A14
+        border_color = 0x223044 if not self.hovered else 0x3C5370
+        active_color = 0x132B4F
+        active_border = 0x6E95D2
+        inactive_color = 0xC8C8C8
+
+        drawer.rect((x1, y1), (x2, y2), color=base_color, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
+        drawer.line((mid_x, y1 + 1), (mid_x, y2 - 1), color=border_color, thickness=1)
+
+        active_rect = (
+            (x1 + 2, y1 + 2, mid_x - 1, y2 - 2)
+            if self.is_left_selected
+            else (mid_x + 1, y1 + 2, x2 - 2, y2 - 2)
+        )
+        drawer.rect(
+            (active_rect[0], active_rect[1]),
+            (active_rect[2], active_rect[3]),
+            color=active_color,
+            thickness=-1,
+        )
+        drawer.rect(
+            (active_rect[0], active_rect[1]),
+            (active_rect[2], active_rect[3]),
+            color=active_border,
+            thickness=1,
+        )
+
+        cy = y1 + (y2 - y1) // 2 + 5
+        left_cx = x1 + (mid_x - x1) // 2
+        right_cx = mid_x + (x2 - mid_x) // 2
+        drawer.text_centered(
+            self.left_label,
+            (left_cx, cy),
+            font_scale,
+            color=0xFFFFFF if self.is_left_selected else inactive_color,
+        )
+        drawer.text_centered(
+            self.right_label,
+            (right_cx, cy),
+            font_scale,
+            color=inactive_color if self.is_left_selected else 0xFFFFFF,
+        )
 
 
 class ScrollableListWidget:

@@ -114,7 +114,7 @@ The following are reusable nodes based on Pipeline. You can call them directly t
 
 The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However, **according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
 
-- [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
+- [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding (Golang ver.), as well as the path editing tool.
 - [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
 - [Custom Action and Recognition Reference](./custom.md): Invoke custom actions and custom recognitions in go-service via the `Custom` node.
 - [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.

@@ -1,5 +1,0 @@
-- ユーザーグループ: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)
-- 開発者グループ: [1072587329](https://qm.qq.com/q/EyirQpBiW4)（開発グループ、参加歓迎、ただしユーザー問題は対応しません）
-- 公式サイト: [maaend.com](https://maaend.com)
-- ソースコード: [GitHub](https://github.com/MaaEnd/MaaEnd)
-- 問題報告: [GitHub Issue](https://github.com/MaaEnd/MaaEnd/issues)
