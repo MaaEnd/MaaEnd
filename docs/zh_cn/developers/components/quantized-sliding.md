@@ -397,5 +397,5 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 ## 相关文档
 
-- [Custom 动作与识别参考文档](./custom.md)：了解 `Custom` 动作与识别的通用调用方式。
-- [开发手册](./development.md)：了解 Pipeline / Go Service 的整体开发规范。
+- [Custom 动作与识别参考文档](../custom.md)：了解 `Custom` 动作与识别的通用调用方式。
+- [编码规范](../coding-standards.md)：了解 Pipeline / Go Service 的整体开发规范。

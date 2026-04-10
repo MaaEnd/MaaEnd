@@ -114,12 +114,12 @@ The following are reusable nodes based on Pipeline. You can call them directly t
 
 The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However, **according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
 
-- [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
-- [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
+- [MapTracker Reference Document](./components/map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
+- [MapNavigator Reference Document](./components/map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
 - [Custom Action and Recognition Reference](./custom.md): Invoke custom actions and custom recognitions in go-service via the `Custom` node.
-- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.
-- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a target.
-- [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
+- [AutoFight Reference Document](./components/auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.
+- [CharacterController Reference Document](./components/character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a target.
+- [QuantizedSliding Reference Document](./components/quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
 
 ### About Testing
 
@@ -129,7 +129,7 @@ MaaEnd uses `maa-tools` to provide node testing, which is used to verify whether
 
 The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
 
-- [AutoStockpile Maintenance Documentation](./auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
+- [AutoStockpile Maintenance Documentation](./tasks/auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
 
 ## Code Specifications
 
