@@ -23,7 +23,7 @@ flowchart TD
 2. 了解项目架构和可复用节点 → `components-guide.md`
 3. 掌握开发工具和调试流程 → `tools-and-debug.md`
 4. 查阅编码规范 → `coding-standards.md`
-5. 需要写测试时 → `node-testing.md`
+5. 需要写测试集时 → `node-testing.md`
 6. 用到某个高级组件时 → 查 `components/` 下的对应文档
 7. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
@@ -51,7 +51,7 @@ flowchart TD
 
 ### Pipeline 基础组件
 
-日常开发最常用的可复用节点，建议所有 Pipeline 开发者优先掌握。
+日常开发最常用的可复用节点，建议所有 Pipeline 开发者开发时查询以便复用。
 
 | 文档 | 说明 |
 | ---- | ---- |
@@ -91,10 +91,3 @@ flowchart TD
 | 改 Pipeline 节点 | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [scene-manager.md](./scene-manager.md) |
 | 写或调 Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) |
 | 查阅编码规范 | [coding-standards.md](./coding-standards.md) |
-| 补节点测试 | [node-testing.md](./node-testing.md) |
-| 让角色自动寻路 | [components/map-navigator.md](./components/map-navigator.md) |
-| 接入自动战斗 | [components/auto-fight.md](./components/auto-fight.md) |
-| 用滑条选数量 | [components/quantized-sliding.md](./components/quantized-sliding.md) |
-| 维护自动囤货任务 | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
-| 维护基建任务 | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
-| 维护信用点商店任务 | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
