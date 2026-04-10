@@ -1,7 +1,8 @@
 # 开发手册 - 信用点商店维护文档
 
 本文用于说明 `CreditShopping`（信用点商店）的整体结构、购买优先级、获取信用点联动、刷新策略，以及 `assets/tasks/CreditShopping.json` 中各个 `interface` 选项如何覆盖 Pipeline 行为，便于后续维护与扩展。  
-该文档更新于 2026 年 4 月 6 日  
+尤其要注意：购买条件不是分散的几个独立开关，而是从 `Item.json` 一路串到 `Shopping.json` 的一整条筛选链。维护时必须按整条链路理解。  
+该文档更新于 2026 年 4 月 8 日  
 [perf:每个购买选项都会接受信用点阈值限制(#1980)](https://github.com/MaaEnd/MaaEnd/pull/1980) 提交之后
 
 ## 文件概览
@@ -50,6 +51,98 @@
 - `CreditShoppingScanItem` 的 `next` 顺序本身就是业务优先级，维护时不要只看单个节点，要把整个扫描顺序一起看。
 - 三档购买都可以分别配置“无条件购买”和“自动获取信用点”，当前默认值分别是：购买物品选项 1 为开启/开启，购买物品选项 2 为关闭/关闭，购买物品选项 3 为关闭/关闭。
 
+## Interface Task 与 Pipeline 的对应关系
+
+`CreditShopping` 对外暴露给用户的入口，实际分成两层：
+
+1. `assets/interface.json` 只负责把 `tasks/CreditShopping.json` 导入到 `daily` 分组。
+2. `assets/tasks/CreditShopping.json` 才是真正的 interface task 定义，它声明了：
+    1. 任务名是 `CreditShoppingN2`
+    2. 入口节点是 `CreditShoppingMain`
+    3. 顶层选项包含 `CreditShoppingReserve`、`CreditShoppingClueSend`、`CreditShoppingClueStockLimit`、`CreditShoppingPriority1`、`CreditShoppingPriority2`、`CreditShoppingPriority3`、`CreditShoppingForce`
+
+这些顶层选项并不是“描述性配置”，而是会直接改写具体 Pipeline 节点：
+
+- `CreditShoppingReserve` 改写 `CreditShoppingReserveCredit` 与 `CreditShoppingReserveCreditSatisfied` 的表达式阈值。
+- `CreditShoppingPriority1/2/3` 分别控制 `CreditShoppingBuyPriority1/2/3` 这三条购买分支是否启用，以及各自的物品白名单、折扣条件、自动补信用和保留信用点准入逻辑。
+- `CreditShoppingForce` 控制三档购买全部未命中后的兜底行为，是退出、购买任意可买物品，还是执行刷新。
+
+换句话说，interface task 负责声明“这次运行允许哪些条件成立”，而真正逐个商品去套这些条件的地方，是 `Item.json` 和 `Shopping.json`。
+
+## Item 条件链是如何串起来的
+
+这一节统一说明“购买”和“买不起时自动获取信用点”两条识别链。后文不再重复介绍这些识别器本身，只讨论选项语义和流程行为。
+
+读图时建议只按一个顺序理解：先识别黑色框，再基于黑色框的结果一路偏移识别下去。
+
+颜色约定如下：
+
+- 黑色：`CreditIcon`，先定位信用点商品卡片。
+- 蓝色：`NotSoldOut`，在黑色结果基础上偏移，判断商品是否未售罄，使用灰度识别。
+- 红色：`CanAfford` / `CanNotAfford`，在蓝色结果基础上偏移，判断价格区域是买得起还是买不起。
+- 绿色：`BuyFirstOCR` / `Priority2OCR` / `Priority3OCR` 及对应买不起分支，在红色对应结果基础上偏移，识别商品名。
+- 粉色：`IsDiscountPriority1/2/3` 及对应买不起分支，在绿色结果基础上偏移，识别折扣力度。
+
+### 图 1：购买识别链
+
+<img width="391" height="479" alt="image" src="https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f" />
+
+按图片顺序理解即可：
+
+1. 先识别黑色的 `CreditIcon`，确定当前商品卡片的位置。
+2. 再根据黑色结果偏移，识别蓝色的 `NotSoldOut`，排除已售罄商品。
+3. 再根据蓝色结果偏移，识别红色的 `CanAfford`，确认当前商品买得起。
+4. 再根据红色结果偏移，识别绿色的商品名 OCR，确认它命中当前档位白名单。
+5. 再根据绿色结果偏移，识别粉色的折扣 OCR，确认折扣满足当前档位要求。
+6. 上面这些都成立后，`Shopping.json` 才会继续判断该档位的保留信用点准入，并进入购买。
+
+可以把它压缩成一行：
+
+```text
+黑色 CreditIcon -> 蓝色 NotSoldOut -> 红色 CanAfford -> 绿色商品名 -> 粉色折扣 -> 进入购买判断
+一个物品,未售罄,能买得起,是我想要的物品,并且满足折扣的要求->买!
+```
+
+### 图 2：买不起时自动获取信用点识别链
+
+<img width="273" height="367" alt="image" src="https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7" />
+
+这条链和购买识别链的读法完全一样，只是第三步不同：
+
+1. 先识别黑色的 `CreditIcon`。
+2. 再根据黑色结果偏移，识别蓝色的 `NotSoldOut`。
+3. 再根据蓝色结果偏移，识别红色的 `CanNotAfford`，确认这个商品当前买不起。
+4. 再根据红色结果偏移，识别绿色的商品名 OCR，确认它仍然是当前档位想买的目标商品。
+5. 再根据绿色结果偏移，识别粉色的折扣 OCR，确认折扣也满足当前档位要求。
+6. 上面这些都成立后，如果该档位开启了 `AutoGetCredits`，就会转去 `NeedCredit`。
+
+可以把它压缩成一行：
+
+```text
+黑色 CreditIcon -> 蓝色 NotSoldOut -> 红色 CanNotAfford -> 绿色商品名 -> 粉色折扣 -> 进入补信用判断
+一个物品,未售罄,但我买不起,他是我想要的物品且满足折扣要求->想办法买!
+```
+
+### 识别器之间的依赖关系
+
+这几类识别器是前后依赖的，不是并列关系：
+
+- 蓝色依赖黑色，因为 `NotSoldOut` 的 `roi` 来自 `CreditIcon`。
+- 红色依赖蓝色，因为 `CanAfford` / `CanNotAfford` 的 `roi` 来自 `NotSoldOut`。
+- 绿色依赖红色，因为商品名 OCR 的 `roi` 来自 `CanAfford` 或 `CanNotAfford`。
+- 粉色依赖绿色，因为折扣 OCR 的 `roi` 来自具体的商品名 OCR 节点。
+
+所以维护时不要把这些识别器拆开看。只要前面一层没命中，后面所有偏移识别都会一起失效。
+
+### 为什么购买和补信用要各维护一套节点
+
+- 购买分支依赖 `CanAfford`，补信用分支依赖 `CanNotAfford`。
+- 优先购买 1 需要同时维护 `BuyFirstOCR` 和 `BuyFirstOCR_CanNotAfford`。
+- 优先购买 2 和 3 也要同时考虑各自“买得起”和“买不起”两侧的商品名与折扣识别。
+- `IsDiscountPriority{N}` 和 `IsDiscountPriority{N}_CanNotAfford` 必须保持同一套折扣语义，否则会出现“买得起时是目标商品，买不起时却不是目标商品”的不一致。
+
+如果开发者要排查识别问题，最稳妥的顺序就是：先看黑色，再看蓝色，再看红色，再看绿色，最后看粉色。
+
 ## 购买优先级模型
 
 当前任务把商品分成 3 档：
@@ -57,7 +150,6 @@
 ### 购买物品选项1
 
 - 入口节点：`CreditShoppingBuyPriority1`
-- 识别条件：商品存在、未售罄、买得起、名称命中 `BuyFirstOCR`、折扣命中 `IsDiscountPriority1`
 - 默认附带：
     - `CreditShoppingPriority1UnconditionalPurchase=Yes`，即“无条件购买”，跳过保留信用点阈值检查
     - `CreditShoppingPriority1AutoGetCredits=Yes`，即买不起时允许触发自动获取信用点
@@ -67,7 +159,6 @@
 ### 购买物品选项2
 
 - 入口节点：`CreditShoppingBuyPriority2`
-- 识别条件：商品存在、未售罄、买得起、名称命中 `Priority2OCR`、折扣命中 `IsDiscountPriority2`
 - 默认附带：
     - `CreditShoppingPriority2UnconditionalPurchase=No`，即需要满足保留信用点阈值
     - `CreditShoppingPriority2AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
@@ -75,7 +166,6 @@
 ### 购买物品选项3
 
 - 入口节点：`CreditShoppingBuyPriority3`
-- 识别条件：商品存在、未售罄、买得起、名称命中 `Priority3OCR`、折扣命中 `IsDiscountPriority3`
 - 默认附带：
     - `CreditShoppingPriority3UnconditionalPurchase=No`，即需要满足保留信用点阈值
     - `CreditShoppingPriority3AutoGetCredits=No`，即买不起时默认不触发自动获取信用点
@@ -123,7 +213,7 @@
 
 - `CreditShoppingPriority1Items` 的关键词会同时写到 `BuyFirstOCR` 和 `BuyFirstOCR_CanNotAfford`
 - Go 会把两边 `attach` 合并去重，生成同一份白名单正则
-- `CreditShoppingPriority2Items` 和 `CreditShoppingPriority3Items` 则分别只改各自档位
+- `CreditShoppingPriority2Items` 和 `CreditShoppingPriority3Items` 会同时改各自档位的“买得起”和“买不起”节点
 - 如果某一档没有任何勾选项，Go 会把对应 `expected` 改成 `a^`，等价于“永不匹配”
 
 这套设计的好处是：
@@ -172,7 +262,6 @@
 汇总入口仍然是 `Shopping.json` 的 `AutoGetCredits`：
 
 - 节点：`AutoGetCredits`
-- 触发来源：`AutoGetCreditsBuyPriority1`、`AutoGetCreditsBuyPriority2`、`AutoGetCreditsBuyPriority3`
 - 触发方式：三者做 `Or`，任意一档命中即跳到 `GoToNeedCredit`
 
 这意味着自动补信用的触发，不再只属于购买物品选项 1，而是由各档位独立控制。
@@ -292,7 +381,7 @@
 注意：
 
 - `Priority1` 要同时维护 `BuyFirstOCR` 和 `BuyFirstOCR_CanNotAfford`
-- `Priority2/3` 只需要维护各自档位的 OCR 节点
+- `Priority2/3` 改动时，也要一并核对对应档位的买不起分支是否仍与购买分支保持一致
 - `attach` value 建议写该商品所有已支持语言的稳定 OCR 文案
 
 ### 2. 购买弹窗入口列表

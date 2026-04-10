@@ -1,0 +1,8 @@
+{
+    "__ChangeRegionButton": {
+        "threshold": 0.7
+    },
+    "__ChangeRegionButtonHover": {
+        "threshold": 0.7
+    }
+}

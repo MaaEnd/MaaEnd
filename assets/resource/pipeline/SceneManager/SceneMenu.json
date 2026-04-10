@@ -107,6 +107,16 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1200,
+                313,
+                27,
+                13
+            ],
+            "timeout": 1000
+        },
         "post_delay": 200,
         "rate_limit": 0
     },

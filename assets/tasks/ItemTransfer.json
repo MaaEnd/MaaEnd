@@ -7,11 +7,11 @@
             "description": "$task.ItemTransfer.description",
             "option": [
                 "AutoTeleport",
-                "PreClearBag",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
-                "DestinationRegion"
+                "DestinationRegion",
+                "PreClearBag"
             ],
             "controller": [
                 "Win32-Window",
@@ -44,24 +44,6 @@
                 }
             ],
             "default_case": "No"
-        },
-        "PreClearBag": {
-            "type": "switch",
-            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
-            "description": "$task.ItemTransfer.option.PreClearBag.description",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "ItemTransferPreClearBag": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
         },
         "WhatToTransfer": {
             "type": "select",
@@ -3502,6 +3484,24 @@
                 }
             ],
             "default_case": "Wuling"
+        },
+        "PreClearBag": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "$task.ItemTransfer.option.PreClearBag.description",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferPreClearBag": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         }
     }
 }

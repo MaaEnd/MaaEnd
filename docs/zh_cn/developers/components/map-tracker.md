@@ -257,27 +257,30 @@
 - **创建位置判断节点（Create AssertLocation Node）**：在地图上框选一个用于 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 的矩形区域。
 - **编辑已有节点（Import from Pipeline JSON）**：从现有的 pipeline JSON 文件中加载上述两种节点，修改后可以直接保存到文件！
 
-只需安装 Python 和 `opencv-python` 库，即可使用 Python 来运行上述工具脚本。运行后，按照 GUI 指引操作即可。
+### 环境配置和打开办法
 
-### 路径编辑的具体用法
+准备好 **Python 运行环境**，并通过下面的命令**安装依赖库**：
 
-**鼠标操作**：左键可以添加、移动或删除路径点；右键可以拖拽地图；滚轮可以用于缩放。
+```bash
+pip install opencv-python maafw
+```
 
-**常用按钮**：
+随后使用 Python 运行程序即可（工作目录需要是项目根目录）：
 
-- 保存（Save）按钮仅在编辑现有路径时可用，点击后会将修改保存回原 pipeline 所在的 JSON 文件。
-- 完成（Finish）按钮会结束编辑。此时，可以选择导出模式（例如导出 JSON 节点或路径点列表等格式）。
-- 实时定位（Record Realtime Path）按钮会尝试连接定位服务并记录当前游戏内的坐标。定位服务如何开启请参见下方说明。
+```bash
+python tools/map_tracker/map_tracker_editor.py
+```
 
-**定位服务**：
+### 使用方式介绍
 
-要使用实时定位功能，请使用 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) 这个 VS Code 插件来“执行”位于 `/assets/resource/pipeline/MapTracker.json` 中的 `MapTrackerTestLoop` 节点，并确保游戏窗口可以被 Maa 正确截图（无遮挡）。
+**鼠标操作**：左键可以添加、移动或选中路径点；右键可以拖拽地图；滚轮可以用于缩放。
 
-在上述节点运行期间，您可以：
+**路径录制**：在路径编辑页面中，提供两种录制路径的模式，分别是 **Loop（持续录制）和 Once（单次打点）模式**。在 Loop 模式下，按下录制按钮就会持续录制玩家的路径点；在 Once 模式下，每次按下录制按钮只会录制一个路径点。
 
-1. 在侧边栏中点击“Record Realtime Path”按钮；
-2. 随后自行操作角色在游戏内移动，工具会自动记录角色走过的路径；
-3. 完成移动后，返回到工具界面，点击“Stop Path Recording”按钮停止记录；
-4. 最后，在下方操作栏中将记录的路径转换为可供 MapTracker 使用的路径。
+> [!NOTE]
+>
+> 要想使用路径录制功能，您需要确保您已按照本项目的快速开始指南成功搭建了整个环境。
 
-这一工作流可以极大地提升路径点的创建效率和精确程度。
+**层级切换**：部分地图具有层级功能，您可以在左侧的 Tiers List 面板中查看不同层级的地图。
+
+**点位属性查看**：单击一个路径点，可以查看它的坐标信息，并且可以进行删除和复制坐标的操作。

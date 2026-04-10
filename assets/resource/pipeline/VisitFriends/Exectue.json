@@ -43,15 +43,38 @@
     },
     "VisitFriendsEnterShipSuccess": {
         "desc": "进入好友船成功的标志",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            100,
-            100
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    10,
+                    272,
+                    231,
+                    64
+                ],
+                "expected": [
+                    "打开访客终端",
+                    "打開訪客終端",
+                    "Guest Terminal",
+                    "訪問端末",
+                    "방문자 단말기"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "VisitFriends/ShipEscButton.png"
+                ],
+                "threshold": 0.9
+            }
         ],
-        "template": "VisitFriends/ShipEscButton.png",
-        "threshold": 0.9,
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 89, // Y
@@ -268,9 +291,9 @@
                 "sub_name": "icon",
                 "recognition": "TemplateMatch",
                 "roi": [
-                    100,
+                    40,
                     400,
-                    200,
+                    260,
                     200
                 ],
                 "template": "VisitFriends/TerminalControlNexus.png",

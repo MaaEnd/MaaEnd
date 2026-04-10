@@ -65,8 +65,8 @@
                 "roi": [
                     0,
                     0,
-                    150,
-                    120
+                    191,
+                    136
                 ],
                 "template": "VisitFriends/OnFriendList.png",
                 "threshold": 0.8

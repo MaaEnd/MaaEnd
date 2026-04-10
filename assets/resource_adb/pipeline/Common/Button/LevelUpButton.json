@@ -1,0 +1,8 @@
+{
+    "__LevelUpButton": {
+        "threshold": 0.7
+    },
+    "__LevelUpButtonHover": {
+        "threshold": 0.7
+    }
+}

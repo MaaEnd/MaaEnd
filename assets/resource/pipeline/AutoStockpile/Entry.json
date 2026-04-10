@@ -1,21 +1,12 @@
 {
-    "AutoStockpileOOSEnsureStable": {
-        "desc": "已售罄图标 (稳定标识)",
+    "AutoStockpileElasticGoodsButton": {
+        "desc": "弹性物资调度黑白双煞",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    10,
-                    130,
-                    45,
-                    400
-                ],
-                "template": [
-                    "AutoStockpile/OOS.png",
-                    "AutoStockpile/OOSSelected.png"
-                ],
-                "threshold": [
-                    0.8
+                "any_of": [
+                    "AutoStockpileElasticGoods",
+                    "AutoStockpileElasticGoodsSelected"
                 ]
             }
         }
@@ -31,6 +22,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
@@ -46,7 +38,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileMoveMouse"
+            "AutoStockpileEnaureElasticClicked"
         ]
     },
     "AutoStockpileTask": {
@@ -55,7 +47,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileElasticGoodsButton",
+            "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]
     },
@@ -71,7 +63,7 @@
                     70
                 ],
                 "template": [
-                    "AutoStockpile/StapleGoodsButtonSelected.png"
+                    "AutoStockpile/StableGoodsButtonSelected.png"
                 ]
             }
         },
@@ -82,32 +74,13 @@
             "Node.Recognition.Succeeded": "该地区未解锁弹性物资调度，跳过该地区"
         }
     },
-    "AutoStockpileElasticGoodsButton": {
-        "desc": "弹性物资调度黑白双煞",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "AutoStockpileElasticGoods",
-                    "AutoStockpileElasticGoodsSelected"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileGotoElasticGoods"
-        ]
-    },
     "AutoStockpileGotoElasticGoods": {
         "desc": "选择弹性物资调度",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockpileElasticGoodsButton",
-                    "AutoStockpileOOSEnsureStable"
+                    "AutoStockpileElasticGoodsButton"
                 ]
             }
         },
@@ -115,16 +88,6 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                10,
-                170,
-                150,
-                40
-            ],
-            "threshold": 0.98
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -154,36 +117,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "AutoStockpileMoveMouse": {
-        "desc": "避免鼠标遮挡",
-        "pre_delay": 0,
-        "action": {
-            "type": "TouchMove",
-            "param": {
-                "target": [
-                    1100,
-                    50,
-                    10,
-                    10
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                15,
-                160,
-                40,
-                150
-            ],
-            "threshold": 0.98
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]AutoStockpileDecision"
-        ]
     },
     "AutoStockpileElasticGoods": {
         "desc": "弹性物资调度未选中",
@@ -224,5 +157,28 @@
                 ]
             }
         }
+    },
+    "AutoStockpileEnaureElasticClicked": {
+        "desc": "确保成功点击了弹性物资调度",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    140,
+                    40,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButtonSideSelected.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]AutoStockpileDecision"
+        ]
     }
 }

@@ -107,10 +107,10 @@
         "pre_wait_freezes": {
             "time": 200,
             "target": [
-                207,
-                28,
-                869,
-                452
+                512,
+                387,
+                191,
+                42
             ],
             "timeout": 1000
         },
@@ -127,8 +127,8 @@
     },
     "GrowthChamberFakeTrue": {
         "desc": "空节点",
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0
     },
     "GrowthChamberGrowAgain": {

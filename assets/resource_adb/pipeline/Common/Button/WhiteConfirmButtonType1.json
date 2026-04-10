@@ -1,0 +1,14 @@
+{
+    "__WhiteConfirmButtonType1commonSearchAreas1Stable": {
+        "threshold": 0.7
+    },
+    "__WhiteConfirmButtonType1commonSearchAreas1Hover": {
+        "threshold": 0.7
+    },
+    "__WhiteConfirmButtonType1IconStable": {
+        "threshold": 0.7
+    },
+    "__WhiteConfirmButtonType1IconHover": {
+        "threshold": 0.7
+    }
+}

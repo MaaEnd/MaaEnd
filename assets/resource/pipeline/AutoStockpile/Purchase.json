@@ -106,7 +106,6 @@
                 }
             }
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -139,7 +138,6 @@
                 ]
             }
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -196,7 +194,6 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -213,17 +210,14 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ],
         "focus": {
             "Node.Action.Succeeded": "购买成功"
         }
@@ -238,55 +232,13 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
         "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileBackToRegionalConstruction"
-        ]
-    },
-    "AutoStockpileBackToRegionalConstruction": {
-        "desc": "流程优化，返回地区建设页面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1",
-                    "AutoStockpileElasticGoodsButton"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileEnsureBack"
-        ]
-    },
-    "AutoStockpileEnsureBack": {
-        "desc": "确保已回到地区建设界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": [
-                    "AutoStockpile/StockRedistributionButton.png"
-                ],
-                "threshold": [
-                    0.8
-                ]
-            }
-        },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     }
