@@ -90,6 +90,22 @@
                 "strategy": "set",
                 "value": "ARM64"
             }
+        },
+        {
+            "name": "MSVC 2026 ARM",
+            "displayName": "MSVC 2026 ARM",
+            "description": "MSVC 2026 ARM",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/build",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "architecture": {
+                "strategy": "set",
+                "value": "ARM64"
+            }
         }
     ],
     "buildPresets": [
@@ -138,6 +154,14 @@
             "displayName": "MSVC 2022 ARM RelWithDebInfo",
             "description": "MSVC 2022 ARM RelWithDebInfo",
             "configurePreset": "MSVC 2022 ARM",
+            "configuration": "RelWithDebInfo",
+            "jobs": 16
+        },
+        {
+            "name": "MSVC 2026 ARM - RelWithDebInfo",
+            "displayName": "MSVC 2026 ARM RelWithDebInfo",
+            "description": "MSVC 2026 ARM RelWithDebInfo",
+            "configurePreset": "MSVC 2026 ARM",
             "configuration": "RelWithDebInfo",
             "jobs": 16
         }

@@ -365,7 +365,7 @@ def build_cpp_algo(
     configure_preset_candidates: list[str]
     if resolved_os == "win":
         if resolved_arch == "aarch64":
-            configure_preset_candidates = ["MSVC 2022 ARM"]
+            configure_preset_candidates = ["MSVC 2022 ARM", "MSVC 2026 ARM"]
         else:
             # 兼容仅安装 VS2026 的环境：优先尝试 2022，失败时自动回退 2026
             configure_preset_candidates = ["MSVC 2022", "MSVC 2026"]
@@ -391,9 +391,11 @@ def build_cpp_algo(
     print(f"  MaaDeps triplet: {maadeps_triplet}")
 
     # cmake --preset <configure_preset>（按候选列表依次尝试）
-    configure_result: subprocess.CompletedProcess[str] | None = None
     configure_preset = configure_preset_candidates[0]
     build_dir = cpp_algo_dir / "build"
+    if len(configure_preset_candidates) > 1:
+        cleanup_cmake_cache(build_dir)
+
     for idx, preset in enumerate(configure_preset_candidates):
         if idx > 0:
             cleanup_cmake_cache(build_dir)
@@ -425,7 +427,6 @@ def build_cpp_algo(
             text=True,
             encoding="utf-8",
         )
-        configure_result = result
 
         if result.stdout:
             print(result.stdout)
