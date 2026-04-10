@@ -423,7 +423,9 @@
         "desc": "准备选择领取倍数的守卫节点",
         "pre_wait_freezes": 1000,
         "next": [
+            // 考虑到双倍领取的许可券可能不足，不论是单倍还是双倍领取，都需要点击一次单倍领取的选项
             "AutoEssenceChooseScaling1",
+            // 考虑到某些情况无需选择领取倍数，当没有识别到单倍领取选项时，直接进入下一步
             "AutoEssenceAfterChooseScaling"
         ]
     },
@@ -446,10 +448,39 @@
             "type": "Click"
         },
         "next": [
+            // 如果识别双倍领取选项的节点已开启，下一步就会尝试双倍领取
+            "AutoEssenceChooseScaling2",
+            // 如果双倍领取的对应节点没有开启或者未能识别，就会在点击了单倍领取的选项后，直接进入下一步
             "AutoEssenceAfterChooseScaling"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击单倍领取按钮"
+        }
+    },
+    "AutoEssenceChooseScaling2": {
+        "desc": "识别并点击双倍领取的选项",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    260,
+                    190,
+                    490,
+                    360
+                ],
+                "template": "AutoEssence/EssenceScaling2.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoEssenceAfterChooseScaling"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆点击双倍领取按钮"
         }
     },
     "AutoEssenceAfterChooseScaling": {
