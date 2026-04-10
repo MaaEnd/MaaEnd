@@ -14,7 +14,7 @@ import "github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 
 默认会从仓库的 `assets/data/EssenceFilter/*` 加载匹配数据（`matcher_config.json`、`skill_pools.json`、`weapons_output.json`、`locations.json`）。
 
-`Reason` 与 focus 的 i18n 文案来自 `agent/go-service/essencefilter/matchapi/i18n_messages.json`（编译时嵌入）。
+matchapi 只返回结构化匹配结果；面向用户的文案由上层 `essencefilter` 集成层基于 `MatchResult.Kind` 与扩展字段自行渲染，不属于 matchapi 输出的一部分。
 
 如果你的运行环境无法自动定位到 `assets/data/EssenceFilter`，可以设置环境变量：
 
@@ -52,10 +52,10 @@ if err != nil {
 }
 
 // res.Kind: MatchExact / MatchFuturePromising / MatchSlot3Level3Practical / MatchNone
-// res.Reason: 各 Kind 均有人类可读文案（见下表）
 // res.ShouldLock / res.ShouldDiscard: 供你决定上锁/废弃策略
 // res.Weapons: exact 命中时返回候选武器列表（可能多把）
 // res.SkillIDs / res.SkillsChinese: 命中的技能ID与中文名
+// res.Ext*: 扩展规则命中时提供 UI/日志所需的附加信息
 ```
 
 ## 规则开关怎么对应你描述的需求？
@@ -86,15 +86,16 @@ if err != nil {
 - `Weapons`：精确匹配时为候选武器列表（可能多把同名组合）；扩展规则下多为空或少量关联武器
 - `SkillIDs` / `SkillsChinese`：槽位技能 ID 与中文名（exact 为池内规范名；扩展规则可能为 OCR 原文）
 - `ShouldLock` / `ShouldDiscard`：由引擎根据规则与选项给出的操作建议；实际是否锁定/废弃由调用方决定
-- `Reason`：**各 `Kind` 均会填充**，便于日志与 UI 统一展示
+- `ExtLevelSum` / `ExtMinTotal`：`MatchFuturePromising` 时提供
+- `ExtSlot3Lv` / `ExtMinLevel`：`MatchSlot3Level3Practical` 时提供
 
 ### 按 `Kind` 的典型输出
 
-| `Kind`                      | `Weapons`        | `SkillIDs` / `SkillsChinese`                     | `ShouldLock`          | `ShouldDiscard`    | `Reason` 格式                                                    |
-| --------------------------- | ---------------- | ------------------------------------------------ | --------------------- | ------------------ | ---------------------------------------------------------------- |
-| `MatchExact`                | 非空（可能多把） | 长度 3，对应目标组合                             | `true`                | `false`            | `reason.exact.*` 模板（按 `locale` 渲染；武器名列表按语言 join） |
-| `MatchFuturePromising`      | 通常为空         | 三槽为 OCR 技能文本；`SkillIDs` 为 `0,0,0`       | `LockFuturePromising` | `false`            | `reason.future_promising` 模板（按 `locale` 渲染）               |
-| `MatchSlot3Level3Practical` | 视规则而定       | 规范槽位技能                                     | `LockSlot3Practical`  | `false`            | `reason.slot3_practical` 模板（按 `locale` 渲染）                |
-| `MatchNone`                 | 空               | `SkillIDs` 空；`SkillsChinese` 仍为 OCR 三槽文本 | `false`               | `DiscardUnmatched` | `reason.no_match` 模板（按 `locale` 渲染）                       |
+| `Kind`                      | `Weapons`        | `SkillIDs` / `SkillsChinese`                             | `ShouldLock`          | `ShouldDiscard`    | 额外字段 / 说明                                       |
+| --------------------------- | ---------------- | -------------------------------------------------------- | --------------------- | ------------------ | ----------------------------------------------------- |
+| `MatchExact`                | 非空（可能多把） | 长度 3，对应目标组合                                     | `true`                | `false`            | 无扩展字段                                            |
+| `MatchFuturePromising`      | 通常为空         | 三槽为 OCR 技能文本；`SkillIDs` 为按槽池尽力解析后的结果 | `LockFuturePromising` | `false`            | 使用 `ExtLevelSum` / `ExtMinTotal` 供上层组装提示文案 |
+| `MatchSlot3Level3Practical` | 视规则而定       | 规范槽位技能                                             | `LockSlot3Practical`  | `false`            | 使用 `ExtSlot3Lv` / `ExtMinLevel` 供上层组装提示文案  |
+| `MatchNone`                 | 空               | `SkillIDs` 空；`SkillsChinese` 仍为 OCR 三槽文本         | `false`               | `DiscardUnmatched` | 无内置 `Reason`；是否废弃只看 `ShouldDiscard`         |
 
-未命中时废弃与否只看 `ShouldDiscard`（由 `DiscardUnmatched` 决定），与 `Reason` 文案无关。
+未命中时废弃与否只看 `ShouldDiscard`（由 `DiscardUnmatched` 决定）；如果需要日志/UI 文案，请由调用方自行根据 `Kind` 和扩展字段生成。
