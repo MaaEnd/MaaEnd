@@ -15,10 +15,9 @@ const (
 	// Target aspect ratio: 16:9
 	targetRatio = 16.0 / 9.0
 	// Tolerance for aspect ratio comparison (±2%)
-	tolerance     = 0.02
-	adbMarkerNode = "__ADB__"
-	targetWidth   = 1280
-	targetHeight  = 720
+	tolerance    = 0.02
+	targetWidth  = 1280
+	targetHeight = 720
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
@@ -84,38 +83,46 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("Got resolution")
 
 	isADBController := false
+	controlType := "unknown"
 	controlType, controlErr := control.GetControlType(controller)
 	if controlErr != nil {
 		log.Warn().
 			Err(controlErr).
 			Uint64("task_id", detail.TaskID).
-			Msg("Failed to detect controller type, falling back to task node inspection")
+			Int32("width", width).
+			Int32("height", height).
+			Msg("Failed to detect controller type, falling back to aspect ratio check")
 	} else {
 		isADBController = controlType == control.CONTROL_TYPE_ADB
 		log.Debug().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
 			Str("controller_type", controlType).
 			Bool("is_adb_controller", isADBController).
+			Int32("width", width).
+			Int32("height", height).
 			Msg("Detected controller type for aspect ratio check")
 	}
 
-	hasADBNode, err := taskHasNode(tasker, int64(detail.TaskID), adbMarkerNode)
-	if err != nil {
-		log.Warn().
-			Err(err).
+	if isADBController {
+		log.Debug().
 			Uint64("task_id", detail.TaskID).
-			Str("node", adbMarkerNode).
-			Msg("Failed to inspect task nodes, falling back to aspect ratio check")
-	}
+			Str("entry", detail.Entry).
+			Str("controller_type", controlType).
+			Str("mode", "adb_exact_resolution").
+			Int32("width", width).
+			Int32("height", height).
+			Int("target_width", targetWidth).
+			Int("target_height", targetHeight).
+			Msg("Using exact resolution check for ADB controller")
 
-	enforceADBResolution := isADBController || hasADBNode
-	if enforceADBResolution {
 		if int(width) == targetWidth && int(height) == targetHeight {
 			log.Debug().
+				Uint64("task_id", detail.TaskID).
+				Str("entry", detail.Entry).
 				Int32("width", width).
 				Int32("height", height).
 				Str("mode", "adb_exact_resolution").
-				Bool("is_adb_controller", isADBController).
-				Bool("has_adb_marker_node", hasADBNode).
 				Msg("Resolution check passed: exact 1280x720")
 			return
 		}
@@ -126,13 +133,21 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int("target_width", targetWidth).
 			Int("target_height", targetHeight).
 			Str("mode", "adb_exact_resolution").
-			Bool("is_adb_controller", isADBController).
-			Bool("has_adb_marker_node", hasADBNode).
-			Msg("ADB branch detected, resolution must be exactly 1280x720. Task will be stopped.")
+			Msg("ADB controller detected, resolution must be exactly 1280x720. Task will be stopped.")
 		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildADBResolutionWarningData(int(width), int(height))))
 		tasker.PostStop()
 		return
 	}
+
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Str("controller_type", controlType).
+		Str("mode", "aspect_ratio_only").
+		Int32("width", width).
+		Int32("height", height).
+		Float64("target_ratio", targetRatio).
+		Msg("Using aspect ratio check for non-ADB controller")
 
 	if !isAspectRatio16x9(int(width), int(height)) {
 		actualRatio := calculateAspectRatio(int(width), int(height))
@@ -181,25 +196,6 @@ func calculateAspectRatio(width, height int) float64 {
 		return w / h
 	}
 	return h / w
-}
-
-func taskHasNode(tasker *maa.Tasker, taskID int64, nodeName string) (bool, error) {
-	taskDetail, err := tasker.GetTaskDetail(taskID)
-	if err != nil {
-		return false, err
-	}
-
-	for _, node := range taskDetail.Nodes {
-		nodeDetail, nodeErr := node.GetDetail()
-		if nodeErr != nil {
-			return false, nodeErr
-		}
-		if nodeDetail != nil && nodeDetail.Name == nodeName {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }
 
 func buildAspectRatioWarningData(width, height int) map[string]any {
