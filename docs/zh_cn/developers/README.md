@@ -92,3 +92,7 @@ flowchart TD
 | 改 Pipeline 节点     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [scene-manager.md](./scene-manager.md) |
 | 写或调 Go Service    | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                          |
 | 查阅编码规范         | [coding-standards.md](./coding-standards.md)                                                                                     |
+
+## 交流
+
+开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）
