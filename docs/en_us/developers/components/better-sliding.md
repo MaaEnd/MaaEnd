@@ -225,14 +225,9 @@ Also note that after JSON deserialization on the Go side, these arrays may appea
 
 If you only need to drag the slider to its maximum position without reading any quantity or fine-tuning, you can use **swipe-only mode**.
 
-Swipe-only mode is activated automatically when **all** of the following conditions are met:
+Swipe-only mode is activated automatically when `custom_action_param` is **empty**, or when it contains **only `Direction` and/or `SwipeButton`**.
 
-- `Quantity.Box` is not provided (or empty);
-- `Target` is not provided (or `0`);
-- `IncreaseButton` is not provided;
-- `DecreaseButton` is not provided.
-
-In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode.
+In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode, while `Direction` specifies which side corresponds to the maximum value.
 
 Minimal example:
 

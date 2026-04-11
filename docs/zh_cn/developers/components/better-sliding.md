@@ -225,14 +225,9 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 如果你只需要将滑块拖到最大位置，而不需要读取数量或进行微调，可以使用**仅滑动模式**。
 
-仅滑动模式在**同时满足**以下条件时自动激活：
+仅滑动模式在 `custom_action_param` **不传任何参数**，或**仅传入 `Direction` 和/或 `SwipeButton`** 时自动激活。
 
-- `Quantity.Box` 未提供（或为空）；
-- `Target` 未提供（或为 `0`）；
-- `IncreaseButton` 未提供；
-- `DecreaseButton` 未提供。
-
-在此模式下，`BetterSliding` 执行 `SwipeToMax` 拖动后立即返回成功，跳过 OCR、比例点击和微调。`SwipeButton` 仍然有效——你可以在仅滑动模式下提供自定义滑块模板路径。
+在此模式下，`BetterSliding` 执行 `SwipeToMax` 拖动后立即返回成功，跳过 OCR、比例点击和微调。`SwipeButton` 仍然有效——你可以在仅滑动模式下提供自定义滑块模板路径；`Direction` 则用于指定"最大值所在方向"。
 
 最小示例：
 
