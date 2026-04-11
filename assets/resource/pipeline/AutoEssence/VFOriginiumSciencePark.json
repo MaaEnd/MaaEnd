@@ -1,4 +1,14 @@
 {
+    "VFOriginiumScienceParkMoveToTriggerPointAuto": {
+        "next": [
+            "[JumpBack]VFOriginiumScienceParkMaybeTeleport",
+            "VFOriginiumScienceParkMoveToTriggerPoint"
+        ],
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
+        }
+    },
     "VFOriginiumScienceParkLocationAssertion": {
         "recognition": {
             "type": "Custom",
@@ -6,13 +16,13 @@
                 "custom_recognition": "MapTrackerAssertLocation",
                 "custom_recognition_param": {
                     "expected": [
-                        {
+                        { // 淤积点附近（锚点也在这个区域里）
                             "map_name": "map01_lv005",
                             "target": [
-                                359,
-                                207,
-                                30,
-                                55
+                                359.0,
+                                207.0,
+                                30.0,
+                                55.0
                             ]
                         }
                     ]
@@ -20,14 +30,42 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint1",
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>源石研究园</strong></p>"
         }
     },
-    "VFOriginiumScienceParkMoveToTriggerPoint1": {
+    "VFOriginiumScienceParkMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        { // 淤积点附近（锚点也在这个区域里）
+                            "map_name": "map01_lv005",
+                            "target": [
+                                359.0,
+                                207.0,
+                                30.0,
+                                55.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "VFOriginiumScienceParkMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
             "param": {
@@ -36,16 +74,28 @@
                     "map_name": "map01_lv005",
                     "path": [
                         [
-                            374,
-                            209
+                            362.0,
+                            210.4
                         ],
                         [
-                            383,
-                            222
+                            373.2,
+                            210.5
                         ],
                         [
-                            385,
-                            240
+                            384.5,
+                            221.6
+                        ],
+                        [
+                            385.8,
+                            228.0
+                        ],
+                        [
+                            385.6,
+                            241.5
+                        ],
+                        [
+                            385.5,
+                            241.8
                         ]
                     ],
                     "path_trim": true
@@ -53,13 +103,13 @@
             }
         },
         "next": [
-            "VFOriginiumScienceParkMoveToTriggerPoint2"
+            "VFOriginiumScienceParkMoveToTriggerPointExact"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往预备位置"
         }
     },
-    "VFOriginiumScienceParkMoveToTriggerPoint2": {
+    "VFOriginiumScienceParkMoveToTriggerPointExact": {
         "action": {
             "type": "Custom",
             "param": {

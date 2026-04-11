@@ -4,6 +4,8 @@
         "anchor": {
             "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "AutoEssenceClickEssenceStartButton",
             "[JumpBack]AutoEssenceLocationSetup",
@@ -14,7 +16,7 @@
         }
     },
     "AutoEssenceLocationSetup": {
-        "desc": "识别和确定附近的淤积点所属的地区",
+        "desc": "识别和确定附近的淤积点所属的地区，如果附近没有淤积点，则自动导航到指定的某个淤积点",
         "max_hit": 1,
         "rate_limit": 2000,
         "next": [
@@ -24,16 +26,22 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
             "WLQingboStockadeLocationAssertion",
-            "[JumpBack]AutoEssenceLocationSetupFailed"
+            // 如果上述所有地区都没有命中，则自动导航到指定的某个淤积点
+            "AutoEssenceSpecifiedLocation"
         ],
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         }
     },
-    "AutoEssenceLocationSetupFailed": {
-        "desc": "未能识别附近的淤积点所属的地区",
+    "AutoEssenceSpecifiedLocation": {
+        "desc": "直接导航到指定的淤积点（可供覆写，默认是枢纽区）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VFTheHubMoveToTriggerPointAuto" // 覆写为其他地区的对应节点即可导航到其他地区
+        ],
         "focus": {
-            "Node.Action.Starting": "❓未能识别附近的淤积点所属的地区\n请确保当前**处于淤积点附近**，并且未遮挡小地图！"
+            "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
         }
     },
     "__AutoEssenceAltKeyUp": {

@@ -1,4 +1,14 @@
 {
+    "VFPowerPlateauMoveToTriggerPointAuto": {
+        "next": [
+            "[JumpBack]VFPowerPlateauMaybeTeleport",
+            "VFPowerPlateauMoveToTriggerPoint"
+        ],
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
+        }
+    },
     "VFPowerPlateauLocationAssertion": {
         "recognition": {
             "type": "Custom",
@@ -9,10 +19,10 @@
                         {
                             "map_name": "map01_lv007",
                             "target": [
-                                341,
-                                142,
-                                32,
-                                24
+                                341.0,
+                                142.0,
+                                32.0,
+                                24.0
                             ]
                         }
                     ]
@@ -27,6 +37,52 @@
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>供能高地</strong></p>"
         }
     },
+    "VFPowerPlateauMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        { // 距离淤积点最近的锚点附近
+                            "map_name": "map01_lv007",
+                            "target": [
+                                429.2,
+                                233.5,
+                                23.6,
+                                23.6
+                            ]
+                        },
+                        { // 距离淤积点最近的锚点附近（另一尝试）
+                            "map_name": "map01_lv007_tier_133",
+                            "target": [
+                                429.2,
+                                233.5,
+                                23.6,
+                                23.6
+                            ]
+                        },
+                        { // 淤积点附近
+                            "map_name": "map01_lv007",
+                            "target": [
+                                341.0,
+                                142.0,
+                                32.0,
+                                24.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldValleyIVPowerPlateau1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
     "VFPowerPlateauMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
@@ -36,12 +92,156 @@
                     "map_name": "map01_lv007",
                     "path": [
                         [
-                            347,
-                            158
+                            436.3,
+                            241.3
                         ],
                         [
-                            358,
-                            152
+                            429.7,
+                            234.2
+                        ],
+                        [
+                            427.2,
+                            234.6
+                        ],
+                        [
+                            421.1,
+                            240.4
+                        ],
+                        [
+                            416.9,
+                            249.3
+                        ],
+                        [
+                            412.2,
+                            255.4
+                        ],
+                        [
+                            406.1,
+                            260.4
+                        ],
+                        [
+                            401.1,
+                            263.0
+                        ],
+                        [
+                            392.6,
+                            262.8
+                        ],
+                        [
+                            391.0,
+                            256.8
+                        ],
+                        [
+                            388.5,
+                            253.1
+                        ],
+                        [
+                            377.2,
+                            251.7
+                        ],
+                        [
+                            369.7,
+                            255.4
+                        ],
+                        [
+                            361.0,
+                            258.0
+                        ],
+                        [
+                            357.4,
+                            254.6
+                        ],
+                        [
+                            360.9,
+                            240.6
+                        ],
+                        [
+                            358.5,
+                            228.0
+                        ],
+                        [
+                            350.9,
+                            226.7
+                        ],
+                        [
+                            344.8,
+                            223.1
+                        ],
+                        [
+                            344.8,
+                            219.3
+                        ],
+                        [
+                            347.2,
+                            214.3
+                        ],
+                        [
+                            347.3,
+                            211.7
+                        ],
+                        [
+                            348.6,
+                            205.5
+                        ],
+                        [
+                            349.6,
+                            203.0
+                        ],
+                        [
+                            347.4,
+                            200.5
+                        ],
+                        [
+                            344.8,
+                            193.1
+                        ],
+                        [
+                            344.6,
+                            188.0
+                        ],
+                        [
+                            343.4,
+                            183.1
+                        ],
+                        [
+                            342.3,
+                            175.4
+                        ],
+                        [
+                            343.6,
+                            166.7
+                        ],
+                        [
+                            346.0,
+                            160.6
+                        ],
+                        [
+                            350.6,
+                            154.9
+                        ]
+                    ]
+                },
+                "path_trim": true
+            }
+        },
+        "next": [
+            "VFPowerPlateauMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "VFPowerPlateauMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv007",
+                    "path": [
+                        [
+                            358.6,
+                            154.1
                         ]
                     ]
                 }
@@ -63,8 +263,8 @@
                     "map_name": "map01_lv007",
                     "path": [
                         [
-                            366,
-                            161
+                            366.0,
+                            161.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,
@@ -90,8 +290,8 @@
                     "map_name": "map01_lv007",
                     "path": [
                         [
-                            347,
-                            148
+                            347.0,
+                            148.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,

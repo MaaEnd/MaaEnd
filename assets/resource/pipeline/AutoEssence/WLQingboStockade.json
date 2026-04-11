@@ -1,4 +1,14 @@
 {
+    "WLQingboStockadeMoveToTriggerPointAuto": {
+        "next": [
+            "[JumpBack]WLQingboStockadeMaybeTeleport",
+            "WLQingboStockadeMoveToTriggerPoint"
+        ],
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLQingboStockadeWalkAround1"
+        }
+    },
     "WLQingboStockadeLocationAssertion": {
         "recognition": {
             "type": "Custom",
@@ -6,13 +16,13 @@
                 "custom_recognition": "MapTrackerAssertLocation",
                 "custom_recognition_param": {
                     "expected": [
-                        {
+                        { // 淤积点附近（锚点也在这个区域里）
                             "map_name": "map02_lv003",
                             "target": [
-                                287,
-                                542,
-                                28,
-                                40
+                                287.0,
+                                542.0,
+                                28.0,
+                                40.0
                             ]
                         }
                     ]
@@ -27,6 +37,34 @@
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>清波寨</strong></p>"
         }
     },
+    "WLQingboStockadeMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        { // 淤积点附近（锚点也在这个区域里）
+                            "map_name": "map02_lv003",
+                            "target": [
+                                287.0,
+                                542.0,
+                                28.0,
+                                40.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingQingboStockade2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
     "WLQingboStockadeMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
@@ -36,16 +74,16 @@
                     "map_name": "map02_lv003",
                     "path": [
                         [
-                            305,
-                            559
+                            305.0,
+                            559.0
                         ],
                         [
-                            293,
-                            561
+                            293.0,
+                            561.0
                         ],
                         [
-                            294,
-                            571
+                            294.0,
+                            571.0
                         ]
                     ]
                 }
@@ -67,8 +105,8 @@
                     "map_name": "map02_lv003",
                     "path": [
                         [
-                            297,
-                            579
+                            297.0,
+                            579.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,
@@ -94,8 +132,8 @@
                     "map_name": "map02_lv003",
                     "path": [
                         [
-                            296,
-                            561
+                            296.0,
+                            561.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,

@@ -1,4 +1,14 @@
 {
+    "VFOriginLodespringMoveToTriggerPointAuto": {
+        "next": [
+            "[JumpBack]VFOriginLodespringMaybeTeleport",
+            "VFOriginLodespringMoveToTriggerPoint"
+        ],
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFOriginLodespringWalkAround1"
+        }
+    },
     "VFOriginLodespringLocationAssertion": {
         "recognition": {
             "type": "Custom",
@@ -6,13 +16,13 @@
                 "custom_recognition": "MapTrackerAssertLocation",
                 "custom_recognition_param": {
                     "expected": [
-                        {
+                        { // 淤积点附近
                             "map_name": "map01_lv006_tier_109",
                             "target": [
-                                243,
-                                528,
-                                32,
-                                32
+                                243.0,
+                                528.0,
+                                32.0,
+                                32.0
                             ]
                         }
                     ]
@@ -27,7 +37,136 @@
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>矿脉源区</strong></p>"
         }
     },
+    "VFOriginLodespringMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        { // 距离淤积点最近的锚点附近
+                            "map_name": "map01_lv006",
+                            "target": [
+                                402.0,
+                                483.0,
+                                21.2,
+                                21.2
+                            ]
+                        },
+                        { // 淤积点附近
+                            "map_name": "map01_lv006_tier_109",
+                            "target": [
+                                243.0,
+                                528.0,
+                                32.0,
+                                32.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldValleyIVOriginLodespring3"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
     "VFOriginLodespringMoveToTriggerPoint": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv006",
+                    "path": [
+                        [
+                            414.0,
+                            493.2
+                        ],
+                        [
+                            399.0,
+                            485.2
+                        ],
+                        [
+                            382.7,
+                            476.9
+                        ],
+                        [
+                            373.9,
+                            452.0
+                        ],
+                        [
+                            370.2,
+                            450.8
+                        ],
+                        [
+                            364.0,
+                            453.3
+                        ],
+                        [
+                            341.5,
+                            473.8
+                        ],
+                        [
+                            332.8,
+                            480.8
+                        ],
+                        [
+                            321.5,
+                            482.1
+                        ],
+                        [
+                            316.5,
+                            485.7
+                        ],
+                        [
+                            315.2,
+                            490.8
+                        ],
+                        [
+                            304.1,
+                            508.2
+                        ],
+                        [
+                            300.4,
+                            512.1
+                        ],
+                        [
+                            295.4,
+                            519.4
+                        ],
+                        [
+                            290.2,
+                            529.3
+                        ],
+                        [
+                            282.8,
+                            534.4
+                        ],
+                        [
+                            276.5,
+                            538.2
+                        ],
+                        [
+                            267.0,
+                            543.8
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "VFOriginLodespringMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "VFOriginLodespringMoveToTriggerPointExact": {
         "action": {
             "type": "Custom",
             "param": {

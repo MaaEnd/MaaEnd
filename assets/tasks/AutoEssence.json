@@ -10,6 +10,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "AutoEssenceSpecifiedLocation",
                 "AutoEssenceChallengeMode",
                 "AutoEssenceObtainMode",
                 "AutoEssenceDoOverride",
@@ -22,6 +23,80 @@
         }
     ],
     "option": {
+        "AutoEssenceSpecifiedLocation": {
+            "type": "select",
+            "label": "$option.AutoEssenceSpecifiedLocation.label",
+            "description": "$option.AutoEssenceSpecifiedLocation.description",
+            "default_case": "VFTheHub",
+            "cases": [
+                {
+                    "name": "VFTheHub",
+                    "label": "$global.region.TheHub",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFTheHubMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginiumSciencePark",
+                    "label": "$global.region.OriginiumSciencePark",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFOriginiumScienceParkMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginLodespring",
+                    "label": "$global.region.OriginLodespring",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFOriginLodespringMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFPowerPlateau",
+                    "label": "$global.region.PowerPlateau",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFPowerPlateauMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLWulingCity",
+                    "label": "$global.region.WulingCity",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLWulingCityMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLQingboStockade",
+                    "label": "$global.region.QingboStockade",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLQingboStockadeMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         "AutoEssenceChallengeMode": {
             "type": "select",
             "label": "$option.AutoEssenceChallengeMode.label",

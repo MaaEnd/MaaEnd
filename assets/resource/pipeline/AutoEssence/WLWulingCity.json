@@ -1,4 +1,14 @@
 {
+    "WLWulingCityMoveToTriggerPointAuto": {
+        "next": [
+            "[JumpBack]WLWulingCityMaybeTeleport",
+            "WLWulingCityMoveToTriggerPoint"
+        ],
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLWulingCityWalkAround1"
+        }
+    },
     "WLWulingCityLocationAssertion": {
         "recognition": {
             "type": "Custom",
@@ -6,13 +16,13 @@
                 "custom_recognition": "MapTrackerAssertLocation",
                 "custom_recognition_param": {
                     "expected": [
-                        {
+                        { // 淤积点附近
                             "map_name": "map02_lv002",
                             "target": [
-                                659,
-                                333,
-                                40,
-                                40
+                                659.0,
+                                333.0,
+                                40.0,
+                                40.0
                             ]
                         }
                     ]
@@ -27,6 +37,43 @@
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>武陵城</strong></p>"
         }
     },
+    "WLWulingCityMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        { // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv002",
+                            "target": [
+                                620.0,
+                                241.1,
+                                41.4,
+                                37.3
+                            ]
+                        },
+                        { // 淤积点附近
+                            "map_name": "map02_lv002",
+                            "target": [
+                                659.0,
+                                333.0,
+                                40.0,
+                                40.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingWulingCity0"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
     "WLWulingCityMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
@@ -35,13 +82,49 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "path": [
+                        [637.3, 265.7],
+                        [638.4, 280.7],
+                        [638.6, 298.6],
+                        [635.1, 301.2],
+                        [626.6, 301.4],
+                        [623.8, 303.7],
+                        [623.8, 306.3],
+                        [626.3, 310.0],
+                        [630.1, 311.3],
+                        [632.6, 313.6],
+                        [637.3, 313.9],
+                        [642.4, 315.2],
+                        [653.6, 317.7],
+                        [682.8, 318.5],
+                        [684.9, 318.9],
+                        [685.2, 322.5],
+                        [686.0, 326.3],
+                        [683.9, 329.9],
+                        [681.2, 330.2],
+                        [680.0, 344.4]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLWulingCityMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "WLWulingCityMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
                         [
-                            679,
-                            362
-                        ],
-                        [
-                            679,
-                            351
+                            679.9,
+                            350.9
                         ]
                     ]
                 }
@@ -63,8 +146,8 @@
                     "map_name": "map02_lv002",
                     "path": [
                         [
-                            696,
-                            339
+                            696.0,
+                            339.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,
@@ -90,8 +173,8 @@
                     "map_name": "map02_lv002",
                     "path": [
                         [
-                            665,
-                            363
+                            665.0,
+                            363.0
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,
