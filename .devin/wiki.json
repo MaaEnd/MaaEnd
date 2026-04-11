@@ -36,7 +36,7 @@
         },
         {
             "title": "系统架构",
-            "purpose": "描述项目整体架构：Pipeline JSON 低代码层、Go Service 扩展层、MXU 前端层、MaaFramework 底层框架的关系。包含架构图、数据流图和模块间通信方式。引用 AGENTS.md 和 docs/zh_cn/developers/development.md。",
+            "purpose": "描述项目整体架构：Pipeline JSON 低代码层、Go Service 扩展层、MXU 前端层、MaaFramework 底层框架的关系。包含架构图、数据流图和模块间通信方式。引用 AGENTS.md 和 docs/zh_cn/developers/README.md。",
             "parent": "项目概述"
         },
         {
@@ -120,7 +120,7 @@
         },
         {
             "title": "开发指南",
-            "purpose": "汇总面向开发者的信息：环境搭建（Git、Python、Node.js、pnpm、Go）、本地部署流程、Pipeline 编码规范、Go Service 编码规范、代码格式化（Prettier）、提交与审查要点。引用 docs/zh_cn/developers/development.md 和 docs/zh_cn/developers/getting-started.md 和 AGENTS.md。"
+            "purpose": "汇总面向开发者的信息：环境搭建（Git、Python、Node.js、pnpm、Go）、本地部署流程、Pipeline 编码规范、Go Service 编码规范、代码格式化（Prettier）、提交与审查要点。引用 docs/zh_cn/developers/README.md 和 docs/zh_cn/developers/getting-started.md 和 AGENTS.md。"
         },
         {
             "title": "节点测试与调试",

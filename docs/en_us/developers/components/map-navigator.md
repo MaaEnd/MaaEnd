@@ -249,7 +249,7 @@ uv run main.py
 
 Before recording, make sure:
 
-1. The project development environment has already been set up according to the development guide, especially `install/agent/cpp-algo.exe` and `install/maafw`.
+1. The workspace is set up per [getting-started](../getting-started.md), especially `install/agent/cpp-algo.exe` and `install/maafw`.
 2. The Python dependencies `maafw`, `Pillow`, and `pynput` are installed.
 3. **Windows**: The tool must be run **as Administrator**. Otherwise, the G/X hotkeys may not be captured by the system when the game (an elevated process) is in the foreground. `main.py` auto-detects this and triggers a UAC elevation prompt on startup.
 4. **macOS**: On the first run, you need to grant permission in **System Settings → Privacy & Security → Input Monitoring** for your terminal or Python interpreter, otherwise global hotkeys will have no effect.

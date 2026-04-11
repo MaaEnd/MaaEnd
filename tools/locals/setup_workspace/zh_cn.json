@@ -93,5 +93,5 @@
     "header_setup_complete": "\n========== 设置完成 ==========",
     "inf_workspace_ready": "[INF] 工作区已经初始化/更新完毕，可运行 {mxu_path} 来验证安装结果",
     "inf_install_dir_hint": "[INF] 后续使用相关工具编辑、调试等，都基于 {install_dir} 文件夹",
-    "inf_read_dev_doc": "[INF] 请阅读开发手册 ({doc_path}) 中的「开发技巧」和「代码规范」后，再进行相关开发工作"
+    "inf_read_dev_doc": "[INF] 请从开发者文档索引 ({doc_path}) 入手，并按需查阅 getting-started、coding-standards 等文档后再进行开发"
 }

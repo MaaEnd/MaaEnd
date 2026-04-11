@@ -1035,7 +1035,7 @@ def main() -> None:
     print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))
     print(Console.info(t("inf_install_dir_hint", install_dir=install_dir)))
 
-    dev_doc = PROJECT_BASE / "docs/zh_cn/developers/development.md"
+    dev_doc = PROJECT_BASE / "docs/zh_cn/developers/README.md"
     print(Console.info(t("inf_read_dev_doc", doc_path=dev_doc)))
 
 

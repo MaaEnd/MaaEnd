@@ -16,7 +16,7 @@
 - [`assets/resource/image/`](assets/resource/image/): 识别所需的图片资源（基准分辨率 720p）。
 - [`agent/go-service/`](agent/go-service/): 自定义 Go Service 源码。
 - [`assets/locales/`](assets/locales/): 国际化本地化文件（任务名称、UI 文本等）。
-- [`docs/en_us/developers/development.md`](docs/en_us/developers/development.md): 核心开发手册，包含环境配置与规范。
+- [`docs/zh_cn/developers/README.md`](docs/zh_cn/developers/README.md): 中文开发者文档索引（阅读路线、文档目录）；英文镜像见 [`docs/en_us/developers/README.md`](docs/en_us/developers/README.md)。
 
 ## 编码规范
 
@@ -68,4 +68,4 @@
 
 - [MaaFramework Pipeline 协议规范](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.1-PipelineProtocol.md)
 - [MaaFramework 项目接口 V2](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.3-ProjectInterfaceV2.md)
-- [MaaEnd 开发手册](docs/en_us/developers/development.md)
+- [MaaEnd 开发者文档（中文索引）](docs/zh_cn/developers/README.md) · [English index](docs/en_us/developers/README.md)

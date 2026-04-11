@@ -65,7 +65,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 ## 🛠️ 开发者指南
 
-想参与开发或深入了解项目？来这里吧 👉 [开发手册](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/developers/development.md)
+想参与开发或深入了解项目？来这里吧 👉 [开发者文档索引](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/developers/README.md)
 
 欢迎各路大佬贡献代码，一起让 MaaEnd 变得更强！💪
 
