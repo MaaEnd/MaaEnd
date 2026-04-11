@@ -14,7 +14,10 @@ const (
 	// Target aspect ratio: 16:9
 	targetRatio = 16.0 / 9.0
 	// Tolerance for aspect ratio comparison (±2%)
-	tolerance = 0.02
+	tolerance     = 0.02
+	adbMarkerNode = "__ADB__"
+	targetWidth   = 1280
+	targetHeight  = 720
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
@@ -79,7 +82,37 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Int32("height", height).
 		Msg("Got resolution")
 
-	// Check aspect ratio
+	hasADBNode, err := taskHasNode(tasker, int64(detail.TaskID), adbMarkerNode)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("node", adbMarkerNode).
+			Msg("Failed to inspect task nodes, falling back to aspect ratio check")
+	}
+
+	if hasADBNode {
+		if int(width) == targetWidth && int(height) == targetHeight {
+			log.Debug().
+				Int32("width", width).
+				Int32("height", height).
+				Str("mode", "adb_exact_resolution").
+				Msg("Resolution check passed: exact 1280x720")
+			return
+		}
+
+		log.Error().
+			Int32("width", width).
+			Int32("height", height).
+			Int("target_width", targetWidth).
+			Int("target_height", targetHeight).
+			Str("mode", "adb_exact_resolution").
+			Msg("ADB marker node found, resolution must be exactly 1280x720. Task will be stopped.")
+		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildADBResolutionWarningData(int(width), int(height))))
+		tasker.PostStop()
+		return
+	}
+
 	if !isAspectRatio16x9(int(width), int(height)) {
 		actualRatio := calculateAspectRatio(int(width), int(height))
 		log.Error().
@@ -87,17 +120,20 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int32("height", height).
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
+			Str("mode", "aspect_ratio_only").
 			Msg("Resolution is not 16:9! Task will be stopped.")
-		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", nil))
+		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildAspectRatioWarningData(int(width), int(height))))
 
 		// Stop the task
 		tasker.PostStop()
-	} else {
-		log.Debug().
-			Int32("width", width).
-			Int32("height", height).
-			Msg("Resolution check passed: 16:9")
+		return
 	}
+
+	log.Debug().
+		Int32("width", width).
+		Int32("height", height).
+		Str("mode", "aspect_ratio_only").
+		Msg("Resolution check passed: 16:9")
 }
 
 // isAspectRatio16x9 checks if the given dimensions are approximately 16:9
@@ -124,4 +160,47 @@ func calculateAspectRatio(width, height int) float64 {
 		return w / h
 	}
 	return h / w
+}
+
+func taskHasNode(tasker *maa.Tasker, taskID int64, nodeName string) (bool, error) {
+	taskDetail, err := tasker.GetTaskDetail(taskID)
+	if err != nil {
+		return false, err
+	}
+
+	for _, node := range taskDetail.Nodes {
+		nodeDetail, nodeErr := node.GetDetail()
+		if nodeErr != nil {
+			return false, nodeErr
+		}
+		if nodeDetail != nil && nodeDetail.Name == nodeName {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func buildAspectRatioWarningData(width, height int) map[string]any {
+	return map[string]any{
+		"Title":             i18n.T("tasker.aspect_ratio_warning.aspect_title"),
+		"Description":       i18n.T("tasker.aspect_ratio_warning.aspect_desc"),
+		"RecommendTitle":    i18n.T("tasker.aspect_ratio_warning.recommend_title"),
+		"RecommendValue":    i18n.T("tasker.aspect_ratio_warning.aspect_recommend_value"),
+		"CurrentLabel":      i18n.T("tasker.aspect_ratio_warning.current_resolution"),
+		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
+		"Footer":            i18n.T("tasker.aspect_ratio_warning.aspect_footer"),
+	}
+}
+
+func buildADBResolutionWarningData(width, height int) map[string]any {
+	return map[string]any{
+		"Title":             i18n.T("tasker.aspect_ratio_warning.adb_title"),
+		"Description":       i18n.T("tasker.aspect_ratio_warning.adb_desc"),
+		"RecommendTitle":    i18n.T("tasker.aspect_ratio_warning.recommend_title"),
+		"RecommendValue":    i18n.T("tasker.aspect_ratio_warning.adb_recommend_value"),
+		"CurrentLabel":      i18n.T("tasker.aspect_ratio_warning.current_resolution"),
+		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
+		"Footer":            i18n.T("tasker.aspect_ratio_warning.adb_footer"),
+	}
 }
