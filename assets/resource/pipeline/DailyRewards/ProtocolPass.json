@@ -91,6 +91,7 @@
             "[JumpBack]DailyProtocolSwitchCurrentMission",
             "[JumpBack]DailyProtocolSwitchEventMission",
             "[JumpBack]DailyProtocolSwitchHorizonsMission",
+            "[JumpBack]DailyProtocolSwitchCurrentSpeedUpMission",
             "DailyProtocolFinish"
         ]
     },
@@ -291,6 +292,65 @@
                     "Horizons Mission",
                     "旅立ちクエスト",
                     "여정의 시작 임무"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "text",
+                "roi_offset": [
+                    0,
+                    -30,
+                    250,
+                    40
+                ],
+                "template": [
+                    "DailyRewards/ProtocolNewSwitch.png",
+                    "DailyRewards/ProtocolNoticeSwitch.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                400,
+                240,
+                200,
+                200
+            ]
+        }
+    },
+    "DailyProtocolSwitchCurrentSpeedUpMission": {
+        "desc": "在任务界面点击切换列表，找当期提速任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "text",
+                "recognition": "OCR",
+                "roi": [
+                    150,
+                    120,
+                    300,
+                    500
+                ],
+                "expected": [
+                    "当期提速任务",
+                    "當期加速任務",
+                    "Current Speed Up Mission",
+                    "追い上げクエスト",
+                    "주기 가속 임무"
                 ]
             },
             {

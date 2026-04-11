@@ -265,9 +265,18 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        },
         "next": [
             "isSeizeEntrustTaskSuccessful",
+            "isSeizeEntrustTaskSuccessful2",
             "isSeizeEntrustTaskNoSuccessful",
             "SeizeEntrustTaskNews"
         ],
@@ -419,13 +428,13 @@
     "isSeizeEntrustTaskDestinationWulingCity": {
         "desc": "滑到底后才会执行调度器，然后等待委托列表静止后再进入调度",
         "pre_wait_freezes": {
+            "time": 2000,
             "target": [
                 29,
                 166,
                 1222,
                 481
-            ],
-            "time": 2000
+            ]
         },
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTargetF1",
@@ -609,6 +618,31 @@
         "action": {
             "type": "Click",
             "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskGoDepotNode",
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "诶，好像失败了(｡•́︿•̀｡)",
+            "Node.Recognition.Succeeded": "抢到啦！！！"
+        }
+    },
+    "isSeizeEntrustTaskSuccessful2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    5,
+                    167,
+                    311,
+                    101
+                ],
+                "expected": [
+                    "请前往指定仓储节点接取货物",
+                    "送货任务"
+                ]
+            }
         },
         "next": [
             "SeizeEntrustTaskGoDepotNode",

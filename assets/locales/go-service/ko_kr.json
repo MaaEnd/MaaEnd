@@ -1,9 +1,4 @@
 {
-    "resell.stock_empty": "⚠️ 재고가 매진되어 구매 가능한 상품이 없습니다",
-    "resell.quota_overflow": "⚠️ 쿼터 초과 알림\n남은 쿼터가 내일 상한을 초과합니다. 상품 %d개 구매를 권장합니다\n추천 구매: %d행 %d열 (최대 수익: %d)",
-    "resell.auto_buy_disabled": "💡 자동 구매/판매가 비활성화되어 있습니다\n추천 구매: %d행 %d열 (수익: %d)",
-    "resell.below_min_profit": "💡 최소 수익을 만족하는 상품이 없습니다. 쿼터를 내일까지 남겨 두는 것을 권장합니다\n추천 구매: %d행 %d열 (수익: %d)",
-
     "visitfriends.friend_missing": "해당 친구에게 %s가 없습니다",
     "visitfriends.clue_exchange": "단서 교환",
     "visitfriends.control_nexus_assist": "컨트롤 넥서스 지원",
@@ -17,14 +12,12 @@
     "visitfriends.can_growth_chamber": "성장실 지원",
     "visitfriends.current_counts": "현재 지원 횟수: %d, 단서 교환 횟수: %d",
     "visitfriends.check_friend": "친구 확인 중: %s",
-
     "autosell.price_compare_ok": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 충족",
     "autosell.price_compare_fail": "인식 최고 가격: %d, 최저 판매 가격: %d, 조건 불충족",
     "autosell.check_item_price_moderate": "%s 물자 가격 확인 중, 가격 변동 보통",
     "autosell.check_item_price_large": "%s 물자 가격 확인 중, 가격 변동 큼",
     "autosell.check_item_price_massive": "%s 물자 가격 확인 중, 가격 변동 매우 큼",
     "autosell.check_item_price_unknown": "%s 물자 가격 확인 중, 가격 변동 알 수 없음",
-
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.hit_but_skip": "상품이 일치했지만 최종적으로 구매하지 않습니다 (%s)",
@@ -32,7 +25,6 @@
     "autostockpile.reconcile_price_corrected": "가격 인식 오류를 감지했습니다(%d -> %d). 다시 선택하는 중입니다",
     "autostockpile.reconcile_decision_unchanged": "결정이 바뀌지 않아 계속 진행합니다",
     "autostockpile.recognition_early_end": "인식 단계가 조기 종료되었습니다",
-    "autostockpile.hit_skip_purchase": "상품이 일치했지만 최종 구매를 건너뜁니다",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
     "autostockpile.abort_info": "%s (%s)",
     "autostockpile.fatal_error.text": "🚨치명적인 오류가 발생하여 작업을 중지했습니다 (%s)",
@@ -40,11 +32,9 @@
     "autostockpile.mode_overflow": "오버플로 방지",
     "autostockpile.no_goods_recognized": "인식된 상품이 없습니다",
     "autostockpile.no_qualifying_goods": "조건을 만족하는 상품이 없습니다",
-
     "autostockpile.qty_below_threshold_buy": "임계값보다 낮아 구매합니다",
     "autostockpile.qty_overflow_invalid": "오버플로 방지 목표 수량이 잘못되었습니다",
     "autostockpile.qty_overflow_buy": "오버플로 방지 수량만큼 구매합니다",
-
     "autostockpile.abort.GoodsOCRUnavailableWarn": "상품 OCR 결과를 사용할 수 없습니다",
     "autostockpile.abort.GoodsTierInvalidFatal": "상품 등급 인식 결과가 잘못되었습니다",
     "autostockpile.abort.None": "없음",
@@ -53,14 +43,11 @@
     "autostockpile.abort.RegionResolveFailedFatal": "현재 거점 구역을 확인할 수 없습니다",
     "autostockpile.abort.SelectionConfigInvalidFatal": "구매 설정을 읽지 못했습니다",
     "autostockpile.abort.ThresholdConfigInvalidFatal": "가격 임계값 설정이 잘못되었습니다. 설정을 확인하고 0을 입력하거나 비워 두지 마세요",
-
     "batchaddfriends.uid_sent": "UID %s: 친구 신청을 보냈습니다 (%d/%d)",
     "batchaddfriends.strangers_progress": "친구 추가 진행도 [%d/%d]",
-
     "autoecofarm.invalid_params": "잘못된 매개변수입니다",
     "autoecofarm.no_results": "인식된 결과가 없습니다",
     "autoecofarm.crossed_center": "오버슈트 감지, 이동 비율을 줄입니다",
-
     "essencefilter.no_locked": "이번에 잠근 대상 기질이 없습니다.",
     "essencefilter.loot_summary.title": "전리품 요약:",
     "essencefilter.loot_summary.weapon_col": "무기",
@@ -74,7 +61,6 @@
     "essencefilter.plan_card.line3": "충족된 수요:",
     "essencefilter.plan_card.line4": "매칭된 무기:",
     "essencefilter.plan_card.no_weapons": "(없음)",
-    "essencefilter.no_weapons_list": "(없음)",
     "essencefilter.no_weapon_target": "무기 목표를 선택하지 않아 예각인 방안을 생성하지 않습니다.",
     "essencefilter.all_graduated": "모든 대상 무기가 이번에 이미 매칭되어 예각인 방안 추천이 필요 없습니다.",
     "essencefilter.slot_fixed_label_2": "부가 속성",
@@ -89,9 +75,6 @@
     "essencefilter.data_version_notice.text": "현재 데이터 날짜: %s (업데이트 여부를 확인해 주세요)",
     "essencefilter.inventory_count.before_count": "인벤토리에 ",
     "essencefilter.inventory_count.after_count": "개의 기질이 있습니다",
-    "essencefilter.reason.exact.no_weapons": "정확 일치",
-    "essencefilter.reason.exact.with_weapons": "정확 일치: %s",
-    "essencefilter.reason.no_match": "불일치",
     "essencefilter.reason.future_promising": "미래 유망: 총 레벨 %d ≥ %d",
     "essencefilter.reason.slot3_practical": "실용 기질: 슬롯 3(%s) 레벨 %d ≥ %d",
     "essencefilter.focus.ocr_skills": "OCR된 스킬: %s(+%d) | %s(+%d) | %s(+%d)",
@@ -120,45 +103,30 @@
     "essencefilter.focus.finish.ext_future": "확장 규칙 \"미래 유망\" 적중: %d개",
     "essencefilter.focus.finish.ext_practical": "확장 규칙 \"실용 기질\" 적중: %d개",
     "essencefilter.focus.plan.no_feasible_location_plans": "가능한 지역 플랜이 없습니다. 미졸업 무기 목록만 표시합니다.",
-
     "tasker.process_warning.title": "⚠️ 경고: 블랙리스트 프로세스가 실행 중입니다",
     "tasker.process_warning.detected": "🔍 감지된 프로세스:",
     "tasker.process_warning.impact": "💡 이러한 프로세스는 이미지 인식을 방해할 수 있습니다",
     "tasker.process_warning.recommend_title": "👇 권장 사항:",
     "tasker.process_warning.recommend_1": "  • 위 프로세스를 종료한 뒤 작업을 실행해 주세요",
     "tasker.process_warning.note": "ℹ️ 작업은 계속 진행되지만 실패할 수 있습니다",
-
-    "tasker.hdr_warning.title": "⚠️ 경고: HDR 또는 \"앱 색 자동 관리\"가 켜져 있습니다",
-    "tasker.hdr_warning.desc": "🖥️ HDR 또는 \"앱 색 자동 관리\"는 스크린샷 색상을 비정상적으로 만들어 이미지 인식 정확도에 영향을 줄 수 있습니다",
-    "tasker.hdr_warning.recommend_title": "💡 권장 사항:",
-    "tasker.hdr_warning.recommend_1": "  • Windows 설정 → 시스템 → 디스플레이 → \"HDR\" 끄기",
-    "tasker.hdr_warning.recommend_2": "  • Windows 설정 → 시스템 → 디스플레이 → 색상 프로필 → \"앱 색 자동 관리\" 끄기",
-    "tasker.hdr_warning.recommend_3": "  • 또는 그래픽 드라이버 설정에서 HDR 끄기",
-    "tasker.hdr_warning.note": "ℹ️ 작업은 계속 진행되지만 인식 문제가 발생할 수 있습니다",
-
     "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도 비율이 맞지 않습니다! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 작업이 강제로 중지되었습니다",
     "tasker.aspect_ratio_warning.desc": "💡 전체 화면은 16:9 모니터만 지원합니다. 창 모드에서는 해상도를 수동으로 16:9로 설정할 수 있습니다.",
     "tasker.aspect_ratio_warning.recommend_title": "👇 해상도를 다음으로 조정해 주세요:",
     "tasker.aspect_ratio_warning.future": "🚀 앞으로 더 많은 비율을 지원할 예정입니다. 기대해 주세요!",
-
     "maptracker.emergency_stop.title": "🚨 긴급 정지",
     "maptracker.emergency_stop.desc": "길찾기가 중단되었습니다.",
     "maptracker.emergency_stop.cause_header": "가능한 원인:",
     "maptracker.emergency_stop.cause_1": "시점 회전에 실패했거나;",
     "maptracker.emergency_stop.cause_2": "경로가 막혔거나 끼였습니다.",
-
     "maptracker.navigation_moving.waypoint": "다음 경로 지점",
     "maptracker.navigation_moving.current": "현재:",
     "maptracker.navigation_moving.target": "목표:",
-
     "maptracker.navigation_finished.complete": "내비게이션 완료",
     "maptracker.navigation_finished.current": "현재:",
-
     "maptracker.inference_finished.loc": "Loc: ",
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
-
     "maptracker.inference_failed.title": "알 수 없는 위치",
     "maptracker.inference_failed.reason": "(신뢰도가 너무 낮음)"
 }

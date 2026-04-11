@@ -1,9 +1,4 @@
 {
-    "resell.stock_empty": "⚠️ Stock sold out, no items available",
-    "resell.quota_overflow": "⚠️ Quota overflow alert\nRemaining quota will exceed the limit tomorrow. Recommend buying %d items.\nSuggested purchase: Row %d, Col %d (Highest profit: %d)",
-    "resell.auto_buy_disabled": "💡 Auto buy/sell disabled\nSuggested purchase: Row %d, Col %d (Profit: %d)",
-    "resell.below_min_profit": "💡 No items meet minimum profit. Suggest saving quota for tomorrow.\nSuggested purchase: Row %d, Col %d (Profit: %d)",
-
     "visitfriends.friend_missing": "Friend is missing: %s",
     "visitfriends.clue_exchange": "Clue Exchange",
     "visitfriends.control_nexus_assist": "Control Nexus Assist",
@@ -17,14 +12,12 @@
     "visitfriends.can_growth_chamber": "assist Growth Chamber",
     "visitfriends.current_counts": "Assist count: %d, Clue exchange count: %d",
     "visitfriends.check_friend": "Checking friend %s",
-
     "autosell.price_compare_ok": "Recognized highest price: %d, minimum selling price: %d, meets condition",
     "autosell.price_compare_fail": "Recognized highest price: %d, minimum selling price: %d, does not meet condition",
     "autosell.check_item_price_moderate": "Checking price for %s; moderate price volatility",
     "autosell.check_item_price_large": "Checking price for %s; large price volatility",
     "autosell.check_item_price_massive": "Checking price for %s; extreme price volatility",
     "autosell.check_item_price_unknown": "Checking price for %s; unknown price volatility",
-
     "autostockpile.recognition_done": "Recognition complete, %d items found",
     "autostockpile.no_qualifying_product": "No qualifying items found (%s)",
     "autostockpile.hit_but_skip": "Item matched but not purchasing (%s)",
@@ -32,7 +25,6 @@
     "autostockpile.reconcile_price_corrected": "Detected price recognition error (%d -> %d), reselecting",
     "autostockpile.reconcile_decision_unchanged": "Decision unchanged, continuing",
     "autostockpile.recognition_early_end": "Recognition ended early",
-    "autostockpile.hit_skip_purchase": "Item matched but purchase skipped",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
     "autostockpile.abort_info": "%s (%s)",
     "autostockpile.fatal_error.text": "🚨 Critical error, task stopped (%s)",
@@ -40,11 +32,9 @@
     "autostockpile.mode_overflow": "Anti-overflow",
     "autostockpile.no_goods_recognized": "No goods recognized",
     "autostockpile.no_qualifying_goods": "No qualifying goods",
-
     "autostockpile.qty_below_threshold_buy": "Buying because price is below threshold",
     "autostockpile.qty_overflow_invalid": "Anti-overflow target quantity invalid",
     "autostockpile.qty_overflow_buy": "Buying anti-overflow quantity",
-
     "autostockpile.abort.GoodsOCRUnavailableWarn": "Goods OCR unavailable",
     "autostockpile.abort.GoodsTierInvalidFatal": "Goods tier invalid",
     "autostockpile.abort.None": "None",
@@ -53,14 +43,11 @@
     "autostockpile.abort.RegionResolveFailedFatal": "Cannot determine current outpost region",
     "autostockpile.abort.SelectionConfigInvalidFatal": "Purchase config read failed",
     "autostockpile.abort.ThresholdConfigInvalidFatal": "Price threshold config invalid, check config, do not enter 0 or leave blank",
-
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
-
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
     "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
-
     "essencefilter.no_locked": "No target essences locked this run.",
     "essencefilter.loot_summary.title": "Loot Summary:",
     "essencefilter.loot_summary.weapon_col": "Weapon",
@@ -74,7 +61,6 @@
     "essencefilter.plan_card.line3": "Demands met: ",
     "essencefilter.plan_card.line4": "Weapons matched: ",
     "essencefilter.plan_card.no_weapons": "(None)",
-    "essencefilter.no_weapons_list": "(None)",
     "essencefilter.no_weapon_target": "No weapon target selected. Skipping pre-inscription plan.",
     "essencefilter.all_graduated": "All target weapons matched this run. No pre-inscription plan needed.",
     "essencefilter.slot_fixed_label_2": "Bonus Attr",
@@ -89,9 +75,6 @@
     "essencefilter.data_version_notice.text": "Current data date: %s (check if updated)",
     "essencefilter.inventory_count.before_count": "There are ",
     "essencefilter.inventory_count.after_count": " essences in inventory.",
-    "essencefilter.reason.exact.no_weapons": "Exact match",
-    "essencefilter.reason.exact.with_weapons": "Exact match: %s",
-    "essencefilter.reason.no_match": "No match",
     "essencefilter.reason.future_promising": "Future-promising: total level %d ≥ %d",
     "essencefilter.reason.slot3_practical": "Practical: slot 3 (%s) level %d ≥ %d",
     "essencefilter.focus.ocr_skills": "OCR skills: %s(+%d) | %s(+%d) | %s(+%d)",
@@ -120,45 +103,30 @@
     "essencefilter.focus.finish.ext_future": "Extension rule \"Future-promising\" hits: %d",
     "essencefilter.focus.finish.ext_practical": "Extension rule \"Practical\" hits: %d",
     "essencefilter.focus.plan.no_feasible_location_plans": "No feasible location plans found. Showing only the ungraduated weapon list.",
-
     "tasker.process_warning.title": "⚠️ Warning: Blacklisted process detected",
     "tasker.process_warning.detected": "🔍 Detected: ",
     "tasker.process_warning.impact": "💡 These processes may interfere with image recognition",
     "tasker.process_warning.recommend_title": "👇 Recommendations:",
     "tasker.process_warning.recommend_1": "  • Close the above processes before running tasks",
     "tasker.process_warning.note": "ℹ️ The task will continue but may fail",
-
-    "tasker.hdr_warning.title": "⚠️ Warning: HDR or \"Automatically manage color for apps\" is enabled",
-    "tasker.hdr_warning.desc": "🖥️ HDR or automatic color management may distort screenshots and hurt recognition accuracy",
-    "tasker.hdr_warning.recommend_title": "💡 Recommendations:",
-    "tasker.hdr_warning.recommend_1": "  • Windows Settings → System → Display → Turn off \"HDR\"",
-    "tasker.hdr_warning.recommend_2": "  • Windows Settings → System → Display → Color profile → Turn off \"Automatically manage color for apps\"",
-    "tasker.hdr_warning.recommend_3": "  • Or disable HDR in your graphics driver settings",
-    "tasker.hdr_warning.note": "ℹ️ The task will continue but recognition issues may occur",
-
     "tasker.aspect_ratio_warning.title": "🚨 Warning: Aspect ratio mismatch! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 Task has been force-stopped",
     "tasker.aspect_ratio_warning.desc": "💡 Fullscreen mode only supports 16:9 displays; in windowed mode, you can manually set the resolution to 16:9.",
     "tasker.aspect_ratio_warning.recommend_title": "👇 Please set your resolution to:",
     "tasker.aspect_ratio_warning.future": "🚀 More aspect ratios will be supported in the future—stay tuned!",
-
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "Navigation aborted.",
     "maptracker.emergency_stop.cause_header": " Possible causes:",
     "maptracker.emergency_stop.cause_1": "Camera rotation failed;",
     "maptracker.emergency_stop.cause_2": "Route blocked or stuck.",
-
     "maptracker.navigation_moving.waypoint": "Next waypoint",
     "maptracker.navigation_moving.current": "Current: ",
     "maptracker.navigation_moving.target": "Target: ",
-
     "maptracker.navigation_finished.complete": "Navigation complete",
     "maptracker.navigation_finished.current": "Current: ",
-
     "maptracker.inference_finished.loc": "Loc: ",
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
-
     "maptracker.inference_failed.title": "Unknown location",
     "maptracker.inference_failed.reason": "(Confidence too low)"
 }

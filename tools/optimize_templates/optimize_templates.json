@@ -647,5 +647,7 @@
     "resource/image/AutoStockpile/StableGoodsButtonSelected": "1d3587eaa63893756c36bef880610f7ee7538e6cfed62d0d98bab577fcbe9616",
     "resource/image/AutoStockpile/Cart": "4c991860e607fe0e9db4625c6829f62b4004689326bcde2ad74dc415cf893f80",
     "resource/image/AutoStockpile/ElasticGoodsButtonSideSelected": "433f8440536f26f4b35a7555f28c7126d1ea8d639b07eee37dbdc8258bba5062",
-    "resource/image/CheckEmail/email2": "d0fc5e8988fe6f77c5a60bbec4f4304d2c8f6406aaf64bd90b431161b079057d"
+    "resource/image/CheckEmail/email2": "d0fc5e8988fe6f77c5a60bbec4f4304d2c8f6406aaf64bd90b431161b079057d",
+    "resource/image/AutoStockpile/ValleyCash": "fa9698705852feb1ddd14eeb2ee1d019a3641ca4b31bbaddbeb47427dd128cf6",
+    "resource/image/AutoStockpile/WulingCash": "d1ec4c7f380f8df329f3bfdb30aabaa95907a7570fb608091a13831fec130ecc"
 }

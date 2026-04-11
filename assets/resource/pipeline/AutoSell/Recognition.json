@@ -51,6 +51,7 @@
                     10,
                     20
                 ],
+                "only_rec": true,
                 "order_by": "Vertical"
             }
         ]

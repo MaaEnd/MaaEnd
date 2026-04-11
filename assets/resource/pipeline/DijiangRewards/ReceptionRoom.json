@@ -202,6 +202,7 @@
     },
     "ReceptionRoomCollectClues": {
         "desc": "[会客室·收集线索] 识别需要收集线索的奖励",
+        "max_hit": 2,
         "recognition": {
             "type": "And",
             "param": {
@@ -496,6 +497,16 @@
             "CloseButtonType1"
         ],
         "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 150,
+            "target": [
+                1073,
+                0,
+                117,
+                56
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -509,16 +520,6 @@
                 303
             ],
             "timeout": 1000
-        },
-        "pre_wait_freezes": {
-            "time": 150,
-            "target": [
-                1073,
-                0,
-                117,
-                56
-            ],
-            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -813,7 +814,6 @@
         "all_of": [
             "CloseButtonType1"
         ],
-        "pre_delay": 0,
         "pre_wait_freezes": {
             "time": 150,
             "target": [
@@ -824,6 +824,7 @@
             ],
             "timeout": 2000
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },

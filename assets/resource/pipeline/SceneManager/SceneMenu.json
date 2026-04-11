@@ -101,6 +101,12 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -110,12 +116,6 @@
                 13
             ],
             "timeout": 1000
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
         },
         "post_delay": 200,
         "rate_limit": 0
