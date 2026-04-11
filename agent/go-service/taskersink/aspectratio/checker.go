@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -82,6 +83,21 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Int32("height", height).
 		Msg("Got resolution")
 
+	isADBController := false
+	controlType, controlErr := control.GetControlType(controller)
+	if controlErr != nil {
+		log.Warn().
+			Err(controlErr).
+			Uint64("task_id", detail.TaskID).
+			Msg("Failed to detect controller type, falling back to task node inspection")
+	} else {
+		isADBController = controlType == control.CONTROL_TYPE_ADB
+		log.Debug().
+			Str("controller_type", controlType).
+			Bool("is_adb_controller", isADBController).
+			Msg("Detected controller type for aspect ratio check")
+	}
+
 	hasADBNode, err := taskHasNode(tasker, int64(detail.TaskID), adbMarkerNode)
 	if err != nil {
 		log.Warn().
@@ -91,12 +107,15 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Msg("Failed to inspect task nodes, falling back to aspect ratio check")
 	}
 
-	if hasADBNode {
+	enforceADBResolution := isADBController || hasADBNode
+	if enforceADBResolution {
 		if int(width) == targetWidth && int(height) == targetHeight {
 			log.Debug().
 				Int32("width", width).
 				Int32("height", height).
 				Str("mode", "adb_exact_resolution").
+				Bool("is_adb_controller", isADBController).
+				Bool("has_adb_marker_node", hasADBNode).
 				Msg("Resolution check passed: exact 1280x720")
 			return
 		}
@@ -107,7 +126,9 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int("target_width", targetWidth).
 			Int("target_height", targetHeight).
 			Str("mode", "adb_exact_resolution").
-			Msg("ADB marker node found, resolution must be exactly 1280x720. Task will be stopped.")
+			Bool("is_adb_controller", isADBController).
+			Bool("has_adb_marker_node", hasADBNode).
+			Msg("ADB branch detected, resolution must be exactly 1280x720. Task will be stopped.")
 		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildADBResolutionWarningData(int(width), int(height))))
 		tasker.PostStop()
 		return
