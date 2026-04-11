@@ -70,7 +70,7 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 
 可以看到我们的图片中有背景干扰，这会降低匹配效率，这时候我们可以用自动绿幕工具来解决这个问题。（不推荐手动来做绿幕，不仅很慢，而且不准确）
 
-<img width="1825" height="764" alt="greenbackgournd" src="https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3" />
+<img width="1825" height="764" alt="green background" src="https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3" />
 
 将截好的模板放到 `assets/resource/image/SellProduct/` 下。
 
