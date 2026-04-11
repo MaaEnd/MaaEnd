@@ -308,10 +308,22 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute2End"
+            "AutoCollectClickAfter": "AutoCollectRoute2RestoreWalkMode"
         },
         "next": [
             "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2RestoreWalkMode": {
+        "desc": "复原为跑步模式",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 160
+            }
+        },
+        "next": [
+            "AutoCollectRoute2End"
         ]
     }
 }
