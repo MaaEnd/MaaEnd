@@ -66,14 +66,14 @@ if err != nil {
 - 设置 `FuturePromisingMinTotal=x`（例如 6）
 - `LockFuturePromising` 决定是否命中后应该锁定
 
-2. “slot3 大于（3）”
+1. “slot3 大于（3）”
 
 - 使用 `KeepSlot3Level3Practical=true`
 - 设置 `Slot3MinLevel=3`
 - 注意：slot3 可能出现在 OCR 的任意位置（slot1/2/3 文本里可能混入），引擎会自动判定 slot3 池命中的那条
 - `LockSlot3Practical` 决定是否命中后应该锁定
 
-3. 未命中怎么处理
+1. 未命中怎么处理
 
 - `DiscardUnmatched=true` -> `res.ShouldDiscard=true`
 - `DiscardUnmatched=false` -> 不废弃，`res.ShouldDiscard=false`
