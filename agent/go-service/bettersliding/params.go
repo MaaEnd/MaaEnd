@@ -265,13 +265,18 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		return customActionParam
 	}
 
+	logger := log.With().
+		Str("component", betterSlidingActionName).
+		Str("step", "mergeAttachParams").
+		Logger()
+
 	raw, err := ctx.GetNodeJSON(callerNodeName)
 	if err != nil || raw == "" {
 		if err != nil {
-			log.Warn().
+			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
-				Msg("mergeAttachParams: failed to get node json")
+				Msg("failed to get node json")
 		}
 
 		return customActionParam
@@ -279,10 +284,10 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 
 	var nodeWrapper map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(raw), &nodeWrapper); err != nil {
-		log.Warn().
+		logger.Warn().
 			Err(err).
 			Str("node", callerNodeName).
-			Msg("mergeAttachParams: failed to unmarshal node json")
+			Msg("failed to unmarshal node json")
 
 		return customActionParam
 	}
@@ -294,10 +299,10 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 
 	var attachKeys map[string]json.RawMessage
 	if err := json.Unmarshal(attachRaw, &attachKeys); err != nil {
-		log.Warn().
+		logger.Warn().
 			Err(err).
 			Str("node", callerNodeName).
-			Msg("mergeAttachParams: failed to unmarshal attach block")
+			Msg("failed to unmarshal attach block")
 
 		return customActionParam
 	}
@@ -312,12 +317,12 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		if err := json.Unmarshal(targetRaw, &target); err == nil {
 			paramMap["Target"] = float64(target)
 		} else {
-			log.Warn().
+			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
 				Str("field", "attach.Target").
 				Str("value", string(targetRaw)).
-				Msg("mergeAttachParams: failed to parse attach.Target, skipping field merge")
+				Msg("failed to parse attach field")
 		}
 	}
 
@@ -326,12 +331,12 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		if err := json.Unmarshal(ttRaw, &tt); err == nil {
 			paramMap["TargetType"] = tt
 		} else {
-			log.Warn().
+			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
 				Str("field", "attach.TargetType").
 				Str("value", string(ttRaw)).
-				Msg("mergeAttachParams: failed to parse attach.TargetType, skipping field merge")
+				Msg("failed to parse attach field")
 		}
 	}
 
@@ -340,12 +345,12 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		if err := json.Unmarshal(trRaw, &tr); err == nil {
 			paramMap["TargetReverse"] = tr
 		} else {
-			log.Warn().
+			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
 				Str("field", "attach.TargetReverse").
 				Str("value", string(trRaw)).
-				Msg("mergeAttachParams: failed to parse attach.TargetReverse, skipping field merge")
+				Msg("failed to parse attach field")
 		}
 	}
 
