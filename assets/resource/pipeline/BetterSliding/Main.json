@@ -140,7 +140,6 @@
     },
     "BetterSlidingDecreaseQuantity": {
         "desc": "减少数量",
-        "enabled": false,
         "pre_delay": 0,
         "action": {
             "type": "Click",
@@ -162,7 +161,6 @@
     },
     "BetterSlidingDone": {
         "desc": "数量与Target一致，成功咯~",
-        "enabled": false,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -226,7 +224,6 @@
     },
     "BetterSlidingIncreaseQuantity": {
         "desc": "增加数量",
-        "enabled": false,
         "pre_delay": 0,
         "action": {
             "type": "Click",

@@ -88,21 +88,11 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 }
 
 func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, greenMask bool) map[string]any {
-	override := map[string]any{
-		nodeBetterSlidingDone: map[string]any{
-			"enabled": nextNode == nodeBetterSlidingDone,
-		},
-		nodeBetterSlidingIncreaseQuantity: map[string]any{
-			"enabled": nextNode == nodeBetterSlidingIncreaseQuantity,
-		},
-		nodeBetterSlidingDecreaseQuantity: map[string]any{
-			"enabled": nextNode == nodeBetterSlidingDecreaseQuantity,
-		},
+	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
+		return map[string]any{}
 	}
 
-	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
-		return override
-	}
+	override := map[string]any{}
 
 	repeat = clampClickRepeat(repeat)
 
@@ -114,7 +104,6 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	}
 
 	override[nextNode] = map[string]any{
-		"enabled": true,
 		"action": map[string]any{
 			"param": map[string]any{
 				"target": append([]int(nil), target.coordinates...),
@@ -127,8 +116,10 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 }
 
 func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int, greenMask bool) error {
-	if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, target, repeat, greenMask)); err != nil {
-		return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
+	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat, greenMask); len(override) > 0 {
+		if err := ctx.OverridePipeline(override); err != nil {
+			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
+		}
 	}
 	if err := ctx.OverrideNext(currentNode, buildCheckQuantityBranchNextItems(nextNode)); err != nil {
 		return fmt.Errorf("%w: %w", errCheckQuantityBranchNextOverride, err)
@@ -178,7 +169,6 @@ func buildTemplateMatchButtonHelperOverride(template string, greenMask bool) map
 
 func buildTemplateMatchButtonOverride(helperNode string, repeat int) map[string]any {
 	return map[string]any{
-		"enabled": true,
 		"recognition": map[string]any{
 			"type": "And",
 			"param": map[string]any{
