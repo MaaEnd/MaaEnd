@@ -1,0 +1,79 @@
+{
+    "ItemTransferStartOpenRepo": {
+        "action": "ClickKey",
+        "key": 48,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferPreClearBag",
+            "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "ItemTransferClickEscOrigin": {
+        "action": "ClickKey",
+        "key": 1,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferRepoToBag"
+        ]
+    },
+    "ItemTransferCtrlKeyDownRepo": {
+        "action": "KeyDown",
+        "key": 29,
+        "next": [
+            "ItemTransferTransferToBag"
+        ]
+    },
+    "ItemTransferCtrlKeyUpRepo": {
+        "action": "KeyUp",
+        "key": 29,
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferClickEscDestination": {
+        "action": "ClickKey",
+        "key": 1,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagToRepo"
+        ]
+    },
+    "ItemTransferCtrlKeyDownBag": {
+        "action": "KeyDown",
+        "key": 29,
+        "next": [
+            "ItemTransferTransferToRepo"
+        ]
+    },
+    "ItemTransferCtrlKeyUpBag": {
+        "action": "KeyUp",
+        "key": 29,
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferClickEscOriginReturn": {
+        "action": "ClickKey",
+        "key": 1,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagToOriginRepo"
+        ]
+    },
+    "ItemTransferCtrlKeyDownBagReturn": {
+        "action": "KeyDown",
+        "key": 29,
+        "next": [
+            "ItemTransferTransferToRepoReturn"
+        ]
+    },
+    "ItemTransferCtrlKeyUpBagReturn": {
+        "action": "KeyUp",
+        "key": 29,
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
+    }
+}

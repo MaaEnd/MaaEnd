@@ -1,0 +1,32 @@
+{
+    "__CharacterControllerDeltaAltKeyDownAction": {
+        "desc": "alt按键",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 56,
+        "post_delay": 0
+    },
+    "__CharacterControllerDeltaAltKeyUpAction": {
+        "desc": "alt按键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 56,
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressForwardAction": {
+        "desc": "轴向前长按",
+        "pre_delay": 0,
+        "action": "LongPressKey",
+        "duration": 100,
+        "key": 17,
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressBackwardAction": {
+        "desc": "轴向后长按",
+        "pre_delay": 0,
+        "action": "LongPressKey",
+        "duration": 100,
+        "key": 31,
+        "post_delay": 0
+    }
+}

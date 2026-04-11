@@ -1,0 +1,39 @@
+{
+    "ProdManualOpenInMain": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    916,
+                    2,
+                    360,
+                    108
+                ],
+                "template": [
+                    "ProdManual/Backpack.png",
+                    "ProdManual/Backpack2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "ProdManualOpenInMainClick"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        }
+    },
+    "ProdManualOpenInMainDone": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    }
+}

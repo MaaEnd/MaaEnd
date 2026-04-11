@@ -1,0 +1,14 @@
+{
+    "AutoCollectRoute2RestoreWalkMode": {
+        "desc": "复原为跑步模式",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 42
+            }
+        },
+        "next": [
+            "AutoCollectRoute2End"
+        ]
+    }
+}

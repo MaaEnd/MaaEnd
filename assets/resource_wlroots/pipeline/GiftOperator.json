@@ -1,0 +1,236 @@
+{
+    "GiftOperatorChatAltDown": {
+        "desc": "按下 ALT 激活光标，准备点击干员对话",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "GiftOperatorWaitChat"
+        ],
+        "on_error": [
+            "GiftOperatorRetryCleanupAlt"
+        ]
+    },
+    "GiftOperatorChatAltUp": {
+        "desc": "松开 ALT",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "GiftOperatorSkipDialog"
+        ],
+        "on_error": [
+            "GiftOperatorRetryCleanupAlt"
+        ]
+    },
+    "GiftOperatorContactAltDown": {
+        "desc": "按下 ALT 激活鼠标光标，准备点击联络台",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "GiftOperatorClickContact"
+        ],
+        "on_error": [
+            "GiftOperatorRetryCleanupAlt"
+        ]
+    },
+    "GiftOperatorContactAltUp": {
+        "desc": "松开 ALT",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "GiftOperatorCheckContact"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressA1": {
+        "desc": "录制模式：第一次长按 A",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 2641,
+                "key": 30
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait3"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressA2": {
+        "desc": "录制模式：第二次长按 A",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 979,
+                "key": 30
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait5"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressA3": {
+        "desc": "录制模式：第三次长按 A，结束移动",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 1070,
+                "key": 30
+            }
+        },
+        "next": [
+            "GiftOperatorContactAltDown"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressW1": {
+        "desc": "录制模式：第一次长按 W",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 2989,
+                "key": 17
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait2"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressW2": {
+        "desc": "录制模式：第二次长按 W",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 1578,
+                "key": 17
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait4"
+        ]
+    },
+    "GiftOperatorMoveRecordedLongPressW3": {
+        "desc": "录制模式：第三次长按 W",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 1473,
+                "key": 17
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait6"
+        ]
+    },
+    "GiftOperatorMoveRecordedResetA": {
+        "desc": "重置 A 键状态",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 30
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedResetW"
+        ]
+    },
+    "GiftOperatorMoveRecordedResetAlt": {
+        "desc": "录制模式：重置 ALT 键状态",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedResetA"
+        ]
+    },
+    "GiftOperatorMoveRecordedResetW": {
+        "desc": "重置 W 键状态",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 17
+            }
+        },
+        "next": [
+            "GiftOperatorMoveRecordedWait1"
+        ]
+    },
+    "GiftOperatorRetryCleanupA": {
+        "desc": "重试前先松开 A",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 30
+            }
+        },
+        "next": [
+            "GiftOperatorRetryCleanupW"
+        ]
+    },
+    "GiftOperatorRetryCleanupAlt": {
+        "desc": "重试前先松开 ALT",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "GiftOperatorRetryCleanupA"
+        ]
+    },
+    "GiftOperatorRetryCleanupW": {
+        "desc": "重试前先松开 W",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 17
+            }
+        },
+        "next": [
+            "GiftOperatorRetryFromBridge"
+        ]
+    },
+    "GiftOperatorShiftToRunMapTracker": {
+        "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 42
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveMapTracker"
+        ]
+    },
+    "GiftOperatorShiftToRunRecorded": {
+        "desc": "按 Shift 恢复跑步模式，等待后再执行预制按键",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 42
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveRecordedResetAlt"
+        ]
+    }
+}

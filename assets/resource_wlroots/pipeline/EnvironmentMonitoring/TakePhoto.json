@@ -1,0 +1,35 @@
+{
+    "EnterCameraModeClick": {
+        "desc": "通过点击进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeButton",
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 19,
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "EnterCameraModeLongPress": {
+        "desc": "通过长按进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "KeyDown",
+        "key": 19,
+        "next": [
+            "EnterCameraModeChooseCamera"
+        ]
+    },
+    "EnterCameraModeKeyDown": {
+        "desc": "进入拍照模式，退出按键",
+        "action": "KeyDown",
+        "key": 19,
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    }
+}

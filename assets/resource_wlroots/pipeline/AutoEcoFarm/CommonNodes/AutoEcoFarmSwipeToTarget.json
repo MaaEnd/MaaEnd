@@ -1,0 +1,43 @@
+{
+    "_AutoEcoFarmTurnAround1": {
+        "desc": "长按 S 0.1 秒，转身",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 100,
+                "key": 31
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTurnAround2"
+        ]
+    },
+    "_AutoEcoFarmAltDown": {
+        "desc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        },
+        "next": [
+            "_AutoEcoFarmClick"
+        ]
+    },
+    "_AutoEcoFarmAltUp": {
+        "desc": "松开alt",
+        "pre_delay": 0,
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmTargeInCenter",
+            "[Anchor]_AutoEcoFarmSwipeLoopAnchor",
+            "_AutoEcoFarmMoveToTargetErr"
+        ]
+    }
+}

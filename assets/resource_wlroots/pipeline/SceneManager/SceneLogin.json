@@ -1,0 +1,11 @@
+{
+    "__ScenePrivateLoginCloseDialog": {
+        "desc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 1
+            }
+        }
+    }
+}
