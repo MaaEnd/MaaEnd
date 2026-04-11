@@ -98,7 +98,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 1. **`strategy.go` 生成的地区-档位默认值**：`buildPriceLimitsForRegion()` 按 `region_base + tier_base + weekday_adjustment` 公式生成各档位阈值。
 2. **`thresholds.go` 严格命中 `price_limits`**：`resolveTierThreshold()` 会直接使用 `GoodsItem.Tier` 作为 key 查表；key 缺失、为空或阈值非法都会返回错误，并由上游按 fatal 语义中止流程。
 
-当前生成出的默认值包括：`ValleyIV.Tier1=600`、`ValleyIV.Tier2=900`、`ValleyIV.Tier3=1200`、`Wuling.Tier1=1200`、`Wuling.Tier2=1500`。
+当 `weekday_adjustment = 0`（即周二）时，当前生成出的示例值包括：`ValleyIV.Tier1=600`、`ValleyIV.Tier2=900`、`ValleyIV.Tier3=1200`、`Wuling.Tier1=1200`、`Wuling.Tier2=1500`。这些值不是所有服务器日下都固定不变的默认值。
 
 weekday 偏移表如下：
 

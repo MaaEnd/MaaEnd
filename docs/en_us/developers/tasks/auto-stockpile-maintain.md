@@ -98,7 +98,7 @@ The system currently uses **strict region-tier key lookups** to determine the pu
 1. **Region-tier defaults generated in `strategy.go`**: `buildPriceLimitsForRegion()` computes per-tier thresholds from the `region_base + tier_base + weekday_adjustment` formula.
 2. **Strict `price_limits` resolution in `thresholds.go`**: `resolveTierThreshold()` uses `GoodsItem.Tier` as the lookup key directly. Missing keys, empty tiers, or invalid thresholds all return errors and are handled upstream as fatal failures.
 
-Current generated defaults include `ValleyIV.Tier1=600`, `ValleyIV.Tier2=900`, `ValleyIV.Tier3=1200`, `Wuling.Tier1=1200`, and `Wuling.Tier2=1500`.
+When `weekday_adjustment = 0` (that is, Tuesday), example generated values include `ValleyIV.Tier1=600`, `ValleyIV.Tier2=900`, `ValleyIV.Tier3=1200`, `Wuling.Tier1=1200`, and `Wuling.Tier2=1500`. These values are not fixed defaults for every server day.
 
 The weekday adjustment table is:
 

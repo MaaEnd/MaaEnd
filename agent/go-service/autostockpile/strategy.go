@@ -44,7 +44,10 @@ func buildPriceLimitsForRegion(region string, weekday time.Weekday) (PriceLimitC
 		return nil, fmt.Errorf("region %q is not configured", region)
 	}
 
-	weekdayAdjustment := weekdayAdjustments[weekday]
+	weekdayAdjustment, ok := weekdayAdjustments[weekday]
+	if !ok {
+		return nil, fmt.Errorf("weekday %d is not supported", weekday)
+	}
 
 	priceLimits := make(PriceLimitConfig, len(tierBases))
 	for tierSuffix, tierBase := range tierBases {
