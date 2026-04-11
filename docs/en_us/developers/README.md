@@ -69,7 +69,7 @@ Read on demand—only when you use the corresponding feature.
 | ----------------------------------------------------------- | ------------------------------------------------------- |
 | [AutoFight](./components/auto-fight.md)                     | In-combat automation: basics, skills, chain attacks     |
 | [CharacterController](./components/character-controller.md) | Camera, movement, and move-to-target                    |
-| [QuantizedSliding](./components/quantized-sliding.md)       | Custom action for discrete quantity sliders             |
+| [BetterSliding](./components/better-sliding.md)             | Custom action for discrete quantity sliders             |
 | [MapLocator](./components/map-locator.md)                   | AI + CV minimap localization (region, position, facing) |
 | [MapTracker](./components/map-tracker.md)                   | CV-based minimap tracking and path movement             |
 | [MapNavigator](./components/map-navigator.md)               | High-precision navigation action + GUI recording tool   |

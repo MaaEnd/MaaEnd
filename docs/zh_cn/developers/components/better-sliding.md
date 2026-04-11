@@ -520,3 +520,4 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 - [Custom 动作与识别参考文档](../custom.md)：了解 `Custom` 动作与识别的通用调用方式。
 - [编码规范](../coding-standards.md)：了解 Pipeline / Go Service 的整体开发规范。
+- [开发者文档索引](../README.md)：查看阅读路线，以及工具、测试、任务文档入口。

@@ -46,7 +46,7 @@ Implemented in Go/C++ with stronger coupling to game behavior. Per [coding stand
 | SubTask / ClearHitCount / ExpressionRecognition | Subtasks, hit-count reset, expression recognition | [custom.md](./custom.md)                                                   |
 | AutoFight                                       | In-combat automation                              | [components/auto-fight.md](./components/auto-fight.md)                     |
 | CharacterController                             | Camera, movement, face target                     | [components/character-controller.md](./components/character-controller.md) |
-| QuantizedSliding                                | Discrete quantity sliders                         | [components/quantized-sliding.md](./components/quantized-sliding.md)       |
+| BetterSliding                                   | Discrete quantity sliders                         | [components/better-sliding.md](./components/better-sliding.md)             |
 | MapLocator                                      | AI + CV minimap localization                      | [components/map-locator.md](./components/map-locator.md)                   |
 | MapTracker                                      | Minimap tracking & path movement                  | [components/map-tracker.md](./components/map-tracker.md)                   |
 | MapNavigator                                    | High-precision navigation + GUI recorder          | [components/map-navigator.md](./components/map-navigator.md)               |

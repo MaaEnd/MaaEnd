@@ -46,7 +46,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | SubTask / ClearHitCount / ExpressionRecognition | 子任务调度、计数清理、表达式识别 | [custom.md](./custom.md)                                                   |
 | AutoFight                                       | 战斗内自动操作                   | [components/auto-fight.md](./components/auto-fight.md)                     |
 | CharacterController                             | 角色视角旋转、移动、朝向目标     | [components/character-controller.md](./components/character-controller.md) |
-| QuantizedSliding                                | 离散数量滑条调节                 | [components/quantized-sliding.md](./components/quantized-sliding.md)       |
+| BetterSliding                                   | 离散数量滑条调节                 | [components/better-sliding.md](./components/better-sliding.md)             |
 | MapLocator                                      | AI + CV 小地图定位               | [components/map-locator.md](./components/map-locator.md)                   |
 | MapTracker                                      | 小地图追踪与路径移动             | [components/map-tracker.md](./components/map-tracker.md)                   |
 | MapNavigator                                    | 高精度自动导航 + GUI 录制工具    | [components/map-navigator.md](./components/map-navigator.md)               |

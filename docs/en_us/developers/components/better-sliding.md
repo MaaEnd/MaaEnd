@@ -518,14 +518,6 @@ If you need to follow the implementation further, review in this order:
 
 ## Related documents
 
-<<<<<<< HEAD:docs/en_us/developers/components/quantized-sliding.md
 - [Custom Action and Recognition Reference](../custom.md): Learn the general calling convention of `Custom` actions and recognitions.
 - [Coding standards](../coding-standards.md): Pipeline, Go, and resource conventions.
 - [Developer documentation index](../README.md): Reading order and links to tools, testing, and task docs.
-=======
-- [Custom Action and Recognition Reference](./custom.md): Learn the general calling convention of `Custom` actions and recognitions.
-- [Development Guide](./development.md): Learn the overall development conventions for Pipeline and Go Service.
-<<<<<<< HEAD:docs/en_us/developers/components/quantized-sliding.md
->>>>>>> d0533524 (feat(BetterSliding): 支持附加参数、仅滑动模式与目标解析):docs/en_us/developers/better-sliding.md
-=======
->>>>>>> 54365457 (refactor(BetterSliding): 将目标值改为顶层 Target):docs/en_us/developers/better-sliding.md
