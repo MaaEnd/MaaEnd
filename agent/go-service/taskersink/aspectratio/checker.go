@@ -3,10 +3,12 @@ package aspectratio
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -21,7 +23,10 @@ const (
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
-type AspectRatioChecker struct{}
+type AspectRatioChecker struct {
+	mu              sync.Mutex
+	pendingWarnings map[uint64]string
+}
 
 // OnTaskerTask handles tasker task events
 func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
@@ -84,11 +89,20 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 
 	isADBController := false
 	controlType := "unknown"
-	controlType, controlErr := control.GetControlType(controller)
+	controllerTypeSource := "fallback"
+	if control.CachedControlType != "" {
+		controlType = control.CachedControlType
+		controllerTypeSource = "cache"
+	} else {
+		controllerTypeSource = "controller_info"
+	}
+
+	controlType, controlErr := resolveControllerType(controller, controlType)
 	if controlErr != nil {
 		log.Warn().
 			Err(controlErr).
 			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
 			Int32("width", width).
 			Int32("height", height).
 			Msg("Failed to detect controller type, falling back to aspect ratio check")
@@ -98,6 +112,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
 			Str("controller_type", controlType).
+			Str("controller_type_source", controllerTypeSource).
 			Bool("is_adb_controller", isADBController).
 			Int32("width", width).
 			Int32("height", height).
@@ -105,10 +120,13 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	}
 
 	if isADBController {
+		requirement := exactResolutionRequirement()
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
 			Str("controller_type", controlType).
+			Str("requirement", "exact_resolution").
+			Str("target_resolution", requirement).
 			Str("mode", "adb_exact_resolution").
 			Int32("width", width).
 			Int32("height", height).
@@ -120,29 +138,41 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			log.Debug().
 				Uint64("task_id", detail.TaskID).
 				Str("entry", detail.Entry).
+				Str("controller_type", controlType).
+				Str("requirement", "exact_resolution").
+				Str("target_resolution", requirement).
 				Int32("width", width).
 				Int32("height", height).
 				Str("mode", "adb_exact_resolution").
-				Msg("Resolution check passed: exact 1280x720")
+				Msg("resolution check passed")
 			return
 		}
 
 		log.Error().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Str("controller_type", controlType).
+			Str("requirement", "exact_resolution").
+			Str("target_resolution", requirement).
+			Bool("stop_task", true).
 			Int32("width", width).
 			Int32("height", height).
 			Int("target_width", targetWidth).
 			Int("target_height", targetHeight).
 			Str("mode", "adb_exact_resolution").
-			Msg("ADB controller detected, resolution must be exactly 1280x720. Task will be stopped.")
-		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildADBResolutionWarningData(int(width), int(height))))
-		tasker.PostStop()
+			Msg("resolution check failed")
+		warning := i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controlType, int(width), int(height), requirement))
+		c.scheduleWarning(detail.TaskID, warning)
 		return
 	}
 
+	requirement := aspectRatioRequirement()
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
 		Str("controller_type", controlType).
+		Str("requirement", "aspect_ratio").
+		Str("target_resolution", requirement).
 		Str("mode", "aspect_ratio_only").
 		Int32("width", width).
 		Int32("height", height).
@@ -152,24 +182,98 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	if !isAspectRatio16x9(int(width), int(height)) {
 		actualRatio := calculateAspectRatio(int(width), int(height))
 		log.Error().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Str("controller_type", controlType).
+			Str("requirement", "aspect_ratio").
+			Str("target_resolution", requirement).
+			Bool("stop_task", true).
 			Int32("width", width).
 			Int32("height", height).
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
 			Str("mode", "aspect_ratio_only").
-			Msg("Resolution is not 16:9! Task will be stopped.")
-		fmt.Println(i18n.RenderHTML("tasker.aspect_ratio_warning", buildAspectRatioWarningData(int(width), int(height))))
-
-		// Stop the task
-		tasker.PostStop()
+			Msg("resolution check failed")
+		warning := i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controlType, int(width), int(height), requirement))
+		c.scheduleWarning(detail.TaskID, warning)
 		return
 	}
 
 	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Str("controller_type", controlType).
+		Str("requirement", "aspect_ratio").
+		Str("target_resolution", requirement).
 		Int32("width", width).
 		Int32("height", height).
 		Str("mode", "aspect_ratio_only").
-		Msg("Resolution check passed: 16:9")
+		Msg("resolution check passed")
+}
+
+func (c *AspectRatioChecker) scheduleWarning(taskID uint64, content string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.pendingWarnings == nil {
+		c.pendingWarnings = make(map[uint64]string)
+	}
+	c.pendingWarnings[taskID] = content
+	log.Debug().
+		Uint64("task_id", taskID).
+		Msg("scheduled focus warning for resolution check failure")
+}
+
+func (c *AspectRatioChecker) consumeWarning(taskID uint64) (string, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.pendingWarnings == nil {
+		return "", false
+	}
+	content, ok := c.pendingWarnings[taskID]
+	if ok {
+		delete(c.pendingWarnings, taskID)
+	}
+	return content, ok
+}
+
+func (c *AspectRatioChecker) OnNodePipelineNode(ctx *maa.Context, event maa.EventStatus, detail maa.NodePipelineNodeDetail) {
+	if event != maa.EventStatusStarting {
+		return
+	}
+
+	content, ok := c.consumeWarning(detail.TaskID)
+	if !ok {
+		return
+	}
+
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("node", detail.Name).
+		Msg("sending focus warning for resolution check failure")
+	maafocus.Print(ctx, content)
+	ctx.GetTasker().PostStop()
+}
+
+func (c *AspectRatioChecker) OnNodeRecognitionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionNodeDetail) {
+}
+
+func (c *AspectRatioChecker) OnNodeActionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionNodeDetail) {
+}
+
+func (c *AspectRatioChecker) OnNodeNextList(_ *maa.Context, _ maa.EventStatus, _ maa.NodeNextListDetail) {
+}
+
+func (c *AspectRatioChecker) OnNodeRecognition(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionDetail) {
+}
+
+func (c *AspectRatioChecker) OnNodeAction(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionDetail) {
+}
+
+func resolveControllerType(controller *maa.Controller, cachedType string) (string, error) {
+	if cachedType != "" {
+		return cachedType, nil
+	}
+	return control.GetControlType(controller)
 }
 
 // isAspectRatio16x9 checks if the given dimensions are approximately 16:9
@@ -198,26 +302,29 @@ func calculateAspectRatio(width, height int) float64 {
 	return h / w
 }
 
-func buildAspectRatioWarningData(width, height int) map[string]any {
+func buildWarningData(controllerType string, width, height int, requirement string) map[string]any {
 	return map[string]any{
-		"Title":             i18n.T("tasker.aspect_ratio_warning.aspect_title"),
-		"Description":       i18n.T("tasker.aspect_ratio_warning.aspect_desc"),
-		"RecommendTitle":    i18n.T("tasker.aspect_ratio_warning.recommend_title"),
-		"RecommendValue":    i18n.T("tasker.aspect_ratio_warning.aspect_recommend_value"),
-		"CurrentLabel":      i18n.T("tasker.aspect_ratio_warning.current_resolution"),
+		"ControllerType":    displayControllerType(controllerType),
 		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
-		"Footer":            i18n.T("tasker.aspect_ratio_warning.aspect_footer"),
+		"Requirement":       requirement,
 	}
 }
 
-func buildADBResolutionWarningData(width, height int) map[string]any {
-	return map[string]any{
-		"Title":             i18n.T("tasker.aspect_ratio_warning.adb_title"),
-		"Description":       i18n.T("tasker.aspect_ratio_warning.adb_desc"),
-		"RecommendTitle":    i18n.T("tasker.aspect_ratio_warning.recommend_title"),
-		"RecommendValue":    i18n.T("tasker.aspect_ratio_warning.adb_recommend_value"),
-		"CurrentLabel":      i18n.T("tasker.aspect_ratio_warning.current_resolution"),
-		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
-		"Footer":            i18n.T("tasker.aspect_ratio_warning.adb_footer"),
+func displayControllerType(controllerType string) string {
+	switch controllerType {
+	case control.CONTROL_TYPE_ADB:
+		return "ADB"
+	case control.CONTROL_TYPE_WIN32:
+		return "Win32"
+	default:
+		return controllerType
 	}
+}
+
+func exactResolutionRequirement() string {
+	return fmt.Sprintf("%dx%d", targetWidth, targetHeight)
+}
+
+func aspectRatioRequirement() string {
+	return "16:9"
 }

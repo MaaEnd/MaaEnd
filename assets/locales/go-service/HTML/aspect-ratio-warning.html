@@ -1,7 +1,15 @@
-<span style="color: #ff0000; font-size: 1.8em; font-weight: 900;">{{if .Title}}{{.Title}}{{else}}{{t "title"}}{{end}}</span>
+{{with .}}
+<span style="color: #ff0000; font-size: 1.8em; font-weight: 900;">{{t "title"}}</span>
 <br/><span style="color: #ff4500; font-size: 1.6em; font-weight: 800;">{{t "stopped"}}</span>
-<br/><span style="color: #faad14; font-size: 1.4em; font-weight: bold;">{{if .Description}}{{.Description}}{{else}}{{t "desc"}}{{end}}</span>
-{{if .CurrentResolution}}<br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{if .CurrentLabel}}{{.CurrentLabel}}{{else}}{{t "current_resolution"}}{{end}} {{.CurrentResolution}}</span>{{end}}
-<br/><span style="font-size: 1.3em; font-weight: bold;">{{if .RecommendTitle}}{{.RecommendTitle}}{{else}}{{t "recommend_title"}}{{end}}</span>
-<br/><span style="color: #00bfff; font-size: 1.5em; font-weight: 900;">✅ {{if .RecommendValue}}{{.RecommendValue}}{{else}}3840x2160, 2560x1440, 1920x1080, 1280x720{{end}}</span>
-<br/><br/><span style="font-size: 1.2em; color: #32cd32; font-weight: bold;">{{if .Footer}}{{.Footer}}{{else}}{{t "future"}}{{end}}</span>
+<br/><span style="color: #faad14; font-size: 1.4em; font-weight: bold;">{{t "desc"}}</span>
+<br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "controller_label"}} {{.ControllerType}}</span>
+<br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "current_resolution"}} {{.CurrentResolution}}</span>
+<br/><span style="font-size: 1.25em; color: #00bfff; font-weight: bold;">{{t "requirement_label"}} {{.Requirement}}</span>
+{{else}}
+<span style="color: #ff0000; font-size: 1.8em; font-weight: 900;">{{t "title"}}</span>
+<br/><span style="color: #ff4500; font-size: 1.6em; font-weight: 800;">{{t "stopped"}}</span>
+<br/><span style="color: #faad14; font-size: 1.4em; font-weight: bold;">{{t "desc"}}</span>
+<br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "controller_label"}} -</span>
+<br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "current_resolution"}} -</span>
+<br/><span style="font-size: 1.25em; color: #00bfff; font-weight: bold;">{{t "requirement_label"}} -</span>
+{{end}}
