@@ -17,6 +17,15 @@
             "[JumpBack]SceneEnterMapAny"
         ]
     },
+    "SceneEnterMapWulingQingboStockade": {
+        "desc": "从任意界面进入武陵-清波寨地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingQingboStockade",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
     "SceneEnterWorldWulingJingyuValley0": {
         "desc": "从任意界面进入-景玉谷-生态实验站",
         "pre_delay": 0,
@@ -277,6 +286,66 @@
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapWulingWulingCity"
+        ]
+    },
+    "SceneEnterWorldWulingQingboStockade0": {
+        "desc": "从任意界面进入武陵-清波寨-顶天梁大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade0"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ]
+    },
+    "SceneEnterWorldWulingQingboStockade1": {
+        "desc": "从任意界面进入武陵-清波寨-栈桥道大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade1"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ]
+    },
+    "SceneEnterWorldWulingQingboStockade2": {
+        "desc": "从任意界面进入武陵-清波寨-主寨西南大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade2"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ]
+    },
+    "SceneEnterWorldWulingQingboStockade4": {
+        "desc": "从任意界面进入武陵-清波寨-祖泉大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade4"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ]
+    },
+    "SceneEnterWorldWulingQingboStockade5": {
+        "desc": "从任意界面进入武陵-清波寨-主寨东南大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade5"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
         ]
     }
 }

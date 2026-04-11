@@ -69,6 +69,32 @@
             "[JumpBack]SceneEnterMapAny"
         ]
     },
+    "SceneEnterWorldValleyIVTheHub1": {
+        "desc": "从任意界面进入四号谷地-枢纽区-旧供水设施东侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapValleyIVEnterVallyIVTheHub1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
+    },
+    "SceneEnterWorldValleyIVTheHub2": {
+        "desc": "从任意界面进入四号谷地-枢纽区-岩丘通道大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapValleyIVEnterVallyIVTheHub2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
+    },
     "SceneEnterWorldValleyIVOriginiumSciencePark0": {
         "desc": "从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界",
         "pre_delay": 0,

@@ -791,7 +791,137 @@
             "map_name": "map02_lv002",
             "target": [
                 694,
-                914
+                916
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade0": {
+        "desc": "在地图界面找锚点 (清波寨-顶天梁)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "target": [
+                177,
+                318
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade1": {
+        "desc": "在地图界面找锚点 (清波寨-栈桥道)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "target": [
+                215,
+                466
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade2": {
+        "desc": "在地图界面找锚点 (清波寨-主寨西南)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "target": [
+                302,
+                543
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade4": {
+        "desc": "在地图界面找锚点 (清波寨-祖泉)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "target": [
+                409,
+                368
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade5": {
+        "desc": "在地图界面找锚点 (清波寨-主寨东南)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "target": [
+                446,
+                626
             ],
             "on_find": "Click"
         },
