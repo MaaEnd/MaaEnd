@@ -3,12 +3,12 @@ package aspectratio
 import (
 	"fmt"
 	"math"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -23,10 +23,7 @@ const (
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
-type AspectRatioChecker struct {
-	mu              sync.Mutex
-	pendingWarnings map[uint64]string
-}
+type AspectRatioChecker struct{}
 
 // OnTaskerTask handles tasker task events
 func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
@@ -88,21 +85,15 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("Got resolution")
 
 	isADBController := false
-	controlType := "unknown"
-	controllerTypeSource := "fallback"
-	if control.CachedControlType != "" {
-		controlType = control.CachedControlType
-		controllerTypeSource = "cache"
-	} else {
-		controllerTypeSource = "controller_info"
-	}
-
-	controlType, controlErr := resolveControllerType(controller, controlType)
+	controlType, controllerTypeSource, controlErr := resolveControllerType(controller)
+	controllerDisplay := displayController(pienv.ControllerName(), controlType)
 	if controlErr != nil {
 		log.Warn().
 			Err(controlErr).
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
+			Str("controller_name", pienv.ControllerName()).
+			Str("controller_type_from_pi", pienv.ControllerType()).
 			Int32("width", width).
 			Int32("height", height).
 			Msg("Failed to detect controller type, falling back to aspect ratio check")
@@ -111,6 +102,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
+			Str("controller_name", pienv.ControllerName()).
 			Str("controller_type", controlType).
 			Str("controller_type_source", controllerTypeSource).
 			Bool("is_adb_controller", isADBController).
@@ -124,6 +116,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
+			Str("controller_name", pienv.ControllerName()).
 			Str("controller_type", controlType).
 			Str("requirement", "exact_resolution").
 			Str("target_resolution", requirement).
@@ -138,6 +131,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			log.Debug().
 				Uint64("task_id", detail.TaskID).
 				Str("entry", detail.Entry).
+				Str("controller_name", pienv.ControllerName()).
 				Str("controller_type", controlType).
 				Str("requirement", "exact_resolution").
 				Str("target_resolution", requirement).
@@ -151,6 +145,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		log.Error().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
+			Str("controller_name", pienv.ControllerName()).
 			Str("controller_type", controlType).
 			Str("requirement", "exact_resolution").
 			Str("target_resolution", requirement).
@@ -161,8 +156,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int("target_height", targetHeight).
 			Str("mode", "adb_exact_resolution").
 			Msg("resolution check failed")
-		warning := i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controlType, int(width), int(height), requirement))
-		c.scheduleWarning(detail.TaskID, warning)
+		c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), requirement)
 		return
 	}
 
@@ -170,6 +164,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
+		Str("controller_name", pienv.ControllerName()).
 		Str("controller_type", controlType).
 		Str("requirement", "aspect_ratio").
 		Str("target_resolution", requirement).
@@ -184,6 +179,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		log.Error().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
+			Str("controller_name", pienv.ControllerName()).
 			Str("controller_type", controlType).
 			Str("requirement", "aspect_ratio").
 			Str("target_resolution", requirement).
@@ -194,14 +190,14 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Float64("target_ratio", targetRatio).
 			Str("mode", "aspect_ratio_only").
 			Msg("resolution check failed")
-		warning := i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controlType, int(width), int(height), requirement))
-		c.scheduleWarning(detail.TaskID, warning)
+		c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), requirement)
 		return
 	}
 
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
+		Str("controller_name", pienv.ControllerName()).
 		Str("controller_type", controlType).
 		Str("requirement", "aspect_ratio").
 		Str("target_resolution", requirement).
@@ -211,69 +207,29 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("resolution check passed")
 }
 
-func (c *AspectRatioChecker) scheduleWarning(taskID uint64, content string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.pendingWarnings == nil {
-		c.pendingWarnings = make(map[uint64]string)
-	}
-	c.pendingWarnings[taskID] = content
-	log.Debug().
-		Uint64("task_id", taskID).
-		Msg("scheduled focus warning for resolution check failure")
+func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, requirement string) {
+	content := i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controllerDisplay, width, height, requirement))
+	fmt.Println(content)
+	tasker.PostStop()
 }
 
-func (c *AspectRatioChecker) consumeWarning(taskID uint64) (string, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.pendingWarnings == nil {
-		return "", false
+func resolveControllerType(controller *maa.Controller) (string, string, error) {
+	if controlType := normalizeControllerType(pienv.ControllerType()); controlType != "" {
+		return controlType, "pi_env", nil
 	}
-	content, ok := c.pendingWarnings[taskID]
-	if ok {
-		delete(c.pendingWarnings, taskID)
-	}
-	return content, ok
-}
-
-func (c *AspectRatioChecker) OnNodePipelineNode(ctx *maa.Context, event maa.EventStatus, detail maa.NodePipelineNodeDetail) {
-	if event != maa.EventStatusStarting {
-		return
+	if controlType := normalizeControllerType(control.CachedControlType); controlType != "" {
+		return controlType, "cache", nil
 	}
 
-	content, ok := c.consumeWarning(detail.TaskID)
-	if !ok {
-		return
+	controlType, err := control.GetControlType(controller)
+	if err != nil {
+		return "unknown", "controller_info", err
 	}
 
-	log.Debug().
-		Uint64("task_id", detail.TaskID).
-		Str("node", detail.Name).
-		Msg("sending focus warning for resolution check failure")
-	maafocus.Print(ctx, content)
-	ctx.GetTasker().PostStop()
-}
-
-func (c *AspectRatioChecker) OnNodeRecognitionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionNodeDetail) {
-}
-
-func (c *AspectRatioChecker) OnNodeActionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionNodeDetail) {
-}
-
-func (c *AspectRatioChecker) OnNodeNextList(_ *maa.Context, _ maa.EventStatus, _ maa.NodeNextListDetail) {
-}
-
-func (c *AspectRatioChecker) OnNodeRecognition(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionDetail) {
-}
-
-func (c *AspectRatioChecker) OnNodeAction(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionDetail) {
-}
-
-func resolveControllerType(controller *maa.Controller, cachedType string) (string, error) {
-	if cachedType != "" {
-		return cachedType, nil
+	if normalized := normalizeControllerType(controlType); normalized != "" {
+		return normalized, "controller_info", nil
 	}
-	return control.GetControlType(controller)
+	return "unknown", "controller_info", nil
 }
 
 // isAspectRatio16x9 checks if the given dimensions are approximately 16:9
@@ -302,12 +258,26 @@ func calculateAspectRatio(width, height int) float64 {
 	return h / w
 }
 
-func buildWarningData(controllerType string, width, height int, requirement string) map[string]any {
+func buildWarningData(controllerDisplay string, width, height int, requirement string) map[string]any {
 	return map[string]any{
-		"ControllerType":    displayControllerType(controllerType),
+		"ControllerType":    controllerDisplay,
 		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
 		"Requirement":       requirement,
 	}
+}
+
+func displayController(name, controllerType string) string {
+	typeLabel := displayControllerType(controllerType)
+	if name == "" {
+		if typeLabel == "" {
+			return "unknown"
+		}
+		return typeLabel
+	}
+	if typeLabel == "" || strings.EqualFold(name, typeLabel) {
+		return name
+	}
+	return fmt.Sprintf("%s (%s)", name, typeLabel)
 }
 
 func displayControllerType(controllerType string) string {
@@ -321,10 +291,21 @@ func displayControllerType(controllerType string) string {
 	}
 }
 
+func normalizeControllerType(controllerType string) string {
+	switch strings.ToLower(strings.TrimSpace(controllerType)) {
+	case "adb":
+		return control.CONTROL_TYPE_ADB
+	case "win32":
+		return control.CONTROL_TYPE_WIN32
+	default:
+		return ""
+	}
+}
+
 func exactResolutionRequirement() string {
-	return fmt.Sprintf("%dx%d", targetWidth, targetHeight)
+	return i18n.T("tasker.aspect_ratio_warning.requirement_exact", targetWidth, targetHeight)
 }
 
 func aspectRatioRequirement() string {
-	return "16:9"
+	return i18n.T("tasker.aspect_ratio_warning.requirement_ratio")
 }
