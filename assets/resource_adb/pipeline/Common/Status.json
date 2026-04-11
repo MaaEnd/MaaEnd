@@ -80,26 +80,5 @@
     "__ADB__": {
         "desc": "这个节点是为了检查当前的资源是否是ADB,不要覆盖",
         "enabled": false
-    },
-    "GoServiceAspectRatioWarningFocus": {
-        "desc": "Go Service 分辨率检查告警输出节点，请勿直接引用",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "DoNothing"
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Starting": {
-                "content": "",
-                "display": [
-                    "log",
-                    "modal"
-                ]
-            }
-        }
     }
 }
