@@ -35,7 +35,7 @@
                 "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
                 "method": 5,
-                "threshold": 0.6,
+                "threshold": 0.5,
                 "order_by": "Score"
             }
         },
@@ -58,7 +58,7 @@
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
-                "threshold": 0.6,
+                "threshold": 0.5,
                 "order_by": "Score"
             }
         },
@@ -81,7 +81,7 @@
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
                 "green_mask": true,
-                "threshold": 0.6,
+                "threshold": 0.5,
                 "order_by": "Score"
             }
         },
