@@ -338,7 +338,6 @@ clickY = startY + (endY - startY) * numerator / denominator
                 "Direction": "right",
                 "ExceedingOverrideEnable": "SomeFallbackNode",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "Direction": "right",
                 "Target": 1,
                 "Quantity": {
                     "Box": [340, 430, 200, 140],

@@ -338,7 +338,6 @@ When `ExceedingOverrideEnable` is **not** set and the target is out of range (in
                 "Direction": "right",
                 "ExceedingOverrideEnable": "SomeFallbackNode",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "Direction": "right",
                 "Target": 1,
                 "Quantity": {
                     "Box": [340, 430, 200, 140],
