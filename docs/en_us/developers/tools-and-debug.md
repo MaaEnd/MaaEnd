@@ -12,7 +12,7 @@ MaaFramework provides a rich set of [development tools](https://github.com/MaaXY
 | [MaaPipelineEditor](https://mpe.codax.site/docs)                           | Visual Pipeline authoring; extensible local features          |
 | [MaaLogAnalyzer](https://github.com/MaaXYZ/MaaLogAnalyzer)                 | Visual log analysis for MaaFramework-based apps               |
 | [MAA-pipeline-generate](https://github.com/Joe-Bao/MAA-pipeline-generate)  | Batch-generate Pipeline templates that differ only slightly   |
-| [Auto-green-background](https://github.com/Joe-Bao/Auto-green-background)  | Automatic green-screen tool                                  |
+| [Auto-green-background](https://github.com/Joe-Bao/Auto-green-background)  | Automatic green-screen tool                                   |
 
 ## Community
 

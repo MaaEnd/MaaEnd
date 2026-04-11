@@ -21,44 +21,44 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 
 ## 判断"这次改动该改哪"
 
-| 改动类型 | 该看哪里 |
-| --- | --- |
-| 界面文案、任务名、选项文案 | `assets/locales/interface/zh_cn.json` |
-| 任务编排、入口节点、UI 选项 | `assets/tasks/**/*.json` |
-| 识别、点击、跳转、等待、流程细节 | `assets/resource/pipeline/**/*.json` |
-| 复杂逻辑（算法、遍历、计算） | `agent/go-service/**` |
+| 改动类型                         | 该看哪里                              |
+| -------------------------------- | ------------------------------------- |
+| 界面文案、任务名、选项文案       | `assets/locales/interface/zh_cn.json` |
+| 任务编排、入口节点、UI 选项      | `assets/tasks/**/*.json`              |
+| 识别、点击、跳转、等待、流程细节 | `assets/resource/pipeline/**/*.json`  |
+| 复杂逻辑（算法、遍历、计算）     | `agent/go-service/**`                 |
 
 ## Pipeline 可复用节点
 
 以下节点可以直接在 Pipeline 中调用，建议所有开发者优先掌握：
 
-| 节点 | 说明 | 文档 |
-| --- | --- | --- |
-| 通用按钮 | 白色/黄色确认、取消、关闭、传送等 | [common-buttons.md](./common-buttons.md) |
-| SceneManager | 万能跳转：从任意界面自动导航到目标场景 | [scene-manager.md](./scene-manager.md) |
+| 节点         | 说明                                   | 文档                                     |
+| ------------ | -------------------------------------- | ---------------------------------------- |
+| 通用按钮     | 白色/黄色确认、取消、关闭、传送等      | [common-buttons.md](./common-buttons.md) |
+| SceneManager | 万能跳转：从任意界面自动导航到目标场景 | [scene-manager.md](./scene-manager.md)   |
 
 ## Custom 可复用节点
 
 以下节点基于 Go/C++ 实现，具有高业务化特点。根据[编码规范](./coding-standards.md#go-service-规范)，不应在非必要情况下使用。
 
-| 节点 | 说明 | 文档 |
-| --- | --- | --- |
-| SubTask / ClearHitCount / ExpressionRecognition | 子任务调度、计数清理、表达式识别 | [custom.md](./custom.md) |
-| AutoFight | 战斗内自动操作 | [components/auto-fight.md](./components/auto-fight.md) |
-| CharacterController | 角色视角旋转、移动、朝向目标 | [components/character-controller.md](./components/character-controller.md) |
-| QuantizedSliding | 离散数量滑条调节 | [components/quantized-sliding.md](./components/quantized-sliding.md) |
-| MapLocator | AI + CV 小地图定位 | [components/map-locator.md](./components/map-locator.md) |
-| MapTracker | 小地图追踪与路径移动 | [components/map-tracker.md](./components/map-tracker.md) |
-| MapNavigator | 高精度自动导航 + GUI 录制工具 | [components/map-navigator.md](./components/map-navigator.md) |
+| 节点                                            | 说明                             | 文档                                                                       |
+| ----------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------- |
+| SubTask / ClearHitCount / ExpressionRecognition | 子任务调度、计数清理、表达式识别 | [custom.md](./custom.md)                                                   |
+| AutoFight                                       | 战斗内自动操作                   | [components/auto-fight.md](./components/auto-fight.md)                     |
+| CharacterController                             | 角色视角旋转、移动、朝向目标     | [components/character-controller.md](./components/character-controller.md) |
+| QuantizedSliding                                | 离散数量滑条调节                 | [components/quantized-sliding.md](./components/quantized-sliding.md)       |
+| MapLocator                                      | AI + CV 小地图定位               | [components/map-locator.md](./components/map-locator.md)                   |
+| MapTracker                                      | 小地图追踪与路径移动             | [components/map-tracker.md](./components/map-tracker.md)                   |
+| MapNavigator                                    | 高精度自动导航 + GUI 录制工具    | [components/map-navigator.md](./components/map-navigator.md)               |
 
 ## 任务维护文档
 
 以下任务有专门的维护文档。**修改这些任务前必须先阅读对应文档**：
 
-| 任务 | 文档 |
-| --- | --- |
-| AutoStockpile 自动囤货 | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
-| DijiangRewards 基建任务 | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
+| 任务                      | 文档                                                                     |
+| ------------------------- | ------------------------------------------------------------------------ |
+| AutoStockpile 自动囤货    | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md)   |
+| DijiangRewards 基建任务   | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
 | CreditShopping 信用点商店 | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
 
 ## 外部文档

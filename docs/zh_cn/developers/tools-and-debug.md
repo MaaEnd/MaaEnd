@@ -14,7 +14,6 @@ MaaFramework 提供了丰富的[开发工具](https://github.com/MaaXYZ/MaaFrame
 | [MAA-pipeline-generate](https://github.com/Joe-Bao/MAA-pipeline-generate)  | 批量生成仅有细微差异的 Pipeline 模板                        |
 | [Auto-green-background](https://github.com/Joe-Bao/Auto-green-background)  | 自动绿幕工具                                                |
 
-
 ## 交流
 
 开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）
