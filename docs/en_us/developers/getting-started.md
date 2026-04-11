@@ -67,11 +67,11 @@ Recognition needs template images. Capture them with the [dev tools](./tools-and
 
 When capturing, avoid HDR, night mode, and overlays such as NVIDIA filters or game++—they skew colors and break recognition.
 
-<img width="546" height="299" alt="screenshot" src="https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8" />
+![screenshot](https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8)
 
 Background clutter hurts match quality; an automatic green-screen tool helps. (Doing green-screen by hand is slow and inaccurate.)
 
-<img width="1825" height="764" alt="green background" src="https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3" />
+![green background](https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3)
 
 Save templates under `assets/resource/image/SellProduct/`.
 
@@ -216,12 +216,12 @@ Load resources in a dev tool, connect an emulator or PC client, and run your nod
 
 This walkthrough uses **Maa Pipeline Support**: open **Admin mode** in the control panel and attach the window.
 
-<img width="581" height="1682" alt="admin" src="https://github.com/user-attachments/assets/9d86ae89-0985-4606-bfa6-d4ec96dbee6f" />
+![admin](https://github.com/user-attachments/assets/9d86ae89-0985-4606-bfa6-d4ec96dbee6f)
 
 Click **Launch** on the Pipeline task to run and parse the flow. Logs show which nodes ran and which failed.
 
-<img width="1789" height="629" alt="launch" src="https://github.com/user-attachments/assets/6392310c-756c-4c33-b54a-9ab5ff9f4ad2" />
-<img width="1960" height="1025" alt="debug panel" src="https://github.com/user-attachments/assets/653c5314-f6ba-4ffc-91a5-739ab15382dc" />
+![launch](https://github.com/user-attachments/assets/6392310c-756c-4c33-b54a-9ab5ff9f4ad2)
+![debug panel](https://github.com/user-attachments/assets/653c5314-f6ba-4ffc-91a5-739ab15382dc)
 
 Iterate from there.
 

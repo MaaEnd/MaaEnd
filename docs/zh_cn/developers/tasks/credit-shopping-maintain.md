@@ -85,7 +85,7 @@
 
 ### 图 1：购买识别链
 
-<img width="391" height="479" alt="image" src="https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f" />
+![image](https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f)
 
 按图片顺序理解即可：
 
@@ -105,7 +105,7 @@
 
 ### 图 2：买不起时自动获取信用点识别链
 
-<img width="273" height="367" alt="image" src="https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7" />
+![image](https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7)
 
 这条链和购买识别链的读法完全一样，只是第三步不同：
 

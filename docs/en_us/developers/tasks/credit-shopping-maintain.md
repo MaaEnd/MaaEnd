@@ -85,7 +85,7 @@ Color convention:
 
 ### Figure 1: Purchase recognition chain
 
-<img width="391" height="479" alt="image" src="https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f" />
+![image](https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f)
 
 Follow the image order:
 
@@ -105,7 +105,7 @@ one item, not sold out, affordable, wanted item, discount OK -> buy!
 
 ### Figure 2: Auto get credit when cannot afford
 
-<img width="273" height="367" alt="image" src="https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7" />
+![image](https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7)
 
 This chain reads like the purchase chain except step 3:
 
