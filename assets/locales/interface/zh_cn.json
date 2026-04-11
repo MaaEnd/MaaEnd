@@ -525,6 +525,8 @@
     "controller.Win32-Front.description": "前台控制。需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
+    "controller.Wlroots.label": "Linux端-Wlroots",
+    "controller.Wlroots.description": "适用于基于 wlroots 的 Wayland 合成器（如 Sway）",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_cn.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_cn.md",
     "operator.Perlica": "佩丽卡",

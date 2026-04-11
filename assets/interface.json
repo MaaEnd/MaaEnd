@@ -75,6 +75,15 @@
             "playcover": {
                 "uuid": "maa.playcover"
             }
+        },
+        {
+            "name": "Wlroots",
+            "label": "$controller.Wlroots.label",
+            "description": "$controller.Wlroots.description",
+            "type": "WlRoots",
+            "attach_resource_path": [
+                "./resource_wlroots"
+            ]
         }
     ],
     "resource": [

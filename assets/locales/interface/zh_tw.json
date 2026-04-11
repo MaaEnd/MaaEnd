@@ -364,6 +364,8 @@
     "controller.Win32-Front.description": "前台控制。需要遊戲視窗保持在最前且不被遮擋，會完全搶占滑鼠",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支援安卓模擬器及實體安卓裝置",
+    "controller.Wlroots.label": "Linux端-Wlroots",
+    "controller.Wlroots.description": "適用於基於 wlroots 的 Wayland 合成器（如 Sway）",
     "task.ItemTransfer.label": "🐌庫存轉移",
     "task.ItemTransfer.description": "將指定物品在不同地區之間批量轉移。請在帝江號<span style=\"color: #C62828\">會客室傳送點</span>處將<span style=\"color: #C62828\">視角抬至最高</span>，<span style=\"color: #C62828\">使用天花板為背景</span>。",
     "task.ItemTransfer.option.PreClearBag.description": "在轉移開始前點擊「一鍵存放」，不指定一鍵存放的倉庫",

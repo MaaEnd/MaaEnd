@@ -405,7 +405,8 @@
                         "Win32",
                         "MacOS",
                         "PlayCover",
-                        "Gamepad"
+                        "Gamepad",
+                        "WlRoots"
                     ]
                 },
                 "display_short_side": {

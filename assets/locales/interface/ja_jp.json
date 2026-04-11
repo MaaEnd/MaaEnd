@@ -525,6 +525,8 @@
     "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
+    "controller.Wlroots.label": "Linux-Wlroots",
+    "controller.Wlroots.description": "wlroots ベースの Wayland コンポジター（例: Sway）向けです。",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ja_jp.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ja_jp.md",
     "operator.Perlica": "ペリカ",
