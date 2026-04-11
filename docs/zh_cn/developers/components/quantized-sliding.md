@@ -14,6 +14,7 @@
 - 包内注册：`agent/go-service/bettersliding/register.go`
 - go-service 总注册入口：`agent/go-service/register.go`
 - 公共 Pipeline：`assets/resource/pipeline/BetterSliding/Main.json` 与 `Helper.json`
+- 测试 Pipeline：`assets/resource/pipeline/BetterSliding/Test.json`
 - 现有接入示例：`assets/resource/pipeline/AutoStockpile/Purchase.json` 中的 `AutoStockpileSwipeSpecificQuantity`
 
 其中 `agent/go-service/bettersliding/` 已按职责拆分为多个文件：
@@ -28,6 +29,39 @@
 | `ocr.go`       | typed-first 的识别框/数量读取辅助逻辑      |
 | `normalize.go` | 按钮参数归一化与基础计算辅助               |
 | `register.go`  | 向 go-service 注册 `BetterSliding` 动作    |
+
+## 测试 Pipeline：`Test.json`
+
+`assets/resource/pipeline/BetterSliding/Test.json` 是 `BetterSliding` 的手动回归测试任务集合。修改 `agent/go-service/bettersliding/`、`BetterSliding/Main.json`、`Helper.json` 或相关参数解析逻辑后，至少应手动跑一次该测试任务。
+
+当前入口节点为 `BetterSlidingTest`。文件中的说明要求在**据点管理**执行，并保证当前界面的可交易数量大致在 **1k ~ 3k**，这样既能覆盖普通目标值，也能覆盖按百分比和越界分支。
+
+它的大致结构如下：
+
+- `BetterSlidingTest`：测试入口；
+- `__BS-T-2`：先将滑条向左归位，尽量把每个用例的起始状态统一；
+- `__BS-T-1`：从统一起点分发到各个测试用例；
+- `__BS-T-3` / `__BS-T-4` / `__BS-T-5`：用于标记退出、越界路由成功、越界路由失败等结果。
+
+当前内置的测试场景包括：
+
+| 节点     | 目的                                                                             |
+| -------- | -------------------------------------------------------------------------------- |
+| `__BS-1` | 普通 Value 模式，目标值 `325`                                                    |
+| `__BS-2` | `TargetReverse: true`，验证“保留 325”这类反向目标                                |
+| `__BS-3` | `TargetType: "Percentage"`，验证按 `10%` 计算目标                                |
+| `__BS-4` | `Percentage + TargetReverse`，验证“保留 10%”                                     |
+| `__BS-5` | `FinishAfterPreciseClick: true`，验证精确点击后直接结束                          |
+| `__BS-6` | 超大目标值 `10000` + `ExceedingOverrideEnable`，验证越界时是否正确路由到兜底节点 |
+
+这份 `Test.json` 主要用于验证以下几类能力是否仍然正常：
+
+- 滑条归位、拖到最大值、再次识别终点这一整套基础流程；
+- Value / Percentage / Reverse 三类目标解释逻辑；
+- 精确点击后继续微调，或直接结束这两种收尾路径；
+- 目标超出上限时，`ExceedingOverrideEnable` 的分支路由是否符合预期。
+
+如果你给 `BetterSliding` 增加了新参数语义或新的分支行为，建议同步在 `Test.json` 中补一个对应场景，并在此文档中补充说明，避免测试覆盖与实现演进脱节。
 
 ## 执行模式
 

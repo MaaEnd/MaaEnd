@@ -14,6 +14,7 @@ The current implementation is located at:
 - Package-local registration: `agent/go-service/bettersliding/register.go`
 - go-service global registration entry: `agent/go-service/register.go`
 - Shared Pipeline: `assets/resource/pipeline/BetterSliding/Main.json` and `Helper.json`
+- Test Pipeline: `assets/resource/pipeline/BetterSliding/Test.json`
 - Existing integration example: `AutoStockpileSwipeSpecificQuantity` in `assets/resource/pipeline/AutoStockpile/Purchase.json`
 
 `agent/go-service/bettersliding/` is now split by responsibility:
@@ -28,6 +29,39 @@ The current implementation is located at:
 | `ocr.go`       | Typed-first recognition helpers for hit box and quantity reads         |
 | `normalize.go` | Button parameter normalization and basic calculation helpers           |
 | `register.go`  | Registers the `BetterSliding` action into go-service                   |
+
+## Test Pipeline: `Test.json`
+
+`assets/resource/pipeline/BetterSliding/Test.json` is the manual regression test suite for `BetterSliding`. After changing `agent/go-service/bettersliding/`, `BetterSliding/Main.json`, `Helper.json`, or related parameter-parsing logic, you should run this test task at least once manually.
+
+Its current entry node is `BetterSlidingTest`. The file itself says to run it in the **Outpost management** screen, with the currently tradable quantity roughly in the **1k to 3k** range. That range is large enough to exercise normal targets, percentage-based targets, and out-of-range fallback behavior.
+
+Its high-level structure is:
+
+- `BetterSlidingTest`: test entry;
+- `__BS-T-2`: reset step that drags the slider back to the left, so each case starts from a more consistent state;
+- `__BS-T-1`: dispatcher that fans out from the reset state into each test case;
+- `__BS-T-3` / `__BS-T-4` / `__BS-T-5`: result markers for exit, expected out-of-range routing success, and unexpected routing failure.
+
+The built-in test scenarios currently cover:
+
+| Node     | Purpose                                                                                                                    |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `__BS-1` | Normal Value-mode target with `Target = 325`                                                                               |
+| `__BS-2` | `TargetReverse: true`, validating reverse-style targets such as “keep 325”                                                 |
+| `__BS-3` | `TargetType: "Percentage"`, validating a `10%` target                                                                      |
+| `__BS-4` | `Percentage + TargetReverse`, validating “keep 10%”                                                                        |
+| `__BS-5` | `FinishAfterPreciseClick: true`, validating the path that ends right after the precise click                               |
+| `__BS-6` | Oversized target `10000` + `ExceedingOverrideEnable`, validating fallback routing when the resolved target is out of range |
+
+In practice, this `Test.json` checks that the following behaviors still work together:
+
+- the base flow of reset, swipe-to-max, and end-position recognition;
+- the three target interpretation paths: Value, Percentage, and Reverse;
+- both completion paths: fine-tune after the precise click, or finish immediately;
+- expected branch routing through `ExceedingOverrideEnable` when the target exceeds the reachable range.
+
+If you add new parameter semantics or new branching behavior to `BetterSliding`, add a matching case to `Test.json` and extend this section as well, so the documentation and regression coverage stay aligned.
 
 ## Execution modes
 
