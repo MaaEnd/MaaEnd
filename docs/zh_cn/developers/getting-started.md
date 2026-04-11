@@ -304,9 +304,9 @@ git push origin feat/auto-sell-items
 
 ---
 
+## 手动配置指南
+
 <details>
-<summary>手动配置指南</summary>
-<br>
 
 1. 完整克隆项目及子仓库。
 

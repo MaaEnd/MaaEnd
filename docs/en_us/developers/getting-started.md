@@ -305,9 +305,9 @@ Congratulations on shipping your first task!
 
 ---
 
+## Manual setup guide
+
 <details>
-<summary>Manual setup guide</summary>
-<br>
 
 1. Fully clone the repo and submodules.
 
