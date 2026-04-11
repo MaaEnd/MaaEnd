@@ -149,20 +149,19 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 	}
 
 	a.maxQuantity = maxQuantity
-	a.OriginalTarget = a.Target
 
-	resolved, resolveErr := resolveTarget(a.Target, a.TargetType, a.TargetReverse, a.maxQuantity)
+	resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxQuantity)
 	if resolveErr != nil {
 		a.logger.Error().
 			Err(resolveErr).
-			Int("target", a.Target).
+			Int("target", a.OriginalTarget).
 			Str("target_type", a.TargetType).
 			Bool("target_reverse", a.TargetReverse).
 			Msg("failed to resolve target")
 		return false
 	}
 
-	if resolved != a.Target {
+	if resolved != a.OriginalTarget {
 		a.logger.Info().
 			Int("original_target", a.OriginalTarget).
 			Int("resolved_target", resolved).
@@ -172,6 +171,7 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 			Msg("target resolved")
 	}
 	a.Target = resolved
+	a.runtimeTargetResolved = true
 
 	a.exceeded = false
 	outOfRange := a.Target > a.maxQuantity
@@ -560,6 +560,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.endBox = nil
 	a.maxQuantity = 0
 	a.exceeded = false
+	a.runtimeTargetResolved = false
 }
 
 func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {

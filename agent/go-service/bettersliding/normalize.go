@@ -205,23 +205,16 @@ func resolveTarget(target int, targetType string, targetReverse bool, maxQuantit
 	}
 }
 
-// isButtonParamAbsent returns true when the button parameter is nil or an empty string.
-func isButtonParamAbsent(btn any) bool {
-	if btn == nil {
-		return true
-	}
-	if s, ok := btn.(string); ok {
-		return strings.TrimSpace(s) == ""
-	}
-
-	return false
-}
-
-// isSwipeOnlyMode returns true when the parameter set indicates swipe-only operation:
-// no Quantity.Box, no Target, and no IncreaseButton/DecreaseButton.
 func isSwipeOnlyMode(params betterSlidingParam) bool {
-	return len(params.Quantity.Box) == 0 &&
-		params.Target == 0 &&
-		isButtonParamAbsent(params.IncreaseButton) &&
-		isButtonParamAbsent(params.DecreaseButton)
+	return !params.presence.Target &&
+		!params.presence.Quantity &&
+		!params.presence.QuantityFilter &&
+		!params.presence.GreenMask &&
+		!params.presence.IncreaseButton &&
+		!params.presence.DecreaseButton &&
+		!params.presence.ExceedingOverrideEnable &&
+		!params.presence.TargetType &&
+		!params.presence.TargetReverse &&
+		!params.presence.CenterPointOffset &&
+		!params.presence.ClampTargetToMax
 }

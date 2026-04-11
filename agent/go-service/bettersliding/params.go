@@ -26,11 +26,47 @@ type parsedBetterSlidingParams struct {
 	swipeOnlyMode           bool
 }
 
+func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresence, error) {
+	var rawKeys map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(rawParam), &rawKeys); err != nil {
+		return betterSlidingParamPresence{}, err
+	}
+
+	_, quantityPresent := rawKeys["Quantity"]
+
+	return betterSlidingParamPresence{
+		Target:                  hasNonNullRawKey(rawKeys, "Target"),
+		Quantity:                quantityPresent,
+		QuantityFilter:          hasNonNullRawKey(rawKeys, "QuantityFilter"),
+		GreenMask:               hasNonNullRawKey(rawKeys, "GreenMask"),
+		Direction:               hasNonNullRawKey(rawKeys, "Direction"),
+		IncreaseButton:          hasNonNullRawKey(rawKeys, "IncreaseButton"),
+		DecreaseButton:          hasNonNullRawKey(rawKeys, "DecreaseButton"),
+		SwipeButton:             hasNonNullRawKey(rawKeys, "SwipeButton"),
+		ExceedingOverrideEnable: hasNonNullRawKey(rawKeys, "ExceedingOverrideEnable"),
+		TargetType:              hasNonNullRawKey(rawKeys, "TargetType"),
+		TargetReverse:           hasNonNullRawKey(rawKeys, "TargetReverse"),
+		CenterPointOffset:       hasNonNullRawKey(rawKeys, "CenterPointOffset"),
+		ClampTargetToMax:        hasNonNullRawKey(rawKeys, "ClampTargetToMax"),
+	}, nil
+}
+
+func hasNonNullRawKey(rawKeys map[string]json.RawMessage, key string) bool {
+	raw, ok := rawKeys[key]
+	return ok && len(raw) > 0 && string(raw) != "null"
+}
+
 func parseBetterSlidingParam(customActionParam string) (betterSlidingParam, error) {
+	presence, err := detectBetterSlidingParamPresence(customActionParam)
+	if err != nil {
+		return betterSlidingParam{}, err
+	}
+
 	var params betterSlidingParam
 	if err := json.Unmarshal([]byte(customActionParam), &params); err != nil {
 		return betterSlidingParam{}, err
 	}
+	params.presence = presence
 
 	return params, nil
 }
@@ -162,7 +198,10 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 }
 
 func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams) {
-	a.Target = params.target
+	a.OriginalTarget = params.target
+	if !a.runtimeTargetResolved {
+		a.Target = params.target
+	}
 	a.QuantityBox = params.quantityBox
 	a.QuantityFilter = params.quantityFilter
 	a.QuantityOnlyRec = params.quantityOnlyRec
@@ -181,7 +220,7 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 
 func (a *BetterSlidingAction) logParsedActionParams() {
 	parseLog := a.logger.Info().
-		Int("target", a.Target).
+		Int("target", a.OriginalTarget).
 		Ints("quantity_box", a.QuantityBox).
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
@@ -196,6 +235,10 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Str("target_type", a.TargetType).
 		Bool("target_reverse", a.TargetReverse).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
+
+	if a.runtimeTargetResolved {
+		parseLog = parseLog.Int("runtime_target", a.Target)
+	}
 
 	if a.QuantityFilter != nil {
 		parseLog = parseLog.

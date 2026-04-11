@@ -6,27 +6,36 @@ import (
 )
 
 type betterSlidingParam struct {
-	Target                  int                  `json:"Target"`
-	Quantity                quantityParam        `json:"Quantity"`
-	QuantityFilter          *quantityFilterParam `json:"QuantityFilter"`
-	GreenMask               bool                 `json:"GreenMask"`
-	Direction               string               `json:"Direction"`
-	IncreaseButton          any                  `json:"IncreaseButton"`
-	DecreaseButton          any                  `json:"DecreaseButton"`
-	SwipeButton             string               `json:"SwipeButton"`
-	ExceedingOverrideEnable string               `json:"ExceedingOverrideEnable"`
-	TargetType              string               `json:"TargetType"`
-	TargetReverse           bool                 `json:"TargetReverse"`
-	CenterPointOffset       any                  `json:"CenterPointOffset"`
-	ClampTargetToMax        bool                 `json:"ClampTargetToMax"`
+	Target                  int                        `json:"Target"`
+	Quantity                quantityParam              `json:"Quantity"`
+	QuantityFilter          *quantityFilterParam       `json:"QuantityFilter"`
+	GreenMask               bool                       `json:"GreenMask"`
+	Direction               string                     `json:"Direction"`
+	IncreaseButton          any                        `json:"IncreaseButton"`
+	DecreaseButton          any                        `json:"DecreaseButton"`
+	SwipeButton             string                     `json:"SwipeButton"`
+	ExceedingOverrideEnable string                     `json:"ExceedingOverrideEnable"`
+	TargetType              string                     `json:"TargetType"`
+	TargetReverse           bool                       `json:"TargetReverse"`
+	CenterPointOffset       any                        `json:"CenterPointOffset"`
+	ClampTargetToMax        bool                       `json:"ClampTargetToMax"`
+	presence                betterSlidingParamPresence `json:"-"`
 }
 
-// attachParam holds parameters read from the caller node's attach block
-// via mergeAttachParams. Pointer types distinguish "absent" from "zero value".
-type attachParam struct {
-	Target        *int    `json:"Target"`
-	TargetType    *string `json:"TargetType"`
-	TargetReverse *bool   `json:"TargetReverse"`
+type betterSlidingParamPresence struct {
+	Target                  bool
+	Quantity                bool
+	QuantityFilter          bool
+	GreenMask               bool
+	Direction               bool
+	IncreaseButton          bool
+	DecreaseButton          bool
+	SwipeButton             bool
+	ExceedingOverrideEnable bool
+	TargetType              bool
+	TargetReverse           bool
+	CenterPointOffset       bool
+	ClampTargetToMax        bool
 }
 
 type quantityParam struct {
@@ -78,11 +87,12 @@ type BetterSlidingAction struct {
 	SwipeOnlyMode           bool
 	OriginalTarget          int
 
-	startBox    []int
-	endBox      []int
-	maxQuantity int
-	exceeded    bool
-	logger      zerolog.Logger
+	startBox              []int
+	endBox                []int
+	maxQuantity           int
+	exceeded              bool
+	runtimeTargetResolved bool
+	logger                zerolog.Logger
 }
 
 type buttonTarget struct {
