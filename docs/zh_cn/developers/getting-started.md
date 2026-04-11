@@ -64,7 +64,7 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 - 推荐 **Maa Pipeline Support**（VS Code 插件）——可以直接截图、框选 ROI、取色。
 - 也可以使用 [MaaPipelineEditor](https://mpe.codax.site/docs) 可视化构建 Pipeline。
 - 所有图片和坐标以 **1280×720** 为基准，下图中我们使用 **Maa Pipeline Support**，无需自己切换游戏分辨率，framework 会自动改变图片尺寸。
-截图时请注意，不要开HDR，黑夜模式，Nvidia或者游戏++等滤镜，颜色会干扰识别。
+截图时请注意，不要开启 HDR、黑夜模式，以及 Nvidia 或游戏++等滤镜，否则颜色会干扰识别。
 
 <img width="546" height="299" alt="screenshot" src="https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8" />
 
