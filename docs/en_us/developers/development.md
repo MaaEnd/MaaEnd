@@ -2,7 +2,7 @@
 
 **MaaEnd** is developed based on [MaaFramework](https://github.com/MaaXYZ/MaaFramework), adopting [Solution 2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) (JSON + Custom Logic Extension Recommendation).
 Our main workflow uses [Pipeline JSON Low-Code](/assets/resource/pipeline), and complex logic is implemented via coding in [go-service](/agent/go-service).
-If you intend to join the development of MaaEnd, you can first read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated, so please refer to the documentation as the primary source.
+If you intend to join the development of MaaEnd, start with [Getting started](./getting-started.md) and the [developer documentation index](./README.md), then read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated, so please refer to the documentation as the primary source.
 
 ## Local Deployment
 
@@ -130,6 +130,10 @@ MaaEnd uses `maa-tools` to provide node testing, which is used to verify whether
 The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
 
 - [AutoStockpile Maintenance Documentation](./tasks/auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
+- [DijiangRewards Maintenance Documentation](./tasks/dijiang-rewards-maintain.md): Base facility task flow, stage responsibilities, and how `interface` options override Pipeline.
+- [CreditShopping Maintenance Documentation](./tasks/credit-shopping-maintain.md): Credit shop purchase priority, credit top-up linkage, refresh strategy, and `interface` overrides.
+
+For consolidated coding rules and pre-submit checks, see [Coding standards](./coding-standards.md). For tools and debugging workflow, see [Tools & debugging](./tools-and-debug.md).
 
 ## Code Specifications
 
