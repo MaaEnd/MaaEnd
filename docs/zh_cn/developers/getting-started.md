@@ -41,11 +41,11 @@ git checkout -b feat/auto-sell-items
 
 先看一遍[组件指南](./components-guide.md)了解项目结构，确认你该改哪里。
 
-对于「售卖物品」，在 `assets/resource/pipeline/` 下新建目录 `SellItems/`，然后开始写节点。
+对于「售卖物品」，按任务名 **SellProduct** 组织 Pipeline：入口写在 `assets/resource/pipeline/SellProduct.json`，流程复杂时可在同目录下建子目录 `SellProduct/` 拆成多个 JSON（与 MaaEnd 仓库里现有「售卖产品」任务一致），然后开始写节点。
 
 ### 命名
 
-节点名使用 PascalCase，以任务名为前缀：`SellItemsOpenBag`、`SellItemsSelectItem`、`SellItemsConfirmSell`。
+节点名使用 PascalCase，并与任务前缀一致，例如：`SellProductOpenBag`、`SellProductSelectItem`、`SellProductConfirmSell`。
 
 ### 像写状态机一样思考
 
@@ -64,17 +64,15 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 - 推荐 **Maa Pipeline Support**（VS Code 插件）——可以直接截图、框选 ROI、取色。
 - 也可以使用 [MaaPipelineEditor](https://mpe.codax.site/docs) 可视化构建 Pipeline。
 - 所有图片和坐标以 **1280×720** 为基准，下图中我们使用 **Maa Pipeline Support**，无需自己切换游戏分辨率，framework 会自动改变图片尺寸。
-截图时请注意，不要开启 HDR、黑夜模式，以及 Nvidia 或游戏++等滤镜，否则颜色会干扰识别。
+  截图时请注意，不要开启 HDR、黑夜模式，以及 Nvidia 或游戏++等滤镜，否则颜色会干扰识别。
 
 <img width="546" height="299" alt="screenshot" src="https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8" />
-
 
 可以看到我们的图片中有背景干扰，这会降低匹配效率，这时候我们可以用自动绿幕工具来解决这个问题。（不推荐手动来做绿幕，不仅很慢，而且不准确）
 
 <img width="1825" height="764" alt="greenbackgournd" src="https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3" />
 
-
-将截好的模板放到 `assets/resource/image/SellItems/` 下。
+将截好的模板放到 `assets/resource/image/SellProduct/` 下。
 
 当有了图片后，我们可以开始编写第一个节点。下面用 **TemplateMatch** 在主界面找到「地区建设」入口，命中后 **Click** 进入；`template` 填你放到 `assets/resource/image/` 下的相对路径，`roi` 用插件框选缩小搜索范围（需按你的模板与界面微调）；若用绿幕处理了模板，可加上 `green_mask`。
 
@@ -85,7 +83,7 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SellItems/RegionalDevelopmentEntry.png",
+                "template": "SellProduct/RegionalDevelopmentEntry.png",
                 "roi": [
                     400,
                     200,
@@ -219,12 +217,10 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 
 <img width="581" height="1682" alt="admin" src="https://github.com/user-attachments/assets/9d86ae89-0985-4606-bfa6-d4ec96dbee6f" />
 
-
 然后点击 Pipeline 任务上的 Launch，会自动开始执行并解析任务。执行了哪些节点、哪个节点报错，可以通过日志查看。
 
 <img width="1789" height="629" alt="launch" src="https://github.com/user-attachments/assets/6392310c-756c-4c33-b54a-9ab5ff9f4ad2" />
 <img width="1960" height="1025" alt="debug panel" src="https://github.com/user-attachments/assets/653c5314-f6ba-4ffc-91a5-739ab15382dc" />
-
 
 接下来根据反馈调试即可。
 
