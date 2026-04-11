@@ -46,11 +46,11 @@ Common `next` hooks:
 
 ### OCR: full strings in `expected`
 
-Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. For fragments or hand-written regex, use `// @i18n-skip`. See [OCR & i18n](#ocr-i18n) below.
+Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. For fragments or hand-written regex, use `// @i18n-skip`. See [OCR & i18n](#ocr--i18n) below.
 
 ### Color matching: prefer HSV / grayscale
 
-Different GPUs render slightly differently; raw RGB is unstable across devices. See [Color matching: HSV first](#color-matching-hsv) under Resource standards.
+Different GPUs render slightly differently; raw RGB is unstable across devices. See [Color matching: HSV first](#color-matching:-hsv-first) under Resource standards.
 
 ### Reuse before adding
 
@@ -141,8 +141,6 @@ python tools/build_and_install.py --cpp-algo
 
 All images and coordinates (`roi`, `target`, `box`) use **1280×720** as the design resolution. MaaFramework scales at runtime. Use dev tools for screenshots and coordinate conversion.
 
-<a id="color-matching-hsv"></a>
-
 ### Color matching: HSV first
 
 Vendor GPUs (NVIDIA, AMD, Intel) differ; raw RGB is unstable across devices. Prefer fixing hue in HSV and tuning saturation/brightness.
@@ -154,8 +152,6 @@ Vendor GPUs (NVIDIA, AMD, Intel) differ; raw RGB is unstable across devices. Pre
 ### Linked asset folder
 
 The asset tree is linked: editing `assets` is equivalent to editing what ships under `install` without extra copy steps.**`interface.json` is copied**—sync manually or run `build_and_install.py`.
-
-<a id="ocr-i18n"></a>
 
 ## OCR & i18n
 
