@@ -296,5 +296,5 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 - 通用按钮文档：`docs/zh_cn/developers/common-buttons.md`
 - SceneManager 文档：`docs/zh_cn/developers/scene-manager.md`
 - Custom 节点文档：`docs/zh_cn/developers/custom.md`
-- 开发手册：`docs/zh_cn/developers/development.md`
+- 开发手册：`docs/zh_cn/developers/README.md`
 - 节点测试：`docs/zh_cn/developers/node-testing.md`
