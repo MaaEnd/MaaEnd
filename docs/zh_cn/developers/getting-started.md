@@ -137,7 +137,7 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 }
 ```
 
-上述 `all_of` 中的 `InRegionalDevelopment` 为项目中已定义的识别节点，用于确认当前在地区建设界面。
+上述 `all_of` 中的 `InRegionalDevelopment` 为项目中已定义的识别节点，用于确认当前在地区建设主界面。下方示例展示了一个用于识别地区建设二级界面的节点 `InRegionalDevelopmentView2`，它通过 OCR 识别顶部功能名称来确认界面状态。
 
 ```json
 {

@@ -138,7 +138,7 @@ The next node, `SellProductLoop`, should **recognize** that you are in Regional 
 }
 ```
 
-`InRegionalDevelopment` is a shared recognition node shipped with the project.
+`InRegionalDevelopment` is a shared recognition node shipped with the project for confirming the Regional Development main screen. The example below shows `InRegionalDevelopmentView2`, which recognizes the Regional Development secondary screen by OCR'ing the top function names.
 
 ```json
 {
