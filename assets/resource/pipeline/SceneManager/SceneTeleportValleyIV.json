@@ -1,5 +1,5 @@
 {
-    "__ScenePrivateMapValleyIVEnterVallyIVTheHub1": {
+    "__ScenePrivateMapValleyIVEnterValleyIVTheHub1": {
         "desc": "在地图界面找锚点 (枢纽区-旧供水设施东侧)",
         "recognition": "And",
         "all_of": [
@@ -20,12 +20,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapValleyIVEnterVallyIVTheHub2": {
+    "__ScenePrivateMapValleyIVEnterValleyIVTheHub2": {
         "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
         "recognition": "And",
         "all_of": [
@@ -46,6 +47,7 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"

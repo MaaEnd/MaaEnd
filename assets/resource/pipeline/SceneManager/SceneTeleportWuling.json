@@ -799,12 +799,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade0": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade0": {
         "desc": "在地图界面找锚点 (清波寨-顶天梁)",
         "recognition": "And",
         "all_of": [
@@ -825,12 +826,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade1": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade1": {
         "desc": "在地图界面找锚点 (清波寨-栈桥道)",
         "recognition": "And",
         "all_of": [
@@ -851,12 +853,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade2": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade2": {
         "desc": "在地图界面找锚点 (清波寨-主寨西南)",
         "recognition": "And",
         "all_of": [
@@ -877,12 +880,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade4": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade3": {
         "desc": "在地图界面找锚点 (清波寨-祖泉)",
         "recognition": "And",
         "all_of": [
@@ -903,12 +907,13 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingQingboStockade5": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade4": {
         "desc": "在地图界面找锚点 (清波寨-主寨东南)",
         "recognition": "And",
         "all_of": [
@@ -929,6 +934,7 @@
             "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
