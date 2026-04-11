@@ -12,7 +12,9 @@
                 "DailyEventRewards",
                 "DailyProtocolPassRewards"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -40,7 +42,8 @@
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ]
         },
         "DailyEventRewards": {
@@ -67,7 +70,8 @@
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ]
         },
         "DailyTaskRewards": {
@@ -99,7 +103,8 @@
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ]
         },
         "DailyClaimDeliveryJobsRewards": {
@@ -148,7 +153,8 @@
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ]
         },
         "DailyTaskUpgradeWeapon": {

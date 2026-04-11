@@ -18,9 +18,12 @@
             ],
             "controller": [
                 "Win32-Window",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
-            "group": ["realtime"]
+            "group": [
+                "realtime"
+            ]
         }
     ],
     "option": {

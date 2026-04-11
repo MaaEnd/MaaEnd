@@ -6,7 +6,8 @@
             "entry": "AutoEcoFarmMain",
             "description": "$task.AutoEcoFarm.description",
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
             "option": [
                 "SelectFarm",

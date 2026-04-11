@@ -7,7 +7,8 @@
             "description": "$task.AutoEssence.description",
             "controller": [
                 "ADB",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
             "option": [
                 "AutoEssenceChallengeMode",

@@ -10,9 +10,12 @@
             ],
             "controller": [
                 "Win32-Window",
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
-            "group": ["utility"]
+            "group": [
+                "utility"
+            ]
         }
     ],
     "option": {

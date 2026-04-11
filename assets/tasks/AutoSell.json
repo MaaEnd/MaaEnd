@@ -5,7 +5,8 @@
             "label": "$task.AutoSell.label",
             "entry": "AutoSellMain",
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
             "option": [
                 "AutoSellPriceType"

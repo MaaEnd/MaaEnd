@@ -13,7 +13,8 @@
                 "ProtocolSpaceTab"
             ],
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
             "group": [
                 "foreground"
