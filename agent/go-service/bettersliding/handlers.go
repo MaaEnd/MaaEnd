@@ -348,6 +348,21 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 		Int("click_x", clickX).
 		Int("click_y", clickY).
 		Msg("precise click calculated")
+
+	if a.FinishAfterPreciseClick {
+		if err := ctx.OverrideNext(nodeBetterSlidingPreciseClick, []maa.NextItem{}); err != nil {
+			a.logger.Error().Err(err).Msg("failed to clear precise click next for finish-after-precise-click")
+			return false
+		}
+
+		a.logger.Info().Msg("finish-after-precise-click enabled, skipping quantity check")
+	} else {
+		if err := ctx.OverrideNext(nodeBetterSlidingPreciseClick, []maa.NextItem{{Name: nodeBetterSlidingJumpBackNode}}); err != nil {
+			a.logger.Error().Err(err).Msg("failed to restore precise click next")
+			return false
+		}
+	}
+
 	return true
 }
 

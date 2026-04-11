@@ -100,17 +100,18 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 
 ### Parameters that can be passed through `attach`
 
-The following 3 fields can be written either in `custom_action_param` or overridden by the caller node's `attach`; in external invocation mode, `attach` has higher priority.
+The following 4 fields can be written either in `custom_action_param` or overridden by the caller node's `attach`; in external invocation mode, `attach` has higher priority.
 
-| Field           | Type             | Required | Description                                                                                                                                                                                                                                                                                  |
-| --------------- | ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`        | `int` (positive) | Yes\*    | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. If the target needs to vary by caller node, prefer passing it through `attach.Target`.                                                                   |
-| `TargetType`    | `string`         | No       | How to interpret `Target`. `"Value"` (default): absolute discrete count. `"Percentage"`: percentage (1–100) of `maxQuantity`, rounded and clamped to `[1, maxQuantity]`. If one shared node setup needs different target semantics by caller, prefer passing it through `attach.TargetType`. |
-| `TargetReverse` | `bool`           | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`.                                       |
+| Field                     | Type             | Required | Description                                                                                                                                                                                                                                                                                  |
+| ------------------------- | ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`                  | `int` (positive) | Yes\*    | The target quantity. The final discrete value you want to reach. Must be greater than 0 in normal mode. Ignored in swipe-only mode. If the target needs to vary by caller node, prefer passing it through `attach.Target`.                                                                   |
+| `TargetType`              | `string`         | No       | How to interpret `Target`. `"Value"` (default): absolute discrete count. `"Percentage"`: percentage (1–100) of `maxQuantity`, rounded and clamped to `[1, maxQuantity]`. If one shared node setup needs different target semantics by caller, prefer passing it through `attach.TargetType`. |
+| `TargetReverse`           | `bool`           | No       | When `true`, reverses the target: `maxQuantity - target` (Value mode) or `round(maxQuantity * (100 - target) / 100)` (Percentage mode). Default: `false`. If reverse behavior depends on the caller, prefer passing it through `attach.TargetReverse`.                                       |
+| `FinishAfterPreciseClick` | `bool`           | No       | When `true`, returns success immediately after the precise click, skipping quantity verification and fine-tuning. Default: `false`. If whether to skip fine-tuning depends on the caller, prefer passing it through `attach.FinishAfterPreciseClick`.                                        |
 
 ### Parameters that can only be passed through `custom_action_param`
 
-Other than the 3 fields above, all remaining parameters are currently read only from `custom_action_param`:
+Other than the 4 fields above, all remaining parameters are currently read only from `custom_action_param`:
 
 | Field                     | Type                    | Required | Description                                                                                                                                                                                                                                                                             |
 | ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -234,9 +235,9 @@ With a custom slider template:
 
 ## Attach Parameters
 
-`BetterSliding` currently reads only these 3 fields from the caller node's `attach` block: `Target`, `TargetType`, and `TargetReverse`.
+`BetterSliding` currently reads these 4 fields from the caller node's `attach` block: `Target`, `TargetType`, `TargetReverse`, and `FinishAfterPreciseClick`.
 
-For these 3 fields, **prefer passing them through `attach`** instead of hard-coding them directly in `custom_action_param`. This is useful because:
+For these 4 fields, **prefer passing them through `attach`** instead of hard-coding them directly in `custom_action_param`. This is useful because:
 
 - one shared `BetterSliding` parameter set can be reused by multiple caller nodes, with only the target-related fields changed in `attach`;
 - changing the target value, target interpretation, or reverse behavior does not require duplicating the entire `custom_action_param` block;
@@ -245,14 +246,14 @@ For these 3 fields, **prefer passing them through `attach`** instead of hard-cod
 The current implementation applies these values in this order:
 
 1. `runInternalPipeline` reads the caller node's `attach` block;
-2. if `attach` contains `Target`, `TargetType`, or `TargetReverse`, those values overwrite the corresponding keys in `custom_action_param`;
+2. if `attach` contains `Target`, `TargetType`, `TargetReverse`, or `FinishAfterPreciseClick`, those values overwrite the corresponding keys in `custom_action_param`;
 3. the merged result is then parsed as the final `BetterSliding` parameter set.
 
-In other words, in **external call mode** (that is, when a business node calls `custom_action: "BetterSliding"`), these 3 fields in `attach` take priority over fields with the same names in `custom_action_param`.
+In other words, in **external call mode** (that is, when a business node calls `custom_action: "BetterSliding"`), these 4 fields in `attach` take priority over fields with the same names in `custom_action_param`.
 
 Notes:
 
-- only these 3 keys are read; any other `attach` fields are ignored;
+- only these 4 keys are read; any other `attach` fields are ignored;
 - this applies only to external call mode; if the current node is already `BetterSlidingMain` or another internal BetterSliding node, the Go side does not merge `attach` again;
 - if `attach` is missing, the node JSON cannot be read, or one of these fields has an invalid type, that field falls back to the original value from `custom_action_param`.
 
@@ -271,6 +272,20 @@ When `true`, the target is computed from the **far end** of the range:
 - `Percentage` mode: effective target = `round(maxQuantity * (100 - Target) / 100)`, clamped to `[1, maxQuantity]`
 
 For `Value + TargetReverse`, the computed result is **not** clamped — it may be less than `1`. In that case the action fails unless `ExceedingOverrideEnable` is set (see below).
+
+### `FinishAfterPreciseClick`
+
+When `true`, `BetterSliding` returns success immediately after the precise click, skipping `BetterSlidingCheckQuantity` verification and `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity` fine-tuning entirely.
+
+**Difference from `SwipeOnlyMode`:**
+
+- `SwipeOnlyMode`: skips proportional clicking and fine-tuning entirely, only dragging to the maximum position. Suitable for scenarios where you only need to "swipe to the end."
+- `FinishAfterPreciseClick`: still performs the proportional click, but skips subsequent OCR verification and fine-tuning. Suitable for scenarios where "positional deviation is acceptable; just click to the approximate position."
+
+**Notes:**
+
+- When `FinishAfterPreciseClick` is enabled, the final actual quantity is **not guaranteed** to match `Target` exactly.
+- `ExceedingOverrideEnable` and `ClampTargetToMax` are still evaluated before the precise click and are unaffected by this parameter.
 
 ### Attach example
 
@@ -305,6 +320,34 @@ For `Value + TargetReverse`, the computed result is **not** clamped — it may b
 ```
 
 In the example above, `Target` is read from `attach` and injected into the top-level `Target` field before parsing, so the slider targets 50% of the current maximum.
+
+Here is an example with `FinishAfterPreciseClick` passed through `attach`:
+
+```json
+"SomeTaskClickAndLeave": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "Quantity": {
+                    "Box": [340, 430, 200, 140],
+                    "OnlyRec": true
+                }
+            }
+        }
+    },
+    "attach": {
+        "Target": 799,
+        "FinishAfterPreciseClick": true
+    }
+}
+```
+
+In this example, `FinishAfterPreciseClick` is read from `attach` and injected, so the slider clicks to make the target quantity close to 799 and then returns success immediately, without verifying the actual quantity or performing fine-tuning.
 
 If a business node always uses one fixed target value, target type, and reverse setting, keeping them directly in `custom_action_param` is also fine. But as soon as those values need to vary by caller while reusing the same node setup, `attach` should be the preferred approach.
 
@@ -371,7 +414,8 @@ File location: `assets/resource/pipeline/AutoStockpile/Purchase.json` (node: `Au
 - OCR can read both the maximum value and the current value;
 - The target value `Target` is not greater than the maximum value, or `ClampTargetToMax` is `true` (in which case the target value is clamped to `maxQuantity`);
 - If the recognized `maxQuantity` is `1` and the final target is also `1` (including the case after `ClampTargetToMax`), the flow branches directly to success without proportional clicking;
-- After the proportional click and fine-tuning, the current value finally equals `Target`.
+- If `FinishAfterPreciseClick` is `true`, the proportional click is performed and success is returned immediately, without verifying whether the actual quantity matches the target;
+- If `FinishAfterPreciseClick` is `false` (default), after the proportional click and fine-tuning, the current value finally equals `Target`.
 
 ### Common failure conditions
 

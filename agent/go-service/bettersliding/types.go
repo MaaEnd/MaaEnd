@@ -19,6 +19,7 @@ type betterSlidingParam struct {
 	TargetReverse           bool                       `json:"TargetReverse"`
 	CenterPointOffset       any                        `json:"CenterPointOffset"`
 	ClampTargetToMax        bool                       `json:"ClampTargetToMax"`
+	FinishAfterPreciseClick bool                       `json:"FinishAfterPreciseClick"`
 	presence                betterSlidingParamPresence `json:"-"`
 }
 
@@ -36,6 +37,7 @@ type betterSlidingParamPresence struct {
 	TargetReverse           bool
 	CenterPointOffset       bool
 	ClampTargetToMax        bool
+	FinishAfterPreciseClick bool
 }
 
 type quantityParam struct {
@@ -65,6 +67,7 @@ type quantityFilterParam struct {
 //   - DecreaseButton: decrease button template path or coordinates
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToMax: clamp target to maxQuantity instead of failing (default false)
+//   - FinishAfterPreciseClick: skip fine-tuning and return success after precise click (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
 //   - ExceedingOverrideEnable: Pipeline node name to enable when target is out of range
 //   - TargetType: TargetTypeValue (default) or TargetTypePercentage
@@ -80,6 +83,7 @@ type BetterSlidingAction struct {
 	DecreaseButton          buttonTarget
 	CenterPointOffset       [2]int
 	ClampTargetToMax        bool
+	FinishAfterPreciseClick bool
 	SwipeButton             string
 	ExceedingOverrideEnable string
 	TargetType              string

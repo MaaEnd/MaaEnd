@@ -100,17 +100,18 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ### 可在 `attach` 中传入的参数
 
-下表中的 3 个字段，既可以写在 `custom_action_param` 中，也可以由调用节点的 `attach` 覆盖；在对外调用模式下，`attach` 优先级更高。
+下表中的 4 个字段，既可以写在 `custom_action_param` 中，也可以由调用节点的 `attach` 覆盖；在对外调用模式下，`attach` 优先级更高。
 
-| 字段            | 类型            | 必填 | 说明                                                                                                                                                                                                                  |
-| --------------- | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`        | `int`（正整数） | 是\* | 目标数量。最终希望调到的档位值，正常模式下必须大于 0。仅滑动模式下忽略。若目标值需要按节点动态变化，推荐通过 `attach.Target` 传入。                                                                                   |
-| `TargetType`    | `string`        | 否   | 如何解释 `Target`。`"Value"`（默认）：绝对离散计数。`"Percentage"`：`maxQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, maxQuantity]`。若同一套节点需按调用点切换目标解释方式，推荐通过 `attach.TargetType` 传入。 |
-| `TargetReverse` | `bool`          | 否   | 为 `true` 时反向计算目标：Value 模式为 `maxQuantity - target`；Percentage 模式为 `round(maxQuantity * (100 - target) / 100)`。默认 `false`。若是否反向取值取决于调用场景，推荐通过 `attach.TargetReverse` 传入。      |
+| 字段                      | 类型            | 必填 | 说明                                                                                                                                                                                                                  |
+| ------------------------- | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`                  | `int`（正整数） | 是\* | 目标数量。最终希望调到的档位值，正常模式下必须大于 0。仅滑动模式下忽略。若目标值需要按节点动态变化，推荐通过 `attach.Target` 传入。                                                                                   |
+| `TargetType`              | `string`        | 否   | 如何解释 `Target`。`"Value"`（默认）：绝对离散计数。`"Percentage"`：`maxQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, maxQuantity]`。若同一套节点需按调用点切换目标解释方式，推荐通过 `attach.TargetType` 传入。 |
+| `TargetReverse`           | `bool`          | 否   | 为 `true` 时反向计算目标：Value 模式为 `maxQuantity - target`；Percentage 模式为 `round(maxQuantity * (100 - target) / 100)`。默认 `false`。若是否反向取值取决于调用场景，推荐通过 `attach.TargetReverse` 传入。      |
+| `FinishAfterPreciseClick` | `bool`          | 否   | 为 `true` 时，精确点击后直接返回成功，不再进入数量校验与微调流程。默认 `false`。若是否跳过微调取决于调用场景，推荐通过 `attach.FinishAfterPreciseClick` 传入。                                                        |
 
 ### 仅能通过 `custom_action_param` 传入的参数
 
-除上表 3 个字段外，其余参数当前都只能从 `custom_action_param` 读取：
+除上表 4 个字段外，其余参数当前都只能从 `custom_action_param` 读取：
 
 | 字段                      | 类型                    | 必填 | 说明                                                                                                                                                          |
 | ------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -234,25 +235,25 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ## 附加参数
 
-`BetterSliding` 当前只会从调用节点的 `attach` 块读取这 3 个字段：`Target`、`TargetType` 和 `TargetReverse`。
+`BetterSliding` 当前会从调用节点的 `attach` 块读取这 4 个字段：`Target`、`TargetType`、`TargetReverse` 和 `FinishAfterPreciseClick`。
 
-对于这 3 个字段，**推荐优先通过 `attach` 传入**，而不是直接硬编码在 `custom_action_param` 中。这样做的好处是：
+对于这 4 个字段，**推荐优先通过 `attach` 传入**，而不是直接硬编码在 `custom_action_param` 中。这样做的好处是：
 
 - 同一套 `BetterSliding` 参数可以被多个节点复用，只在 `attach` 中切换目标；
 - 调整目标值、目标解释方式或是否反向时，不需要复制整段 `custom_action_param`；
-- 更符合当前实现的运行时覆盖方式，维护时也更容易看出“这一调用点真正想调到什么目标”。
+- 更符合当前实现的运行时覆盖方式，维护时也更容易看出"这一调用点真正想调到什么目标"。
 
 当前实现的优先级如下：
 
 1. `runInternalPipeline` 会先读取调用节点的 `attach`；
-2. 如果 `attach` 中存在 `Target`、`TargetType`、`TargetReverse`，就把它们覆盖进 `custom_action_param`；
+2. 如果 `attach` 中存在 `Target`、`TargetType`、`TargetReverse`、`FinishAfterPreciseClick`，就把它们覆盖进 `custom_action_param`；
 3. 然后再按覆盖后的结果解析整套 `BetterSliding` 参数。
 
-也就是说，在**对外调用模式**（即业务节点通过 `custom_action: "BetterSliding"` 调用）下，`attach` 中这 3 个字段的优先级**高于** `custom_action_param` 中的同名字段。
+也就是说，在**对外调用模式**（即业务节点通过 `custom_action: "BetterSliding"` 调用）下，`attach` 中这 4 个字段的优先级**高于** `custom_action_param` 中的同名字段。
 
 注意：
 
-- 只有这 3 个键会被读取，其他 `attach` 字段会被忽略；
+- 只有这 4 个键会被读取，其他 `attach` 字段会被忽略；
 - 这是对外调用模式的行为；如果当前节点本身已经是 `BetterSlidingMain` 等内部节点，Go 侧不会再做 `attach` 合并；
 - 如果 `attach` 缺失、节点 JSON 读取失败，或其中某个字段类型不合法，对应字段会回退到原始 `custom_action_param` 的值。
 
@@ -271,6 +272,20 @@ clickY = startY + (endY - startY) * numerator / denominator
 - `Percentage` 模式：有效目标 = `round(maxQuantity * (100 - Target) / 100)`，钳制到 `[1, maxQuantity]`
 
 对于 `Value + TargetReverse`，计算结果**不会**被钳制——可能小于 `1`。此时动作会失败，除非设置了 `ExceedingOverrideEnable`（见下文）。
+
+### `FinishAfterPreciseClick`
+
+为 `true` 时，`BetterSliding` 在执行完精确点击后**直接返回成功**，不再进入 `BetterSlidingCheckQuantity` 校验数量，也不再触发 `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity` 微调。
+
+**与 `SwipeOnlyMode` 的区别**：
+
+- `SwipeOnlyMode`：跳过比例点击和微调，仅拖到最大值后返回。适用于只需要"拖到尽头"的场景。
+- `FinishAfterPreciseClick`：仍执行比例点击，但跳过后续的 OCR 校验和微调。适用于"位置偏差可接受，只需点击到大致位置"的场景。
+
+**注意**：
+
+- 启用 `FinishAfterPreciseClick` 后，最终实际数量**不保证**与 `Target` 完全一致；
+- `ExceedingOverrideEnable` 和 `ClampTargetToMax` 仍在精确点击之前生效，不受此参数影响。
 
 ### 附加参数示例
 
@@ -305,6 +320,34 @@ clickY = startY + (endY - startY) * numerator / denominator
 ```
 
 在上面的例子中，`Target` 从 `attach` 读取并注入到顶层 `Target` 字段，因此滑块目标是当前最大值的 50%。
+
+下面是一个 `FinishAfterPreciseClick` 通过 `attach` 传入的例子：
+
+```json
+"SomeTaskClickAndLeave": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "Quantity": {
+                    "Box": [340, 430, 200, 140],
+                    "OnlyRec": true
+                }
+            }
+        }
+    },
+    "attach": {
+        "Target": 799,
+        "FinishAfterPreciseClick": true
+    }
+}
+```
+
+在上面的例子中，`FinishAfterPreciseClick` 从 `attach` 读取并注入，因此点击使得目标数量接近799后直接返回成功，不再执行数量校验和微调。
 
 如果某个业务节点的目标值、目标类型和正反向逻辑都是固定不变的，直接写在 `custom_action_param` 里也可以；但只要这些值存在“同一套节点配置要按调用点切换”的需求，就应优先改为通过 `attach` 传入。
 
@@ -371,7 +414,8 @@ clickY = startY + (endY - startY) * numerator / denominator
 - 能 OCR 出最大值与当前值；
 - 目标值 `Target` 不大于最大值，或 `ClampTargetToMax` 为 `true`（此时目标值会被钳制为 `maxQuantity`）；
 - 若识别到的 `maxQuantity` 为 `1`，且目标值最终也是 `1`（包括被 `ClampTargetToMax` 钳制后的情况），流程会直接分支到成功，不会再走比例点击；
-- 经过精确点击与微调后，当前值最终等于 `Target`。
+- 若 `FinishAfterPreciseClick` 为 `true`，经过比例点击后直接返回成功，不再校验实际数量是否等于目标；
+- 若 `FinishAfterPreciseClick` 为 `false`（默认），经过精确点击与微调后，当前值最终等于 `Target`。
 
 ### 常见失败条件
 
