@@ -55,7 +55,7 @@ Moves the character automatically along the given path and executes extra action
 
 `path` is essentially an array, and each element represents one "path node." In normal use, you usually do not need to write these by hand. It is much more recommended to arrange them with the GUI tool at `/tools/MapNavigator`. Common forms are shown below.
 
-**1. The most common coordinate point**
+##### **1. The most common coordinate point**
 
 ```json
 [
@@ -66,7 +66,7 @@ Moves the character automatically along the given path and executes extra action
 
 This represents a normal movement point. Once the character reaches this coordinate, navigation proceeds to the next point.
 
-**2. A coordinate point with an action**
+##### **2. A coordinate point with an action**
 
 ```json
 [
@@ -87,7 +87,7 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 - `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
 - `HEADING`: Turn the camera to the specified heading, then tap `W` once.
 
-**3. Strict-arrival point**
+##### **3. Strict-arrival point**
 
 ```json
 [
@@ -100,7 +100,7 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 
 The trailing `true` means strict arrival is enabled for that point. For certain key points that really require precise arrival, such as interaction, jump, teleport, or zone-transition points, it is recommended to use strict arrival or directly use the corresponding action point, because the underlying logic already applies stricter arrival semantics there, such as slower approach and tighter arrival-radius confirmation.
 
-**4. Zone declaration node**
+##### **4. Zone declaration node**
 
 ```json
 {
@@ -111,7 +111,7 @@ The trailing `true` means strict arrival is enabled for that point. For certain 
 
 This is a **positionless control node** used to declare which zone the following path should belong to. It does not move the character by itself, but it provides zone-validation context for the subsequent path points.
 
-**5. Heading control node `HEADING`**
+##### **5. Heading control node `HEADING`**
 
 ```json
 {
