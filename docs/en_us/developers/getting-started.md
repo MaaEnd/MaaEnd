@@ -101,7 +101,7 @@ With images in place, add your first node. The example below uses **TemplateMatc
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "post_freeze_delay": 100,
+        "post_wait_freezes": 100,
         "next": [
             "SellProductLoop"
         ]
@@ -113,7 +113,7 @@ On hit, `Click` runs (default: tap center of the match box).
 
 Coding standards: avoid `pre_delay` / `post_delay` as fixed waits—device performance varies; 10 fps vs 60 fps changes how long animations take, and hard delays hide bugs that only show up for users.
 
-To wait for UI stability, use `pre_freeze_delay` / `post_freeze_delay`: they track pixel change in the match ROI. Here `"post_freeze_delay": 100` means: after pixels in `[400, 200, 480, 320]` settle, wait another 100 ms.
+To wait for UI stability, use `pre_wait_freezes` / `post_wait_freezes`: they track pixel change in the match ROI. Here `"post_wait_freezes": 100` means: after pixels in `[400, 200, 480, 320]` settle, wait another 100 ms.
 
 The next node, `SellProductLoop`, should **recognize** that you are in Regional Development—do not assume the tap always succeeds. FSM rule: **recognize state, then act.**
 
