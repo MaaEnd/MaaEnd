@@ -46,11 +46,11 @@ _你没法保证点完 A 之后画面是否还和之前一样。极端情况下�
 
 ### OCR 写完整文本
 
-`expected` 写完整文本，不写半截。多语言处理交给 i18n 工具链。需要片段或手写正则时使用 `// @i18n-skip`。详见[工具与调试 - OCR 与 i18n](./tools-and-debug.md#ocr-与-i18n)。
+`expected` 写完整文本，不写半截。多语言处理交给 i18n 工具链。需要片段或手写正则时使用 `// @i18n-skip`。详见下文 [OCR 与 i18n](#ocr-与-i18n)。
 
 ### 颜色匹配用 HSV / 灰度
 
-不同显卡渲染有偏差，RGB 跨设备不稳。详见[工具与调试 - 颜色匹配](./tools-and-debug.md#颜色匹配hsv-优先)。
+不同显卡渲染有偏差，RGB 跨设备不稳。详见 [资源规范 — 颜色匹配：HSV 优先](#颜色匹配hsv-优先)。
 
 ### 先复用，再新增
 
@@ -141,6 +141,8 @@ python tools/build_and_install.py --cpp-algo
 
 所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用上述开发工具进行截图和坐标换算。
 
+<a id="颜色匹配hsv-优先"></a>
+
 ### 颜色匹配：HSV 优先
 
 不同厂商显卡（NVIDIA、AMD、Intel）渲染存在差异，直接使用 RGB 跨设备不稳定。推荐在 HSV 空间中固定色相，仅调整饱和度和亮度。
@@ -152,6 +154,8 @@ python tools/build_and_install.py --cpp-algo
 ### 资源文件夹链接
 
 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build_and_install.py`。
+
+<a id="ocr-与-i18n"></a>
 
 ## OCR 与 i18n
 
@@ -186,15 +190,14 @@ python tools/build_and_install.py --cpp-algo
 
 MaaEnd 使用 maa-tools 进行节点测试，详见[节点测试文档](./node-testing.md)。编写识别节点时请尽量添加测试用例。
 
-
 ## 常见坑
 
-| 坑 | 处理 |
-| --- | --- |
-| `pnpm check` / `pnpm test` 跑不起来 | `pnpm install` |
-| 模型或 C++ 依赖目录缺失 | `git submodule update --init --recursive` 或 `python tools/setup_workspace.py --update` |
-| 改了 Go 却没生效 | 忘了 `python tools/build_and_install.py` |
-| 直接引用了 `__ScenePrivate*` 节点 | 应引用 `Interface` 目录暴露的场景接口节点 |
-| 只顾主线，不处理弹窗/加载 | 把弹窗、加载、中间态视为正常情况 |
-| 改了任务但没补文案 | 文案放到 `assets/locales/` |
-| 本地能跑但是其他人不行 | 开滤镜了/帧数不同/GPU不同颜色有轻微偏差,RGB卡太死了 |
+| 坑                                  | 处理                                                                                    |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| `pnpm check` / `pnpm test` 跑不起来 | `pnpm install`                                                                          |
+| 模型或 C++ 依赖目录缺失             | `git submodule update --init --recursive` 或 `python tools/setup_workspace.py --update` |
+| 改了 Go 却没生效                    | 忘了 `python tools/build_and_install.py`                                                |
+| 直接引用了 `__ScenePrivate*` 节点   | 应引用 `Interface` 目录暴露的场景接口节点                                               |
+| 只顾主线，不处理弹窗/加载           | 把弹窗、加载、中间态视为正常情况                                                        |
+| 改了任务但没补文案                  | 文案放到 `assets/locales/`                                                              |
+| 本地能跑但是其他人不行              | 开滤镜了/帧数不同/GPU不同颜色有轻微偏差,RGB卡太死了                                     |
