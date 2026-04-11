@@ -66,11 +66,13 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 - 所有图片和坐标以 **1280×720** 为基准，下图中我们使用 **Maa Pipeline Support**，无需自己切换游戏分辨率，framework 会自动 resize。
 截图时请注意，不要开HDR，黑夜模式，Nvidia或者游戏++等滤镜，颜色会干扰识别。
 
-图片 1
+<img width="546" height="299" alt="screenshot" src="https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8" />
+
 
 可以看到我们的图片中有背景干扰，这会降低匹配效率，这时候我们可以用自动绿幕工具来解决这个问题。（不推荐手动来做绿幕，不仅很慢，而且不准确）
 
-图片 2
+<img width="1825" height="764" alt="greenbackgournd" src="https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3" />
+
 
 将截好的模板放到 `assets/resource/image/SellItems/` 下。
 
@@ -215,11 +217,14 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 
 当前示例使用 **Maa Pipeline Support**（VS Code 插件）：在控制面板打开管理员模式并连接窗口。
 
-图片 3
+<img width="581" height="1682" alt="admin" src="https://github.com/user-attachments/assets/9d86ae89-0985-4606-bfa6-d4ec96dbee6f" />
+
 
 然后点击 Pipeline 任务上的 Launch，会自动开始执行并解析任务。执行了哪些节点、哪个节点报错，可以通过日志查看。
 
-图片 4
+<img width="1789" height="629" alt="launch" src="https://github.com/user-attachments/assets/6392310c-756c-4c33-b54a-9ab5ff9f4ad2" />
+<img width="1960" height="1025" alt="debug panel" src="https://github.com/user-attachments/assets/653c5314-f6ba-4ffc-91a5-739ab15382dc" />
+
 
 接下来根据反馈调试即可。
 
