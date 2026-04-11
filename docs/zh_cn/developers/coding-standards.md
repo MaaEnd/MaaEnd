@@ -50,7 +50,7 @@ _你没法保证点完 A 之后画面是否还和之前一样。极端情况下�
 
 ### 颜色匹配用 HSV / 灰度
 
-不同显卡渲染有偏差，RGB 跨设备不稳。详见资源规范中的 [颜色匹配：HSV 优先](#颜色匹配：hsv-优先)。
+不同显卡渲染有偏差，RGB 跨设备不稳。详见资源规范中的 [颜色匹配：HSV 优先](#颜色匹配-hsv-优先)。
 
 ### 先复用，再新增
 
@@ -141,6 +141,8 @@ python tools/build_and_install.py --cpp-algo
 
 所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用上述开发工具进行截图和坐标换算。
 
+<a id="颜色匹配-hsv-优先"></a>
+
 ### 颜色匹配：HSV 优先
 
 不同厂商显卡（NVIDIA、AMD、Intel）渲染存在差异，直接使用 RGB 跨设备不稳定。推荐在 HSV 空间中固定色相，仅调整饱和度和亮度。
@@ -152,6 +154,8 @@ python tools/build_and_install.py --cpp-algo
 ### 资源文件夹链接
 
 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build_and_install.py`。
+
+<a id="ocr-与-i18n"></a>
 
 ## OCR 与 i18n
 
