@@ -19,10 +19,10 @@
         ]
     },
     "BetterSlidingTest": {
-        "desc": "BeterSliding测试任务，修改该模块后应至少测试一次。请在据点管理处进行任务，要求可交易数量在1k~3k",
+        "desc": "BetterSliding测试任务，修改该模块后应至少测试一次。请在据点管理处进行任务，要求可交易数量在1k~3k",
         "post_delay": 2000,
         "focus": {
-            "Node.Recognition.Starting": "开始BeterSliding测试"
+            "Node.Recognition.Starting": "开始BetterSliding测试"
         },
         "next": [
             "__BS-T-2"
