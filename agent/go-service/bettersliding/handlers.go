@@ -182,13 +182,6 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 	if a.ExceedingOverrideEnable != "" {
 		if outOfRange {
 			a.exceeded = true
-			if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, true)); err != nil {
-				a.logger.Error().Err(err).
-					Str("override_node", a.ExceedingOverrideEnable).
-					Msg("failed to override exceeding enable=true state")
-				return false
-			}
-
 			if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 				logEvent := a.logger.Error().
 					Err(err).
@@ -209,7 +202,7 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 				Int("resolved_target", a.Target).
 				Int("max_quantity", a.maxQuantity).
 				Str("override_node", a.ExceedingOverrideEnable).
-				Msg("target out of range: exceeding override applied, branching to done")
+				Msg("target out of range: exceeding override scheduled, branching to done")
 			return true
 		}
 
@@ -525,6 +518,22 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Str("subtask_status", detail.Status.String()).
 			Msg("internal BetterSliding pipeline failed")
 		return false
+	}
+
+	if a.exceeded && a.ExceedingOverrideEnable != "" {
+		if err := ctx.OverridePipeline(buildExceedingOverrideEnable(a.ExceedingOverrideEnable, true)); err != nil {
+			a.logger.Error().
+				Err(err).
+				Str("caller", arg.CurrentTaskName).
+				Str("override_node", a.ExceedingOverrideEnable).
+				Msg("failed to apply exceeding override after internal pipeline")
+			return false
+		}
+
+		a.logger.Info().
+			Str("caller", arg.CurrentTaskName).
+			Str("override_node", a.ExceedingOverrideEnable).
+			Msg("applied exceeding override after internal pipeline")
 	}
 
 	if a.SwipeOnlyMode {
