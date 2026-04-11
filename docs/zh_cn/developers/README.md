@@ -41,7 +41,7 @@ flowchart TD
 | ------------------------------------------------------------- | -------------------------------------------- |
 | [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd)       | 带 AI 的在线项目文档速览                     |
 | [组件指南](./components-guide.md)                             | 项目架构、判断改哪、可复用节点目录           |
-| [工具与调试](./tools-and-debug.md)                            | 开发工具、调试工作流、资源规范、OCR 与 i18n  |
+| [工具与调试](./tools-and-debug.md)                            | 开发工具清单、常用调试入口、交流群信息       |
 | [节点测试](./node-testing.md)                                 | 如何编写和运行节点测试，验证识别是否稳定命中 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文          |
 
