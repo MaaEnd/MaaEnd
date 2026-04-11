@@ -12,6 +12,8 @@ MaaFramework 提供了丰富的[开发工具](https://github.com/MaaXYZ/MaaFrame
 | [MaaPipelineEditor](https://mpe.codax.site/docs)                           | 可视化阅读与构建 Pipeline，功能完备，提供渐进式本地功能扩展 |
 | [MaaLogAnalyzer](https://github.com/MaaXYZ/MaaLogAnalyzer)                 | 可视化分析基于 MaaFramework 开发应用的日志                  |
 | [MAA-pipeline-generate](https://github.com/Joe-Bao/MAA-pipeline-generate)  | 批量生成仅有细微差异的 Pipeline 模板                        |
+| [Auto-green-background](https://github.com/Joe-Bao/Auto-green-background)  | 自动绿幕工具                                                |
+
 
 > MXU 是面向终端用户的 GUI，不建议用于日常开发调试。上述开发工具可以极大程度提高开发效率。
 
