@@ -17,7 +17,7 @@ The core maintenance points of AutoStockpile are as follows:
 | Item template images          | `assets/resource/image/AutoStockpile/Goods/`               | Template images for matching on the item details page                         |
 | Task options                  | `assets/tasks/AutoStockpile.json`                          | User-configurable region toggles (Valley IV / Wuling)                         |
 | Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json`         | Defines entry subtasks and anchor mappings for each region                    |
-| Stockpile entry Pipeline      | `assets/resource/pipeline/AutoStockpile/Entry.json`        | Enters the elastic goods interface and scrolls to the bottom                  |
+| Stockpile entry Pipeline      | `assets/resource/pipeline/AutoStockpile/Entry.json`        | Enters Stock Redistribution (elastic goods) and scrolls to the bottom         |
 | Decision loop Pipeline        | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | Executes core flows: recognition, decision, reconciliation, skip              |
 | Purchase flow Pipeline        | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | Executes purchase quantity adjustment, purchase, cancel operations            |
 | Recognition node defaults     | `assets/resource/pipeline/AutoStockpile/Helper.json`       | Default parameters for overflow detection, goods OCR, template matching, etc. |

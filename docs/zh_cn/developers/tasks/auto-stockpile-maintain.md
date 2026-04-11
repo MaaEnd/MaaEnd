@@ -17,7 +17,7 @@ AutoStockpile 的核心维护点如下：
 | 商品模板图        | `assets/resource/image/AutoStockpile/Goods/`               | 商品详情页模板匹配用图                           |
 | 任务选项          | `assets/tasks/AutoStockpile.json`                          | 用户可配置的地区开关（四号谷地 / 武陵）          |
 | 地区入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Main.json`         | 定义各地区子任务入口与锚点映射                   |
-| 囤货入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Entry.json`        | 进入弹性物资调度界面并滑动至底部                 |
+| 囤货入口 Pipeline | `assets/resource/pipeline/AutoStockpile/Entry.json`        | 进入物资调度界面（选购弹性需求物资）并滑动至底部 |
 | 决策循环 Pipeline | `assets/resource/pipeline/AutoStockpile/DecisionLoop.json` | 执行识别、决策、复核、跳过等核心流程             |
 | 购买流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Purchase.json`     | 执行购买数量调整、购买、取消等操作               |
 | 识别节点默认配置  | `assets/resource/pipeline/AutoStockpile/Helper.json`       | 溢出检测、商品 OCR、模板匹配等识别节点的默认参数 |
