@@ -45,9 +45,7 @@ jobs:
             const hasMissingInfoLabel = currentLabels.includes(missingInfoLabel);
             // 只有在同时有文件名和 GitHub URL 时，才认为真的上传了日志文件，避免误判 HTML 注释或文本中提到的文件名
             const hasUploadedLogs = uploadedLogsPattern.test(textToCheck) && hasAttachmentUrl;
-            const shouldRemoveLabel = isIssueEvent
-              ? hasUploadedLogs
-              : hasUploadedLogs && hasAttachmentUrl;
+            const shouldRemoveLabel = hasUploadedLogs;
 
             if (shouldRemoveLabel) {
               if (hasMissingInfoLabel) {
