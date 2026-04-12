@@ -57,8 +57,8 @@ func buildPriceLimitsForRegion(region string, weekday time.Weekday) (PriceLimitC
 }
 
 // buildSelectionConfig 根据地区名称构建商品选择配置，使用公式计算价格阈值。
-func buildSelectionConfig(region string) (SelectionConfig, error) {
-	return buildSelectionConfigForWeekday(region, currentServerWeekday())
+func buildSelectionConfig(region string, loc *time.Location) (SelectionConfig, error) {
+	return buildSelectionConfigForWeekday(region, resolveServerWeekday(time.Now(), loc))
 }
 
 func buildSelectionConfigForWeekday(region string, weekday time.Weekday) (SelectionConfig, error) {

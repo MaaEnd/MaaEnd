@@ -83,7 +83,19 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	cfg, err := buildSelectionConfig(region)
+	serverTimeOffset, err := loadServerTimeOffsetFromAttach(ctx, attachNodeName)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
+	}
+	serverLocation := locationFromUTCOffset(serverTimeOffset)
+
+	log.Info().
+		Str("component", "autostockpile").
+		Str("region", region).
+		Str("server_location", serverLocation.String()).
+		Msg("selector server time resolved")
+
+	cfg, err := buildSelectionConfig(region, serverLocation)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
 	}

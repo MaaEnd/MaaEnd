@@ -76,20 +76,21 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 当前任务选项
 
-当前 `assets/tasks/AutoStockpile.json` 中，任务选项仅有两个地区开关：
+当前 `assets/tasks/AutoStockpile.json` 中，任务选项包含 1 个服务器时区选项和 2 个地区开关：
 
-| 任务选项                | 作用                                              |
-| ----------------------- | ------------------------------------------------- |
-| `AutoStockpileValleyIV` | 通过 `pipeline_override.enabled` 启用四号谷地节点 |
-| `AutoStockpileWuling`   | 通过 `pipeline_override.enabled` 启用武陵节点     |
+| 任务选项                  | 作用                                                                      |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `AutoStockpileServerTime` | 通过 `pipeline_override` 向 `AutoStockpileAttach` 写入服务器 UTC 小时偏移 |
+| `AutoStockpileValleyIV`   | 通过 `pipeline_override.enabled` 启用四号谷地节点                         |
+| `AutoStockpileWuling`     | 通过 `pipeline_override.enabled` 启用武陵节点                             |
 
-地区开关不写入 `attach`。Go Service 当前使用以下内建行为：
+地区开关不写入 `attach`。`AutoStockpileServerTime` 会通过 `pipeline_override` 将 `server_time` 写入 `AutoStockpileAttach.attach`，并由 Go Service 在运行时读取。当前内建行为如下：
 
 - **溢出时放宽阈值**：仅当识别结果中的 `Quota.Overflow > 0` 时，`selector.go` 才会自动放宽阈值；当前没有用户配置项，也没有 attach 覆盖入口。
-- **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base + weekday_adjustment` 公式生成。生产路径默认使用 `GMT+8` 作为服务器时区，服务器日边界为 `04:00`；当前任务选项和 attach 都不会覆盖它。
+- **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base + weekday_adjustment` 公式生成。默认服务器时区为 `GMT+8`，服务器日边界为 `04:00`。`AutoStockpileServerTime` 可通过写入 `AutoStockpileAttach.attach.server_time` 覆盖 weekday 计算；未设置时仍回退到 `GMT+8`。
 - **保留调度券**：当前未作为运行时决策输入实现。识别结果只传递配额与商品数据，下游决策流程也不会消费任何保留调度券状态。
 
-如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是写手动 `attach` 覆盖。当前 AutoStockpile 流程不会读取基于 attach 的价格阈值、溢出开关或保留调度券配置。
+如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是扩展手动 `attach` 覆盖。当前 AutoStockpile 流程只读取基于 attach 的 `server_time` 覆盖，且该字段仅影响 weekday 计算；价格阈值、溢出开关和保留调度券配置仍不会从 attach 读取。
 
 ## 阈值解析机制
 
@@ -112,7 +113,7 @@ weekday 偏移表如下：
 | 周六 | `-200` |
 | 周日 | `-50`  |
 
-在服务器日计算中，AutoStockpile 会先将当前时间转换到目标时区，再按 `04:00 ~ 次日 03:59` 视为同一个服务器日。当前生产路径默认使用 `GMT+8`。
+在服务器日计算中，AutoStockpile 会先将当前时间转换到目标时区，再按 `04:00 ~ 次日 03:59` 视为同一个服务器日。默认生产路径使用 `GMT+8`，也可通过 `AutoStockpileServerTime` 在 `GMT+8`、`GMT+9`、`GMT-8`、`GMT+1` 之间切换。
 
 ## 运行时覆盖行为
 

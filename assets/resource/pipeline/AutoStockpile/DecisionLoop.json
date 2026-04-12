@@ -249,5 +249,8 @@
             "AutoStockpileRelayNodeDecisionReady",
             "AutoStockpileBackToSelection"
         ]
+    },
+    "AutoStockpileAttach": {
+        "desc": "承载Attach参数，请勿重命名或删除"
     }
 }

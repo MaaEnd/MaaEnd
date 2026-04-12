@@ -1,6 +1,9 @@
 package autostockpile
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 const (
 	serverDayBoundaryHour  = 4
@@ -8,6 +11,15 @@ const (
 )
 
 var defaultServerLocation = time.FixedZone("GMT+8", defaultServerUTCOffset)
+
+func locationFromUTCOffset(offset *int) *time.Location {
+	if offset == nil {
+		return defaultServerLocation
+	}
+
+	name := fmt.Sprintf("GMT%+d", *offset)
+	return time.FixedZone(name, *offset*60*60)
+}
 
 func resolveServerWeekday(now time.Time, loc *time.Location) time.Weekday {
 	if loc == nil {
@@ -20,8 +32,4 @@ func resolveServerWeekday(now time.Time, loc *time.Location) time.Weekday {
 	}
 
 	return serverTime.Weekday()
-}
-
-func currentServerWeekday() time.Weekday {
-	return resolveServerWeekday(time.Now(), defaultServerLocation)
 }

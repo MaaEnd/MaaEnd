@@ -14,12 +14,64 @@
                 "daily"
             ],
             "option": [
+                "AutoStockpileServerTime",
                 "AutoStockpileValleyIV",
                 "AutoStockpileWuling"
             ]
         }
     ],
     "option": {
+        "AutoStockpileServerTime": {
+            "type": "select",
+            "label": "$task.AutoStockpile.option.AutoStockpileServerTime.label",
+            "default_case": "CN_GMT_PLUS_8",
+            "cases": [
+                {
+                    "name": "CN_GMT_PLUS_8",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": 8
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ASIA_GMT_PLUS_9",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_9.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": 9
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "US_GMT_MINUS_8",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_8.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": -8
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EU_GMT_PLUS_1",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.EU_GMT_PLUS_1.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": 1
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "AutoStockpileValleyIV": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileValleyIV.label",
