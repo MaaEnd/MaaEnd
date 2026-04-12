@@ -87,6 +87,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
 	}
+	applyWeekdayAdjustment := serverTimeOffset != nil
 	serverLocation := locationFromUTCOffset(serverTimeOffset)
 
 	log.Info().
@@ -95,7 +96,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("server_location", serverLocation.String()).
 		Msg("selector server time resolved")
 
-	cfg, err := buildSelectionConfig(region, serverLocation)
+	cfg, err := buildSelectionConfig(region, serverLocation, applyWeekdayAdjustment)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
 	}

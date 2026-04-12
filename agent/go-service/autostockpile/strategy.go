@@ -37,16 +37,20 @@ var weekdayAdjustments = map[time.Weekday]int{
 	time.Sunday:    -50,
 }
 
-// buildPriceLimitsForRegion 根据地区名称，通过 region_base + tier_base + weekday_adjustment 公式计算各档位的价格阈值。
-func buildPriceLimitsForRegion(region string, weekday time.Weekday) (PriceLimitConfig, error) {
+// buildPriceLimitsForRegion 根据地区名称构建各档位的价格阈值。
+func buildPriceLimitsForRegion(region string, weekday time.Weekday, applyWeekdayAdjustment bool) (PriceLimitConfig, error) {
 	regionBase, ok := regionBases[region]
 	if !ok {
 		return nil, fmt.Errorf("region %q is not configured", region)
 	}
 
-	weekdayAdjustment, ok := weekdayAdjustments[weekday]
-	if !ok {
-		return nil, fmt.Errorf("weekday %d is not supported", weekday)
+	weekdayAdjustment := 0
+	if applyWeekdayAdjustment {
+		var ok bool
+		weekdayAdjustment, ok = weekdayAdjustments[weekday]
+		if !ok {
+			return nil, fmt.Errorf("weekday %d is not supported", weekday)
+		}
 	}
 
 	priceLimits := make(PriceLimitConfig, len(tierBases))
@@ -57,12 +61,12 @@ func buildPriceLimitsForRegion(region string, weekday time.Weekday) (PriceLimitC
 }
 
 // buildSelectionConfig 根据地区名称构建商品选择配置，使用公式计算价格阈值。
-func buildSelectionConfig(region string, loc *time.Location) (SelectionConfig, error) {
-	return buildSelectionConfigForWeekday(region, resolveServerWeekday(time.Now(), loc))
+func buildSelectionConfig(region string, loc *time.Location, applyWeekdayAdjustment bool) (SelectionConfig, error) {
+	return buildSelectionConfigForWeekday(region, resolveServerWeekday(time.Now(), loc), applyWeekdayAdjustment)
 }
 
-func buildSelectionConfigForWeekday(region string, weekday time.Weekday) (SelectionConfig, error) {
-	priceLimits, err := buildPriceLimitsForRegion(region, weekday)
+func buildSelectionConfigForWeekday(region string, weekday time.Weekday, applyWeekdayAdjustment bool) (SelectionConfig, error) {
+	priceLimits, err := buildPriceLimitsForRegion(region, weekday, applyWeekdayAdjustment)
 	if err != nil {
 		return SelectionConfig{}, err
 	}
