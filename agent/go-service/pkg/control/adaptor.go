@@ -84,6 +84,8 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	switch controlType {
 	case CONTROL_TYPE_WIN32:
 		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_WLROOTS:
+		return newWlrootsControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_ADB:
 		return newADBControlAdaptor(ctx, ctrl, w, h), nil
 	default:
@@ -112,6 +114,10 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 			CachedControlType = CONTROL_TYPE_WIN32
 			return CONTROL_TYPE_WIN32, nil
 		}
+		if strings.Contains(infoStr, CONTROL_TYPE_WLROOTS) {
+			CachedControlType = CONTROL_TYPE_WLROOTS
+			return CONTROL_TYPE_WLROOTS, nil
+		}
 		if strings.Contains(infoStr, CONTROL_TYPE_ADB) {
 			CachedControlType = CONTROL_TYPE_ADB
 			return CONTROL_TYPE_ADB, nil
@@ -126,6 +132,10 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 		CachedControlType = CONTROL_TYPE_WIN32
 		return CONTROL_TYPE_WIN32, nil
 	}
+	if info.Type == CONTROL_TYPE_WLROOTS {
+		CachedControlType = CONTROL_TYPE_WLROOTS
+		return CONTROL_TYPE_WLROOTS, nil
+	}
 	if info.Type == CONTROL_TYPE_ADB {
 		CachedControlType = CONTROL_TYPE_ADB
 		return CONTROL_TYPE_ADB, nil
@@ -135,6 +145,7 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 
 const (
 	CONTROL_TYPE_WIN32 = "win32"
+	CONTROL_TYPE_WLROOTS = "wlroots"
 	CONTROL_TYPE_ADB   = "adb"
 )
 
