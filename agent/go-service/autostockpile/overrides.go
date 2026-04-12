@@ -16,6 +16,9 @@ func buildSelectionPipelineOverride(_ *maa.Context, selection SelectionResult, d
 			"enabled":  true,
 			"template": []string{BuildTemplatePath(selection.ProductID)},
 		},
+		skipNodeName: map[string]any{
+			"enabled": false,
+		},
 		swipeMaxNodeName: map[string]any{
 			"enabled": decision.Mode == quantityModeSwipeMax,
 		},
@@ -49,13 +52,9 @@ func enableDecisionReadyOverride(ctx *maa.Context) error {
 	})
 }
 
-func overrideSkipBranch(ctx *maa.Context, currentTaskName string) error {
+func overrideSkipBranch(ctx *maa.Context) error {
 	if err := ctx.OverridePipeline(buildSkipResetOverride()); err != nil {
 		return fmt.Errorf("reset skip pipeline state: %w", err)
-	}
-
-	if err := ctx.OverrideNext(currentTaskName, []maa.NextItem{{Name: skipNodeName}}); err != nil {
-		return fmt.Errorf("override next for skip branch: %w", err)
 	}
 
 	return nil
@@ -68,6 +67,9 @@ func buildSkipResetOverride() map[string]any {
 		},
 		selectedGoodsClickNodeName: map[string]any{
 			"enabled": false,
+		},
+		skipNodeName: map[string]any{
+			"enabled": true,
 		},
 		swipeMaxNodeName: map[string]any{
 			"enabled": false,
