@@ -17,7 +17,7 @@
     "__AutoFightActionAttackKeyPress": {
         "pre_delay": 0,
         "action": "ClickKey",
-        "key": 2,
+        "key": 11,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发普攻"
@@ -26,7 +26,7 @@
     "__AutoFightActionSkillOperators1": {
         "pre_delay": 0,
         "action": "ClickKey",
-        "key": 3,
+        "key": 2,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员1技能"
@@ -35,7 +35,7 @@
     "__AutoFightActionSkillOperators2": {
         "pre_delay": 0,
         "action": "ClickKey",
-        "key": 4,
+        "key": 3,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员2技能"
@@ -44,7 +44,7 @@
     "__AutoFightActionSkillOperators3": {
         "pre_delay": 0,
         "action": "ClickKey",
-        "key": 5,
+        "key": 4,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员3技能"
@@ -53,7 +53,7 @@
     "__AutoFightActionSkillOperators4": {
         "pre_delay": 0,
         "action": "ClickKey",
-        "key": 6,
+        "key": 5,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员4技能"
@@ -62,7 +62,7 @@
     "__AutoFightActionEndSkillOperators1KeyDown": {
         "pre_delay": 0,
         "action": "KeyDown",
-        "key": 3,
+        "key": 2,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员1终结技"
@@ -71,13 +71,13 @@
     "__AutoFightActionEndSkillOperators1KeyUp": {
         "pre_delay": 0,
         "action": "KeyUp",
-        "key": 3,
+        "key": 2,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators2KeyDown": {
         "pre_delay": 0,
         "action": "KeyDown",
-        "key": 4,
+        "key": 3,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员2终结技"
@@ -86,13 +86,13 @@
     "__AutoFightActionEndSkillOperators2KeyUp": {
         "pre_delay": 0,
         "action": "KeyUp",
-        "key": 4,
+        "key": 3,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators3KeyDown": {
         "pre_delay": 0,
         "action": "KeyDown",
-        "key": 5,
+        "key": 4,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员3终结技"
@@ -101,13 +101,13 @@
     "__AutoFightActionEndSkillOperators3KeyUp": {
         "pre_delay": 0,
         "action": "KeyUp",
-        "key": 5,
+        "key": 4,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators4KeyDown": {
         "pre_delay": 0,
         "action": "KeyDown",
-        "key": 6,
+        "key": 5,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员4终结技"
@@ -116,7 +116,7 @@
     "__AutoFightActionEndSkillOperators4KeyUp": {
         "pre_delay": 0,
         "action": "KeyUp",
-        "key": 6,
+        "key": 5,
         "post_delay": 0
     }
 }

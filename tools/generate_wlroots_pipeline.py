@@ -61,9 +61,10 @@ VK_TO_EVDEV: dict[int, int] = {
     0xDE: 40,
 }
 
-for offset, evdev_code in enumerate(range(2, 11), start=0):
+# Number row (top row): VK '1'..'9' -> evdev 2..10, VK '0' -> evdev 11.
+for offset, evdev_code in enumerate(range(2, 11), start=1):
     VK_TO_EVDEV[0x30 + offset] = evdev_code
-VK_TO_EVDEV[0x30 + 9] = 11
+VK_TO_EVDEV[0x30] = 11
 
 VK_TO_EVDEV.update(
     {
