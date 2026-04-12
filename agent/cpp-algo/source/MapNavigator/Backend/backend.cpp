@@ -6,6 +6,7 @@
 #include "../../MapLocator/MapLocateAction.h"
 #include "../controller_type_utils.h"
 #include "Adb/adb_input_backend.h"
+#include "WlRoots/wlroots_input_backend.h"
 #include "Win32/win32_input_backend.h"
 #include "backend.h"
 
@@ -52,6 +53,10 @@ std::unique_ptr<IInputBackend> CreateInputBackend(MaaController* ctrl)
 
     if (IsAdbLikeControllerType(controller_type)) {
         return backend::adb::CreateAdbInputBackend(ctrl, std::move(controller_type), maplocator::getOrInitLocator());
+    }
+
+    if (IsWlrootsControllerType(controller_type)) {
+        return backend::wlroots::CreateWlrootsInputBackend(ctrl, std::move(controller_type));
     }
 
     return backend::win32::CreateWin32InputBackend(ctrl, std::move(controller_type));
