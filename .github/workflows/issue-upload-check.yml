@@ -41,9 +41,10 @@ jobs:
             
             const hasUploadFailed = uploadFailedPattern.test(textToCheck);
             const hasUploading = uploadingPattern.test(textToCheck);
-            const hasUploadedLogs = uploadedLogsPattern.test(textToCheck);
             const hasAttachmentUrl = attachmentUrlPattern.test(textToCheck);
             const hasMissingInfoLabel = currentLabels.includes(missingInfoLabel);
+            // 只有在同时有文件名和 GitHub URL 时，才认为真的上传了日志文件，避免误判 HTML 注释或文本中提到的文件名
+            const hasUploadedLogs = uploadedLogsPattern.test(textToCheck) && hasAttachmentUrl;
             const shouldRemoveLabel = isIssueEvent
               ? hasUploadedLogs
               : hasUploadedLogs && hasAttachmentUrl;
@@ -73,7 +74,8 @@ jobs:
               return;
             }
             
-            if (isIssueEvent && (hasUploadFailed || hasUploading)) {
+            // 只有在没有真正上传日志的情况下，才检查上传失败并添加标签，确保只要有日志就不会被判断为缺少信息
+            if (isIssueEvent && (hasUploadFailed || hasUploading) && !hasUploadedLogs) {
                if (!hasMissingInfoLabel) {
                  await github.rest.issues.addLabels({
                    owner: context.repo.owner,
