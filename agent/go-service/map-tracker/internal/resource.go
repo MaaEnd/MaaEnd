@@ -90,7 +90,7 @@ func (r *MapTrackerResource) LoadMaps() ([]MapCache, error) {
 	}
 
 	rectList := make(map[string][]int)
-	err := resource.ReadJsonResource(MAP_BBOX_DATA_PATH, rectList)
+	err := resource.ReadJsonResource(MAP_BBOX_DATA_PATH, &rectList)
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to load map bbox data")
 	}
