@@ -25,10 +25,10 @@
             "type": "select",
             "label": "$task.AutoStockpile.option.AutoStockpileServerTime.label",
             "description": "$task.AutoStockpile.option.AutoStockpileServerTime.description",
-            "default_case": "CN_GMT_PLUS_8",
+            "default_case": "CN_UTC_PLUS_8",
             "cases": [
                 {
-                    "name": "CN_GMT_PLUS_8",
+                    "name": "CN_UTC_PLUS_8",
                     "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label",
                     "pipeline_override": {
                         "AutoStockpileAttach": {
@@ -39,7 +39,7 @@
                     }
                 },
                 {
-                    "name": "ASIA_GMT_PLUS_9",
+                    "name": "ASIA_UTC_PLUS_9",
                     "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_9.label",
                     "pipeline_override": {
                         "AutoStockpileAttach": {
@@ -50,7 +50,7 @@
                     }
                 },
                 {
-                    "name": "US_GMT_MINUS_8",
+                    "name": "US_UTC_MINUS_8",
                     "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_8.label",
                     "pipeline_override": {
                         "AutoStockpileAttach": {
@@ -61,7 +61,7 @@
                     }
                 },
                 {
-                    "name": "EU_GMT_PLUS_1",
+                    "name": "EU_UTC_PLUS_1",
                     "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.EU_GMT_PLUS_1.label",
                     "pipeline_override": {
                         "AutoStockpileAttach": {

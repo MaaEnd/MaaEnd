@@ -87,7 +87,7 @@ The current `assets/tasks/AutoStockpile.json` exposes one server-time selector a
 The region toggles do not write to `attach`. `AutoStockpileServerTime` writes `server_time` to `AutoStockpileAttach.attach` through `pipeline_override`, and the Go Service reads it at runtime. The current built-in behaviors are:
 
 - **Overflow threshold bypass**: `selector.go` enables threshold bypass automatically only when recognition reports overflow (`Quota.Overflow > 0`); there is no user-facing or attach-based switch.
-- **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base + weekday_adjustment` formula. The default server timezone is `GMT+8`, and the server-day boundary is `04:00`. `AutoStockpileServerTime` can override the weekday calculation by writing an integer UTC hour offset to `AutoStockpileAttach.attach.server_time`. If unset, the runtime still falls back to `GMT+8`.
+- **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base + weekday_adjustment` formula. The default server timezone is `UTC+8`, and the server-day boundary is `04:00`. `AutoStockpileServerTime` can override the weekday calculation by writing an integer UTC hour offset to `AutoStockpileAttach.attach.server_time`. If unset, the runtime still falls back to `UTC+8`.
 - **Reserve stock bill**: Not implemented as a runtime decision input. The recognition payload only carries quota and goods data, and the downstream decision flow does not consume any reserve-stock-bill state.
 
 If you need different pricing behavior, update the Go defaults in code rather than expanding manual `attach` overrides. The current AutoStockpile flow only reads an attach-based override for `server_time`, which affects weekday calculation only; it still does not read attach-based price-limit, overflow-handling, or reserve-stock-bill settings.
@@ -113,7 +113,7 @@ The weekday adjustment table is:
 | Saturday  | `-200`     |
 | Sunday    | `-50`      |
 
-For server-day calculation, AutoStockpile first converts the current time to the target timezone, then treats `04:00 ~ next 03:59` as the same server day. The default production path uses `GMT+8`, while `AutoStockpileServerTime` can override it with `GMT+8`, `GMT+9`, `GMT-8`, or `GMT+1`.
+For server-day calculation, AutoStockpile first converts the current time to the target timezone, then treats `04:00 ~ next 03:59` as the same server day. The default production path uses `UTC+8`, while `AutoStockpileServerTime` can override it with `UTC+8`, `UTC+9`, `UTC-8`, or `UTC+1`.
 
 ## Runtime Override Behavior
 

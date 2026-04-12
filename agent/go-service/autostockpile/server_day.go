@@ -10,14 +10,14 @@ const (
 	defaultServerUTCOffset = 8 * 60 * 60
 )
 
-var defaultServerLocation = time.FixedZone("GMT+8", defaultServerUTCOffset)
+var defaultServerLocation = time.FixedZone("UTC+8", defaultServerUTCOffset)
 
 func locationFromUTCOffset(offset *int) *time.Location {
 	if offset == nil {
 		return defaultServerLocation
 	}
 
-	name := fmt.Sprintf("GMT%+d", *offset)
+	name := fmt.Sprintf("UTC%+d", *offset)
 	return time.FixedZone(name, *offset*60*60)
 }
 
