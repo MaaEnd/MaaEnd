@@ -45,10 +45,10 @@ protected:
     int hover_x() const { return hover_x_; }
     int hover_y() const { return hover_y_; }
     void EnsureHoverAnchorSync();
-
-private:
     void PostKeyDownSync(int key_code, int delay_millis);
     void PostKeyUpSync(int key_code, int delay_millis);
+
+private:
     void ClickKeySync(int key_code, int hold_millis);
     void ApplyMovementKeyState(int key_code, bool pressed);
     bool* FindMovementKeyState(int key_code);

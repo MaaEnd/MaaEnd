@@ -12,5 +12,6 @@ constexpr int32_t kMoveBackwardKey = 31; // KEY_S
 constexpr int32_t kMoveRightKey = 32;    // KEY_D
 constexpr int32_t kInteractKey = 33;     // KEY_F
 constexpr int32_t kJumpKey = 57;         // KEY_SPACE
+constexpr int32_t kLeftAltKey = 56;      // KEY_LEFTALT
 
 } // namespace mapnavigator::backend::wlroots

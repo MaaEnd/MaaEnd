@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <chrono>
+#include <thread>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -13,6 +15,11 @@ namespace mapnavigator::backend::wlroots
 
 namespace
 {
+
+constexpr int32_t kWlrootsReferenceFrameHeight = 720;
+constexpr int32_t kWlrootsCenterX = kWorkWidth / 2;
+constexpr int32_t kWlrootsCenterY = kWlrootsReferenceFrameHeight / 2;
+constexpr int32_t kWlrootsAltSettleDelayMs = 33;
 
 desktop::DesktopKeyCodes MakeWlrootsKeyCodes();
 
@@ -35,27 +42,23 @@ public:
             return false;
         }
 
-        EnsureHoverAnchorSync();
+        const int end_x = std::clamp(kWlrootsCenterX + dx, 0, kWorkWidth - 1);
+        const int end_y = std::clamp(kWlrootsCenterY + dy, 0, kWlrootsReferenceFrameHeight - 1);
 
-        const int start_x = hover_x();
-        const int start_y = hover_y();
-        const int end_x = start_x + dx;
-        const int end_y = start_y + dy;
+        LogInfo << "SendViewDeltaByAltRecenterThenOffset"
+                << VAR(dx) << VAR(dy) << VAR(end_x) << VAR(end_y);
 
-        LogInfo << "SendViewDeltaFallbackByTouchMoveHoverAnchored"
-            << VAR(dx) << VAR(dy) << VAR(start_x) << VAR(start_y) << VAR(end_x) << VAR(end_y);
+        PostKeyDownSync(kLeftAltKey, kWlrootsAltSettleDelayMs);
 
-        const MaaCtrlId move_start_id = MaaControllerPostTouchMove(controller, 0, start_x, start_y, 0);
-        if (move_start_id == MaaInvalidId || MaaControllerWait(controller, move_start_id) != MaaStatus_Succeeded) {
+        const MaaCtrlId recenter_id = MaaControllerPostTouchMove(controller, 0, kWlrootsCenterX, kWlrootsCenterY, 0);
+        const bool recentered = recenter_id != MaaInvalidId && MaaControllerWait(controller, recenter_id) == MaaStatus_Succeeded;
+        PostKeyUpSync(kLeftAltKey, kWlrootsAltSettleDelayMs);
+        if (!recentered) {
             return false;
         }
 
         const MaaCtrlId move_end_id = MaaControllerPostTouchMove(controller, 0, end_x, end_y, 0);
-        if (move_end_id == MaaInvalidId || MaaControllerWait(controller, move_end_id) != MaaStatus_Succeeded) {
-            return false;
-        }
-
-        return true;
+        return move_end_id != MaaInvalidId && MaaControllerWait(controller, move_end_id) == MaaStatus_Succeeded;
     }
 };
 
