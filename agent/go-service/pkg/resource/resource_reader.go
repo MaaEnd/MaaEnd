@@ -52,9 +52,6 @@ func ReadJsonResource(relativePath string, out any) error {
 //
 // 3. Searching in "resource" and "assets" directories in the current working directory and its parent/grandparent directories.
 func FindResource(relativePath string) string {
-	rel := filepath.FromSlash(strings.TrimSpace(relativePath))
-	rel = strings.TrimPrefix(rel, string(filepath.Separator))
-
 	tryPath := func(path string) string {
 		if path == "" {
 			return ""
@@ -65,11 +62,26 @@ func FindResource(relativePath string) string {
 		return ""
 	}
 
-	findPath := func(rel string) string {
-		if found := tryPath(rel); found != "" {
+	rawPath := filepath.Clean(filepath.FromSlash(strings.TrimSpace(relativePath)))
+	if rawPath == "." {
+		rawPath = ""
+	}
+
+	if filepath.IsAbs(rawPath) {
+		if found := tryPath(rawPath); found != "" {
+			log.Debug().Str("relativePath", relativePath).Str("resolvedPath", found).Msg("Absolute resource path found")
 			return found
 		}
+	}
 
+	if found := tryPath(rawPath); found != "" {
+		log.Debug().Str("relativePath", relativePath).Str("resolvedPath", found).Msg("Direct resource path found")
+		return found
+	}
+
+	rel := strings.TrimPrefix(rawPath, string(filepath.Separator))
+
+	findPath := func(rel string) string {
 		if base := getResourceBase(); base != "" {
 			base = filepath.Clean(base)
 			if found := tryPath(filepath.Join(base, rel)); found != "" {
