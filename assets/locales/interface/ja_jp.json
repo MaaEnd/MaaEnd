@@ -214,6 +214,7 @@
     "task.AutoStockpile.label": "📦 自動備蓄",
     "task.AutoStockpile.description": "弾性需要物資を購入し、ビッグデータによるインテリジェント計算で最適な購買戦略を導き出します。",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "サーバー時間帯",
+    "task.AutoStockpile.option.AutoStockpileServerTime.description": "サーバーの日付を判定し、購入戦略を調整して利益を高めるために使用します。\n注: 日付の更新時刻は選択した時間帯の 04:00 です。",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label": "中国サーバー (GMT+8)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_9.label": "アジア (GMT+9)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_8.label": "US (GMT-8)",

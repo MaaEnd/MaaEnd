@@ -214,6 +214,7 @@
     "task.AutoStockpile.label": "📦自动囤货",
     "task.AutoStockpile.description": "购买弹性需求物资，基于大数据智能计算得出最佳购买策略。",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "服务器时区",
+    "task.AutoStockpile.option.AutoStockpileServerTime.description": "用于判断服务器日期，调整购买策略从而提高利润。\n注：日期更新时间为对应时区的 04:00",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label": "国服 (GMT+8)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_9.label": "亚服 (GMT+9)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_8.label": "美服 (GMT-8)",

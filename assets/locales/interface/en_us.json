@@ -254,6 +254,7 @@
     "task.AutoStockpile.label": "📦 Auto Stockpile",
     "task.AutoStockpile.description": "Purchase elastic demand supplies, based on big data intelligent calculation to derive the best purchasing strategy.",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "Server Timezone",
+    "task.AutoStockpile.option.AutoStockpileServerTime.description": "Used to determine the server date and adjust the purchasing strategy to improve profits.\nNote: The date updates at 04:00 in the selected timezone.",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label": "CN (GMT+8)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_9.label": "Asia (GMT+9)",
     "task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_8.label": "US (GMT-8)",

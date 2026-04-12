@@ -24,6 +24,7 @@
         "AutoStockpileServerTime": {
             "type": "select",
             "label": "$task.AutoStockpile.option.AutoStockpileServerTime.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileServerTime.description",
             "default_case": "CN_GMT_PLUS_8",
             "cases": [
                 {
