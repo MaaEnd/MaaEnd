@@ -287,7 +287,7 @@ func displayControllerType(controllerType string) string {
 	case control.CONTROL_TYPE_WIN32:
 		return "Win32"
 	case control.CONTROL_TYPE_WLROOTS:
-		return "wlroots"
+		return "Wlroots"
 	default:
 		return controllerType
 	}
