@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 )
 
 const defaultLoadLocale = LocaleCN
@@ -82,7 +84,7 @@ func fileExists(p string) bool {
 }
 
 func loadMatcherConfig(dataDir string, locale string) (MatcherConfig, error) {
-	b, err := os.ReadFile(filepath.Join(dataDir, "matcher_config.json"))
+	b, err := resource.ReadResource(filepath.Join(dataDir, "matcher_config.json"))
 	if err != nil {
 		return MatcherConfig{}, err
 	}
@@ -246,17 +248,12 @@ func pickSkillPoolEnglish(s skillPoolJSON) string {
 }
 
 func loadSkillPools(dataDir string, locale string) (SkillPools, error) {
-	b, err := os.ReadFile(filepath.Join(dataDir, "skill_pools.json"))
-	if err != nil {
-		return SkillPools{}, err
-	}
-
 	var raw struct {
 		Slot1 []skillPoolJSON `json:"slot1"`
 		Slot2 []skillPoolJSON `json:"slot2"`
 		Slot3 []skillPoolJSON `json:"slot3"`
 	}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := resource.ReadJsonResource(filepath.Join(dataDir, "skill_pools.json"), &raw); err != nil {
 		return SkillPools{}, err
 	}
 
@@ -340,13 +337,8 @@ func pickLocalizedSkillSlice(m map[string][]string, locale string) []string {
 }
 
 func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillPools, locale string) ([]WeaponData, error) {
-	b, err := os.ReadFile(filepath.Join(dataDir, "weapons_output.json"))
-	if err != nil {
-		return nil, err
-	}
-
 	var raw WeaponsOutputRaw
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := resource.ReadJsonResource(filepath.Join(dataDir, "weapons_output.json"), &raw); err != nil {
 		return nil, err
 	}
 
@@ -397,13 +389,8 @@ func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillP
 }
 
 func loadLocations(dataDir string) ([]Location, error) {
-	b, err := os.ReadFile(filepath.Join(dataDir, "locations.json"))
-	if err != nil {
-		return nil, err
-	}
-
 	var locs []Location
-	if err := json.Unmarshal(b, &locs); err != nil {
+	if err := resource.ReadJsonResource(filepath.Join(dataDir, "locations.json"), &locs); err != nil {
 		return nil, err
 	}
 	return locs, nil

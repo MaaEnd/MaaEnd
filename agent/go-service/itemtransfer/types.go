@@ -1,7 +1,6 @@
 package itemtransfer
 
 import (
-	"encoding/json"
 	"strings"
 	"sync"
 
@@ -54,16 +53,13 @@ var (
 
 func loadItemOrderData() (*itemOrderData, error) {
 	cachedDataOnce.Do(func() {
-		b, err := resource.ReadResource("data/ItemTransfer/item_order.json")
+		var data itemOrderData
+		err := resource.ReadJsonResource("data/ItemTransfer/item_order.json", data)
 		if err != nil {
 			cachedDataErr = err
 			return
 		}
-		var data itemOrderData
-		if err := json.Unmarshal(b, &data); err != nil {
-			cachedDataErr = err
-			return
-		}
+
 		cachedData = &data
 		log.Info().
 			Str("component", componentName).

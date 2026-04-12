@@ -38,13 +38,6 @@ const (
 	BIG_MAP_PICK_RETRY = 10
 )
 
-// Resource paths
-const (
-	MAP_BBOX_DATA_PATH     = "data/MapTracker/map_bbox_data.json"
-	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
-	MAP_DIR                = "resource/image/MapTracker/map"
-)
-
 // Move action configuration
 const (
 	INFER_INTERVAL_MS      = 100

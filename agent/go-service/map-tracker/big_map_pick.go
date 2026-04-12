@@ -186,15 +186,9 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool, error) {
 	a.externalOnce.Do(func() {
 		a.externalData = map[string]mapExternalDataItem{}
-
-		data, err := resource.ReadResource(mt.MAP_EXTERNAL_DATA_PATH)
+		err := resource.ReadJsonResource(mt.MAP_EXTERNAL_DATA_PATH, &a.externalData)
 		if err != nil {
-			a.externalErr = fmt.Errorf("failed to read map external data: %w", err)
-			return
-		}
-
-		if err := json.Unmarshal(data, &a.externalData); err != nil {
-			a.externalErr = fmt.Errorf("failed to unmarshal map external data: %w", err)
+			a.externalErr = fmt.Errorf("failed to load map external data: %w", err)
 			return
 		}
 	})

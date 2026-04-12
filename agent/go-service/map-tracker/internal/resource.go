@@ -2,7 +2,6 @@
 package maptracker
 
 import (
-	"encoding/json"
 	"fmt"
 	"image"
 	"os"
@@ -28,6 +27,12 @@ var (
 			func() string { return resource.FindResource("resource/image/MapTracker/BigMapZoomOut.png") },
 		),
 	}
+)
+
+const (
+	MAP_BBOX_DATA_PATH     = "data/MapTracker/map_bbox_data.json"
+	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
+	MAP_DIR                = "resource/image/MapTracker/map"
 )
 
 // MapTrackerResource stores globally shared map resources for map-tracker.
@@ -85,14 +90,9 @@ func (r *MapTrackerResource) LoadMaps() ([]MapCache, error) {
 	}
 
 	rectList := make(map[string][]int)
-	if data, err := resource.ReadResource(MAP_BBOX_DATA_PATH); err == nil {
-		if err := json.Unmarshal(data, &rectList); err != nil {
-			log.Warn().Err(err).Msg("Failed to unmarshal map bbox data")
-		} else {
-			log.Info().Msg("Map bbox data loaded")
-		}
-	} else {
-		log.Warn().Err(err).Msg("Failed to read map bbox data")
+	err := resource.ReadJsonResource(MAP_BBOX_DATA_PATH, rectList)
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to load map bbox data")
 	}
 
 	entries, err := os.ReadDir(mapDir)
