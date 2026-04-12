@@ -54,7 +54,7 @@ var (
 func loadItemOrderData() (*itemOrderData, error) {
 	cachedDataOnce.Do(func() {
 		var data itemOrderData
-		err := resource.ReadJsonResource("data/ItemTransfer/item_order.json", data)
+		err := resource.ReadJsonResource("data/ItemTransfer/item_order.json", &data)
 		if err != nil {
 			cachedDataErr = err
 			return
