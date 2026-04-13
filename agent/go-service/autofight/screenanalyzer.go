@@ -120,7 +120,7 @@ func (sa *ScreenAnalyzer) hasLabelInFrames(label string, n int, unused bool, reg
 	hasRegion := len(region) > 0
 
 	total := 0
-	matchCount := 0
+	matchedFrames := 0
 
 	for fi := len(sa.frames) - 1; fi >= 0 && total < n; fi-- {
 		total++
@@ -132,17 +132,18 @@ func (sa *ScreenAnalyzer) hasLabelInFrames(label string, n int, unused bool, reg
 				continue
 			}
 			if det.Label == label {
-				matchCount++
+				matchedFrames++
+				break // count at most once per frame
 			}
 		}
 	}
 
-	if matchCount == 0 {
+	if matchedFrames == 0 {
 		return false
 	}
 
 	// 如果总帧数超过1且匹配帧数不超过总帧数的一半，认为不可靠，防止yolo识别异常
-	if total > 1 && matchCount*2 <= total {
+	if total > 1 && matchedFrames*2 <= total {
 		return false
 	}
 
