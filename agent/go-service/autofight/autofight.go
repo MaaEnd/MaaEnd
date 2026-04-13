@@ -233,7 +233,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		// 退出判定
 		comboFull := screenAnalyzer.GetCharacterComboFull()
 		if screenAnalyzer.GetCharacterLevel() {
-			log.Info().Msg("No level detected, exiting fight")
+			log.Info().Msg("Character level detected, exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 			result = true
 			break
