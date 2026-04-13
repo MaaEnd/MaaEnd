@@ -47,15 +47,24 @@
         ]
     },
     "_AutoEcoFarmJump3": {
-        "desc": "松开w",
+        "desc": "松开w，动作后等待 _AutoEcoFarmFindMenuIcon 同 roi 区域画面静止",
         "action": {
             "type": "KeyUp",
             "param": {
                 "key": 87 //w键
             }
         },
-        //稍微加点延迟保证停稳
-        "post_delay": 200,
+        // roi 与 _AutoEcoFarmFindMenuIcon 的 OCR 区域一致 [806,340,266,266]
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                806,
+                340,
+                266,
+                266
+            ]
+        },
+        "post_delay": 0,
         "next": [
             "_AutoEcoFarmFindMenuLoop",
             "_AutoEcoFarmMoveToTargetErr"
