@@ -600,6 +600,6 @@
     "option.GiftOperatorMoveMode.description": "Choose whether to reach the operator contact console using a prerecorded key sequence or recognition-based navigation. Prerecorded movement is recommended; MapTracker may still be unstable.",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)",
-    "option.RefreshGetCredits.label": "",
-    "option.RefreshGetCredits.description": ""
+    "option.RefreshGetCredits.label": "Get credits when insufficient for refresh",
+    "option.RefreshGetCredits.description": "When credits are insufficient for refresh, also trigger getting credits"
 }

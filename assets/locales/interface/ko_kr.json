@@ -600,6 +600,6 @@
     "option.GiftOperatorMoveMode.description": "미리 녹화한 키 입력 또는 인식 기반 이동으로 오퍼레이터 연락대까지 이동하는 방식을 선택합니다. 녹화된 입력 사용을 권장하며, MapTracker 는 아직 불안정할 수 있습니다.",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "녹화된 입력",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "인식 이동 (MapTracker)",
-    "option.RefreshGetCredits.label": "",
-    "option.RefreshGetCredits.description": ""
+    "option.RefreshGetCredits.label": "크레딧 부족 시 새로고침하여 크레딧 획득",
+    "option.RefreshGetCredits.description": "크레딧이 부족하여 새로고침할 때, 동일하게 크레딧 획득을 트리거합니다"
 }

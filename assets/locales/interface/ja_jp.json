@@ -600,6 +600,6 @@
     "option.GiftOperatorMoveMode.description": "事前に記録したキー操作、または認識ベースの移動で干員連絡台へ向かう方法を選択します。記録済み操作の利用を推奨します。MapTracker はまだ不安定な場合があります。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）",
-    "option.RefreshGetCredits.label": "",
-    "option.RefreshGetCredits.description": ""
+    "option.RefreshGetCredits.label": "リフレッシュ時にクレジット不足ならクレジットを取得",
+    "option.RefreshGetCredits.description": "クレジットが不足してリフレッシュできない場合、クレジットの取得もトリガーします"
 }

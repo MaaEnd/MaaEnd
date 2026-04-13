@@ -600,6 +600,6 @@
     "option.GiftOperatorMoveMode.description": "可選擇使用預先錄製好的按鍵操作，或使用識別尋路前往幹員聯絡台。建議優先使用預錄製；識別尋路（MapTracker）目前仍可能不穩定。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "錄製操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）",
-    "option.RefreshGetCredits.label": "",
-    "option.RefreshGetCredits.description": ""
+    "option.RefreshGetCredits.label": "刷新信用點不足時獲取信用點",
+    "option.RefreshGetCredits.description": "信用點不足以刷新時，同樣觸發獲取信用點"
 }
