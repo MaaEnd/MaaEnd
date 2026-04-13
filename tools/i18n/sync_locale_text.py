@@ -274,7 +274,7 @@ def collect_empty_translations(
             locale_entries.items(), key=lambda item: locale_sort_key(item[0])
         ):
             value = entries.get(key)
-            if value != "":
+            if value not in ("", None):
                 continue
             empty_items.append(
                 EmptyTranslation(
@@ -628,17 +628,16 @@ def main() -> int:
     translated_entries: Dict[Tuple[str, str, str], str] = {}
     translation_errors: List[Dict[str, str]] = []
     token_present = False
-    if phase in {"translate", "all"}:
+    if phase in {"translate", "all"} and translatable_items:
         llm_config = load_llm_config(args.llm_config)
         token_present = bool(llm_config.api_key)
-        if translatable_items:
-            translated_entries, translation_errors = translate_empty_entries(
-                translatable_items,
-                api_base_url=llm_config.api_base_url,
-                api_key=llm_config.api_key,
-                model=llm_config.model,
-                batch_size=max(1, args.batch_size),
-            )
+        translated_entries, translation_errors = translate_empty_entries(
+            translatable_items,
+            api_base_url=llm_config.api_base_url,
+            api_key=llm_config.api_key,
+            model=llm_config.model,
+            batch_size=max(1, args.batch_size),
+        )
 
     for (group, locale, key), text in translated_entries.items():
         if group == "interface":
