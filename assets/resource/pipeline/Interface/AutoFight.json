@@ -1,50 +1,25 @@
 {
     "AutoFight": {
-        "desc": "全自动战斗",
+        "desc": "自动战斗",
         "recognition": "Custom",
         "custom_recognition": "AutoFightEntryRecognition",
         "pre_delay": 0,
-        "anchor": {
-            "__AutoFightActionAttackAnchor": "__AutoFightActionAttackClick"
-        },
         "post_delay": 0,
-        "next": [
-            "__AutoFightLoop"
-        ],
+        "action": "Custom",
+        "custom_action": "AutoFightMainAction",
         "focus": {
             "Node.Recognition.Succeeded": "进入战斗场景"
-        }
-    },
-    "AutoFightNoAttack": {
-        "desc": "半自动战斗，没有普攻，原地罚站",
-        "recognition": "Custom",
-        "custom_recognition": "AutoFightEntryRecognition",
-        "pre_delay": 0,
-        "anchor": {
-            "__AutoFightActionAttackAnchor": ""
         },
-        "post_delay": 0,
-        "next": [
-            "__AutoFightLoop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入战斗场景"
-        }
-    },
-    "AutoFightRealtimeTask": {
-        "desc": "给开荒辅助用的自动战斗，通过option决定是否有普攻锚点",
-        "recognition": "Custom",
-        "custom_recognition": "AutoFightEntryRecognition",
-        "pre_delay": 0,
-        "anchor": {
-            "__AutoFightActionAttackAnchor": ""
-        },
-        "post_delay": 0,
-        "next": [
-            "__AutoFightLoop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入战斗场景"
+        "attach": {
+            "enable_attack": true,
+            "enable_combo": true,
+            "enable_dodge": true,
+            "enable_break_accumulating_power": true,
+            "enable_skill": true,
+            "enable_health_dangerous_switch": true,
+            "reserve_skill_level": 1,
+            "enable_end_skill": true,
+            "enable_lock_target": true
         }
     }
 }

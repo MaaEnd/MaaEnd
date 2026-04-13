@@ -119,6 +119,9 @@
                 {
                     "name": "AutoFight",
                     "label": "$option.AutoEssenceChallengeMode.cases.AutoFight.label",
+                    "option": [
+                        "AutoFightSetting"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickEssenceChallengeUsingWalk": {
                             "enabled": false

@@ -6,6 +6,7 @@
             "entry": "ProtocolSpaceEntry",
             "description": "$task.ProtocolSpace.description",
             "option": [
+                "AutoFightSetting",
                 "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
@@ -22,6 +23,22 @@
         }
     ],
     "option": {
+        "AutoFightSetting": {
+            "type": "switch",
+            "label": "$option.AutoFightSetting.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightReserveSkillLevel",
+                        "AutoFightHealthDangerousSwitch"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
         "ProtocolSpaceTeamChoose": {
             "type": "select",
             "label": "$option.ProtocolSpaceTeamChoose.label",

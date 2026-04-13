@@ -294,23 +294,28 @@
         "AutoFight": {
             "type": "switch",
             "label": "$option.AutoFight.label",
-            "description": "$option.AutoFight.description",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoFightRealtimeTask": {
+                        "AutoFight": {
                             "enabled": true
                         }
                     },
                     "option": [
-                        "AutoFightAttack"
+                        "AutoFightAttack",
+                        "AutoFightCombo",
+                        "AutoFightDodge",
+                        "AutoFightSkill",
+                        "AutoFightEndSkill",
+                        "AutoFightLockTarget",
+                        "AutoFightHealthDangerousSwitch"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoFightRealtimeTask": {
+                        "AutoFight": {
                             "enabled": false
                         }
                     }
@@ -320,13 +325,14 @@
         "AutoFightAttack": {
             "label": "$option.AutoFightAttack.label",
             "type": "switch",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoFightRealtimeTask": {
-                            "anchor": {
-                                "__AutoFightActionAttackAnchor": "__AutoFightActionAttackClick"
+                        "AutoFight": {
+                            "attach": {
+                                "enable_attack": true
                             }
                         }
                     }
@@ -334,9 +340,244 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoFightRealtimeTask": {
-                            "anchor": {
-                                "__AutoFightActionAttackAnchor": ""
+                        "AutoFight": {
+                            "attach": {
+                                "enable_attack": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightCombo": {
+            "label": "$option.AutoFightCombo.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_combo": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_combo": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightDodge": {
+            "label": "$option.AutoFightDodge.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightSkill": {
+            "label": "$option.AutoFightSkill.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_skill": true
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoFightReserveSkillLevel"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_skill": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightReserveSkillLevel": {
+            "label": "$option.AutoFightReserveSkillLevel.label",
+            "type": "select",
+            "default_case": "1",
+            "cases": [
+                {
+                    "name": "0",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "reserve_skill_level": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "1",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "reserve_skill_level": 1
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoFightBreakAccumulatingPower"
+                    ]
+                },
+                {
+                    "name": "2",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "reserve_skill_level": 2
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoFightBreakAccumulatingPower"
+                    ]
+                }
+            ]
+        },
+        "AutoFightBreakAccumulatingPower": {
+            "label": "$option.AutoFightBreakAccumulatingPower.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_break_accumulating_power": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_break_accumulating_power": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightEndSkill": {
+            "label": "$option.AutoFightEndSkill.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_end_skill": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_end_skill": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightHealthDangerousSwitch": {
+            "label": "$option.AutoFightHealthDangerousSwitch.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_health_dangerous_switch": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_health_dangerous_switch": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightLockTarget": {
+            "label": "$option.AutoFightLockTarget.label",
+            "type": "switch",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_lock_target": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_lock_target": false
                             }
                         }
                     }
