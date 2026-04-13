@@ -62,7 +62,11 @@ func NewScreenAnalyzer() *ScreenAnalyzer {
 func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) bool {
 	detail_reco, err := ctx.RunRecognition("__AutoFightRecognitionScreen", arg)
 	if err != nil || detail_reco == nil {
-		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionScreen")
+		log.Error().
+			Err(err).
+			Str("component", "AutoFight").
+			Str("step", "run_recognition_screen").
+			Msg("run recognition failed")
 		return false
 	}
 
