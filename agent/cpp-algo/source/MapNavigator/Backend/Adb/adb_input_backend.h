@@ -47,6 +47,8 @@ public:
     bool is_supported() const override;
     const std::string& unsupported_reason() const override;
     double default_turn_units_per_degree() const override;
+    SteeringTransportProfile steering_transport_profile() const override;
+    bool supports_sprint() const override;
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) override;
     void TriggerJumpSync(int hold_millis) override;

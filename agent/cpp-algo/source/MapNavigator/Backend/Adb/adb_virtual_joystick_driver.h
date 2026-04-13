@@ -6,7 +6,6 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
-
 namespace maplocator
 {
 

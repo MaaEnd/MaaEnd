@@ -143,6 +143,32 @@ double AdbInputBackend::default_turn_units_per_degree() const
     return default_turn_units_per_degree_;
 }
 
+SteeringTransportProfile AdbInputBackend::steering_transport_profile() const
+{
+    if (RequiresSingleTouchSerialization(controller_type_)) {
+        return SteeringTransportProfile {
+            .supports_concurrent_move_and_look = false,
+            .min_send_interval_ms = 120,
+            .min_emit_delta_deg = 4.0,
+            .max_batch_delta_deg = 14.0,
+            .action_quiet_period_ms = 180,
+        };
+    }
+
+    return SteeringTransportProfile {
+        .supports_concurrent_move_and_look = true,
+        .min_send_interval_ms = 0,
+        .min_emit_delta_deg = 1.5,
+        .max_batch_delta_deg = 20.0,
+        .action_quiet_period_ms = 60,
+    };
+}
+
+bool AdbInputBackend::supports_sprint() const
+{
+    return !IsPlayCoverControllerType(controller_type_);
+}
+
 void AdbInputBackend::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
 {
     forward_down_ = forward;
@@ -184,7 +210,11 @@ void AdbInputBackend::PulseForwardSync(int hold_millis)
 
 void AdbInputBackend::TriggerSprintSync()
 {
-    if (!ClickBlindTargetSync("sprint", action_buttons_.sprint_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
+    if (!ClickBlindTargetSync(
+            "sprint",
+            action_buttons_.sprint_button,
+            action_buttons_.default_hold_ms,
+            action_buttons_.post_action_delay_ms)) {
         LogWarn << "AdbInputBackend: failed to trigger sprint.";
     }
     sprint_button_down_ = false;

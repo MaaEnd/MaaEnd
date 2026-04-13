@@ -105,6 +105,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     }
 
     last_capture_was_black_screen_ = false;
+    const auto capture_started_at = std::chrono::steady_clock::now();
 
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
     MaaControllerWait(controller_, screencap_id);
@@ -137,7 +138,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     out_pos->angle = locate_result.position->angle;
     out_pos->zone_id = locate_result.position->zoneId;
     out_pos->valid = true;
-    out_pos->timestamp = std::chrono::steady_clock::now();
+    out_pos->timestamp = capture_started_at;
     last_capture_was_held_ = locate_result.position->isHeld;
     held_fix_streak_ = last_capture_was_held_ ? (held_fix_streak_ + 1) : 0;
     return true;

@@ -47,9 +47,7 @@ bool LooksLikeActionToken(const std::string& text)
     if (text.empty()) {
         return false;
     }
-    return std::all_of(text.begin(), text.end(), [](char ch) {
-        return std::isupper(static_cast<unsigned char>(ch)) || ch == '_';
-    });
+    return std::all_of(text.begin(), text.end(), [](char ch) { return std::isupper(static_cast<unsigned char>(ch)) || ch == '_'; });
 }
 
 bool IsActionKeywordCaseInsensitive(const std::string& text)
@@ -60,9 +58,9 @@ bool IsActionKeywordCaseInsensitive(const std::string& text)
         normalized.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
     }
 
-#define NAVI_X_(name)      \
+#define NAVI_X_(name)          \
     if (normalized == #name) { \
-        return true;       \
+        return true;           \
     }
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_

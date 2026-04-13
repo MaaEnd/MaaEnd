@@ -15,7 +15,7 @@ struct NaviParam
     std::string map_name;
     std::vector<Waypoint> path;
     int64_t arrival_timeout = 60000;
-    double sprint_threshold = 25.0;
+    double sprint_threshold = 16.0;
     bool enable_local_driver = true;
 };
 

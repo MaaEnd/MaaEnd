@@ -112,7 +112,8 @@ AdbVirtualJoystickDriver::Direction AdbVirtualJoystickDriver::ResolveDirection(b
 
 std::optional<AdbVirtualJoystickDriver::ControlGeometry> AdbVirtualJoystickDriver::AcquireControlGeometry()
 {
-    if (config_.frame_size.width <= 0 || config_.frame_size.height <= 0 || config_.control_roi.width <= 0 || config_.control_roi.height <= 0) {
+    if (config_.frame_size.width <= 0 || config_.frame_size.height <= 0 || config_.control_roi.width <= 0
+        || config_.control_roi.height <= 0) {
         LogWarn << "AdbVirtualJoystickDriver: invalid fixed joystick geometry.";
         return std::nullopt;
     }

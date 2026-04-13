@@ -33,8 +33,8 @@ double ComputeDefaultTurnUnitsPerDegree(MaaController* ctrl, const std::string& 
     int32_t screen_width = 0;
     int32_t screen_height = 0;
     if (!MaaControllerGetResolution(ctrl, &screen_width, &screen_height) || screen_width <= 0) {
-        LogWarn << backend_name << " backend: failed to get controller resolution, fallback to default turn scale."
-                << VAR(screen_width) << VAR(screen_height);
+        LogWarn << backend_name << " backend: failed to get controller resolution, fallback to default turn scale." << VAR(screen_width)
+                << VAR(screen_height);
         return ComputeDefaultUnitsPerDegree();
     }
 
@@ -47,7 +47,11 @@ double ComputeDefaultTurnUnitsPerDegree(MaaController* ctrl, const std::string& 
 
 } // namespace
 
-DesktopInputBackend::DesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name, DesktopKeyCodes key_codes)
+DesktopInputBackend::DesktopInputBackend(
+    MaaController* ctrl,
+    std::string controller_type,
+    std::string backend_name,
+    DesktopKeyCodes key_codes)
     : ctrl_(ctrl)
     , controller_type_(std::move(controller_type))
     , backend_name_(std::move(backend_name))
@@ -89,6 +93,17 @@ const std::string& DesktopInputBackend::unsupported_reason() const
 double DesktopInputBackend::default_turn_units_per_degree() const
 {
     return default_turn_units_per_degree_;
+}
+
+SteeringTransportProfile DesktopInputBackend::steering_transport_profile() const
+{
+    return SteeringTransportProfile {
+        .supports_concurrent_move_and_look = true,
+        .min_send_interval_ms = 0,
+        .min_emit_delta_deg = 1.0,
+        .max_batch_delta_deg = 18.0,
+        .action_quiet_period_ms = 0,
+    };
 }
 
 void DesktopInputBackend::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)

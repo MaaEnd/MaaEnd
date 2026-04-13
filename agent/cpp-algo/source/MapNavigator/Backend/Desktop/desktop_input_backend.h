@@ -29,6 +29,9 @@ public:
     bool is_supported() const override;
     const std::string& unsupported_reason() const override;
     double default_turn_units_per_degree() const override;
+    SteeringTransportProfile steering_transport_profile() const override;
+
+    bool supports_sprint() const override { return true; }
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) override;
     void TriggerJumpSync(int hold_millis) override;
@@ -43,7 +46,9 @@ public:
 
 protected:
     int hover_x() const { return hover_x_; }
+
     int hover_y() const { return hover_y_; }
+
     void EnsureHoverAnchorSync();
     void PostKeyDownSync(int key_code, int delay_millis);
     void PostKeyUpSync(int key_code, int delay_millis);

@@ -58,17 +58,10 @@ bool NaviController::Navigate(const NaviParam& param)
     NavigationSession session(param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");
 
-    MotionController motion_controller(&action_wrapper, &position_provider, &session, &pos, param.enable_local_driver, is_stopping);
+    MotionController motion_controller(&action_wrapper, param.enable_local_driver);
     ActionExecutor action_executor(&action_wrapper, &motion_controller, param.enable_local_driver);
-    NavigationStateMachine state_machine(
-        param,
-        &action_wrapper,
-        &position_provider,
-        &session,
-        &motion_controller,
-        &action_executor,
-        &pos,
-        is_stopping);
+    NavigationStateMachine
+        state_machine(param, &action_wrapper, &position_provider, &session, &motion_controller, &action_executor, &pos, is_stopping);
 
     return state_machine.Run();
 }

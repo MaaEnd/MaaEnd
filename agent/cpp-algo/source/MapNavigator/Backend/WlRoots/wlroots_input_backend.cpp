@@ -31,12 +31,23 @@ public:
     {
     }
 
+    SteeringTransportProfile steering_transport_profile() const override
+    {
+        return SteeringTransportProfile {
+            .supports_concurrent_move_and_look = false,
+            .min_send_interval_ms = 100,
+            .min_emit_delta_deg = 2.0,
+            .max_batch_delta_deg = 18.0,
+            .action_quiet_period_ms = 50,
+        };
+    }
+
     // linux 桌面端运行终末地的架构如下所示：
     // [niri(main compositor)] -> [sway(wlroots-based sub-compositor)] -> [Xwayland] -> [Endfield]
     // 当游戏进入鼠标捕获状态时，Xwayland 不再关心鼠标绝对位置，而是根据鼠标相对移动来驱动游戏视角旋转
     // 相对移动的功能其实写起来容易，但会遇到移动至屏幕边缘时鼠标位置被限制在边缘导致无法继续移动的问题
     // 暂时只能通过按住 Alt 键进行一次绝对位置重置来处理，这会带来一些额外的输入延迟
-    // 
+    //
     // 另一个思路是，不通过 Xwayland 运行，直接让游戏以 wayland 客户端的身份运行
     // 但目前我用 wayland 方案虚拟鼠标会失效，不清楚是哪里的问题，先放在后面再看吧
     bool SendViewDeltaSync(int dx, int dy) override
@@ -53,8 +64,7 @@ public:
         const int end_x = std::clamp(kWlrootsCenterX + dx, 0, kWorkWidth - 1);
         const int end_y = std::clamp(kWlrootsCenterY + dy, 0, kWlrootsReferenceFrameHeight - 1);
 
-        LogInfo << "SendViewDeltaByAltRecenterThenOffset"
-                << VAR(dx) << VAR(dy) << VAR(end_x) << VAR(end_y);
+        LogInfo << "SendViewDeltaByAltRecenterThenOffset" << VAR(dx) << VAR(dy) << VAR(end_x) << VAR(end_y);
 
         PostKeyDownSync(kLeftAltKey, kWlrootsAltSettleDelayMs);
 

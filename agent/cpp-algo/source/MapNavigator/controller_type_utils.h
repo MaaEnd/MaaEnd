@@ -1,7 +1,7 @@
 #pragma once
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <ranges>
 #include <string_view>
@@ -11,10 +11,9 @@ namespace mapnavigator
 
 inline bool EqualsIgnoreCase(std::string_view lhs, std::string_view rhs)
 {
-    return lhs.size() == rhs.size()
-           && std::ranges::equal(lhs, rhs, [](char l, char r) {
-                  return std::tolower(static_cast<unsigned char>(l)) == std::tolower(static_cast<unsigned char>(r));
-              });
+    return lhs.size() == rhs.size() && std::ranges::equal(lhs, rhs, [](char l, char r) {
+               return std::tolower(static_cast<unsigned char>(l)) == std::tolower(static_cast<unsigned char>(r));
+           });
 }
 
 inline bool IsAdbLikeControllerType(std::string_view controller_type)
