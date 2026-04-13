@@ -12,7 +12,7 @@
         "next": [
             "[JumpBack]AutoStockpileBuyItemValleyIVTask",
             "SoldOut",
-            "AutoStockpileSwipeValleyIV"
+            "[JumpBack]AutoStockpileSwipeValleyIV"
         ]
     },
     "AutoStockpileBuyItemValleyIVTask": {
@@ -37,7 +37,10 @@
                     0
                 ]
             }
-        }
+        },
+        "next": [
+            "AutoStockpileSwipeToMax"
+        ]
     },
     "AutoStockpileSwipeValleyIV": {
         "max_hit": 20,

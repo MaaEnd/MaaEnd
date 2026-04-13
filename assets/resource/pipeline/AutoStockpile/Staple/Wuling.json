@@ -12,7 +12,7 @@
         "next": [
             "[JumpBack]AutoStockpileBuyItemWulingTask",
             "SoldOut",
-            "AutoStockpileSwipeWuling"
+            "[JumpBack]AutoStockpileSwipeWuling"
         ]
     },
     "AutoStockpileBuyItemWulingTask": {
@@ -37,7 +37,10 @@
                     0
                 ]
             }
-        }
+        },
+        "next": [
+            "AutoStockpileSwipeToMax"
+        ]
     },
     "AutoStockpileSwipeWuling": {
         "max_hit": 20,

@@ -74,6 +74,27 @@
                     "已售完",
                     "(?i)Sold\\s*Out",
                     "完売"
+                ],
+                "replace": [
+                    "馨",
+                    "罄"
+                ]
+            }
+        }
+    },
+    "ConfirmBuyText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -163,
+                    -25,
+                    176,
+                    43
+                ],
+                "expected": [
+                    "确认购买"
                 ]
             }
         }
