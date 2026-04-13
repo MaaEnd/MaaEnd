@@ -16,8 +16,8 @@
             ],
             "option": [
                 "AutoStockpileServerTime",
-                "AutoStockpileValleyIV",
-                "AutoStockpileWuling"
+                "AutoStockpileElasticValleyIV",
+                "AutoStockpileElasticWuling"
             ]
         }
     ],
@@ -74,15 +74,15 @@
                 }
             ]
         },
-        "AutoStockpileValleyIV": {
+        "AutoStockpileElasticValleyIV": {
             "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileValleyIV.label",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileValleyIV": {
+                        "AutoStockpileElasticValleyIV": {
                             "enabled": true
                         }
                     }
@@ -92,15 +92,15 @@
                 }
             ]
         },
-        "AutoStockpileWuling": {
+        "AutoStockpileElasticWuling": {
             "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileWuling.label",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticWuling.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileWuling": {
+                        "AutoStockpileElasticWuling": {
                             "enabled": true
                         }
                     }

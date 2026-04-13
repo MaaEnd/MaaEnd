@@ -81,8 +81,8 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 | 任务选项                  | 作用                                                                      |
 | ------------------------- | ------------------------------------------------------------------------- |
 | `AutoStockpileServerTime` | 通过 `pipeline_override` 向 `AutoStockpileAttach` 写入服务器 UTC 小时偏移 |
-| `AutoStockpileValleyIV`   | 通过 `pipeline_override.enabled` 启用四号谷地节点                         |
-| `AutoStockpileWuling`     | 通过 `pipeline_override.enabled` 启用武陵节点                             |
+| `AutoStockpileElasticValleyIV`   | 通过 `pipeline_override.enabled` 启用四号谷地节点                         |
+| `AutoStockpileElasticWuling`     | 通过 `pipeline_override.enabled` 启用武陵节点                             |
 
 地区开关不写入 `attach`。`AutoStockpileServerTime` 会通过 `pipeline_override` 将 `server_time` 写入 `AutoStockpileAttach.attach`，并由 Go Service 在运行时读取。当前内建行为如下：
 
@@ -207,7 +207,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 文件：`assets/resource/pipeline/AutoStockpile/Main.json`、`assets/resource/pipeline/AutoStockpile/DecisionLoop.json`
 
 - 在 `Main.json` 的 `AutoStockpileMain` 的 `next` 列表中加入 `[JumpBack]AutoStockpile{NewRegion}`。
-- 在 `Main.json` 中定义对应的地区节点（如 `AutoStockpileValleyIV`），设置 `anchor` 字段将 `AutoStockpileDecision` 指向 `DecisionLoop.json` 中对应的决策节点（如 `AutoStockpileDecisionValleyIV`）。
+- 在 `Main.json` 中定义对应的地区节点（如 `AutoStockpileElasticValleyIV`），设置 `anchor` 字段将 `AutoStockpileDecision` 指向 `DecisionLoop.json` 中对应的决策节点（如 `AutoStockpileDecisionValleyIV`）。
 - 在 `DecisionLoop.json` 中新增对应的 `AutoStockpileDecision{NewRegion}` 节点，并在其 `action.param.custom_action_param.Region` 中写入 `{NewRegion}`。
 
 注意：Pipeline 仍通过 `Main.json` 中的 `anchor` 字段硬编码维护地区到决策节点的映射关系。

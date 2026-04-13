@@ -81,8 +81,8 @@ The current `assets/tasks/AutoStockpile.json` exposes one server-time selector a
 | Task option               | Purpose                                                                                    |
 | ------------------------- | ------------------------------------------------------------------------------------------ |
 | `AutoStockpileServerTime` | Selects the server timezone by writing an integer UTC hour offset to `AutoStockpileAttach` |
-| `AutoStockpileValleyIV`   | Enables the Valley IV region node via `pipeline_override.enabled`                          |
-| `AutoStockpileWuling`     | Enables the Wuling region node via `pipeline_override.enabled`                             |
+| `AutoStockpileElasticValleyIV`   | Enables the Valley IV region node via `pipeline_override.enabled`                          |
+| `AutoStockpileElasticWuling`     | Enables the Wuling region node via `pipeline_override.enabled`                             |
 
 The region toggles do not write to `attach`. `AutoStockpileServerTime` writes `server_time` to `AutoStockpileAttach.attach` through `pipeline_override`, and the Go Service reads it at runtime. The current built-in behaviors are:
 
@@ -204,7 +204,7 @@ File: `assets/tasks/AutoStockpile.json`
 Files: `assets/resource/pipeline/AutoStockpile/Main.json` and `assets/resource/pipeline/AutoStockpile/DecisionLoop.json`
 
 - Add `[JumpBack]AutoStockpile{NewRegion}` to the `next` list of `AutoStockpileMain` in `Main.json`.
-- Define the corresponding region node in `Main.json` (e.g., `AutoStockpileValleyIV`), setting the `anchor` field to point `AutoStockpileDecision` to the decision node in `DecisionLoop.json` (e.g., `AutoStockpileDecisionValleyIV`).
+- Define the corresponding region node in `Main.json` (e.g., `AutoStockpileElasticValleyIV`), setting the `anchor` field to point `AutoStockpileDecision` to the decision node in `DecisionLoop.json` (e.g., `AutoStockpileDecisionValleyIV`).
 - Add a matching `AutoStockpileDecision{NewRegion}` node in `DecisionLoop.json`, and set `{NewRegion}` in `action.param.custom_action_param.Region`.
 
 Note: The Pipeline still maintains the hardcoded region-to-decision anchor mapping via the `anchor` field in `Main.json`.
