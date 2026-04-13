@@ -198,6 +198,12 @@
                         },
                         "DailyTaskCheckActivityStatus": {
                             "enabled": true
+                        },
+                        "GearAssemblySwitchAscending": {
+                            "enabled": true
+                        },
+                        "GearAssemblyAutoAssemble": {
+                            "enabled": true
                         }
                     }
                 },
