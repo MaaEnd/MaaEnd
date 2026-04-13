@@ -48,9 +48,9 @@
             "param": {
                 "roi": [
                     325,
-                    630,
+                    600,
                     100,
-                    60
+                    90
                 ],
                 "template": [
                     "GearAssembly/Filter.png",
@@ -157,7 +157,7 @@
                 "roi": [
                     250,
                     0,
-                    200,
+                    300,
                     60
                 ],
                 "expected": [
@@ -490,20 +490,28 @@
     },
     "GearAssemblyEnsureInStandalone": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     200,
                     0,
-                    150,
+                    350,
                     60
                 ],
-                "template": [
-                    "GearAssembly/Standalone.png"
+                "lower": [
+                    [
+                        220,
+                        220,
+                        220
+                    ]
                 ],
-                "threshold": [
-                    0.8
-                ]
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 5000
             }
         },
         "pre_wait_freezes": {
