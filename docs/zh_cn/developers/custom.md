@@ -52,6 +52,42 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`ClearHitCount.json`](../../../assets/resource/pipeline/Interface/Example/ClearHitCount.json)
 
+### AttachToExpectedRegexAction
+
+`AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取若干源节点 `attach` 中的关键词，并把合并后的白名单正则写入一个目标 OCR 节点的 `expected`。
+
+- 参数：
+    - `target: string`：目标节点名（将被覆盖 `expected`），必填。
+    - `keys: string[]`：要遍历其 `attach` 的节点名列表，必填。
+
+处理规则：
+
+- `attach` 内支持 `string` 或 `string[]` 两种值类型；会自动去空白、去重和正则转义。
+- 当关键词列表为空时，生成 `a^`（等价于“永不匹配”）。
+- 最终通过 `OverridePipeline` 覆盖目标节点的 `expected`。
+
+示例：
+
+```json
+{
+    "action": "Custom",
+    "custom_action": "AttachToExpectedRegexAction",
+    "custom_action_param": {
+        "target": "Priority2OCR",
+        "keys": [
+            "Priority2OCR",
+            "Priority2OCR_CanNotAfford"
+        ]
+    }
+}
+```
+
+兼容性说明：
+
+- 信用点商店已切换为直接使用 `AttachToExpectedRegexAction`。
+- 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
+- 其他任务也建议优先使用通用名，避免与具体业务耦合。
+
 ---
 
 ## Custom Recognition

@@ -21,7 +21,7 @@
 | 购买结果聚焦   | `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` | 在购买弹窗中识别具体买到的商品并记录 focus                     |
 | 刷新相关识别   | `assets/resource/pipeline/CreditShopping/Reflash.json`      | 负责识别刷新按钮、刷新花费与“无法刷新”状态                     |
 | 获取信用点联动 | `assets/resource/pipeline/DijiangRewards/NeedCredit.json`   | 在信用不足时回基建开启线索交流或赠予线索获取信用               |
-| Go 参数解析    | `agent/go-service/creditshopping/creditshopping.go`         | 将任务选项写入的 `attach` 关键词合并成 OCR 正则并覆盖 Pipeline |
+| Go 参数解析    | `agent/go-service/common/attachregex/action.go`             | 将任务选项写入的 `attach` 关键词合并成 OCR 正则并覆盖 Pipeline |
 | 多语言文案     | `assets/locales/interface/*.json`                           | `CreditShopping` 任务与选项文案                                |
 
 ## 总体执行逻辑
@@ -34,7 +34,7 @@
     1. 有待领取信用时点击 `CreditShoppingClaimCredit`
     2. 没有待领取信用时命中 `CreditShoppingNoCreditClaim`
 4. 回到 `Shopping.json` 的 `CreditShoppingShopping` 后，先执行一次 `CreditShoppingInit`。
-5. `CreditShoppingInit` 通过自定义动作 `CreditShoppingParseParams` 读取节点 `attach`，生成当前运行时的白名单 OCR 正则。
+5. `CreditShoppingInit` 及其后续初始化节点会串行调用通用自定义动作 `AttachToExpectedRegexAction`，每次只覆盖一个目标 OCR 节点的白名单正则。
 6. 后续循环进入 `CreditShoppingScanItem`，按固定顺序判断：
     1. 是否需要先去补信用点
     2. 是否命中优先购买 1
@@ -198,7 +198,7 @@
 `CreditShopping` 的多选白名单不是直接把长正则写死在任务文件里，而是分两步完成：
 
 1. `assets/tasks/CreditShopping.json` 的 checkbox case 把各商品的多语言名称写入不同 OCR 节点的 `attach`
-2. `agent/go-service/creditshopping/creditshopping.go` 在 `CreditShoppingInit` 时读取这些 `attach`，合并为运行时正则，再调用 `OverridePipeline`
+2. `agent/go-service/common/attachregex/action.go` 在 `CreditShoppingInit` 时读取这些 `attach`，合并为运行时正则，再调用 `OverridePipeline`
 
 当前会被动态覆盖的节点有：
 
@@ -228,11 +228,11 @@
 
 执行顺序可以理解为：
 
-1. `CreditShoppingInit` 在进入商店扫描循环前触发一次 `CreditShoppingParseParams`
-2. Go 读取 `BuyFirstOCR`、`Priority2OCR`、`Priority3OCR` 等节点上的 `attach`
-3. 把任务选项里勾选的多语言商品名整理成各档位对应的白名单匹配条件
-4. 通过 `OverridePipeline` 回写到这些 OCR 节点的 `expected`
-5. 后续商品扫描仍由 Pipeline 完成，Go 不再参与逐个商品判断
+1. `CreditShoppingInit` 在进入商店扫描循环前进入一串初始化节点，每个节点触发一次 `AttachToExpectedRegexAction`
+2. 每次动作只读取一组源节点 `attach`
+3. 把任务选项里勾选的多语言商品名整理成某一个目标节点对应的白名单匹配条件
+4. 通过 `OverridePipeline` 回写该目标节点的 `expected`
+5. 所有初始化节点执行完成后，再进入正式商品扫描；Go 不参与逐个商品判断
 
 也就是说，这里的分工是：
 
@@ -492,7 +492,7 @@
 1. **入口层**：`GoToShop.json` + `ClaimCredit.json`，负责“进入信用交易所并收取今日信用”。
 2. **扫描决策层**：`Shopping.json`，负责“按什么顺序决定买、停、补信用、刷新”。
 3. **识别层**：`Item.json` + `Reflash.json`，负责“商品名、折扣、可购买状态、刷新状态怎么识别”。
-4. **参数装配层**：`assets/tasks/CreditShopping.json` + `agent/go-service/creditshopping/creditshopping.go`，负责“用户选了哪些商品，最终变成什么 OCR 条件”。
+4. **参数装配层**：`assets/tasks/CreditShopping.json` + `agent/go-service/common/attachregex/action.go`，负责“用户选了哪些商品，最终变成什么 OCR 条件”。
 
 这样定位问题会比较快：
 
@@ -506,7 +506,7 @@
 修改后至少检查以下几项：
 
 1. `assets/interface.json` 是否仍然导入了 `tasks/CreditShopping.json`。
-2. `CreditShoppingInit` 是否还能正常执行 `CreditShoppingParseParams`。
+2. `CreditShoppingInit` 及其后续初始化节点是否还能按顺序正常执行 `AttachToExpectedRegexAction`。
 3. 新增商品时，`assets/tasks/CreditShopping.json`、`BuyItem.json`、`BuyItemFocus.json`、`assets/locales/interface/*.json` 是否同步修改。
 4. 若改了获取信用点逻辑，`NeedCredit.json` 中的 `ReceptionRoomSendCluesEntry_NeedCredit`、`ReceptionRoomSendCluesSelectClues_NeedCredit`、`ClueItemCount_NeedCredit` 是否与任务选项语义一致。
 5. 若改了刷新策略，`RefreshItem`、`CanNotFlash`、`CreditShoppingPrudentRefresh` 的先后关系是否仍正确。

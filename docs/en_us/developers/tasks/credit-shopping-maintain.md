@@ -21,7 +21,7 @@ The current implementation is spread across these files:
 | Purchase result focus          | `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` | In the purchase dialog, recognizes the purchased item and records focus                      |
 | Refresh-related recognition    | `assets/resource/pipeline/CreditShopping/Reflash.json`      | Recognizes refresh button, refresh cost, and “cannot refresh” state                          |
 | Credit acquisition integration | `assets/resource/pipeline/DijiangRewards/NeedCredit.json`   | When credit is insufficient, returns to base to start clue exchange or gift clues for credit |
-| Go parameter parsing           | `agent/go-service/creditshopping/creditshopping.go`         | Merges `attach` keywords from task options into OCR regex and overrides Pipeline             |
+| Go parameter parsing           | `agent/go-service/common/attachregex/action.go`             | Merges `attach` keywords from task options into OCR regex and overrides Pipeline             |
 | Localized strings              | `assets/locales/interface/*.json`                           | `CreditShopping` task and option text                                                        |
 
 ## Overall execution flow
@@ -34,7 +34,7 @@ The task entry is `CreditShoppingMain` in `GoToShop.json`:
     1. If there is credit to claim, click `CreditShoppingClaimCredit`.
     2. If there is nothing to claim, hit `CreditShoppingNoCreditClaim`.
 4. After returning to `CreditShoppingShopping` in `Shopping.json`, run `CreditShoppingInit` once.
-5. `CreditShoppingInit` uses the custom action `CreditShoppingParseParams` to read the node `attach` and generate whitelist OCR regex for the current run.
+5. `CreditShoppingInit` and its follow-up init nodes call generic `AttachToExpectedRegexAction` in sequence, overriding one target OCR whitelist regex at a time.
 6. The loop then enters `CreditShoppingScanItem`, which evaluates in fixed order:
     1. Whether to top up credit first
     2. Whether priority purchase 1 matches
@@ -198,7 +198,7 @@ To change “which items ignore reserve threshold,” prefer adjusting per-tier 
 The multi-select whitelist is not one huge regex in the task file; it is two steps:
 
 1. Checkbox cases in `assets/tasks/CreditShopping.json` write multilingual item names into OCR nodes’ `attach`.
-2. `agent/go-service/creditshopping/creditshopping.go` reads `attach` at `CreditShoppingInit`, merges into runtime regex, and calls `OverridePipeline`.
+2. `agent/go-service/common/attachregex/action.go` reads `attach` at `CreditShoppingInit`, merges into runtime regex, and calls `OverridePipeline`.
 
 Nodes dynamically overridden today:
 
@@ -228,11 +228,11 @@ Go’s role in `CreditShopping` is narrow: it does not run purchase flow; it onl
 
 Execution flow:
 
-1. `CreditShoppingInit` triggers `CreditShoppingParseParams` once before the shop scan loop
-2. Go reads `attach` on `BuyFirstOCR`, `Priority2OCR`, `Priority3OCR`, etc.
-3. Selected multilingual item names become per-tier whitelist match conditions
-4. `OverridePipeline` writes back to these OCR nodes’ `expected`
-5. Further scanning stays in Pipeline; Go does not judge per item
+1. `CreditShoppingInit` enters an init chain before the shop scan loop, and each init node triggers `AttachToExpectedRegexAction` once
+2. Each action reads only one source-node group’s `attach`
+3. Selected multilingual item names become whitelist match conditions for one target node
+4. `OverridePipeline` writes back that target node’s `expected`
+5. After all init nodes finish, normal item scanning continues in Pipeline; Go does not judge per item
 
 Division of labor:
 
@@ -492,7 +492,7 @@ Maintain `CreditShopping` in four layers:
 1. **Entry:** `GoToShop.json` + `ClaimCredit.json` — enter credit exchange and claim daily credit.
 2. **Scan / decision:** `Shopping.json` — order of buy, stop, top-up credit, refresh.
 3. **Recognition:** `Item.json` + `Reflash.json` — item name, discount, affordability, refresh state.
-4. **Parameter assembly:** `assets/tasks/CreditShopping.json` + `agent/go-service/creditshopping/creditshopping.go` — user selections → OCR conditions.
+4. **Parameter assembly:** `assets/tasks/CreditShopping.json` + `agent/go-service/common/attachregex/action.go` — user selections → OCR conditions.
 
 Triage:
 
@@ -506,7 +506,7 @@ Triage:
 After changes, verify at least:
 
 1. `assets/interface.json` still imports `tasks/CreditShopping.json`.
-2. `CreditShoppingInit` still runs `CreditShoppingParseParams` correctly.
+2. `CreditShoppingInit` and its follow-up init nodes still run `AttachToExpectedRegexAction` in the intended order.
 3. For new items: `assets/tasks/CreditShopping.json`, `BuyItem.json`, `BuyItemFocus.json`, `assets/locales/interface/*.json` are updated together.
 4. If credit acquisition logic changed: `ReceptionRoomSendCluesEntry_NeedCredit`, `ReceptionRoomSendCluesSelectClues_NeedCredit`, `ClueItemCount_NeedCredit` in `NeedCredit.json` still match task option semantics.
 5. If refresh policy changed: order among `RefreshItem`, `CanNotFlash`, `CreditShoppingPrudentRefresh` is still correct.
