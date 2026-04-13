@@ -53,6 +53,7 @@
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
+            "RefreshGetCredits",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
             "RefreshItem",
@@ -86,6 +87,7 @@
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
+            "RefreshGetCredits",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -358,6 +360,22 @@
         "action": "Click",
         "next": [
             "CreditShoppingBuyItem"
+        ]
+    },
+    "RefreshGetCredits": {
+        "desc": "刷新信用点不足触发获取信用点，默认关闭，由任务选项开启",
+        "max_hit": 1,
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CanNotFlash"
+                ]
+            }
+        },
+        "next": [
+            "GoToNeedCredit"
         ]
     },
     "CreditShoppingPrudentRefresh": {

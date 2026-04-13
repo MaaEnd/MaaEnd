@@ -1727,8 +1727,33 @@
                         }
                     },
                     "option": [
+                        "RefreshGetCredits",
                         "PrudentRefresh"
                     ]
+                }
+            ]
+        },
+        "RefreshGetCredits": {
+            "type": "switch",
+            "label": "$option.RefreshGetCredits.label",
+            "description": "$option.RefreshGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RefreshGetCredits": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RefreshGetCredits": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },
