@@ -29,8 +29,7 @@
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
-            "SellProductClickBarRight",
-            "SellProductDragBar"
+            "SellProductBetterSliding"
         ]
     },
     "SellProductZeroProductColorMatch": {
@@ -180,66 +179,32 @@
             "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
         }
     },
-    "SellProductClickBarRight": {
-        "desc": "点击进度条最右侧",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1115,
-            507,
-            88,
-            103
-        ],
-        "template": [
-            "SellProduct/SellProductBarRight.png"
-        ],
-        "method": 10001,
-        "order_by": "Score",
+    "SellProductBetterSliding": {
+        "desc": "使用 BetterSliding 将进度条拖到最大",
         "pre_delay": 0,
-        "action": "Click",
-        "target_offset": [
-            7,
-            16,
-            -21,
-            -32
-        ],
-        // 单击后需要等待一会儿再交易
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        // BetterSliding 内部完成拖到最大与必要校正，结束后等待界面稳定再交易
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSell"
-        ]
-    },
-    "SellProductDragBar": {
-        "desc": "备选方案-滑动滑动条",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1000,
-            500,
-            200,
-            150
-        ],
-        "template": [
-            "SellProduct/SellProductBar.png"
-        ],
-        "method": 10001,
-        "pre_delay": 0,
-        "action": "Swipe",
-        "end_offset": [
-            [
-                0,
-                0,
-                400,
-                0
-            ]
-        ],
-        "duration": [
-            500
-        ],
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSell"
+            // "SellProductSell"
         ]
     },
     "SellProductSell": {

@@ -14,5 +14,32 @@
             109,
             26
         ]
+    },
+    "SellProductBetterSliding": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "Quantity": {
+                "Box": [
+                    1025,
+                    497,
+                    166,
+                    37
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": [
+                876,
+                528,
+                45,
+                42
+            ],
+            "IncreaseButton": [
+                1200,
+                528,
+                45,
+                42
+            ]
+        }
     }
 }
