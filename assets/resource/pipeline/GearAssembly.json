@@ -35,9 +35,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GearAssemblyGoToStandalone",
             "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblyDirectlyAssemble"
+            "GearAssemblyFirstAssemble",
+            "GearAssemblyAutoAssemble"
         ]
     },
     "GearAssemblySwitchAscending": {
@@ -151,7 +151,6 @@
     },
     "GearAssemblyGoToStandalone": {
         "desc": "前往装备数量更少的独立装备制造，以便执行自动选择，附：没招了怎么延时那么大",
-        "enabled": false,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -557,8 +556,9 @@
             "Node.Recognition.Succeeded": "无法制造"
         }
     },
-    "GearAssemblyDirectlyAssemble": {
-        "desc": "中继节点",
+    "GearAssemblyFirstAssemble": {
+        "desc": "仅第一个选择模式",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -597,5 +597,15 @@
                 "count": 2000
             }
         }
+    },
+    "GearAssemblyAutoAssemble": {
+        "desc": "自动选择模式",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGoToStandalone"
+        ]
     }
 }
