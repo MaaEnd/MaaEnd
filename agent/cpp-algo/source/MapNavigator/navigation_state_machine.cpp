@@ -10,6 +10,7 @@
 #include "action_executor.h"
 #include "action_wrapper.h"
 #include "motion_controller.h"
+#include "navi_config.h"
 #include "navi_math.h"
 #include "navigation_state_machine.h"
 #include "pose_estimator.h"
@@ -298,7 +299,7 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     if (!CaptureCurrentPosition(false)) {
-        SleepFor(kLocatorRetryIntervalMs);
+        utils::SleepFor(kLocatorRetryIntervalMs);
         return true;
     }
 
@@ -315,13 +316,13 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     if (runtime_state_.semantic.portal_transit_active || session_->phase() != NaviPhase::Navigate) {
-        SleepFor(kTargetTickMs);
+        utils::SleepFor(kTargetTickMs);
         return true;
     }
 
     if (session_->CurrentWaypoint().IsZoneDeclaration()) {
         motion_controller_->SetForwardState(true);
-        SleepFor(kTargetTickMs);
+        utils::SleepFor(kTargetTickMs);
         return true;
     }
 
@@ -340,13 +341,13 @@ bool NavigationStateMachine::TickNavigate()
         session_->ObserveProgress(session_->current_node_idx(), route.progress_distance, now);
     }
     const int64_t stalled_ms = session_->StalledMs(now);
-    if (stalled_ms < 300 && runtime_state_.recovery.armed) {
+    if (stalled_ms < kTargetTickMs * 10 && runtime_state_.recovery.armed) {
         runtime_state_.ResetRecoveryState();
     }
 
-    if (stalled_ms >= 3000 && session_->phase() == NaviPhase::Navigate) {
+    if (stalled_ms >= kObstacleRecoveryMinTriggerMs && session_->phase() == NaviPhase::Navigate) {
         if (RecoveryManager::Step(motion_controller_, session_, &runtime_state_, pose, route, stalled_ms)) {
-            SleepFor(kTargetTickMs);
+            utils::SleepFor(kTargetTickMs);
             return true;
         }
     }
@@ -355,7 +356,7 @@ bool NavigationStateMachine::TickNavigate()
         if (pose.degraded_fix) {
             motion_controller_->SetForwardState(false);
         }
-        SleepFor(kTargetTickMs);
+        utils::SleepFor(kTargetTickMs);
         return true;
     }
 
@@ -386,7 +387,7 @@ bool NavigationStateMachine::TickNavigate()
             const size_t arrived_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
             if (waypoint.RequiresStrictArrival() && motion_controller_->IsMoving()) {
                 motion_controller_->SetForwardState(false);
-                SleepFor(kStopWaitMs);
+                utils::SleepFor(kStopWaitMs);
             }
             action_executor_->Execute(waypoint.action);
             session_->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *position_, "waypoint_action_completed");
@@ -438,7 +439,7 @@ bool NavigationStateMachine::TickNavigate()
             stalled_ms);
     }
 
-    SleepFor(kTargetTickMs);
+    utils::SleepFor(kTargetTickMs);
     return true;
 }
 
@@ -468,14 +469,6 @@ bool NavigationStateMachine::FailNavigation(
     session_->UpdatePhase(NaviPhase::Failed, reason);
     LogError << log_message << VAR(current_distance) << VAR(yaw_error) << VAR(stalled_ms);
     return true;
-}
-
-void NavigationStateMachine::SleepFor(int millis) const
-{
-    if (millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(millis));
 }
 
 } // namespace mapnavigator

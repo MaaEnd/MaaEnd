@@ -7,6 +7,7 @@
 #include "action_wrapper.h"
 #include "motion_controller.h"
 #include "navi_config.h"
+#include "navi_math.h"
 
 namespace mapnavigator
 {
@@ -36,7 +37,7 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         motion_controller_->SetForwardState(false);
         action_wrapper_->TriggerJumpSync(kActionJumpHoldMs);
         LogInfo << "Action: JUMP triggered.";
-        std::this_thread::sleep_for(std::chrono::milliseconds(kActionJumpSettleMs));
+        utils::SleepFor(kActionJumpSettleMs);
         break;
 
     case ActionType::INTERACT:

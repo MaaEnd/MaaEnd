@@ -102,6 +102,11 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
         return result;
     }
 
+    const bool should_pause_motion = !steering_profile_.supports_concurrent_move_and_look && IsMoving();
+    if (should_pause_motion) {
+        action_wrapper_->SetMovementStateSync(false, false, false, false, 0);
+    }
+
     const double emit_deg = std::clamp(pending_yaw_deg_, -steering_profile_.max_batch_delta_deg, steering_profile_.max_batch_delta_deg);
 
     pending_yaw_deg_ -= emit_deg;
@@ -109,6 +114,11 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
     result = SendViewDelta(emit_deg);
     if (result.issued) {
         last_steering_sent_at_ = now;
+        if (should_pause_motion) {
+            is_moving_ = false;
+            is_moving_forward_ = false;
+            has_applied_action_ = false;
+        }
     }
     return result;
 }

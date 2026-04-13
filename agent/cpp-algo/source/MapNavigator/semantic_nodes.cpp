@@ -22,13 +22,6 @@ namespace semantic_nodes
 namespace
 {
 
-void SleepFor(int millis)
-{
-    if (millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(millis));
-}
 
 void StopMotionAndCommitment(const Context& ctx)
 {
@@ -141,12 +134,12 @@ Result TickPortalTransit(const Context& ctx)
     if (ctx.runtime_state->semantic.portal_transit_needs_reacquire) {
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
             result.stay_in_current_tick = true;
-            SleepFor(kZoneConfirmRetryIntervalMs);
+            utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
         }
         if (ctx.position_provider->LastCaptureWasHeld() || ctx.position->zone_id != ctx.session->current_zone_id()) {
             result.stay_in_current_tick = true;
-            SleepFor(kZoneConfirmRetryIntervalMs);
+            utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
         }
 
@@ -169,14 +162,14 @@ Result TickPortalTransit(const Context& ctx)
     NaviPosition candidate;
     if (!ctx.position_provider->Capture(&candidate, true, {})) {
         result.stay_in_current_tick = true;
-        SleepFor(kZoneConfirmRetryIntervalMs);
+        utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
     *ctx.position = candidate;
     if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->current_zone_id()) {
         result.stay_in_current_tick = true;
-        SleepFor(kZoneConfirmRetryIntervalMs);
+        utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
@@ -184,7 +177,7 @@ Result TickPortalTransit(const Context& ctx)
     if (matched_zone_index == std::numeric_limits<size_t>::max()) {
         StopMotionAndCommitment(ctx);
         result.stay_in_current_tick = true;
-        SleepFor(kZoneConfirmRetryIntervalMs);
+        utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
@@ -192,7 +185,7 @@ Result TickPortalTransit(const Context& ctx)
         StopMotionAndCommitment(ctx);
         ctx.position_provider->ResetTracking();
         result.stay_in_current_tick = true;
-        SleepFor(kZoneConfirmRetryIntervalMs);
+        utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
@@ -229,7 +222,7 @@ Result TickTransferWaitImpl(const Context& ctx)
             return result;
         }
         result.stay_in_current_tick = true;
-        SleepFor(kRelocationRetryIntervalMs);
+        utils::SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
@@ -244,7 +237,7 @@ Result TickTransferWaitImpl(const Context& ctx)
             return result;
         }
         result.stay_in_current_tick = true;
-        SleepFor(kRelocationRetryIntervalMs);
+        utils::SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
@@ -262,14 +255,14 @@ Result TickTransferWaitImpl(const Context& ctx)
             return result;
         }
         result.stay_in_current_tick = true;
-        SleepFor(kRelocationRetryIntervalMs);
+        utils::SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
     ++ctx.runtime_state->semantic.transfer_stable_hits;
     if (ctx.runtime_state->semantic.transfer_stable_hits < kRelocationStableFixes) {
         result.stay_in_current_tick = true;
-        SleepFor(kRelocationRetryIntervalMs);
+        utils::SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
@@ -306,7 +299,7 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         const double required_turn = NaviMath::NormalizeAngle(target_heading - ctx.runtime_state->pose.estimated_heading);
 
         ctx.motion_controller->SetForwardState(false);
-        SleepFor(kStopWaitMs);
+        utils::SleepFor(kStopWaitMs);
 
         const TurnCommandResult turn_result = ctx.motion_controller->ApplySteering(required_turn);
         if (!turn_result.issued) {
@@ -315,7 +308,15 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
             return result;
         }
 
-        ctx.runtime_state->pose.estimated_heading = NaviMath::NormalizeAngle(ctx.runtime_state->pose.estimated_heading + required_turn);
+        ctx.runtime_state->pose.estimated_heading = NaviMath::NormalizeAngle(ctx.runtime_state->pose.estimated_heading + turn_result.issued_delta_degrees);
+
+        const double remaining_turn = NaviMath::NormalizeAngle(target_heading - ctx.runtime_state->pose.estimated_heading);
+        if (std::abs(remaining_turn) > 1.0) {
+            result.consumed = consumed;
+            result.stay_in_current_tick = true;
+            return result;
+        }
+
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->ResetProgress();
         ctx.runtime_state->OnWaypointAdvance();
@@ -382,7 +383,7 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
 
     if (waypoint.RequiresStrictArrival() && ctx.motion_controller->IsMoving()) {
         StopMotionAndCommitment(ctx);
-        SleepFor(kStopWaitMs);
+        utils::SleepFor(kStopWaitMs);
     }
 
     if (waypoint.action == ActionType::TRANSFER) {

@@ -1,11 +1,11 @@
 #include <chrono>
-#include <thread>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <meojson/json.hpp>
 
 #include "../utils.h"
 #include "controller_type_utils.h"
+#include "navi_math.h"
 #include "position_provider.h"
 
 namespace mapnavigator
@@ -158,7 +158,7 @@ bool PositionProvider::WaitForFix(
         if (Capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+        utils::SleepFor(retry_interval_ms);
     }
     return false;
 }

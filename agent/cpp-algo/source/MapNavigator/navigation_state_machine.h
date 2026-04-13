@@ -37,7 +37,6 @@ private:
     void SelectPhaseForCurrentWaypoint(const char* reason);
     void StopMotion();
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
-    void SleepFor(int millis) const;
 
     const NaviParam& param_;
     ActionWrapper* action_wrapper_;

@@ -1,3 +1,4 @@
+#include "navi_config.h"
 #include "recovery_manager.h"
 
 namespace mapnavigator
@@ -16,7 +17,7 @@ bool RecoveryManager::Step(
         return false;
     }
 
-    if (stalled_ms < 3000) {
+    if (stalled_ms < kObstacleRecoveryMinTriggerMs) {
         return false;
     }
 
