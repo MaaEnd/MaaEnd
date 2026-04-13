@@ -52,11 +52,10 @@ Example file: [`ClearHitCount.json`](../../../assets/resource/pipeline/Interface
 
 ### AttachToExpectedRegexAction
 
-`AttachToExpectedRegexAction` is implemented in `agent/go-service/common/attachregex`. It generically reads keywords from `attach` of source nodes, then writes the merged whitelist regex into one target OCR node's `expected`.
+`AttachToExpectedRegexAction` is implemented in `agent/go-service/common/attachregex`. It generically reads keywords from the target node's own `attach`, then writes the merged whitelist regex back into that target OCR node's `expected`.
 
 - Parameters:
     - `target: string`: required target node name whose `expected` will be overridden.
-    - `keys: string[]`: required source node names to traverse for `attach`.
 
 Behavior:
 
@@ -71,11 +70,7 @@ Example:
     "action": "Custom",
     "custom_action": "AttachToExpectedRegexAction",
     "custom_action_param": {
-        "target": "Priority2OCR",
-        "keys": [
-            "Priority2OCR",
-            "Priority2OCR_CanNotAfford"
-        ]
+        "target": "Priority2OCR"
     }
 }
 ```
@@ -84,6 +79,7 @@ Compatibility note:
 
 - Credit shop has switched to direct use of `AttachToExpectedRegexAction`.
 - If multiple targets need override, prefer multiple `Custom` nodes chained by `next` in Pipeline.
+- If multiple nodes need the same whitelist, write the same `attach` content into each node in task configuration.
 - Other tasks should also prefer this generic action name to avoid business coupling.
 
 ---

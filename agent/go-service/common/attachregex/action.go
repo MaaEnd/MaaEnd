@@ -11,18 +11,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type attachRegexRule struct {
-	Target string
-	Keys   []string
-}
-
 type attachToExpectedRegexParam struct {
-	Target string   `json:"target"`
-	Keys   []string `json:"keys"`
+	Target string `json:"target"`
 }
 
-// AttachToExpectedRegexAction merges attach keywords from source nodes and writes
-// generated regex into the target node's expected field.
+// AttachToExpectedRegexAction merges attach keywords from the target node itself
+// and writes generated regex into the target node's expected field.
 type AttachToExpectedRegexAction struct{}
 
 var _ maa.CustomActionRunner = &AttachToExpectedRegexAction{}
@@ -38,23 +32,18 @@ func (a *AttachToExpectedRegexAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		return false
 	}
 
-	if strings.TrimSpace(param.Target) == "" || len(param.Keys) == 0 {
+	if strings.TrimSpace(param.Target) == "" {
 		log.Error().
 			Str("component", "AttachToExpectedRegexAction").
 			Interface("param", param).
-			Msg("target and keys are required")
+			Msg("target is required")
 		return false
 	}
 
-	return applyAttachRegexOverride(ctx, []attachRegexRule{
-		{
-			Target: param.Target,
-			Keys:   param.Keys,
-		},
-	}, "AttachToExpectedRegexAction")
+	return applyAttachRegexOverride(ctx, param.Target, "AttachToExpectedRegexAction")
 }
 
-func applyAttachRegexOverride(ctx *maa.Context, rules []attachRegexRule, component string) bool {
+func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, component string) bool {
 	nodeAttachCache := make(map[string]map[string]interface{})
 	getNodeAttach := func(nodeName string) map[string]interface{} {
 		if attach, ok := nodeAttachCache[nodeName]; ok {
@@ -156,25 +145,19 @@ func applyAttachRegexOverride(ctx *maa.Context, rules []attachRegexRule, compone
 		return fmt.Sprintf("^(%s)$", strings.Join(escaped, "|"))
 	}
 
-	overrideMap := make(map[string]interface{}, len(rules))
-	for _, rule := range rules {
-		keywordLists := make([][]string, 0, len(rule.Keys))
-		for _, key := range rule.Keys {
-			keywordLists = append(keywordLists, collectKeywords(getNodeAttach(key)))
-		}
-
-		expected := buildWhitelistRegex(mergeKeywordLists(keywordLists...))
-		overrideMap[rule.Target] = map[string]interface{}{
+	keywords := collectKeywords(getNodeAttach(targetNodeName))
+	expected := buildWhitelistRegex(mergeKeywordLists(keywords))
+	overrideMap := map[string]interface{}{
+		targetNodeName: map[string]interface{}{
 			"expected": expected,
-		}
-
-		log.Debug().
-			Str("component", component).
-			Str("target", rule.Target).
-			Interface("keys", rule.Keys).
-			Str("expected", expected).
-			Msg("merged keywords from attach")
+		},
 	}
+
+	log.Debug().
+		Str("component", component).
+		Str("target", targetNodeName).
+		Str("expected", expected).
+		Msg("merged keywords from attach")
 
 	log.Debug().
 		Str("component", component).

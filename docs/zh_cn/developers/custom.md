@@ -54,11 +54,10 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### AttachToExpectedRegexAction
 
-`AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取若干源节点 `attach` 中的关键词，并把合并后的白名单正则写入一个目标 OCR 节点的 `expected`。
+`AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取目标节点自身 `attach` 中的关键词，并把合并后的白名单正则写回该目标 OCR 节点的 `expected`。
 
 - 参数：
     - `target: string`：目标节点名（将被覆盖 `expected`），必填。
-    - `keys: string[]`：要遍历其 `attach` 的节点名列表，必填。
 
 处理规则：
 
@@ -73,11 +72,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     "action": "Custom",
     "custom_action": "AttachToExpectedRegexAction",
     "custom_action_param": {
-        "target": "Priority2OCR",
-        "keys": [
-            "Priority2OCR",
-            "Priority2OCR_CanNotAfford"
-        ]
+        "target": "Priority2OCR"
     }
 }
 ```
@@ -86,6 +81,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - 信用点商店已切换为直接使用 `AttachToExpectedRegexAction`。
 - 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
+- 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
 ---

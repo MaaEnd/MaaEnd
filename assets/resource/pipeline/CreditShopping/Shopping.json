@@ -31,11 +31,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "BuyFirstOCR",
-            "keys": [
-                "BuyFirstOCR",
-                "BuyFirstOCR_CanNotAfford"
-            ]
+            "target": "BuyFirstOCR"
         },
         "next": [
             "CreditShoppingInitCanNotAffordPriority1"
@@ -48,11 +44,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "BuyFirstOCR_CanNotAfford",
-            "keys": [
-                "BuyFirstOCR",
-                "BuyFirstOCR_CanNotAfford"
-            ]
+            "target": "BuyFirstOCR_CanNotAfford"
         },
         "next": [
             "CreditShoppingInitPriority2"
@@ -65,10 +57,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "Priority2OCR",
-            "keys": [
-                "Priority2OCR"
-            ]
+            "target": "Priority2OCR"
         },
         "next": [
             "CreditShoppingInitCanNotAffordPriority2"
@@ -81,10 +70,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "Priority2OCR_CanNotAfford",
-            "keys": [
-                "Priority2OCR"
-            ]
+            "target": "Priority2OCR_CanNotAfford"
         },
         "next": [
             "CreditShoppingInitPriority3"
@@ -97,10 +83,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "Priority3OCR",
-            "keys": [
-                "Priority3OCR"
-            ]
+            "target": "Priority3OCR"
         },
         "next": [
             "CreditShoppingInitCanNotAffordPriority3"
@@ -113,10 +96,7 @@
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "Priority3OCR_CanNotAfford",
-            "keys": [
-                "Priority3OCR"
-            ]
+            "target": "Priority3OCR_CanNotAfford"
         },
         "next": [
             "CreditShoppingScanItem"
