@@ -1,28 +1,25 @@
 name: check
 
 on:
-  workflow_call:
-    inputs:
-      checkout_repository:
-        required: false
-        type: string
-        default: ""
-      checkout_ref:
-        required: false
-        type: string
-        default: ""
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "tools/schema/**"
+      - "package.json"
+      - "maatools.config.mts"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "tools/schema/**"
+      - "package.json"
+      - "maatools.config.mts"
   workflow_dispatch:
-    inputs:
-      checkout_repository:
-        description: "可选，指定 checkout 的仓库"
-        required: false
-        type: string
-        default: ""
-      checkout_ref:
-        description: "可选，指定 checkout 的分支、标签或提交"
-        required: false
-        type: string
-        default: ""
 
 jobs:
   resource:
@@ -30,8 +27,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4

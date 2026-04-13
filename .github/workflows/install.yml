@@ -4,29 +4,24 @@ on:
   push:
     tags:
       - "v*"
-  workflow_call:
-    inputs:
-      checkout_repository:
-        required: false
-        type: string
-        default: ""
-      checkout_ref:
-        required: false
-        type: string
-        default: ""
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
+
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
 
   workflow_dispatch:
-    inputs:
-      checkout_repository:
-        description: "可选，指定 checkout 的仓库"
-        required: false
-        type: string
-        default: ""
-      checkout_ref:
-        description: "可选，指定 checkout 的分支、标签或提交"
-        required: false
-        type: string
-        default: ""
 
 jobs:
   meta:
@@ -34,8 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
           fetch-depth: 0
       - id: set_tag
         run: |
@@ -100,8 +93,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
           submodules: true
 
       - name: Install Linux dependencies
@@ -250,9 +241,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
@@ -360,9 +348,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -416,8 +401,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.checkout_repository != '' && inputs.checkout_repository || github.repository }}
-          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
           fetch-depth: 0
 
       - name: Generate a changelog
