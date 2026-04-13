@@ -49,8 +49,8 @@
                     "name": "Auto",
                     "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.cases.Auto.label",
                     "pipeline_override": {
-                        "GearAssemblyAutoAssemble": {
-                            "enabled": true
+                        "GearAssemblyFirstAssemble": {
+                            "enabled": false
                         }
                     }
                 },

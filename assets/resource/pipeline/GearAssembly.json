@@ -549,7 +549,6 @@
     },
     "GearAssemblyAutoAssemble": {
         "desc": "自动选择模式",
-        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
