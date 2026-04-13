@@ -56,22 +56,22 @@ func saveExitImage(img image.Image, reason string) {
 	}
 	dir := filepath.Join("debug", "autofight_exit")
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Debug().Err(err).Str("dir", dir).Msg("Failed to create debug dir for exit image")
+		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for exit image")
 		return
 	}
 	name := fmt.Sprintf("%s_%s.png", reason, time.Now().Format("20060102_150405"))
 	path := filepath.Join(dir, name)
 	f, err := os.Create(path)
 	if err != nil {
-		log.Debug().Err(err).Str("path", path).Msg("Failed to create file for exit image")
+		log.Debug().Err(err).Str("component", "AutoFight").Str("path", path).Msg("failed to create file for exit image")
 		return
 	}
 	defer f.Close()
 	if err := png.Encode(f, img); err != nil {
-		log.Debug().Err(err).Str("path", path).Msg("Failed to encode exit image")
+		log.Debug().Err(err).Str("component", "AutoFight").Str("path", path).Msg("failed to encode exit image")
 		return
 	}
-	log.Info().Str("path", path).Str("reason", reason).Msg("Saved exit frame to disk")
+	log.Info().Str("component", "AutoFight").Str("path", path).Str("reason", reason).Msg("saved exit frame to disk")
 }
 
 type ActionType int
@@ -178,7 +178,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		return false
 	}
 	params := nodeWithAttach.Attach
-	log.Debug().Interface("params", params).Msg("Parsed AutoFight action attach parameters")
+	log.Debug().Str("component", "AutoFight").Str("step", "parse params").Interface("params", params).Msg("parsed action attach parameters")
 	var pauseStart time.Time
 	characterCount := -1
 	skillCycleIndex := 1
@@ -190,7 +190,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	result := false
 	for {
 		if ctx.GetTasker().Stopping() {
-			log.Info().Msg("Task stopping signal received, exiting fight")
+			log.Info().Str("component", "AutoFight").Msg("task stopping signal received, exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 			result = true
 			break
@@ -219,10 +219,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		} else {
 			if pauseStart.IsZero() {
 				pauseStart = time.Now()
-				log.Info().Msg("Not in fight space, start pause timer")
+				log.Info().Str("component", "AutoFight").Msg("not in fight space, start pause timer")
 			}
 			if time.Since(pauseStart) >= 10*time.Second {
-				log.Info().Dur("elapsed", time.Since(pauseStart)).Msg("Pause timeout, exiting fight")
+				log.Info().Str("component", "AutoFight").Dur("elapsed", time.Since(pauseStart)).Msg("pause timeout, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 				result = true
 				break
@@ -233,7 +233,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		// 退出判定
 		comboFull := screenAnalyzer.GetCharacterComboFull()
 		if screenAnalyzer.GetCharacterLevel() {
-			log.Info().Msg("Character level detected, exiting fight")
+			log.Info().Str("component", "AutoFight").Msg("character level detected, exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 			result = true
 			break
@@ -244,10 +244,12 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		// 按第一帧
 		if characterCount == -1 {
 			characterCount = max(len(healthNormal)+len(healthDangerous), len(comboFull))
-			log.Info().Int("characterCount", characterCount).
+			log.Info().
+				Str("component", "AutoFight").
+				Int("characterCount", characterCount).
 				Any("healthNormal", healthNormal).
 				Any("comboFull", comboFull).
-				Msg("Initial character count detected")
+				Msg("initial character count detected")
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
@@ -315,7 +317,11 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					})
 					skillCycleIndex = idx + 1
 				} else if screenAnalyzer.GetEnergyLevel(true) > params.ReserveSkillLevel {
-					log.Debug().Int("energyLevel", screenAnalyzer.GetEnergyLevel(true)).Int("reserveLevel", params.ReserveSkillLevel).Msg("Energy level above reserve, using skill")
+					log.Debug().
+						Str("component", "AutoFight").
+						Int("energyLevel", screenAnalyzer.GetEnergyLevel(true)).
+						Int("reserveLevel", params.ReserveSkillLevel).
+						Msg("energy level above reserve, using skill")
 					idx := skillCycleIndex
 					enqueueAction(fightAction{
 						executeAt: time.Now(),
