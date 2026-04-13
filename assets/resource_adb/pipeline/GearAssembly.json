@@ -1,0 +1,38 @@
+{
+    "GearAssemblySwipeToNextRow": {
+        "begin_offset": [
+            0,
+            120,
+            0,
+            -50
+        ],
+        "end": [
+            [
+                370,
+                100
+            ],
+            [ // 急停
+                470,
+                100
+            ]
+        ]
+    },
+    "GearAssemblySwipeToNextRowLightly": {
+        "begin_offset": [
+            0,
+            120,
+            0,
+            0
+        ],
+        "end": [
+            [
+                370,
+                100
+            ],
+            [
+                470,
+                100
+            ]
+        ]
+    }
+}

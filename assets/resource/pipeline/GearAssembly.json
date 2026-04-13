@@ -249,15 +249,11 @@
                 "end": [
                     [
                         70,
-                        20,
-                        30,
-                        1
+                        20
                     ],
                     [
-                        100,
-                        20,
-                        30,
-                        1
+                        80,
+                        20
                     ]
                 ]
             }
@@ -364,61 +360,6 @@
             "Node.Action.Succeeded": "无可制造装备"
         }
     },
-    "GearAssemblySwipeToNextRowLightly": {
-        "desc": "滑动到下一行",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {
-                "roi": [
-                    1000,
-                    630,
-                    255,
-                    60
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "GearAssemblyGetGearPosition",
-                "begin_offset": [
-                    0,
-                    60,
-                    0,
-                    0
-                ],
-                "end": [
-                    [
-                        70,
-                        20,
-                        30,
-                        1
-                    ],
-                    [
-                        100,
-                        20,
-                        30,
-                        1
-                    ]
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                30,
-                40,
-                100,
-                60
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GearAssemblyGetGearPosition"
-        ]
-    },
     "GearAssemblyGetGearPositionFinalHelper": {
         "desc": "优化在mpe下的显示，使得自循环看起来不那么绕",
         "max_hit": 6,
@@ -464,9 +405,9 @@
             "param": {
                 "target_offset": [
                     5,
-                    5,
+                    15,
                     -10,
-                    -10
+                    -20
                 ]
             }
         },
@@ -614,6 +555,46 @@
         "rate_limit": 0,
         "next": [
             "GearAssemblyGoToStandalone"
+        ]
+    },
+    "GearAssemblySwipeToNextRowLightly": {
+        "desc": "滑动到下一行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        70,
+                        20
+                    ],
+                    [
+                        80,
+                        20
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
         ]
     }
 }
