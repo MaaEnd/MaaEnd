@@ -17,7 +17,7 @@
             "author": "maintainer"
         },
         {
-            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、map-tracker/、quantizedsliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、map-tracker/、bettersliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
             "author": "maintainer"
         },
         {
@@ -83,8 +83,8 @@
             "parent": "Go Service 扩展"
         },
         {
-            "title": "量子化滑动",
-            "purpose": "文档化 quantizedsliding 子包（agent/go-service/quantizedsliding/）的实现：归一化处理、OCR 识别、节点逻辑、覆盖机制。引用 docs/zh_cn/developers/quantized-sliding.md。",
+            "title": "更好的滑动",
+            "purpose": "文档化 bettersliding 子包（agent/go-service/bettersliding/）的实现：归一化处理、OCR 识别、节点逻辑、覆盖机制。引用 docs/zh_cn/developers/quantized-sliding.md。",
             "parent": "Go Service 扩展"
         },
         {
