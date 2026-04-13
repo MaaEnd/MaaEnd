@@ -1,0 +1,83 @@
+{
+    "AutoStockpileInStapleItem": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    76,
+                    200,
+                    200
+                ],
+                "upper": [
+                    76,
+                    255,
+                    215
+                ],
+                "count": 300,
+                "connected": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockpileInStapleItemDiscounts": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockpileInStapleItem",
+                "roi_offset": [
+                    79,
+                    -17,
+                    10,
+                    29
+                ],
+                "method": 40,
+                "lower": [
+                    26,
+                    255,
+                    255
+                ],
+                "upper": [
+                    26,
+                    255,
+                    255
+                ],
+                "count": 300,
+                "connected": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockpileInStapleItemNameValleyIV": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockpileInStapleItemDiscounts",
+                "roi_offset": [
+                    -91,
+                    165,
+                    95,
+                    22
+                ],
+                "expected": [],
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockpileInStapleItemNameWuling": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockpileInStapleItemDiscounts",
+                "roi_offset": [
+                    -91,
+                    165,
+                    95,
+                    22
+                ],
+                "expected": [],
+                "order_by": "Vertical"
+            }
+        }
+    }
+}

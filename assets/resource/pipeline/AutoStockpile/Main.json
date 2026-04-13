@@ -46,6 +46,7 @@
         "max_hit": 1,
         "pre_delay": 0,
         "next": [
+            "AutoStockpileInStapleValleyIV",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
         ]
     },

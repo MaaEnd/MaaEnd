@@ -1,0 +1,67 @@
+{
+    "AutoStockpileInStapleWuling": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWulingText",
+                    "InStapleColor"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]AutoStockpileBuyItemWulingTask",
+            "SoldOut",
+            "AutoStockpileSwipeWuling"
+        ]
+    },
+    "AutoStockpileBuyItemWulingTask": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileInStapleItem",
+                    "AutoStockpileInStapleItemDiscounts",
+                    "AutoStockpileInStapleItemNameWuling"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    -40,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "AutoStockpileSwipeWuling": {
+        "max_hit": 20,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWulingText",
+                    "InStapleColor"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target_offset": [
+                    0,
+                    140,
+                    0,
+                    0
+                ],
+                "dx": 120
+            }
+        }
+    }
+}

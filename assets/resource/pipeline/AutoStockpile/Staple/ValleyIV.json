@@ -1,0 +1,67 @@
+{
+    "AutoStockpileInStapleValleyIV": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InValleyIVText",
+                    "InStapleColor"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]AutoStockpileBuyItemValleyIVTask",
+            "SoldOut",
+            "AutoStockpileSwipeValleyIV"
+        ]
+    },
+    "AutoStockpileBuyItemValleyIVTask": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileInStapleItem",
+                    "AutoStockpileInStapleItemDiscounts",
+                    "AutoStockpileInStapleItemNameValleyIV"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    -40,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "AutoStockpileSwipeValleyIV": {
+        "max_hit": 20,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InValleyIVText",
+                    "InStapleColor"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target_offset": [
+                    0,
+                    140,
+                    0,
+                    0
+                ],
+                "dx": 120
+            }
+        }
+    }
+}

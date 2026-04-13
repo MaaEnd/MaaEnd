@@ -1,0 +1,81 @@
+{
+    "InValleyIVText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    247,
+                    122
+                ],
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "(?i)Valley\\s*IV",
+                    "4번 협곡",
+                    "Valley"
+                ]
+            }
+        }
+    },
+    "InWulingText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    247,
+                    122
+                ],
+                "expected": [
+                    "武陵",
+                    "(?i)Wuling",
+                    "무릉"
+                ]
+            }
+        }
+    },
+    "InStapleColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    62,
+                    67,
+                    286,
+                    57
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    240
+                ],
+                "count": 1000,
+                "connected": true
+            }
+        }
+    },
+    "SoldOut": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    274,
+                    720
+                ],
+                "expected": [
+                    "已售罄",
+                    "已售完",
+                    "(?i)Sold\\s*Out",
+                    "完売"
+                ]
+            }
+        }
+    }
+}
