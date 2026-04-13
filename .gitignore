@@ -477,6 +477,7 @@ Temporary Items
 # python
 venv/
 .cache/
+tools/i18n/llm.json
 
 # maa-tools
 tests/maatools

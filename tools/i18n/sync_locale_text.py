@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 import textwrap
@@ -21,6 +20,8 @@ TASKS_DIR = REPO_ROOT / "assets" / "tasks"
 INTERFACE_FILE = REPO_ROOT / "assets" / "interface.json"
 INTERFACE_LOCALE_DIR = REPO_ROOT / "assets" / "locales" / "interface"
 GO_SERVICE_LOCALE_DIR = REPO_ROOT / "assets" / "locales" / "go-service"
+DEFAULT_LLM_CONFIG_PATH = Path(__file__).resolve().with_name("llm.json")
+TRANSLATE_TRIGGER = "TR"
 
 DEFAULT_API_BASE_URL = "https://api.deepseek.com/v1"
 DEFAULT_MODEL = "deepseek-chat"
@@ -43,9 +44,28 @@ class EmptyTranslation:
     source_text: Optional[str]
 
 
+@dataclass(frozen=True)
+class LLMConfig:
+    api_base_url: str
+    api_key: str
+    model: str
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Sync locale keys from assets and optionally translate empty locale entries.",
+        description="Sync locale keys from assets and/or translate empty locale entries.",
+    )
+    parser.add_argument(
+        "trigger",
+        nargs="?",
+        default="",
+        help="Optional trigger command. Input TR to start translation directly.",
+    )
+    parser.add_argument(
+        "--phase",
+        choices=["generate", "translate", "all"],
+        default="generate",
+        help="Select workflow phase: generate keys, translate empty texts, or run all.",
     )
     parser.add_argument(
         "--write",
@@ -65,19 +85,10 @@ def parse_args() -> argparse.Namespace:
         help="Maximum translation items per API request.",
     )
     parser.add_argument(
-        "--api-base-url",
-        default=os.environ.get("OPENAI_BASE_URL", DEFAULT_API_BASE_URL),
-        help="OpenAI-compatible API base URL.",
-    )
-    parser.add_argument(
-        "--api-key",
-        default=os.environ.get("OPENAI_API_KEY", ""),
-        help="OpenAI-compatible API key.",
-    )
-    parser.add_argument(
-        "--model",
-        default=os.environ.get("OPENAI_MODEL", DEFAULT_MODEL),
-        help="Model name for the translation API.",
+        "--llm-config",
+        type=Path,
+        default=DEFAULT_LLM_CONFIG_PATH,
+        help="Path to local llm.json config file.",
     )
     parser.add_argument(
         "--fail-on-translate-error",
@@ -85,6 +96,28 @@ def parse_args() -> argparse.Namespace:
         help="Exit with non-zero status if any translation request fails.",
     )
     return parser.parse_args()
+
+
+def load_llm_config(path: Path) -> LLMConfig:
+    if not path.is_file():
+        raise FileNotFoundError(f"LLM config file not found: {path}")
+
+    payload = load_json(path)
+    if not isinstance(payload, dict):
+        raise ValueError("LLM config must be a JSON object")
+
+    api_base_url = str(payload.get("api_base_url", DEFAULT_API_BASE_URL)).strip()
+    api_key = str(payload.get("api_key", "")).strip()
+    model = str(payload.get("model", DEFAULT_MODEL)).strip()
+
+    if not api_base_url:
+        raise ValueError("llm.json field api_base_url cannot be empty")
+    if not api_key:
+        raise ValueError("llm.json field api_key cannot be empty")
+    if not model:
+        raise ValueError("llm.json field model cannot be empty")
+
+    return LLMConfig(api_base_url=api_base_url, api_key=api_key, model=model)
 
 
 def strip_jsonc(text: str) -> str:
@@ -566,12 +599,25 @@ def print_report(report: Dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
+    trigger = str(args.trigger).strip().upper()
+    phase = args.phase
+    if trigger:
+        if trigger != TRANSLATE_TRIGGER:
+            print(f"[i18n] unknown trigger: {args.trigger}")
+            print(f"[i18n] supported trigger: {TRANSLATE_TRIGGER}")
+            return 2
+        phase = "translate"
 
-    referenced_keys = collect_referenced_keys()
     interface_locales = load_flat_locale_dir(INTERFACE_LOCALE_DIR)
     go_service_locales = load_flat_locale_dir(GO_SERVICE_LOCALE_DIR)
 
-    interface_additions = sync_interface_keys(interface_locales, referenced_keys)
+    referenced_keys: List[str] = []
+    interface_additions: Dict[str, List[str]] = {
+        locale: [] for locale in interface_locales.keys()
+    }
+    if phase in {"generate", "all"}:
+        referenced_keys = collect_referenced_keys()
+        interface_additions = sync_interface_keys(interface_locales, referenced_keys)
 
     empty_items = collect_empty_translations("interface", interface_locales)
     empty_items.extend(collect_empty_translations("go-service", go_service_locales))
@@ -581,15 +627,18 @@ def main() -> int:
 
     translated_entries: Dict[Tuple[str, str, str], str] = {}
     translation_errors: List[Dict[str, str]] = []
-    token_present = bool(args.api_key)
-    if token_present and translatable_items:
-        translated_entries, translation_errors = translate_empty_entries(
-            translatable_items,
-            api_base_url=args.api_base_url,
-            api_key=args.api_key,
-            model=args.model,
-            batch_size=max(1, args.batch_size),
-        )
+    token_present = False
+    if phase in {"translate", "all"}:
+        llm_config = load_llm_config(args.llm_config)
+        token_present = bool(llm_config.api_key)
+        if translatable_items:
+            translated_entries, translation_errors = translate_empty_entries(
+                translatable_items,
+                api_base_url=llm_config.api_base_url,
+                api_key=llm_config.api_key,
+                model=llm_config.model,
+                batch_size=max(1, args.batch_size),
+            )
 
     for (group, locale, key), text in translated_entries.items():
         if group == "interface":
@@ -610,6 +659,10 @@ def main() -> int:
         token_present=token_present,
     )
     print_report(report)
+    if phase == "generate":
+        print(
+            f"[i18n] generation finished. After you manually complete one locale, run with '{TRANSLATE_TRIGGER}' to translate others.",
+        )
 
     if args.report is not None:
         args.report.parent.mkdir(parents=True, exist_ok=True)
