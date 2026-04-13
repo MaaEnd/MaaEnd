@@ -123,7 +123,7 @@
         }
     },
     "GiftOperatorBranchReceive": {
-        "desc": "分支2：干员给你送礼，点击领取",
+        "desc": "分支2：干员给你送礼，点击领取。next 含自身以便未跳转时重试一次点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -145,7 +145,12 @@
         "post_wait_freezes": 200,
         "next": [
             "GiftOperatorReceiveDialog",
-            "GiftOperatorBagFull"
+            "GiftOperatorBagFull",
+            "GiftOperatorSkipDialog",
+            "GiftOperatorBranchGift",
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorLeave",
+            "GiftOperatorBranchReceive"
         ]
     },
     "GiftOperatorChatAltDown": {
