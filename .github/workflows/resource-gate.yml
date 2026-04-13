@@ -1,0 +1,209 @@
+name: resource-gate
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/resource-gate.yml"
+      - ".github/workflows/check.yml"
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
+      - "package.json"
+      - "maatools.config.mts"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/resource-gate.yml"
+      - ".github/workflows/check.yml"
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
+      - "package.json"
+      - "maatools.config.mts"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: resource-gate-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    outputs:
+      checkout_repository: ${{ steps.context.outputs.checkout_repository }}
+      checkout_ref: ${{ steps.context.outputs.checkout_ref }}
+      can_push: ${{ steps.context.outputs.can_push }}
+      run_check: ${{ steps.decide.outputs.run_check }}
+      run_install: ${{ steps.decide.outputs.run_install }}
+    steps:
+      - id: context
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "checkout_repository=${{ github.event.pull_request.head.repo.full_name }}" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
+            if [[ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]]; then
+              echo "can_push=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "can_push=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "checkout_repository=${{ github.repository }}" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "can_push=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - id: filter
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            check:
+              - '.github/workflows/resource-gate.yml'
+              - '.github/workflows/check.yml'
+              - 'assets/**'
+              - 'tools/schema/**'
+              - 'package.json'
+              - 'maatools.config.mts'
+            install:
+              - '.github/workflows/resource-gate.yml'
+              - '.github/workflows/install.yml'
+              - 'assets/**'
+              - 'agent/**'
+              - 'tools/**'
+
+      - id: decide
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "run_check=true" >> "$GITHUB_OUTPUT"
+            echo "run_install=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_check=${{ steps.filter.outputs.check }}" >> "$GITHUB_OUTPUT"
+            echo "run_install=${{ steps.filter.outputs.install }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  prepare_locales:
+    needs: changes
+    if: needs.changes.outputs.run_check == 'true' || needs.changes.outputs.run_install == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.changes.outputs.checkout_repository }}
+          ref: ${{ needs.changes.outputs.checkout_ref }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - id: sync
+        name: Sync locale keys and empty translations
+        shell: bash
+        env:
+          OPENAI_API_KEY: ${{ secrets[format('OPENAI_{0}', 'API_KEY')] }}
+          OPENAI_BASE_URL: ${{ vars[format('OPENAI_{0}', 'BASE_URL')] }}
+          OPENAI_MODEL: ${{ vars[format('OPENAI_{0}', 'MODEL')] }}
+        run: |
+          set +e
+          python tools/i18n/sync_locale_text.py --write --report "$RUNNER_TEMP/i18n-report.json"
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "report_path=$RUNNER_TEMP/i18n-report.json" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - id: git_changes
+        name: Check locale changes
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - id: commit
+        name: Commit locale changes
+        if: steps.git_changes.outputs.has_changes == 'true' && needs.changes.outputs.can_push == 'true'
+        shell: bash
+        run: |
+          set +e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/locales/interface assets/locales/go-service
+          if git diff --cached --quiet; then
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "chore: sync locale texts [skip ci]"
+          commit_status=$?
+          push_status=0
+          if [[ $commit_status -eq 0 ]]; then
+            git push origin HEAD:${{ needs.changes.outputs.checkout_ref }}
+            push_status=$?
+          fi
+          if [[ $commit_status -eq 0 && $push_status -eq 0 ]]; then
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Upload locale report
+        if: always() && steps.sync.outputs.report_path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-report
+          path: ${{ steps.sync.outputs.report_path }}
+
+      - name: Append summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$RUNNER_TEMP/i18n-report.json" ]]; then
+            {
+              echo "## i18n summary"
+              echo
+              jq -r '.summary | "- interface 缺失键: \(.interface_missing_key_count)\n- 空翻译: \(.empty_translation_count)\n- 已自动翻译: \(.translated_count)\n- 无源文案: \(.unresolved_without_source_count)\n- 翻译错误: \(.translation_error_count)"' "$RUNNER_TEMP/i18n-report.json"
+              echo
+              echo "- 脚本退出码: ${{ steps.sync.outputs.exit_code }}"
+              echo "- 检测到本地化文件变更: ${{ steps.git_changes.outputs.has_changes }}"
+              echo "- 已尝试机器人提交: ${{ steps.commit.outputs.committed || 'false' }}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## i18n summary"
+              echo
+              echo "- 未生成 i18n 报告文件"
+              echo "- 脚本退出码: ${{ steps.sync.outputs.exit_code }}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  check:
+    needs: [changes, prepare_locales]
+    if: always() && needs.changes.outputs.run_check == 'true' && needs.prepare_locales.result != 'skipped'
+    uses: ./.github/workflows/check.yml
+    with:
+      checkout_repository: ${{ needs.changes.outputs.checkout_repository }}
+      checkout_ref: ${{ needs.changes.outputs.checkout_ref }}
+    secrets: inherit
+
+  install:
+    needs: [changes, prepare_locales]
+    if: always() && needs.changes.outputs.run_install == 'true' && needs.prepare_locales.result != 'skipped'
+    uses: ./.github/workflows/install.yml
+    with:
+      checkout_repository: ${{ needs.changes.outputs.checkout_repository }}
+      checkout_ref: ${{ needs.changes.outputs.checkout_ref }}
+    secrets: inherit
