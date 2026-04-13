@@ -187,11 +187,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
 
+	result := false
 	for {
 		if ctx.GetTasker().Stopping() {
 			log.Info().Msg("Task stopping signal received, exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-			return true
+			result = true
+			break
 		}
 
 		// 因DirectHit耗时50ms，因此在action里直接截图
@@ -199,12 +201,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		img, err := ctx.GetTasker().GetController().CacheImage()
 		if err != nil {
 			log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
-			return false
+			result = false
+			break
 		}
 
 		if !screenAnalyzer.UpdateScreenDetail(ctx, img) {
 			log.Error().Str("component", "AutoFight").Msg("failed to update screen detail")
-			return false
+			result = false
+			break
 		}
 
 		// 暂停判定：检查是否在战斗空间内
@@ -220,6 +224,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			if time.Since(pauseStart) >= 10*time.Second {
 				log.Info().Dur("elapsed", time.Since(pauseStart)).Msg("Pause timeout, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+				result = true
 				break
 			}
 			continue
@@ -230,6 +235,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		if screenAnalyzer.GetCharacterLevel() {
 			log.Info().Msg("No level detected, exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+			result = true
 			break
 		}
 		healthNormal := screenAnalyzer.GetCharacterHealthNormal()
@@ -360,5 +366,5 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
-	return true
+	return result
 }
