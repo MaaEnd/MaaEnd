@@ -550,6 +550,7 @@
     "option.DailyTaskAssemble.desc": "自動製造一次最低等級的可製造裝備以獲取活躍度",
     "option.DailyTaskCreation.label": "簡易製作",
     "option.DailyTaskCreation.desc": "自動進行一次簡易製作以獲取活躍度",
+    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">識別顏色失敗，請嘗試關閉濾鏡（例如 RTX 動態亮麗、遊戲加加濾鏡等）或 HDR</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_tw.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_tw.md",
     "operator.Perlica": "佩麗卡",

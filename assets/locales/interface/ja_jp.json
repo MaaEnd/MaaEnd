@@ -550,6 +550,7 @@
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots ベースの Wayland コンポジター（例: Sway）向けです。",
+    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">色の認識に失敗しました。フィルター（例：RTX Dynamic Vibrance、GamePP フィルターなど）または HDR をオフにしてください</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ja_jp.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ja_jp.md",
     "operator.Perlica": "ペリカ",

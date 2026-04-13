@@ -550,6 +550,7 @@
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "For Wayland compositors based on wlroots (e.g. Sway).",
+    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">Color identification failed. Try disabling filters (e.g. RTX Dynamic Vibrance, GamePP filters, etc.) or HDR</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.en_us.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.en_us.md",
     "operator.Perlica": "Perlica",

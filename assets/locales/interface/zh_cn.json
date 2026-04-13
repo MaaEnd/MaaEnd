@@ -550,6 +550,7 @@
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
     "controller.Wlroots.label": "Linux端-Wlroots",
     "controller.Wlroots.description": "适用于基于 wlroots 的 Wayland 合成器（如 Sway）",
+    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜（例如 RTX 动态亮丽、游戏加加滤镜等）或 HDR</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_cn.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_cn.md",
     "operator.Perlica": "佩丽卡",
