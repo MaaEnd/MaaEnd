@@ -46,8 +46,37 @@
         "max_hit": 1,
         "pre_delay": 0,
         "next": [
+            "AutoStockpileInitStapleValleyIV",
             "AutoStockpileInStapleValleyIV",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+        ]
+    },
+    "AutoStockpileInitStapleValleyIV": {
+        "desc": "初始化四号谷地稳定物资白名单（仅执行一次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InValleyIVText",
+                    "InStapleColor"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "target": "AutoStockpileInStapleItemNameValleyIV"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileInStapleValleyIV"
         ]
     },
     "AutoStockpileElasticWuling": {
@@ -82,7 +111,40 @@
         "desc": "自动囤货稳定需求物质武陵节点",
         "enabled": false,
         "max_hit": 1,
-        "pre_delay": 0
+        "pre_delay": 0,
+        "next": [
+            "AutoStockpileInitStapleWuling",
+            "AutoStockpileInStapleWuling",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+        ]
+    },
+    "AutoStockpileInitStapleWuling": {
+        "desc": "初始化武陵稳定物资白名单（仅执行一次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWulingText",
+                    "InStapleColor"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "target": "AutoStockpileInStapleItemNameWuling"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileInStapleWuling"
+        ]
     },
     "AutoStockpileDone": {
         "pre_delay": 0,
