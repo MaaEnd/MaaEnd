@@ -276,23 +276,6 @@
             "description": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsValleyIV.description",
             "cases": [
                 {
-                    "name": "KeenValleyCompass",
-                    "label": "$option.CreditShoppingItems.cases.KeenValleyCompass.label",
-                    "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "keen_valley_compass": [
-                                    "新锐谷地罗盘",
-                                    "新銳谷地羅盤",
-                                    "Keen Valley Compass",
-                                    "新型谷地専用コンパス",
-                                    "첨단 협곡 나침반"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "KeenValleyDetector",
                     "label": "$option.CreditShoppingItems.cases.KeenValleyDetector.label",
                     "pipeline_override": {
@@ -304,6 +287,23 @@
                                     "Keen Valley Detector",
                                     "新型谷地専用探知機",
                                     "첨단 협곡 탐지기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KeenValleyCompass",
+                    "label": "$option.CreditShoppingItems.cases.KeenValleyCompass.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "keen_valley_compass": [
+                                    "新锐谷地罗盘",
+                                    "新銳谷地羅盤",
+                                    "Keen Valley Compass",
+                                    "新型谷地専用コンパス",
+                                    "첨단 협곡 나침반"
                                 ]
                             }
                         }
@@ -509,10 +509,239 @@
                         "AutoStockpileStapleWuling": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoStockpileBuyDailyGoodsWuling",
+                        "AutoStockpileBuyStockFactoryGoodsWuling",
+                        "AutoStockpileBuyCulturalGoodsWuling",
+                        "AutoStockpileUseDiscountsWuling"
+                    ]
                 },
                 {
                     "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileBuyDailyGoodsWuling": {
+            "type": "checkbox",
+            "label": "$task.AutoStockpile.option.AutoStockpileBuyDailyGoodsWuling.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileBuyDailyGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "WulingEngravingPermit",
+                    "label": "$option.CreditShoppingItems.cases.WulingEngravingPermit.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "wuling_engraving_permit": [
+                                    "武陵刻写券",
+                                    "武陵刻寫券",
+                                    "Wuling Engraving Permit",
+                                    "武陵刻印券",
+                                    "무릉 각인권"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FortifyingInfusion",
+                    "label": "$option.CreditShoppingItems.cases.FortifyingInfusion.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "fortifying_infusion": [
+                                    "正本补元汤剂",
+                                    "正本補元湯劑",
+                                    "Fortifying Infusion",
+                                    "滋養強壮の煎じ薬",
+                                    "원기 회복 탕약"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "GardenFriedRice",
+                    "label": "$option.CreditShoppingItems.cases.GardenFriedRice.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "garden_fried_rice": [
+                                    "锦素炒饭",
+                                    "錦素炒飯",
+                                    "Garden Fried Rice",
+                                    "野菜たっぷりチャーハン",
+                                    "채소 볶음밥"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MasterPansEggPudding",
+                    "label": "$option.CreditShoppingItems.cases.MasterPansEggPudding.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "master_pans_egg_pudding": [
+                                    "潘师傅蛋羹",
+                                    "潘師傅蒸蛋",
+                                    "Master Pan's Egg Pudding",
+                                    "ダパン師匠の茶碗蒸し",
+                                    "판 사부의 계란찜"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockpileBuyStockFactoryGoodsWuling": {
+            "type": "checkbox",
+            "label": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsWuling.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "WulingArtificingCatalyst",
+                    "label": "$option.CreditShoppingItems.cases.WulingArtificingCatalyst.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "wuling_artificing_catalyst": [
+                                    "武陵精锻助剂",
+                                    "武陵精鍛助劑",
+                                    "Wuling Artificing Catalyst",
+                                    "武陵加工強化剤",
+                                    "무릉 정밀 단조제"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KeenWulingDetector",
+                    "label": "$option.CreditShoppingItems.cases.KeenWulingDetector.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "keen_wuling_detector": [
+                                    "新锐武陵探物器",
+                                    "新銳武陵探測器",
+                                    "Keen Wuling Detector",
+                                    "新型武陵専用探知機",
+                                    "첨단 무릉 탐지기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KeenWulingCompass",
+                    "label": "$option.CreditShoppingItems.cases.KeenWulingCompass.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "keen_wuling_compass": [
+                                    "新锐武陵罗盘",
+                                    "新銳武陵羅盤",
+                                    "Keen Wuling Compass",
+                                    "新型武陵専用コンパス",
+                                    "첨단 무릉 나침반"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockpileBuyCulturalGoodsWuling": {
+            "type": "checkbox",
+            "label": "$task.AutoStockpile.option.AutoStockpileBuyCulturalGoodsWuling.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileBuyCulturalGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "EurekaTeabox",
+                    "label": "$option.CreditShoppingItems.cases.EurekaTeabox.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "eureka_teabox": [
+                                    "岳研茶盒",
+                                    "岳研茶盒",
+                                    "Eureka Teabox",
+                                    "岳研茶詰合せ",
+                                    "악연 찻잎 세트"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "YinglungDumbbells",
+                    "label": "$option.CreditShoppingItems.cases.YinglungDumbbells.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "yinglung_dumbbells": [
+                                    "应龙哑铃",
+                                    "應龍啞鈴",
+                                    "Yinglung Dumbbells",
+                                    "応龍ダンベル",
+                                    "응룡의 아령"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "WovenAggelos",
+                    "label": "$option.CreditShoppingItems.cases.WovenAggelos.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "woven_aggelos": [
+                                    "草编天使",
+                                    "草編天使",
+                                    "Woven Aggelos",
+                                    "草で編んだアンゲロス",
+                                    "짚으로 엮은 아겔로스"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ScrimshawOfThePack",
+                    "label": "$option.CreditShoppingItems.cases.ScrimshawOfThePack.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "scrimshaw_of_the_pack": [
+                                    "狼群骨雕",
+                                    "狼群骨雕",
+                                    "Scrimshaw of the Pack",
+                                    "骨の彫刻",
+                                    "울프팀의 뼈 조각상"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockpileUseDiscountsWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileUseDiscountsWuling.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileUseDiscountsWuling.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {}
                 }
             ]
         }
