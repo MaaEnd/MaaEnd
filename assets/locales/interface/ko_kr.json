@@ -550,7 +550,7 @@
     "controller.ADB.description": "안드로이드 에뮬레이터 및 실물 안드로이드 기기를 지원합니다.",
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots 기반 Wayland 컴포지터(예: Sway)용입니다.",
-    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">색상 인식에 실패했습니다. 필터(예: RTX Dynamic Vibrance, GamePP 필터 등) 또는 HDR 을 꺼 보세요</span>",
+    "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">색상 인식에 실패했습니다. 필터(예: RTX Dynamic Vibrance, GamePP 필터 등) 또는 HDR을 꺼 보세요</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ko_kr.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ko_kr.md",
     "operator.Perlica": "펠리카",
