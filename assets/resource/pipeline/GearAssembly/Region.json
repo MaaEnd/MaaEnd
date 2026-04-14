@@ -1,0 +1,66 @@
+{
+    "GearAssemblyGetFirstGearPosition": {
+        "desc": "第一个可制造装备",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    35,
+                    50,
+                    100,
+                    590
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GearAssemblyCheckNotEnough": {
+        "desc": "检查是否材料不足",
+        "recognition": "OCR",
+        "roi": [
+            -300,
+            -150,
+            300,
+            150
+        ],
+        "expected": [
+            "材料不足",
+            "Insufficient Materials",
+            "素材が不足",
+            "제작 재료 부족"
+        ]
+    },
+    "GearAssemblyCheckNotUnlocked": {
+        "desc": "检查是否未解锁",
+        "recognition": "OCR",
+        "roi": [
+            -300,
+            -150,
+            300,
+            150
+        ],
+        "expected": [
+            "解锁",
+            "Stock Redistribution",
+            "解鎖",
+            "商品取引",
+            "해제"
+        ]
+    }
+}

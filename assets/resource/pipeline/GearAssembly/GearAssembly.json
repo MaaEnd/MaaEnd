@@ -1,0 +1,436 @@
+{
+    "GearAssemblyStart": {
+        "desc": "装备制作任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuGearAssembly"
+            ]
+        },
+        "next": [
+            "GearAssemblySetGear",
+            "GearAssemblyNonsetGear"
+        ]
+    },
+    "GearAssemblySetGear": {
+        "desc": "套组装备",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "套组装备",
+                    "套裝裝備",
+                    "(?i)Set\\s*Gear",
+                    "セット装備"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 200
+        },
+        "next": [
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblySelectFirstGear"
+        ]
+    },
+    "GearAssemblyNonsetGear": {
+        "desc": "非套组装备",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "独立装备",
+                    "獨立裝備",
+                    "Non-set Gear",
+                    "単品装備"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 200
+        },
+        "next": [
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblySelectFirstGear"
+        ]
+    },
+    "GearAssemblySelectFirstGear": {
+        "desc": "选择第一个装备",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": "And",
+        "all_of": [
+            "GearAssemblyGetFirstGearPosition"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        // 因切换装备不需要等待加载，且不好判断上一个装备动画是否完成淡出，因此使用post_wait_freezes等待动画完成
+        "post_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 300
+        },
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "GearAssemblyCheckFailedAndContinue"
+        ]
+    },
+    "GearAssemblySwitchAscending": {
+        "desc": "识别到降序，变成升序",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    325,
+                    600,
+                    100,
+                    90
+                ],
+                "template": [
+                    "GearAssembly/FilterDesc.png",
+                    "GearAssembly/FilterDescHover.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "post_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 200
+        },
+        "rate_limit": 0
+    },
+    "GearAssemblyClickProduceBtn": {
+        "desc": "点击制作按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1134,
+                    614,
+                    139,
+                    95
+                ],
+                "expected": [
+                    "制作",
+                    "製作",
+                    "(?i)Craft",
+                    "確定"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 80
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 500, // 等待可能出现的提示语弹窗
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyCheckMaterialEnough",
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "GearAssemblyCheckMaterialEnough": {
+        "desc": "检测背包是否已满，背包已满直接结束",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    409,
+                    81,
+                    439,
+                    82
+                ],
+                "expected": [
+                    "空间已满",
+                    "空間已滿",
+                    "可销毁或丢弃部分",
+                    "可銷毀或丟棄部分"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "背包已满"
+        }
+    },
+    "GearAssemblyCheckIfReachedScrollEnd": {
+        "desc": "检查是否滑动到底部",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    445,
+                    625,
+                    15,
+                    20
+                ],
+                "lower": [
+                    220,
+                    220,
+                    220
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyCheckFailedAndFinish"
+        ]
+    },
+    "GearAssemblySwipeToNextRow": {
+        "desc": "滑动到下一行",
+        "recognition": "And",
+        "all_of": [
+            "GearAssemblyGetFirstGearPosition"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    -50
+                ],
+                "end": [
+                    [
+                        70,
+                        20
+                    ],
+                    [
+                        80,
+                        20
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                400,
+                200
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblySelectFirstGear"
+        ]
+    },
+    "GearAssemblyGetGearPositionWithOffset": {
+        "desc": "点击第一个可制造装备(带偏移版)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GearAssemblySelectFirstGear",
+                "roi_offset": [
+                    -5,
+                    100,
+                    10,
+                    400
+                ],
+                "lower": [
+                    [
+                        20,
+                        20,
+                        20
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        50
+                    ]
+                ],
+                "connected": true,
+                "count": 2000,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GearAssemblyNoAvailableGear": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "无可制造装备"
+        }
+    },
+    "GearAssemblyGetGearPosition": {
+        "desc": "点击第一个可制造装备",
+        "recognition": "And",
+        "all_of": [
+            "GearAssemblyGetFirstGearPosition"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        // 因切换装备不需要等待加载，且不好判断上一个装备动画是否完成淡出，因此使用post_wait_freezes等待动画完成
+        "post_wait_freezes": {
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ],
+            "time": 300
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblySwipeToNextRow"
+        ]
+    },
+    "GearAssemblyFirstAssemble": {
+        "desc": "仅第一个选择模式",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblyClickProduceBtn",
+            "GearAssemblyCheckFailedAndFinish"
+        ]
+    },
+    "GearAssemblyCheckFailedAndFinish": {
+        "desc": "检查制作失败，退出任务",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GearAssemblyCheckNotEnough",
+                    "GearAssemblyCheckNotUnlocked"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "无法制作"
+        }
+    },
+    "GearAssemblyCheckFailedAndContinue": {
+        "desc": "检查制作失败，继续任务",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "GearAssemblyCheckNotEnough",
+                    "GearAssemblyCheckNotUnlocked"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "无法制作，查找下一个装备"
+        },
+        "next": [
+            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblySwipeToNextRow"
+        ]
+    }
+}

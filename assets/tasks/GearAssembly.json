@@ -6,8 +6,8 @@
             "entry": "GearAssemblyStart",
             "description": "$task.GearAssembly.description",
             "option": [
-                "GearAssemblySortOrder",
-                "GearAssemblySelectionMethod"
+                "GearAssemblyType",
+                "GearAssemblySortOrder"
             ],
             "group": [
                 "daily"
@@ -40,25 +40,31 @@
                 }
             ]
         },
-        "GearAssemblySelectionMethod": {
+        "GearAssemblyType": {
             "type": "select",
-            "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.label",
-            "default_case": "Auto",
+            "label": "$task.GearAssembly.option.GearAssemblyType.label",
+            "default_case": "SetGear",
             "cases": [
                 {
-                    "name": "Auto",
-                    "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.cases.Auto.label",
+                    "name": "SetGear",
+                    "label": "$task.GearAssembly.option.GearAssemblyType.cases.SetGear.label",
                     "pipeline_override": {
-                        "GearAssemblyFirstAssemble": {
+                        "GearAssemblySetGear": {
+                            "enabled": true
+                        },
+                        "GearAssemblyNonsetGear": {
                             "enabled": false
                         }
                     }
                 },
                 {
-                    "name": "First",
-                    "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.cases.First.label",
+                    "name": "NonsetGear",
+                    "label": "$task.GearAssembly.option.GearAssemblyType.cases.NonsetGear.label",
                     "pipeline_override": {
-                        "GearAssemblyFirstAssemble": {
+                        "GearAssemblySetGear": {
+                            "enabled": false
+                        },
+                        "GearAssemblyNonsetGear": {
                             "enabled": true
                         }
                     }

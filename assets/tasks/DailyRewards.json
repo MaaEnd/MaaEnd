@@ -188,7 +188,6 @@
             "type": "switch",
             "default_case": "No",
             "label": "$option.DailyTaskAssemble.label",
-            "description": "$option.DailyTaskAssemble.desc",
             "cases": [
                 {
                     "name": "Yes",
@@ -199,7 +198,11 @@
                         "DailyTaskCheckActivityStatus": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "GearAssemblyType",
+                        "GearAssemblySortOrder"
+                    ]
                 },
                 {
                     "name": "No",
