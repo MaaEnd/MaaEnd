@@ -116,7 +116,7 @@
                                 }
                             },
                             "focus": {
-                                "Node.Action.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
+                                "Node.Action.Starting": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
                             }
                         }
                     }
@@ -150,7 +150,7 @@
                                 }
                             },
                             "focus": {
-                                "Node.Action.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
+                                "Node.Action.Starting": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
                             }
                         },
                         "_AutoEcoFarmInAnyFarm": {
