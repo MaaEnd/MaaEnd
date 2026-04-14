@@ -133,7 +133,6 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy 
 				if aca.pm.speed >= MovementSprint.speed {
 					// Set to "stop" temporarily to terminate the "sprint" state, then set to "run"
 					aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
-					joystickRunForward()
 				} else {
 					// Already in "run", do nothing else
 				}
