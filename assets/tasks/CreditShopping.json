@@ -1974,6 +1974,9 @@
                         },
                         "CreditShippingCanNotToBuy": {
                             "enabled": false //不进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false //不进入稳健刷新流程
                         }
                     }
                 },
@@ -1989,6 +1992,9 @@
                         },
                         "CreditShippingCanNotToBuy": {
                             "enabled": false //不进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false //不进入稳健刷新流程
                         }
                     }
                 },
@@ -2004,6 +2010,9 @@
                         },
                         "CreditShippingCanNotToBuy": {
                             "enabled": true //进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true //进入稳健刷新流程
                         }
                     },
                     "option": [
