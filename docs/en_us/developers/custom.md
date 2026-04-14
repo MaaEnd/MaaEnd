@@ -108,7 +108,7 @@ A recognition node can invoke a custom recognition like this:
 
 ### ExpressionRecognition
 
-`ExpressionRecognition` is implemented in `agent/go-service/expressionrecognition` and evaluates boolean expressions composed of numeric recognition nodes.
+`ExpressionRecognition` is implemented in `agent/go-service/common/expressionrecognition` and evaluates boolean expressions composed of numeric recognition nodes.
 
 Parameters:
 
@@ -118,7 +118,7 @@ Placeholder rules:
 
 - Use `{NodeName}` to reference another recognition node.
 - Each referenced node is executed once against the current image `arg.Img`.
-- The current implementation extracts digits from the referenced node's OCR result and uses them in the expression.
+- The current implementation extracts numeric values from the referenced node's OCR result and supports common abbreviated formats such as `1.38万`, `13.8K`, and `22.01M`; these values are normalized to integers before expression evaluation. Formats such as `1.2W` are not supported.
 
 Supported operators:
 
@@ -152,5 +152,5 @@ Other examples:
 Notes:
 
 - The final expression result must be boolean, otherwise the recognition fails.
-- Referenced nodes must currently produce OCR results containing digits, otherwise evaluation fails.
+- Referenced nodes must currently produce OCR results that can be parsed as numeric values, otherwise evaluation fails.
 - This recognizer is only responsible for expression evaluation. Business semantics should remain in Pipeline design.

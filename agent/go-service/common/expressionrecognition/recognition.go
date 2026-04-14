@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -22,7 +23,11 @@ type Params struct {
 	Expression string `json:"expression"`
 }
 
-var expressionNodePattern = regexp.MustCompile(`\{([^{}]+)\}`)
+var (
+	expressionNodePattern = regexp.MustCompile(`\{([^{}]+)\}`)
+	ocrNumericPattern     = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|亿)?`)
+	asciiLetterPattern    = regexp.MustCompile(`[A-Za-z]+$`)
+)
 
 // Run evaluates a boolean expression composed of numeric recognition nodes.
 func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -348,21 +353,80 @@ func parseOCRNumericValue(text string) (int, error) {
 		return 0, fmt.Errorf("ocr text is empty")
 	}
 
-	var digits strings.Builder
-	for _, ch := range cleaned {
-		if ch >= '0' && ch <= '9' {
-			digits.WriteRune(ch)
-		}
+	matchIndex := ocrNumericPattern.FindStringIndex(cleaned)
+	if matchIndex == nil {
+		return 0, fmt.Errorf("ocr text %q contains no numeric value", cleaned)
 	}
+	match := cleaned[matchIndex[0]:matchIndex[1]]
 
-	if digits.Len() == 0 {
-		return 0, fmt.Errorf("ocr text %q contains no digits", cleaned)
-	}
-
-	value, err := strconv.Atoi(digits.String())
+	numberText, multiplier, err := normalizeOCRNumericToken(match)
 	if err != nil {
 		return 0, err
 	}
 
-	return value, nil
+	value, err := strconv.ParseFloat(numberText, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	scaled := math.Round(value * multiplier)
+	maxInt := int(^uint(0) >> 1)
+	minInt := -maxInt - 1
+	if scaled > float64(maxInt) || scaled < float64(minInt) {
+		return 0, fmt.Errorf("ocr text %q is out of int range", cleaned)
+	}
+
+	return int(scaled), nil
+}
+
+func normalizeOCRNumericToken(token string) (string, float64, error) {
+	normalized := strings.TrimSpace(token)
+	if normalized == "" {
+		return "", 0, fmt.Errorf("ocr numeric token is empty")
+	}
+
+	multiplier := 1.0
+	for _, suffix := range []struct {
+		unit       string
+		multiplier float64
+	}{
+		{unit: "亿", multiplier: 100000000},
+		{unit: "万", multiplier: 10000},
+		{unit: "K", multiplier: 1000},
+		{unit: "k", multiplier: 1000},
+		{unit: "M", multiplier: 1000000},
+		{unit: "m", multiplier: 1000000},
+		{unit: "B", multiplier: 1000000000},
+		{unit: "b", multiplier: 1000000000},
+	} {
+		if strings.HasSuffix(normalized, suffix.unit) {
+			normalized = strings.TrimSpace(strings.TrimSuffix(normalized, suffix.unit))
+			multiplier = suffix.multiplier
+			break
+		}
+	}
+
+	if unsupportedSuffix := asciiLetterPattern.FindString(normalized); unsupportedSuffix != "" {
+		return "", 0, fmt.Errorf("unsupported ocr numeric suffix %q in %q", unsupportedSuffix, token)
+	}
+
+	if normalized == "" {
+		return "", 0, fmt.Errorf("ocr numeric token %q has no numeric part", token)
+	}
+
+	normalized = strings.ReplaceAll(normalized, " ", "")
+	if strings.Contains(normalized, ".") {
+		normalized = strings.ReplaceAll(normalized, ",", "")
+	} else if strings.Count(normalized, ",") == 1 {
+		parts := strings.Split(normalized, ",")
+		if len(parts) == 2 && len(parts[1]) != 3 {
+			normalized = parts[0] + "." + parts[1]
+		} else {
+			normalized = strings.ReplaceAll(normalized, ",", "")
+		}
+	} else {
+		normalized = strings.ReplaceAll(normalized, ",", "")
+	}
+
+	return normalized, multiplier, nil
 }
