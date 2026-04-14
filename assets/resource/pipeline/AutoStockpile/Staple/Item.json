@@ -1,5 +1,6 @@
 {
     "AutoStockpileInStapleItem": {
+        "desc": "识别商品基准点(剩余刷新时间框)，用于后续识别",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -21,6 +22,7 @@
         }
     },
     "AutoStockpileInStapleItemDiscounts": {
+        "desc": "识别商品折扣信息框，用于后续识别",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -49,6 +51,7 @@
         }
     },
     "AutoStockpileInStapleItemNameValleyIV": {
+        "desc": "识别商品名称(四号谷地)",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -65,6 +68,7 @@
         }
     },
     "AutoStockpileInStapleItemNameWuling": {
+        "desc": "识别商品名称(武陵)",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -81,6 +85,7 @@
         }
     },
     "AutoStockpileSwipeToMax": {
+        "desc": "识别滑动按钮，用于滑动到最大库存",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -110,6 +115,7 @@
         ]
     },
     "AutoStockpileSwipeBuy": {
+        "desc": "识别确认购买按钮，用于确认购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -125,5 +131,17 @@
         "next": [
             "AutoStockpileCheckBuyResult"
         ]
+    },
+    "AutoStockpileCurrentStockBill": {
+        "desc": "识别当前库存票据，用于获取当前库存",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CurrentStockBillColor",
+                    "CurrentStockBillText"
+                ]
+            }
+        }
     }
 }

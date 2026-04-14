@@ -1,5 +1,6 @@
 {
     "InValleyIVText": {
+        "desc": "识别当前处于四号谷地界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -20,6 +21,7 @@
         }
     },
     "InWulingText": {
+        "desc": "识别当前处于武陵界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -38,6 +40,7 @@
         }
     },
     "InStapleColor": {
+        "desc": "识别当前处于囤货界面",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -60,6 +63,7 @@
         }
     },
     "SoldOut": {
+        "desc": "识别到已售罄区域,需要退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -83,6 +87,7 @@
         }
     },
     "ConfirmBuyText": {
+        "desc": "识别当前确认购买按钮文本",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -96,6 +101,47 @@
                 "expected": [
                     "确认购买"
                 ]
+            }
+        }
+    },
+    "CurrentStockBillColor": {
+        "desc": "识别当前调度券颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1088,
+                    0,
+                    130,
+                    49
+                ],
+                "lower": [
+                    170
+                ],
+                "upper": [
+                    255
+                ],
+                "method": 6
+            }
+        }
+    },
+    "CurrentStockBillText": {
+        "desc": "识别当前调度券数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "CurrentStockBillColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": true,
+                "color_filter": "CurrentStockBillColor"
             }
         }
     }

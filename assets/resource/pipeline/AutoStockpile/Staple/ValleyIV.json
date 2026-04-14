@@ -1,5 +1,6 @@
 {
     "AutoStockpileInStapleValleyIV": {
+        "desc": "识别当前处于四号谷地界面，并进入囤货界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -16,6 +17,7 @@
         ]
     },
     "AutoStockpileBuyItemValleyIVTask": {
+        "desc": "识别商品，并进入购买流程",
         "recognition": {
             "type": "And",
             "param": {
@@ -43,6 +45,7 @@
         ]
     },
     "AutoStockpileSwipeValleyIV": {
+        "desc": "向下滑动寻找商品，直到找到商品或到达底部",
         "max_hit": 20,
         "recognition": {
             "type": "And",
