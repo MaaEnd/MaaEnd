@@ -38,7 +38,10 @@
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmJumpBack"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "未识别到选相机界面，任务继续"
+        }
     },
     "_AutoEcoFarmExitCameraMode": {
         "desc": "按右键退出拍照模式",
@@ -110,8 +113,22 @@
         "action": "KeyUp",
         "key": 82, // R 0x52
         "next": [
-            "AutoEcoFarmClickPhotoScene"
+            "AutoEcoFarmClickPhotoScene",
+            "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR"
         ]
+    },
+    "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR": {
+        "desc": "拍照模式：AutoEcoFarmEnterCameraModeKeyUpR 之后未命中 AutoEcoFarmClickPhotoScene，仅 JumpBack",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未识别到画面菜单，任务继续"
+        }
     },
     ///////点击画面部分
     "AutoEcoFarmClickPhotoScene": {
@@ -132,8 +149,22 @@
             ]
         },
         "next": [
-            "_AutoEcoFarmHideFactoryFacilities"
+            "_AutoEcoFarmHideFactoryFacilities",
+            "_AutoEcoFarmPhotoModeFailJumpBackClickPhotoScene"
         ]
+    },
+    "_AutoEcoFarmPhotoModeFailJumpBackClickPhotoScene": {
+        "desc": "拍照模式：AutoEcoFarmClickPhotoScene 之后未命中 _AutoEcoFarmHideFactoryFacilities，仅 JumpBack",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未识别到关闭显示工业设备，任务继续"
+        }
     },
     "AutoEcoFarmPhotoScene": {
         "desc": "[识别节点]拍照模式画面按钮",
