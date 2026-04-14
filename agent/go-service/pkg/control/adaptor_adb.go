@@ -78,8 +78,28 @@ func (aca *ADBControlAdaptor) GetPlayerMovement() PlayerMovement {
 	return aca.pm
 }
 
-func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
+func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy) {
+	joystickRunForward := func() {
+		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+	}
+	joystickWalkForward := func() {
+		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_WALK_DY, 0)
+	}
+	joystickStopForward := func() {
+		aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
+	}
+
 	if movement.Equals(aca.pm) {
+		if policy >= PolicyActive {
+			// Actively ensure moving state
+			if movement.speed >= MovementRun.speed {
+				joystickRunForward()
+			} else if movement.speed > MovementStop.speed {
+				joystickWalkForward()
+			} else {
+				joystickStopForward()
+			}
+		}
 		return
 	}
 
@@ -90,7 +110,7 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 
 	if movement.speed <= MovementStop.speed {
 		// Stop moving forward
-		aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
+		joystickStopForward()
 	} else {
 		if aca.lastMotionIsWalk {
 			if movement.speed >= MovementSprint.speed {
@@ -99,7 +119,7 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 				aca.lastMotionIsWalk = false
 			} else if movement.speed >= MovementRun.speed {
 				// Set to "run"
-				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				joystickRunForward()
 				aca.lastMotionIsWalk = false
 			} else {
 				// Already in "walk", do nothing
@@ -107,21 +127,21 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 		} else {
 			if movement.speed < MovementRun.speed {
 				// Set to "walk"
-				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_WALK_DY, 0)
+				joystickWalkForward()
 				aca.lastMotionIsWalk = true
 			} else if movement.speed < MovementSprint.speed {
 				if aca.pm.speed >= MovementSprint.speed {
 					// Set to "stop" temporarily to terminate the "sprint" state, then set to "run"
 					aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
-					aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+					joystickRunForward()
 				} else {
 					// Already in "run", do nothing else
 				}
-				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				joystickRunForward()
 			} else {
 				// Set to "sprint"
 				aca.TouchClick(sprintButtonContact, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
-				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				joystickRunForward()
 			}
 		}
 	}
@@ -130,17 +150,6 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 
 func (aca *ADBControlAdaptor) PlayerJump() {
 	aca.TouchClick(jumpButtonContact, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
-}
-
-func (aca *ADBControlAdaptor) PlayerSprint() {
-	aca.TouchClick(sprintButtonContact, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
-	aca.pm = MovementSprint
-	aca.lastMotionIsWalk = false
-}
-
-func (aca *ADBControlAdaptor) PlayerStop() {
-	aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
-	aca.pm = MovementStop
 }
 
 func (aca *ADBControlAdaptor) AggressivelyResetCamera() {

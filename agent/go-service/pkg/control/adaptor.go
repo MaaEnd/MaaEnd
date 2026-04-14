@@ -49,19 +49,11 @@ type ControlAdaptor interface {
 
 	// SetPlayerMovement sets the player movement state to the given value,
 	// and performs necessary control actions to achieve that state.
-	SetPlayerMovement(movement PlayerMovement)
+	SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy)
 
 	// PlayerJump performs the player jump action once.
 	// This will not change the player movement state.
 	PlayerJump()
-
-	// PlayerSprint performs the player sprint action once.
-	// This will set the player movement state to at least sprint.
-	PlayerSprint()
-
-	// PlayerStop lets the player stop moving forward.
-	// This will set the player movement state to stop.
-	PlayerStop()
 
 	// AggressivelyResetCamera eliminates the side effect of camera rotation.
 	// Different implementations may have different ways to achieve this.
@@ -136,4 +128,19 @@ var (
 	MovementWalk   = PlayerMovement{2.0, 270.0}
 	MovementRun    = PlayerMovement{8.0, 540.0}
 	MovementSprint = PlayerMovement{12.0, 1080.0}
+)
+
+/* ******** Player Movement Policy Enumeration ******** */
+
+type PlayerMovementPolicy int
+
+const (
+	// PolicyLazy avoids any unnecessary key action if the new movement state is already achieved,
+	// which may cause less latency but also less robustness.
+	PolicyLazy PlayerMovementPolicy = 0
+	// PolicyDefault balances between [PolicyLazy] and [PolicyActive] policy.
+	PolicyDefault PlayerMovementPolicy = 1
+	// PolicyActive performs extra key actions to actively ensure the new movement state is achieved,
+	// which may cause more latency but also more robustness.
+	PolicyActive PlayerMovementPolicy = 2
 )

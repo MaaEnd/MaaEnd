@@ -189,7 +189,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check stopping signal
 			if ctx.GetTasker().Stopping() {
 				log.Warn().Msg("Task is stopping, exiting navigation loop")
-				ca.PlayerStop()
+				doPlayerStop(ca)
 				return false
 			}
 
@@ -210,7 +210,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			result, err := doInfer(ctx, ctrl, param)
 			if err != nil {
 				log.Error().Err(err).Msg("Inference failed during navigation")
-				ca.PlayerStop()
+				ca.SetPlayerMovement(control.MovementStop, control.PolicyDefault)
 				continue
 			}
 			curX, curY := result.X, result.Y
@@ -229,7 +229,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
-						ca.SetPlayerMovement(control.MovementWalk)
+						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 					}
 					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
 					augNextDeltaRot := float64(nextDeltaRot) * 0.618
@@ -264,7 +264,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						fineApproachOngoing = true
 						fineApproachExpectedElapsed := control.MovementWalk.EtaOfDistance(dist)
 						fineApproachExpectedEndTime = loopStartTime.Add(fineApproachExpectedElapsed)
-						ca.SetPlayerMovement(control.MovementWalk)
+						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
 						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached (ordinary approach)")
@@ -290,6 +290,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 				if deltaLocationMs > param.StuckThreshold {
 					log.Info().Msg("Stuck detected, jumping...")
+					ca.SetPlayerMovement(ca.GetPlayerMovement(), control.PolicyActive)
 					ca.PlayerJump()
 				}
 			} else {
@@ -329,7 +330,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if ca.GetPlayerMovement().Equals(control.MovementSprint) {
 					if absRawDeltaRot > param.RotationLowerThreshold {
 						// Ensure no sprinting: forcibly set to 'walk'
-						ca.SetPlayerMovement(control.MovementWalk)
+						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 					}
 				}
 
@@ -337,21 +338,21 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if !fineApproachOngoing {
 					if absRawDeltaRot > param.RotationUpperThreshold {
 						// Rotation is bad: set to 'walk'
-						ca.SetPlayerMovement(control.MovementWalk)
+						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 					} else if absRawDeltaRot > param.RotationLowerThreshold {
 						// Rotation is good: at least set to 'run'
-						ca.SetPlayerMovement(control.MovementRun)
+						ca.SetPlayerMovement(control.MovementRun, control.PolicyDefault)
 					} else {
 						// Rotation is very good: can try 'sprint' if target is far enough
 						if dist > param.SprintThreshold {
-							ca.SetPlayerMovement(control.MovementSprint)
+							ca.SetPlayerMovement(control.MovementSprint, control.PolicyDefault)
 						} else {
-							ca.SetPlayerMovement(control.MovementRun)
+							ca.SetPlayerMovement(control.MovementRun, control.PolicyDefault)
 						}
 					}
 				} else {
 					// During fine approach: always use 'walk'
-					ca.SetPlayerMovement(control.MovementWalk)
+					ca.SetPlayerMovement(control.MovementWalk, control.PolicyLazy)
 				}
 
 				// Start a new rotation adjustment
@@ -374,8 +375,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// End of loop, one target reached
 	}
 
-	// End of all targets reached
-	ca.PlayerStop()
+	// End of all targets reached, reset and stop movement
+	doPlayerStop(ca)
 
 	// Show finished UI summary
 	if !param.NoPrint {
@@ -483,12 +484,21 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	return &param, nil
 }
 
+func doPlayerStop(ca control.ControlAdaptor) {
+	// Softly stop movement first
+	ca.SetPlayerMovement(control.MovementStop, control.PolicyLazy)
+	// Then reset player to running state to ensure consistent movement state for next navigation
+	ca.SetPlayerMovement(control.MovementRun, control.PolicyLazy)
+	// Finally set to stop to ensure immediate response to stopping signal
+	ca.SetPlayerMovement(control.MovementStop, control.PolicyDefault)
+}
+
 func doEmergencyStop(ca control.ControlAdaptor, noPrint bool) {
 	log.Warn().Msg("Emergency stop triggered")
 	if !noPrint {
 		maafocus.Print(ca.Ctx(), i18n.RenderHTML("maptracker.emergency_stop", nil))
 	}
-	ca.PlayerStop()
+	doPlayerStop(ca)
 	ca.Ctx().GetTasker().PostStop()
 }
 

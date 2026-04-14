@@ -95,8 +95,16 @@ func (dca *desktopControlAdaptor) GetPlayerMovement() PlayerMovement {
 	return dca.pm
 }
 
-func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
+func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy) {
 	if movement.Equals(dca.pm) {
+		if policy >= PolicyActive {
+			// Actively ensure moving state
+			if movement.speed > MovementStop.speed {
+				dca.KeyDown(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+			} else {
+				dca.KeyUp(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+			}
+		}
 		return
 	}
 
@@ -134,25 +142,16 @@ func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 				dca.KeyType(dca.keys.Shift, defaultDesktopKeyActionDelayMillis)
 			}
 		}
-		// Ensure moving forward
-		dca.KeyDown(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+		if policy >= PolicyDefault {
+			// Ensure moving forward
+			dca.KeyDown(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+		}
 	}
 	dca.pm = movement
 }
 
 func (dca *desktopControlAdaptor) PlayerJump() {
 	dca.KeyType(dca.keys.Space, defaultDesktopKeyActionDelayMillis*4)
-}
-
-func (dca *desktopControlAdaptor) PlayerSprint() {
-	dca.KeyType(dca.keys.Shift, defaultDesktopKeyActionDelayMillis)
-	dca.pm = MovementSprint
-	dca.lastMotionIsWalk = false
-}
-
-func (dca *desktopControlAdaptor) PlayerStop() {
-	dca.KeyUp(dca.keys.W, defaultDesktopKeyActionDelayMillis)
-	dca.pm = MovementStop
 }
 
 func (dca *desktopControlAdaptor) AggressivelyResetCamera() {
