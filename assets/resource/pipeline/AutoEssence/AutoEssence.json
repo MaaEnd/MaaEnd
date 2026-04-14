@@ -7,12 +7,38 @@
         },
         "post_delay": 0,
         "next": [
+            "AutoEssenceTryRechallengeFromBattleResult",
             "AutoEssenceClickEssenceStartButton",
             "[JumpBack]AutoEssenceLocationSetupMaybeAutoMove",
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceTryRechallengeFromBattleResult": {
+        "desc": "再来一次",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    800,
+                    450,
+                    100,
+                    180
+                ],
+                "template": "AutoEssence/EssenceTrigger.png",
+                "green_mask": true,
+                "order_by": "Score"
+            }
+        },
+        "pre_wait_freezes": 600,
+        "pre_delay": 300,
+        "next": [
+            "AutoEssenceClickTriggerButtonPre"
+        ],
+        "focus": {
+            "Node.Action.Starting": "⚡激发界面开始挑战"
         }
     },
     "AutoEssenceLocationSetup": {

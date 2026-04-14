@@ -113,7 +113,7 @@ The weekday adjustment table is:
 | Saturday  | `-200`     |
 | Sunday    | `-50`      |
 
-For server-day calculation, AutoStockpile first converts the current time to the target timezone, then treats `04:00 ~ next 03:59` as the same server day. The default production path uses `UTC+8`, while `AutoStockpileServerTime` can override it with `UTC+8`, `UTC+9`, `UTC-8`, or `UTC+1`.
+For server-day calculation, AutoStockpile first converts the current time to the target timezone, then treats `04:00 ~ next 03:59` as the same server day. The default production path uses `UTC+8`; the current task options map to CN `UTC+8`, Asia `UTC+8`, US `UTC-5`, and EU `UTC-5`.
 
 ## Runtime Override Behavior
 

@@ -6,7 +6,8 @@
             "entry": "GearAssemblyStart",
             "description": "$task.GearAssembly.description",
             "option": [
-                "GearCraftingPriority"
+                "GearAssemblySortOrder",
+                "GearAssemblySelectionMethod"
             ],
             "group": [
                 "daily"
@@ -14,14 +15,14 @@
         }
     ],
     "option": {
-        "GearCraftingPriority": {
+        "GearAssemblySortOrder": {
             "type": "select",
-            "label": "$task.GearAssembly.option.GearCraftingPriority.label",
-            "default_case": "Lowest",
+            "label": "$task.GearAssembly.option.GearAssemblySortOrder.label",
+            "default_case": "Lower",
             "cases": [
                 {
-                    "name": "Lowest",
-                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label",
+                    "name": "Lower",
+                    "label": "$task.GearAssembly.option.GearAssemblySortOrder.cases.Lower.label",
                     "pipeline_override": {
                         "GearAssemblySwitchAscending": {
                             "enabled": true
@@ -29,19 +30,35 @@
                     }
                 },
                 {
-                    "name": "Highest",
-                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Highest.label",
+                    "name": "Higher",
+                    "label": "$task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label",
                     "pipeline_override": {
                         "GearAssemblySwitchAscending": {
                             "enabled": false
                         }
                     }
-                },
+                }
+            ]
+        },
+        "GearAssemblySelectionMethod": {
+            "type": "select",
+            "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.label",
+            "default_case": "Auto",
+            "cases": [
                 {
                     "name": "Auto",
-                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Auto.label",
+                    "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.cases.Auto.label",
                     "pipeline_override": {
-                        "GearAssemblyGoToStandalone": {
+                        "GearAssemblyFirstAssemble": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "First",
+                    "label": "$task.GearAssembly.option.GearAssemblySelectionMethod.cases.First.label",
+                    "pipeline_override": {
+                        "GearAssemblyFirstAssemble": {
                             "enabled": true
                         }
                     }

@@ -98,6 +98,9 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 	}
 
+	panFactor := mt.BIG_MAP_PAN_FACTOR_NUMERATOR / control.GetScreenDiagonalSize(ctrl)
+	log.Info().Float64("panFactor", panFactor).Msg("Calculated big-map pan factor")
+
 	for attempt := 1; attempt <= mt.BIG_MAP_PICK_RETRY; attempt++ {
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
 		if err != nil {
@@ -140,7 +143,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Float64("targetInViewY", targetInViewY).
 			Msg("Panning big-map toward target")
 
-		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY) {
+		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor) {
 			continue
 		}
 	}
@@ -352,14 +355,14 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	return &result, nil
 }
 
-func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY float64) bool {
+func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY, panFactor float64) bool {
 	left := int(math.Round(viewport.Left))
 	top := int(math.Round(viewport.Top))
 	right := int(math.Round(viewport.Right))
 	bottom := int(math.Round(viewport.Bottom))
 
-	rawDragDx := -deltaInViewX * mt.BIG_MAP_PAN_FACTOR
-	rawDragDy := -deltaInViewY * mt.BIG_MAP_PAN_FACTOR
+	rawDragDx := -deltaInViewX * panFactor
+	rawDragDy := -deltaInViewY * panFactor
 	startX, startY := pickDragStartCorner(left, top, right, bottom, rawDragDx, rawDragDy)
 
 	dragDx := int(math.Round(rawDragDx))

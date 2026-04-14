@@ -414,7 +414,7 @@ bool NavigationStateMachine::TickNavigate()
     if (steering.issued) {
         const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg);
         if (steering_result.issued) {
-            PoseEstimator::NotifyAppliedSteering(&runtime_state_.pose, steering.yaw_delta_deg);
+            PoseEstimator::NotifyAppliedSteering(&runtime_state_.pose, steering_result.issued_delta_degrees);
         }
     }
 

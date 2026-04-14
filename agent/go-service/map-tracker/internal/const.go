@@ -34,8 +34,8 @@ const (
 
 // Big map pick configuration
 const (
-	BIG_MAP_PAN_FACTOR = 1.5
-	BIG_MAP_PICK_RETRY = 10
+	BIG_MAP_PAN_FACTOR_NUMERATOR = 2500.0 // panFactor = this constant / screen diagonal size
+	BIG_MAP_PICK_RETRY           = 10
 )
 
 // Move action configuration

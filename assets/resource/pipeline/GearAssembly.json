@@ -35,9 +35,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GearAssemblyGoToStandalone",
             "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblyDirectlyAssemble"
+            "GearAssemblyFirstAssemble",
+            "GearAssemblyAutoAssemble"
         ]
     },
     "GearAssemblySwitchAscending": {
@@ -48,9 +48,9 @@
             "param": {
                 "roi": [
                     325,
-                    630,
+                    600,
                     100,
-                    60
+                    90
                 ],
                 "template": [
                     "GearAssembly/Filter.png",
@@ -151,14 +151,13 @@
     },
     "GearAssemblyGoToStandalone": {
         "desc": "前往装备数量更少的独立装备制造，以便执行自动选择，附：没招了怎么延时那么大",
-        "enabled": false,
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
                     250,
                     0,
-                    200,
+                    300,
                     60
                 ],
                 "expected": [
@@ -250,15 +249,11 @@
                 "end": [
                     [
                         70,
-                        20,
-                        30,
-                        1
+                        20
                     ],
                     [
-                        100,
-                        20,
-                        30,
-                        1
+                        80,
+                        20
                     ]
                 ]
             }
@@ -365,61 +360,6 @@
             "Node.Action.Succeeded": "无可制造装备"
         }
     },
-    "GearAssemblySwipeToNextRowLightly": {
-        "desc": "滑动到下一行",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {
-                "roi": [
-                    1000,
-                    630,
-                    255,
-                    60
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "GearAssemblyGetGearPosition",
-                "begin_offset": [
-                    0,
-                    60,
-                    0,
-                    0
-                ],
-                "end": [
-                    [
-                        70,
-                        20,
-                        30,
-                        1
-                    ],
-                    [
-                        100,
-                        20,
-                        30,
-                        1
-                    ]
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                30,
-                40,
-                100,
-                60
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GearAssemblyGetGearPosition"
-        ]
-    },
     "GearAssemblyGetGearPositionFinalHelper": {
         "desc": "优化在mpe下的显示，使得自循环看起来不那么绕",
         "max_hit": 6,
@@ -491,20 +431,28 @@
     },
     "GearAssemblyEnsureInStandalone": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     200,
                     0,
-                    150,
+                    350,
                     60
                 ],
-                "template": [
-                    "GearAssembly/Standalone.png"
+                "lower": [
+                    [
+                        220,
+                        220,
+                        220
+                    ]
                 ],
-                "threshold": [
-                    0.8
-                ]
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 5000
             }
         },
         "pre_wait_freezes": {
@@ -557,8 +505,9 @@
             "Node.Recognition.Succeeded": "无法制造"
         }
     },
-    "GearAssemblyDirectlyAssemble": {
-        "desc": "中继节点",
+    "GearAssemblyFirstAssemble": {
+        "desc": "仅第一个选择模式",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -597,5 +546,54 @@
                 "count": 2000
             }
         }
+    },
+    "GearAssemblyAutoAssemble": {
+        "desc": "自动选择模式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGoToStandalone"
+        ]
+    },
+    "GearAssemblySwipeToNextRowLightly": {
+        "desc": "滑动到下一行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "GearAssemblyGetGearPosition",
+                "begin_offset": [
+                    0,
+                    60,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        70,
+                        20
+                    ],
+                    [
+                        80,
+                        20
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                30,
+                40,
+                100,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyGetGearPosition"
+        ]
     }
 }

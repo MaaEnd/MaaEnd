@@ -83,7 +83,6 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
         return result;
     }
 
-    pending_yaw_deg_ += yaw_delta_deg;
 
     const auto now = std::chrono::steady_clock::now();
     if (steering_quiet_until_.time_since_epoch().count() > 0 && now < steering_quiet_until_) {
@@ -94,7 +93,7 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
                                 ? std::numeric_limits<int64_t>::max()
                                 : std::chrono::duration_cast<std::chrono::milliseconds>(now - last_steering_sent_at_).count();
 
-    if (std::abs(pending_yaw_deg_) < steering_profile_.min_emit_delta_deg) {
+    if (std::abs(yaw_delta_deg) < steering_profile_.min_emit_delta_deg) {
         return result;
     }
 
@@ -107,9 +106,7 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
         action_wrapper_->SetMovementStateSync(false, false, false, false, 0);
     }
 
-    const double emit_deg = std::clamp(pending_yaw_deg_, -steering_profile_.max_batch_delta_deg, steering_profile_.max_batch_delta_deg);
-
-    pending_yaw_deg_ -= emit_deg;
+    const double emit_deg = std::clamp(yaw_delta_deg, -steering_profile_.max_batch_delta_deg, steering_profile_.max_batch_delta_deg);
 
     result = SendViewDelta(emit_deg);
     if (result.issued) {
@@ -119,6 +116,7 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
             is_moving_forward_ = false;
             has_applied_action_ = false;
         }
+        result.issued_delta_degrees = emit_deg;
     }
     return result;
 }
