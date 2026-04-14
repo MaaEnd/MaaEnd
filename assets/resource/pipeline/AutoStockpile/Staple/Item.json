@@ -129,7 +129,8 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}",
+                    //"expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}",暂时硬链接对比24万
+                    "expression": "240000< {AutoStockpileCurrentStockBill}",
                     "box_node": "AutoStockpileTargetStockBill"
                 }
             }
