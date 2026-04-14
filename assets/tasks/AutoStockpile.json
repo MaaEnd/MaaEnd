@@ -302,6 +302,10 @@
             "type": "checkbox",
             "label": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsValleyIV.label",
             "description": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsValleyIV.description",
+            "default_case": [
+                "KeenValleyDetector",
+                "KeenValleyCompass"
+            ],
             "cases": [
                 {
                     "name": "KeenValleyDetector",
@@ -675,6 +679,11 @@
             "type": "checkbox",
             "label": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsWuling.label",
             "description": "$task.AutoStockpile.option.AutoStockpileBuyStockFactoryGoodsWuling.description",
+            "default_case": [
+                "WulingArtificingCatalyst",
+                "KeenWulingDetector",
+                "KeenWulingCompass"
+            ],
             "cases": [
                 {
                     "name": "WulingArtificingCatalyst",
