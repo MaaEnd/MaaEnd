@@ -24,8 +24,8 @@
                 "all_of": [
                     "AutoStockpileInStapleItem",
                     "AutoStockpileInStapleItemDiscounts",
-                    "AutoStockpileInStapleItemName"
-                    //,"AutoStockpileTargetCanBuy"
+                    "AutoStockpileInStapleItemName",
+                    "AutoStockpileTargetCanBuy"
                 ],
                 "box_index": 2
             }

@@ -115,6 +115,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 参数：
 
 - `expression: string`：必填。表达式最终必须计算为布尔值。
+- `box_node?: string`：可选。命中后返回哪个识别节点的结果框；若该节点是 `And`，则会先执行该节点，再按其原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果的框。
 
 占位规则：
 
@@ -139,7 +140,8 @@ Recognition 节点用于执行自定义识别。常见写法如下：
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
+                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
+                "box_node": "CreditShoppingReserveCreditOCRInternal"
             }
         }
     }

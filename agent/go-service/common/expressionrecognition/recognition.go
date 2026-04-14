@@ -21,6 +21,7 @@ type Recognition struct{}
 
 type Params struct {
 	Expression string `json:"expression"`
+	BoxNode    string `json:"box_node"`
 }
 
 type nodeDefinition struct {
@@ -96,6 +97,17 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
+	resultBox, err := resolveResultBox(ctx, arg, params)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "ExpressionRecognition").
+			Str("expression", params.Expression).
+			Str("box_node", params.BoxNode).
+			Msg("failed to resolve result box")
+		return nil, false
+	}
+
 	detailJSON, _ := json.Marshal(map[string]any{
 		"expression":          params.Expression,
 		"resolved_expression": resolvedExpression,
@@ -104,7 +116,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	})
 
 	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
+		Box:    resultBox,
 		Detail: string(detailJSON),
 	}, true
 }
@@ -133,6 +145,7 @@ func parseParams(raw string) (*Params, error) {
 	if params.Expression == "" {
 		return nil, fmt.Errorf("expression is required")
 	}
+	params.BoxNode = strings.TrimSpace(params.BoxNode)
 
 	return &params, nil
 }
@@ -189,6 +202,19 @@ func runNumericRecognition(ctx *maa.Context, arg *maa.CustomRecognitionArg, node
 	return value, nil
 }
 
+func resolveResultBox(ctx *maa.Context, arg *maa.CustomRecognitionArg, params *Params) (maa.Rect, error) {
+	if params == nil || params.BoxNode == "" {
+		return arg.Roi, nil
+	}
+
+	detail, err := ctx.RunRecognition(params.BoxNode, arg.Img)
+	if err != nil {
+		return maa.Rect{}, err
+	}
+
+	return extractRecognitionBoxFromNode(ctx, params.BoxNode, detail)
+}
+
 func extractRecognitionNumberFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (int, error) {
 	if detail == nil {
 		return 0, fmt.Errorf("recognition detail is empty")
@@ -210,19 +236,55 @@ func extractRecognitionNumberFromNode(ctx *maa.Context, nodeName string, detail 
 		return extractRecognitionNumber(detail)
 	}
 
+	selectedDetail, err := extractAndSelectedDetail(detail, boxIndex)
+	if err != nil {
+		return 0, err
+	}
+
+	return extractRecognitionNumber(selectedDetail)
+}
+
+func extractRecognitionBoxFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (maa.Rect, error) {
+	if detail == nil {
+		return maa.Rect{}, fmt.Errorf("recognition detail is empty")
+	}
+
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return maa.Rect{}, fmt.Errorf("get node %s json: %w", nodeName, err)
+	}
+	if strings.TrimSpace(raw) == "" {
+		return maa.Rect{}, fmt.Errorf("node %s json is empty", nodeName)
+	}
+
+	boxIndex, isAndNode, err := resolveAndNodeBoxIndex(raw)
+	if err != nil {
+		return maa.Rect{}, fmt.Errorf("resolve %s box source: %w", nodeName, err)
+	}
+	if !isAndNode {
+		return detail.Box, nil
+	}
+
+	selectedDetail, err := extractAndSelectedDetail(detail, boxIndex)
+	if err != nil {
+		return maa.Rect{}, err
+	}
+	return selectedDetail.Box, nil
+}
+
+func extractAndSelectedDetail(detail *maa.RecognitionDetail, boxIndex int) (*maa.RecognitionDetail, error) {
 	if len(detail.CombinedResult) == 0 {
-		return 0, fmt.Errorf("and node combined result is empty")
+		return nil, fmt.Errorf("and node combined result is empty")
 	}
 	if boxIndex < 0 || boxIndex >= len(detail.CombinedResult) {
-		return 0, fmt.Errorf("and node box_index %d out of range, combined result size=%d", boxIndex, len(detail.CombinedResult))
+		return nil, fmt.Errorf("and node box_index %d out of range, combined result size=%d", boxIndex, len(detail.CombinedResult))
 	}
 
 	selectedDetail := detail.CombinedResult[boxIndex]
 	if selectedDetail == nil {
-		return 0, fmt.Errorf("and node box_index %d result is empty", boxIndex)
+		return nil, fmt.Errorf("and node box_index %d result is empty", boxIndex)
 	}
-
-	return extractRecognitionNumber(selectedDetail)
+	return selectedDetail, nil
 }
 
 func resolveAndNodeBoxIndex(raw string) (int, bool, error) {

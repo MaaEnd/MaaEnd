@@ -1,6 +1,10 @@
 package expressionrecognition
 
-import "testing"
+import (
+	"testing"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+)
 
 func TestParseOCRNumericValue(t *testing.T) {
 	testCases := []struct {
@@ -151,5 +155,35 @@ func TestResolveAndNodeBoxIndex(t *testing.T) {
 				t.Fatalf("resolveAndNodeBoxIndex() boxIndex = %d, want %d", gotBoxIndex, tc.wantBoxIndex)
 			}
 		})
+	}
+}
+
+func TestExtractAndSelectedDetail(t *testing.T) {
+	detail := &maa.RecognitionDetail{
+		CombinedResult: []*maa.RecognitionDetail{
+			{Box: maa.Rect{1, 2, 3, 4}},
+			{Box: maa.Rect{5, 6, 7, 8}},
+		},
+	}
+
+	got, err := extractAndSelectedDetail(detail, 1)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got == nil {
+		t.Fatalf("expected detail, got nil")
+	}
+	if got.Box != (maa.Rect{5, 6, 7, 8}) {
+		t.Fatalf("extractAndSelectedDetail() box = %v, want %v", got.Box, maa.Rect{5, 6, 7, 8})
+	}
+}
+
+func TestParseParamsTrimsBoxNode(t *testing.T) {
+	params, err := parseParams(`{"expression":"{NodeA}<{NodeB}","box_node":"  NodeA  "}`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if params.BoxNode != "NodeA" {
+		t.Fatalf("parseParams() boxNode = %q, want %q", params.BoxNode, "NodeA")
 	}
 }

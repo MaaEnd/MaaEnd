@@ -113,6 +113,7 @@ A recognition node can invoke a custom recognition like this:
 Parameters:
 
 - `expression: string`: required. The final result of the expression must be boolean.
+- `box_node?: string`: optional. Which recognition node's result box should be returned when the expression matches; if that node is an `And`, it is executed first and the box is read directly from the child result selected by that node's native `box_index` in that run.
 
 Placeholder rules:
 
@@ -137,7 +138,8 @@ Example:
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
+                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
+                "box_node": "CreditShoppingReserveCreditOCRInternal"
             }
         }
     }

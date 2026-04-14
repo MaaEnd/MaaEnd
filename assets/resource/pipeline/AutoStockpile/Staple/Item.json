@@ -72,12 +72,7 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": [
-                    102,
-                    574,
-                    81,
-                    15
-                ], //"AutoStockpileInStapleItemName"
+                "roi": "AutoStockpileInStapleItemName",
                 "roi_offset": [
                     -27,
                     -48,
@@ -134,7 +129,8 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}"
+                    "expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}",
+                    "box_node": "AutoStockpileTargetStockBill"
                 }
             }
         }
