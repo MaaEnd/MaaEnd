@@ -1,0 +1,32 @@
+{
+    "AutoCollectDigStart": {
+        "next": [
+            "AutoCollectDig"
+        ]
+    },
+    "AutoCollectDig": {
+        "desc": "无条件点击两次后结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "repeat": 2,
+        "repeat_delay": 500,
+        "next": [
+            "AutoCollectDigEnd"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "执行挖掘点击"
+        }
+    },
+    "AutoCollectDigEnd": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]AutoCollectDigAfter"
+        ]
+    }
+}

@@ -7,6 +7,7 @@
             "[JumpBack]AutoCollectRoute2Sub",
             "[JumpBack]AutoCollectRoute3Sub",
             "[JumpBack]AutoCollectRoute4Sub",
+            "[JumpBack]AutoCollectRoute5Sub",
             "AutoCollectEnd"
         ]
     },
@@ -60,6 +61,18 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
+        }
+    },
+    "AutoCollectRoute5Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute5Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
         }
     }
 }
