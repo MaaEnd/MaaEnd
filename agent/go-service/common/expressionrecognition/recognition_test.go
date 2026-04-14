@@ -122,6 +122,44 @@ func TestResolveAndNodeBoxIndex(t *testing.T) {
 			wantIsAndNode: false,
 		},
 		{
+			name:          "shorthand string recognition is not and node",
+			raw:           `{"recognition": "OCR", "expected": "^\\d+$"}`,
+			wantIsAndNode: false,
+		},
+		{
+			name:          "shorthand TemplateMatch is not and node",
+			raw:           `{"recognition": "TemplateMatch", "template": "foo.png"}`,
+			wantIsAndNode: false,
+		},
+		{
+			name:          "shorthand And recognition returns error without all_of",
+			raw:           `{"recognition": "And"}`,
+			wantIsAndNode: true,
+			wantErr:       true,
+		},
+		{
+			name:          "shorthand And with top-level all_of and box_index",
+			raw:           `{"recognition": "And", "all_of": ["NodeA", "NodeB"], "box_index": 1}`,
+			wantBoxIndex:  1,
+			wantIsAndNode: true,
+		},
+		{
+			name:          "shorthand And with top-level all_of only defaults to box_index 0",
+			raw:           `{"recognition": "And", "all_of": ["NodeA"]}`,
+			wantBoxIndex:  0,
+			wantIsAndNode: true,
+		},
+		{
+			name:          "missing recognition treated as non-and node",
+			raw:           `{"foo": "bar"}`,
+			wantIsAndNode: false,
+		},
+		{
+			name:          "null recognition treated as non-and node",
+			raw:           `{"recognition": null}`,
+			wantIsAndNode: false,
+		},
+		{
 			name: "and node rejects out of range index",
 			raw: `{
 				"recognition": {
@@ -132,13 +170,17 @@ func TestResolveAndNodeBoxIndex(t *testing.T) {
 					}
 				}
 			}`,
-			wantErr: true,
+			wantIsAndNode: true,
+			wantErr:       true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotBoxIndex, gotIsAndNode, err := resolveAndNodeBoxIndex(tc.raw)
+			if gotIsAndNode != tc.wantIsAndNode {
+				t.Fatalf("resolveAndNodeBoxIndex() isAndNode = %v, want %v", gotIsAndNode, tc.wantIsAndNode)
+			}
 			if tc.wantErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil")
@@ -147,9 +189,6 @@ func TestResolveAndNodeBoxIndex(t *testing.T) {
 			}
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
-			}
-			if gotIsAndNode != tc.wantIsAndNode {
-				t.Fatalf("resolveAndNodeBoxIndex() isAndNode = %v, want %v", gotIsAndNode, tc.wantIsAndNode)
 			}
 			if gotBoxIndex != tc.wantBoxIndex {
 				t.Fatalf("resolveAndNodeBoxIndex() boxIndex = %d, want %d", gotBoxIndex, tc.wantBoxIndex)

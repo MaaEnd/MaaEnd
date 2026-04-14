@@ -1,6 +1,7 @@
 package expressionrecognition
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/ast"
@@ -25,7 +26,9 @@ type Params struct {
 }
 
 type nodeDefinition struct {
-	Recognition recognitionDefinition `json:"recognition"`
+	Recognition json.RawMessage   `json:"recognition"`
+	AllOf       []json.RawMessage `json:"all_of"`
+	BoxIndex    *int              `json:"box_index"`
 }
 
 type recognitionDefinition struct {
@@ -293,28 +296,66 @@ func resolveAndNodeBoxIndex(raw string) (int, bool, error) {
 		return 0, false, fmt.Errorf("unmarshal node json: %w", err)
 	}
 
-	recognitionType := strings.TrimSpace(node.Recognition.Type)
-	if recognitionType == "" {
-		recognitionType = strings.TrimSpace(node.Recognition.Recognition)
+	// Handle missing/null recognition (e.g. DirectHit nodes where recognition is optional)
+	if len(node.Recognition) == 0 || bytes.Equal(node.Recognition, []byte("null")) {
+		return 0, false, nil
 	}
+
+	// Determine recognition type from either shorthand string or full object format.
+	recognitionType := ""
+	switch node.Recognition[0] {
+	case '"': // shorthand format: "recognition": "OCR"
+		var recognitionStr string
+		if err := json.Unmarshal(node.Recognition, &recognitionStr); err != nil {
+			return 0, false, fmt.Errorf("unmarshal recognition string: %w", err)
+		}
+		recognitionType = strings.TrimSpace(recognitionStr)
+	case '{': // full format: "recognition": {"type": "And", "param": {...}}
+		var recognition recognitionDefinition
+		if err := json.Unmarshal(node.Recognition, &recognition); err != nil {
+			return 0, false, fmt.Errorf("unmarshal recognition definition: %w", err)
+		}
+		recognitionType = strings.TrimSpace(recognition.Type)
+		if recognitionType == "" {
+			recognitionType = strings.TrimSpace(recognition.Recognition)
+		}
+	default:
+		return 0, false, nil
+	}
+
 	if recognitionType != "And" {
 		return 0, false, nil
 	}
 
-	allOf := node.Recognition.AllOf
+	// Collect all_of and box_index from multiple possible locations,
+	// in order of precedence: recognition.param > recognition-level > node top-level.
+	allOf := node.AllOf
 	boxIndex := 0
+	if node.BoxIndex != nil {
+		boxIndex = *node.BoxIndex
+	}
 
-	if len(node.Recognition.Param) > 0 {
-		var param andRecognitionParam
-		if err := json.Unmarshal(node.Recognition.Param, &param); err != nil {
-			return 0, true, fmt.Errorf("unmarshal and param: %w", err)
+	// Try to extract from full-format recognition object
+	if node.Recognition[0] == '{' {
+		var recognition recognitionDefinition
+		_ = json.Unmarshal(node.Recognition, &recognition)
+		if len(recognition.Param) > 0 {
+			var param andRecognitionParam
+			if err := json.Unmarshal(recognition.Param, &param); err != nil {
+				return 0, true, fmt.Errorf("unmarshal and param: %w", err)
+			}
+			allOf = param.AllOf
+			if param.BoxIndex != nil {
+				boxIndex = *param.BoxIndex
+			}
+		} else {
+			if len(recognition.AllOf) > 0 {
+				allOf = recognition.AllOf
+			}
+			if recognition.BoxIndex != nil {
+				boxIndex = *recognition.BoxIndex
+			}
 		}
-		allOf = param.AllOf
-		if param.BoxIndex != nil {
-			boxIndex = *param.BoxIndex
-		}
-	} else if node.Recognition.BoxIndex != nil {
-		boxIndex = *node.Recognition.BoxIndex
 	}
 
 	if len(allOf) == 0 {
