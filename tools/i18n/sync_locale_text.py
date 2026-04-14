@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import re
 import sys
 import textwrap
@@ -22,6 +24,13 @@ INTERFACE_LOCALE_DIR = REPO_ROOT / "assets" / "locales" / "interface"
 GO_SERVICE_LOCALE_DIR = REPO_ROOT / "assets" / "locales" / "go-service"
 DEFAULT_LLM_CONFIG_PATH = Path(__file__).resolve().with_name("llm.json")
 TRANSLATE_TRIGGER = "TR"
+DEFAULT_DEVELOPER_LOCALE = "zh_cn"
+
+PIPELINE_DIRS = [
+    REPO_ROOT / "assets" / "resource" / "pipeline",
+    REPO_ROOT / "assets" / "resource_adb" / "pipeline",
+    REPO_ROOT / "assets" / "resource_wlroots" / "pipeline",
+]
 
 DEFAULT_API_BASE_URL = "https://api.deepseek.com/v1"
 DEFAULT_MODEL = "deepseek-chat"
@@ -33,6 +42,7 @@ PRINTF_TOKEN_RE = re.compile(
 BRACE_TOKEN_RE = re.compile(r"\{[a-zA-Z0-9_]+\}")
 HTML_TAG_RE = re.compile(r"</?[^>]+?>")
 FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
+KEY_SEGMENT_SANITIZE_RE = re.compile(r"[^\w\-]+", re.UNICODE)
 
 
 @dataclass(frozen=True)
@@ -49,6 +59,20 @@ class LLMConfig:
     api_base_url: str
     api_key: str
     model: str
+
+
+@dataclass(frozen=True)
+class SourceReplacement:
+    property_name: str
+    old_value: str
+    new_value: str
+
+
+@dataclass(frozen=True)
+class InlineMarkerResult:
+    key: str
+    source_text: str
+    file_path: Path
 
 
 def parse_args() -> argparse.Namespace:
@@ -91,6 +115,11 @@ def parse_args() -> argparse.Namespace:
         help="Path to local llm.json config file.",
     )
     parser.add_argument(
+        "--developer-locale",
+        default=DEFAULT_DEVELOPER_LOCALE,
+        help="Locale used for inline $source text$ markers.",
+    )
+    parser.add_argument(
         "--fail-on-translate-error",
         action="store_true",
         help="Exit with non-zero status if any translation request fails.",
@@ -99,16 +128,34 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_llm_config(path: Path) -> LLMConfig:
-    if not path.is_file():
+    payload: Dict[str, Any] = {}
+    if path.is_file():
+        raw_payload = load_json(path)
+        if not isinstance(raw_payload, dict):
+            raise ValueError("LLM config must be a JSON object")
+        payload = raw_payload
+    elif not any(
+        os.environ.get(name)
+        for name in (
+            "I18N_LLM_API_BASE_URL",
+            "I18N_LLM_API_KEY",
+            "I18N_LLM_MODEL",
+        )
+    ):
         raise FileNotFoundError(f"LLM config file not found: {path}")
 
-    payload = load_json(path)
-    if not isinstance(payload, dict):
-        raise ValueError("LLM config must be a JSON object")
-
-    api_base_url = str(payload.get("api_base_url", DEFAULT_API_BASE_URL)).strip()
-    api_key = str(payload.get("api_key", "")).strip()
-    model = str(payload.get("model", DEFAULT_MODEL)).strip()
+    api_base_url = str(
+        os.environ.get(
+            "I18N_LLM_API_BASE_URL",
+            payload.get("api_base_url", DEFAULT_API_BASE_URL),
+        )
+    ).strip()
+    api_key = str(
+        os.environ.get("I18N_LLM_API_KEY", payload.get("api_key", ""))
+    ).strip()
+    model = str(
+        os.environ.get("I18N_LLM_MODEL", payload.get("model", DEFAULT_MODEL))
+    ).strip()
 
     if not api_base_url:
         raise ValueError("llm.json field api_base_url cannot be empty")
@@ -193,21 +240,288 @@ def iter_strings(value: Any) -> Iterable[str]:
             yield from iter_strings(item)
 
 
-def collect_referenced_keys() -> List[str]:
+def is_inline_text_marker(text: str) -> bool:
+    return len(text) >= 3 and text.startswith("$") and text.endswith("$")
+
+
+def is_locale_key_reference(text: str) -> bool:
+    return text.startswith("$") and not is_inline_text_marker(text)
+
+
+def iter_pipeline_files() -> List[Path]:
+    files: List[Path] = []
+    for directory in PIPELINE_DIRS:
+        if directory.is_dir():
+            files.extend(sorted(directory.rglob("*.json")))
+    return files
+
+
+def iter_interface_source_files() -> List[Path]:
+    return [INTERFACE_FILE, *sorted(TASKS_DIR.rglob("*.json"))]
+
+
+def collect_locale_key_references(files: Sequence[Path]) -> List[str]:
     referenced_keys: List[str] = []
     seen: set[str] = set()
 
-    files = sorted(TASKS_DIR.rglob("*.json")) + [INTERFACE_FILE]
     for path in files:
         data = load_json(path)
         for text in iter_strings(data):
-            if not text.startswith("$"):
+            if not is_locale_key_reference(text):
                 continue
-            if text in seen:
+            key = text[1:]
+            if key in seen:
                 continue
-            seen.add(text)
-            referenced_keys.append(text[1:])
+            seen.add(key)
+            referenced_keys.append(key)
     return referenced_keys
+
+
+def sanitize_key_segment(segment: str) -> str:
+    normalized = KEY_SEGMENT_SANITIZE_RE.sub("_", segment.strip())
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    if not normalized:
+        return "unnamed"
+    if normalized[0].isdigit():
+        return f"n_{normalized}"
+    return normalized
+
+
+def resolve_list_item_segment(item: Any, index: int) -> str:
+    if isinstance(item, dict):
+        for field in ("name", "type", "id", "entry"):
+            value = item.get(field)
+            if isinstance(value, str) and value.strip():
+                return sanitize_key_segment(value)
+    return f"item_{index}"
+
+
+def build_generated_key(
+    *,
+    file_path: Path,
+    segments: Sequence[str],
+    source_text: str,
+    locale_data: Dict[str, Dict[str, str]],
+    developer_locale: str,
+    generated_key_sources: Dict[str, str],
+) -> str:
+    if file_path == INTERFACE_FILE:
+        base_segments = ["auto", "interface"]
+    else:
+        base_segments = ["auto", "task", sanitize_key_segment(file_path.stem)]
+
+    base_key = ".".join(
+        [
+            *base_segments,
+            *[sanitize_key_segment(segment) for segment in segments],
+        ]
+    )
+    candidate = base_key
+    existing_source_text = locale_data.get(developer_locale, {}).get(candidate)
+    if existing_source_text not in (None, "", source_text):
+        digest = hashlib.sha1(source_text.encode("utf-8")).hexdigest()[:8]
+        candidate = f"{base_key}.{digest}"
+
+    tracked_source_text = generated_key_sources.get(candidate)
+    if tracked_source_text not in (None, source_text):
+        digest = hashlib.sha1(source_text.encode("utf-8")).hexdigest()[:8]
+        candidate = f"{base_key}.{digest}"
+
+    generated_key_sources[candidate] = source_text
+    return candidate
+
+
+def ensure_locale_key(
+    locale_data: Dict[str, Dict[str, str]],
+    *,
+    key: str,
+    developer_locale: str,
+    source_text: str,
+) -> None:
+    for locale, entries in locale_data.items():
+        if key not in entries:
+            entries[key] = ""
+        if locale == developer_locale and entries[key] == "":
+            entries[key] = source_text
+
+
+def collect_inline_markers_from_value(
+    value: Any,
+    *,
+    file_path: Path,
+    segments: Sequence[str],
+    locale_data: Dict[str, Dict[str, str]],
+    developer_locale: str,
+    generated_key_sources: Dict[str, str],
+    replacements: List[SourceReplacement],
+    markers: List[InlineMarkerResult],
+) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            next_segments = [*segments, sanitize_key_segment(key)]
+            if isinstance(child, str):
+                if not is_inline_text_marker(child):
+                    continue
+                source_text = child[1:-1]
+                generated_key = build_generated_key(
+                    file_path=file_path,
+                    segments=next_segments,
+                    source_text=source_text,
+                    locale_data=locale_data,
+                    developer_locale=developer_locale,
+                    generated_key_sources=generated_key_sources,
+                )
+                ensure_locale_key(
+                    locale_data,
+                    key=generated_key,
+                    developer_locale=developer_locale,
+                    source_text=source_text,
+                )
+                markers.append(
+                    InlineMarkerResult(
+                        key=generated_key,
+                        source_text=source_text,
+                        file_path=file_path,
+                    )
+                )
+                replacements.append(
+                    SourceReplacement(
+                        property_name=key,
+                        old_value=child,
+                        new_value=f"${generated_key}",
+                    )
+                )
+                continue
+
+            if isinstance(child, list):
+                collect_inline_markers_from_list(
+                    child,
+                    file_path=file_path,
+                    segments=next_segments,
+                    locale_data=locale_data,
+                    developer_locale=developer_locale,
+                    generated_key_sources=generated_key_sources,
+                    replacements=replacements,
+                    markers=markers,
+                )
+                continue
+
+            collect_inline_markers_from_value(
+                child,
+                file_path=file_path,
+                segments=next_segments,
+                locale_data=locale_data,
+                developer_locale=developer_locale,
+                generated_key_sources=generated_key_sources,
+                replacements=replacements,
+                markers=markers,
+            )
+
+
+def collect_inline_markers_from_list(
+    value: Sequence[Any],
+    *,
+    file_path: Path,
+    segments: Sequence[str],
+    locale_data: Dict[str, Dict[str, str]],
+    developer_locale: str,
+    generated_key_sources: Dict[str, str],
+    replacements: List[SourceReplacement],
+    markers: List[InlineMarkerResult],
+) -> None:
+    for index, item in enumerate(value):
+        item_segments = [*segments, resolve_list_item_segment(item, index)]
+        if isinstance(item, dict):
+            collect_inline_markers_from_value(
+                item,
+                file_path=file_path,
+                segments=item_segments,
+                locale_data=locale_data,
+                developer_locale=developer_locale,
+                generated_key_sources=generated_key_sources,
+                replacements=replacements,
+                markers=markers,
+            )
+            continue
+        if isinstance(item, list):
+            collect_inline_markers_from_list(
+                item,
+                file_path=file_path,
+                segments=item_segments,
+                locale_data=locale_data,
+                developer_locale=developer_locale,
+                generated_key_sources=generated_key_sources,
+                replacements=replacements,
+                markers=markers,
+            )
+
+
+def rewrite_source_file_text(
+    raw_text: str,
+    replacements: Sequence[SourceReplacement],
+    *,
+    file_path: Path,
+) -> str:
+    if not replacements:
+        return raw_text
+
+    updated_parts: List[str] = []
+    cursor = 0
+    for replacement in replacements:
+        encoded_old = json.dumps(replacement.old_value, ensure_ascii=False)
+        encoded_new = json.dumps(replacement.new_value, ensure_ascii=False)
+        pattern = re.compile(
+            rf'("{re.escape(replacement.property_name)}"\s*:\s*){re.escape(encoded_old)}'
+        )
+        match = pattern.search(raw_text, cursor)
+        if match is None:
+            raise ValueError(
+                f"Cannot rewrite inline marker in {file_path}: {replacement.property_name}"
+            )
+
+        updated_parts.append(raw_text[cursor : match.start(0)])
+        updated_parts.append(match.group(1))
+        updated_parts.append(encoded_new)
+        cursor = match.end(0)
+
+    updated_parts.append(raw_text[cursor:])
+    return "".join(updated_parts)
+
+
+def process_inline_text_markers(
+    locale_data: Dict[str, Dict[str, str]],
+    *,
+    developer_locale: str,
+    write: bool,
+) -> Tuple[List[InlineMarkerResult], List[Path]]:
+    generated_key_sources: Dict[str, str] = {}
+    markers: List[InlineMarkerResult] = []
+    updated_files: List[Path] = []
+
+    for path in iter_interface_source_files():
+        data = load_json(path)
+        replacements: List[SourceReplacement] = []
+        collect_inline_markers_from_value(
+            data,
+            file_path=path,
+            segments=[],
+            locale_data=locale_data,
+            developer_locale=developer_locale,
+            generated_key_sources=generated_key_sources,
+            replacements=replacements,
+            markers=markers,
+        )
+        if not replacements or not write:
+            continue
+
+        raw_text = path.read_text(encoding="utf-8")
+        updated_text = rewrite_source_file_text(raw_text, replacements, file_path=path)
+        if updated_text == raw_text:
+            continue
+        path.write_text(updated_text, encoding="utf-8", newline="\n")
+        updated_files.append(path)
+
+    return markers, updated_files
 
 
 def load_flat_locale_dir(locale_dir: Path) -> Dict[str, Dict[str, str]]:
@@ -499,6 +813,8 @@ def build_report(
     *,
     referenced_keys: Sequence[str],
     interface_additions: Dict[str, List[str]],
+    inline_markers: Sequence[InlineMarkerResult],
+    updated_source_files: Sequence[Path],
     empty_items: Sequence[EmptyTranslation],
     translated_entries: Dict[Tuple[str, str, str], str],
     unresolved_items: Sequence[EmptyTranslation],
@@ -513,6 +829,18 @@ def build_report(
             for locale, entries in interface_additions.items()
             if entries
         },
+        "generated_inline_markers": [
+            {
+                "file": str(item.file_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "key": item.key,
+                "source_text": item.source_text,
+            }
+            for item in inline_markers
+        ],
+        "updated_source_files": [
+            str(path.relative_to(REPO_ROOT)).replace("\\", "/")
+            for path in updated_source_files
+        ],
         "empty_translations": [
             {
                 "group": item.group,
@@ -545,6 +873,8 @@ def build_report(
             "interface_missing_key_count": sum(
                 len(entries) for entries in interface_additions.values()
             ),
+            "generated_inline_marker_count": len(inline_markers),
+            "updated_source_file_count": len(updated_source_files),
             "empty_translation_count": len(empty_items),
             "translated_count": len(translated_entries),
             "unresolved_without_source_count": len(unresolved_items),
@@ -562,6 +892,14 @@ def print_report(report: Dict[str, Any]) -> None:
     print(
         "[i18n] empty translations:",
         summary["empty_translation_count"],
+    )
+    print(
+        "[i18n] generated inline markers:",
+        summary["generated_inline_marker_count"],
+    )
+    print(
+        "[i18n] updated source files:",
+        summary["updated_source_file_count"],
     )
     print(
         "[i18n] translated entries:",
@@ -583,6 +921,11 @@ def print_report(report: Dict[str, Any]) -> None:
             print(f"  - {locale}: {len(keys)}")
             for key in keys:
                 print(f"    * {key}")
+
+    if report["updated_source_files"]:
+        print("[i18n] updated source files:")
+        for path in report["updated_source_files"]:
+            print(f"  - {path}")
 
     if report["unresolved_without_source"]:
         print("[i18n] unresolved empty translations without source text:")
@@ -610,14 +953,32 @@ def main() -> int:
 
     interface_locales = load_flat_locale_dir(INTERFACE_LOCALE_DIR)
     go_service_locales = load_flat_locale_dir(GO_SERVICE_LOCALE_DIR)
+    developer_locale = str(args.developer_locale).strip().lower()
+    if developer_locale not in interface_locales:
+        raise ValueError(
+            f"Unknown developer locale: {developer_locale}. Available: {', '.join(sorted(interface_locales))}"
+        )
 
-    referenced_keys: List[str] = []
+    inline_markers, updated_source_files = process_inline_text_markers(
+        interface_locales,
+        developer_locale=developer_locale,
+        write=args.write,
+    )
+
+    referenced_keys = collect_locale_key_references(
+        [
+            *iter_interface_source_files(),
+            *iter_pipeline_files(),
+        ]
+    )
+    for marker in inline_markers:
+        if marker.key not in referenced_keys:
+            referenced_keys.append(marker.key)
+
     interface_additions: Dict[str, List[str]] = {
         locale: [] for locale in interface_locales.keys()
     }
-    if phase in {"generate", "all"}:
-        referenced_keys = collect_referenced_keys()
-        interface_additions = sync_interface_keys(interface_locales, referenced_keys)
+    interface_additions = sync_interface_keys(interface_locales, referenced_keys)
 
     empty_items = collect_empty_translations("interface", interface_locales)
     empty_items.extend(collect_empty_translations("go-service", go_service_locales))
@@ -651,6 +1012,8 @@ def main() -> int:
     report = build_report(
         referenced_keys=referenced_keys,
         interface_additions=interface_additions,
+        inline_markers=inline_markers,
+        updated_source_files=updated_source_files,
         empty_items=empty_items,
         translated_entries=translated_entries,
         unresolved_items=unresolved_items,

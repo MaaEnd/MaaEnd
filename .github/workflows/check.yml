@@ -1,33 +1,23 @@
 name: check
 
 on:
-  push:
-    branches:
-      - "v2"
-    paths:
-      - ".github/workflows/check.yml"
-      - "assets/**"
-      - "tools/schema/**"
-      - "package.json"
-      - "maatools.config.mts"
-  pull_request:
-    branches:
-      - "**"
-    paths:
-      - ".github/workflows/check.yml"
-      - "assets/**"
-      - "tools/schema/**"
-      - "package.json"
-      - "maatools.config.mts"
+  workflow_run:
+    workflows:
+      - "i18n-locale"
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   resource:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.actor.login != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
 
       - uses: pnpm/action-setup@v4
 

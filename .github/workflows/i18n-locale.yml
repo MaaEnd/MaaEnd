@@ -1,0 +1,106 @@
+name: i18n-locale
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/i18n-locale.yml"
+      - ".github/workflows/install.yml"
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
+      - "package.json"
+      - "maatools.config.mts"
+
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/i18n-locale.yml"
+      - ".github/workflows/install.yml"
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "agent/**"
+      - "tools/**"
+      - "package.json"
+      - "maatools.config.mts"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: i18n-locale-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync-locale:
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run locale sync
+        id: sync
+        shell: bash
+        env:
+          I18N_LLM_API_BASE_URL: ${{ secrets['I18N_LLM_API_BASE_URL'] }}
+          I18N_LLM_API_KEY: ${{ secrets['I18N_LLM_API_KEY'] }}
+          I18N_LLM_MODEL: ${{ secrets['I18N_LLM_MODEL'] }}
+        run: |
+          set +e
+          python tools/i18n/sync_locale_text.py --phase all --write --report "$RUNNER_TEMP/i18n-report.json" --fail-on-translate-error
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload locale sync report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-locale-report
+          path: ${{ runner.temp }}/i18n-report.json
+          if-no-files-found: ignore
+
+      - name: Check changes
+        id: changes
+        if: always()
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit synced locale changes
+        if: always() && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/') && steps.changes.outputs.has_changes == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/interface.json assets/tasks assets/locales/interface
+          git commit -m "chore: auto sync locale text [skip ci]"
+
+      - name: Push synced locale changes
+        if: always() && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/') && steps.changes.outputs.has_changes == 'true'
+        shell: bash
+        run: |
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Fail workflow when translation failed
+        if: always() && steps.sync.outputs.exit_code != '0'
+        shell: bash
+        run: exit "${{ steps.sync.outputs.exit_code }}"

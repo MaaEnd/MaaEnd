@@ -4,37 +4,30 @@ on:
   push:
     tags:
       - "v*"
-    branches:
-      - "v2"
-    paths:
-      - ".github/workflows/install.yml"
-      - "assets/**"
-      - "agent/**"
-      - "tools/**"
 
-  pull_request:
-    branches:
-      - "**"
-    paths:
-      - ".github/workflows/install.yml"
-      - "assets/**"
-      - "agent/**"
-      - "tools/**"
+  workflow_run:
+    workflows:
+      - "i18n-locale"
+    types:
+      - completed
 
   workflow_dispatch:
 
 jobs:
   meta:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.actor.login != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
       - id: set_tag
         run: |
           # 检查标签格式
           is_release=${{ startsWith(github.ref, 'refs/tags/v') }}
-          tag=$(git describe --tags --match "v*" ${{ github.ref }} || true)
+          tag=$(git describe --tags --match "v*" HEAD || true)
           if [[ $tag != v* ]]; then
             tag=$(curl -sX GET "https://api.github.com/repos/${{ github.repository }}/releases/latest" --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | awk '/tag_name/{print $4}' FS='["]')
             if [[ $tag != v* ]]; then
@@ -94,6 +87,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
 
       - name: Install Linux dependencies
         if: matrix.os == 'linux'
@@ -241,6 +236,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
@@ -348,6 +346,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -402,6 +403,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          repository: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.repository }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
