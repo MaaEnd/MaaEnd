@@ -68,7 +68,7 @@
         }
     },
     "AutoStockpileTargetStockBillColor": {
-        "desc": "识别目标调度券颜色(这是子节点,后续会被OCR节点引用",
+        "desc": "识别目标调度券颜色(这是子节点,后续会被OCR节点引用)",
         "recognition": {
             "type": "ColorMatch",
             "param": {

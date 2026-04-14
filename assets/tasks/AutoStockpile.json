@@ -165,7 +165,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ReserveValleyIV}<{AutoStockpileCurrentStockBill}"
+                                "expression": "{ReserveValleyIV}>{AutoStockpileCurrentStockBill}"
                             }
                         }
                     }
@@ -589,7 +589,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ReserveWuling}<{AutoStockpileCurrentStockBill}"
+                                "expression": "{ReserveWuling}>{AutoStockpileCurrentStockBill}"
                             }
                         }
                     }

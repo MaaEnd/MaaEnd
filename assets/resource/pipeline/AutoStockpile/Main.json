@@ -50,7 +50,7 @@
         }
     },
     "AutoStockpileStapleValleyIV": {
-        "desc": "自动囤货稳定需求物质四号谷地节点",
+        "desc": "自动囤货稳定需求物资四号谷地节点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -88,7 +88,7 @@
         }
     },
     "AutoStockpileStapleWuling": {
-        "desc": "自动囤货稳定需求物质武陵节点",
+        "desc": "自动囤货稳定需求物资武陵节点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
