@@ -122,7 +122,8 @@
                 "all_of": [
                     "AutoStockpileTargetStockBillColor",
                     "AutoStockpileTargetStockBillText"
-                ]
+                ],
+                "box_index": 1
             }
         }
     },
@@ -194,7 +195,8 @@
                 "all_of": [
                     "CurrentStockBillColor",
                     "CurrentStockBillText"
-                ]
+                ],
+                "box_index": 1
             }
         }
     }
