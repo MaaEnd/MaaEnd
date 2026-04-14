@@ -118,7 +118,7 @@ Placeholder rules:
 
 - Use `{NodeName}` to reference another recognition node.
 - Each referenced node is executed once against the current image `arg.Img`.
-- If the referenced node is an `And`, the current implementation reads the child recognition selected by that node's native `box_index` and treats it as the final value source of the `And` node.
+- If the referenced node is an `And`, the current implementation first executes that `And` node itself, then reads the child result selected by that node's native `box_index` directly from that run's returned combined result, and treats it as the final value source of the `And` node.
 - The current implementation extracts numeric values from the referenced node's OCR result and supports common abbreviated formats such as `1.38万`, `13.8K`, and `22.01M`; these values are normalized to integers before expression evaluation. Formats such as `1.2W` are not supported.
 
 Supported operators:
@@ -154,5 +154,5 @@ Notes:
 
 - The final expression result must be boolean, otherwise the recognition fails.
 - Referenced nodes must currently produce OCR results that can be parsed as numeric values, otherwise evaluation fails.
-- For `And` nodes, the child selected by `box_index` must currently be a node-name reference, and that child must ultimately produce OCR results that can be parsed as numeric values.
+- For `And` nodes, the child result selected by `box_index` in that run must directly contain OCR results that can be parsed as numeric values.
 - This recognizer is only responsible for expression evaluation. Business semantics should remain in Pipeline design.

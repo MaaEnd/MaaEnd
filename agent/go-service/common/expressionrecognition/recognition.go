@@ -176,53 +176,59 @@ func resolveExpressionValues(ctx *maa.Context, arg *maa.CustomRecognitionArg, ex
 }
 
 func runNumericRecognition(ctx *maa.Context, arg *maa.CustomRecognitionArg, nodeName string) (int, error) {
-	resolvedNodeName, err := resolveNumericSourceNode(ctx, nodeName, map[string]struct{}{})
+	detail, err := ctx.RunRecognition(nodeName, arg.Img)
 	if err != nil {
 		return 0, err
 	}
 
-	detail, err := ctx.RunRecognition(resolvedNodeName, arg.Img)
+	value, err := extractRecognitionNumberFromNode(ctx, nodeName, detail)
 	if err != nil {
-		return 0, err
-	}
-
-	value, err := extractRecognitionNumber(detail)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse node result from %s: %w", resolvedNodeName, err)
+		return 0, fmt.Errorf("failed to parse node result from %s: %w", nodeName, err)
 	}
 
 	return value, nil
 }
 
-func resolveNumericSourceNode(ctx *maa.Context, nodeName string, visited map[string]struct{}) (string, error) {
-	if _, seen := visited[nodeName]; seen {
-		return "", fmt.Errorf("cyclic node reference detected at %s", nodeName)
+func extractRecognitionNumberFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (int, error) {
+	if detail == nil {
+		return 0, fmt.Errorf("recognition detail is empty")
 	}
-	visited[nodeName] = struct{}{}
 
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
-		return "", fmt.Errorf("get node %s json: %w", nodeName, err)
+		return 0, fmt.Errorf("get node %s json: %w", nodeName, err)
 	}
 	if strings.TrimSpace(raw) == "" {
-		return "", fmt.Errorf("node %s json is empty", nodeName)
+		return 0, fmt.Errorf("node %s json is empty", nodeName)
 	}
 
-	selectedNodeName, isAndNode, err := resolveAndNodeBoxTarget(raw)
+	boxIndex, isAndNode, err := resolveAndNodeBoxIndex(raw)
 	if err != nil {
-		return "", fmt.Errorf("resolve %s numeric source: %w", nodeName, err)
+		return 0, fmt.Errorf("resolve %s numeric source: %w", nodeName, err)
 	}
 	if !isAndNode {
-		return nodeName, nil
+		return extractRecognitionNumber(detail)
 	}
 
-	return resolveNumericSourceNode(ctx, selectedNodeName, visited)
+	if len(detail.CombinedResult) == 0 {
+		return 0, fmt.Errorf("and node combined result is empty")
+	}
+	if boxIndex < 0 || boxIndex >= len(detail.CombinedResult) {
+		return 0, fmt.Errorf("and node box_index %d out of range, combined result size=%d", boxIndex, len(detail.CombinedResult))
+	}
+
+	selectedDetail := detail.CombinedResult[boxIndex]
+	if selectedDetail == nil {
+		return 0, fmt.Errorf("and node box_index %d result is empty", boxIndex)
+	}
+
+	return extractRecognitionNumber(selectedDetail)
 }
 
-func resolveAndNodeBoxTarget(raw string) (string, bool, error) {
+func resolveAndNodeBoxIndex(raw string) (int, bool, error) {
 	var node nodeDefinition
 	if err := json.Unmarshal([]byte(raw), &node); err != nil {
-		return "", false, fmt.Errorf("unmarshal node json: %w", err)
+		return 0, false, fmt.Errorf("unmarshal node json: %w", err)
 	}
 
 	recognitionType := strings.TrimSpace(node.Recognition.Type)
@@ -230,7 +236,7 @@ func resolveAndNodeBoxTarget(raw string) (string, bool, error) {
 		recognitionType = strings.TrimSpace(node.Recognition.Recognition)
 	}
 	if recognitionType != "And" {
-		return "", false, nil
+		return 0, false, nil
 	}
 
 	allOf := node.Recognition.AllOf
@@ -239,7 +245,7 @@ func resolveAndNodeBoxTarget(raw string) (string, bool, error) {
 	if len(node.Recognition.Param) > 0 {
 		var param andRecognitionParam
 		if err := json.Unmarshal(node.Recognition.Param, &param); err != nil {
-			return "", true, fmt.Errorf("unmarshal and param: %w", err)
+			return 0, true, fmt.Errorf("unmarshal and param: %w", err)
 		}
 		allOf = param.AllOf
 		if param.BoxIndex != nil {
@@ -250,23 +256,13 @@ func resolveAndNodeBoxTarget(raw string) (string, bool, error) {
 	}
 
 	if len(allOf) == 0 {
-		return "", true, fmt.Errorf("and node all_of is empty")
+		return 0, true, fmt.Errorf("and node all_of is empty")
 	}
 	if boxIndex < 0 || boxIndex >= len(allOf) {
-		return "", true, fmt.Errorf("and node box_index %d out of range, all_of size=%d", boxIndex, len(allOf))
+		return 0, true, fmt.Errorf("and node box_index %d out of range, all_of size=%d", boxIndex, len(allOf))
 	}
 
-	var selectedNodeName string
-	if err := json.Unmarshal(allOf[boxIndex], &selectedNodeName); err != nil {
-		return "", true, fmt.Errorf("and node box_index %d target must be a node name reference", boxIndex)
-	}
-
-	selectedNodeName = strings.TrimSpace(selectedNodeName)
-	if selectedNodeName == "" {
-		return "", true, fmt.Errorf("and node box_index %d target is empty", boxIndex)
-	}
-
-	return selectedNodeName, true, nil
+	return boxIndex, true, nil
 }
 
 func extractRecognitionNumber(detail *maa.RecognitionDetail) (int, error) {

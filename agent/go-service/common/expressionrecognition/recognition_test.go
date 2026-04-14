@@ -70,11 +70,11 @@ func TestParseOCRNumericValue(t *testing.T) {
 	}
 }
 
-func TestResolveAndNodeBoxTarget(t *testing.T) {
+func TestResolveAndNodeBoxIndex(t *testing.T) {
 	testCases := []struct {
 		name          string
 		raw           string
-		wantNode      string
+		wantBoxIndex  int
 		wantIsAndNode bool
 		wantErr       bool
 	}{
@@ -89,7 +89,7 @@ func TestResolveAndNodeBoxTarget(t *testing.T) {
 					}
 				}
 			}`,
-			wantNode:      "TextNode",
+			wantBoxIndex:  1,
 			wantIsAndNode: true,
 		},
 		{
@@ -102,7 +102,7 @@ func TestResolveAndNodeBoxTarget(t *testing.T) {
 					}
 				}
 			}`,
-			wantNode:      "FirstNode",
+			wantBoxIndex:  0,
 			wantIsAndNode: true,
 		},
 		{
@@ -116,20 +116,6 @@ func TestResolveAndNodeBoxTarget(t *testing.T) {
 				}
 			}`,
 			wantIsAndNode: false,
-		},
-		{
-			name: "and node rejects inline child",
-			raw: `{
-				"recognition": {
-					"type": "And",
-					"param": {
-						"all_of": [
-							{"type": "OCR", "param": {"expected": ["\\d+"]}}
-						]
-					}
-				}
-			}`,
-			wantErr: true,
 		},
 		{
 			name: "and node rejects out of range index",
@@ -148,7 +134,7 @@ func TestResolveAndNodeBoxTarget(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			gotNode, gotIsAndNode, err := resolveAndNodeBoxTarget(tc.raw)
+			gotBoxIndex, gotIsAndNode, err := resolveAndNodeBoxIndex(tc.raw)
 			if tc.wantErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil")
@@ -159,10 +145,10 @@ func TestResolveAndNodeBoxTarget(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			if gotIsAndNode != tc.wantIsAndNode {
-				t.Fatalf("resolveAndNodeBoxTarget() isAndNode = %v, want %v", gotIsAndNode, tc.wantIsAndNode)
+				t.Fatalf("resolveAndNodeBoxIndex() isAndNode = %v, want %v", gotIsAndNode, tc.wantIsAndNode)
 			}
-			if gotNode != tc.wantNode {
-				t.Fatalf("resolveAndNodeBoxTarget() node = %q, want %q", gotNode, tc.wantNode)
+			if gotBoxIndex != tc.wantBoxIndex {
+				t.Fatalf("resolveAndNodeBoxIndex() boxIndex = %d, want %d", gotBoxIndex, tc.wantBoxIndex)
 			}
 		})
 	}
