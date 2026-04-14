@@ -156,7 +156,8 @@
                     "description": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
-                    "default": "240000"
+                    "default": "240000",
+                    "pattern_msg": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -579,7 +580,8 @@
                     "description": "$task.AutoStockpile.option.AutoStockpileReserveWuling.inputs.ReserveWuling.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
-                    "default": "240000"
+                    "default": "240000",
+                    "pattern_msg": "$task.AutoStockpile.option.AutoStockpileReserveWuling.inputs.ReserveWuling.pattern_msg"
                 }
             ],
             "pipeline_override": {
