@@ -448,7 +448,25 @@
                 },
                 {
                     "name": "No",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "AutoStockpileInStapleItemDiscounts": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -741,7 +759,25 @@
                 },
                 {
                     "name": "No",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "AutoStockpileInStapleItemDiscounts": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             ]
         }

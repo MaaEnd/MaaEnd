@@ -246,7 +246,7 @@
     "task.AutoStockpile.option.AutoStockpileBuyCulturalGoodsValleyIV.description": "购买人文物产类物资",
     "task.AutoStockpile.option.AutoStockpileUseDiscountsValleyIV.label": "仅购买折扣",
     "task.AutoStockpile.option.AutoStockpileUseDiscountsValleyIV.description": "开启后只购买存在折扣的物资",
-    "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "武陵",
+    "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "武陵弹性物质购买",
     "task.AutoStockpile.option.AutoStockpileStapleWuling.label": "武陵稳定物资购买",
     "task.AutoStockpile.option.AutoStockpileStapleWuling.description": "配置武陵稳定物资购买项",
     "task.AutoStockpile.option.AutoStockpileBuyDailyGoodsWuling.label": "日用消耗",
