@@ -50,8 +50,8 @@
             }
         }
     },
-    "AutoStockpileInStapleItemNameValleyIV": {
-        "desc": "识别商品名称(四号谷地)",
+    "AutoStockpileInStapleItemName": {
+        "desc": "识别商品名称",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -67,20 +67,74 @@
             }
         }
     },
-    "AutoStockpileInStapleItemNameWuling": {
-        "desc": "识别商品名称(武陵)",
+    "AutoStockpileTargetStockBillColor": {
+        "desc": "识别目标调度券颜色(这是子节点,后续会被OCR节点引用",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    102,
+                    574,
+                    81,
+                    15
+                ], //"AutoStockpileInStapleItemName"
+                "roi_offset": [
+                    -27,
+                    -48,
+                    55,
+                    20
+                ],
+                "lower": [
+                    80
+                ],
+                "upper": [
+                    122
+                ],
+                "method": 6
+            }
+        }
+    },
+    "AutoStockpileTargetStockBillText": {
+        "desc": "识别目标调度券数量",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockpileInStapleItemDiscounts",
+                "roi": "AutoStockpileTargetStockBillColor",
                 "roi_offset": [
-                    -91,
-                    165,
-                    95,
-                    22
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": [],
-                "order_by": "Vertical"
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockpileTargetStockBillColor"
+            }
+        }
+    },
+    "AutoStockpileTargetStockBill": {
+        "desc": "识别目标调度券数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileTargetStockBillColor",
+                    "AutoStockpileTargetStockBillText"
+                ]
+            }
+        }
+    },
+    "AutoStockpileTargetCanBuy": {
+        "desc": "识别目标调度券是否可购买",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}"
+                }
             }
         }
     },

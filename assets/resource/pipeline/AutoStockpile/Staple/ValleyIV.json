@@ -24,7 +24,8 @@
                 "all_of": [
                     "AutoStockpileInStapleItem",
                     "AutoStockpileInStapleItemDiscounts",
-                    "AutoStockpileInStapleItemNameValleyIV"
+                    "AutoStockpileInStapleItemName",
+                    "AutoStockpileTargetCanBuy"
                 ],
                 "box_index": 2
             }
