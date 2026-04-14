@@ -133,6 +133,7 @@
                         }
                     },
                     "option": [
+                        "AutoStockpileReserveValleyIV",
                         "AutoStockpileBuyDailyGoodsValleyIV",
                         "AutoStockpileBuyStockFactoryGoodsValleyIV",
                         "AutoStockpileBuyCulturalGoodsValleyIV",
@@ -143,6 +144,32 @@
                     "name": "No"
                 }
             ]
+        },
+        "AutoStockpileReserveValleyIV": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.description",
+            "inputs": [
+                {
+                    "name": "ReserveValleyIV",
+                    "label": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.label",
+                    "description": "$task.AutoStockpile.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "default": "240000"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileTargetCanNotBuyValleyIV": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ReserveValleyIV}<{AutoStockpileCurrentStockBill}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoStockpileBuyDailyGoodsValleyIV": {
             "type": "checkbox",
@@ -529,6 +556,7 @@
                         }
                     },
                     "option": [
+                        "AutoStockpileReserveWuling",
                         "AutoStockpileBuyDailyGoodsWuling",
                         "AutoStockpileBuyStockFactoryGoodsWuling",
                         "AutoStockpileBuyCulturalGoodsWuling",
@@ -539,6 +567,32 @@
                     "name": "No"
                 }
             ]
+        },
+        "AutoStockpileReserveWuling": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileReserveWuling.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileReserveWuling.description",
+            "inputs": [
+                {
+                    "name": "ReserveWuling",
+                    "label": "$task.AutoStockpile.option.AutoStockpileReserveWuling.inputs.ReserveWuling.label",
+                    "description": "$task.AutoStockpile.option.AutoStockpileReserveWuling.inputs.ReserveWuling.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "default": "240000"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileTargetCanNotBuyWuling": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ReserveWuling}<{AutoStockpileCurrentStockBill}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoStockpileBuyDailyGoodsWuling": {
             "type": "checkbox",

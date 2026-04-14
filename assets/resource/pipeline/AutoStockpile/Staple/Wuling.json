@@ -11,11 +11,23 @@
             }
         },
         "next": [
-            "AutoStockpileTargetCanNotBuy",
+            "AutoStockpileTargetCanNotBuyWuling",
             "[JumpBack]AutoStockpileBuyItemWulingTask",
             "SoldOut",
             "[JumpBack]AutoStockpileSwipeWuling"
         ]
+    },
+    "AutoStockpileTargetCanNotBuyWuling": {
+        "desc": "识别目标调度券是否不可购买",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "240000> {AutoStockpileCurrentStockBill}"
+                }
+            }
+        }
     },
     "AutoStockpileBuyItemWulingTask": {
         "desc": "识别商品，并进入购买流程",
