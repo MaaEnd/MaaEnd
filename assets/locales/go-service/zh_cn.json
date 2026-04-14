@@ -45,6 +45,11 @@
     "autostockpile.abort.ThresholdConfigInvalidFatal": "价格阈值配置无效，请检查配置，不要输入0或留空",
     "batchaddfriends.uid_sent": "UID %s：已发送好友申请（%d/%d）",
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
+    "autofight.character_count": "共 %d 名干员参战",
+    "autofight.health_dangerous_switch": "当前 %d 号干员血量危险，切换到 %d 号干员",
+    "autofight.enemy_accumulating_power": "敌人正在蓄力",
+    "autofight.exit_fight": "退出战斗场景",
+
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",
     "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",

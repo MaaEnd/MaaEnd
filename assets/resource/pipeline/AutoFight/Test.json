@@ -12,5 +12,13 @@
             "[JumpBack]__AutoFightRecognitionEnemyAttack",
             "AutoFightTest2"
         ]
+    },
+    "__AutoFightRecognitionScreenTest": {
+        "desc": "使用onnx模型整体识别",
+        "recognition": "NeuralNetworkDetect",
+        "model": "AutoFight/autofight.onnx",
+        "next": [
+            "__AutoFightRecognitionScreenTest"
+        ]
     }
 }

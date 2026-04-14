@@ -87,7 +87,7 @@
                 200
             ]
         },
-        "pre_delay": 0,
+        "pre_delay": 1500, // 显示升级按钮后会偶现会卡一会，pre_wait_freezes不好使
         "action": {
             "type": "Click"
         },

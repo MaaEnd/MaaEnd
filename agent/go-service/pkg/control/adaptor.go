@@ -2,15 +2,14 @@
 package control
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
-	"strings"
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
+
+/* ******** Control Adaptor Base Interface ******** */
 
 // ControlAdaptor defines an interface for abstracting control actions, allowing different implementations for different platforms.
 type ControlAdaptor interface {
@@ -93,63 +92,7 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	}
 }
 
-func GetControlType(ctrl *maa.Controller) (string, error) {
-	infoStr, err := ctrl.GetInfo()
-	if err != nil {
-		return "", err
-	}
-	log.Info().Str("controllerInfo", infoStr).Msg("Fetched controller info")
-	if infoStr == "" {
-		return "", fmt.Errorf("empty controller info")
-	}
-
-	type maaControllerInfo struct {
-		Type string `json:"type"`
-	}
-
-	var info maaControllerInfo
-	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
-		// Fallback
-		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
-			CachedControlType = CONTROL_TYPE_WIN32
-			return CONTROL_TYPE_WIN32, nil
-		}
-		if strings.Contains(infoStr, CONTROL_TYPE_WLROOTS) {
-			CachedControlType = CONTROL_TYPE_WLROOTS
-			return CONTROL_TYPE_WLROOTS, nil
-		}
-		if strings.Contains(infoStr, CONTROL_TYPE_ADB) {
-			CachedControlType = CONTROL_TYPE_ADB
-			return CONTROL_TYPE_ADB, nil
-		}
-		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and fallback parsing also failed", err)
-	}
-	if info.Type == "" {
-		return "", fmt.Errorf("controller type is empty in parsed info")
-	}
-
-	if info.Type == CONTROL_TYPE_WIN32 {
-		CachedControlType = CONTROL_TYPE_WIN32
-		return CONTROL_TYPE_WIN32, nil
-	}
-	if info.Type == CONTROL_TYPE_WLROOTS {
-		CachedControlType = CONTROL_TYPE_WLROOTS
-		return CONTROL_TYPE_WLROOTS, nil
-	}
-	if info.Type == CONTROL_TYPE_ADB {
-		CachedControlType = CONTROL_TYPE_ADB
-		return CONTROL_TYPE_ADB, nil
-	}
-	return "", fmt.Errorf("unsupported controller type: %s", info.Type)
-}
-
-const (
-	CONTROL_TYPE_WIN32 = "win32"
-	CONTROL_TYPE_WLROOTS = "wlroots"
-	CONTROL_TYPE_ADB   = "adb"
-)
-
-var CachedControlType string = ""
+/* ******** Player Movement Enumeration ******** */
 
 // PlayerMovement represents different movement state in the game
 type PlayerMovement struct {

@@ -16,22 +16,25 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "base01_lv003",
-            "fine_approach": "Never",
             "path": [
                 [
                     196.9,
                     143.6
                 ],
                 [
-                    190.3,
+                    188.8,
                     143.6
+                ],
+                [
+                    188.8,
+                    134.8
                 ]
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellShipEnterStockRedistribution2"
+            "AutoSellEnterStockRedistribution"
         ],
         "focus": {
             "Node.Action.Starting": "正在走向物资调度终端"

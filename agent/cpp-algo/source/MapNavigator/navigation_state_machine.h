@@ -2,13 +2,8 @@
 
 #include <functional>
 
-#include "navigation_runtime_state.h"
-#include "Runners/advance_route_runner.h"
-#include "Runners/heading_align_runner.h"
-#include "Runners/serial_route_runner.h"
-#include "Runners/transfer_wait_runner.h"
-#include "Runners/zone_transition_runner.h"
 #include "navi_controller.h"
+#include "navigation_runtime_state.h"
 #include "navigation_session.h"
 
 namespace mapnavigator
@@ -36,21 +31,22 @@ public:
 
 private:
     bool Bootstrap();
+    bool TickNavigate();
     bool TickPhase(NaviPhase phase);
+    bool CaptureCurrentPosition(bool force_global_search = false);
+    void SelectPhaseForCurrentWaypoint(const char* reason);
+    void StopMotion();
+    bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
     const NaviParam& param_;
+    ActionWrapper* action_wrapper_;
+    PositionProvider* position_provider_;
     NavigationSession* session_;
     MotionController* motion_controller_;
+    IActionExecutor* action_executor_;
     NaviPosition* position_;
     std::function<bool()> should_stop_;
-
     NavigationRuntimeState runtime_state_ {};
-    ZoneTransitionRunner zone_transition_runner_;
-    TransferWaitRunner transfer_wait_runner_;
-    HeadingAlignRunner heading_align_runner_;
-    AdvanceRouteRunner advance_route_runner_;
-    SerialRouteRunner serial_route_runner_;
-    bool use_serial_route_runner_ = false;
 };
 
 } // namespace mapnavigator

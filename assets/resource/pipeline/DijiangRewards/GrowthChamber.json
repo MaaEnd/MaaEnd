@@ -434,9 +434,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "pre_wait_freezes": {
             "time": 150,
             "target": [
@@ -446,9 +443,12 @@
                 247
             ]
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GrowthChamberSeedExtractConfirm",
             "GrowthChamberNoMaterials",

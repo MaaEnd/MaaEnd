@@ -126,27 +126,10 @@ struct NaviPosition
     std::chrono::steady_clock::time_point timestamp;
 };
 
-struct TurnActuationResult
-{
-    int units_sent = 0;
-    std::chrono::milliseconds expected_elapsed {};
-    bool requires_completion_tracking = false;
-};
-
 struct TurnCommandResult
 {
     bool issued = false;
     double issued_delta_degrees = 0.0;
-    bool consumed_pending_retry = false;
-};
-
-enum class TurnActionKind
-{
-    SteeringTrim,
-    TurnInPlace,
-    HeadingAlign,
-    ExactTarget,
-    RouteResume,
 };
 
 enum class MotionPredictMode
@@ -160,18 +143,8 @@ enum class MotionPredictMode
 enum class LocalDriverAction
 {
     Forward,
-    ForwardLeft,
-    ForwardRight,
     JumpForward,
-    RecoverLeft,
-    RecoverRight,
-};
-
-class ITurnActuator
-{
-public:
-    virtual ~ITurnActuator() = default;
-    virtual TurnActuationResult TurnByUnits(int units, int duration_millis) = 0;
+    BackwardJump,
 };
 
 constexpr double kPi = 3.14159265358979323846;

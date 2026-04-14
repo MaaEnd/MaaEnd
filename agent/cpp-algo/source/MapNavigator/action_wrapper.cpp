@@ -43,6 +43,16 @@ double ActionWrapper::DefaultTurnUnitsPerDegree() const
     return backend_->default_turn_units_per_degree();
 }
 
+SteeringTransportProfile ActionWrapper::SteeringProfile() const
+{
+    return backend_->steering_transport_profile();
+}
+
+bool ActionWrapper::SupportsSprint() const
+{
+    return backend_->supports_sprint();
+}
+
 void ActionWrapper::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
 {
     backend_->SetMovementStateSync(forward, left, backward, right, delay_millis);

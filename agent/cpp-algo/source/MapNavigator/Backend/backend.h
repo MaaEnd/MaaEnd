@@ -8,6 +8,15 @@
 namespace mapnavigator
 {
 
+struct SteeringTransportProfile
+{
+    bool supports_concurrent_move_and_look = true;
+    int min_send_interval_ms = 0;
+    double min_emit_delta_deg = 1.0;
+    double max_batch_delta_deg = 18.0;
+    int action_quiet_period_ms = 0;
+};
+
 class IInputBackend
 {
 public:
@@ -19,6 +28,9 @@ public:
     virtual bool is_supported() const = 0;
     virtual const std::string& unsupported_reason() const = 0;
     virtual double default_turn_units_per_degree() const = 0;
+    virtual SteeringTransportProfile steering_transport_profile() const = 0;
+
+    virtual bool supports_sprint() const { return true; }
 
     virtual void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) = 0;
     virtual void TriggerJumpSync(int hold_millis) = 0;

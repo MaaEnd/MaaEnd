@@ -1,11 +1,11 @@
 #include <chrono>
-#include <thread>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <meojson/json.hpp>
 
 #include "../utils.h"
 #include "controller_type_utils.h"
+#include "navi_math.h"
 #include "position_provider.h"
 
 namespace mapnavigator
@@ -105,6 +105,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     }
 
     last_capture_was_black_screen_ = false;
+    const auto capture_started_at = std::chrono::steady_clock::now();
 
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
     MaaControllerWait(controller_, screencap_id);
@@ -137,7 +138,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     out_pos->angle = locate_result.position->angle;
     out_pos->zone_id = locate_result.position->zoneId;
     out_pos->valid = true;
-    out_pos->timestamp = std::chrono::steady_clock::now();
+    out_pos->timestamp = capture_started_at;
     last_capture_was_held_ = locate_result.position->isHeld;
     held_fix_streak_ = last_capture_was_held_ ? (held_fix_streak_ + 1) : 0;
     return true;
@@ -157,7 +158,7 @@ bool PositionProvider::WaitForFix(
         if (Capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+        utils::SleepFor(retry_interval_ms);
     }
     return false;
 }

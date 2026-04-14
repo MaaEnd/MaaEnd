@@ -1,4 +1,33 @@
 {
+    "__ScenePrivateMenuListEnterWorld": {
+        "desc": "从菜单总列表退出到大世界，避免电脑比较卡反复在菜单总列表和大世界之间切换",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "ENDFIELD"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
     "__ScenePrivateWorldEnterMenuList": {
         "desc": "从大世界进入菜单总列表",
         "recognition": {

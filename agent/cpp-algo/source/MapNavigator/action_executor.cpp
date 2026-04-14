@@ -7,18 +7,16 @@
 #include "action_wrapper.h"
 #include "motion_controller.h"
 #include "navi_config.h"
+#include "navi_math.h"
 
 namespace mapnavigator
 {
 
-ActionExecutor::ActionExecutor(
-    ActionWrapper* action_wrapper,
-    MotionController* motion_controller,
-    bool enable_local_driver)
+ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller, bool enable_local_driver)
     : action_wrapper_(action_wrapper)
     , motion_controller_(motion_controller)
-    , enable_local_driver_(enable_local_driver)
 {
+    (void)enable_local_driver;
 }
 
 ActionExecutionResult ActionExecutor::Execute(ActionType action)
@@ -27,21 +25,23 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
 
     switch (action) {
     case ActionType::SPRINT:
-        action_wrapper_->TriggerSprintSync();
-        motion_controller_->NotifySprintTriggered();
-        LogInfo << "Action: SPRINT triggered.";
+        if (motion_controller_->TriggerSprint()) {
+            LogInfo << "Action: SPRINT triggered.";
+        }
+        else {
+            LogInfo << "Action: SPRINT skipped because backend does not support sprint.";
+        }
         break;
 
     case ActionType::JUMP:
-        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
+        motion_controller_->SetForwardState(false);
         action_wrapper_->TriggerJumpSync(kActionJumpHoldMs);
         LogInfo << "Action: JUMP triggered.";
-        std::this_thread::sleep_for(std::chrono::milliseconds(kActionJumpSettleMs));
+        utils::SleepFor(kActionJumpSettleMs);
         break;
 
     case ActionType::INTERACT:
-        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
-        motion_controller_->Stop();
+        motion_controller_->SetForwardState(false);
         for (int i = 0; i < kActionInteractAttempts; ++i) {
             action_wrapper_->TriggerInteractSync(kActionInteractHoldMs);
         }
@@ -49,7 +49,7 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::FIGHT:
-        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
+        motion_controller_->SetForwardState(false);
         action_wrapper_->ClickMouseLeftSync();
         LogInfo << "Action: FIGHT triggered.";
         break;
@@ -59,15 +59,9 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::PORTAL:
-        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
-        if (enable_local_driver_) {
-            motion_controller_->SetAction(LocalDriverAction::Forward, true);
-        }
-        else if (!motion_controller_->IsMoving()) {
-            motion_controller_->EnsureForwardMotion(false);
-        }
+        motion_controller_->SetForwardState(false);
         result.entered_portal_mode = true;
-        LogInfo << "Action: PORTAL triggered. Entering blind-walk state...";
+        LogInfo << "Action: PORTAL triggered. Entering semantic transit flow...";
         break;
 
     case ActionType::RUN:

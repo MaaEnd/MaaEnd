@@ -24,6 +24,8 @@ public:
     bool is_supported() const;
     const char* unsupported_reason() const;
     double DefaultTurnUnitsPerDegree() const;
+    SteeringTransportProfile SteeringProfile() const;
+    bool SupportsSprint() const;
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis);
     void TriggerJumpSync(int hold_millis);

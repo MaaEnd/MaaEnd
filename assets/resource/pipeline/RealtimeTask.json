@@ -19,7 +19,7 @@
             "[JumpBack]PuzzleSolverOnScenePrepare",
             "[JumpBack]PuzzleSolverOnSceneMain",
             "[JumpBack]RealTimeAutoSkip",
-            "[JumpBack]AutoFightRealtimeTask",
+            "[JumpBack]AutoFight",
             "[JumpBack]RealTimeSleep"
         ]
     },
