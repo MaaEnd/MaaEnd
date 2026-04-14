@@ -12,6 +12,7 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("autoEcoFarmCalculateSwipeTarget", &autoEcoFarmCalculateSwipeTarget{})
 	maa.AgentServerRegisterCustomRecognition("autoEcoFarmFindNearestRecognitionResult", &autoEcoFarmFindNearestRecognitionResult{})
 	maa.AgentServerRegisterCustomAction("autoEcoFarmResetSwipeState", &autoEcoFarmResetSwipeState{})
+	maa.AgentServerRegisterCustomAction("autoEcoFarmInterruptibleSleep", &autoEcoFarmInterruptibleSleep{})
 }
 
 type autoEcoFarmResetSwipeState struct{}
