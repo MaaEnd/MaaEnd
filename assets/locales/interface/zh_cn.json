@@ -668,5 +668,7 @@
     "task.BatchUseDetector.option.Region.label": "地区",
     "task.BatchUseDetector.option.Category.label": "探测器类别",
     "task.BatchUseDetector.option.Category.Detector": "探物器",
-    "task.BatchUseDetector.option.Category.Compass": "罗盘"
+    "task.BatchUseDetector.option.Category.Compass": "罗盘",
+    "task.BatchUseDetector.option.Times.label": "使用次数",
+    "task.BatchUseDetector.option.Times.input.label": "次数"
 }

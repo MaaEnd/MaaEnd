@@ -668,5 +668,7 @@
     "task.BatchUseDetector.option.Region.label": "Region",
     "task.BatchUseDetector.option.Category.label": "Detector Category",
     "task.BatchUseDetector.option.Category.Detector": "Detector",
-    "task.BatchUseDetector.option.Category.Compass": "Compass"
+    "task.BatchUseDetector.option.Category.Compass": "Compass",
+    "task.BatchUseDetector.option.Times.label": "Use Count",
+    "task.BatchUseDetector.option.Times.input.label": "Count"
 }

@@ -7,7 +7,8 @@
             "description": "$task.BatchUseDetector.description",
             "option": [
                 "BatchUseDetectorRegion",
-                "BatchUseDetectorCategory"
+                "BatchUseDetectorCategory",
+                "BatchUseDetectorTimes"
             ],
             "controller": [
                 "Win32-Window",
@@ -113,6 +114,25 @@
                     }
                 }
             ]
+        },
+        "BatchUseDetectorTimes": {
+            "type": "input",
+            "label": "$task.BatchUseDetector.option.Times.label",
+            "inputs": [
+                {
+                    "name": "Times",
+                    "label": "$task.BatchUseDetector.option.Times.input.label",
+                    "default": "99",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$task.BatchUseDetector.option.Times.input.error"
+                }
+            ],
+            "pipeline_override": {
+                "BatchUseDetectorClickWhiteConfirmButton": {
+                    "max_hit": "{Times}"
+                }
+            }
         }
     }
 }
