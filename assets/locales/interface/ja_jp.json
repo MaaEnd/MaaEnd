@@ -664,5 +664,5 @@
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.label": "文化産品",
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.description": "武陵の文化産品カテゴリ物資を購入",
     "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.label": "割引品のみ購入",
-    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "有効時、武陵で割引のある物資のみ購入します"
+    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "有効時、割引のある物資のみ購入します"
 }

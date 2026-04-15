@@ -664,5 +664,5 @@
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.label": "人文物產",
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.description": "購買武陵人文物產類物資",
     "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.label": "僅購買折扣",
-    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "開啟後只購買武陵存在折扣的物資"
+    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "開啟後只購買存在折扣的物資"
 }

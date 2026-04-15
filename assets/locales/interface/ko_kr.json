@@ -664,5 +664,5 @@
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.label": "인문 물산",
     "task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.description": "무릉 인문 물산 물자 구매",
     "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.label": "할인 상품만 구매",
-    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "활성화 시 무릉에서 할인된 물자만 구매합니다"
+    "task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description": "활성화 시 할인된 물자만 구매합니다"
 }
