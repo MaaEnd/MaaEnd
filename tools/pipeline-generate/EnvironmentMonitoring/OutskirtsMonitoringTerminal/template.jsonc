@@ -30,15 +30,15 @@
     "Check${Id}Icon": {
         "desc": "检查${Name}文本下方的图标",
         "recognition": "TemplateMatch",
-        "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8,
         "roi": "Check${Id}Text",
         "roi_offset": [
             -18,
             0,
             0,
             28
-        ]
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
     },
     "Check${Id}ReadyText": {
         "desc": "检查${Name}委托是否准备好",

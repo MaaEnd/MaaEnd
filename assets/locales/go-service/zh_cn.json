@@ -49,6 +49,9 @@
     "autofight.health_dangerous_switch": "当前 %d 号干员血量危险，切换到 %d 号干员",
     "autofight.enemy_accumulating_power": "敌人正在蓄力",
     "autofight.exit_fight": "退出战斗场景",
+    "autofight.adjust_view": "调整视角",
+    "autofight.turn_round": "长时间找不到敌人，转身",
+    "autofight.lock_target": "找不到敌人，尝试锁定目标",
 
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",

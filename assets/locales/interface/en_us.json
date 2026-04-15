@@ -563,6 +563,7 @@
     "option.AutoCollectRoute2.label": "Collect Route 2: Wuling City - False Aggela",
     "option.AutoCollectRoute3.label": "Collect Route 3: Wuling City - Vitrodendra",
     "option.AutoCollectRoute4.label": "Collect Route 4: Valley IV - Pure Vitrodendra",
+    "option.AutoCollectRoute5.label": "Collect Route 5: Valley IV - Kalkonyx",
     "group.daily.label": "Daily Routine",
     "group.daily.description": "Common reward, base, trading, and progression tasks for regular logins.",
     "group.realtime.label": "Real-time Assist",
@@ -664,5 +665,13 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label": "Cultural goods",
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "Purchase Wuling cultural goods supplies",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "Discount-only purchase",
-    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "When enabled, only purchases discounted supplies"
+    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "When enabled, only purchases discounted supplies",
+    "task.BatchUseDetector.label": "🧭Batch Use Detector",
+    "task.BatchUseDetector.description": "Batch use the Compass and Detector features.",
+    "task.BatchUseDetector.option.Region.label": "Region",
+    "task.BatchUseDetector.option.Category.label": "Detector Category",
+    "task.BatchUseDetector.option.Category.Detector": "Detector",
+    "task.BatchUseDetector.option.Category.Compass": "Compass",
+    "task.BatchUseDetector.option.Times.label": "Use Count",
+    "task.BatchUseDetector.option.Times.input.label": "Count"
 }

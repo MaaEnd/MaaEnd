@@ -1,5 +1,5 @@
 {
-    "AutoEcoFarmEnterCameraModeKeyDownR": {
+    "_AutoEcoFarmEnterCameraModeKeyDownR": {
         "desc": "通过长按R进入拍照模式",
         "recognition": "And",
         "all_of": [
@@ -17,17 +17,17 @@
             ]
         },
         "next": [
-            "AutoEcoFarmEnterCameraModeChooseCamera",
-            "AutoEcoFarmEnterCameraModeFailKeyUp"
+            "_AutoEcoFarmEnterCameraModeChooseCamera",
+            "_AutoEcoFarmEnterCameraModeFailKeyUp"
         ]
     },
-    "AutoEcoFarmEnterCameraModeFailKeyUp": {
+    "_AutoEcoFarmEnterCameraModeFailKeyUp": {
         "desc": "未出现选相机界面时松开R（next 兜底，不用 on_error），再 JumpBack",
         "pre_delay": 0,
         "action": "KeyUp",
         "key": 82, // R 0x52
         "post_wait_freezes": {
-            "time": 400,
+            "time": 500,
             "target": [
                 1065,
                 551,
@@ -38,7 +38,10 @@
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmJumpBack"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "未识别到选相机界面，任务继续"
+        }
     },
     "_AutoEcoFarmExitCameraMode": {
         "desc": "按右键退出拍照模式",
@@ -63,7 +66,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 12,
                 9,
@@ -75,7 +78,7 @@
             "_AutoEcoFarmJumpBack"
         ]
     },
-    "AutoEcoFarmEnterCameraModeChooseCamera": {
+    "_AutoEcoFarmEnterCameraModeChooseCamera": {
         "desc": "进入拍照模式，选择拍照",
         "recognition": {
             "type": "TemplateMatch",
@@ -93,7 +96,7 @@
         },
         "action": "Click",
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 53,
                 7,
@@ -102,28 +105,42 @@
             ]
         },
         "next": [
-            "AutoEcoFarmEnterCameraModeKeyUpR"
+            "_AutoEcoFarmEnterCameraModeKeyUpR"
         ]
     },
-    "AutoEcoFarmEnterCameraModeKeyUpR": {
+    "_AutoEcoFarmEnterCameraModeKeyUpR": {
         "desc": "松开R解除占用",
         "action": "KeyUp",
         "key": 82, // R 0x52
         "next": [
-            "AutoEcoFarmClickPhotoScene"
+            "_AutoEcoFarmClickPhotoScene",
+            "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR"
         ]
     },
+    "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR": {
+        "desc": "拍照模式：_AutoEcoFarmEnterCameraModeKeyUpR 之后未命中 _AutoEcoFarmClickPhotoScene，仅 JumpBack",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未识别到画面菜单，任务继续"
+        }
+    },
     ///////点击画面部分
-    "AutoEcoFarmClickPhotoScene": {
+    "_AutoEcoFarmClickPhotoScene": {
         "desc": "打开画面菜单（没打开的话）",
         "recognition": "And",
         "all_of": [
-            "AutoEcoFarmPhotoScene",
-            "AutoEcoFarmPhotoSceneIsWhite"
+            "_AutoEcoFarmPhotoScene",
+            "_AutoEcoFarmPhotoSceneIsWhite"
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 265,
                 216,
@@ -132,10 +149,24 @@
             ]
         },
         "next": [
-            "_AutoEcoFarmHideFactoryFacilities"
+            "_AutoEcoFarmHideFactoryFacilities",
+            "_AutoEcoFarmPhotoModeFailJumpBackClickPhotoScene"
         ]
     },
-    "AutoEcoFarmPhotoScene": {
+    "_AutoEcoFarmPhotoModeFailJumpBackClickPhotoScene": {
+        "desc": "拍照模式：_AutoEcoFarmClickPhotoScene 之后未命中 _AutoEcoFarmHideFactoryFacilities，仅 JumpBack",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未识别到关闭显示工业设备，任务继续"
+        }
+    },
+    "_AutoEcoFarmPhotoScene": {
         "desc": "[识别节点]拍照模式画面按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -149,7 +180,7 @@
         "order_by": "Score",
         "action": "Click"
     },
-    "AutoEcoFarmPhotoSceneIsWhite": {
+    "_AutoEcoFarmPhotoSceneIsWhite": {
         "desc": "[识别节点]拍照模式画面按钮白色",
         "recognition": {
             "type": "ColorMatch",

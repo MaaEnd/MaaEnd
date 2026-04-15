@@ -51,10 +51,7 @@
             80
         ],
         "contact": 2,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "找不到敌人，尝试锁定目标"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionAttackKeyPress": {
         "pre_delay": 0,
@@ -113,6 +110,20 @@
         "pre_delay": 0,
         "action": "KeyUp",
         "key": 18,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveBackKeyDown": {
+        "desc": "S键",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 83,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveBackKeyUp": {
+        "desc": "S键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 83,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators1": {

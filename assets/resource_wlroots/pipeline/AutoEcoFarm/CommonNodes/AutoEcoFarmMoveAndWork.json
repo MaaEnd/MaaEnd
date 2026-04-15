@@ -116,7 +116,7 @@
             ]
         },
         "next": [
-            "[JumpBack]AutoEcoFarmEnterCameraModeKeyDownR",
+            "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
             "_AutoEcoFarmWaitForTeammate"
         ]
     },

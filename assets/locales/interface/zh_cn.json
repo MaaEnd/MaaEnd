@@ -562,7 +562,8 @@
     "option.AutoCollectRoute1.label": "线路1：武陵城-受蚀玉华叶",
     "option.AutoCollectRoute2.label": "线路2：武陵城-岩天使叶",
     "option.AutoCollectRoute3.label": "线路3：武陵城-至晶多齿叶",
-    "option.AutoCollectRoute4.label": "路线4：四号谷地：纯晶多齿叶",
+    "option.AutoCollectRoute4.label": "路线4：四号谷地-纯晶多齿叶",
+    "option.AutoCollectRoute5.label": "路线5：四号谷地-轻黯石",
     "group.daily.label": "日常事务",
     "group.daily.description": "上线后常用的领奖、基建、经营与养成任务",
     "group.realtime.label": "实时辅助",
@@ -664,5 +665,13 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label": "人文物产",
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "购买武陵人文物产类物资",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "仅购买折扣",
-    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "开启后只购买存在折扣的物资"
+    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "开启后只购买存在折扣的物资",
+    "task.BatchUseDetector.label": "🧭批量使用探测器",
+    "task.BatchUseDetector.description": "批量使用罗盘或探物器，需要人物在对应地区",
+    "task.BatchUseDetector.option.Region.label": "地区",
+    "task.BatchUseDetector.option.Category.label": "探测器类别",
+    "task.BatchUseDetector.option.Category.Detector": "探物器",
+    "task.BatchUseDetector.option.Category.Compass": "罗盘",
+    "task.BatchUseDetector.option.Times.label": "使用次数",
+    "task.BatchUseDetector.option.Times.input.label": "次数"
 }

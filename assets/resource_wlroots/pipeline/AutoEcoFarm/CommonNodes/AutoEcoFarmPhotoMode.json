@@ -1,5 +1,5 @@
 {
-    "AutoEcoFarmEnterCameraModeKeyDownR": {
+    "_AutoEcoFarmEnterCameraModeKeyDownR": {
         "desc": "通过长按R进入拍照模式",
         "recognition": "And",
         "all_of": [
@@ -17,11 +17,11 @@
             ]
         },
         "next": [
-            "AutoEcoFarmEnterCameraModeChooseCamera",
-            "AutoEcoFarmEnterCameraModeFailKeyUp"
+            "_AutoEcoFarmEnterCameraModeChooseCamera",
+            "_AutoEcoFarmEnterCameraModeFailKeyUp"
         ]
     },
-    "AutoEcoFarmEnterCameraModeFailKeyUp": {
+    "_AutoEcoFarmEnterCameraModeFailKeyUp": {
         "desc": "未出现选相机界面时松开R（next 兜底，不用 on_error），再 JumpBack",
         "pre_delay": 0,
         "action": "KeyUp",
@@ -40,12 +40,12 @@
             "_AutoEcoFarmJumpBack"
         ]
     },
-    "AutoEcoFarmEnterCameraModeKeyUpR": {
+    "_AutoEcoFarmEnterCameraModeKeyUpR": {
         "desc": "松开R解除占用",
         "action": "KeyUp",
         "key": 19,
         "next": [
-            "AutoEcoFarmClickPhotoScene"
+            "_AutoEcoFarmClickPhotoScene"
         ]
     }
 }

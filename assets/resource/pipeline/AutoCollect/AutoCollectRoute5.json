@@ -1,0 +1,229 @@
+{
+    "AutoCollectRoute5Start": {
+        "next": [
+            "AutoCollectRoute5AssertLocation",
+            "[JumpBack]SceneEnterWorldValleyIVTheHub2"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线5"
+        }
+    },
+    "AutoCollectRoute5End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute5AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map01_lv001",
+                            "target": [
+                                467,
+                                259,
+                                20,
+                                20
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute5GotoFind1"
+        ]
+    },
+    "AutoCollectRoute5GotoFind1": {
+        "desc": "前往采集点1",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            477.3,
+                            268.5
+                        ],
+                        [
+                            475.9,
+                            279.7
+                        ],
+                        [
+                            474.6,
+                            284.8
+                        ],
+                        [
+                            472.4,
+                            290.9
+                        ],
+                        [
+                            471.2,
+                            293.5
+                        ],
+                        [
+                            471.2,
+                            297.4
+                        ],
+                        [
+                            472.5,
+                            304.6
+                        ],
+                        [
+                            473.4,
+                            307.3
+                        ],
+                        [
+                            473.7,
+                            312.4
+                        ],
+                        [
+                            474.6,
+                            314.6
+                        ],
+                        [
+                            474.9,
+                            323.7
+                        ],
+                        [
+                            476.2,
+                            328.4
+                        ],
+                        [
+                            479.6,
+                            330.9
+                        ],
+                        [
+                            479.8,
+                            331.0
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind2"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute5GotoFind2": {
+        "desc": "前往采集点2",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            487.2,
+                            331.0
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind3"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute5GotoFind3": {
+        "desc": "前往采集点3",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            486.0,
+                            334.7
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind4"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute5GotoFind4": {
+        "desc": "前往采集点4",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            487.2,
+                            338.4
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind6"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute5GotoFind6": {
+        "desc": "前往采集点6",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            479.9,
+                            332.4
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute5RestoreWalkMode"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute5RestoreWalkMode": {
+        "desc": "复原为跑步模式",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 160
+            }
+        },
+        "next": [
+            "AutoCollectRoute5End"
+        ]
+    }
+}

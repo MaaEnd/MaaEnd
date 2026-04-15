@@ -653,5 +653,9 @@
     "resource/image/GearAssembly/FilterAsce": "6df75f1dc697887e0e607e9bfeb22957a33993e68bc9c55beb4d49802eba1c66",
     "resource/image/GearAssembly/FilterAsceHover": "5109e9771484de71de929017b68443cc787b88af18191b1c3d291730fc3260fd",
     "resource/image/GearAssembly/FilterDescHover": "8a5a950cafd5d17d089a69abf1a1ee90857e80873522904bddfe9d7380905a67",
-    "resource/image/GearAssembly/FilterDesc": "d6f041670d2c656f402bd287ce57889c5a087295326e17235c8359556344044d"
+    "resource/image/GearAssembly/FilterDesc": "d6f041670d2c656f402bd287ce57889c5a087295326e17235c8359556344044d",
+    "resource/image/BatchUseDetector/wuling_detector": "0ff370ea464d1ec4330534ba7a91db7125baf1c30951fe8566e02398341c0254",
+    "resource/image/BatchUseDetector/wuling_compass": "a1c92d6fe3ff0a81b7e35250e8359a70ea8bc62ba1ee391c901273b3badb1a87",
+    "resource/image/BatchUseDetector/valleyiv_compass": "f851ab92fee82a17ee33835a7c14d6131065e74b0c14799da575a067a371e532",
+    "resource/image/BatchUseDetector/valleyiv_detector": "26f4df80a66418ef8995cc49768fa3f46123a294240f39e1181fd117e81a6370"
 }

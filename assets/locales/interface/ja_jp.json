@@ -563,6 +563,7 @@
     "option.AutoCollectRoute2.label": "採集ルート2：武陵城内-岩アンゲロス葉",
     "option.AutoCollectRoute3.label": "採集ルート3：武陵城内-至晶鋭葉",
     "option.AutoCollectRoute4.label": "採集ルート4：四号谷地-純晶多歯葉",
+    "option.AutoCollectRoute5.label": "採集ルート5：四号谷地-軽闇石",
     "group.daily.label": "日常タスク",
     "group.daily.description": "ログイン後によく使う報酬受取・基地・経営・育成タスク。",
     "group.realtime.label": "リアルタイム補助",
@@ -664,5 +665,13 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label": "文化産品",
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "武陵の文化産品カテゴリ物資を購入",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "割引品のみ購入",
-    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "有効時、割引のある物資のみ購入します"
+    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "有効時、割引のある物資のみ購入します",
+    "task.BatchUseDetector.label": "🧭探知器をまとめて使用",
+    "task.BatchUseDetector.description": "羅盤と探索器機能をまとめて使用します。",
+    "task.BatchUseDetector.option.Region.label": "地域",
+    "task.BatchUseDetector.option.Category.label": "探知器カテゴリ",
+    "task.BatchUseDetector.option.Category.Detector": "探知器",
+    "task.BatchUseDetector.option.Category.Compass": "コンパス",
+    "task.BatchUseDetector.option.Times.label": "使用回数",
+    "task.BatchUseDetector.option.Times.input.label": "回数"
 }

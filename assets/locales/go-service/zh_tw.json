@@ -49,6 +49,9 @@
     "autofight.health_dangerous_switch": "當前 %d 號幹員血量危險，切換到 %d 號幹員",
     "autofight.enemy_accumulating_power": "敵人正在蓄力",
     "autofight.exit_fight": "退出戰鬥場景",
+    "autofight.adjust_view": "調整視角",
+    "autofight.turn_round": "長時間找不到敵人，轉身",
+    "autofight.lock_target": "找不到敵人，嘗試鎖定目標",
 
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",

@@ -108,10 +108,10 @@
         "recognition": "OCR",
         "roi": "BuyFirstOCR",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -124,10 +124,10 @@
         "recognition": "OCR",
         "roi": "BuyFirstOCR_CanNotAfford",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -166,10 +166,10 @@
         "recognition": "OCR",
         "roi": "Priority2OCR",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -182,10 +182,10 @@
         "recognition": "OCR",
         "roi": "Priority2OCR_CanNotAfford",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -224,10 +224,10 @@
         "recognition": "OCR",
         "roi": "Priority3OCR",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -240,10 +240,10 @@
         "recognition": "OCR",
         "roi": "Priority3OCR_CanNotAfford",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"
@@ -269,10 +269,10 @@
         "recognition": "OCR",
         "roi": "BlacklistOCR",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            44,
+            -170,
+            4,
+            4
         ],
         "expected": [
             "99|95|75|50|25"

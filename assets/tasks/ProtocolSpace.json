@@ -31,7 +31,9 @@
                     "name": "Yes",
                     "option": [
                         "AutoFightReserveSkillLevel",
-                        "AutoFightHealthDangerousSwitch"
+                        "AutoFightHealthDangerousSwitch",
+                        "AutoFightDodge",
+                        "AutoFightLockTarget"
                     ]
                 },
                 {

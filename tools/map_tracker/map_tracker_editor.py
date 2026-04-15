@@ -694,7 +694,7 @@ class PathEditPage(BasePage):
         prev_p: tuple[float, float],
         mid_p: tuple[float, float],
         next_p: tuple[float, float],
-        k: float = 2.0,
+        k: float = 1.1,
     ) -> bool:
         if k < 1:
             raise ValueError("k must be >= 1")

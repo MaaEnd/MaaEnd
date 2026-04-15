@@ -563,6 +563,7 @@
     "option.AutoCollectRoute2.label": "채집 경로 2: 무릉성 도심-바위아겔로스 잎",
     "option.AutoCollectRoute3.label": "채집 경로 3: 무릉성 도심-비트로덴드라",
     "option.AutoCollectRoute4.label": "채집 경로 4: 4호 계곡 바닥-순수 비트로덴드라",
+    "option.AutoCollectRoute5.label": "채집 경로 5: 4호 계곡 바닥-연한 흑암석",
     "group.daily.label": "일상 작업",
     "group.daily.description": "접속 후 자주 사용하는 보상 수령, 기지, 경영, 육성 작업입니다.",
     "group.realtime.label": "실시간 보조",
@@ -664,5 +665,13 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label": "인문 물산",
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "무릉 인문 물산 물자 구매",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "할인 상품만 구매",
-    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "활성화 시 할인된 물자만 구매합니다"
+    "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "활성화 시 할인된 물자만 구매합니다",
+    "task.BatchUseDetector.label": "🧭나침반 일괄 사용",
+    "task.BatchUseDetector.description": "나침반과 탐지기 기능을 일괄 사용합니다.",
+    "task.BatchUseDetector.option.Region.label": "지역",
+    "task.BatchUseDetector.option.Category.label": "탐지기 종류",
+    "task.BatchUseDetector.option.Category.Detector": "탐지기",
+    "task.BatchUseDetector.option.Category.Compass": "나침반",
+    "task.BatchUseDetector.option.Times.label": "사용 횟수",
+    "task.BatchUseDetector.option.Times.input.label": "횟수"
 }

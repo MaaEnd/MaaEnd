@@ -22,6 +22,7 @@ const (
 	LabelEnemyBossHealth          = "EnemyBossHealth"
 	LabelEnemyDodge               = "EnemyDodge"
 	LabelEnemyTarget              = "EnemyTarget"
+	LabelEnemyFacing              = "EnemyFacing"
 	LabelEnergyLevelEmpty         = "EnergyLevelEmpty"
 	LabelEnergyLevelFull          = "EnergyLevelFull"
 	LabelMenuList                 = "MenuList"
@@ -203,6 +204,12 @@ func (sa *ScreenAnalyzer) GetEnergyLevel(unused bool) int {
 	return -1
 }
 
+var enemyFacingRegion = maa.Rect{250, 160, 900, 400}
+
+func (sa *ScreenAnalyzer) GetEnemyFacing() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 10, false, enemyFacingRegion)
+}
+
 func (sa *ScreenAnalyzer) GetEnemyTarget() bool {
 	return sa.hasLabelInDuration(LabelEnemyTarget, 3*time.Second)
 }
@@ -318,7 +325,7 @@ func (sa *ScreenAnalyzer) GetCharacterHealthDangerous() []int {
 }
 
 func (sa *ScreenAnalyzer) GetCharacterLevel() bool {
-	return sa.hasLabelInFrames(LabelCharacterLevel, 3, false)
+	return sa.hasLabelInFrames(LabelCharacterLevel, 5, false)
 }
 
 func (sa *ScreenAnalyzer) GetMenuList() bool {
