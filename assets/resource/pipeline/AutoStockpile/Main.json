@@ -2,8 +2,18 @@
     "AutoStockpileMain": {
         "desc": "自动囤货入口",
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockpileElasticValleyIV",
+            "[JumpBack]AutoStockpileElasticWuling",
+            "AutoStockpileDone"
+        ]
+    },
+    "AutoStockpileStapleMain": {
+        "desc": "自动购买稳定需求物资入口",
+        "pre_delay": 0,
         "action": {
-            //初始化稳定需求物资白名单
             "type": "Custom",
             "param": {
                 "custom_action": "AttachToExpectedRegexAction",
@@ -15,12 +25,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockpileElasticValleyIV",
             "[JumpBack]AutoStockpileStapleValleyIV",
-            "[JumpBack]AutoStockpileElasticWuling",
             "[JumpBack]AutoStockpileStapleWuling",
-            "AutoStockpileDone"
+            "AutoStockpileStapleDone"
         ]
+    },
+    "AutoStockpileStapleDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoStockpileElasticValleyIV": {
         "desc": "[Config覆盖] 自动囤货弹性需求四号谷地节点",
