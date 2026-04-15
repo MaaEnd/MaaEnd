@@ -16,8 +16,8 @@
             ],
             "option": [
                 "AutoStockpileServerTime",
-                "AutoStockpileValleyIV",
-                "AutoStockpileWuling"
+                "AutoStockpileElasticValleyIV",
+                "AutoStockpileElasticWuling"
             ]
         }
     ],
@@ -74,29 +74,6 @@
                 }
             ]
         },
-        "AutoStockpileValleyIV": {
-            "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileValleyIV.label",
-            "description": "$task.AutoStockpile.option.AutoStockpileValleyIV.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {},
-                    "option": [
-                        "AutoStockpileElasticValleyIV"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoStockpileElasticValleyIV": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
         "AutoStockpileElasticValleyIV": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
@@ -112,29 +89,6 @@
                 },
                 {
                     "name": "No"
-                }
-            ]
-        },
-        "AutoStockpileWuling": {
-            "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileWuling.label",
-            "description": "$task.AutoStockpile.option.AutoStockpileWuling.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {},
-                    "option": [
-                        "AutoStockpileElasticWuling"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoStockpileElasticWuling": {
-                            "enabled": false
-                        }
-                    }
                 }
             ]
         },
