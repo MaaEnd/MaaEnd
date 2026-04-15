@@ -10,7 +10,10 @@
             167
         ],
         "expected": [
-            "购买商品"
+            "购买商品",
+            "購買商品",
+            "(?i)Purchase",
+            "購入"
         ],
         "next": [
             "CreditShoppingBuyItemOCR_ArsenalTicket",

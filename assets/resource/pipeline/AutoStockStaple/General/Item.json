@@ -138,25 +138,30 @@
     "AutoStockSwipeToMax": {
         "desc": "识别滑动按钮，用于滑动到最大库存",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
-                "template": [
-                    "BetterSliding/SwipeButton.png"
+                "roi": [
+                    55,
+                    53,
+                    333,
+                    167
                 ],
-                "green_mask": true,
-                "order_by": "Score"
+                "expected": [
+                    "购买商品",
+                    "購買商品",
+                    "(?i)Purchase",
+                    "購入"
+                ]
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Swipe",
+            "type": "Custom",
             "param": {
-                "end_offset": [
-                    200,
-                    0,
-                    0,
-                    0
-                ]
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
             }
         },
         "post_delay": 0,
