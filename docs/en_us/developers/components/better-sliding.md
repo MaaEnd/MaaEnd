@@ -129,9 +129,11 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 
 If you only need to drag the slider to its maximum position without reading any quantity or fine-tuning, you can use **swipe-only mode**.
 
-Swipe-only mode is activated automatically when `custom_action_param` is **empty**, or when it contains **only `Direction` and/or `SwipeButton`**.
+Swipe-only mode is activated automatically when `custom_action_param` contains **only `Direction` (required)** and an optional `SwipeButton`, with **no other parameters** present.
 
-In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode, while `Direction` specifies which side corresponds to the maximum value.
+In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `Direction` is required and specifies which side corresponds to the maximum value, while `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode.
+
+> **Note:** In external call mode, `attach.Target`, `attach.TargetType`, `attach.TargetReverse`, and `attach.FinishAfterPreciseClick` are merged into `custom_action_param` **before** swipe-only mode is evaluated. If `attach` supplies `Target`, `TargetType`, or `TargetReverse`, the action will not enter swipe-only mode even when `custom_action_param` itself contains only `Direction` and optional `SwipeButton`. `FinishAfterPreciseClick` is also merged, but it does **not** affect swipe-only mode detection.
 
 Minimal example:
 
