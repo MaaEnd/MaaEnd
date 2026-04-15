@@ -125,6 +125,47 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 }
 ```
 
+## Swipe-Only Mode
+
+If you only need to drag the slider to its maximum position without reading any quantity or fine-tuning, you can use **swipe-only mode**.
+
+Swipe-only mode is activated automatically when `custom_action_param` is **empty**, or when it contains **only `Direction` and/or `SwipeButton`**.
+
+In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode, while `Direction` specifies which side corresponds to the maximum value.
+
+Minimal example:
+
+```json
+"SomeTaskSwipeToMax": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right"
+            }
+        }
+    }
+}
+```
+
+With a custom slider template:
+
+```json
+"SomeTaskSwipeToMax": {
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "BetterSliding",
+            "custom_action_param": {
+                "Direction": "right",
+                "SwipeButton": "MyFeature/MySlider.png"
+            }
+        }
+    }
+}
+```
+
 ## Parameter description
 
 `BetterSliding` parameters can be divided into two groups:
@@ -220,47 +261,6 @@ Supported formats:
 If `[x, y]` is passed, it will be automatically normalized to `[x, y, 1, 1]` internally.
 
 Also note that after JSON deserialization on the Go side, these arrays may appear as `[]float64` or `[]any`. The current implementation normalizes them into integer arrays automatically. However, if the length is neither `2` nor `4`, the action fails immediately.
-
-## Swipe-Only Mode
-
-If you only need to drag the slider to its maximum position without reading any quantity or fine-tuning, you can use **swipe-only mode**.
-
-Swipe-only mode is activated automatically when `custom_action_param` is **empty**, or when it contains **only `Direction` and/or `SwipeButton`**.
-
-In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode, while `Direction` specifies which side corresponds to the maximum value.
-
-Minimal example:
-
-```json
-"SomeTaskSwipeToMax": {
-    "action": {
-        "type": "Custom",
-        "param": {
-            "custom_action": "BetterSliding",
-            "custom_action_param": {
-                "Direction": "right"
-            }
-        }
-    }
-}
-```
-
-With a custom slider template:
-
-```json
-"SomeTaskSwipeToMax": {
-    "action": {
-        "type": "Custom",
-        "param": {
-            "custom_action": "BetterSliding",
-            "custom_action_param": {
-                "Direction": "right",
-                "SwipeButton": "MyFeature/MySlider.png"
-            }
-        }
-    }
-}
-```
 
 ## Attach Parameters
 
