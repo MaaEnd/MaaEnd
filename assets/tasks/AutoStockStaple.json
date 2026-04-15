@@ -1,10 +1,10 @@
 {
     "task": [
         {
-            "name": "AutoStockpileStaple",
-            "label": "$task.AutoStockpileStaple.label",
-            "entry": "AutoStockpileStapleMain",
-            "description": "$task.AutoStockpileStaple.description",
+            "name": "AutoStockStaple",
+            "label": "$task.AutoStockStaple.label",
+            "entry": "AutoStockStapleMain",
+            "description": "$task.AutoStockStaple.description",
             "controller": [
                 "Win32-Window",
                 "Win32-Window-Background",
@@ -15,22 +15,22 @@
                 "daily"
             ],
             "option": [
-                "AutoStockpileStapleValleyIV",
-                "AutoStockpileStapleWuling"
+                "AutoStockStapleValleyIV",
+                "AutoStockStapleWuling"
             ]
         }
     ],
     "option": {
-        "AutoStockpileStapleValleyIV": {
+        "AutoStockStapleValleyIV": {
             "type": "switch",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileStapleValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileStapleValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleValleyIV.description",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileStapleValleyIV": {
+                        "AutoStockStapleValleyIV": {
                             "enabled": true
                         }
                     },
@@ -49,17 +49,17 @@
         },
         "AutoStockpileReserveValleyIV": {
             "type": "input",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileReserveValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileReserveValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.description",
             "inputs": [
                 {
                     "name": "ReserveValleyIV",
-                    "label": "$task.AutoStockpileStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.label",
-                    "description": "$task.AutoStockpileStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.description",
+                    "label": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
                     "default": "240000",
-                    "pattern_msg": "$task.AutoStockpileStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -76,8 +76,8 @@
         },
         "AutoStockpileBuyDailyGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyDailyGoodsValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyDailyGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsValleyIV.description",
             "cases": [
                 {
                     "name": "ValleyEngravingPermit",
@@ -202,8 +202,8 @@
         },
         "AutoStockpileBuyStockFactoryGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.description",
             "default_case": [
                 "KeenValleyDetector",
                 "KeenValleyCompass"
@@ -247,8 +247,8 @@
         },
         "AutoStockpileBuyCulturalGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.description",
             "cases": [
                 {
                     "name": "BreezeOfKjersch",
@@ -373,8 +373,8 @@
         },
         "AutoStockpileUseDiscountsValleyIV": {
             "type": "switch",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileUseDiscountsValleyIV.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileUseDiscountsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsValleyIV.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -404,16 +404,16 @@
                 }
             ]
         },
-        "AutoStockpileStapleWuling": {
+        "AutoStockStapleWuling": {
             "type": "switch",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileStapleWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileStapleWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleWuling.description",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockpileStapleWuling": {
+                        "AutoStockStapleWuling": {
                             "enabled": true
                         }
                     },
@@ -432,17 +432,17 @@
         },
         "AutoStockpileReserveWuling": {
             "type": "input",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileReserveWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileReserveWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.description",
             "inputs": [
                 {
                     "name": "ReserveWuling",
-                    "label": "$task.AutoStockpileStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.label",
-                    "description": "$task.AutoStockpileStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.description",
+                    "label": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
                     "default": "240000",
-                    "pattern_msg": "$task.AutoStockpileStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.pattern_msg"
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -459,8 +459,8 @@
         },
         "AutoStockpileBuyDailyGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyDailyGoodsWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyDailyGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsWuling.description",
             "cases": [
                 {
                     "name": "WulingEngravingPermit",
@@ -534,8 +534,8 @@
         },
         "AutoStockpileBuyStockFactoryGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.description",
             "default_case": [
                 "WulingArtificingCatalyst",
                 "KeenWulingDetector",
@@ -597,8 +597,8 @@
         },
         "AutoStockpileBuyCulturalGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileBuyCulturalGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.description",
             "cases": [
                 {
                     "name": "EurekaTeabox",
@@ -672,8 +672,8 @@
         },
         "AutoStockpileUseDiscountsWuling": {
             "type": "switch",
-            "label": "$task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.label",
-            "description": "$task.AutoStockpileStaple.option.AutoStockpileUseDiscountsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.description",
             "default_case": "Yes",
             "cases": [
                 {

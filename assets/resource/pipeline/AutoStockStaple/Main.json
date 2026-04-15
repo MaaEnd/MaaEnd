@@ -1,5 +1,5 @@
 {
-    "AutoStockpileStapleMain": {
+    "AutoStockStapleMain": {
         "desc": "自动购买稳定需求物资入口",
         "pre_delay": 0,
         "action": {
@@ -14,12 +14,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockpileStapleValleyIV",
-            "[JumpBack]AutoStockpileStapleWuling",
-            "AutoStockpileStapleDone"
+            "[JumpBack]AutoStockStapleValleyIV",
+            "[JumpBack]AutoStockStapleWuling",
+            "AutoStockStapleDone"
         ]
     },
-    "AutoStockpileStapleValleyIV": {
+    "AutoStockStapleValleyIV": {
         "desc": "自动囤货稳定需求物资四号谷地节点",
         "enabled": false,
         "max_hit": 1,
@@ -29,7 +29,7 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
         ]
     },
-    "AutoStockpileStapleWuling": {
+    "AutoStockStapleWuling": {
         "desc": "自动囤货稳定需求物资武陵节点",
         "enabled": false,
         "max_hit": 1,
@@ -39,7 +39,7 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
         ]
     },
-    "AutoStockpileStapleDone": {
+    "AutoStockStapleDone": {
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

@@ -143,7 +143,7 @@
         "tasks/DeliveryJobs.json",
         "tasks/SellProduct.json",
         "tasks/AutoStockpile.json",
-        "tasks/AutoStockpileStaple.json",
+        "tasks/AutoStockStaple.json",
         "tasks/AutoSell.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
