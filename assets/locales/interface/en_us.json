@@ -664,5 +664,5 @@
     "task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.label": "Cultural goods",
     "task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.description": "Purchase Wuling cultural goods supplies",
     "task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.label": "Discount-only purchase",
-    "task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.description": "When enabled, only purchases discounted supplies",
+    "task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.description": "When enabled, only purchases discounted supplies"
 }
