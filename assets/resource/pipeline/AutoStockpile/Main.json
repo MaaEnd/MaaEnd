@@ -10,31 +10,6 @@
             "AutoStockpileDone"
         ]
     },
-    "AutoStockpileStapleMain": {
-        "desc": "自动购买稳定需求物资入口",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AttachToExpectedRegexAction",
-                "custom_action_param": {
-                    "target": "AutoStockpileInStapleItemName"
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]AutoStockpileStapleValleyIV",
-            "[JumpBack]AutoStockpileStapleWuling",
-            "AutoStockpileStapleDone"
-        ]
-    },
-    "AutoStockpileStapleDone": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileElasticValleyIV": {
         "desc": "[Config覆盖] 自动囤货弹性需求四号谷地节点",
         "enabled": false,
@@ -63,16 +38,6 @@
             "Node.Recognition.Starting": "正在前往: 四号谷地"
         }
     },
-    "AutoStockpileStapleValleyIV": {
-        "desc": "自动囤货稳定需求物资四号谷地节点",
-        "enabled": false,
-        "max_hit": 1,
-        "pre_delay": 0,
-        "next": [
-            "AutoStockpileInStapleValleyIV",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
-        ]
-    },
     "AutoStockpileElasticWuling": {
         "desc": "[Config覆盖] 自动囤货弹性需求武陵节点",
         "enabled": false,
@@ -100,16 +65,6 @@
         "focus": {
             "Node.Recognition.Starting": "正在前往: 武陵"
         }
-    },
-    "AutoStockpileStapleWuling": {
-        "desc": "自动囤货稳定需求物资武陵节点",
-        "enabled": false,
-        "max_hit": 1,
-        "pre_delay": 0,
-        "next": [
-            "AutoStockpileInStapleWuling",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
-        ]
     },
     "AutoStockpileDone": {
         "pre_delay": 0,
