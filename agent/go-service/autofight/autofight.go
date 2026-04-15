@@ -390,7 +390,7 @@ func drainActionQueue(ctx *maa.Context, characterCount int) {
 			ctx.RunAction(fmt.Sprintf("__AutoFightActionSkillOperators%d", op), maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionEndSkill:
 			if fa.operator < 5-characterCount {
-				return
+				continue
 			}
 			op := fa.operator + characterCount - 4
 			ctx.RunAction("__AutoFightActionEndSkillAltKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
