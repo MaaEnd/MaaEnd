@@ -290,17 +290,12 @@
                 "活発になっている貯水オリジムシ",
                 "활기찬 저수 원석충"
             ],
-            "EnterMap": "SceneEnterWorldWulingWulingCity3",
-            "MapName": "map02_lv002",
-            "MapTarget": [422.0, 577.7, 4, 4],
+            "EnterMap": "SceneEnterWorldWulingJingyuValley8",
+            "MapName": "map02_lv001",
+            "MapTarget": [210, 635, 15, 15],
             "MapPath": [
-                [423.7, 584.5],
-                [432.5, 584.8],
-                [432.7, 594.5],
-                [443.7, 594.4],
-                [443.6, 628.3],
-                [449.8, 664.4],
-                [451.8, 711.0]
+                [213.0, 632.0],
+                [216.0, 630.4]
             ],
             "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight"
         }
