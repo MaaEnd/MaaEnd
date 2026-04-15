@@ -223,6 +223,12 @@ func extractRecognitionNumberFromNode(ctx *maa.Context, nodeName string, detail 
 		return 0, fmt.Errorf("recognition detail is empty")
 	}
 
+	// Non-And nodes have no CombinedResult; extract the number directly.
+	if len(detail.CombinedResult) == 0 {
+		return extractRecognitionNumber(detail)
+	}
+
+	// And nodes: look up box_index from the node definition to select the right sub-result.
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
 		return 0, fmt.Errorf("get node %s json: %w", nodeName, err)
@@ -252,6 +258,12 @@ func extractRecognitionBoxFromNode(ctx *maa.Context, nodeName string, detail *ma
 		return maa.Rect{}, fmt.Errorf("recognition detail is empty")
 	}
 
+	// Non-And nodes have no CombinedResult; use the box directly.
+	if len(detail.CombinedResult) == 0 {
+		return detail.Box, nil
+	}
+
+	// And nodes: look up box_index from the node definition to select the right sub-result.
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
 		return maa.Rect{}, fmt.Errorf("get node %s json: %w", nodeName, err)
