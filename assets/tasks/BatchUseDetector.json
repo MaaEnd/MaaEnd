@@ -1,0 +1,118 @@
+{
+    "task": [
+        {
+            "name": "BatchUseDetector",
+            "label": "$task.BatchUseDetector.label",
+            "entry": "BatchUseDetectorMain",
+            "description": "$task.BatchUseDetector.description",
+            "option": [
+                "BatchUseDetectorRegion",
+                "BatchUseDetectorCategory"
+            ],
+            "controller": [
+                "Win32-Window",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "utility"
+            ]
+        }
+    ],
+    "option": {
+        "BatchUseDetectorRegion": {
+            "type": "select",
+            "label": "$task.BatchUseDetector.option.Region.label",
+            "default_case": "Wuling",
+            "cases": [
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingItem": {
+                            "enabled": true
+                        },
+                        "BatchUseDetectorConfirmWulingItemName": {
+                            "enabled": true
+                        },
+                        "BatchUseDetectorFindValleyIVItem": {
+                            "enabled": false
+                        },
+                        "BatchUseDetectorConfirmValleyIVItemName": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingItem": {
+                            "enabled": false
+                        },
+                        "BatchUseDetectorConfirmWulingItemName": {
+                            "enabled": false
+                        },
+                        "BatchUseDetectorFindValleyIVItem": {
+                            "enabled": true
+                        },
+                        "BatchUseDetectorConfirmValleyIVItemName": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "BatchUseDetectorCategory": {
+            "type": "select",
+            "label": "$task.BatchUseDetector.option.Category.label",
+            "default_case": "Detector",
+            "cases": [
+                {
+                    "name": "Detector",
+                    "label": "$task.BatchUseDetector.option.Category.Detector",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingItem": {
+                            "template": "BatchUseDetector/wuling_detector.png"
+                        },
+                        "BatchUseDetectorConfirmWulingItemName": {
+                            "expected": [
+                                "新锐武陵探物器"
+                            ]
+                        },
+                        "BatchUseDetectorFindValleyIVItem": {
+                            "template": "BatchUseDetector/valleyiv_detector.png"
+                        },
+                        "BatchUseDetectorConfirmValleyIVItemName": {
+                            "expected": [
+                                "新锐谷地探物器"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Compass",
+                    "label": "$task.BatchUseDetector.option.Category.Compass",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingItem": {
+                            "template": "BatchUseDetector/wuling_compass.png"
+                        },
+                        "BatchUseDetectorConfirmWulingItemName": {
+                            "expected": [
+                                "新锐武陵罗盘"
+                            ]
+                        },
+                        "BatchUseDetectorFindValleyIVItem": {
+                            "template": "BatchUseDetector/valleyiv_compass.png"
+                        },
+                        "BatchUseDetectorConfirmValleyIVItemName": {
+                            "expected": [
+                                "新锐谷地罗盘"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

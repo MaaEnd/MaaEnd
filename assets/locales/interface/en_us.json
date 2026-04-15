@@ -662,5 +662,11 @@
     "option.GiftOperatorMoveMode.label": "Move to Contact Console",
     "option.GiftOperatorMoveMode.description": "Choose whether to reach the operator contact console using a prerecorded key sequence or recognition-based navigation. Prerecorded movement is recommended; MapTracker may still be unstable.",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
-    "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)"
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)",
+    "task.BatchUseDetector.label": "🧭Batch Use Detector",
+    "task.BatchUseDetector.description": "Batch use the Compass and Detector features.",
+    "task.BatchUseDetector.option.Region.label": "Region",
+    "task.BatchUseDetector.option.Category.label": "Detector Category",
+    "task.BatchUseDetector.option.Category.Detector": "Detector",
+    "task.BatchUseDetector.option.Category.Compass": "Compass"
 }

@@ -163,6 +163,7 @@
         "tasks/AutoUseSpMedication.json",
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
+        "tasks/BatchUseDetector.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/ReceiveProdManual.json",
         "tasks/BakerEntry.json",

@@ -662,5 +662,11 @@
     "option.GiftOperatorMoveMode.label": "前往聯絡台方式",
     "option.GiftOperatorMoveMode.description": "可選擇使用預先錄製好的按鍵操作，或使用識別尋路前往幹員聯絡台。建議優先使用預錄製；識別尋路（MapTracker）目前仍可能不穩定。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "錄製操作",
-    "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）"
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）",
+    "task.BatchUseDetector.label": "🧭批量使用探测器",
+    "task.BatchUseDetector.description": "批量使用羅盤和探物器功能",
+    "task.BatchUseDetector.option.Region.label": "地區",
+    "task.BatchUseDetector.option.Category.label": "探測器類別",
+    "task.BatchUseDetector.option.Category.Detector": "探物器",
+    "task.BatchUseDetector.option.Category.Compass": "羅盤"
 }

@@ -662,5 +662,11 @@
     "option.GiftOperatorMoveMode.label": "連絡台への移動方法",
     "option.GiftOperatorMoveMode.description": "事前に記録したキー操作、または認識ベースの移動で干員連絡台へ向かう方法を選択します。記録済み操作の利用を推奨します。MapTracker はまだ不安定な場合があります。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
-    "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）"
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）",
+    "task.BatchUseDetector.label": "🧭探知器をまとめて使用",
+    "task.BatchUseDetector.description": "羅盤と探索器機能をまとめて使用します。",
+    "task.BatchUseDetector.option.Region.label": "地域",
+    "task.BatchUseDetector.option.Category.label": "探知器カテゴリ",
+    "task.BatchUseDetector.option.Category.Detector": "探知器",
+    "task.BatchUseDetector.option.Category.Compass": "コンパス"
 }
