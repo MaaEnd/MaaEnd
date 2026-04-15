@@ -1,5 +1,5 @@
 {
-    "AutoStockpileInStapleItem": {
+    "AutoStockInStapleItem": {
         "desc": "识别商品基准点(剩余刷新时间框)，用于后续识别",
         "recognition": {
             "type": "ColorMatch",
@@ -21,12 +21,12 @@
             }
         }
     },
-    "AutoStockpileInStapleItemDiscounts": {
+    "AutoStockInStapleItemDiscounts": {
         "desc": "识别商品折扣信息框，用于后续识别",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "AutoStockpileInStapleItem",
+                "roi": "AutoStockInStapleItem",
                 "roi_offset": [
                     79,
                     -17,
@@ -50,12 +50,12 @@
             }
         }
     },
-    "AutoStockpileInStapleItemName": {
+    "AutoStockInStapleItemName": {
         "desc": "识别商品名称",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockpileInStapleItemDiscounts",
+                "roi": "AutoStockInStapleItemDiscounts",
                 "roi_offset": [
                     -91,
                     165,
@@ -67,12 +67,12 @@
             }
         }
     },
-    "AutoStockpileTargetStockBillColor": {
+    "AutoStockTargetStockBillColor": {
         "desc": "识别目标调度券颜色(这是子节点,后续会被OCR节点引用)",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "AutoStockpileInStapleItemName",
+                "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
                     -27,
                     -48,
@@ -89,12 +89,12 @@
             }
         }
     },
-    "AutoStockpileTargetStockBillText": {
+    "AutoStockTargetStockBillText": {
         "desc": "识别目标调度券数量",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockpileTargetStockBillColor",
+                "roi": "AutoStockTargetStockBillColor",
                 "roi_offset": [
                     -2,
                     -2,
@@ -105,37 +105,37 @@
                     "\\d+"
                 ],
                 "only_rec": true,
-                "color_filter": "AutoStockpileTargetStockBillColor"
+                "color_filter": "AutoStockTargetStockBillColor"
             }
         }
     },
-    "AutoStockpileTargetStockBill": {
+    "AutoStockTargetStockBill": {
         "desc": "识别目标调度券数量",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockpileTargetStockBillColor",
-                    "AutoStockpileTargetStockBillText"
+                    "AutoStockTargetStockBillColor",
+                    "AutoStockTargetStockBillText"
                 ],
                 "box_index": 1
             }
         }
     },
-    "AutoStockpileTargetCanBuy": {
+    "AutoStockTargetCanBuy": {
         "desc": "识别目标调度券是否可购买",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    //"expression": "{AutoStockpileTargetStockBill} < {AutoStockpileCurrentStockBill}",暂时硬链接对比24万
-                    "expression": "240000< {AutoStockpileCurrentStockBill}"
+                    //"expression": "{AutoStockTargetStockBill} < {AutoStockCurrentStockBill}",暂时硬链接对比24万
+                    "expression": "240000< {AutoStockCurrentStockBill}"
                 }
             }
         }
     },
-    "AutoStockpileSwipeToMax": {
+    "AutoStockSwipeToMax": {
         "desc": "识别滑动按钮，用于滑动到最大库存",
         "recognition": {
             "type": "TemplateMatch",
@@ -162,10 +162,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileSwipeBuy"
+            "AutoStockSwipeBuy"
         ]
     },
-    "AutoStockpileSwipeBuy": {
+    "AutoStockSwipeBuy": {
         "desc": "识别确认购买按钮，用于确认购买",
         "recognition": {
             "type": "And",
@@ -183,7 +183,7 @@
             "AutoStockpileCheckBuyResult"
         ]
     },
-    "AutoStockpileCurrentStockBill": {
+    "AutoStockCurrentStockBill": {
         "desc": "识别当前库存票据，用于获取当前库存",
         "recognition": {
             "type": "And",

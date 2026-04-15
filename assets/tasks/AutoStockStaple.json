@@ -35,11 +35,11 @@
                         }
                     },
                     "option": [
-                        "AutoStockpileReserveValleyIV",
-                        "AutoStockpileBuyDailyGoodsValleyIV",
-                        "AutoStockpileBuyStockFactoryGoodsValleyIV",
-                        "AutoStockpileBuyCulturalGoodsValleyIV",
-                        "AutoStockpileUseDiscountsValleyIV"
+                        "AutoStockReserveValleyIV",
+                        "AutoStockBuyDailyGoodsValleyIV",
+                        "AutoStockBuyStockFactoryGoodsValleyIV",
+                        "AutoStockBuyCulturalGoodsValleyIV",
+                        "AutoStockUseDiscountsValleyIV"
                     ]
                 },
                 {
@@ -47,43 +47,43 @@
                 }
             ]
         },
-        "AutoStockpileReserveValleyIV": {
+        "AutoStockReserveValleyIV": {
             "type": "input",
-            "label": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.description",
             "inputs": [
                 {
                     "name": "ReserveValleyIV",
-                    "label": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.label",
-                    "description": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.description",
+                    "label": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
                     "default": "240000",
-                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockpileReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileTargetCanNotBuyValleyIV": {
+                "AutoStockTargetCompareValleyIV": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ReserveValleyIV}>{AutoStockpileCurrentStockBill}"
+                                "expression": "{ReserveValleyIV}>{AutoStockCurrentStockBill}"
                             }
                         }
                     }
                 }
             }
         },
-        "AutoStockpileBuyDailyGoodsValleyIV": {
+        "AutoStockBuyDailyGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.description",
             "cases": [
                 {
                     "name": "ValleyEngravingPermit",
                     "label": "$option.CreditShoppingItems.cases.ValleyEngravingPermit.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "valley_engraving_permit": [
                                     "谷地刻写券",
@@ -100,7 +100,7 @@
                     "name": "KunstTube",
                     "label": "$option.CreditShoppingItems.cases.KunstTube.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "kunst_tube": [
                                     "附术铁瓶",
@@ -117,7 +117,7 @@
                     "name": "JakubsLegacy",
                     "label": "$option.CreditShoppingItems.cases.JakubsLegacy.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "jakubs_legacy": [
                                     "雅各布的遗产",
@@ -134,7 +134,7 @@
                     "name": "PulledSlugMeat",
                     "label": "$option.CreditShoppingItems.cases.PulledSlugMeat.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "pulled_slug_meat": [
                                     "手撕虫肉",
@@ -151,7 +151,7 @@
                     "name": "HazefyreBlossom",
                     "label": "$option.CreditShoppingItems.cases.HazefyreBlossom.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "hazefyre_blossom": [
                                     "雾火之花",
@@ -168,7 +168,7 @@
                     "name": "CartilageTack",
                     "label": "$option.CreditShoppingItems.cases.CartilageTack.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "cartilage_tack": [
                                     "软骨饼干",
@@ -185,7 +185,7 @@
                     "name": "CosmoMeltoJelly",
                     "label": "$option.CreditShoppingItems.cases.CosmoMeltoJelly.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "cosmo_melto_jelly": [
                                     "星融果冻",
@@ -200,10 +200,10 @@
                 }
             ]
         },
-        "AutoStockpileBuyStockFactoryGoodsValleyIV": {
+        "AutoStockBuyStockFactoryGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.description",
             "default_case": [
                 "KeenValleyDetector",
                 "KeenValleyCompass"
@@ -213,7 +213,7 @@
                     "name": "KeenValleyDetector",
                     "label": "$option.CreditShoppingItems.cases.KeenValleyDetector.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "keen_valley_detector": [
                                     "新锐谷地探物器",
@@ -230,7 +230,7 @@
                     "name": "KeenValleyCompass",
                     "label": "$option.CreditShoppingItems.cases.KeenValleyCompass.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "keen_valley_compass": [
                                     "新锐谷地罗盘",
@@ -245,16 +245,16 @@
                 }
             ]
         },
-        "AutoStockpileBuyCulturalGoodsValleyIV": {
+        "AutoStockBuyCulturalGoodsValleyIV": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.description",
             "cases": [
                 {
                     "name": "BreezeOfKjersch",
                     "label": "$option.CreditShoppingItems.cases.BreezeOfKjersch.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "breeze_of_kjersch": [
                                     "耶尔什微风",
@@ -271,7 +271,7 @@
                     "name": "TidestoneSpecimen",
                     "label": "$option.CreditShoppingItems.cases.TidestoneSpecimen.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "tidestone_specimen": [
                                     "浪潮海石",
@@ -288,7 +288,7 @@
                     "name": "SimonchShawl",
                     "label": "$option.CreditShoppingItems.cases.SimonchShawl.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "simonch_shawl": [
                                     "塞梦珂披巾",
@@ -305,7 +305,7 @@
                     "name": "FrontiersWatch",
                     "label": "$option.CreditShoppingItems.cases.FrontiersWatch.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "frontiers_watch": [
                                     "《前沿瞭望》",
@@ -322,7 +322,7 @@
                     "name": "AuryleneCamera",
                     "label": "$option.CreditShoppingItems.cases.AuryleneCamera.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "aurylene_camera": [
                                     "醚质相机",
@@ -339,7 +339,7 @@
                     "name": "CosmicGatePuzzle",
                     "label": "$option.CreditShoppingItems.cases.CosmicGatePuzzle.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "cosmic_gate_puzzle": [
                                     "星门锁",
@@ -356,7 +356,7 @@
                     "name": "SurfingFestivalTicket",
                     "label": "$option.CreditShoppingItems.cases.SurfingFestivalTicket.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "surfing_festival_ticket": [
                                     "冲浪大赛门票",
@@ -371,10 +371,10 @@
                 }
             ]
         },
-        "AutoStockpileUseDiscountsValleyIV": {
+        "AutoStockUseDiscountsValleyIV": {
             "type": "switch",
-            "label": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsValleyIV.description",
+            "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -383,7 +383,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemDiscounts": {
+                        "AutoStockInStapleItemDiscounts": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
@@ -418,11 +418,11 @@
                         }
                     },
                     "option": [
-                        "AutoStockpileReserveWuling",
-                        "AutoStockpileBuyDailyGoodsWuling",
-                        "AutoStockpileBuyStockFactoryGoodsWuling",
-                        "AutoStockpileBuyCulturalGoodsWuling",
-                        "AutoStockpileUseDiscountsWuling"
+                        "AutoStockReserveWuling",
+                        "AutoStockBuyDailyGoodsWuling",
+                        "AutoStockBuyStockFactoryGoodsWuling",
+                        "AutoStockBuyCulturalGoodsWuling",
+                        "AutoStockUseDiscountsWuling"
                     ]
                 },
                 {
@@ -430,43 +430,43 @@
                 }
             ]
         },
-        "AutoStockpileReserveWuling": {
+        "AutoStockReserveWuling": {
             "type": "input",
-            "label": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockReserveWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.description",
             "inputs": [
                 {
                     "name": "ReserveWuling",
-                    "label": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.label",
-                    "description": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.description",
+                    "label": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.description",
                     "pipeline_type": "int",
                     "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
                     "default": "240000",
-                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockpileReserveWuling.inputs.ReserveWuling.pattern_msg"
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg"
                 }
             ],
             "pipeline_override": {
-                "AutoStockpileTargetCanNotBuyWuling": {
+                "AutoStockTargetCompareWuling": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ReserveWuling}>{AutoStockpileCurrentStockBill}"
+                                "expression": "{ReserveWuling}>{AutoStockCurrentStockBill}"
                             }
                         }
                     }
                 }
             }
         },
-        "AutoStockpileBuyDailyGoodsWuling": {
+        "AutoStockBuyDailyGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyDailyGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.description",
             "cases": [
                 {
                     "name": "WulingEngravingPermit",
                     "label": "$option.CreditShoppingItems.cases.WulingEngravingPermit.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "wuling_engraving_permit": [
                                     "武陵刻写券",
@@ -483,7 +483,7 @@
                     "name": "FortifyingInfusion",
                     "label": "$option.CreditShoppingItems.cases.FortifyingInfusion.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "fortifying_infusion": [
                                     "正本补元汤剂",
@@ -500,7 +500,7 @@
                     "name": "GardenFriedRice",
                     "label": "$option.CreditShoppingItems.cases.GardenFriedRice.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "garden_fried_rice": [
                                     "锦素炒饭",
@@ -517,7 +517,7 @@
                     "name": "MasterPansEggPudding",
                     "label": "$option.CreditShoppingItems.cases.MasterPansEggPudding.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "master_pans_egg_pudding": [
                                     "潘师傅蛋羹",
@@ -532,10 +532,10 @@
                 }
             ]
         },
-        "AutoStockpileBuyStockFactoryGoodsWuling": {
+        "AutoStockBuyStockFactoryGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyStockFactoryGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.description",
             "default_case": [
                 "WulingArtificingCatalyst",
                 "KeenWulingDetector",
@@ -546,7 +546,7 @@
                     "name": "WulingArtificingCatalyst",
                     "label": "$option.CreditShoppingItems.cases.WulingArtificingCatalyst.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "wuling_artificing_catalyst": [
                                     "武陵精锻助剂",
@@ -563,7 +563,7 @@
                     "name": "KeenWulingDetector",
                     "label": "$option.CreditShoppingItems.cases.KeenWulingDetector.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "keen_wuling_detector": [
                                     "新锐武陵探物器",
@@ -580,7 +580,7 @@
                     "name": "KeenWulingCompass",
                     "label": "$option.CreditShoppingItems.cases.KeenWulingCompass.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "keen_wuling_compass": [
                                     "新锐武陵罗盘",
@@ -595,16 +595,16 @@
                 }
             ]
         },
-        "AutoStockpileBuyCulturalGoodsWuling": {
+        "AutoStockBuyCulturalGoodsWuling": {
             "type": "checkbox",
-            "label": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileBuyCulturalGoodsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description",
             "cases": [
                 {
                     "name": "EurekaTeabox",
                     "label": "$option.CreditShoppingItems.cases.EurekaTeabox.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "eureka_teabox": [
                                     "岳研茶盒",
@@ -621,7 +621,7 @@
                     "name": "YinglungDumbbells",
                     "label": "$option.CreditShoppingItems.cases.YinglungDumbbells.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "yinglung_dumbbells": [
                                     "应龙哑铃",
@@ -638,7 +638,7 @@
                     "name": "WovenAggelos",
                     "label": "$option.CreditShoppingItems.cases.WovenAggelos.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "woven_aggelos": [
                                     "草编天使",
@@ -655,7 +655,7 @@
                     "name": "ScrimshawOfThePack",
                     "label": "$option.CreditShoppingItems.cases.ScrimshawOfThePack.label",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemName": {
+                        "AutoStockInStapleItemName": {
                             "attach": {
                                 "scrimshaw_of_the_pack": [
                                     "狼群骨雕",
@@ -670,10 +670,10 @@
                 }
             ]
         },
-        "AutoStockpileUseDiscountsWuling": {
+        "AutoStockUseDiscountsWuling": {
             "type": "switch",
-            "label": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockpileUseDiscountsWuling.description",
+            "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -682,7 +682,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoStockpileInStapleItemDiscounts": {
+                        "AutoStockInStapleItemDiscounts": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {

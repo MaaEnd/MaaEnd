@@ -1,5 +1,5 @@
 {
-    "AutoStockpileInStapleWuling": {
+    "AutoStockInStapleWuling": {
         "desc": "识别当前处于武陵界面，并进入囤货界面",
         "recognition": {
             "type": "And",
@@ -11,34 +11,46 @@
             }
         },
         "next": [
-            "AutoStockpileTargetCanNotBuyWuling",
-            "[JumpBack]AutoStockpileBuyItemWulingTask",
+            "AutoStockTargetCanNotBuyWuling",
+            "[JumpBack]AutoStockBuyItemWulingTask",
             "SoldOut",
-            "[JumpBack]AutoStockpileSwipeWuling"
+            "[JumpBack]AutoStockSwipeWuling"
         ]
     },
-    "AutoStockpileTargetCanNotBuyWuling": {
+    "AutoStockTargetCompareWuling": {
         "desc": "识别目标调度券是否不可购买",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "240000> {AutoStockpileCurrentStockBill}"
+                    "expression": "240000> {AutoStockCurrentStockBill}"
                 }
             }
         }
     },
-    "AutoStockpileBuyItemWulingTask": {
+    "AutoStockTargetCanNotBuyWuling": {
+        "desc": "识别目标调度券是否不可购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStapleColor",
+                    "AutoStockTargetCompareWuling"
+                ]
+            }
+        }
+    },
+    "AutoStockBuyItemWulingTask": {
         "desc": "识别商品，并进入购买流程",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockpileInStapleItem",
-                    "AutoStockpileInStapleItemDiscounts",
-                    "AutoStockpileInStapleItemName",
-                    "AutoStockpileTargetCanBuy"
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemDiscounts",
+                    "AutoStockInStapleItemName",
+                    "AutoStockTargetCanBuy"
                 ],
                 "box_index": 2
             }
@@ -55,10 +67,10 @@
             }
         },
         "next": [
-            "AutoStockpileSwipeToMax"
+            "AutoStockSwipeToMax"
         ]
     },
-    "AutoStockpileSwipeWuling": {
+    "AutoStockSwipeWuling": {
         "desc": "向下滑动寻找商品，直到找到商品或到达底部",
         "max_hit": 20,
         "recognition": {
