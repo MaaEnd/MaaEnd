@@ -88,29 +88,6 @@ const (
 	ActionTurnRound
 )
 
-func (t ActionType) String() string {
-	switch t {
-	case ActionAttack:
-		return "Attack"
-	case ActionCombo:
-		return "Combo"
-	case ActionSkill:
-		return "Skill"
-	case ActionEndSkill:
-		return "EndSkill"
-	case ActionLockTarget:
-		return "LockTarget"
-	case ActionDodge:
-		return "Dodge"
-	case ActionSleepSecond:
-		return "SleepSecond"
-	case ActionSwitchCharacter:
-		return "SwitchCharacter"
-	default:
-		return "Unknown"
-	}
-}
-
 type fightAction struct {
 	executeAt time.Time
 	action    ActionType
@@ -124,12 +101,6 @@ func enqueueAction(a fightAction) {
 	sort.Slice(actionQueue, func(i, j int) bool {
 		return actionQueue[i].executeAt.Before(actionQueue[j].executeAt)
 	})
-	// log.Debug().
-	// 	Str("action", a.action.String()).
-	// 	Int("operator", a.operator).
-	// 	Str("executeAt", a.executeAt.Format("15:04:05.000")).
-	// 	Int("queueLen", len(actionQueue)).
-	// 	Msg("AutoFight enqueue action")
 }
 
 func dequeueAction() (fightAction, bool) {
@@ -139,12 +110,6 @@ func dequeueAction() (fightAction, bool) {
 
 	a := actionQueue[0]
 	actionQueue = actionQueue[1:]
-	// log.Debug().
-	// 	Str("action", a.action.String()).
-	// 	Int("operator", a.operator).
-	// 	Str("executeAt", a.executeAt.Format("15:04:05.000")).
-	// 	Int("queueLen", len(actionQueue)).
-	// 	Msg("AutoFight dequeue action")
 	return a, true
 }
 
