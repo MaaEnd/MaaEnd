@@ -290,7 +290,7 @@
     "__AutoFightRecognitionScreen": {
         "desc": "使用onnx模型整体识别",
         "recognition": "NeuralNetworkDetect",
-        "model": "AutoFight/autofight.onnx"
+        "model": "AutoFight/autofightv7.onnx"
     },
     "__AutoFightRecognitionEnemyInScreen": {
         "desc": "识别敌人是否在屏幕内",

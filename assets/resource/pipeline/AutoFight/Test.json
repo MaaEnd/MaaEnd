@@ -9,14 +9,14 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]__AutoFightRecognitionEnemyAttack",
+            "[JumpBack]__AutoFightRecognitionScreenTest",
             "AutoFightTest2"
         ]
     },
     "__AutoFightRecognitionScreenTest": {
         "desc": "使用onnx模型整体识别",
         "recognition": "NeuralNetworkDetect",
-        "model": "AutoFight/autofight.onnx",
+        "model": "AutoFight/autofightv7.onnx",
         "next": [
             "__AutoFightRecognitionScreenTest"
         ]
