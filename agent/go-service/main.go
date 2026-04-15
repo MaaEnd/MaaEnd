@@ -11,7 +11,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func initTempEnv() {
+	temp := os.Getenv("TEMP")
+	if temp == "" {
+		temp = os.Getenv("TMP")
+	}
+	if temp == "" {
+		temp = os.TempDir()
+	}
+	if temp != "" {
+		os.Setenv("TEMP", temp)
+		os.Setenv("TMP", temp)
+	}
+}
+
 func main() {
+	initTempEnv()
 	logFile, err := initLogger()
 	if err != nil {
 		log.Fatal().
