@@ -78,7 +78,7 @@
                         },
                         "BatchUseDetectorConfirmWulingItemName": {
                             "expected": [
-                                "新锐武陵探物器"
+                                "武陵探物器"
                             ]
                         },
                         "BatchUseDetectorFindValleyIVItem": {
@@ -86,7 +86,7 @@
                         },
                         "BatchUseDetectorConfirmValleyIVItemName": {
                             "expected": [
-                                "新锐谷地探物器"
+                                "谷地探物器"
                             ]
                         }
                     }
@@ -100,7 +100,7 @@
                         },
                         "BatchUseDetectorConfirmWulingItemName": {
                             "expected": [
-                                "新锐武陵罗盘"
+                                "武陵罗盘"
                             ]
                         },
                         "BatchUseDetectorFindValleyIVItem": {
@@ -108,7 +108,7 @@
                         },
                         "BatchUseDetectorConfirmValleyIVItemName": {
                             "expected": [
-                                "新锐谷地罗盘"
+                                "谷地罗盘"
                             ]
                         }
                     }
