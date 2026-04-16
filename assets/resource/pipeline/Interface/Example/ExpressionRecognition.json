@@ -1,0 +1,49 @@
+{
+    "ExpressionRecognitionExampleGate": {
+        "desc": "ExpressionRecognition 示例：解析 OCR 数值并执行布尔表达式",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{ExpressionRecognitionCurrentCredit}-{ExpressionRecognitionRefreshCost}>=300",//假如当前余额-刷新消耗>=300，则命中
+                    "box_node": "ExpressionRecognitionCurrentCredit"//命中后返回当前余额的box
+                }
+            }
+        },
+        "action": "DoNothing",
+        "next": [
+            "ExpressionRecognitionPass"
+        ]
+    },
+    "ExpressionRecognitionCurrentCredit": {
+        "desc": "当前余额 OCR 节点（应返回可解析为数值的文本）",
+        "recognition": "OCR",
+        "roi": [
+            1040,
+            50,
+            200,
+            70
+        ],
+        "expected": "^(\\d+[.,]?\\d*[KkMm万]?)$",//预期识别结果为10或者,1.7K或者2.2M或者3.3万
+        "next": []
+    },
+    "ExpressionRecognitionRefreshCost": {
+        "desc": "刷新消耗 OCR 节点（应返回可解析为数值的文本）",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            600,
+            180,
+            70
+        ],
+        "expected": "^(\\d+[.,]?\\d*[KkMm万亿]?)$",
+        "next": []
+    },
+    "ExpressionRecognitionPass": {
+        "desc": "表达式命中后的后续流程",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}

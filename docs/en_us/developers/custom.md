@@ -99,6 +99,8 @@ Compatibility note:
 - If multiple nodes need the same whitelist, write the same `attach` content into each node in task configuration.
 - Other tasks should also prefer this generic action name to avoid business coupling.
 
+Example file: [`AttachToExpectedRegexAction.json`](../../../assets/resource/pipeline/Interface/Example/AttachToExpectedRegexAction.json)
+
 ---
 
 ## Custom Recognition
@@ -168,6 +170,8 @@ Other examples:
 - `{CurrentCredit}<300`
 - `{CurrentCredit}-{RefreshCost}<400`
 - `({NodeA}+{NodeB})>=100 && {NodeC}==1`
+
+Example file: [`ExpressionRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpressionRecognition.json)
 
 Notes:
 

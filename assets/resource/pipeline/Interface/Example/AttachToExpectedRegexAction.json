@@ -1,0 +1,34 @@
+{
+    "AttachRegexPrepareKeywords": {
+        "desc": "AttachToExpectedRegexAction 示例：根据目标节点 attach 动态生成 expected 白名单正则",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "AttachRegexTargetOCR"
+        },
+        "next": [
+            "AttachRegexTargetOCR"
+        ]
+    },
+    "AttachRegexTargetOCR": {
+        "desc": "目标 OCR 节点：实际 expected 会在运行时被 AttachToExpectedRegexAction 覆盖",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            220,
+            280,
+            80
+        ],
+        "expected": "^PLACEHOLDER$",
+        // 运行后最终结果：^(普通资材|稀有资材|高级资材)$
+        "attach": {
+            "普通资材": "普通资材",
+            "稀有资材": [
+                "稀有资材",
+                "高级资材"
+            ]
+        },
+        "next": []
+    }
+}

@@ -101,6 +101,8 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
+示例文件：[`AttachToExpectedRegexAction.json`](../../../assets/resource/pipeline/Interface/Example/AttachToExpectedRegexAction.json)
+
 ---
 
 ## Custom Recognition
@@ -170,6 +172,8 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - `{CurrentCredit}<300`
 - `{CurrentCredit}-{RefreshCost}<400`
 - `({NodeA}+{NodeB})>=100 && {NodeC}==1`
+
+示例文件：[`ExpressionRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpressionRecognition.json)
 
 注意事项：
 
