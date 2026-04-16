@@ -1,7 +1,9 @@
 package pipelineoverride
 
-import maa "github.com/MaaXYZ/maa-framework-go/v4"
-import "github.com/rs/zerolog/log"
+import (
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
 
 func Register() {
 	runner := &PipelineOverrideAction{}

@@ -57,13 +57,14 @@ Example file: [`ClearHitCount.json`](../../../assets/resource/pipeline/Interface
 - Parameters:
     - `patch: object`: required. Keys are **node names**; values are **partial** node objects. Semantics match MaaFramework `OverridePipeline` (merge same-named nodes, overwrite same-named properties).
     - `allow_next?: bool`: whether each partial node object may include a top-level `next`. Default `false`; when `false`, `next` is **removed** from every patch entry before applying, so runtime changes do not alter the preset topology.
-    - `strict?: bool`: when `allow_next` is `false`, whether a patch that still contains `next` is an error. Default `false` (`next` is stripped and INFO-logged); when `true`, the action **fails** and nothing is applied—helps catch accidental `next` in `patch`.
+    - `strict?: bool`: when `allow_next` is `false`, whether a patch that still contains `next` is an error. Default `false` (`next` is stripped and INFO-logged); when `true`, the action **fails** and nothing is applied—helps catch accidental `next` in `patch`. If `allow_next` is `true`, `strict` is ignored and normalized to `false`.
 
 **Usage guidelines:**
 
 - Prefer changing strategy at the **workflow entry**; if you must change mid-run, limit edits to fields like `enabled` or recognizer/action params, not the `next` graph.
 - If you truly need to change `next` at runtime, set `allow_next: true` deliberately and assess debugging/regression cost; keep it off by default.
 - Pair large overrides with logging/screenshot nodes when troubleshooting.
+- Logs only record non-sensitive metadata such as node counts, node keys, and payload length. Do not rely on runtime logs to capture full `custom_action_param` or patch content, because those payloads may contain credentials or tokens.
 
 Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
 

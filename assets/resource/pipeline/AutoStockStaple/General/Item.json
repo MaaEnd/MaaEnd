@@ -135,7 +135,6 @@
             }
         }
     },
-    
     "AutoStockSwipeToMax": {
         "desc": "识别滑动按钮，用于滑动到最大库存",
         "recognition": {

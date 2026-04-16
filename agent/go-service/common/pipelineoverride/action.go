@@ -32,16 +32,11 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
-	// Log invocation early; helps correlate pipeline runner execution with params.
 	customParam := arg.CustomActionParam
-	paramPrefix := customParam
-	if len(paramPrefix) > 512 {
-		paramPrefix = paramPrefix[:512] + "...(truncated)"
-	}
 	log.Debug().
 		Str("component", "PipelineOverride").
 		Int("custom_action_param_len", len(customParam)).
-		Str("custom_action_param_prefix", paramPrefix).
+		Bool("custom_action_param_present", strings.TrimSpace(customParam) != "").
 		Msg("PipelineOverride Run invoked")
 
 	var params pipelineOverrideParam
@@ -49,7 +44,7 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		log.Error().
 			Err(err).
 			Str("component", "PipelineOverride").
-			Str("param", arg.CustomActionParam).
+			Int("custom_action_param_len", len(arg.CustomActionParam)).
 			Msg("failed to parse custom_action_param")
 		return false
 	}
@@ -72,6 +67,12 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	strictMode := false
 	if params.Strict != nil {
 		strictMode = *params.Strict
+	}
+	if allowNext && strictMode {
+		log.Info().
+			Str("component", "PipelineOverride").
+			Msg("strict is ignored because allow_next is true")
+		strictMode = false
 	}
 
 	log.Debug().
@@ -136,7 +137,7 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 			Err(err).
 			Str("component", "PipelineOverride").
 			Int("patch_node_count_clean", len(cleanPatch)).
-			Interface("patch", cleanPatch).
+			Interface("patch_node_keys", keysOf(cleanPatch)).
 			Msg("OverridePipeline failed")
 		return false
 	}

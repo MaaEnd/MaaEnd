@@ -54,18 +54,19 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### PipelineOverride
 
-`PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**部分节点 JSON** 合并进当前 Pipeline（底层为 `ctx.OverridePipeline`）。适用于在不改写静态 `next` 拓扑的前提下，调整节点启用状态、识别器参数等。
+`PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到当前 Pipeline 中（`ctx.OverridePipeline`）。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
 
 - 参数：
-    - `patch: object`：必填。键为**节点名**，值为该节点的**片段** JSON，语义与 MaaFramework `OverridePipeline` 一致（合并同名节点，覆盖同名属性）。
-    - `allow_next?: bool`：是否允许在各节点片段中出现顶层 `next`。默认 `false`；为 `false` 时会在应用前**删除**每个片段中的 `next`，避免运行时改掉跳转关系。
-    - `strict?: bool`：当 `allow_next` 为 `false` 时，若某节点片段仍包含 `next` 是否视为错误。默认 `false`（删除 `next` 后照常应用，并打 INFO）；为 `true` 时**不应用**并返回失败，便于发现误把 `next` 写进 `patch` 的配置。
+    - `patch: object`：必填。键为**节点名**，值为该节点的**局部覆盖对象**。语义与 MaaFramework `OverridePipeline` 一致：同名节点合并、同名字段覆盖。
+    - `allow_next?: bool`：是否允许局部节点对象包含顶层 `next`。默认 `false`；为 `false` 时，会在应用前移除每个 patch 项里的 `next`，避免运行时改写预设拓扑。
+    - `strict?: bool`：当 `allow_next` 为 `false` 时，若 patch 中仍带有 `next`，是否直接报错失败。默认 `false`（会移除 `next` 并记录日志）；为 `true` 时当前 Action 直接失败且不会应用任何覆盖。若 `allow_next` 为 `true`，则 `strict` 会被忽略并按 `false` 处理。
 
-**使用规范（建议写入任务设计评审）：**
+使用建议：
 
-- 优先仅在**流程入口处**调整策略；若必须在中间变更，应限于「节点 `enabled`、识别器/动作参数」等，不改 `next` 构成的拓扑。
-- 需要动态修改 `next` 时须显式设置 `allow_next: true`，并单独评估调试与回归成本；默认应关闭。
-- 大段覆盖建议配合日志与截图节点，便于排障。
+- 优先在**流程入口**决定策略；若必须中途调整，尽量只改 `enabled`、识别器参数、动作参数等字段，不要随意改 `next` 图结构。
+- 如果确实需要在运行时修改 `next`，请显式设置 `allow_next: true`，并自行评估调试与回归成本；默认应保持关闭。
+- 排障时可结合额外日志节点或截图节点一起使用。
+- 运行时日志只记录节点数量、节点名、参数长度等非敏感元数据，不会输出完整 `custom_action_param` 或 patch 内容；这些负载里可能包含凭证、token 等敏感信息。
 
 示例文件：[`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
 
@@ -78,13 +79,9 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 处理规则：
 
-- `attach` 内支持 `string`、`string[]` 和 `false` 三种值类型；字符串会自动去空白、去重和正则转义。
-- 当某个 `attach.<key>` 为 `false` 时，表示该 key 对应的物品被**显式排除**出本轮白名单，不会参与最终 `expected` 的构造。
-- `attach.<key> = true` 目前**不表示启用默认值**；该写法不会生成关键词，应改为显式写入字符串或字符串数组。
+- `attach` 内支持 `string` 或 `string[]` 两种值类型；会自动去空白、去重和正则转义。
 - 当关键词列表为空时，生成 `a^`（等价于“永不匹配”）。
 - 最终通过 `OverridePipeline` 覆盖目标节点的 `expected`。
-
-一个常见用法是：任务入口先把多个物品名通过 `attach` 写进同一个 OCR 节点；运行中如果某个物品已经达到目标数量，就可以通过 `PipelineOverride` 把对应的 `attach.<key>` 改成 `false`，让后续 OCR 白名单不再命中该物品。
 
 示例：
 
@@ -104,8 +101,6 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
-
-示例文件：[`AttachToExpectedRegexAction.json`](../../../assets/resource/pipeline/Interface/Example/AttachToExpectedRegexAction.json)
 
 ---
 
@@ -176,8 +171,6 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - `{CurrentCredit}<300`
 - `{CurrentCredit}-{RefreshCost}<400`
 - `({NodeA}+{NodeB})>=100 && {NodeC}==1`
-
-示例文件：[`ExpressionRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpressionRecognition.json)
 
 注意事项：
 
