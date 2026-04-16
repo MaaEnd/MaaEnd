@@ -214,16 +214,12 @@
                 "腹が膨らんで光る虫吐き長脚獣",
                 "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
             ],
-            "EnterMap": "SceneEnterWorldWulingJingyuValley7",
-            "MapName": "map02_lv001",
-            "MapTarget": [280, 580, 15, 15],
+            "EnterMap": "SceneEnterWorldWulingWulingCity7",
+            "MapName": "map02_lv002",
+            "MapTarget": [416.7, 844.3, 11.4, 10.6],
             "MapPath": [
-                [290.5, 585.0],
-                [300.4, 575.0],
-                [303.0, 562.5],
-                [303.7, 548.6],
-                [297.9, 545.0],
-                [287.9, 546.3]
+                [425.0, 851.2],
+                [436.3, 842.5]
             ],
             "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
         },
