@@ -68,6 +68,12 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 购买真相以框架的点击结果为准，而不只是 OCR 候选。
 
+先做强制检查：
+
+- 先按目标 `task_id` 缩小范围，只跟踪本次 `AutoStockStapleMain` 的事件。
+- 优先在已经命中的那一个 `maafw*.log` 文件内继续向后追踪，不要只看命中的第一小段上下文。
+- 如果搜索结果发生截断、分页，或只返回部分命中，不能直接下“没有购买”的结论，必须继续分页或缩小到命中的 `maafw*.log` 文件重搜。
+
 在 `maafw*.log` 中搜索：
 
 - `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
@@ -85,6 +91,28 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 - `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
 - 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
+
+#### 负结论保护规则
+
+只有满足以下全部条件，才能得出“本次没有购买”的结论：
+
+- 对目标 `task_id` 所在的全部相关 `maafw*.log` 完成检索。
+- 未发现任何 `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`。
+- 未发现任何 `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`。
+
+如果已经发现 `AutoStockBuyItem...Task` 的 `Node.Recognition.Starting`，
+则必须继续检查同文件后续日志，直到确认以下至少一种结果：
+
+- `Node.Action.Succeeded`
+- `Node.Action.Failed`
+- 任务结束
+- 明确切换出该节点并进入其他分支
+
+禁止仅依据以下局部证据直接下结论“没有购买”：
+
+- `Node.Recognition.Starting`
+- 某一次 `Node.Recognition.Failed`
+- 单个被截断的搜索片段
 
 ### 3. 还原剩余账单并建立时间线
 
@@ -310,6 +338,19 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - 继续跟踪“包含匹配 task_id 的那个日志文件”
 - 不要仅根据文件名里的时间戳去切换文件
 
+### 模式：只看到 `Recognition.Starting` 就误判未购买
+
+症状：
+
+- 已经看到 `AutoStockBuyItemValleyIVTask` 或 `AutoStockBuyItemWulingTask` 的 `Node.Recognition.Starting`
+- 但没有继续检查同一文件后续是否出现 `Node.Action.Succeeded` / `Node.Action.Failed`
+
+结论：
+
+- `Node.Recognition.Starting` 只说明进入了买入判定，不代表最终没有购买
+- 必须以后续的 `Node.Action.Succeeded` / `Node.Action.Failed` 为准
+- 若搜索输出被截断，先缩小到命中的 `maafw*.log` 文件，再继续向后核对
+
 ## 输出模板
 
 使用下面结构进行回答：
@@ -361,6 +402,9 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - 仅分析 `AutoStockStapleMain`。
 - 不要把 `AutoStockpileMain` 合并进最终购买列表。
 - 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
+- 在下结论“没有购买”之前，必须先确认目标 `task_id` 范围内不存在任何 `Node.Action.Succeeded.*AutoStockBuyItem(ValleyIV|Wuling)Task`。
+- 如果已经看到 `AutoStockBuyItem...Task` 的 `Node.Recognition.Starting`，必须继续向后核对到 `Node.Action.Succeeded`、`Node.Action.Failed`、任务结束或明确切分支，不能中途停止。
+- 如果搜索结果被截断、分页，或日志发生轮转，不能直接给出负结论，必须继续分页或缩小到命中的相关 `maafw*.log` 文件重查。
 - 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
 - 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
 - 当引用 pipeline 节点时，必须使用仓库中真实的节点名（原样一致）。
