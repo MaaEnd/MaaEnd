@@ -334,7 +334,7 @@
         "desc": "七彩鳞任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenLeft"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

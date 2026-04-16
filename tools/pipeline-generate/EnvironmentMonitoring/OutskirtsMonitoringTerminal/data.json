@@ -267,7 +267,7 @@
                 [194, 765],
                 [205, 755]
             ],
-            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
         },
         {
             "Id": "VigorousCisternOriginiumSlug",
