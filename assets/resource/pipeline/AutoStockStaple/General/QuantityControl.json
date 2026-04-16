@@ -1,0 +1,164 @@
+{
+    "AutoStockStapleQuantityControlValleyEngravingPermit": {
+        "desc": "谷地刻写券的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlKunstTube": {
+        "desc": "附术铁瓶的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlJakubsLegacy": {
+        "desc": "雅各布的遗产的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlPulledSlugMeat": {
+        "desc": "手撕虫肉的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlHazefyreBlossom": {
+        "desc": "雾火之花的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlCartilageTack": {
+        "desc": "软骨饼干的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlCosmoMeltoJelly": {
+        "desc": "星融果冻的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlKeenValleyDetector": {
+        "desc": "新锐谷地探物器的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlKeenValleyCompass": {
+        "desc": "新锐谷地罗盘的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlBreezeOfKjersch": {
+        "desc": "耶尔什微风的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlTidestoneSpecimen": {
+        "desc": "浪潮海石的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlSimonchShawl": {
+        "desc": "塞梦珂披巾的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlFrontiersWatch": {
+        "desc": "《前沿瞭望》的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlAuryleneCamera": {
+        "desc": "醚质相机的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlCosmicGatePuzzle": {
+        "desc": "星门锁的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlSurfingFestivalTicket": {
+        "desc": "冲浪大赛门票的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlWulingEngravingPermit": {
+        "desc": "武陵刻写券的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlFortifyingInfusion": {
+        "desc": "正本补元汤剂的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlGardenFriedRice": {
+        "desc": "锦素炒饭的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlMasterPansEggPudding": {
+        "desc": "潘师傅蛋羹的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
+        "desc": "武陵精锻助剂的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlKeenWulingDetector": {
+        "desc": "新锐武陵探物器的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlKeenWulingCompass": {
+        "desc": "新锐武陵罗盘的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlEurekaTeabox": {
+        "desc": "岳研茶盒的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlYinglungDumbbells": {
+        "desc": "应龙哑铃的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlWovenAggelos": {
+        "desc": "草编天使的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    },
+    "AutoStockStapleQuantityControlScrimshawOfThePack": {
+        "desc": "狼群骨雕的数量控制",
+        "recognition": {},
+        "action": {},
+        "next": []
+    }
+}
