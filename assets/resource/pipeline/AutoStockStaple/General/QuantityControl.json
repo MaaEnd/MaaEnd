@@ -1,164 +1,982 @@
 {
+    "AutoStockStapleQuantityControl": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    55,
+                    53,
+                    333,
+                    167
+                ],
+                "expected": [
+                    "购买商品",
+                    "購買商品",
+                    "(?i)Purchase",
+                    "購入"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [ //注意最后一个节点是正常购买
+            "AutoStockStapleQuantityControlValleyEngravingPermit",
+            "AutoStockStapleQuantityControlKunstTube",
+            "AutoStockStapleQuantityControlJakubsLegacy",
+            "AutoStockStapleQuantityControlPulledSlugMeat",
+            "AutoStockStapleQuantityControlHazefyreBlossom",
+            "AutoStockStapleQuantityControlCartilageCookie",
+            "AutoStockStapleQuantityControlCosmoMeltoJelly",
+            "AutoStockStapleQuantityControlKeenValleyDetector",
+            "AutoStockStapleQuantityControlKeenValleyCompass",
+            "AutoStockStapleQuantityControlBreezeOfKjersch",
+            "AutoStockStapleQuantityControlTidestoneSpecimen",
+            "AutoStockStapleQuantityControlSimonchShawl",
+            "AutoStockStapleQuantityControlFrontiersWatch",
+            "AutoStockStapleQuantityControlAuryleneCamera",
+            "AutoStockStapleQuantityControlCosmicGatePuzzle",
+            "AutoStockStapleQuantityControlSurfingFestivalTicket",
+            "AutoStockStapleQuantityControlWulingEngravingPermit",
+            "AutoStockStapleQuantityControlFortifyingInfusion",
+            "AutoStockStapleQuantityControlGardenFriedRice",
+            "AutoStockStapleQuantityControlMasterPansEggPudding",
+            "AutoStockStapleQuantityControlWulingArtificingCatalyst",
+            "AutoStockStapleQuantityControlKeenWulingDetector",
+            "AutoStockStapleQuantityControlKeenWulingCompass",
+            "AutoStockStapleQuantityControlEurekaTeabox",
+            "AutoStockStapleQuantityControlYinglungDumbbells",
+            "AutoStockStapleQuantityControlWovenAggelos",
+            "AutoStockStapleQuantityControlScrimshawOfThePack",
+            "AutoStockSwipeToMax"
+        ]
+    },
     "AutoStockStapleQuantityControlValleyEngravingPermit": {
         "desc": "谷地刻写券的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsValleyEngravingPermit",
+                    "AutoStockStapleGoodsValleyEngravingPermitValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "valley_engraving_permit": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKunstTube": {
         "desc": "附术铁瓶的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKunstTube",
+                    "AutoStockStapleGoodsKunstTubeValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "kunst_tube": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlJakubsLegacy": {
         "desc": "雅各布的遗产的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsJakubsLegacy",
+                    "AutoStockStapleGoodsJakubsLegacyValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "jakubs_legacy": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlPulledSlugMeat": {
         "desc": "手撕虫肉的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsPulledSlugMeat",
+                    "AutoStockStapleGoodsPulledSlugMeatValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "pulled_slug_meat": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlHazefyreBlossom": {
         "desc": "雾火之花的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsHazefyreBlossom",
+                    "AutoStockStapleGoodsHazefyreBlossomValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "hazefyre_blossom": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
-    "AutoStockStapleQuantityControlCartilageTack": {
+    "AutoStockStapleQuantityControlCartilageCookie": {
         "desc": "软骨饼干的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCartilageCookie",
+                    "AutoStockStapleGoodsCartilageCookieValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "cartilage_cookie": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlCosmoMeltoJelly": {
         "desc": "星融果冻的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCosmoMeltoJelly",
+                    "AutoStockStapleGoodsCosmoMeltoJellyValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "cosmo_melto_jelly": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenValleyDetector": {
         "desc": "新锐谷地探物器的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenValleyDetector",
+                    "AutoStockStapleGoodsKeenValleyDetectorValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "keen_valley_detector": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenValleyCompass": {
         "desc": "新锐谷地罗盘的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenValleyCompass",
+                    "AutoStockStapleGoodsKeenValleyCompassValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "keen_valley_compass": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlBreezeOfKjersch": {
         "desc": "耶尔什微风的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBreezeOfKjersch",
+                    "AutoStockStapleGoodsBreezeOfKjerschValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "breeze_of_kjersch": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlTidestoneSpecimen": {
         "desc": "浪潮海石的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsTidestoneSpecimen",
+                    "AutoStockStapleGoodsTidestoneSpecimenValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "tidestone_specimen": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlSimonchShawl": {
         "desc": "塞梦珂披巾的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSimonchShawl",
+                    "AutoStockStapleGoodsSimonchShawlValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "simonch_shawl": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlFrontiersWatch": {
         "desc": "《前沿瞭望》的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFrontiersWatch",
+                    "AutoStockStapleGoodsFrontiersWatchValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "frontiers_watch": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlAuryleneCamera": {
         "desc": "醚质相机的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsAuryleneCamera",
+                    "AutoStockStapleGoodsAuryleneCameraValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "aurylene_camera": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlCosmicGatePuzzle": {
         "desc": "星门锁的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCosmicGatePuzzle",
+                    "AutoStockStapleGoodsCosmicGatePuzzleValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "cosmic_gate_puzzle": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlSurfingFestivalTicket": {
         "desc": "冲浪大赛门票的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSurfingFestivalTicket",
+                    "AutoStockStapleGoodsSurfingFestivalTicketValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "surfing_festival_ticket": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWulingEngravingPermit": {
         "desc": "武陵刻写券的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWulingEngravingPermit",
+                    "AutoStockStapleGoodsWulingEngravingPermitValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "wuling_engraving_permit": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlFortifyingInfusion": {
         "desc": "正本补元汤剂的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFortifyingInfusion",
+                    "AutoStockStapleGoodsFortifyingInfusionValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "fortifying_infusion": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlGardenFriedRice": {
         "desc": "锦素炒饭的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsGardenFriedRice",
+                    "AutoStockStapleGoodsGardenFriedRiceValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "garden_fried_rice": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlMasterPansEggPudding": {
         "desc": "潘师傅蛋羹的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMasterPansEggPudding",
+                    "AutoStockStapleGoodsMasterPansEggPuddingValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "master_pans_egg_pudding": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWulingArtificingCatalyst",
+                    "AutoStockStapleGoodsWulingArtificingCatalystValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "wuling_artificing_catalyst": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenWulingDetector": {
         "desc": "新锐武陵探物器的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenWulingDetector",
+                    "AutoStockStapleGoodsKeenWulingDetectorValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "keen_wuling_detector": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenWulingCompass": {
         "desc": "新锐武陵罗盘的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenWulingCompass",
+                    "AutoStockStapleGoodsKeenWulingCompassValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "keen_wuling_compass": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlEurekaTeabox": {
         "desc": "岳研茶盒的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsEurekaTeabox",
+                    "AutoStockStapleGoodsEurekaTeaboxValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "eureka_teabox": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlYinglungDumbbells": {
         "desc": "应龙哑铃的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsYinglungDumbbells",
+                    "AutoStockStapleGoodsYinglungDumbbellsValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "yinglung_dumbbells": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWovenAggelos": {
         "desc": "草编天使的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWovenAggelos",
+                    "AutoStockStapleGoodsWovenAggelosValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "woven_aggelos": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlScrimshawOfThePack": {
         "desc": "狼群骨雕的数量控制",
-        "recognition": {},
-        "action": {},
-        "next": []
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsScrimshawOfThePack",
+                    "AutoStockStapleGoodsScrimshawOfThePackValidate"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "scrimshaw_of_the_pack": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlResetRecognitionParams": {
+        "desc": "重置识别参数",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [ //这里只是确认仍然还在购买商品的界面
+                    "AutoStockStapleQuantityControl"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction", //初始化正则表达式
+                "custom_action_param": {
+                    "target": "AutoStockInStapleItemName"
+                }
+            }
+        },
+        "next": [
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ]
+    },
+    "AutoStockStapleQuantityControlCloseBuyWindow": {
+        "desc": "关闭购买窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     }
 }
