@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToEternalSunsetFinalCheckStartPos",
-            "GoToEternalSunsetStartPosFailed"
+            "GoToEternalSunsetFinalCheckStartPos"
         ]
     },
     "GoToEternalSunsetFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToEternalSunsetMapTrackerMove"
         ]
-    },
-    "GoToEternalSunsetStartPosFailed": {
-        "desc": "栖霞驻影传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToEternalSunsetMapTrackerMove": {
         "desc": "前往栖霞驻影",

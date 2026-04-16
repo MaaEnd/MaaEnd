@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInBlightTideFinalCheckStartPos",
-            "GoToBeaconDamagedInBlightTideStartPosFailed"
+            "GoToBeaconDamagedInBlightTideFinalCheckStartPos"
         ]
     },
     "GoToBeaconDamagedInBlightTideFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToBeaconDamagedInBlightTideMapTrackerMove"
         ]
-    },
-    "GoToBeaconDamagedInBlightTideStartPosFailed": {
-        "desc": "侵蚀潮中损坏的信标传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToBeaconDamagedInBlightTideMapTrackerMove": {
         "desc": "前往侵蚀潮中损坏的信标",

@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos",
-            "GoToInflatedAndGlowingBugspittingLankybeastStartPosFailed"
+            "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos"
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
         ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastStartPosFailed": {
-        "desc": "肚子鼓气后发光的吐虫长股兽传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove": {
         "desc": "前往肚子鼓气后发光的吐虫长股兽",

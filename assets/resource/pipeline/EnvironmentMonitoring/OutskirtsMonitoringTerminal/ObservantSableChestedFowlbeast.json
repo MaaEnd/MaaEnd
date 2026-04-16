@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToObservantSableChestedFowlbeastFinalCheckStartPos",
-            "GoToObservantSableChestedFowlbeastStartPosFailed"
+            "GoToObservantSableChestedFowlbeastFinalCheckStartPos"
         ]
     },
     "GoToObservantSableChestedFowlbeastFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToObservantSableChestedFowlbeastMapTrackerMove"
         ]
-    },
-    "GoToObservantSableChestedFowlbeastStartPosFailed": {
-        "desc": "东张西望的黑腹雉羽兽传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToObservantSableChestedFowlbeastMapTrackerMove": {
         "desc": "前往东张西望的黑腹雉羽兽",

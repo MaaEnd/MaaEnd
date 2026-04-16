@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToCollapsedTianshiPillarFinalCheckStartPos",
-            "GoToCollapsedTianshiPillarStartPosFailed"
+            "GoToCollapsedTianshiPillarFinalCheckStartPos"
         ]
     },
     "GoToCollapsedTianshiPillarFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToCollapsedTianshiPillarMapTrackerMove"
         ]
-    },
-    "GoToCollapsedTianshiPillarStartPosFailed": {
-        "desc": "倒塌的天师桩传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToCollapsedTianshiPillarMapTrackerMove": {
         "desc": "前往倒塌的天师桩",

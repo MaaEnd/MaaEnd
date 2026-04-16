@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos",
-            "GoToEcologyNearTheFieldLogisticsDepotStartPosFailed"
+            "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos"
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
         ]
-    },
-    "GoToEcologyNearTheFieldLogisticsDepotStartPosFailed": {
-        "desc": "储备站周围的生态环境传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove": {
         "desc": "前往储备站周围的生态环境",

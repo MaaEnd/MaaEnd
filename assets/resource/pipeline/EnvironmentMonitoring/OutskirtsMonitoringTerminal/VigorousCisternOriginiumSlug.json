@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToVigorousCisternOriginiumSlugFinalCheckStartPos",
-            "GoToVigorousCisternOriginiumSlugStartPosFailed"
+            "GoToVigorousCisternOriginiumSlugFinalCheckStartPos"
         ]
     },
     "GoToVigorousCisternOriginiumSlugFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToVigorousCisternOriginiumSlugMapTrackerMove"
         ]
-    },
-    "GoToVigorousCisternOriginiumSlugStartPosFailed": {
-        "desc": "充满活力的蓄水源石虫传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToVigorousCisternOriginiumSlugMapTrackerMove": {
         "desc": "前往充满活力的蓄水源石虫",

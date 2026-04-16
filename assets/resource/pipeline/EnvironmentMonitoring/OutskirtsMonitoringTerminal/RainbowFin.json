@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToRainbowFinFinalCheckStartPos",
-            "GoToRainbowFinStartPosFailed"
+            "GoToRainbowFinFinalCheckStartPos"
         ]
     },
     "GoToRainbowFinFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToRainbowFinMapTrackerMove"
         ]
-    },
-    "GoToRainbowFinStartPosFailed": {
-        "desc": "七彩鳞传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToRainbowFinMapTrackerMove": {
         "desc": "前往七彩鳞",

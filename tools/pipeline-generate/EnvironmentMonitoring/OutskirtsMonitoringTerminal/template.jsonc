@@ -231,8 +231,7 @@
             ]
         },
         "next": [
-            "GoTo${Id}FinalCheckStartPos",
-            "GoTo${Id}StartPosFailed"
+            "GoTo${Id}FinalCheckStartPos"
         ]
     },
     "GoTo${Id}FinalCheckStartPos": {
@@ -250,9 +249,6 @@
         "next": [
             "GoTo${Id}MapTrackerMove"
         ]
-    },
-    "GoTo${Id}StartPosFailed": {
-        "desc": "${Name}传送后仍未到达预期起点，结束当前子任务"
     },
     "GoTo${Id}MapTrackerMove": {
         "desc": "前往${Name}",

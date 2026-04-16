@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToIndoorCropsFinalCheckStartPos",
-            "GoToIndoorCropsStartPosFailed"
+            "GoToIndoorCropsFinalCheckStartPos"
         ]
     },
     "GoToIndoorCropsFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToIndoorCropsMapTrackerMove"
         ]
-    },
-    "GoToIndoorCropsStartPosFailed": {
-        "desc": "室内作物传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToIndoorCropsMapTrackerMove": {
         "desc": "前往室内作物",

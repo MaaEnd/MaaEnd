@@ -253,8 +253,7 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos",
-            "GoToCleansingJadeStartPosFailed"
+            "GoToCleansingJadeFinalCheckStartPos"
         ]
     },
     "GoToCleansingJadeFinalCheckStartPos": {
@@ -277,9 +276,6 @@
         "next": [
             "GoToCleansingJadeMapTrackerMove"
         ]
-    },
-    "GoToCleansingJadeStartPosFailed": {
-        "desc": "漱玉传送后仍未到达预期起点，结束当前子任务"
     },
     "GoToCleansingJadeMapTrackerMove": {
         "desc": "前往漱玉",
