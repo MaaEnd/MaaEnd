@@ -76,9 +76,13 @@ Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interf
 
 Behavior:
 
-- `attach` values support `string` and `string[]`; values are trimmed, deduplicated, and regex-escaped.
+- `attach` values support `string`, `string[]`, and `false`; string values are trimmed, deduplicated, and regex-escaped.
+- When `attach.<key>` is `false`, that item key is **explicitly excluded** from the whitelist built for the current run and does not contribute any keywords to `expected`.
+- `attach.<key> = true` currently does **not** mean "use default keywords"; it produces no whitelist keywords. Use an explicit string or string array instead.
 - If the keyword list is empty, it generates `a^` (never matches).
 - The final result is applied through `OverridePipeline` to the target node's `expected`.
+
+A common pattern is: task options first write multiple item-name groups into one OCR node's `attach`; later in the run, once one item reaches its target amount, `PipelineOverride` can set that `attach.<key>` to `false` so future whitelist regeneration no longer matches that item.
 
 Example:
 

@@ -78,9 +78,13 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 处理规则：
 
-- `attach` 内支持 `string` 或 `string[]` 两种值类型；会自动去空白、去重和正则转义。
+- `attach` 内支持 `string`、`string[]` 和 `false` 三种值类型；字符串会自动去空白、去重和正则转义。
+- 当某个 `attach.<key>` 为 `false` 时，表示该 key 对应的物品被**显式排除**出本轮白名单，不会参与最终 `expected` 的构造。
+- `attach.<key> = true` 目前**不表示启用默认值**；该写法不会生成关键词，应改为显式写入字符串或字符串数组。
 - 当关键词列表为空时，生成 `a^`（等价于“永不匹配”）。
 - 最终通过 `OverridePipeline` 覆盖目标节点的 `expected`。
+
+一个常见用法是：任务入口先把多个物品名通过 `attach` 写进同一个 OCR 节点；运行中如果某个物品已经达到目标数量，就可以通过 `PipelineOverride` 把对应的 `attach.<key>` 改成 `false`，让后续 OCR 白名单不再命中该物品。
 
 示例：
 
