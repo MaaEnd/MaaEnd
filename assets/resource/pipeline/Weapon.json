@@ -112,7 +112,7 @@
                 "threshold": 0.8
             }
         },
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": 500,
         "pre_delay": 0,
         "action": {
             "type": "Click"
