@@ -1,0 +1,41 @@
+{
+    "PipelineOverrideExample": {
+        "desc": "PipelineOverride 示例：运行时合并覆盖节点（默认不改 next）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "SomeToggleNode": {
+                    "enabled": false
+                },
+                "SomeOCRNode": {
+                    "recognition": {
+                        "expected": "^foo$"
+                    }
+                }
+            },
+            // 默认 false：会从每个节点片段中移除顶层的 next，保持预设拓扑
+            "allow_next": false,
+            // 默认 false：与 allow_next 同时为 false 时，若 patch 含 next，只移除并打日志；为 true 则直接失败
+            "strict": false
+        },
+        "next": []
+    },
+    "PipelineOverrideStrictExample": {
+        "desc": "strict：禁止在 patch 中带 next（与 allow_next:false 配合）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "NodeA": {
+                    "enabled": true
+                }
+            },
+            "allow_next": false,
+            "strict": true
+        },
+        "next": []
+    }
+}

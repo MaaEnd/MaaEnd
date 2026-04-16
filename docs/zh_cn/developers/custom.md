@@ -52,6 +52,23 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`ClearHitCount.json`](../../../assets/resource/pipeline/Interface/Example/ClearHitCount.json)
 
+### PipelineOverride
+
+`PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**部分节点 JSON** 合并进当前 Pipeline（底层为 `ctx.OverridePipeline`）。适用于在不改写静态 `next` 拓扑的前提下，调整节点启用状态、识别器参数等。
+
+- 参数：
+    - `patch: object`：必填。键为**节点名**，值为该节点的**片段** JSON，语义与 MaaFramework `OverridePipeline` 一致（会与已有节点定义合并）。
+    - `allow_next?: bool`：是否允许在各节点片段中出现顶层 `next`。默认 `false`；为 `false` 时会在应用前**删除**每个片段中的 `next`，避免运行时改掉跳转关系。
+    - `strict?: bool`：当 `allow_next` 为 `false` 时，若某节点片段仍包含 `next` 是否视为错误。默认 `false`（删除 `next` 后照常应用，并打 INFO）；为 `true` 时**不应用**并返回失败，便于发现误把 `next` 写进 `patch` 的配置。
+
+**使用规范（建议写入任务设计评审）：**
+
+- 优先仅在**流程入口处**调整策略；若必须在中间变更，应限于「节点 `enabled`、识别器/动作参数」等，不改 `next` 构成的拓扑。
+- 需要动态修改 `next` 时须显式设置 `allow_next: true`，并单独评估调试与回归成本；默认应关闭。
+- 大段覆盖建议配合日志与截图节点，便于排障。
+
+示例文件：[`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
+
 ### AttachToExpectedRegexAction
 
 `AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取目标节点自身 `attach` 中的关键词，并把合并后的白名单正则写回该目标 OCR 节点的 `expected`。
