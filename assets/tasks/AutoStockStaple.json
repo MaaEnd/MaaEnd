@@ -37,8 +37,12 @@
                     "option": [
                         "AutoStockReserveValleyIV",
                         "AutoStockBuyDailyGoodsValleyIV",
+                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit",
                         "AutoStockBuyStockFactoryGoodsValleyIV",
+                        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit",
                         "AutoStockBuyCulturalGoodsValleyIV",
+                        "AutoStockBuyCulturalGoodsValleyIVGiftLimit",
                         "AutoStockUseDiscountsValleyIV"
                     ]
                 },
@@ -200,6 +204,105 @@
                 }
             ]
         },
+        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyEngravingPermitLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsValleyEngravingPermitValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyFoodAndBuffLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsKunstTubeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsJakubsLegacyValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsPulledSlugMeatValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsHazefyreBlossomValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsCartilageCookieValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsCosmoMeltoJellyValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "AutoStockBuyStockFactoryGoodsValleyIV": {
             "type": "checkbox",
             "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.label",
@@ -244,6 +347,42 @@
                     }
                 }
             ]
+        },
+        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyDetectorCompassLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsKeenValleyDetectorValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsKeenValleyCompassValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoStockBuyCulturalGoodsValleyIV": {
             "type": "checkbox",
@@ -371,6 +510,87 @@
                 }
             ]
         },
+        "AutoStockBuyCulturalGoodsValleyIVGiftLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyGiftLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsBreezeOfKjerschValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsTidestoneSpecimenValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSimonchShawlValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFrontiersWatchValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsAuryleneCameraValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsCosmicGatePuzzleValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSurfingFestivalTicketValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "AutoStockUseDiscountsValleyIV": {
             "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
@@ -420,8 +640,13 @@
                     "option": [
                         "AutoStockReserveWuling",
                         "AutoStockBuyDailyGoodsWuling",
+                        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit",
                         "AutoStockBuyStockFactoryGoodsWuling",
+                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit",
+                        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit",
                         "AutoStockBuyCulturalGoodsWuling",
+                        "AutoStockBuyCulturalGoodsWulingGiftLimit",
                         "AutoStockUseDiscountsWuling"
                     ]
                 },
@@ -532,6 +757,78 @@
                 }
             ]
         },
+        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingEngravingPermitLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsWulingEngravingPermitValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingFoodAndBuffLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsFortifyingInfusionValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsGardenFriedRiceValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsMasterPansEggPuddingValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "AutoStockBuyStockFactoryGoodsWuling": {
             "type": "checkbox",
             "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.label",
@@ -594,6 +891,69 @@
                     }
                 }
             ]
+        },
+        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingArtificingCatalystLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsWulingArtificingCatalystValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingArtificingCatalystLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingDetectorCompassLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsKeenWulingDetectorValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsKeenWulingCompassValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoStockBuyCulturalGoodsWuling": {
             "type": "checkbox",
@@ -669,6 +1029,60 @@
                     }
                 }
             ]
+        },
+        "AutoStockBuyCulturalGoodsWulingGiftLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingGiftLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "20",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockStapleGoodsEurekaTeaboxValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsYinglungDumbbellsValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsWovenAggelosValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsScrimshawOfThePackValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoStockUseDiscountsWuling": {
             "type": "switch",
