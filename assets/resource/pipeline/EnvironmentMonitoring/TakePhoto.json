@@ -85,7 +85,31 @@
         "pre_wait_freezes": 200,
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
+            "EnvironmentMonitoringShutterButtonPhotographyTarget",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+        ]
+    },
+    "EnvironmentMonitoringCheckPhotographyTarget": {
+        "desc": "检查是否达成拍照目标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            150,
+            200,
+            300
+        ],
+        "template": "EnvironmentMonitoring/TargetChecked.png"
+    },
+    "EnvironmentMonitoringShutterButtonPhotographyTarget": {
+        "desc": "拍照目标达成，拍照",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton",
+            "EnvironmentMonitoringCheckPhotographyTarget"
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]EnvironmentMonitoringBactToTerminal"
         ]
     },
     "EnvironmentMonitoringShutterButtonHighlighted": {

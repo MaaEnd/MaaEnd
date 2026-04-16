@@ -18,7 +18,10 @@
         },
         {
             "image": "武陵_拍照模式_拍摄目标.png",
-            "hits": ["EnvironmentMonitoringShutterButtonHighlighted"]
+            "hits": [
+                "EnvironmentMonitoringShutterButtonHighlighted",
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
         },
         {
             "image": "武陵_拍照模式_拍摄目标未达成.png",
