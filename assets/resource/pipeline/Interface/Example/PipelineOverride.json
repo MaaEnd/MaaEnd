@@ -10,9 +10,8 @@
                     "enabled": false
                 },
                 "SomeOCRNode": {
-                    "recognition": {
-                        "expected": "^foo$"
-                    }
+                     "expected": "^foo$" //可以使用v1或者v2写法，不能混合使用
+                    
                 }
             },
             // 默认 false：会从每个节点片段中移除顶层的 next，保持预设拓扑

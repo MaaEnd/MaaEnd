@@ -55,7 +55,7 @@ Example file: [`ClearHitCount.json`](../../../assets/resource/pipeline/Interface
 `PipelineOverride` is implemented in `agent/go-service/common/pipelineoverride`. It merges **partial per-node JSON** into the current pipeline at runtime (`ctx.OverridePipeline`). Use it to toggle nodes or tweak recognition params **without** rewriting the static transition graph when `allow_next` stays `false`.
 
 - Parameters:
-    - `patch: object`: required. Keys are **node names**; values are **partial** node objects, merged like MaaFramework `OverridePipeline`.
+    - `patch: object`: required. Keys are **node names**; values are **partial** node objects. Semantics match MaaFramework `OverridePipeline` (merge same-named nodes, overwrite same-named properties).
     - `allow_next?: bool`: whether each partial node object may include a top-level `next`. Default `false`; when `false`, `next` is **removed** from every patch entry before applying, so runtime changes do not alter the preset topology.
     - `strict?: bool`: when `allow_next` is `false`, whether a patch that still contains `next` is an error. Default `false` (`next` is stripped and INFO-logged); when `true`, the action **fails** and nothing is applied—helps catch accidental `next` in `patch`.
 
