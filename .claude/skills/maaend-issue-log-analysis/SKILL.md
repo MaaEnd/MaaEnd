@@ -3,16 +3,16 @@ name: maaend-issue-log-analysis
 description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd/MaaEnd/issues/...` 或 `#1234`）。自动抓取 issue 正文和评论中的 `MaaEnd-logs-*.zip` 附件，下载解压后从 `maa.log`、`maa.bak.log`、`go-service.log`、`mxu-tauri.log`、`mxu-web-*.log`、`mxu-agent*.log`、`config/*`、`on_error/` 中筛选关键证据，并结合 MaaEnd、MaaFramework、MXU 的代码和文档判断根因、给出修复方案，供用户在让你分析 MaaEnd issue、日志包、识别失败、任务卡死、控制器差异、Pipeline/Agent/MXU 问题时使用。
 ---
 
-# MaaEnd Issue Log Analysis
+# MaaEnd Issue 日志分析
 
-## Scope
+## 范围
 
 - 仅用于上游公开仓库 `https://github.com/MaaEnd/MaaEnd`。
 - 输入可以是完整 issue URL，或 `#1234` 形式的 issue 编号。
 - 只分析公开 issue 中可直接访问的附件。
 - 如果 issue 没有 `MaaEnd-logs-*.zip`，要先明确说明证据不足，再尽量基于 issue 文本、截图、代码和文档给出初步判断。
 
-## Workflow
+## 工作流
 
 1. 规范化输入。
 
@@ -79,7 +79,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
         - `maa-framework-go`：`https://github.com/MaaXYZ/maa-framework-go`，Go binding / Go 与 MaaFramework 的桥接
     - 只看真正相关的仓库；本地没有时再 clone 到临时目录，例如 `.cache/upstream-src/<repo>/`。
 
-## Log Map
+## 日志地图
 
 ### `maa.log`
 
@@ -442,7 +442,7 @@ Frame 2: ...
 - 高 / 中 / 低
 - 还缺什么证据
 
-## English translation
+## 英文翻译
 
 <details><summary>Click here to expand</summary>
 

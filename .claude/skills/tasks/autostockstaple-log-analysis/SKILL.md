@@ -1,17 +1,17 @@
 ---
 name: autostockstaple-log-analysis
-description: Analyze MaaEnd logs for AutoStockStapleMain only. Reconstruct what AutoStockStapleMain bought, the purchase order, per-step remaining stock bill values, and where to instrument logging in pipeline or go-service. Use when the user asks about AutoStockStapleMain, AutoStockStaple, stable-demand goods purchases, Wuling or ValleyIV staple logs, or stock bill changes during this task.
+description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该任务实际购买了什么、购买所对应的证据、逐步剩余账单（券/账单）数值时间线，以及在 pipeline 或 go-service 中应当加日志/埋点的位置。适用于用户询问 `AutoStockStapleMain`、`AutoStockStaple`、武陵/四号谷地的稳定需求物资购买，或该任务内账单数值变化原因等场景。
 ---
 
-# AutoStockStapleMain Log Analysis
+# AutoStockStapleMain 日志分析
 
-This skill is only for `AutoStockStapleMain`.
+该 skill 仅用于 `AutoStockStapleMain`。
 
-Do not reuse this workflow for other tasks such as `AutoStockpileMain`, credit shopping, selling, or generic issue triage.
+不要复用该流程到其他任务，例如 `AutoStockpileMain`、信用购物（credit shopping）、出售（selling），或通用 issue 故障排查。
 
-## Scope
+## 适用范围
 
-Use this skill when the user asks questions like:
+当用户提出下面这类问题时使用本 skill：
 
 - "`AutoStockStapleMain` 都买了什么"
 - "每次剩余的调度券是多少"
@@ -19,38 +19,38 @@ Use this skill when the user asks questions like:
 - "这两个 `AutoStockStaple` 节点适不适合记录日志"
 - "为什么 `AutoStockStapleMain` 没买/停止买了"
 
-This skill focuses on:
+本 skill 重点包括：
 
-- purchase reconstruction for `AutoStockStapleMain`
-- remaining stock bill timeline
-- cross-scene stock bill interpretation
-- matching log evidence back to `AutoStockStaple` pipeline nodes
-- identifying the best instrumentation points
+- 购买重建：`AutoStockStapleMain` 实际买了什么
+- 剩余账单时间线：逐步还原可见的剩余账单（券/账单）变化
+- 跨场景账单解读：`ValleyIV` 与 `Wuling` 之间切换时如何解释账单数值
+- 把日志证据映射回 `AutoStockStaple` 的 pipeline 节点
+- 指出最佳加日志/埋点位置（instrumentation points）
 
-## Primary Evidence
+## 主要证据
 
-Read these files first from the target log directory:
+优先从目标日志目录读取：
 
 1. `go-service.log`
 2. `maafw.log`
-3. matching `maafw.bak.*.log`
+3. 匹配的 `maafw.bak.*.log`
 4. `mxu-tauri.log`
-5. `mxu-web-YYYY-MM-DD.log` when you need runtime overrides
+5. 当需要运行时 override 时读取 `mxu-web-YYYY-MM-DD.log`
 
-For code context, inspect:
+代码上下文（用于理解任务语义与节点含义）：
 
 - `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`
 - `assets/resource/pipeline/AutoStockStaple/Wuling.json`
 - `assets/resource/pipeline/AutoStockStaple/General/Item.json`
 - `docs/en_us/developers/custom.md`
 
-## Workflow
+## 工作流
 
-### 1. Lock the task instance
+### 1. 锁定任务实例
 
-Find the exact `AutoStockStapleMain` task instance first.
+先定位精确的 `AutoStockStapleMain` 任务实例。
 
-Search:
+搜索：
 
 - `AutoStockStapleMain`
 - `task_id`
@@ -58,261 +58,261 @@ Search:
 - `Tasker.Task.Succeeded`
 - `task end: [cb_detail={"entry":"AutoStockStapleMain"...`
 
-Important:
+注意：
 
-- `maafw.log` may have rotated.
-- If the target time is missing from `maafw.log`, check `maafw.bak.*.log`.
-- Do not mix another task's `task_id` into the analysis.
+- `maafw.log` 可能发生了轮转（rotated）。
+- 若目标时间点在 `maafw.log` 中缺失，改去检查 `maafw.bak.*.log`。
+- 不要把其他任务的 `task_id` 混入本次分析。
 
-## 2. Reconstruct actual purchases
+### 2. 还原实际购买
 
-The most reliable purchase proof is the framework click result, not only OCR candidates.
+购买真相以框架的点击结果为准，而不只是 OCR 候选。
 
-Search in `maafw*.log` for:
+在 `maafw*.log` 中搜索：
 
 - `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
 - `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`
 
-Each successful click contains a `box=[x,y,w,h]`.
+每次成功点击里都会包含 `box=[x,y,w,h]`。
 
-Then search nearby `AutoStockInStapleItemName` OCR results and match the clicked `box` to the OCR item's `box`.
+随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
 
-This gives the actual purchased item name.
+这样才能得到实际购买到的商品名称。
 
-Do not report every OCR candidate as purchased.
+不要把所有 OCR 候选都当成“已购买”。
 
-Only report an item as purchased when both are true:
+仅当以下两个条件同时满足时，才把该商品标记为“已购买”：
 
-- `AutoStockBuyItem(ValleyIV|Wuling)Task` action succeeded
-- the click box matches an OCR item box from `AutoStockInStapleItemName`
+- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
+- 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
 
-## 3. Reconstruct remaining stock bill and timeline
+### 3. 还原剩余账单并建立时间线
 
-For per-step remaining stock bill, use:
+逐步的剩余账单使用：
 
 - `AutoStockCurrentStockBill`
 - `CurrentStockBillText`
 
-Typical signal:
+典型信号：
 
 - `OCRer.cpp ... CurrentStockBillText ... "text":"4153万"`
 
-Interpretation rules:
+解读规则：
 
-- This is the current visible stock bill at the time of that recognition.
-- If a purchase click happens after that recognition, treat this as the "before purchase" remaining bill.
-- If the next stock bill OCR appears after a purchase, that next value can be treated as the latest visible "after previous purchase" value.
-- Always build a full timeline, not just a purchase list.
-- Include task start, scene switches, item clicks, stock bill OCR points, and task end.
+- 这是该次识别时屏幕上可见的剩余账单数值。
+- 如果某次购买点击发生在该次识别之后，把该值视作“购买前的剩余账单”。
+- 如果购买之后出现了下一次 `CurrentStockBillText` OCR，把下一次数值视作“上一次购买后的最新可见剩余账单”。
+- 必须构建完整时间线，而不只是购买列表。
+- 时间线里需要包含：任务开始、场景切换、商品点击、账单 OCR 点位、以及任务结束。
 
-### Cross-scene bill rule
+#### 跨场景账单解读规则
 
-`AutoStockStapleMain` may switch between `ValleyIV` and `Wuling`.
+`AutoStockStapleMain` 可能在 `ValleyIV` 和 `Wuling` 之间切换。
 
-When the task switches scene, do not assume the stock bill value is directly comparable to the previous scene's bill.
+当任务发生场景切换时，不要假设“账单数值口径与上一场景完全可直接比较、可当作同一账本连续相减”。
 
-Default interpretation:
+默认解释：
 
-- `ValleyIV` and `Wuling` may use different stock bill types.
-- If a large bill change happens exactly around a scene switch, prefer the explanation "scene changed to a different bill type" over "one item consumed an abnormally large amount".
-- Do not attribute a multi-million drop to a single purchased item unless the log explicitly proves quantity and unit cost.
+- `ValleyIV` 与 `Wuling` 可能使用不同的账单类型/券种口径。
+- 若大额账单变化恰好发生在场景切换附近，优先解释为“场景切换导致账单类型口径变化”，而不是“某一个商品消耗了异常巨大数量”。
+- 除非日志明确证明“购买的数量与单价”等信息，否则不要把多百万的差值直接归因到某一单购买。
 
-When reporting this case, state it explicitly:
+当出现这类情况时，需要在结论中明确写出：
 
-- the large apparent jump is caused by switching from one scene's stock bill to another scene's stock bill
-- therefore the cross-scene values should not be treated as a continuous single-currency ledger
+- 大额跳变来自“从某一场景账单口径切换到另一场景账单口径”
+- 因此跨场景的数值不应被当作同一种券的连续流水账本来做简单加减推导
 
-Prefer a timeline table:
+优先使用时间线表：
 
-| Time | Region | Purchased item | Remaining bill before purchase | Next visible bill after purchase |
-| ---- | ------ | -------------- | ------------------------------ | -------------------------------- |
+| 时间 | 场景 | 已购买商品 | 购买前可见剩余账单 | 下一次可见剩余账单（购买后） |
+| ---- | ---- | ---------- | ------------------ | -------------------------------- |
 
-If the log has no later OCR after the last purchase, explicitly say the final "after purchase" bill is unavailable.
+如果最后一次购买之后没有更晚的 OCR 识别结果，需明确说明“最终购买后账单不可用/无法从当前证据得到”。
 
-Also provide an event timeline:
+同时提供事件时间线：
 
-| Time | Event | Evidence |
-| ---- | ----- | -------- |
-| ... | task started / entered ValleyIV / bought item / switched to Wuling / task ended | ... |
+| 时间 | 事件 | 证据 |
+| ---- | ---- | ---- |
+| ... | 进入四号谷地 / 买了某商品 / 切换到武陵 / 任务结束 | ... |
 
-## 4. Separate AutoStockStaple from AutoStockpile
+### 4. 区分 AutoStockStaple 与 AutoStockpile
 
-`AutoStockpileMain` is a different task.
+`AutoStockpileMain` 是另一套任务。
 
-Do not merge it into `AutoStockStapleMain` results.
+不要把 `AutoStockpileMain` 的内容合并进 `AutoStockStapleMain` 的最终购买结果。
 
-Quick distinction:
+快速区分：
 
-- `AutoStockpileMain`: goods bundle selection in `go-service` autostockpile logs
-- `AutoStockStapleMain`: stable-demand goods purchase flow driven by pipeline nodes like `AutoStockBuyItemValleyIVTask` and `AutoStockBuyItemWulingTask`
+- `AutoStockpileMain`：`go-service` 中 autostockpile 的货物礼包/套装选择流程
+- `AutoStockStapleMain`：由 pipeline 节点（如 `AutoStockBuyItemValleyIVTask`、`AutoStockBuyItemWulingTask`）驱动的稳定需求物资购买流程
 
-If the user asks about a time range around `AutoStockStapleMain`, you may mention nearby `AutoStockpileMain` activity separately, but keep it outside the staple purchase list.
+如果用户询问的是 `AutoStockStapleMain` 前后某段时间范围，你可以提到相邻出现的 `AutoStockpileMain` 活动，但必须把它与 staple 购买列表分开。
 
-## 5. Map evidence back to pipeline
+### 5. 把证据映射回 pipeline
 
-Use these nodes to explain behavior:
+用这些节点来解释行为：
 
-### Entry and branch selection
+#### 入口与分支选择
 
 - `AutoStockInStapleValleyIV`
 - `AutoStockInStapleWuling`
 
-These decide the local search loop:
+它们决定本地搜索循环走向：
 
-- cannot buy branch
-- buy item branch
-- sold out branch
-- swipe branch
+- 无法继续买分支
+- 买入商品分支
+- 售罄分支
+- 滑动分支
 
-### Buy branch
+#### 买入分支
 
 - `AutoStockBuyItemValleyIVTask`
 - `AutoStockBuyItemWulingTask`
 
-These are the best pipeline nodes for "about to buy item X".
+它们是“将要购买商品 X”时的最佳 pipeline 节点。
 
-Reason:
+原因：
 
-- they require all of:
+- 它们同时满足：
     - `AutoStockInStapleItem`
     - `AutoStockInStapleItemDiscounts`
     - `AutoStockInStapleItemName`
     - `AutoStockTargetCanBuy`
-- the `box_index` points to the item-name OCR result
-- the click happens immediately after recognition succeeds
+- `box_index` 指向商品名 OCR 的结果
+- 识别成功之后立刻发生点击
 
-### Stop-buy branch
+#### 停止买入分支
 
 - `AutoStockTargetCanNotBuyValleyIV`
 - `AutoStockTargetCanNotBuyWuling`
 
-These are the best nodes for "cannot continue buying because the bill is below threshold".
+它们是“账单低于阈值因此无法继续购买”的最佳节点。
 
-### Stock bill recognizers
+#### 剩余账单识别节点
 
 - `AutoStockCurrentStockBill`
 - `CurrentStockBillText`
 
-These are the best nodes for the actual remaining bill value.
+它们是“实际剩余账单数值”的最佳证据来源。
 
-## 6. Instrumentation guidance
+### 6. 加日志/埋点建议
 
-When the user asks where to add logging, recommend:
+当用户询问“该在哪里加日志/埋点”时，建议：
 
-### To record "what item is about to be bought"
+#### 记录“将要购买什么”
 
-Best location:
+最佳位置：
 
-- buy-task recognition success path
-- specifically around `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask`
+- 买入任务识别成功路径
+- 重点在 `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask` 附近
 
-Why:
+为什么：
 
-- item name is already resolved
-- the branch already guarantees "can buy"
-- the click target is fixed to the chosen item
+- 商品名已经被解析出来
+- 分支已经保证“可以购买”
+- 点击目标是固定对应的所选商品
 
-Recommended payload:
+建议 payload：
 
-- region
-- item name
-- item box
-- current stock bill
-- optionally task_id
+- 区域（region）
+- 商品名
+- 商品框（item box）
+- 当前可见剩余账单
+- 可选：`task_id`
 
-### To record "why buying stopped"
+#### 记录“为什么停止购买”
 
-Best location:
+最佳位置：
 
 - `AutoStockTargetCanNotBuyValleyIV`
 - `AutoStockTargetCanNotBuyWuling`
 
-Recommended payload:
+建议 payload：
 
-- region
-- current stock bill
-- threshold or compare expression
-- stop reason
+- 区域（region）
+- 当前可见剩余账单
+- 阈值或对比表达式
+- 停止原因（stop reason）
 
-### To record "remaining bill after every purchase"
+#### 记录“每次购买后的剩余账单”
 
-Best location:
+最佳位置：
 
-- after confirm-buy result node, plus a fresh `AutoStockCurrentStockBill` recognition
+- 确认买入结果节点之后，再做一次新的 `AutoStockCurrentStockBill` 识别
 
-If only one of the two pipeline nodes can be used, prefer:
+如果只能选用其中一个节点：
 
-- buy-task node for "about to buy" logs
-- cannot-buy node for "stop reason" logs
+- 用买入任务节点记录“即将购买”的日志
+- 用停止买入节点记录“停止原因”的日志
 
-Do not claim that the cannot-buy node alone can tell you what item was purchased.
+不要声称“仅通过停止买入节点就能直接得出实际购买了哪个商品”。
 
-## 7. go-service clues
+### 7. go-service 线索
 
-`go-service.log` is still useful for context:
+`go-service.log` 仍然能提供上下文：
 
-- `AttachToExpectedRegexAction` shows which item whitelist was attached to `AutoStockInStapleItemName`
-- it confirms the task entry and runtime override setup
+- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了 `AutoStockInStapleItemName`
+- 它也能确认任务入口与运行时 override 的设置
 
-But purchase truth should still come from `maafw*.log` click results plus OCR box matching.
+但“购买真相”仍应以 `maafw*.log` 的点击结果 + OCR box 对应匹配为准。
 
-## Common Patterns
+## 常见模式
 
-### Pattern: OCR candidates exceed actual purchases
+### 模式：OCR 候选多于实际购买
 
-Symptom:
+症状：
 
-- `AutoStockInStapleItemName` shows several allowed items
-- but only one `AutoStockBuyItem...Task` action click follows
+- `AutoStockInStapleItemName` 展示了多个允许的商品
+- 但后续只有一次 `AutoStockBuyItem...Task` 的成功点击
 
-Conclusion:
+结论：
 
-- only the item whose box matches the clicked box was purchased
+- 只有“点击框（box）与 OCR 中商品框一致”的那一个商品才算真正被购买
 
-### Pattern: stock bill appears twice with same value
+### 模式：账单在一次购买前出现两次且数值相同
 
-Symptom:
+症状：
 
-- repeated `CurrentStockBillText` with identical text before one purchase
+- 在一次购买发生之前，出现两次相同文本的 `CurrentStockBillText`
 
-Conclusion:
+结论：
 
-- treat them as the same pre-purchase visible bill, not two separate bill states
+- 把它们视作同一个“购买前可见账单”，不要当作两段不同账单状态
 
-### Pattern: large bill jump at scene switch
+### 模式：场景切换附近出现大额账单跳变
 
-Symptom:
+症状：
 
-- a large stock bill change appears between the last visible `ValleyIV` bill and the first visible `Wuling` bill, or the reverse
+- 大额账单变化出现在“最后一次可见 `ValleyIV` 账单”和“首次可见 `Wuling` 账单”之间，或反过来
 
-Conclusion:
+结论：
 
-- first check whether the task changed from `AutoStockInStapleValleyIV` to `AutoStockInStapleWuling`, or the reverse
-- if yes, explain that the bill type likely changed with the scene
-- do not describe this as one item consuming the whole difference
+- 先检查任务是否从 `AutoStockInStapleValleyIV` 切换到 `AutoStockInStapleWuling`（或反向）
+- 若确有切换，说明账单类型口径很可能随场景改变
+- 不要把它描述为“某一单购买消耗了完整差额”
 
-### Pattern: no later stock bill after last purchase
+### 模式：最后一次购买之后没有后续账单 OCR
 
-Conclusion:
+结论：
 
-- report the last known "before purchase" bill
-- explicitly mark final post-purchase bill as unavailable from current evidence
+- 报告最后一次“购买前可见账单”
+- 明确标注“最终购买后账单”由于缺少后续 OCR 证据无法获得
 
-### Pattern: task spans rotated logs
+### 模式：任务跨轮转日志文件
 
-Symptom:
+症状：
 
-- start is in one `maafw.bak.*.log`
-- `maafw.log` or a later backup only contains parser/init lines
+- task 的开始出现在某个 `maafw.bak.*.log`
+- 但 `maafw.log` 或后续某个 backup 只包含解析/初始化内容
 
-Conclusion:
+结论：
 
-- keep following the log file that contains the matching `task_id`
-- do not switch files only by timestamp name
+- 继续跟踪“包含匹配 task_id 的那个日志文件”
+- 不要仅根据文件名里的时间戳去切换文件
 
-## Output Template
+## 输出模板
 
-Use this structure when answering:
+使用下面结构进行回答：
 
 ```markdown
 ## AutoStockStapleMain 概要
@@ -356,11 +356,1115 @@ Use this structure when answering:
 - 记录剩余调度券: `AutoStockCurrentStockBill`
 ```
 
-## Guardrails
+## 约束（Guardrails）
 
-- Only analyze `AutoStockStapleMain`.
-- Do not fold `AutoStockpileMain` into the final purchase list.
-- Do not treat OCR candidates as purchases unless a matching buy-task click succeeded.
-- Do not infer missing final stock bill values without a later OCR record.
-- Do not treat cross-scene stock bill changes as direct same-currency arithmetic unless the log explicitly proves they are the same bill type.
-- When referencing pipeline nodes, use the exact node names from the repository.
+- 仅分析 `AutoStockStapleMain`。
+- 不要把 `AutoStockpileMain` 合并进最终购买列表。
+- 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
+- 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
+- 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
+- 当引用 pipeline 节点时，必须使用仓库中真实的节点名（原样一致）。
+
+---
+
+name: autostockstaple-log-analysis
+description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该任务实际购买了什么、购买所对应的证据、逐步剩余账单（券/账单）数值时间线，以及在 pipeline 或 go-service 中应当加日志/埋点的位置。适用于用户询问 `AutoStockStapleMain`、`AutoStockStaple`、武陵/四号谷地的稳定需求物资购买，或该任务内账单数值变化原因等场景
+---
+
+# AutoStockStapleMain 日志分析
+
+该 skill 仅用于 `AutoStockStapleMain`。
+
+不要复用该流程到其他任务，例如 `AutoStockpileMain`、信用购物（credit shopping）、出售（selling），或通用 issue 故障排查。
+
+## 适用范围
+
+当用户提出下面这类问题时使用本 skill：
+
+- "`AutoStockStapleMain` 都买了什么"
+- "每次剩余的调度券是多少"
+- "武陵/四号谷地稳定需求物资买了哪些"
+- "这两个 `AutoStockStaple` 节点适不适合记录日志"
+- "为什么 `AutoStockStapleMain` 没买/停止买了"
+
+本 skill 重点包括：
+
+- 购买重建：`AutoStockStapleMain` 实际买了什么
+- 剩余账单时间线：逐步还原可见的剩余账单（券/账单）变化
+- 跨场景账单解读：`ValleyIV` 与 `Wuling` 之间切换时如何解释账单数值
+- 把日志证据映射回 `AutoStockStaple` 的 pipeline 节点
+- 指出最佳加日志/埋点位置（instrumentation points）
+
+## 主要证据
+
+优先从目标日志目录读取：
+
+1. `go-service.log`
+2. `maafw.log`
+3. 匹配的 `maafw.bak.*.log`
+4. `mxu-tauri.log`
+5. 当需要运行时 override 时读取 `mxu-web-YYYY-MM-DD.log`
+
+代码上下文（用于理解任务语义与节点含义）：
+
+- `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`
+- `assets/resource/pipeline/AutoStockStaple/Wuling.json`
+- `assets/resource/pipeline/AutoStockStaple/General/Item.json`
+- `docs/en_us/developers/custom.md`
+
+## 工作流
+
+### 1. 锁定任务实例
+
+先定位精确的 `AutoStockStapleMain` 任务实例。
+
+搜索：
+
+- `AutoStockStapleMain`
+- `task_id`
+- `Tasker.Task.Starting`
+- `Tasker.Task.Succeeded`
+- `task end: [cb_detail={"entry":"AutoStockStapleMain"...`
+
+注意：
+
+- `maafw.log` 可能发生了轮转（rotated）。
+- 若目标时间点在 `maafw.log` 中缺失，改去检查 `maafw.bak.*.log`。
+- 不要把其他任务的 `task_id` 混入本次分析。
+
+### 2. 还原实际购买
+
+购买真相以框架的点击结果为准，而不只是 OCR 候选。
+
+在 `maafw*.log` 中搜索：
+
+- `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
+- `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`
+
+每次成功点击里都会包含 `box=[x,y,w,h]`。
+
+随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
+
+这样才能得到实际购买到的商品名称。
+
+不要把所有 OCR 候选都当成“已购买”。
+
+仅当以下两个条件同时满足时，才把该商品标记为“已购买”：
+
+- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
+- 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
+
+### 3. 还原剩余账单并建立时间线
+
+逐步的剩余账单使用：
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+典型信号：
+
+- `OCRer.cpp ... CurrentStockBillText ... "text":"4153万"`
+
+解读规则：
+
+- 这是该次识别时屏幕上可见的剩余账单数值。
+- 如果某次购买点击发生在该次识别之后，把该值视作“购买前的剩余账单”。
+- 如果购买之后出现了下一次 `CurrentStockBillText` OCR，把下一次数值视作“上一次购买后的最新可见剩余账单”。
+- 必须构建完整时间线，而不只是购买列表。
+- 时间线里需要包含：任务开始、场景切换、商品点击、账单 OCR 点位、以及任务结束。
+
+#### 跨场景账单解读规则
+
+`AutoStockStapleMain` 可能在 `ValleyIV` 和 `Wuling` 之间切换。
+
+当任务发生场景切换时，不要假设“账单数值口径与上一场景完全可直接比较、可当作同一账本连续相减”。
+
+默认解释：
+
+- `ValleyIV` 与 `Wuling` 可能使用不同的账单类型/券种口径。
+- 若大额账单变化恰好发生在场景切换附近，优先解释为“场景切换导致账单类型口径变化”，而不是“某一个商品消耗了异常巨大数量”。
+- 除非日志明确证明“购买的数量与单价”等信息，否则不要把多百万的差值直接归因到某一单购买。
+
+当出现这类情况时，需要在结论中明确写出：
+
+- 大额跳变来自“从某一场景账单口径切换到另一场景账单口径”
+- 因此跨场景的数值不应被当作同一种券的连续流水账本来做简单加减推导
+
+优先使用时间线表：
+
+| 时间 | 场景 | 已购买商品 | 购买前可见剩余账单 | 下一次可见剩余账单（购买后） |
+| ---- | ---- | ---------- | ------------------ | -------------------------------- |
+
+如果最后一次购买之后没有更晚的 OCR 识别结果，需明确说明“最终购买后账单不可用/无法从当前证据得到”。
+
+同时提供事件时间线：
+
+| 时间 | 事件 | 证据 |
+| ---- | ---- | ---- |
+| ... | 进入四号谷地 / 买了某商品 / 切换到武陵 / 任务结束 | ... |
+
+### 4. 区分 AutoStockStaple 与 AutoStockpile
+
+`AutoStockpileMain` 是另一套任务。
+
+不要把 `AutoStockpileMain` 的内容合并进 `AutoStockStapleMain` 的最终购买结果。
+
+快速区分：
+
+- `AutoStockpileMain`：`go-service` 中 autostockpile 的货物礼包/套装选择流程
+- `AutoStockStapleMain`：由 pipeline 节点（如 `AutoStockBuyItemValleyIVTask`、`AutoStockBuyItemWulingTask`）驱动的稳定需求物资购买流程
+
+如果用户询问的是 `AutoStockStapleMain` 前后某段时间范围，你可以提到相邻出现的 `AutoStockpileMain` 活动，但必须把它与 staple 购买列表分开。
+
+### 5. 把证据映射回 pipeline
+
+用这些节点来解释行为：
+
+#### 入口与分支选择
+
+- `AutoStockInStapleValleyIV`
+- `AutoStockInStapleWuling`
+
+它们决定本地搜索循环走向：
+
+- 无法继续买分支
+- 买入商品分支
+- 售罄分支
+- 滑动分支
+
+#### 买入分支
+
+- `AutoStockBuyItemValleyIVTask`
+- `AutoStockBuyItemWulingTask`
+
+它们是“将要购买商品 X”时的最佳 pipeline 节点。
+
+原因：
+
+- 它们同时满足：
+    - `AutoStockInStapleItem`
+    - `AutoStockInStapleItemDiscounts`
+    - `AutoStockInStapleItemName`
+    - `AutoStockTargetCanBuy`
+- `box_index` 指向商品名 OCR 的结果
+- 识别成功之后立刻发生点击
+
+#### 停止买入分支
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+它们是“账单低于阈值因此无法继续购买”的最佳节点。
+
+#### 剩余账单识别节点
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+它们是“实际剩余账单数值”的最佳证据来源。
+
+### 6. 加日志/埋点建议
+
+当用户询问“该在哪里加日志/埋点”时，建议：
+
+#### 记录“将要购买什么”
+
+最佳位置：
+
+- 买入任务识别成功路径
+- 重点在 `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask` 附近
+
+为什么：
+
+- 商品名已经被解析出来
+- 分支已经保证“可以购买”
+- 点击目标是固定对应的所选商品
+
+建议 payload：
+
+- 区域（region）
+- 商品名
+- 商品框（item box）
+- 当前可见剩余账单
+- 可选：`task_id`
+
+#### 记录“为什么停止购买”
+
+最佳位置：
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+建议 payload：
+
+- 区域（region）
+- 当前可见剩余账单
+- 阈值或对比表达式
+- 停止原因（stop reason）
+
+#### 记录“每次购买后的剩余账单”
+
+最佳位置：
+
+- 确认买入结果节点之后，再做一次新的 `AutoStockCurrentStockBill` 识别
+
+如果只能选用其中一个节点：
+
+- 用买入任务节点记录“即将购买”的日志
+- 用停止买入节点记录“停止原因”的日志
+
+不要声称“仅通过停止买入节点就能直接得出实际购买了哪个商品”。
+
+### 7. go-service 线索
+
+`go-service.log` 仍然能提供上下文：
+
+- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了 `AutoStockInStapleItemName`
+- 它也能确认任务入口与运行时 override 的设置
+
+但“购买真相”仍应以 `maafw*.log` 的点击结果 + OCR box 对应匹配为准。
+
+## 常见模式
+
+### 模式：OCR 候选多于实际购买
+
+症状：
+
+- `AutoStockInStapleItemName` 展示了多个允许的商品
+- 但后续只有一次 `AutoStockBuyItem...Task` 的成功点击
+
+结论：
+
+- 只有“点击框（box）与 OCR 中商品框一致”的那一个商品才算真正被购买
+
+### 模式：账单在一次购买前出现两次且数值相同
+
+症状：
+
+- 在一次购买发生之前，出现两次相同文本的 `CurrentStockBillText`
+
+结论：
+
+- 把它们视作同一个“购买前可见账单”，不要当作两段不同账单状态
+
+### 模式：场景切换附近出现大额账单跳变
+
+症状：
+
+- 大额账单变化出现在“最后一次可见 `ValleyIV` 账单”和“首次可见 `Wuling` 账单”之间，或反过来
+
+结论：
+
+- 先检查任务是否从 `AutoStockInStapleValleyIV` 切换到 `AutoStockInStapleWuling`（或反向）
+- 若确有切换，说明账单类型口径很可能随场景改变
+- 不要把它描述为“某一单购买消耗了完整差额”
+
+### 模式：最后一次购买之后没有后续账单 OCR
+
+结论：
+
+- 报告最后一次“购买前可见账单”
+- 明确标注“最终购买后账单”由于缺少后续 OCR 证据无法获得
+
+### 模式：任务跨轮转日志文件
+
+症状：
+
+- task 的开始出现在某个 `maafw.bak.*.log`
+- 但 `maafw.log` 或后续某个 backup 只包含解析/初始化内容
+
+结论：
+
+- 继续跟踪“包含匹配 task_id 的那个日志文件”
+- 不要仅根据文件名里的时间戳去切换文件
+
+## 输出模板
+
+使用下面结构进行回答：
+
+```markdown
+## AutoStockStapleMain 概要
+
+- task_id: `...`
+- 起止时间: `...`
+- 结果: 成功 / 失败
+
+## 实际购买顺序
+
+1. `时间` - `区域` - `商品名`
+2. `时间` - `区域` - `商品名`
+
+## 事件时间线
+
+| 时间 | 事件 | 说明 |
+| ---- | ---- | ---- |
+| ...  | 进入四号谷地 / 购买某商品 / 切换到武陵 / 任务结束 | ... |
+
+## 调度券时间线
+
+| 时间 | 商品 | 购买前剩余调度券 | 购买后下一次可见调度券 |
+| ---- | ---- | ---------------- | ---------------------- |
+| ...  | ...  | ...              | ...                    |
+
+说明:
+
+- 同场景内可近似按连续账本理解
+- 跨 `ValleyIV` / `Wuling` 场景时，若出现大幅变化，优先解释为券种切换而不是单次异常大额消耗
+
+## 关键依据
+
+- `maafw*.log`: `AutoStockBuyItem...Task` 点击成功 + `AutoStockInStapleItemName` OCR box 对应
+- `maafw*.log`: `CurrentStockBillText` OCR
+- `go-service.log`: 运行时 override / 任务上下文
+
+## 适合加日志的节点
+
+- 记录购买项: `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask`
+- 记录停止原因: `AutoStockTargetCanNotBuyValleyIV` / `AutoStockTargetCanNotBuyWuling`
+- 记录剩余调度券: `AutoStockCurrentStockBill`
+```
+
+## 约束（Guardrails）
+
+- 仅分析 `AutoStockStapleMain`。
+- 不要把 `AutoStockpileMain` 合并进最终购买列表。
+- 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
+- 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
+- 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
+- 当引用 pipeline 节点时，必须使用仓库中真实的节点名（原样一致）。
+
+---
+
+name: autostockstaple-log-analysis
+description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该任务实际购买了什么、购买所对应的证据、逐步剩余账单（券/账单）数值时间线，以及在 pipeline 或 go-service 中应当加日志/埋点的位置。适用于用户询问 `AutoStockStapleMain`、`AutoStockStaple`、武陵/四号谷地的稳定需求物资购买、或该任务内账单数值变化原因等场景
+---
+
+# AutoStockStapleMain 日志分析
+
+该 skill 仅用于 `AutoStockStapleMain`。
+
+不要复用该流程到其他任务，例如 `AutoStockpileMain`、信用购物（credit shopping）、出售（selling），或通用 issue 故障排查。
+
+## 适用范围
+
+当用户提出下面这类问题时使用本 skill：
+
+- "`AutoStockStapleMain` 都买了什么"
+- "每次剩余的调度券是多少"
+- "武陵/四号谷地稳定需求物资买了哪些"
+- "这两个 `AutoStockStaple` 节点适不适合记录日志"
+- "为什么 `AutoStockStapleMain` 没买/停止买了"
+
+本 skill 重点包括：
+
+- 购买重建：`AutoStockStapleMain` 实际买了什么
+- 剩余账单时间线：逐步还原可见的剩余账单（券/账单）变化
+- 跨场景账单解读：`ValleyIV` 与 `Wuling` 之间切换时如何解释账单数值
+- 把日志证据映射回 `AutoStockStaple` 的 pipeline 节点
+- 指出最佳加日志/埋点位置（instrumentation points）
+
+## 主要证据
+
+优先从目标日志目录读取：
+
+1. `go-service.log`
+2. `maafw.log`
+3. 匹配的 `maafw.bak.*.log`
+4. `mxu-tauri.log`
+5. 当需要运行时 override 时读取 `mxu-web-YYYY-MM-DD.log`
+
+代码上下文（用于理解任务语义与节点含义）：
+
+- `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`
+- `assets/resource/pipeline/AutoStockStaple/Wuling.json`
+- `assets/resource/pipeline/AutoStockStaple/General/Item.json`
+- `docs/en_us/developers/custom.md`
+
+## 工作流
+
+### 1. 锁定任务实例
+
+先定位精确的 `AutoStockStapleMain` 任务实例。
+
+搜索：
+
+- `AutoStockStapleMain`
+- `task_id`
+- `Tasker.Task.Starting`
+- `Tasker.Task.Succeeded`
+- `task end: [cb_detail={"entry":"AutoStockStapleMain"...`
+
+注意：
+
+- `maafw.log` 可能发生了轮转（rotated）。
+- 若目标时间点在 `maafw.log` 中缺失，改去检查 `maafw.bak.*.log`。
+- 不要把其他任务的 `task_id` 混入本次分析。
+
+### 2. 还原实际购买
+
+购买真相以框架的点击结果为准，而不只是 OCR 候选。
+
+在 `maafw*.log` 中搜索：
+
+- `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
+- `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`
+
+每次成功点击里都会包含 `box=[x,y,w,h]`。
+
+随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
+
+这样才能得到实际购买到的商品名称。
+
+不要把所有 OCR 候选都当成“已购买”。
+
+仅当以下两个条件同时满足时，才把该商品标记为“已购买”：
+
+- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
+- 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
+
+### 3. 还原剩余账单并建立时间线
+
+逐步的剩余账单使用：
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+典型信号：
+
+- `OCRer.cpp ... CurrentStockBillText ... "text":"4153万"`
+
+解读规则：
+
+- 这是该次识别时屏幕上可见的剩余账单数值。
+- 如果某次购买点击发生在该次识别之后，把该值视作“购买前的剩余账单”。
+- 如果购买之后出现了下一次 `CurrentStockBillText` OCR，把下一次数值视作“上一次购买后的最新可见剩余账单”。
+- 必须构建完整时间线，而不只是购买列表。
+- 时间线里需要包含：任务开始、场景切换、商品点击、账单 OCR 点位、以及任务结束。
+
+#### 跨场景账单解读规则
+
+`AutoStockStapleMain` 可能在 `ValleyIV` 和 `Wuling` 之间切换。
+
+当任务发生场景切换时，不要假设“账单数值口径与上一场景完全可直接比较、可当作同一账本连续相减”。
+
+默认解释：
+
+- `ValleyIV` 与 `Wuling` 可能使用不同的账单类型/券种口径。
+- 若大额账单变化恰好发生在场景切换附近，优先解释为“场景切换导致账单类型口径变化”，而不是“某一个商品消耗了异常巨大数量”。
+- 除非日志明确证明“购买数量与单价”等信息，否则不要把多百万的差值直接归因到某一单购买。
+
+当出现这类情况时，需要在结论中明确写出：
+
+- 大额跳变来自“从某一场景账单口径切换到另一场景账单口径”
+- 因此跨场景的数值不应被当作同一种券的连续流水账本来做简单加减推导
+
+优先使用时间线表：
+
+| 时间 | 场景 | 已购买商品 | 购买前可见剩余账单 | 下一次可见剩余账单（购买后） |
+| ---- | ---- | ---------- | ------------------ | -------------------------------- |
+
+如果最后一次购买之后没有更晚的 OCR 识别结果，需明确说明“最终购买后账单不可用/无法从当前证据得到”。
+
+同时提供事件时间线：
+
+| 时间 | 事件 | 证据 |
+| ---- | ---- | ---- |
+| ... | 进入四号谷地 / 买了某商品 / 切换到武陵 / 任务结束 | ... |
+
+### 4. 区分 AutoStockStaple 与 AutoStockpile
+
+`AutoStockpileMain` 是另一套任务。
+
+不要把 `AutoStockpileMain` 的内容合并进 `AutoStockStapleMain` 的最终购买结果。
+
+快速区分：
+
+- `AutoStockpileMain`：`go-service` 中 autostockpile 的货物礼包/套装选择流程
+- `AutoStockStapleMain`：由 pipeline 节点（如 `AutoStockBuyItemValleyIVTask`、`AutoStockBuyItemWulingTask`）驱动的稳定需求物资购买流程
+
+如果用户询问的是 `AutoStockStapleMain` 前后某段时间范围，你可以提到相邻出现的 `AutoStockpileMain` 活动，但必须把它与 staple 购买列表分开。
+
+### 5. 把证据映射回 pipeline
+
+用这些节点来解释行为：
+
+#### 入口与分支选择
+
+- `AutoStockInStapleValleyIV`
+- `AutoStockInStapleWuling`
+
+它们决定本地搜索循环走向：
+
+- 无法继续买分支
+- 买入商品分支
+- 售罄分支
+- 滑动分支
+
+#### 买入分支
+
+- `AutoStockBuyItemValleyIVTask`
+- `AutoStockBuyItemWulingTask`
+
+它们是“将要购买商品 X”时的最佳 pipeline 节点。
+
+原因：
+
+- 它们同时满足：
+    - `AutoStockInStapleItem`
+    - `AutoStockInStapleItemDiscounts`
+    - `AutoStockInStapleItemName`
+    - `AutoStockTargetCanBuy`
+- `box_index` 指向商品名 OCR 的结果
+- 识别成功之后立刻发生点击
+
+#### 停止买入分支
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+它们是“账单低于阈值因此无法继续购买”的最佳节点。
+
+#### 剩余账单识别节点
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+它们是“实际剩余账单数值”的最佳证据来源。
+
+### 6. 加日志/埋点建议
+
+当用户询问“该在哪里加日志/埋点”时，建议：
+
+#### 记录“将要购买什么”
+
+最佳位置：
+
+- 买入任务识别成功路径
+- 重点在 `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask` 附近
+
+为什么：
+
+- 商品名已经被解析出来
+- 分支已经保证“可以购买”
+- 点击目标是固定对应的所选商品
+
+建议 payload：
+
+- 区域（region）
+- 商品名
+- 商品框（item box）
+- 当前可见剩余账单
+- 可选：`task_id`
+
+#### 记录“为什么停止购买”
+
+最佳位置：
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+建议 payload：
+
+- 区域（region）
+- 当前可见剩余账单
+- 阈值或对比表达式
+- 停止原因（stop reason）
+
+#### 记录“每次购买后的剩余账单”
+
+最佳位置：
+
+- 确认买入结果节点之后，再做一次新的 `AutoStockCurrentStockBill` 识别
+
+如果只能选用其中一个节点：
+
+- 用买入任务节点记录“即将购买”的日志
+- 用停止买入节点记录“停止原因”的日志
+
+不要声称“仅通过停止买入节点就能直接得出实际购买了哪个商品”。
+
+### 7. go-service 线索
+
+`go-service.log` 仍然能提供上下文：
+
+- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了 `AutoStockInStapleItemName`
+- 它也能确认任务入口与运行时 override 的设置
+
+但“购买真相”仍应以 `maafw*.log` 的点击结果 + OCR box 对应匹配为准。
+
+## 常见模式
+
+### 模式：OCR 候选多于实际购买
+
+症状：
+
+- `AutoStockInStapleItemName` 展示了多个允许的商品
+- 但后续只有一次 `AutoStockBuyItem...Task` 的成功点击
+
+结论：
+
+- 只有“点击框（box）与 OCR 中商品框一致”的那一个商品才算真正被购买
+
+### 模式：账单在一次购买前出现两次且数值相同
+
+症状：
+
+- 在一次购买发生之前，出现两次相同文本的 `CurrentStockBillText`
+
+结论：
+
+- 把它们视作同一个“购买前可见账单”，不要当作两段不同账单状态
+
+### 模式：场景切换附近出现大额账单跳变
+
+症状：
+
+- 大额账单变化出现在“最后一次可见 `ValleyIV` 账单”和“首次可见 `Wuling` 账单”之间，或反过来
+
+结论：
+
+- 先检查任务是否从 `AutoStockInStapleValleyIV` 切换到 `AutoStockInStapleWuling`（或反向）
+- 若确有切换，说明账单类型口径很可能随场景改变
+- 不要把它描述为“某一单购买消耗了完整差额”
+
+### 模式：最后一次购买之后没有后续账单 OCR
+
+结论：
+
+- 报告最后一次“购买前可见账单”
+- 明确标注“最终购买后账单”由于缺少后续 OCR 证据无法获得
+
+### 模式：任务跨轮转日志文件
+
+症状：
+
+- task 的开始出现在某个 `maafw.bak.*.log`
+- 但 `maafw.log` 或后续某个 backup 只包含解析/初始化内容
+
+结论：
+
+- 继续跟踪“包含匹配 task_id 的那个日志文件”
+- 不要仅根据文件名里的时间戳去切换文件
+
+## 输出模板
+
+使用下面结构进行回答：
+
+```markdown
+## AutoStockStapleMain 概要
+
+- task_id: `...`
+- 起止时间: `...`
+- 结果: 成功 / 失败
+
+## 实际购买顺序
+
+1. `时间` - `区域` - `商品名`
+2. `时间` - `区域` - `商品名`
+
+## 事件时间线
+
+| 时间 | 事件 | 说明 |
+| ---- | ---- | ---- |
+| ...  | 进入四号谷地 / 购买某商品 / 切换到武陵 / 任务结束 | ... |
+
+## 调度券时间线
+
+| 时间 | 商品 | 购买前剩余调度券 | 购买后下一次可见调度券 |
+| ---- | ---- | ---------------- | ---------------------- |
+| ...  | ...  | ...              | ...                    |
+
+说明:
+
+- 同场景内可近似按连续账本理解
+- 跨 `ValleyIV` / `Wuling` 场景时，若出现大幅变化，优先解释为券种切换而不是单次异常大额消耗
+
+## 关键依据
+
+- `maafw*.log`: `AutoStockBuyItem...Task` 点击成功 + `AutoStockInStapleItemName` OCR box 对应
+- `maafw*.log`: `CurrentStockBillText` OCR
+- `go-service.log`: 运行时 override / 任务上下文
+
+## 适合加日志的节点
+
+- 记录购买项: `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask`
+- 记录停止原因: `AutoStockTargetCanNotBuyValleyIV` / `AutoStockTargetCanNotBuyWuling`
+- 记录剩余调度券: `AutoStockCurrentStockBill`
+```
+
+## 约束（Guardrails）
+
+- 仅分析 `AutoStockStapleMain`。
+- 不要把 `AutoStockpileMain` 合并进最终购买列表。
+- 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
+- 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
+- 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
+- 当引用 pipeline 节点时，必须使用仓库中真实的节点名（原样一致）。
+
+---
+
+name: autostockstaple-log-analysis
+description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该任务实际购买了什么、购买所对应的证据、逐步剩余账单（券/账单）数值时间线，以及在 pipeline 或 go-service 中应当加日志/埋点的位置。适用于用户询问 `AutoStockStapleMain`、`AutoStockStaple`、武陵/四号谷地的稳定需求物资购买、或该任务内账单数值变化原因等场景
+---
+
+# AutoStockStapleMain 日志分析
+
+该 skill 仅用于 `AutoStockStapleMain`。
+
+不要复用该流程到其他任务，例如 `AutoStockpileMain`、信用购物（credit shopping）、出售（selling），或通用 issue 故障排查。
+
+## 适用范围
+
+当用户提出下面这类问题时使用本 skill：
+
+- "`AutoStockStapleMain` 都买了什么"
+- "每次剩余的调度券是多少"
+- "武陵/四号谷地稳定需求物资买了哪些"
+- "这两个 `AutoStockStaple` 节点适不适合记录日志"
+- "为什么 `AutoStockStapleMain` 没买/停止买了"
+
+本 skill 重点包括：
+
+- 购买重建：`AutoStockStapleMain` 实际买了什么
+- 剩余账单时间线：逐步还原可见的剩余账单（券/账单）变化
+- 跨场景账单解读：`ValleyIV` 与 `Wuling` 之间切换时如何解释账单数值
+- 把日志证据映射回 `AutoStockStaple` 的 pipeline 节点
+- 指出最佳加日志/埋点位置（instrumentation points）
+
+## 主要证据
+
+优先从目标日志目录读取：
+
+1. `go-service.log`
+2. `maafw.log`
+3. 匹配的 `maafw.bak.*.log`
+4. `mxu-tauri.log`
+5. 当需要运行时 override 时读取 `mxu-web-YYYY-MM-DD.log`
+
+代码上下文（用于理解任务语义与节点含义）：
+
+- `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`
+- `assets/resource/pipeline/AutoStockStaple/Wuling.json`
+- `assets/resource/pipeline/AutoStockStaple/General/Item.json`
+- `docs/en_us/developers/custom.md`
+
+## 工作流
+
+### 1. 锁定任务实例
+
+先定位精确的 `AutoStockStapleMain` 任务实例。
+
+搜索：
+
+- `AutoStockStapleMain`
+- `task_id`
+- `Tasker.Task.Starting`
+- `Tasker.Task.Succeeded`
+- `task end: [cb_detail={"entry":"AutoStockStapleMain"...`
+
+注意：
+
+- `maafw.log` 可能发生了轮转（rotated）。
+- 若目标时间点在 `maafw.log` 中缺失，改去检查 `maafw.bak.*.log`。
+- 不要把其他任务的 `task_id` 混入本次分析。
+
+### 2. 还原实际购买
+
+购买真相以框架的点击结果为准，而不只是 OCR 候选。
+
+在 `maafw*.log` 中搜索：
+
+- `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
+- `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`
+
+每次成功点击里都会包含 `box=[x,y,w,h]`。
+
+随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
+
+这样才能得到实际购买到的商品名称。
+
+不要把所有 OCR 候选都当成“已购买”。
+
+仅当以下两个条件同时满足时，才把该商品标记为“已购买”：
+
+- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
+- 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
+
+### 3. 还原剩余账单并建立时间线
+
+逐步的剩余账单使用：
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+典型信号：
+
+- `OCRer.cpp ... CurrentStockBillText ... "text":"4153万"`
+
+解读规则：
+
+- 这是该次识别时屏幕上可见的剩余账单数值。
+- 如果某次购买点击发生在该次识别之后，把该值视作“购买前的剩余账单”。
+- 如果购买之后出现了下一次 `CurrentStockBillText` OCR，把下一次数值视作“上一次购买后的最新可见剩余账单”。
+- 必须构建完整时间线，而不只是购买列表。
+- 时间线里需要包含：任务开始、场景切换、商品点击、账单 OCR 点位、以及任务结束。
+
+#### 跨场景账单解读规则
+
+`AutoStockStapleMain` 可能在 `ValleyIV` 和 `Wuling` 之间切换。
+
+当任务发生场景切换时，不要假设“账单数值口径与上一场景完全可直接比较、可当作同一账本连续相减”。
+
+默认解释：
+
+- `ValleyIV` 与 `Wuling` 可能使用不同的账单类型/券种口径。
+- 若大额账单变化恰好发生在场景切换附近，优先解释为“场景切换导致账单类型口径变化”，而不是“某一个商品消耗了异常巨大数量”。
+- 除非日志明确证明“购买的数量与单价”等信息，否则不要把多百万的差值直接归因到某一单购买。
+
+当出现这类情况时，需要在结论中明确写出：
+
+- 大额跳变来自“从某一场景账单口径切换到另一场景账单口径”
+- 因此跨场景的数值不应被当作同一种券的连续流水账本来做简单加减推导
+
+优先使用时间线表：
+
+| 时间 | 场景 | 已购买商品 | 购买前可见剩余账单 | 下一次可见剩余账单（购买后） |
+| ---- | ---- | ---------- | ---------------------- | -------------------------------- |
+
+如果最后一次购买之后没有更晚的 OCR 识别结果，需明确说明“最终的购买后账单不可用/无法从当前证据得到”。
+
+同时提供事件时间线：
+
+| 时间 | 事件 | 证据 |
+| ---- | ---- | ---- |
+| ... | 进入四号谷地 / 买了某商品 / 切换到武陵 / 任务结束 | ... |
+
+### 4. 区分 AutoStockStaple 与 AutoStockpile
+
+`AutoStockpileMain` 是另一套任务。
+
+不要把 `AutoStockpileMain` 的内容合并进 `AutoStockStapleMain` 的最终购买结果。
+
+快速区分：
+
+- `AutoStockpileMain`：`go-service` 中 autostockpile 的货物礼包/套装选择流程
+- `AutoStockStapleMain`：由 pipeline 节点（如 `AutoStockBuyItemValleyIVTask`、`AutoStockBuyItemWulingTask`）驱动的稳定需求物资购买流程
+
+如果用户询问的是 `AutoStockStapleMain` 前后某段时间范围，你可以提到相邻出现的 `AutoStockpileMain` 活动，但必须把它与 staple 购买列表分开。
+
+### 5. 把证据映射回 pipeline
+
+用这些节点来解释行为：
+
+#### 入口与分支选择
+
+- `AutoStockInStapleValleyIV`
+- `AutoStockInStapleWuling`
+
+它们决定本地搜索循环走向：
+
+- 无法继续买分支
+- 买入商品分支
+- 售罄分支
+- 滑动分支
+
+#### 买入分支
+
+- `AutoStockBuyItemValleyIVTask`
+- `AutoStockBuyItemWulingTask`
+
+它们是“将要购买商品 X”时的最佳 pipeline 节点。
+
+原因：
+
+- 它们同时满足：
+    - `AutoStockInStapleItem`
+    - `AutoStockInStapleItemDiscounts`
+    - `AutoStockInStapleItemName`
+    - `AutoStockTargetCanBuy`
+- `box_index` 指向商品名 OCR 的结果
+- 识别成功之后立刻发生点击
+
+#### 停止买入分支
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+它们是“账单低于阈值因此无法继续购买”的最佳节点。
+
+#### 剩余账单识别节点
+
+- `AutoStockCurrentStockBill`
+- `CurrentStockBillText`
+
+它们是“实际剩余账单数值”的最佳证据来源。
+
+### 6. 加日志/埋点建议
+
+当用户询问“该在哪里加日志/埋点”时，建议：
+
+#### 记录“将要购买什么”
+
+最佳位置：
+
+- 买入任务识别成功路径
+- 重点在 `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask` 附近
+
+为什么：
+
+- 商品名已经被解析出来
+- 分支已经保证“可以购买”
+- 点击目标是固定对应的所选商品
+
+建议 payload：
+
+- 区域（region）
+- 商品名
+- 商品框（item box）
+- 当前可见剩余账单
+- 可选：`task_id`
+
+#### 记录“为什么停止购买”
+
+最佳位置：
+
+- `AutoStockTargetCanNotBuyValleyIV`
+- `AutoStockTargetCanNotBuyWuling`
+
+建议 payload：
+
+- 区域（region）
+- 当前可见剩余账单
+- 阈值或对比表达式
+- 停止原因（stop reason）
+
+#### 记录“每次购买后的剩余账单”
+
+最佳位置：
+
+- 确认买入结果节点之后，再做一次新的 `AutoStockCurrentStockBill` 识别
+
+如果只能选用其中一个节点：
+
+- 用买入任务节点记录“即将购买”的日志
+- 用停止购买节点记录“停止原因”的日志
+
+不要声称“仅通过无法继续购买节点就能直接得出实际购买了哪个商品”。
+
+### 7. go-service 线索
+
+`go-service.log` 仍然能提供上下文：
+
+- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了 `AutoStockInStapleItemName`
+- 它也能确认任务入口与运行时 override 的设置
+
+但“购买真相”仍应以 `maafw*.log` 的点击结果 + OCR box 对应匹配为准。
+
+## 常见模式
+
+### 模式：OCR 候选多于实际购买
+
+症状：
+
+- `AutoStockInStapleItemName` 展示了多个允许的商品
+- 但后续只有一次 `AutoStockBuyItem...Task` 的成功点击
+
+结论：
+
+- 只有“点击框（box）与 OCR 中商品框一致”的那一个商品才算真的被购买
+
+### 模式：账单在一次购买前出现两次且数值相同
+
+症状：
+
+- 在一次购买发生之前，出现两次相同文本的 `CurrentStockBillText`
+
+结论：
+
+- 把它们视为同一个“购买前可见账单”，不要当作两段不同账单状态
+
+### 模式：场景切换附近出现大额账单跳变
+
+症状：
+
+- 大额账单变化出现在“最后一次可见 `ValleyIV` 账单”和“首次可见 `Wuling` 账单”之间，或反过来
+
+结论：
+
+- 先检查任务是否从 `AutoStockInStapleValleyIV` 切换到 `AutoStockInStapleWuling`（或反向）
+- 若确有切换，说明账单类型很可能随场景改变
+- 不要把它描述为“某一单购买消耗了完整差额”
+
+### 模式：最后一次购买之后没有后续账单 OCR
+
+结论：
+
+- 报告最后一次“购买前可见账单”
+- 明确标注“最终购买后账单”由于缺少后续 OCR 证据无法获得
+
+### 模式：任务跨轮转日志文件
+
+症状：
+
+- task 的开始出现在某个 `maafw.bak.*.log`
+- 但 `maafw.log` 或后续某个 backup 只包含解析/初始化内容
+
+结论：
+
+- 继续跟踪“包含匹配 task_id 的那个日志文件”
+- 不要仅根据文件名里的时间戳去切换文件
+
+## 输出模板
+
+使用下面结构进行回答：
+
+```markdown
+## AutoStockStapleMain 概要
+
+- task_id: `...`
+- 起止时间: `...`
+- 结果: 成功 / 失败
+
+## 实际购买顺序
+
+1. `时间` - `区域` - `商品名`
+2. `时间` - `区域` - `商品名`
+
+## 事件时间线
+
+| 时间 | 事件 | 说明 |
+| ---- | ---- | ---- |
+| ...  | 进入四号谷地 / 购买某商品 / 切换到武陵 / 任务结束 | ... |
+
+## 调度券时间线
+
+| 时间 | 商品 | 购买前剩余调度券 | 购买后下一次可见调度券 |
+| ---- | ---- | ---------------- | ---------------------- |
+| ...  | ...  | ...              | ...                    |
+
+说明:
+
+- 同场景内可近似按连续账本理解
+- 跨 `ValleyIV` / `Wuling` 场景时，若出现大幅变化，优先解释为券种切换而不是单次异常大额消耗
+
+## 关键依据
+
+- `maafw*.log`: `AutoStockBuyItem...Task` 点击成功 + `AutoStockInStapleItemName` OCR box 对应
+- `maafw*.log`: `CurrentStockBillText` OCR
+- `go-service.log`: 运行时 override / 任务上下文
+
+## 适合加日志的节点
+
+- 记录购买项: `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask`
+- 记录停止原因: `AutoStockTargetCanNotBuyValleyIV` / `AutoStockTargetCanNotBuyWuling`
+- 记录剩余调度券: `AutoStockCurrentStockBill`
+```
+
+## 约束（Guardrails）
+
+- 仅分析 `AutoStockStapleMain`。
+- 不要把 `AutoStockpileMain` 合并进最终购买列表。
+- 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
+- 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
+- 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
+- 当引用 pipeline 节点时，必须使用仓库中真实的节点名（原样一致）。
