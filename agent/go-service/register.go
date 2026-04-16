@@ -23,6 +23,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/foregroundwindow"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
@@ -38,6 +39,7 @@ func registerAll() {
 	hdrcheck.Register()
 	processcheck.Register()
 	cursormove.Register()
+	foregroundwindow.Register()
 
 	// General Custom
 	subtask.Register()
