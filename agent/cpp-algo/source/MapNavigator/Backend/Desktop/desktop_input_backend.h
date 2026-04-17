@@ -73,4 +73,14 @@ private:
     bool right_down_ = false;
 };
 
+// 返回终末地默认绑定下的 Win32 Virtual-Key 键码表。
+// Win32 控制器原生使用 VK 码；WlRoots 控制器在 interface.json 中开启
+// use_win32_vk_code，MaaFramework 会将这些码翻译为 Linux evdev 码。
+DesktopKeyCodes MakeDesktopKeyCodes();
+
+// 构造以 VK 码为语义的桌面端（Win32 / WlRoots）输入后端。
+// backend_name 仅用于日志区分（"win32" / "wlroots"）。
+std::unique_ptr<IInputBackend>
+    CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name);
+
 } // namespace mapnavigator::backend::desktop

@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <chrono>
-#include <thread>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -8,7 +6,6 @@
 #include "../../navi_config.h"
 #include "../Desktop/desktop_input_backend.h"
 #include "wlroots_input_backend.h"
-#include "wlroots_key_codes.h"
 
 namespace mapnavigator::backend::wlroots
 {
@@ -20,14 +17,13 @@ constexpr int32_t kWlrootsReferenceFrameHeight = 720;
 constexpr int32_t kWlrootsCenterX = kWorkWidth / 2;
 constexpr int32_t kWlrootsCenterY = kWlrootsReferenceFrameHeight / 2;
 constexpr int32_t kWlrootsAltSettleDelayMs = 33;
-
-desktop::DesktopKeyCodes MakeWlrootsKeyCodes();
+constexpr int32_t kLeftAltKey = 0x12; // VK_MENU -> KEY_LEFTALT via MaaFramework VkToEvdev
 
 class WlrootsInputBackend final : public desktop::DesktopInputBackend
 {
 public:
     WlrootsInputBackend(MaaController* ctrl, std::string controller_type)
-        : desktop::DesktopInputBackend(ctrl, std::move(controller_type), "wlroots", MakeWlrootsKeyCodes())
+        : desktop::DesktopInputBackend(ctrl, std::move(controller_type), "wlroots", desktop::MakeDesktopKeyCodes())
     {
     }
 
@@ -79,18 +75,6 @@ public:
         return move_end_id != MaaInvalidId && MaaControllerWait(controller, move_end_id) == MaaStatus_Succeeded;
     }
 };
-
-desktop::DesktopKeyCodes MakeWlrootsKeyCodes()
-{
-    return desktop::DesktopKeyCodes {
-        .move_forward = kMoveForwardKey,
-        .move_left = kMoveLeftKey,
-        .move_backward = kMoveBackwardKey,
-        .move_right = kMoveRightKey,
-        .interact = kInteractKey,
-        .jump = kJumpKey,
-    };
-}
 
 } // namespace
 

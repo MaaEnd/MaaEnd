@@ -73,10 +73,8 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	}
 
 	switch controlType {
-	case CONTROL_TYPE_WIN32:
-		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
-	case CONTROL_TYPE_WLROOTS:
-		return newWlrootsControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_WIN32, CONTROL_TYPE_WLROOTS:
+		return newDesktopVKControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_ADB:
 		return newADBControlAdaptor(ctx, ctrl, w, h), nil
 	default:

@@ -260,4 +260,25 @@ void DesktopInputBackend::EnsureHoverAnchorSync()
     MaaControllerWait(ctrl_, ctrl_id);
 }
 
+// Win32 Virtual-Key codes。WlRoots 控制器启用 use_win32_vk_code 后，
+// MaaFramework 会将这些码翻译为 Linux evdev 码，行为与 Win32 控制器一致。
+DesktopKeyCodes MakeDesktopKeyCodes()
+{
+    return DesktopKeyCodes {
+        .move_forward = 'W',  // 0x57
+        .move_left = 'A',     // 0x41
+        .move_backward = 'S', // 0x53
+        .move_right = 'D',    // 0x44
+        .interact = 'F',      // 0x46
+        .jump = 0x20,         // VK_SPACE
+    };
+}
+
+std::unique_ptr<IInputBackend>
+    CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name)
+{
+    LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << VAR(backend_name);
+    return std::make_unique<DesktopInputBackend>(ctrl, std::move(controller_type), std::move(backend_name), MakeDesktopKeyCodes());
+}
+
 } // namespace mapnavigator::backend::desktop
