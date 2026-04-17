@@ -292,7 +292,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_delay": 3000,
+        "post_delay": 1500,
         "next": [
             "SeizeEntrustTaskNewsStatus1"
         ]
@@ -542,7 +542,7 @@
                 ]
             }
         },
-        "timeout": 3000,
+        "timeout": 1500,
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
