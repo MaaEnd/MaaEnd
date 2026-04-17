@@ -203,6 +203,9 @@
             "SeizeEntrustTaskCheckWulingFilter",
             "SeizeEntrustTaskOpenRegionFilter"
         ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "进入运送委托列表"
         }
