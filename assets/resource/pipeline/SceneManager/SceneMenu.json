@@ -587,7 +587,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterMenuProtocolPassSuccess"
+            "__ScenePrivateAnyEnterMenuProtocolPassSuccess",
+            "[JumpBack]__ScenePrivateAnyEnterMenuProtocolPassNew",
+            "[JumpBack]__ScenePrivateAnyEnterMenuProtocolPassAdvancedSupply"
         ]
     },
     "__ScenePrivateAnyEnterMenuProtocolPassSuccess": {
@@ -618,6 +620,81 @@
             ]
         },
         "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateAnyEnterMenuProtocolPassNew": {
+        "desc": "确认新一期的协议通行证",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    548,
+                    606,
+                    131,
+                    114
+                ],
+                "template": [
+                    "SceneManager/MenuPassNew.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateAnyEnterMenuProtocolPassAdvancedSupply": {
+        "desc": "确认新协议通行证高级配给",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    47,
+                    18,
+                    155,
+                    27
+                ],
+                "expected": [
+                    "解锁高级配给",
+                    "解鎖高級配給",
+                    "Supply UP",
+                    "上級配給解放",
+                    "고급 배급 잠금 해제"
+                ]
+            }
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuFriends": {
