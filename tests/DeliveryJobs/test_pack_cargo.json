@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "自动转交送货任务，测试打包货物",
+        "name": "转交委托，测试打包货物",
         "resource": "官服",
         "controller": [
             "Win32",
