@@ -92,6 +92,11 @@ def main() -> int:
     parser.add_argument("--skill-pools", type=Path, default=root / DEFAULT_SKILL_POOLS)
     parser.add_argument("-o", "--output", type=Path, default=root / DEFAULT_OUTPUT)
     parser.add_argument("--debug", action="store_true", help="打印映射与未匹配的键")
+    parser.add_argument(
+        "--time",
+        action="store_true",
+        help="写入 matcher_config.json 的 data_version 为当天日期",
+    )
     args = parser.parse_args()
 
     with args.energy_points.open("r", encoding="utf-8") as f:
@@ -186,7 +191,8 @@ def main() -> int:
     with args.output.open("w", encoding="utf-8") as f:
         json.dump(out_locations, f, ensure_ascii=False, indent=4)
 
-    _update_data_version(root / DEFAULT_MATCHER_CONFIG)
+    if args.time:
+        _update_data_version(root / DEFAULT_MATCHER_CONFIG)
 
     print(f"Wrote {len(out_locations)} locations to {args.output}")
     return 0

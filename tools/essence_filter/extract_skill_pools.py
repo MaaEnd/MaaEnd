@@ -14,30 +14,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 LANGS = ("CN", "TC", "EN", "JP", "KR")
 
 DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")
-
-
-def update_data_version(config_path: Path) -> None:
-    """将 matcher_config 的 data_version 更新为当天日期（d/m/yyyy）。"""
-    if not config_path.exists():
-        return
-    with config_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    if not isinstance(data, dict):
-        return
-
-    now = datetime.now()
-    version = f"{now.day}/{now.month}/{now.year}"
-    data["data_version"] = version
-    with config_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-        f.write("\n")
 
 
 def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
@@ -313,7 +295,6 @@ def main() -> int:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     write_skill_pools(output_path, pools)
-    update_data_version(matcher_config_path)
     print(f"[INFO] 已写入: {output_path}")
     return 0
 
