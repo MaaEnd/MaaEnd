@@ -5,13 +5,14 @@
 namespace mapnavigator::backend::wlroots
 {
 
-// Linux input-event-codes.h (EV_KEY)
-constexpr int32_t kMoveForwardKey = 17;  // KEY_W
-constexpr int32_t kMoveLeftKey = 30;     // KEY_A
-constexpr int32_t kMoveBackwardKey = 31; // KEY_S
-constexpr int32_t kMoveRightKey = 32;    // KEY_D
-constexpr int32_t kInteractKey = 33;     // KEY_F
-constexpr int32_t kJumpKey = 57;         // KEY_SPACE
-constexpr int32_t kLeftAltKey = 56;      // KEY_LEFTALT
+// Win32 Virtual-Key codes。
+// WlRoots 控制器已启用 use_win32_vk_code，MaaFramework 内部会将这些值翻译为 Linux evdev 码。
+constexpr int32_t kMoveForwardKey = 'W';  // 0x57
+constexpr int32_t kMoveLeftKey = 'A';     // 0x41
+constexpr int32_t kMoveBackwardKey = 'S'; // 0x53
+constexpr int32_t kMoveRightKey = 'D';    // 0x44
+constexpr int32_t kInteractKey = 'F';     // 0x46
+constexpr int32_t kJumpKey = 0x20;        // VK_SPACE
+constexpr int32_t kLeftAltKey = 0xA4;     // VK_LMENU
 
 } // namespace mapnavigator::backend::wlroots
