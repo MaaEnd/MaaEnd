@@ -96,9 +96,9 @@
                                     -20
                                 ],
                                 "expected": [
-                                    "7.98",
-                                    "798",
-                                    "79.8"
+                                    "11.9",
+                                    "119",
+                                    "1.19"
                                 ],
                                 "only_rec": true
                             }
@@ -170,9 +170,9 @@
                                     -20
                                 ],
                                 "expected": [
-                                    "7.98",
-                                    "798",
-                                    "79.8"
+                                    "11.9",
+                                    "119",
+                                    "1.19"
                                 ],
                                 "only_rec": true
                             }
@@ -207,7 +207,7 @@
             "SeizeEntrustTaskNews"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "找到武陵城7.98万订单！"
+            "Node.Recognition.Succeeded": "找到武陵城11.9万订单！"
         }
     },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
