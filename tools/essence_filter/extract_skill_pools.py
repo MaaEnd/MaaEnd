@@ -13,14 +13,31 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 LANGS = ("CN", "TC", "EN", "JP", "KR")
 
 DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")
+
+
+def update_data_version(config_path: Path) -> None:
+    """将 matcher_config 的 data_version 更新为当天日期（d/m/yyyy）。"""
+    if not config_path.exists():
+        return
+    with config_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return
+
+    now = datetime.now()
+    version = f"{now.day}/{now.month}/{now.year}"
+    data["data_version"] = version
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+        f.write("\n")
 
 
 def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
@@ -38,7 +55,9 @@ def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
         data = json.load(f)
     stopwords = data.get("suffixStopwords")
     if isinstance(stopwords, dict):
-        return {lang: list(stopwords.get(lang, default.get(lang, []))) for lang in LANGS}
+        return {
+            lang: list(stopwords.get(lang, default.get(lang, []))) for lang in LANGS
+        }
     if isinstance(stopwords, list):
         result = {**default, "CN": list(stopwords)}
         return result
@@ -46,17 +65,31 @@ def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
 
 
 def strip_suffix_stopwords(text: str, stopwords: List[str]) -> str:
-    """从末尾反复去掉停用词，如 '力量提升' -> '力量'。若整词就是停用词（如 '効率'）则不剥掉，避免 slot3 等基名被清空。"""
-    s = text
+    """从末尾反复去掉停用词，如 '力量提升' -> '力量'。
+
+    - 若整词就是停用词（如 '効率'）则不剥掉，避免 slot3 等基名被清空。
+    - 兼容 stopwords 写法差异（如 ' DMG' 与 'DMG'）。
+    - 对 ASCII 词尾增加词边界保护，避免误删如 'Setup' 里的 'Up'。
+    """
+    s = text.strip()
+    normalized = [w.strip() for w in stopwords if isinstance(w, str) and w.strip()]
     changed = True
     while changed and s:
         changed = False
-        for w in stopwords:
-            if s.endswith(w) and len(s) > len(w):
-                s = s[: -len(w)]
-                changed = True
-                break
-    return s.strip()
+        for w in normalized:
+            if not s.endswith(w) or len(s) <= len(w):
+                continue
+
+            prefix = s[: -len(w)]
+            if w.isascii() and w.isalnum():
+                prev = prefix[-1]
+                if prev.isascii() and prev.isalnum():
+                    continue
+
+            s = prefix.rstrip()
+            changed = True
+            break
+    return s
 
 
 def base_skill_name(raw: str, lang: str, lang_stopwords: Dict[str, List[str]]) -> str:
@@ -128,13 +161,21 @@ def extract_skills_by_slot(
 
             key = (slot_key, base_cn)
             if key not in translations:
-                row: Dict[str, str] = {"cn": base_cn, "tc": "", "en": "", "jp": "", "kr": ""}
+                row: Dict[str, str] = {
+                    "cn": base_cn,
+                    "tc": "",
+                    "en": "",
+                    "jp": "",
+                    "kr": "",
+                }
                 for lang in LANGS:
                     lang_list = skills_obj.get(lang)
                     if isinstance(lang_list, list) and i < len(lang_list):
                         val = lang_list[i]
                         if isinstance(val, str):
-                            row[lang.lower()] = base_skill_name(val, lang, lang_stopwords)
+                            row[lang.lower()] = base_skill_name(
+                                val, lang, lang_stopwords
+                            )
                 translations[key] = row
 
     return slot1, slot2, slot3, translations
@@ -187,19 +228,23 @@ def build_skill_pools(
         next_id = (max_ids.get(key) or 0) + 1
         entries: List[Dict] = []
         for base_cn in sorted(s):
-            t = translations.get((key, base_cn), {"cn": base_cn, "tc": "", "en": "", "jp": "", "kr": ""})
+            t = translations.get(
+                (key, base_cn), {"cn": base_cn, "tc": "", "en": "", "jp": "", "kr": ""}
+            )
             eid = existing.get((key, base_cn))
             if eid is None:
                 eid = next_id
                 next_id += 1
-            entries.append({
-                "cn": t["cn"],
-                "tc": t.get("tc", ""),
-                "en": t.get("en", ""),
-                "jp": t.get("jp", ""),
-                "kr": t.get("kr", ""),
-                "id": eid,
-            })
+            entries.append(
+                {
+                    "cn": t["cn"],
+                    "tc": t.get("tc", ""),
+                    "en": t.get("en", ""),
+                    "jp": t.get("jp", ""),
+                    "kr": t.get("kr", ""),
+                    "id": eid,
+                }
+            )
         entries.sort(key=lambda x: x["id"])
         out[key] = entries
 
@@ -258,13 +303,17 @@ def main() -> int:
     )
     existing_cn_to_id, max_id_by_slot = load_existing_ids(output_path)
     pools = build_skill_pools(
-        slot1_set, slot2_set, slot3_set, translations,
+        slot1_set,
+        slot2_set,
+        slot3_set,
+        translations,
         existing_cn_to_id=existing_cn_to_id,
         max_id_by_slot=max_id_by_slot,
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     write_skill_pools(output_path, pools)
+    update_data_version(matcher_config_path)
     print(f"[INFO] 已写入: {output_path}")
     return 0
 

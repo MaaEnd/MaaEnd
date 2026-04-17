@@ -13,12 +13,14 @@ from __future__ import annotations
 import argparse
 import json
 import unicodedata
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
 DEFAULT_ENERGY_POINTS = Path("assets/data/EssenceFilter/energy_point_gems.json")
 DEFAULT_SKILL_POOLS = Path("assets/data/EssenceFilter/skill_pools.json")
 DEFAULT_OUTPUT = Path("assets/data/EssenceFilter/locations.json")
+DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")
 
 # slot2 中文后缀，用于从 energy_point_gems 的「攻击提升」等得到基名；只保留通用后缀，按长度从长到短
 # 不用「充能效率提升」整段，否则「终结技充能效率提升」会变成「终结技」
@@ -63,12 +65,30 @@ def _slot2_chinese_stem(chinese: str) -> str:
     return _norm_key(s)
 
 
+def _update_data_version(config_path: Path) -> None:
+    """将 matcher_config 的 data_version 更新为当天日期（d/m/yyyy）。"""
+    if not config_path.exists():
+        return
+    with config_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return
+
+    now = datetime.now()
+    data["data_version"] = f"{now.day}/{now.month}/{now.year}"
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+        f.write("\n")
+
+
 def main() -> int:
     root = Path(__file__).resolve().parent.parent.parent
     parser = argparse.ArgumentParser(
         description="Parse energy_point_gems and map to current skill_pools, then write locations.json"
     )
-    parser.add_argument("--energy-points", type=Path, default=root / DEFAULT_ENERGY_POINTS)
+    parser.add_argument(
+        "--energy-points", type=Path, default=root / DEFAULT_ENERGY_POINTS
+    )
     parser.add_argument("--skill-pools", type=Path, default=root / DEFAULT_SKILL_POOLS)
     parser.add_argument("-o", "--output", type=Path, default=root / DEFAULT_OUTPUT)
     parser.add_argument("--debug", action="store_true", help="打印映射与未匹配的键")
@@ -109,7 +129,9 @@ def main() -> int:
         sec_terms = loc.get("secAttrTermNames") or []
         skill_terms = loc.get("skillTermNames") or []
         if not isinstance(sec_terms, list) or not isinstance(skill_terms, list):
-            raise ValueError(f"location {name!r}: secAttrTermNames 或 skillTermNames 不是数组")
+            raise ValueError(
+                f"location {name!r}: secAttrTermNames 或 skillTermNames 不是数组"
+            )
 
         slot2_entries: List[Dict[str, Any]] = []
         slot3_entries: List[Dict[str, Any]] = []
@@ -150,17 +172,21 @@ def main() -> int:
         slot2_ids = [int(e["id"]) for e in slot2_entries]
         slot3_ids = [int(e["id"]) for e in slot3_entries]
 
-        out_locations.append({
-            "name": name,
-            "slot2_ids": slot2_ids,
-            "slot3_ids": slot3_ids,
-            "slot2": slot2_entries,
-            "slot3": slot3_entries,
-        })
+        out_locations.append(
+            {
+                "name": name,
+                "slot2_ids": slot2_ids,
+                "slot3_ids": slot3_ids,
+                "slot2": slot2_entries,
+                "slot3": slot3_entries,
+            }
+        )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
         json.dump(out_locations, f, ensure_ascii=False, indent=4)
+
+    _update_data_version(root / DEFAULT_MATCHER_CONFIG)
 
     print(f"Wrote {len(out_locations)} locations to {args.output}")
     return 0
@@ -168,4 +194,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(main())
