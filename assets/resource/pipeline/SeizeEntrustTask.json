@@ -1,36 +1,4 @@
 {
-    "SeizeEntrustTaskBeforeSwipeDown": {
-        "desc": "直接滑到最底下",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1250,
-                    620,
-                    16,
-                    23
-                ],
-                "template": [
-                    "SeizeEntrustTask/InDown.png"
-                ]
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": {
-            "type": "Scroll",
-            "param": {
-                "target": [
-                    763,
-                    424,
-                    5,
-                    5
-                ],
-                "dy": -240
-            }
-        },
-        "post_delay": 0
-    },
     "SeizeEntrustTaskErrorTaskStop": {
         "recognition": {
             "type": "OCR",
@@ -97,8 +65,7 @@
                                 ],
                                 "expected": [
                                     "11.9",
-                                    "119",
-                                    "1.19"
+                                    "119"
                                 ],
                                 "only_rec": true
                             }
@@ -171,8 +138,7 @@
                                 ],
                                 "expected": [
                                     "11.9",
-                                    "119",
-                                    "1.19"
+                                    "119"
                                 ],
                                 "only_rec": true
                             }
@@ -326,7 +292,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_delay": 5000,
+        "post_delay": 3000,
         "next": [
             "SeizeEntrustTaskNewsStatus1"
         ]
@@ -426,7 +392,7 @@
         }
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
-        "desc": "滑到底后才会执行调度器，然后等待委托列表静止后再进入调度",
+        "desc": "等待委托列表静止后再进入调度",
         "pre_wait_freezes": {
             "time": 2000,
             "target": [
@@ -580,7 +546,6 @@
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
-            "[JumpBack]SeizeEntrustTaskBeforeSwipeDown",
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [
