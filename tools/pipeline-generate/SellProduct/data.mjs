@@ -2,7 +2,7 @@
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const settlementData = require("./settlement_trade_outposts.json");
+const settlementData = require("./settlement_trade.json");
 
 // ===== itemId → 内部 key / label 映射 =====
 const ITEM_META = {

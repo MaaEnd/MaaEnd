@@ -1,6 +1,6 @@
 # 售卖物品
 
-据点数据: <https://assets.zmdmap.com/data/entity/1.1.9/settlement_trade.json>
+据点数据: <https://assets.zmdmap.com/data/entity/1.2.4/settlement_trade.json>
 
 ```shell
 npx @joebao/maa-pipeline-generate --config task-config.json
