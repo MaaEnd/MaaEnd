@@ -200,10 +200,106 @@
             "param": {}
         },
         "next": [
-            "isSeizeEntrustTaskReady"
+            "SeizeEntrustTaskCheckWulingFilter",
+            "SeizeEntrustTaskOpenRegionFilter"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入运送委托列表"
+        }
+    },
+    "SeizeEntrustTaskCheckWulingFilter": {
+        "desc": "当前已是武陵筛选，直接进入调度",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    60,
+                    647,
+                    132,
+                    29
+                ],
+                "expected": [
+                    "武陵",
+                    "Wuling",
+                    "무릉"
+                ]
+            }
+        },
+        "next": [
+            "isSeizeEntrustTaskExistOldTask",
+            "isSeizeEntrustTaskExhausted",
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已是武陵筛选，直接进入抢单"
+        }
+    },
+    "SeizeEntrustTaskOpenRegionFilter": {
+        "desc": "非武陵筛选则点击展开地区筛选",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    60,
+                    647,
+                    132,
+                    29
+                ],
+                "expected": [
+                    "全部地区",
+                    "四号谷地"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskSelectWuling"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "展开地区筛选"
+        }
+    },
+    "SeizeEntrustTaskSelectWuling": {
+        "desc": "在筛选列表中选择武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    65,
+                    523,
+                    123,
+                    114
+                ],
+                "expected": [
+                    "武陵",
+                    "Wuling",
+                    "무릉"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "isSeizeEntrustTaskExistOldTask",
+            "isSeizeEntrustTaskExhausted",
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "切换到武陵筛选"
         }
     },
     "SeizeEntrustTaskFoundTarget": {
@@ -521,38 +617,6 @@
         },
         "focus": {
             "Node.Recognition.Succeeded": "当前已有其他送货任务，请完成后再接取"
-        }
-    },
-    "isSeizeEntrustTaskReady": {
-        "desc": "判断有没有成功进入",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    136,
-                    130,
-                    87,
-                    34
-                ],
-                "expected": [
-                    "委托人信息",
-                    "委託人資訊",
-                    "(?i)Client\\s*Info",
-                    "依頼主詳細"
-                ]
-            }
-        },
-        "timeout": 1500,
-        "next": [
-            "isSeizeEntrustTaskExistOldTask",
-            "isSeizeEntrustTaskExhausted",
-            "isSeizeEntrustTaskDestinationWulingCity"
-        ],
-        "on_error": [
-            "SeizeEntrustTaskStopTask2"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入抢武陵城委托任务"
         }
     },
     "isSeizeEntrustTaskSuccessful": {
