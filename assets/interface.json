@@ -81,9 +81,9 @@
             "label": "$controller.Wlroots.label",
             "description": "$controller.Wlroots.description",
             "type": "WlRoots",
-            "attach_resource_path": [
-                "./resource_wlroots"
-            ]
+            "wlroots": {
+                "use_win32_vk_code": true
+            }
         }
     ],
     "resource": [
