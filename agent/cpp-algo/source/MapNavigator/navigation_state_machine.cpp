@@ -13,7 +13,6 @@
 #include "navi_config.h"
 #include "navi_math.h"
 #include "navigation_state_machine.h"
-#include "pose_estimator.h"
 #include "position_provider.h"
 #include "recovery_manager.h"
 #include "route_tracker.h"
@@ -188,8 +187,6 @@ NavigationStateMachine::NavigationStateMachine(
     , position_(position)
     , should_stop_(std::move(should_stop))
 {
-    runtime_state_.pose.estimated_heading = position->angle;
-    runtime_state_.pose.initialized = true;
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
 
@@ -330,12 +327,11 @@ bool NavigationStateMachine::TickNavigate()
     const bool startup_grace_elapsed =
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
-    const PoseEstimate pose = PoseEstimator::Update(
-        *position_,
-        position_provider_->LastCaptureWasHeld(),
-        position_provider_->LastCaptureWasBlackScreen(),
-        &runtime_state_.pose);
-    const RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, pose.filtered_position, pose.estimated_heading);
+    const double current_heading = NaviMath::NormalizeAngle(position_->angle);
+    const bool degraded_fix =
+        position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
+
+    const RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
 
     if (route.valid) {
         session_->ObserveProgress(session_->current_node_idx(), route.progress_distance, now);
@@ -344,14 +340,14 @@ bool NavigationStateMachine::TickNavigate()
 
     if (session_->phase() == NaviPhase::Navigate) {
         RecoveryStatus recovery_status = RecoveryManager::Tick(
-            motion_controller_, session_, &runtime_state_, pose, route, stalled_ms);
+            motion_controller_, session_, &runtime_state_, *position_, route, stalled_ms);
 
         if (recovery_status == RecoveryStatus::TimeoutFailed) {
             return FailNavigation(
-                "recovery_timeout", 
-                "Obstacle recovery failed after 60 seconds.", 
-                route.progress_distance, 
-                NaviMath::NormalizeAngle(route.route_heading - pose.estimated_heading), 
+                "recovery_timeout",
+                "Obstacle recovery failed after 60 seconds.",
+                route.progress_distance,
+                NaviMath::NormalizeAngle(route.route_heading - current_heading),
                 60000);
         }
         
@@ -364,13 +360,6 @@ bool NavigationStateMachine::TickNavigate()
             motion_controller_->SetForwardState(false);
             runtime_state_.ResetNavigationAssistState();
             CaptureCurrentPosition(true);
-
-            const double stale_heading = runtime_state_.pose.estimated_heading;
-            runtime_state_.pose.estimated_heading = position_->angle;
-            runtime_state_.pose.initialized = true;
-            LogInfo << "Recovery rejoin: heading hard-reset from MapLocator."
-                    << VAR(stale_heading) << VAR(position_->angle)
-                    << VAR(runtime_state_.pose.estimated_heading);
 
             size_t best_idx = 0;
             double best_dist = std::numeric_limits<double>::infinity();
@@ -400,22 +389,16 @@ bool NavigationStateMachine::TickNavigate()
             if (session_->HasCurrentWaypoint()) {
                 const Waypoint& target_wp = session_->CurrentWaypoint();
                 if (target_wp.HasPosition()) {
+                    const double rejoin_heading = NaviMath::NormalizeAngle(position_->angle);
                     const double target_heading = NaviMath::CalcTargetRotation(
                         position_->x, position_->y, target_wp.x, target_wp.y);
-                    const double heading_error = NaviMath::NormalizeAngle(
-                        target_heading - runtime_state_.pose.estimated_heading);
+                    const double heading_error = NaviMath::NormalizeAngle(target_heading - rejoin_heading);
 
                     LogInfo << "Recovery rejoin: aligning heading to first waypoint."
-                            << VAR(target_heading) << VAR(runtime_state_.pose.estimated_heading)
-                            << VAR(heading_error);
+                            << VAR(target_heading) << VAR(rejoin_heading) << VAR(heading_error);
 
                     if (std::abs(heading_error) > 3.0) {
-                        const TurnCommandResult turn_result =
-                            motion_controller_->ApplySteering(heading_error);
-                        if (turn_result.issued) {
-                            PoseEstimator::NotifyAppliedSteering(
-                                &runtime_state_.pose, turn_result.issued_delta_degrees);
-                        }
+                        motion_controller_->ApplySteering(heading_error);
                         utils::SleepFor(kWaitAfterFirstTurnMs);
                     }
                 }
@@ -432,7 +415,7 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     if (!route.valid) {
-        if (pose.degraded_fix) {
+        if (degraded_fix) {
             motion_controller_->SetForwardState(false);
         }
         utils::SleepFor(kTargetTickMs);
@@ -481,24 +464,25 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    const double heading_error = NaviMath::NormalizeAngle(route.route_heading - pose.estimated_heading);
-    const SteeringCommand steering = SteeringController::Update(
-        heading_error,
-        route.signed_cross_track,
-        route.projection_anchor,
-        motion_controller_->IsMovingForward(),
-        &runtime_state_.controller);
-    const bool allow_forward = !steering.issued || std::abs(steering.yaw_delta_deg) < 30.0;
-    motion_controller_->SetForwardState(allow_forward);
+    const double heading_error = NaviMath::NormalizeAngle(route.route_heading - current_heading);
+    const SteeringCommand steering = SteeringController::Update(heading_error, motion_controller_->IsMovingForward());
+
+    motion_controller_->SetForwardState(true);
+
+    double issued_delta_deg = 0.0;
     if (steering.issued) {
         const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg);
         if (steering_result.issued) {
-            PoseEstimator::NotifyAppliedSteering(&runtime_state_.pose, steering_result.issued_delta_degrees);
+            issued_delta_deg = steering_result.issued_delta_degrees;
         }
     }
 
+    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(heading_error)
+             << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
+
+    const bool turn_calm = !steering.issued || std::abs(steering.yaw_delta_deg) < 30.0;
     const bool allow_sprint =
-        allow_forward && motion_controller_->SupportsSprint() && startup_grace_elapsed && param_.sprint_threshold > 0.0
+        turn_calm && motion_controller_->SupportsSprint() && startup_grace_elapsed && param_.sprint_threshold > 0.0
         && route.along_track_remaining > param_.sprint_threshold
         && (runtime_state_.flow.last_auto_sprint_time.time_since_epoch().count() == 0
             || std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.last_auto_sprint_time).count()
@@ -514,7 +498,7 @@ bool NavigationStateMachine::TickNavigate()
             "no_progress_timeout",
             "No progress timeout reached and navigation was terminated.",
             route.progress_distance,
-            NaviMath::NormalizeAngle(route.route_heading - pose.estimated_heading),
+            NaviMath::NormalizeAngle(route.route_heading - current_heading),
             stalled_ms);
     }
 

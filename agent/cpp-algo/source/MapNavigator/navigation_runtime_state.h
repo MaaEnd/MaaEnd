@@ -11,12 +11,6 @@
 namespace mapnavigator
 {
 
-struct PoseEstimatorState
-{
-    double estimated_heading = 0.0;
-    bool initialized = false;
-};
-
 struct RouteTrackerState
 {
     size_t passed_waypoint_idx = std::numeric_limits<size_t>::max();
@@ -44,13 +38,6 @@ struct RouteTrackerState
         startup_anchor_initialized = false;
         startup_motion_confirmed = false;
     }
-};
-
-struct ControllerState
-{
-    double filtered_heading_error = 0.0;
-
-    void Reset() { filtered_heading_error = 0.0; }
 };
 
 struct FlowState
@@ -102,30 +89,20 @@ struct RecoveryState
 
 struct NavigationRuntimeState
 {
-    PoseEstimatorState pose;
     RouteTrackerState route;
-    ControllerState controller;
     FlowState flow;
     SemanticState semantic;
     RecoveryState recovery;
 
-    void ResetRouteFollowState() { route.ResetTracking(); }
-
-    void ResetControllerState() { controller.Reset(); }
-
-    void ResetRecoveryState() { recovery.Reset(); }
-
     void ResetNavigationAssistState()
     {
         route.ResetTracking();
-        controller.Reset();
         recovery.Reset();
     }
 
     void BeginNavigation(const std::chrono::steady_clock::time_point& now)
     {
         route.Reset();
-        controller.Reset();
         recovery.Reset();
         semantic.ResetTransient();
         flow.navigate_started_at = now;
@@ -135,7 +112,6 @@ struct NavigationRuntimeState
     void OnWaypointAdvance()
     {
         route.ResetTracking();
-        controller.Reset();
         recovery.Reset();
         flow.last_auto_sprint_time = {};
     }

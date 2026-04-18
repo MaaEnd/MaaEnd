@@ -81,6 +81,17 @@ struct SearchExecutionContext
     MapPosition* outRawPos = nullptr;
 };
 
+bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
+{
+    if (buf.size() < static_cast<size_t>(kColdStartConsensusFrames)) {
+        return false;
+    }
+    const auto& ref = buf.back();
+    return std::all_of(buf.end() - kColdStartConsensusFrames, buf.end(), [&](const MapPosition& p) {
+        return std::hypot(p.x - ref.x, p.y - ref.y) <= radius;
+    });
+}
+
 } // namespace
 
 class MapLocator::Impl
@@ -154,6 +165,8 @@ private:
     std::future<YoloCoarseResult> asyncYoloTask;
     std::vector<std::future<GlobalSearchAttempt>> backgroundGlobalSearchTasks;
     std::chrono::steady_clock::time_point lastYoloCheckTime;
+
+    std::vector<MapPosition> coldStartBuffer;
 
     TrackingConfig trackingCfg;
     MatchConfig matchCfg;
@@ -1164,13 +1177,46 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
     }
 
-    if (currentZoneId != globalResult->zoneId) {
+    const auto lastPosOpt = motionTracker->getLastPos();
+    const bool zoneChanged = currentZoneId != globalResult->zoneId;
+    const bool hasLast = lastPosOpt.has_value() && !zoneChanged;
+    const double jumpDist = hasLast ? std::hypot(globalResult->x - lastPosOpt->x, globalResult->y - lastPosOpt->y) : 0.0;
+    const bool farJump = hasLast && jumpDist > kFarJumpRejectDistance;
+    const bool highConf = globalResult->score >= kHighConfidenceOverride;
+
+    if (farJump && !highConf) {
+        LogInfo << "Global Search: far-jump rejected." << VAR(jumpDist) << VAR(globalResult->score);
+        motionTracker->markLost();
+        if (motionTracker->getLostCount() > maxAllowedLost) {
+            motionTracker->forceLost();
+            coldStartBuffer.clear();
+        }
+        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." };
+    }
+
+    if (!hasLast && !highConf) {
+        if (coldStartBuffer.size() >= static_cast<size_t>(kColdStartConsensusFrames)) {
+            coldStartBuffer.erase(coldStartBuffer.begin());
+        }
+        coldStartBuffer.push_back(*globalResult);
+        if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
+            LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
+                    << VAR(globalResult->score);
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Cold-start collecting." };
+        }
+        LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
+    }
+    coldStartBuffer.clear();
+
+    if (farJump || zoneChanged) {
         motionTracker->clearVelocity();
+        if (farJump) {
+            LogInfo << "Global Search: high-conf reseed." << VAR(jumpDist) << VAR(globalResult->score);
+        }
     }
 
     currentZoneId = globalResult->zoneId;
     globalResult->angle = inferredAngle;
-
     motionTracker->update(*globalResult, now);
     return LocateResult { .status = LocateStatus::Success, .position = globalResult, .debugMessage = "Global Search Success" };
 }
@@ -1182,6 +1228,7 @@ void MapLocator::Impl::resetTrackingState()
         motionTracker->clearVelocity();
     }
     currentZoneId = "";
+    coldStartBuffer.clear();
 }
 
 std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const

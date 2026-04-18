@@ -1,7 +1,5 @@
 #pragma once
 
-#include "navigation_runtime_state.h"
-
 namespace mapnavigator
 {
 
@@ -14,8 +12,7 @@ struct SteeringCommand
 class SteeringController
 {
 public:
-    static SteeringCommand
-        Update(double heading_error, double signed_cross_track, double projection_anchor, bool moving_forward, ControllerState* state);
+    static SteeringCommand Update(double heading_error, bool moving_forward);
 };
 
 } // namespace mapnavigator

@@ -11,7 +11,7 @@ RecoveryStatus RecoveryManager::Tick(
     MotionController* motion_controller,
     NavigationSession* session,
     NavigationRuntimeState* runtime_state,
-    const PoseEstimate& pose,
+    const NaviPosition& position,
     const RouteTrackingState& route,
     int64_t stalled_ms)
 {
@@ -26,14 +26,14 @@ RecoveryStatus RecoveryManager::Tick(
             return RecoveryStatus::NotTriggered;
         }
         state.stuck_start_time = now;
-        state.stuck_anchor_pos = pose.filtered_position;
+        state.stuck_anchor_pos = position;
         LogInfo << "Detected stuck. RecoveryManager taking over.";
         return RecoveryStatus::InProgress;
     }
 
     const double escape_dist = std::hypot(
-        pose.filtered_position.x - state.stuck_anchor_pos.x,
-        pose.filtered_position.y - state.stuck_anchor_pos.y);
+        position.x - state.stuck_anchor_pos.x,
+        position.y - state.stuck_anchor_pos.y);
 
     if (escape_dist > 2.0) {
         state.Reset();

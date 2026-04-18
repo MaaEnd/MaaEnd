@@ -296,27 +296,53 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         if (target_heading < 0.0) {
             target_heading += 360.0;
         }
-        const double required_turn = NaviMath::NormalizeAngle(target_heading - ctx.runtime_state->pose.estimated_heading);
+
+        const double start_heading = NaviMath::NormalizeAngle(ctx.position->angle);
+        double virtual_heading = start_heading;
+        const double initial_error = NaviMath::NormalizeAngle(target_heading - virtual_heading);
+
+        if (std::abs(initial_error) <= 1.0) {
+            LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
+            ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
+            ctx.session->ResetProgress();
+            ctx.runtime_state->OnWaypointAdvance();
+            consumed = true;
+            if (ctx.session->HasCurrentWaypoint()) {
+                ctx.motion_controller->SetForwardState(true);
+            }
+            continue;
+        }
 
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
 
-        const TurnCommandResult turn_result = ctx.motion_controller->ApplySteering(required_turn);
-        if (!turn_result.issued) {
+        constexpr int kMaxTurnSteps = 8;
+        bool aborted = false;
+        for (int step = 0; step < kMaxTurnSteps; ++step) {
+            const double residual = NaviMath::NormalizeAngle(target_heading - virtual_heading);
+            if (std::abs(residual) <= 1.0) {
+                break;
+            }
+            const TurnCommandResult turn_result = ctx.motion_controller->ApplySteering(residual);
+            LogInfo << "Heading-only node turn step." << VAR(step) << VAR(target_heading) << VAR(virtual_heading)
+                    << VAR(residual) << VAR(turn_result.issued) << VAR(turn_result.issued_delta_degrees);
+            if (!turn_result.issued) {
+                aborted = true;
+                break;
+            }
+            virtual_heading = NaviMath::NormalizeAngle(virtual_heading + turn_result.issued_delta_degrees);
+            utils::SleepFor(60);
+        }
+
+        if (aborted) {
             result.consumed = consumed;
             result.stay_in_current_tick = consumed;
             return result;
         }
 
-        ctx.runtime_state->pose.estimated_heading = NaviMath::NormalizeAngle(ctx.runtime_state->pose.estimated_heading + turn_result.issued_delta_degrees);
+        ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
 
-        const double remaining_turn = NaviMath::NormalizeAngle(target_heading - ctx.runtime_state->pose.estimated_heading);
-        if (std::abs(remaining_turn) > 1.0) {
-            result.consumed = consumed;
-            result.stay_in_current_tick = true;
-            return result;
-        }
-
+        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(virtual_heading);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->ResetProgress();
         ctx.runtime_state->OnWaypointAdvance();
@@ -324,9 +350,6 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
 
         if (ctx.session->HasCurrentWaypoint()) {
             ctx.motion_controller->SetForwardState(true);
-        }
-        else {
-            ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
         }
     }
 
