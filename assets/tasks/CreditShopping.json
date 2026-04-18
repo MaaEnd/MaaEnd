@@ -1977,6 +1977,9 @@
                         },
                         "CreditShoppingPrudentRefresh": {
                             "enabled": false //不进入稳健刷新流程
+                        },
+                        "RefreshCountReached": {
+                            "enabled": false //不进入刷新次数达到上限流程
                         }
                     }
                 },
@@ -1995,6 +1998,9 @@
                         },
                         "CreditShoppingPrudentRefresh": {
                             "enabled": false //不进入稳健刷新流程
+                        },
+                        "RefreshCountReached": {
+                            "enabled": false //不进入刷新次数达到上限流程
                         }
                     }
                 },
@@ -2013,6 +2019,9 @@
                         },
                         "CreditShoppingPrudentRefresh": {
                             "enabled": true //进入稳健刷新流程
+                        },
+                        "RefreshCountReached": {
+                            "enabled": true //进入刷新次数达到上限流程
                         }
                     },
                     "option": [
