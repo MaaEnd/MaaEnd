@@ -380,7 +380,7 @@
                 ],
                 "expected": [
                     "^刷新",
-                    "^(?i)Refresh"
+                    "^Refresh"
                 ]
             }
         },
