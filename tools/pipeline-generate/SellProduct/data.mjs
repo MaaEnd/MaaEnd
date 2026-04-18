@@ -100,7 +100,6 @@ for (const settlement of Object.values(settlementData.settlements)) {
 // ===== settlementId 覆盖（命名 + TextExpected 特殊处理） =====
 const SETTLEMENT_OVERRIDE = {
     stm_tundra_1: {
-        RegionPrefix: "ValleyIV",
         LocationId: "RefugeeCamp",
         TextExpected: [
             "难民暂居处",
@@ -110,12 +109,10 @@ const SETTLEMENT_OVERRIDE = {
         ],
     },
     stm_tundra_2: {
-        RegionPrefix: "ValleyIV",
         LocationId: "InfrastructureOutpost",
         TextExpected: ["基建前站", "(?i)Infra\\s*-\\s*Station", "建設基地"],
     },
     stm_tundra_3: {
-        RegionPrefix: "ValleyIV",
         LocationId: "ReconstructionCommand",
         TextExpected: [
             "重建指挥部",
@@ -126,7 +123,6 @@ const SETTLEMENT_OVERRIDE = {
         ],
     },
     stm_hongs_1: {
-        RegionPrefix: "Wuling",
         LocationId: "SkyKingFlats",
         TextExpected: ["天王坪", "天王坪援助", "天王坪援建", "Sky King", "天王原"],
     },
