@@ -110,7 +110,7 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 根据用户告知的「识别方式 + 排序方向」组合，选对应的模板。四个模板如下。占位符含义：
 
 - `<Name>` — 物品中文名（和 `item_order.json` 的 `name`、以及 `category_order` 里的字符串完全一致）。
-- `<LabelKey>` — 步骤 1 确定的英文字段名（例如 `CuprumOre`），`label` 写成 `"$item.<LabelKey>"`。
+- `<LabelKey>` — 步骤 1 确定的英文字段名（例如 `CupriumOre`），`label` 写成 `"$item.<LabelKey>"`。
 - `<Category>` — `Ore` / `Plant` / `Product` / `Usable`，首字母大写，对应 `template` 的文件名 `ItemTransfer/<Category>.png`。
 - `<Id>` — `item_order.json` 里该物品的数字 ID。**只有「可识别」模板才需要 `<Id>`，「纯 OCR」模板用不到。**
 
