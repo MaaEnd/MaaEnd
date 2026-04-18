@@ -227,6 +227,18 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
       - 每次购买前后的可见调度券
       - 是否存在 `ValleyIV` / `Wuling` 跨场景导致的券种切换
 
+9. 如果识别到任务是 `CreditShoppingMain`，追加专项监测。
+
+    - 除常规 issue 日志分析流程外，必须再读取并使用单独文件夹中的专项 skill：
+      - `.claude/skills/tasks/credit-shopping-log-analysis/SKILL.md`
+    - 这个专项监测只用于 `CreditShoppingMain`，不要对其他任务复用。
+    - 追加监测时，至少补充：
+      - 实际购买了什么商品（商品 ID 及名称）
+      - 每件商品的折扣力度（是否符合阈值）
+      - 是否触发过刷新（或刷新次数已用尽）
+      - 稳健刷新是否触发
+      - 信用点的消耗流水
+
 ## Common Patterns
 
 - `next` 列表中的识别连续失败直到超时：
@@ -462,6 +474,7 @@ Translate the complete conclusion directly into English and paste it here. Note 
 - 如果 issue 版本很旧，要明确区分“当时的根因”和“当前分支是否已修复”。
 - 如果用户日志与当前代码不一致，先按用户版本 tag 复核；若确认已修，再看修复是否已进入 tag / release：已发版建议升级，未发版建议等待 release。
 - 如果识别到 `AutoStockStapleMain`，除了常规日志筛查，还必须额外读取 `.claude/skills/tasks/autostockstaple-log-analysis/SKILL.md` 做专项监测；该专项 skill 独立存放，不能把其规则散落地手工记忆替代。
+- 如果识别到 `CreditShoppingMain`，除了常规日志筛查，还必须额外读取 `.claude/skills/tasks/credit-shopping-log-analysis/SKILL.md` 做专项监测；该专项 skill 独立存放，不能把其规则散落地手工记忆替代。
 - 如果结论是“功能不支持”，必须给出代码级依据，例如任务控制器白名单、无效的 ADB pipeline、缺失的控制器分支或文档限制。
 - 如果回答里出现任务名、任务描述、选项名、提示文案，优先使用 `assets/locales/interface/zh_cn.json` 的中文文案；必要时才在括号里补原始 id。
 - 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，用尖括号包裹，不要给本地路径加行号。
