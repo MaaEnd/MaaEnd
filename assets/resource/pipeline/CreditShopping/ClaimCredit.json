@@ -33,6 +33,16 @@
             "No credits to claim",
             "FP未獲得"
         ],
+        "replace": [
+            [
+                "無",
+                "无"
+            ],
+            [
+                "領",
+                "领"
+            ]
+        ],
         "action": "DoNothing",
         "next": [
             "CreditShoppingShopping"
@@ -94,6 +104,16 @@
                     "購買成功",
                     "(?i)Purchased",
                     "購入完了"
+                ],
+                "replace": [
+                    [
+                        "購",
+                        "购"
+                    ],
+                    [
+                        "買",
+                        "买"
+                    ]
                 ]
             }
         }
