@@ -216,28 +216,18 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 7. 回答时只保留关键片段。
     - 只摘足够支撑结论的几十行，不要倾倒整份日志。
 
-8. 如果识别到任务是 `AutoStockStapleMain`，追加专项监测。
+8. 专项任务增强分析（Specialized Task Analysis）。
 
-    - 除常规 issue 日志分析流程外，必须再读取并使用单独文件夹中的专项 skill：
-      - `.claude/skills/tasks/autostockstaple-log-analysis/SKILL.md`
-    - 这个专项监测只用于 `AutoStockStapleMain`，不要对其他任务复用。
-    - 追加监测时，至少补充：
-      - 实际购买顺序
-      - 场景切换时间线
-      - 每次购买前后的可见调度券
-      - 是否存在 `ValleyIV` / `Wuling` 跨场景导致的券种切换
+    仅当日志中已经明确识别出具体任务入口名或 `task id` 时，才尝试加载 `.claude/skills/tasks/` 下的专项分析 skill。
 
-9. 如果识别到任务是 `CreditShoppingMain`，追加专项监测。
+    查找规则：
 
-    - 除常规 issue 日志分析流程外，必须再读取并使用单独文件夹中的专项 skill：
-      - `.claude/skills/tasks/credit-shopping-log-analysis/SKILL.md`
-    - 这个专项监测只用于 `CreditShoppingMain`，不要对其他任务复用。
-    - 追加监测时，至少补充：
-      - 实际购买了什么商品（商品 ID 及名称）
-      - 每件商品的折扣力度（是否符合阈值）
-      - 是否触发过刷新（或刷新次数已用尽）
-      - 稳健刷新是否触发
-      - 信用点的消耗流水
+    - 只使用日志中的原始任务名做匹配，不要自行改写、翻译、概括或猜测任务名。
+    - 优先匹配专项 skill 的文件名、header `name`、`description`、标题或开头说明中明确出现的任务名。
+    - 仅在匹配结果唯一且语义明确时，读取并执行该专项 skill。
+    - 如果没有找到唯一且明确匹配的专项 skill，忽略本节，继续按本通用流程分析。
+    - 专项 skill 仅用于增强分析能力，不替代本主流程。
+    - 不要将专项监测规则散落在本通用 skill 中，以保持本 skill 的简洁并减少上下文膨胀。
 
 ## Common Patterns
 
@@ -281,13 +271,6 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - `maa.bak.log` 里有同一入口、同类参数的历史成功样本，而本次 `maa.log` 失败：
     - 这是判断“行为回归”或“某次改动引入脆弱性”的高价值证据。
     - 回答时要明确：这是同配置历史成功对比，还是只是相似场景的旁证。
-
-- 任务是 `AutoStockStapleMain`，且调度券时间线出现大额跳变：
-
-    - 先检查是否发生了 `ValleyIV` 与 `Wuling` 的场景切换。
-    - 两个场景可能使用不同种类的调度券。
-    - 因此跨场景的大额变化，不能直接按同一种券的连续消耗解释。
-    - 这类问题必须转入 `autostockstaple-log-analysis` 专项流程复核。
 
 ## Correlating With Code
 
@@ -473,8 +456,7 @@ Translate the complete conclusion directly into English and paste it here. Note 
 - 不要把环境告警自动等同于根因。
 - 如果 issue 版本很旧，要明确区分“当时的根因”和“当前分支是否已修复”。
 - 如果用户日志与当前代码不一致，先按用户版本 tag 复核；若确认已修，再看修复是否已进入 tag / release：已发版建议升级，未发版建议等待 release。
-- 如果识别到 `AutoStockStapleMain`，除了常规日志筛查，还必须额外读取 `.claude/skills/tasks/autostockstaple-log-analysis/SKILL.md` 做专项监测；该专项 skill 独立存放，不能把其规则散落地手工记忆替代。
-- 如果识别到 `CreditShoppingMain`，除了常规日志筛查，还必须额外读取 `.claude/skills/tasks/credit-shopping-log-analysis/SKILL.md` 做专项监测；该专项 skill 独立存放，不能把其规则散落地手工记忆替代。
+- 如果识别到特定任务，除了常规日志筛查，还必须额外读取并执行 `.claude/skills/tasks/` 下对应的专项分析 skill。该专项 skill 独立存放，不能把其规则散落地手工记忆替代。
 - 如果结论是“功能不支持”，必须给出代码级依据，例如任务控制器白名单、无效的 ADB pipeline、缺失的控制器分支或文档限制。
 - 如果回答里出现任务名、任务描述、选项名、提示文案，优先使用 `assets/locales/interface/zh_cn.json` 的中文文案；必要时才在括号里补原始 id。
 - 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，用尖括号包裹，不要给本地路径加行号。
