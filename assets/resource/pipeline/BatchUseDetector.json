@@ -7,7 +7,7 @@
             "ValuableStashValuablesTabInNext2": "BatchUseDetectorFindValleyIVItem"
         },
         "next": [
-            "[JumpBack]ValuableStashValuablesTab"
+            "[JumpBack]SceneStashValuablesTab"
         ],
         "focus": {
             "Node.Action.Starting": "主任务启动"
