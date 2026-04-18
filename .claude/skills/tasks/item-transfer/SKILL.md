@@ -1,3 +1,8 @@
+---
+name: item-transfer
+description: 当用户要在「🐌库存转移（ItemTransfer）」任务里新增可选择的物品时使用。
+---
+
 # ItemTransfer 新增物品指南
 
 本指南用于在「🐌库存转移（ItemTransfer）」任务中新增一个可选择的物品。整体流程分为两个部分：**第一部分是用户要做的事**，**第二部分是交给 AI 执行的事**。
