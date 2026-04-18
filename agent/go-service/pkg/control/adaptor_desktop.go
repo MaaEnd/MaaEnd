@@ -174,3 +174,32 @@ func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
 }
 
 const defaultDesktopKeyActionDelayMillis = 25
+
+// defaultDesktopKeyBindings 返回 Win32 与 Wlroots（interface.json 中开启 use_win32_vk_code）
+// 共用的默认按键表；数值按 Win32 Virtual-Key 约定，WlRoots 侧由 MaaFramework 转为 evdev。
+func defaultDesktopKeyBindings() desktopKeyBindings {
+	const (
+		vkW     = 0x57
+		vkA     = 0x41
+		vkS     = 0x53
+		vkD     = 0x44
+		vkShift = 0x10
+		vkCtrl  = 0x11
+		vkAlt   = 0x12
+		vkSpace = 0x20
+	)
+	return desktopKeyBindings{
+		W:     vkW,
+		A:     vkA,
+		S:     vkS,
+		D:     vkD,
+		Shift: vkShift,
+		Ctrl:  vkCtrl,
+		Alt:   vkAlt,
+		Space: vkSpace,
+	}
+}
+
+func newDefaultDesktopControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) *desktopControlAdaptor {
+	return newDesktopControlAdaptor(ctx, ctrl, w, h, defaultDesktopKeyBindings())
+}
