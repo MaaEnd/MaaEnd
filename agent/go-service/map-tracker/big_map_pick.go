@@ -361,6 +361,7 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 	rawDragDx := -deltaInViewX * panFactor
 	rawDragDy := -deltaInViewY * panFactor
 
+	// Calculate start and end points of the full drag
 	minX, minY, maxX, maxY := viewport.GetIntegerRect()
 
 	pickDragStartCorner := func(rawDragDx, rawDragDy float64) (int, int) {
@@ -394,12 +395,13 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 		return false
 	}
 
+	// Calculate and perform segmented drags
 	segments = max(1, segments)
 
-	segDragDx := int(math.Round(float64(dragDx) / float64(segments)))
-	segDragDy := int(math.Round(float64(dragDy) / float64(segments)))
-	segDragDx = int(math.Ceil(math.Abs(float64(segDragDx)))) * int(math.Copysign(1, float64(segDragDx)))
-	segDragDy = int(math.Ceil(math.Abs(float64(segDragDy)))) * int(math.Copysign(1, float64(segDragDy)))
+	baseSegDx := dragDx / segments
+	baseSegDy := dragDy / segments
+	remainDx := dragDx - baseSegDx*segments
+	remainDy := dragDy - baseSegDy*segments
 
 	log.Info().
 		Int("segments", segments).
@@ -409,10 +411,22 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 		Int("dragDy", dragDy).
 		Msg("Panning big-map viewport")
 
+	curX, curY := startX, startY
 	for i := 0; i < segments; i++ {
-		segStartX := startX + i*segDragDx
-		segStartY := startY + i*segDragDy
-		ca.Swipe(0, segStartX, segStartY, segDragDx, segDragDy, 75, 25)
+		segDx, segDy := baseSegDx, baseSegDy
+		if i == segments-1 {
+			segDx += remainDx
+			segDy += remainDy
+		}
+
+		if segDx == 0 && segDy == 0 {
+			continue
+		}
+
+		ca.Swipe(0, curX, curY, segDx, segDy, 75, 25)
+		curX += segDx
+		curY += segDy
 	}
+
 	return true
 }
