@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"math/rand"
 	"regexp"
 	"sync"
 	"time"
@@ -141,9 +142,10 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Int("attempt", attempt).
 			Float64("targetInViewX", targetInViewX).
 			Float64("targetInViewY", targetInViewY).
-			Msg("Panning big-map toward target")
+			Msg("Big-map target is not in viewport, need to pan")
 
-		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor) {
+		segments := rand.Intn(4) + 2
+		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments) {
 			continue
 		}
 	}
@@ -355,36 +357,36 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	return &result, nil
 }
 
-func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY, panFactor float64) bool {
-	left := int(math.Round(viewport.Left))
-	top := int(math.Round(viewport.Top))
-	right := int(math.Round(viewport.Right))
-	bottom := int(math.Round(viewport.Bottom))
-
+func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY, panFactor float64, segments int) bool {
 	rawDragDx := -deltaInViewX * panFactor
 	rawDragDy := -deltaInViewY * panFactor
-	startX, startY := pickDragStartCorner(left, top, right, bottom, rawDragDx, rawDragDy)
 
-	dragDx := int(math.Round(rawDragDx))
-	dragDy := int(math.Round(rawDragDy))
+	minX, minY, maxX, maxY := viewport.GetIntegerRect()
 
-	if dragDx == 0 && math.Abs(rawDragDx) >= 1.0 {
-		if rawDragDx > 0 {
-			dragDx = 1
-		} else {
-			dragDx = -1
+	pickDragStartCorner := func(rawDragDx, rawDragDy float64) (int, int) {
+		startX := minX
+		if rawDragDx < 0 {
+			// Drag toward left, start from right
+			startX = maxX
 		}
-	}
-	if dragDy == 0 && math.Abs(rawDragDy) >= 1.0 {
-		if rawDragDy > 0 {
-			dragDy = 1
-		} else {
-			dragDy = -1
+
+		startY := minY
+		if rawDragDy < 0 {
+			// Drag toward top, start from bottom
+			startY = maxY
 		}
+
+		return startX, startY
 	}
 
-	endX := min(right-1, max(left, startX+dragDx))
-	endY := min(bottom-1, max(top, startY+dragDy))
+	startX, startY := pickDragStartCorner(rawDragDx, rawDragDy)
+
+	dragDx := int(math.Ceil(math.Abs(rawDragDx)) * math.Copysign(1, rawDragDx))
+	dragDy := int(math.Ceil(math.Abs(rawDragDy)) * math.Copysign(1, rawDragDy))
+
+	endX := max(minX, min(maxX, startX+dragDx))
+	endY := max(minY, min(maxY, startY+dragDy))
+
 	dragDx = endX - startX
 	dragDy = endY - startY
 
@@ -392,25 +394,25 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 		return false
 	}
 
-	ca.Swipe(0, startX, startY, dragDx, dragDy, 100, 50)
+	segments = max(1, segments)
+
+	segDragDx := int(math.Round(float64(dragDx) / float64(segments)))
+	segDragDy := int(math.Round(float64(dragDy) / float64(segments)))
+	segDragDx = int(math.Ceil(math.Abs(float64(segDragDx)))) * int(math.Copysign(1, float64(segDragDx)))
+	segDragDy = int(math.Ceil(math.Abs(float64(segDragDy)))) * int(math.Copysign(1, float64(segDragDy)))
+
+	log.Info().
+		Int("segments", segments).
+		Int("startX", startX).
+		Int("startY", startY).
+		Int("dragDx", dragDx).
+		Int("dragDy", dragDy).
+		Msg("Panning big-map viewport")
+
+	for i := 0; i < segments; i++ {
+		segStartX := startX + i*segDragDx
+		segStartY := startY + i*segDragDy
+		ca.Swipe(0, segStartX, segStartY, segDragDx, segDragDy, 75, 25)
+	}
 	return true
-}
-
-func pickDragStartCorner(left, top, right, bottom int, rawDragDx, rawDragDy float64) (int, int) {
-	minX := left
-	maxX := right - 1
-	minY := top
-	maxY := bottom - 1
-
-	startX := minX
-	if rawDragDx < 0 {
-		startX = maxX
-	}
-
-	startY := minY
-	if rawDragDy < 0 {
-		startY = maxY
-	}
-
-	return startX, startY
 }

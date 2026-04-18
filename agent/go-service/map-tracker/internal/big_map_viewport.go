@@ -34,6 +34,15 @@ func NewBigMapViewport(originMapX, originMapY, scale float64) *BigMapViewport {
 	}
 }
 
+// GetIntegerRect returns the viewport bounds as integers, suitable for pixel-based operations.
+func (bmv *BigMapViewport) GetIntegerRect() (left int, top int, right int, bottom int) {
+	left = int(math.Round(bmv.Left))
+	top = int(math.Round(bmv.Top))
+	right = int(math.Round(bmv.Right))
+	bottom = int(math.Round(bmv.Bottom))
+	return left, top, right, bottom
+}
+
 // GetScreenCoordOf converts map coordinates to screen coordinates based on the current viewport.
 func (bmv *BigMapViewport) GetScreenCoordOf(mapX, mapY float64) (float64, float64) {
 	viewX := bmv.Left + (mapX-bmv.OriginMapX)*bmv.Scale
