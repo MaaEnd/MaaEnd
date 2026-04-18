@@ -3287,7 +3287,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringeB"
+                    "label": "$item.YazhenSyringeA"
                 },
                 {
                     "name": "芽针针剂",
@@ -3308,7 +3308,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringe"
+                    "label": "$item.YazhenSyringeC"
                 },
                 {
                     "name": "锦草软饮",
@@ -3350,7 +3350,7 @@
                             }
                         }
                     },
-                    "label": "$item.CuprumPart"
+                    "label": "$item.CupriumPart"
                 },
                 {
                     "name": "息壤",
@@ -3454,7 +3454,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringeB"
+                    "label": "$item.YazhenSyringeA"
                 },
                 {
                     "name": "芽针针剂",
@@ -3475,7 +3475,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringe"
+                    "label": "$item.YazhenSyringeC"
                 },
                 {
                     "name": "锦草软饮",
@@ -3517,7 +3517,7 @@
                             }
                         }
                     },
-                    "label": "$item.CuprumPart"
+                    "label": "$item.CupriumPart"
                 },
                 {
                     "name": "息壤",
@@ -3621,7 +3621,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringeB"
+                    "label": "$item.YazhenSyringeA"
                 },
                 {
                     "name": "芽针针剂",
@@ -3642,7 +3642,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringe"
+                    "label": "$item.YazhenSyringeC"
                 },
                 {
                     "name": "锦草软饮",
@@ -3684,7 +3684,7 @@
                             }
                         }
                     },
-                    "label": "$item.CuprumPart"
+                    "label": "$item.CupriumPart"
                 },
                 {
                     "name": "息壤",
@@ -3788,7 +3788,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringeB"
+                    "label": "$item.YazhenSyringeA"
                 },
                 {
                     "name": "芽针针剂",
@@ -3809,7 +3809,7 @@
                             }
                         }
                     },
-                    "label": "$item.YazhenSyringe"
+                    "label": "$item.YazhenSyringeC"
                 },
                 {
                     "name": "锦草软饮",
@@ -3851,7 +3851,7 @@
                             }
                         }
                     },
-                    "label": "$item.CuprumPart"
+                    "label": "$item.CupriumPart"
                 },
                 {
                     "name": "息壤",
