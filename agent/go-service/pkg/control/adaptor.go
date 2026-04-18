@@ -73,8 +73,9 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	}
 
 	switch controlType {
+	// Win32 与 Wlroots（use_win32_vk_code）共用 adaptor_win.go 中的 VK 绑定。
 	case CONTROL_TYPE_WIN32, CONTROL_TYPE_WLROOTS:
-		return newDesktopVKControlAdaptor(ctx, ctrl, w, h), nil
+		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_ADB:
 		return newADBControlAdaptor(ctx, ctrl, w, h), nil
 	default:
