@@ -71,11 +71,11 @@ description: 当用户要在「🐌库存转移（ItemTransfer）」任务里新
 
 ### 步骤 1：查找物品的英文字段名（label 的 i18n key）
 
-1. 读取 `assets/locales/interface/en_us.json` 以及 `zh_cn.json`，搜索该物品所属类别下已有的命名风格（例如 `item.CuprumOre`、`item.AmberRice`、`item.AketinePowder`）。
+1. 读取 `assets/locales/interface/en_us.json` 以及 `zh_cn.json`，搜索该物品所属类别下已有的命名风格（例如 `item.CupriumOre`、`item.AmberRice`、`item.AketinePowder`）。
 2. 根据游戏内已发布的英文名 / 日文名 / 韩文名 / 繁中名，确定该物品的规范字段名 `item.<EnglishPascalCase>`。
-   - 命名参考已有条目的风格（矿 = `*Ore`、瓶 = `*Bottle`、块 = 词根本身、粉末 = `*Powder`、种子 = `*Seed`、装备原件 = `*Component`、零件 = `*Part` 等）。
+   - 命名参考已有条目的风格（矿 = `*Ore`、瓶 = `*Bottle`、块 = 词根本身、粉末 = `*Powder`、种子 = `*Seed`、装备原件 = `*Component`、零件 = `*Part`、电池 = `LC/SC/HC` 容量前缀 + `*Battery` 等）。
    - 如果查不到官方翻译，优先使用语义合理的英文 PascalCase 名，并在回复里告诉用户「我这里用的名字是 xxx，如果官方译名不同请告诉我修改」。
-3. 确定好字段名后（例如 `item.ValleyBatteryL`），准备五种语言的翻译：
+3. 确定好字段名后（例如 `item.LCValleyBattery`），准备五种语言的翻译：
    - `zh_cn` — 中文简体（等于 `item_order.json` 里的 `name`）。
    - `zh_tw` — 中文繁体。
    - `en_us` — 英文。
@@ -88,7 +88,7 @@ description: 当用户要在「🐌库存转移（ItemTransfer）」任务里新
 对 `assets/locales/interface/` 下的 **5 个文件**（`zh_cn.json`、`zh_tw.json`、`en_us.json`、`ja_jp.json`、`ko_kr.json`）执行相同的插入：
 
 1. 读取 `assets/data/ItemTransfer/item_order.json` 的 `category_order.<category>`，找到新增物品在数组里的**前一项**与**后一项**。
-2. 在 locale 文件中搜索前一项对应的 `item.*` key（例如前一项是「赤铜瓶」→ 搜 `"item.CuprumBottle":`）。
+2. 在 locale 文件中搜索前一项对应的 `item.*` key（例如前一项是「赤铜瓶」→ 搜 `"item.CupriumBottle":`）。
 3. 在该行**下方**、后一项的 `item.*` key **上方**，插入新增物品的键值对：
    ```json
        "item.<EnglishPascalCase>": "<该语言的译名>",
