@@ -817,7 +817,7 @@
         "custom_action_param": {
             "map_name": "map02_lv003",
             "target": [
-                177,
+                275,
                 318
             ],
             "on_find": "Click"
@@ -844,7 +844,7 @@
         "custom_action_param": {
             "map_name": "map02_lv003",
             "target": [
-                215,
+                313,
                 466
             ],
             "on_find": "Click"
@@ -871,7 +871,7 @@
         "custom_action_param": {
             "map_name": "map02_lv003",
             "target": [
-                302,
+                400,
                 543
             ],
             "on_find": "Click"
@@ -898,7 +898,7 @@
         "custom_action_param": {
             "map_name": "map02_lv003",
             "target": [
-                409,
+                507,
                 368
             ],
             "on_find": "Click"
@@ -925,7 +925,7 @@
         "custom_action_param": {
             "map_name": "map02_lv003",
             "target": [
-                446,
+                543,
                 626
             ],
             "on_find": "Click"
