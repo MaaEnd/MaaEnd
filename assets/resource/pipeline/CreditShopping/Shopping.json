@@ -429,7 +429,7 @@
         ]
     },
     "CreditShoppingPrudentRefresh": {
-        "desc": "稳健模式下改为直接购买（选项：稳健模式刷新、稳健刷新阈值）",
+        "desc": "稳健模式下改为购买任意物品含无折扣（选项：稳健模式刷新、稳健刷新阈值）",
         "recognition": {
             "type": "And",
             "param": {
