@@ -83,6 +83,7 @@ for (const settlement of Object.values(settlementData.settlements)) {
             const meta = ITEM_META[item.itemId];
             if (!meta) continue;
             if (ITEMS[meta.key]) continue; // 已收集过
+            const enName = item.name.EN.replace(/[\[\]|]+/g, "");
             ITEMS[meta.key] = {
                 name: item.name.CN,
                 label: meta.label,
@@ -90,8 +91,8 @@ for (const settlement of Object.values(settlementData.settlements)) {
                     `^${escapeRegex(item.name.TC)}$`,
                     `^${escapeRegex(item.name.CN)}$`,
                     `^${escapeRegex(item.name.JP)}$`,
-                    `^${escapeRegex(item.name.EN)}$`,
-                ],
+                    enName ? `^${escapeRegex(enName)}$` : null,
+                ].filter(Boolean),
             };
         }
     }

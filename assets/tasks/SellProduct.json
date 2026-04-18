@@ -235,7 +235,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -278,7 +279,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -321,7 +323,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -343,7 +346,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -365,7 +369,8 @@
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
                                 "^Buck Capsule [C]$",
-                                "^Buck Capsule \\[C\\]$"
+                                "^Buck Capsule \\[C\\]$",
+                                "^Buck Capsule C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -387,7 +392,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -492,7 +498,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -535,7 +542,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -578,7 +586,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -600,7 +609,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -622,7 +632,8 @@
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
                                 "^Buck Capsule [C]$",
-                                "^Buck Capsule \\[C\\]$"
+                                "^Buck Capsule \\[C\\]$",
+                                "^Buck Capsule C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -644,7 +655,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -749,7 +761,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -792,7 +805,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -835,7 +849,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -857,7 +872,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -879,7 +895,8 @@
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
                                 "^Buck Capsule [C]$",
-                                "^Buck Capsule \\[C\\]$"
+                                "^Buck Capsule \\[C\\]$",
+                                "^Buck Capsule C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -901,7 +918,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -1006,7 +1024,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1049,7 +1068,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1092,7 +1112,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1114,7 +1135,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1136,7 +1158,8 @@
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
                                 "^Buck Capsule [C]$",
-                                "^Buck Capsule \\[C\\]$"
+                                "^Buck Capsule \\[C\\]$",
+                                "^Buck Capsule C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1158,7 +1181,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1397,7 +1421,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1440,7 +1465,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1483,7 +1509,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1505,7 +1532,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1548,7 +1576,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1612,7 +1641,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1655,7 +1685,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1698,7 +1729,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1720,7 +1752,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1763,7 +1796,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1827,7 +1861,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1870,7 +1905,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1913,7 +1949,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1935,7 +1972,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1978,7 +2016,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -2042,7 +2081,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2085,7 +2125,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2128,7 +2169,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2150,7 +2192,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2193,7 +2236,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2391,7 +2435,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2434,7 +2479,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2477,7 +2523,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2499,7 +2546,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2521,7 +2569,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2585,7 +2634,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2628,7 +2678,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2671,7 +2722,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2693,7 +2745,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2715,7 +2768,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2779,7 +2833,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2822,7 +2877,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2865,7 +2921,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2887,7 +2944,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2909,7 +2967,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2973,7 +3032,8 @@
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
                                 "^Buck Capsule [A]$",
-                                "^Buck Capsule \\[A\\]$"
+                                "^Buck Capsule \\[A\\]$",
+                                "^Buck Capsule A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3016,7 +3076,8 @@
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
                                 "^Canned Citrome [A]$",
-                                "^Canned Citrome \\[A\\]$"
+                                "^Canned Citrome \\[A\\]$",
+                                "^Canned Citrome A$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3059,7 +3120,8 @@
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
                                 "^Buck Capsule [B]$",
-                                "^Buck Capsule \\[B\\]$"
+                                "^Buck Capsule \\[B\\]$",
+                                "^Buck Capsule B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3081,7 +3143,8 @@
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
                                 "^Canned Citrome [B]$",
-                                "^Canned Citrome \\[B\\]$"
+                                "^Canned Citrome \\[B\\]$",
+                                "^Canned Citrome B$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3103,7 +3166,8 @@
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
                                 "^Canned Citrome [C]$",
-                                "^Canned Citrome \\[C\\]$"
+                                "^Canned Citrome \\[C\\]$",
+                                "^Canned Citrome C$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3343,7 +3407,8 @@
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
                                 "^Yazhen Syringe [A]$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt1": {
@@ -3365,7 +3430,8 @@
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
                                 "^Yazhen Syringe [C]$",
-                                "^Yazhen Syringe \\[C\\]$"
+                                "^Yazhen Syringe \\[C\\]$",
+                                "^Yazhen Syringe C$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt1": {
@@ -3575,7 +3641,8 @@
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
                                 "^Yazhen Syringe [A]$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt2": {
@@ -3597,7 +3664,8 @@
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
                                 "^Yazhen Syringe [C]$",
-                                "^Yazhen Syringe \\[C\\]$"
+                                "^Yazhen Syringe \\[C\\]$",
+                                "^Yazhen Syringe C$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt2": {
@@ -3807,7 +3875,8 @@
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
                                 "^Yazhen Syringe [A]$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt3": {
@@ -3829,7 +3898,8 @@
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
                                 "^Yazhen Syringe [C]$",
-                                "^Yazhen Syringe \\[C\\]$"
+                                "^Yazhen Syringe \\[C\\]$",
+                                "^Yazhen Syringe C$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt3": {
@@ -4039,7 +4109,8 @@
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
                                 "^Yazhen Syringe [A]$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt4": {
@@ -4061,7 +4132,8 @@
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
                                 "^Yazhen Syringe [C]$",
-                                "^Yazhen Syringe \\[C\\]$"
+                                "^Yazhen Syringe \\[C\\]$",
+                                "^Yazhen Syringe C$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt4": {
@@ -4467,7 +4539,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductCardiacRemediationStationSellAttempt1": {
@@ -4654,7 +4727,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductCardiacRemediationStationSellAttempt2": {
@@ -4841,7 +4915,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductCardiacRemediationStationSellAttempt3": {
@@ -5028,7 +5103,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe \\[A\\]$"
+                                "^Yazhen Syringe \\[A\\]$",
+                                "^Yazhen Syringe A$"
                             ]
                         },
                         "SellProductCardiacRemediationStationSellAttempt4": {
