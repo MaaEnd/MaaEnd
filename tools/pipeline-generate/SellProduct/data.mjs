@@ -3,31 +3,76 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const settlementData = require("./settlement_trade.json");
+const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
 
-// ===== itemId → 内部 key / label 映射 =====
-const ITEM_META = {
-    item_bottled_rec_hp_3: { key: "BuckCapsuleA", label: "$item.BuckCapsuleA" },
-    item_proc_battery_3: { key: "HCValleyBattery", label: "$item.HCValleyBattery" },
-    item_bottled_food_3: { key: "CannedCitromeA", label: "$item.CannedCitromeA" },
-    item_proc_battery_2: { key: "SCValleyBattery", label: "$item.SCValleyBattery" },
-    item_bottled_food_2: { key: "CannedCitromeB", label: "$item.CannedCitromeB" },
-    item_bottled_rec_hp_2: { key: "BuckCapsuleB", label: "$item.BuckCapsuleB" },
-    item_bottled_rec_hp_1: { key: "BuckCapsuleC", label: "$item.BuckCapsuleC" },
-    item_bottled_food_1: { key: "CannedCitromeC", label: "$item.CannedCitromeC" },
-    item_glass_bottle: { key: "AmethystBottle", label: "$item.AmethystBottle" },
-    item_crystal_shell: { key: "Origocrust", label: "$item.Origocrust" },
-    item_glass_cmpt: { key: "AmethystPart", label: "$item.AmethystPart" },
-    item_proc_battery_1: { key: "LCValleyBattery", label: "$item.LCValleyBattery" },
-    item_iron_cmpt: { key: "FerriumPart", label: "$item.FerriumPart" },
-    item_iron_enr_cmpt: { key: "SteelPart", label: "$item.SteelPart" },
-    item_proc_battery_5: { key: "SCWulingBattery", label: "$item.SCWulingBattery" },
-    item_bottled_rec_hp_5: { key: "YazhenSyringeB", label: "$item.YazhenSyringeB" },
-    item_proc_battery_4: { key: "LCWulingBattery", label: "$item.LCWulingBattery" },
-    item_bottled_rec_hp_4: { key: "YazhenSyringe", label: "$item.YazhenSyringe" },
-    item_bottled_food_4: { key: "JincaoDrink", label: "$item.JincaoDrink" },
-    item_copper_cmpt: { key: "CuprumPart", label: "$item.CuprumPart" },
-    item_xiranite_powder: { key: "Xiranite", label: "$item.Xiranite" },
-};
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toPascalCase(str) {
+    return str
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(Boolean)
+        .map((part) => part[0].toUpperCase() + part.slice(1))
+        .join("");
+}
+
+function uniqueArray(items) {
+    return [...new Set(items.filter(Boolean))];
+}
+
+function toFlexibleEnglishRegex(text) {
+    const escaped = escapeRegex(text.trim());
+    return `(?i)^${escaped
+        .replace(/\s+/g, "\\s*")
+        .replace(/-/g, "\\s*-\\s*")}$`;
+}
+
+function collectTradeItems() {
+    const items = new Map();
+    for (const settlement of Object.values(settlementData.settlements)) {
+        for (const level of Object.values(settlement.byProsperityLevel)) {
+            for (const item of level.tradeItems) {
+                if (!items.has(item.itemId)) {
+                    items.set(item.itemId, item);
+                }
+            }
+        }
+    }
+    return items;
+}
+
+function buildItemLocaleKeyByCNName() {
+    const map = new Map();
+    for (const [localeKey, localeValue] of Object.entries(zhCNLocale)) {
+        if (!localeKey.startsWith("item.")) continue;
+        const itemKey = localeKey.slice("item.".length);
+        map.set(localeValue, itemKey);
+    }
+    return map;
+}
+
+const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
+
+// ===== itemId 覆盖（可用于修正 locale 无法反查时的特殊键） =====
+const ITEM_META_OVERRIDE = {};
+
+// ===== 从 settlement 数据生成 itemId → 内部 key / label 映射 =====
+const ITEM_META = [...collectTradeItems().entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .reduce((acc, [itemId, itemData]) => {
+        const override = ITEM_META_OVERRIDE[itemId];
+        const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(itemData.name.CN);
+        const key =
+            override?.key ??
+            localeKey ??
+            toPascalCase(itemId.replace(/^item_/, ""));
+        acc[itemId] = {
+            key,
+            label: override?.label ?? (localeKey ? `$item.${localeKey}` : null),
+        };
+        return acc;
+    }, {});
 
 // ===== 从 settlement 数据提取全局物品字典 =====
 // expected 顺序: TC, CN, JP, EN
@@ -42,18 +87,18 @@ for (const settlement of Object.values(settlementData.settlements)) {
                 name: item.name.CN,
                 label: meta.label,
                 expected: [
-                    `^${item.name.TC}$`,
-                    `^${item.name.CN}$`,
-                    `^${item.name.JP}$`,
-                    `^${item.name.EN}$`,
+                    `^${escapeRegex(item.name.TC)}$`,
+                    `^${escapeRegex(item.name.CN)}$`,
+                    `^${escapeRegex(item.name.JP)}$`,
+                    `^${escapeRegex(item.name.EN)}$`,
                 ],
             };
         }
     }
 }
 
-// ===== settlementId → 售卖点配置映射 =====
-const SETTLEMENT_MAP = {
+// ===== settlementId 覆盖（命名 + TextExpected 特殊处理） =====
+const SETTLEMENT_OVERRIDE = {
     stm_tundra_1: {
         RegionPrefix: "ValleyIV",
         LocationId: "RefugeeCamp",
@@ -67,11 +112,7 @@ const SETTLEMENT_MAP = {
     stm_tundra_2: {
         RegionPrefix: "ValleyIV",
         LocationId: "InfrastructureOutpost",
-        TextExpected: [
-            "基建前站",
-            "(?i)Infra\\s*-\\s*Station",
-            "建設基地",
-        ],
+        TextExpected: ["基建前站", "(?i)Infra\\s*-\\s*Station", "建設基地"],
     },
     stm_tundra_3: {
         RegionPrefix: "ValleyIV",
@@ -87,17 +128,51 @@ const SETTLEMENT_MAP = {
     stm_hongs_1: {
         RegionPrefix: "Wuling",
         LocationId: "SkyKingFlats",
-        TextExpected: [
-            "天王坪",
-            "天王坪援助",
-            "天王坪援建",
-            "Sky King",
-            "天王原",
-        ],
+        TextExpected: ["天王坪", "天王坪援助", "天王坪援建", "Sky King", "天王原"],
     },
 };
 
-const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce((acc, [settlementId, config]) => {
+const DOMAIN_REGION_PREFIX = {
+    domain_1: "ValleyIV",
+    domain_2: "Wuling",
+};
+
+function buildSettlementTextExpected(settlementId, settlement) {
+    const override = SETTLEMENT_OVERRIDE[settlementId]?.TextExpected;
+    if (override) {
+        return override;
+    }
+    return uniqueArray([
+        settlement.settlementName.CN,
+        settlement.settlementName.TC,
+        settlement.settlementName.JP,
+        settlement.settlementName.EN
+            ? toFlexibleEnglishRegex(settlement.settlementName.EN)
+            : null,
+    ]);
+}
+
+// ===== 从 settlement 数据生成 settlementId → 售卖点配置映射 =====
+const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .reduce((acc, [settlementId, settlement]) => {
+        const override = SETTLEMENT_OVERRIDE[settlementId] || {};
+        const regionPrefix =
+            override.RegionPrefix ||
+            DOMAIN_REGION_PREFIX[settlement.domainId] ||
+            toPascalCase(settlement.domainId);
+        const locationId =
+            override.LocationId ||
+            toPascalCase(settlement.settlementName.EN || settlementId);
+        acc[settlementId] = {
+            RegionPrefix: regionPrefix,
+            LocationId: locationId,
+            TextExpected: buildSettlementTextExpected(settlementId, settlement),
+        };
+        return acc;
+    }, {});
+
+const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce((acc, [, config]) => {
     acc[config.RegionPrefix] = acc[config.RegionPrefix] || [];
     acc[config.RegionPrefix].push(`${config.RegionPrefix}${config.LocationId}`);
     return acc;
@@ -158,7 +233,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
     ];
     for (const id of itemIds) {
         const item = ITEMS[id];
-        cases.push({
+        const newCase = {
             name: item.name,
             pipeline_override: {
                 [selectKey]: {
@@ -173,8 +248,11 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                     },
                 },
             },
-            label: item.label,
-        });
+        };
+        if (item.label) {
+            newCase.label = item.label;
+        }
+        cases.push(newCase);
     }
     return cases;
 }

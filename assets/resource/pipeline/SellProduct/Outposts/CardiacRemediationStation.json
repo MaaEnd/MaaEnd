@@ -1,0 +1,305 @@
+{
+    // ===== 售卖点顶层节点 =====
+    "SellProductCardiacRemediationStation": {
+        "desc": "心脏修缮站售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckCardiacRemediationStationTabText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSell",
+            "[JumpBack]SellProductGoToCardiacRemediationStation"
+        ]
+    },
+    // ===== 售卖锚点节点 =====
+    "SellProductCardiacRemediationStationSell": {
+        "desc": "心脏修缮站售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProductCardiacRemediationStationSellAttempt1",
+            "SellProductSellAttempt2": "SellProductCardiacRemediationStationSellAttempt2",
+            "SellProductSellAttempt3": "SellProductCardiacRemediationStationSellAttempt3",
+            "SellProductSellAttempt4": "SellProductCardiacRemediationStationSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    // ===== 在指定据点的识别节点 =====
+    "SellProductInCardiacRemediationStation": {
+        "desc": "在心脏修缮站",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckCardiacRemediationStationText",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 前往据点导航节点 =====
+    "SellProductGoToCardiacRemediationStation": {
+        "desc": "前往心脏修缮站据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInWulingOutpost",
+            "SellProductCheckCardiacRemediationStationTabText"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInCardiacRemediationStation"
+        ]
+    },
+    // ===== 标签页文本检查（小文本） =====
+    "SellProductCheckCardiacRemediationStationTabText": {
+        "desc": "检查心脏修缮站文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "心脏修缮站",
+            "心臟修繕站",
+            "心臓修復施設",
+            "(?i)^Cardiac\\s*Remediation\\s*Station$"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 据点内大字文本检查 =====
+    "SellProductCheckCardiacRemediationStationText": {
+        "desc": "检查心脏修缮站大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "心脏修缮站",
+            "心臟修繕站",
+            "心臓修復施設",
+            "(?i)^Cardiac\\s*Remediation\\s*Station$"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 售卖尝试 1 =====
+    "SellProductCardiacRemediationStationSellAttempt1": {
+        "desc": "心脏修缮站第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 2 =====
+    "SellProductCardiacRemediationStationSellAttempt2": {
+        "desc": "心脏修缮站第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 3 =====
+    "SellProductCardiacRemediationStationSellAttempt3": {
+        "desc": "心脏修缮站第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 4 =====
+    "SellProductCardiacRemediationStationSellAttempt4": {
+        "desc": "心脏修缮站第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 优先物品 1 =====
+    "SellProductCardiacRemediationStationSelectItem1": {
+        "desc": "心脏修缮站售卖优先物品1",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 2 =====
+    "SellProductCardiacRemediationStationSelectItem2": {
+        "desc": "心脏修缮站售卖优先物品2",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 3 =====
+    "SellProductCardiacRemediationStationSelectItem3": {
+        "desc": "心脏修缮站售卖优先物品3",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 4 =====
+    "SellProductCardiacRemediationStationSelectItem4": {
+        "desc": "心脏修缮站售卖优先物品4",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "replace": [
+            [
+                "[\\[\\]|]+",
+                ""
+            ]
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    }
+}

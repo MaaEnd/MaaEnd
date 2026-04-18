@@ -58,7 +58,8 @@
                         }
                     },
                     "option": [
-                        "WulingSkyKingFlats"
+                        "WulingSkyKingFlats",
+                        "WulingCardiacRemediationStation"
                     ]
                 },
                 {
@@ -233,7 +234,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -275,7 +277,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -317,7 +320,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -338,7 +342,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -359,7 +364,8 @@
                                 "^蕎癒膠囊$",
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
-                                "^Buck Capsule [C]$"
+                                "^Buck Capsule [C]$",
+                                "^Buck Capsule \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -380,7 +386,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt1": {
@@ -484,7 +491,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -526,7 +534,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -568,7 +577,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -589,7 +599,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -610,7 +621,8 @@
                                 "^蕎癒膠囊$",
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
-                                "^Buck Capsule [C]$"
+                                "^Buck Capsule [C]$",
+                                "^Buck Capsule \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -631,7 +643,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt2": {
@@ -735,7 +748,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -777,7 +791,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -819,7 +834,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -840,7 +856,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -861,7 +878,8 @@
                                 "^蕎癒膠囊$",
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
-                                "^Buck Capsule [C]$"
+                                "^Buck Capsule [C]$",
+                                "^Buck Capsule \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -882,7 +900,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt3": {
@@ -986,7 +1005,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1028,7 +1048,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1070,7 +1091,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1091,7 +1113,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1112,7 +1135,8 @@
                                 "^蕎癒膠囊$",
                                 "^荞愈胶囊$",
                                 "^蕎花カプセルⅠ$",
-                                "^Buck Capsule [C]$"
+                                "^Buck Capsule [C]$",
+                                "^Buck Capsule \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1133,7 +1157,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductRefugeeCampSellAttempt4": {
@@ -1371,7 +1396,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1413,7 +1439,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1455,7 +1482,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1476,7 +1504,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1518,7 +1547,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt1": {
@@ -1581,7 +1611,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1623,7 +1654,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1665,7 +1697,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1686,7 +1719,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1728,7 +1762,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt2": {
@@ -1791,7 +1826,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1833,7 +1869,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1875,7 +1912,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1896,7 +1934,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -1938,7 +1977,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt3": {
@@ -2001,7 +2041,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2043,7 +2084,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2085,7 +2127,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2106,7 +2149,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2148,7 +2192,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductInfrastructureOutpostSellAttempt4": {
@@ -2345,7 +2390,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2387,7 +2433,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2429,7 +2476,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2450,7 +2498,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2471,7 +2520,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt1": {
@@ -2534,7 +2584,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2576,7 +2627,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2618,7 +2670,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2639,7 +2692,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2660,7 +2714,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt2": {
@@ -2723,7 +2778,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2765,7 +2821,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2807,7 +2864,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2828,7 +2886,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2849,7 +2908,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt3": {
@@ -2912,7 +2972,8 @@
                                 "^精選蕎癒膠囊$",
                                 "^精选荞愈胶囊$",
                                 "^蕎花カプセルⅢ$",
-                                "^Buck Capsule [A]$"
+                                "^Buck Capsule [A]$",
+                                "^Buck Capsule \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -2954,7 +3015,8 @@
                                 "^精選柑實罐頭$",
                                 "^精选柑实罐头$",
                                 "^シトロームの缶詰Ⅲ$",
-                                "^Canned Citrome [A]$"
+                                "^Canned Citrome [A]$",
+                                "^Canned Citrome \\[A\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -2996,7 +3058,8 @@
                                 "^優質蕎癒膠囊$",
                                 "^优质荞愈胶囊$",
                                 "^蕎花カプセルⅡ$",
-                                "^Buck Capsule [B]$"
+                                "^Buck Capsule [B]$",
+                                "^Buck Capsule \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3017,7 +3080,8 @@
                                 "^優質柑實罐頭$",
                                 "^优质柑实罐头$",
                                 "^シトロームの缶詰Ⅱ$",
-                                "^Canned Citrome [B]$"
+                                "^Canned Citrome [B]$",
+                                "^Canned Citrome \\[B\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3038,7 +3102,8 @@
                                 "^柑實罐頭$",
                                 "^柑实罐头$",
                                 "^シトロームの缶詰Ⅰ$",
-                                "^Canned Citrome [C]$"
+                                "^Canned Citrome [C]$",
+                                "^Canned Citrome \\[C\\]$"
                             ]
                         },
                         "SellProductReconstructionCommandSellAttempt4": {
@@ -3277,7 +3342,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe [A]$"
+                                "^Yazhen Syringe [A]$",
+                                "^Yazhen Syringe \\[A\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt1": {
@@ -3298,7 +3364,8 @@
                                 "^芽針針劑$",
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
-                                "^Yazhen Syringe [C]$"
+                                "^Yazhen Syringe [C]$",
+                                "^Yazhen Syringe \\[C\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt1": {
@@ -3371,6 +3438,69 @@
                         }
                     },
                     "label": "$item.Xiranite"
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^赫銅零件$",
+                                "^赫铜零件$",
+                                "^緋銅部品$",
+                                "^Hetonite Part$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
                 }
             ]
         },
@@ -3444,7 +3574,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe [A]$"
+                                "^Yazhen Syringe [A]$",
+                                "^Yazhen Syringe \\[A\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt2": {
@@ -3465,7 +3596,8 @@
                                 "^芽針針劑$",
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
-                                "^Yazhen Syringe [C]$"
+                                "^Yazhen Syringe [C]$",
+                                "^Yazhen Syringe \\[C\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt2": {
@@ -3538,6 +3670,69 @@
                         }
                     },
                     "label": "$item.Xiranite"
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^赫銅零件$",
+                                "^赫铜零件$",
+                                "^緋銅部品$",
+                                "^Hetonite Part$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
                 }
             ]
         },
@@ -3611,7 +3806,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe [A]$"
+                                "^Yazhen Syringe [A]$",
+                                "^Yazhen Syringe \\[A\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt3": {
@@ -3632,7 +3828,8 @@
                                 "^芽針針劑$",
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
-                                "^Yazhen Syringe [C]$"
+                                "^Yazhen Syringe [C]$",
+                                "^Yazhen Syringe \\[C\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt3": {
@@ -3705,6 +3902,69 @@
                         }
                     },
                     "label": "$item.Xiranite"
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^赫銅零件$",
+                                "^赫铜零件$",
+                                "^緋銅部品$",
+                                "^Hetonite Part$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
                 }
             ]
         },
@@ -3778,7 +4038,8 @@
                                 "^優質芽針針劑$",
                                 "^优质芽针针剂$",
                                 "^芽針注射剤Ⅱ$",
-                                "^Yazhen Syringe [A]$"
+                                "^Yazhen Syringe [A]$",
+                                "^Yazhen Syringe \\[A\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt4": {
@@ -3799,7 +4060,8 @@
                                 "^芽針針劑$",
                                 "^芽针针剂$",
                                 "^芽針注射剤Ⅰ$",
-                                "^Yazhen Syringe [C]$"
+                                "^Yazhen Syringe [C]$",
+                                "^Yazhen Syringe \\[C\\]$"
                             ]
                         },
                         "SellProductSkyKingFlatsSellAttempt4": {
@@ -3867,6 +4129,951 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^赫銅零件$",
+                                "^赫铜零件$",
+                                "^緋銅部品$",
+                                "^Hetonite Part$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
+                }
+            ]
+        },
+        "WulingCardiacRemediationStation": {
+            "type": "switch",
+            "label": "$task.SellProduct.WulingCardiacRemediationStation",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStation": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationAttempt1",
+                        "WulingCardiacRemediationStationAttempt2",
+                        "WulingCardiacRemediationStationAttempt3",
+                        "WulingCardiacRemediationStationAttempt4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStation": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationAttempt1": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationItem1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt2",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationItem2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationItem3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationItem4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem1",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^中容量武陵電池$",
+                                "^中容武陵电池$",
+                                "^中容量武陵バッテリー$",
+                                "^SC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^低容量武陵電池$",
+                                "^低容武陵电池$",
+                                "^小容量武陵バッテリー$",
+                                "^LC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.LCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質錦草飲料$",
+                                "^优质锦草软饮$",
+                                "^錦草ソーダⅡ$",
+                                "^Jincao Tea$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質芽針針劑$",
+                                "^优质芽针针剂$",
+                                "^芽針注射剤Ⅱ$",
+                                "^Yazhen Syringe \\[A\\]$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^重息壤$",
+                                "^重息壌$",
+                                "^Heavy Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤$",
+                                "^息壌$",
+                                "^Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem2",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": false
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^中容量武陵電池$",
+                                "^中容武陵电池$",
+                                "^中容量武陵バッテリー$",
+                                "^SC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^低容量武陵電池$",
+                                "^低容武陵电池$",
+                                "^小容量武陵バッテリー$",
+                                "^LC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.LCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質錦草飲料$",
+                                "^优质锦草软饮$",
+                                "^錦草ソーダⅡ$",
+                                "^Jincao Tea$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質芽針針劑$",
+                                "^优质芽针针剂$",
+                                "^芽針注射剤Ⅱ$",
+                                "^Yazhen Syringe \\[A\\]$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^重息壤$",
+                                "^重息壌$",
+                                "^Heavy Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤$",
+                                "^息壌$",
+                                "^Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem3",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": false
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^中容量武陵電池$",
+                                "^中容武陵电池$",
+                                "^中容量武陵バッテリー$",
+                                "^SC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^低容量武陵電池$",
+                                "^低容武陵电池$",
+                                "^小容量武陵バッテリー$",
+                                "^LC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.LCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質錦草飲料$",
+                                "^优质锦草软饮$",
+                                "^錦草ソーダⅡ$",
+                                "^Jincao Tea$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質芽針針劑$",
+                                "^优质芽针针剂$",
+                                "^芽針注射剤Ⅱ$",
+                                "^Yazhen Syringe \\[A\\]$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^重息壤$",
+                                "^重息壌$",
+                                "^Heavy Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤$",
+                                "^息壌$",
+                                "^Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem4",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": false
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤玉葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤玉葫蘆$",
+                                "^息壤玉葫芦$",
+                                "^息壌玉ひょうたん$",
+                                "^Xiranite Jade Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteJadeGourd"
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^中容量武陵電池$",
+                                "^中容武陵电池$",
+                                "^中容量武陵バッテリー$",
+                                "^SC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "息壤葫芦",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤葫蘆$",
+                                "^息壤葫芦$",
+                                "^息壌ひょうたん$",
+                                "^Xiranite Gourd$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.XiraniteGourd"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^低容量武陵電池$",
+                                "^低容武陵电池$",
+                                "^小容量武陵バッテリー$",
+                                "^LC Wuling Battery$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.LCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質錦草飲料$",
+                                "^优质锦草软饮$",
+                                "^錦草ソーダⅡ$",
+                                "^Jincao Tea$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^優質芽針針劑$",
+                                "^优质芽针针剂$",
+                                "^芽針注射剤Ⅱ$",
+                                "^Yazhen Syringe \\[A\\]$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^重息壤$",
+                                "^重息壌$",
+                                "^Heavy Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "expected": [
+                                "^息壤$",
+                                "^息壌$",
+                                "^Xiranite$"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4": {
+                            "anchor": {
+                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
                                 "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
