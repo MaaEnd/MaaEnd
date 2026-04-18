@@ -179,10 +179,12 @@ jobs:
             fi
           fi
 
-          # 更新 interface.json 中的版本号
-          echo "Update interface version to ${{ needs.meta.outputs.tag }}"
-          sed -E '/^[[:space:]]*\/\//d' install/interface.json | jq --indent 4 --arg version "${{ needs.meta.outputs.tag }}" '.version=$version' > install/interface.json.tmp
-          mv install/interface.json.tmp install/interface.json
+          # 更新 interface.json（版本号 + 资源 hash）
+          echo "Update interface.json: version=${{ needs.meta.outputs.tag }}, compute resource hashes"
+          python -m pip install maafw
+          python tools/fill_interface.py \
+            --version "${{ needs.meta.outputs.tag }}" \
+            --interface install/interface.json
 
           cat install/interface.json
 
