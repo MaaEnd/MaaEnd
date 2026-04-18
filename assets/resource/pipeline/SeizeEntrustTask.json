@@ -360,10 +360,8 @@
         }
     },
     "SeizeEntrustTaskMain": {
-        "recognition": {
-            "type": "OCR",
-            "param": {}
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
