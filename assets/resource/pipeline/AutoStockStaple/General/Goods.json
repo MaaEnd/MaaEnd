@@ -419,6 +419,27 @@
             }
         }
     },
+    "AutoStockStapleGoodsEchoingRemedy": {
+        "desc": "回响秘剂",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "回响秘剂",
+                    "迴響秘劑",
+                    "(?i)Echoing\\s*Remedy",
+                    "回響の秘薬",
+                    "메아리의 비약"
+                ]
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂",
         "recognition": {
@@ -562,6 +583,27 @@
                     "(?i)Scrimshaw\\s*Of\\s*The\\s*Pack",
                     "狼群骨雕",
                     "늑대 뼈 문신"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsChubbyLungFangxingMemorabilia": {
+        "desc": "龙泡泡·方兴纪念",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "龙泡泡·方兴纪念",
+                    "龍泡泡·方興紀念",
+                    "(?i)Chubby\\s*Lung:\\s*Fangxing\\s*Memorabilia",
+                    "龍泡泡・方興記念",
+                    "드래곤 버블 · 방흥 에디션"
                 ]
             }
         }

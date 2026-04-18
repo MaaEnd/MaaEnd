@@ -42,6 +42,7 @@
             "AutoStockStapleQuantityControlFortifyingInfusion",
             "AutoStockStapleQuantityControlGardenFriedRice",
             "AutoStockStapleQuantityControlMasterPansEggPudding",
+            "AutoStockStapleQuantityControlEchoingRemedy",
             "AutoStockStapleQuantityControlWulingArtificingCatalyst",
             "AutoStockStapleQuantityControlKeenWulingDetector",
             "AutoStockStapleQuantityControlKeenWulingCompass",
@@ -49,6 +50,7 @@
             "AutoStockStapleQuantityControlYinglungDumbbells",
             "AutoStockStapleQuantityControlWovenAggelos",
             "AutoStockStapleQuantityControlScrimshawOfThePack",
+            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia",
             "AutoStockSwipeToMax"
         ]
     },
@@ -712,6 +714,39 @@
             "AutoStockStapleQuantityControlResetRecognitionParams"
         ]
     },
+    "AutoStockStapleQuantityControlEchoingRemedy": {
+        "desc": "回响秘剂的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsEchoingRemedy",
+                    "AutoStockStapleGoodsEchoingRemedyValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "echoing_remedy": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
     "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂的数量控制",
         "recognition": {
@@ -931,6 +966,39 @@
                         "AutoStockInStapleItemName": {
                             "attach": {
                                 "scrimshaw_of_the_pack": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia": {
+        "desc": "龙泡泡·方兴纪念的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsChubbyLungFangxingMemorabilia",
+                    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "chubby_lung_fangxing_memorabilia": false
                             }
                         }
                     }

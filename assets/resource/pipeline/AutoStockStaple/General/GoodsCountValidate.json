@@ -257,6 +257,18 @@
             }
         }
     },
+    "AutoStockStapleGoodsEchoingRemedyValidate": {
+        "desc": "回响秘剂数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalystValidate": {
         "desc": "武陵精锻助剂数量验证",
         "recognition": {
@@ -331,6 +343,18 @@
     },
     "AutoStockStapleGoodsScrimshawOfThePackValidate": {
         "desc": "狼群骨雕数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaValidate": {
+        "desc": "龙泡泡·方兴纪念数量验证",
         "recognition": {
             "type": "Custom",
             "param": {

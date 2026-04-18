@@ -754,6 +754,23 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "EchoingRemedy",
+                    "label": "$option.CreditShoppingItems.cases.EchoingRemedy.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "echoing_remedy": [
+                                    "回响秘剂",
+                                    "迴響秘劑",
+                                    "Echoing Remedy",
+                                    "回響の秘薬",
+                                    "메아리의 비약"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -819,6 +836,15 @@
                     }
                 },
                 "AutoStockStapleGoodsMasterPansEggPuddingValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsEchoingRemedyValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -1027,6 +1053,23 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "ChubbyLungFangxingMemorabilia",
+                    "label": "$option.CreditShoppingItems.cases.ChubbyLungFangxingMemorabilia.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "chubby_lung_fangxing_memorabilia": [
+                                    "龙泡泡·方兴纪念",
+                                    "龍泡泡·方興紀念",
+                                    "Chubby Lung: Fangxing Memorabilia",
+                                    "龍泡泡・方興記念",
+                                    "드래곤 버블 · 방흥 에디션"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1074,6 +1117,15 @@
                     }
                 },
                 "AutoStockStapleGoodsScrimshawOfThePackValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
