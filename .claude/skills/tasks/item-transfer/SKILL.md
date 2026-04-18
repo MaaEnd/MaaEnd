@@ -1,6 +1,6 @@
 ---
 name: item-transfer
-description: 当用户要在「🐌库存转移（ItemTransfer）」任务里新增可选择的物品时使用。
+description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任务里**新增可搬运物品**（即在 `assets/tasks/ItemTransfer.json` 的 `option.WhatToTransfer.cases` 里加 case，并同步 `assets/data/ItemTransfer/item_order.json` 与 5 个 locale 文件的 `item.*`）时使用。典型触发用语：「给库存转移加 xxx」「ItemTransfer 里新增 xxx」「WhatToTransfer 多一项 xxx」。**不要**在以下场景触发：修改 / 删除已有 ItemTransfer 物品、只改 pipeline 参数或模板图、其他任务的物品配置（AutoStockpile / AutoStockStaple / CreditShopping / SellProduct / DeliveryJobs / BatchUseDetector 等）、物品模型重训 / 新增 class ID、纯咨询"库存转移能搬什么"。
 ---
 
 # ItemTransfer 新增物品指南
