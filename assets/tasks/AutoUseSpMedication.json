@@ -58,7 +58,10 @@
                             "enabled": true
                         },
                         "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "AutoUseSpMedicationIfExpireSoon"
+                            ]
                         },
                         "AutoUseSpMedicationChooseEmergencySanityBooster": {
                             "enabled": false
