@@ -35,6 +35,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
+            "[JumpBack]SellProductCardiacRemediationStation",
             "SellProductLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
