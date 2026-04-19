@@ -13,6 +13,8 @@
     "BatchUseDetectorFind${Detector}":{
         "desc": "寻找${LocationDetector}",
         "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "TemplateMatch",
         "roi": [
             0,
@@ -23,9 +25,7 @@
         "template": "BatchUseDetector/${Detector}.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找${LocationDetector}"
         },
@@ -57,6 +57,8 @@
     },
     "BatchUseDetectorFind${Compass}": {
         "desc": "寻找${LocationName}${LocationCompass}",
+        "pre_delay": 0,
+        "post_delay": 0,
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -68,9 +70,7 @@
         "template": "BatchUseDetector/${Compass}.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找${LocationName}${LocationCompass}"
         },

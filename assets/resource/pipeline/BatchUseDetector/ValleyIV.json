@@ -13,6 +13,8 @@
     "BatchUseDetectorFindValleyIVDetector": {
         "desc": "寻找谷地探物器",
         "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "TemplateMatch",
         "roi": [
             0,
@@ -23,9 +25,7 @@
         "template": "BatchUseDetector/ValleyIVDetector.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找谷地探物器"
         },
@@ -57,6 +57,8 @@
     },
     "BatchUseDetectorFindValleyIVCompass": {
         "desc": "寻找四号谷地谷地罗盘",
+        "pre_delay": 0,
+        "post_delay": 0,
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -68,9 +70,7 @@
         "template": "BatchUseDetector/ValleyIVCompass.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找四号谷地谷地罗盘"
         },

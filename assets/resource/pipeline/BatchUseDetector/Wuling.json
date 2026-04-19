@@ -13,6 +13,8 @@
     "BatchUseDetectorFindWulingDetector": {
         "desc": "寻找武陵探物器",
         "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "TemplateMatch",
         "roi": [
             0,
@@ -23,9 +25,7 @@
         "template": "BatchUseDetector/WulingDetector.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找武陵探物器"
         },
@@ -57,6 +57,8 @@
     },
     "BatchUseDetectorFindWulingCompass": {
         "desc": "寻找武陵武陵罗盘",
+        "pre_delay": 0,
+        "post_delay": 0,
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -68,9 +70,7 @@
         "template": "BatchUseDetector/WulingCompass.png",
         "threshold": 0.75,
         "order_by": "Score",
-        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_wait_freezes": 300,
         "focus": {
             "Node.Action.Starting": "寻找武陵武陵罗盘"
         },
