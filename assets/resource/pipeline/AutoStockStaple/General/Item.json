@@ -249,8 +249,8 @@
                     "QuantityFilter": {
                         "lower": [
                             28,
-                            255,
-                            255
+                            100,
+                            100
                         ],
                         "upper": [
                             28,

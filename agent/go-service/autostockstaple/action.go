@@ -127,7 +127,8 @@ func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		},
 	}
 
-	if _, err := ctx.RunTask(slidingNode, override); err != nil {
+	detail, err := ctx.RunTask(slidingNode, override)
+	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", autoStockStapleQuantityActionName).
@@ -135,6 +136,26 @@ func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			Str("sliding_node", slidingNode).
 			Int("target", target).
 			Msg("failed to run BetterSliding task")
+		return false
+	}
+	if detail == nil {
+		log.Error().
+			Str("component", autoStockStapleQuantityActionName).
+			Str("item_name", param.ItemName).
+			Str("sliding_node", slidingNode).
+			Int("target", target).
+			Msg("BetterSliding task returned nil detail")
+		return false
+	}
+	if !detail.Status.Success() {
+		log.Error().
+			Str("component", autoStockStapleQuantityActionName).
+			Str("item_name", param.ItemName).
+			Str("sliding_node", slidingNode).
+			Int("target", target).
+			Int64("subtask_id", detail.ID).
+			Str("subtask_status", detail.Status.String()).
+			Msg("BetterSliding task did not succeed")
 		return false
 	}
 
