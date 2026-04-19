@@ -66,7 +66,9 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 ### 2. 还原实际购买
 
-购买真相以框架的点击结果为准，而不只是 OCR 候选。
+购买真相不能只看商品 OCR 候选，也不能只看进入买入任务。
+
+`AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask` 只表示“识别到候选商品并进入是否需要购买的判定流程”，不直接等价于“实际已购买”。
 
 先做强制检查：
 
@@ -78,32 +80,46 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 - `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`
 - `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`
+- `AutoStockStapleQuantityControl`
+- `AutoStockStapleQuantityControl.*Buy`
+- `AutoStockStapleQuantityControl.*Exclude`
+- `AutoStockStapleQuantityControlConfirmBuy`
+- `AutoStockStapleQuantityControlAction`
 
 每次成功点击里都会包含 `box=[x,y,w,h]`。
 
 随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
 
-这样才能得到实际购买到的商品名称。
+这样才能得到“候选商品名称”。
 
 不要把所有 OCR 候选都当成“已购买”。
 
-仅当以下两个条件同时满足时，才把该商品标记为“已购买”：
-
-- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功
-- 点击框（click box）与 `AutoStockInStapleItemName` 中对应 OCR 商品框一致
+- `AutoStockBuyItem(ValleyIV|Wuling)Task` 动作成功，只能说明“进入候选商品的数量控制流程”。
+- 必须继续在同一 `task_id` 下向后追踪命中的具体物品子节点，例如 `AutoStockStapleQuantityControlEchoingRemedy`。
+- 仅当对应的 `AutoStockStapleQuantityControl<Item>Buy` 分支识别成功，并继续走到其后的 `AutoStockStapleQuantityControlAction` / `AutoStockStapleQuantityControlConfirmBuy` 成功路径时，才把该商品标记为“实际已购买”。
+- 如果 `AutoStockStapleQuantityControl<Item>Buy` 未命中，而 `AutoStockStapleQuantityControl<Item>Exclude` 成功，则应标记为“识别到该商品，但判定为当前不需要购买”，不能记入购买列表。
+- 如果只看到 `AutoStockStapleQuantityControl<Item>` 命中，但后续 `Buy` / `Exclude` 分支未查全，结论必须保持为“证据不足，需继续向后追踪”。
 
 #### 负结论保护规则
 
 只有满足以下全部条件，才能得出“本次没有购买”的结论：
 
 - 对目标 `task_id` 所在的全部相关 `maafw*.log` 完成检索。
-- 未发现任何 `Node.Action.Succeeded.*AutoStockBuyItemValleyIVTask`。
-- 未发现任何 `Node.Action.Succeeded.*AutoStockBuyItemWulingTask`。
+- 未发现任何实际走通 `AutoStockStapleQuantityControl<Item>Buy` 并完成后续购买确认的证据。
 
 如果已经发现 `AutoStockBuyItem...Task` 的 `Node.Recognition.Starting`，
 则必须继续检查同文件后续日志，直到确认以下至少一种结果：
 
 - `Node.Action.Succeeded`
+- `Node.Action.Failed`
+- 任务结束
+- 明确切换出该节点并进入其他分支
+
+如果已经发现 `AutoStockStapleQuantityControl<Item>` 或其 `Buy` / `Exclude` 分支的 `Node.Recognition.Starting`，
+则同样必须继续向后检查，直到确认以下至少一种结果：
+
+- `AutoStockStapleQuantityControl<Item>Buy` 成功并继续进入购买确认路径
+- `AutoStockStapleQuantityControl<Item>Exclude` 成功
 - `Node.Action.Failed`
 - 任务结束
 - 明确切换出该节点并进入其他分支
@@ -197,7 +213,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - `AutoStockBuyItemValleyIVTask`
 - `AutoStockBuyItemWulingTask`
 
-它们是“将要购买商品 X”时的最佳 pipeline 节点。
+它们是“识别到候选商品并进入后续购买判定”时的最佳 pipeline 节点。
 
 原因：
 
@@ -208,6 +224,24 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
     - `AutoStockTargetCanBuy`
 - `box_index` 指向商品名 OCR 的结果
 - 识别成功之后立刻发生点击
+- 它们的 `next` 会进入 `AutoStockStapleQuantityControl`，因此这里只能确定“候选商品是谁”，不能单独作为“已购买”的最终证据
+
+#### 数量控制分支
+
+- `AutoStockStapleQuantityControl`
+- `AutoStockStapleQuantityControl<Item>`
+- `AutoStockStapleQuantityControl<Item>Buy`
+- `AutoStockStapleQuantityControl<Item>Exclude`
+- `AutoStockStapleQuantityControlConfirmBuy`
+
+它们决定“是否真的需要买”以及“后续走买入还是排除”。
+
+解读规则：
+
+- `AutoStockStapleQuantityControl<Item>` 命中：说明当前候选商品已被映射到具体物品规则。
+- `AutoStockStapleQuantityControl<Item>Buy` 命中：说明该商品通过数量阈值判定，允许继续购买。
+- `AutoStockStapleQuantityControl<Item>Exclude` 命中：说明该商品被判定为无需购买，应从候选集中排除。
+- 只有 `Buy` 分支继续走到其后的购买动作/确认路径，才算实际购买。
 
 #### 停止买入分支
 
@@ -227,7 +261,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 当用户询问“该在哪里加日志/埋点”时，建议：
 
-#### 记录“将要购买什么”
+#### 记录“识别到的候选商品”
 
 最佳位置：
 
@@ -237,8 +271,8 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 为什么：
 
 - 商品名已经被解析出来
-- 分支已经保证“可以购买”
 - 点击目标是固定对应的所选商品
+- 但这一步之后还会进入“是否需要购买”的数量控制判定
 
 建议 payload：
 
@@ -261,6 +295,23 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - 当前可见剩余账单
 - 阈值或对比表达式
 - 停止原因（stop reason）
+
+#### 记录“为什么这件商品没买”
+
+最佳位置：
+
+- `AutoStockStapleQuantityControl<Item>Buy`
+- `AutoStockStapleQuantityControl<Item>Exclude`
+
+建议 payload：
+
+- 区域（region）
+- 商品名
+- 当前识别到的持有数量
+- 阈值
+- 分支结果：`buy` / `exclude`
+
+如果要记录“实际完成购买”的最终证据，优先放在 `AutoStockStapleQuantityControl<Item>Buy` 后续的确认节点上。
 
 #### 记录“每次购买后的剩余账单”
 
@@ -296,6 +347,21 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 结论：
 
 - 只有“点击框（box）与 OCR 中商品框一致”的那一个商品才算真正被购买
+
+### 模式：命中 `AutoStockBuyItem...Task` 但最终没有购买
+
+症状：
+
+- 已经看到 `AutoStockBuyItemValleyIVTask` 或 `AutoStockBuyItemWulingTask` 的点击成功
+- 随后进入 `AutoStockStapleQuantityControl<Item>`
+- 但 `AutoStockStapleQuantityControl<Item>Buy` 未命中
+- 同时 `AutoStockStapleQuantityControl<Item>Exclude` 成功
+
+结论：
+
+- 这表示“识别到了该商品，并进入了是否需要购买的判定流程”
+- 但数量控制认为当前不需要购买
+- 该商品应写入“识别到但未购买”或“被排除”的说明，不能写入“实际购买顺序”
 
 ### 模式：账单在一次购买前出现两次且数值相同
 
@@ -367,6 +433,10 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 1. `时间` - `区域` - `商品名`
 2. `时间` - `区域` - `商品名`
 
+## 识别到但未购买（如有）
+
+- `时间` - `区域` - `商品名` - `原因：数量控制走了 Exclude / Buy 分支未通过`
+
 ## 事件时间线
 
 | 时间 | 事件                                              | 说明 |
@@ -386,7 +456,8 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 ## 关键依据
 
-- `maafw*.log`: `AutoStockBuyItem...Task` 点击成功 + `AutoStockInStapleItemName` OCR box 对应
+- `maafw*.log`: `AutoStockBuyItem...Task` 点击成功 + `AutoStockInStapleItemName` OCR box 对应（用于锁定候选商品）
+- `maafw*.log`: `AutoStockStapleQuantityControl<Item>Buy` / `Exclude` / `ConfirmBuy`（用于判断是否真的购买）
 - `maafw*.log`: `CurrentStockBillText` OCR
 - `go-service.log`: 运行时 override / 任务上下文
 
@@ -401,9 +472,11 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 - 仅分析 `AutoStockStapleMain`。
 - 不要把 `AutoStockpileMain` 合并进最终购买列表。
-- 只有在匹配到成功的买入点击时，才把 OCR 候选当作“购买结果”。
-- 在下结论“没有购买”之前，必须先确认目标 `task_id` 范围内不存在任何 `Node.Action.Succeeded.*AutoStockBuyItem(ValleyIV|Wuling)Task`。
+- 不要把 `AutoStockBuyItem...Task` 的成功点击直接当作“购买结果”；它只代表进入了是否需要购买的后续判定。
+- 只有在匹配到成功的买入点击，且后续购买判定链路也支持“确实买了”，才把该 OCR 候选当作“购买结果”。
+- 在下结论“没有购买”之前，必须先确认目标 `task_id` 范围内不存在任何真正走通的购买确认路径；不能只看 `AutoStockBuyItem...Task` 有没有命中。
 - 如果已经看到 `AutoStockBuyItem...Task` 的 `Node.Recognition.Starting`，必须继续向后核对到 `Node.Action.Succeeded`、`Node.Action.Failed`、任务结束或明确切分支，不能中途停止。
+- 如果已经看到 `AutoStockStapleQuantityControl<Item>` 或其 `Buy` / `Exclude` 分支开始，也必须继续向后核对到购买确认、排除成功、失败、任务结束或明确切分支，不能中途停止。
 - 如果搜索结果被截断、分页，或日志发生轮转，不能直接给出负结论，必须继续分页或缩小到命中的相关 `maafw*.log` 文件重查。
 - 不要在缺少后续 OCR 证据的情况下推断“最终购买后账单”。
 - 除非日志明确证明同一券种/同一账单口径，否则不要把跨场景账单变化当作同一种货币的连续加减关系来解释。
