@@ -239,10 +239,10 @@
                     "GreenMask": true,
                     "Quantity": {
                         "Box": [
-                            365,
-                            493,
-                            111,
-                            60
+                            367,
+                            473,
+                            102,
+                            94
                         ],
                         "OnlyRec": false
                     },
