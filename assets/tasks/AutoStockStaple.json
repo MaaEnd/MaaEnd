@@ -224,7 +224,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyEngravingPermitLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -251,7 +251,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -260,7 +260,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -269,7 +269,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -278,7 +278,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -287,7 +287,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -296,7 +296,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -368,7 +368,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -377,7 +377,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -530,7 +530,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -539,7 +539,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -548,7 +548,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -557,7 +557,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -566,7 +566,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -575,7 +575,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -584,7 +584,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -794,7 +794,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingEngravingPermitLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -821,7 +821,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -830,7 +830,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -839,7 +839,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -848,7 +848,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -938,7 +938,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingArtificingCatalystLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingArtificingCatalystLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -965,7 +965,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -974,7 +974,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1093,7 +1093,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1102,7 +1102,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1111,7 +1111,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1120,7 +1120,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1129,7 +1129,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
