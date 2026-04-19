@@ -1,0 +1,22 @@
+{
+    "data":[
+        {
+            "LocationId": "Wuling",
+            "LocationName": "武陵",
+            "LocationDetector": "武陵探物器",
+            "LocationCompass": "武陵罗盘",
+            "ItemType": "WulingItem",
+            "Detector": "WulingDetector",
+            "Compass":"WulingCompass"
+        },
+        {
+            "LocationId": "ValleyIV",
+            "LocationName": "四号谷地",
+            "LocationDetector": "谷地探物器",
+            "LocationCompass": "谷地罗盘",
+            "ItemType": "ValleyIVItem",
+            "Detector": "ValleyIVDetector",
+            "Compass":"ValleyIVCompass"
+        }
+    ]
+}

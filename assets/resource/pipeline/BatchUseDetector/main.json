@@ -1,0 +1,83 @@
+{
+    "BatchUseDetectorMain": {
+        "desc": "批量使用探物器/罗盘入口",
+        "next": [
+            "BatchUseDetectorInStashValuablesTab",
+            "[JumpBack]SceneStashValuablesTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "主任务启动"
+        }
+    },
+    "BatchUseDetectorInStashValuablesTab": {
+        "desc": "在珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "next": [
+            "BatchUseDetectorMainProcess"
+        ]
+    },
+    "BatchUseDetectorMainProcess": {
+        "desc": "批量使用探物器/罗盘主流程",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BatchUseDetectorClickWhiteConfirmButton": {
+        "desc": "点击详情页白色确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "BatchUseDetectorClickYellowConfirmButton"
+        ]
+    },
+    "BatchUseDetectorClickYellowConfirmButton": {
+        "desc": "点击详情页黄色确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "BatchUseDetectorBacktoValuablesTab"
+        ]
+    },
+    "BatchUseDetectorBacktoValuablesTab": {
+        "desc": "返回珍贵物品页，返回上一级",
+        "action": "Click",
+        "contact": 1,
+        "post_wait_freezes": 400,
+        "next": [
+            "[JumpBack]BatchUseDetectorConfirmValleyIVItemName",
+            "[JumpBack]BatchUseDetectorConfirmWulingItemName",
+            "BatchUseDetectorFinished"
+        ]
+    },
+    "BatchUseDetectorFinished": {
+        "desc": "批量使用探物器/罗盘流程结束",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "主任务结束"
+        }
+    }
+}
