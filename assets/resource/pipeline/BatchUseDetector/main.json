@@ -68,7 +68,7 @@
     },
     "BatchUseDetectorBacktoValuablesTab": {
         "desc": "返回珍贵物品页，返回上一级",
-        "action": "Click",
+        "action": "Click", //这个没改之前不能合,但我目前没有测试条件,因为我地图还没开完
         "contact": 1,
         "next": [
             "BatchUseDetectorMainProcessLoop",

@@ -553,7 +553,7 @@
     "task.AutoUseSpMedication.description": "응급 이성 강화제 1개 자동 사용(+40 이성)",
     "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
     "option.UseAllExpireSoonMedication.label": "곧 만료될 응급 이성 강화제 모두 사용",
-    "option.UseAllExpireSoonMedication.description": "활성화하면 만료까지 3일 미만인 응급 이성 강화제를 모두 사용합니다(시간 표시가 빨갛게 변함, 최대 15개). 비활성화하면 만료 예정 강화제를 건너뜁니다.",
+    "option.UseAllExpireSoonMedication.description": "활성화하면 만료까지 3일 미만인 응급 이성 강화제를 모두 사용합니다(시간 표시가 빨갛게 변함, 최대 15개).",
     "option.UseRegularSpMedication.label": "일반 응급 이성 강화제 사용",
     "option.UseRegularSpMedication.description": "기본 활성화. 일반 응급 이성 강화제를 발견하면 1개 사용합니다. 비활성화하면 일반 강화제는 건너뜁니다.",
     "task.AutoCollect.description": "야외 자원을 자동 수집합니다(게임을 계속 전면에 유지하고 마우스를 움직이지 마세요).\n참고: 작물이 완전히 자라기 전에 랜덤 성장으로 인해 수집이 누락될 수 있습니다.\n인식 정확도의 한계로 인해 완전히 자라도 일부는 수집되지 않을 수 있습니다.",
