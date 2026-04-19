@@ -17,13 +17,14 @@
         "post_delay": 0,
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            1280,
-            720
+            24,
+            75,
+            945,
+            569
         ],
         "template": "BatchUseDetector/WulingDetector.png",
-        "threshold": 0.75,
+        "threshold": 0.95,
+        "method": 5,
         "order_by": "Score",
         "action": "Click",
         "focus": {
@@ -62,13 +63,14 @@
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            1280,
-            720
+            24,
+            75,
+            945,
+            569
         ],
         "template": "BatchUseDetector/WulingCompass.png",
-        "threshold": 0.75,
+        "threshold": 0.95,
+        "method": 5,
         "order_by": "Score",
         "action": "Click",
         "focus": {
