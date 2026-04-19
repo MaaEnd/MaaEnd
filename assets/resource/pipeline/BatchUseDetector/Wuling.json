@@ -11,7 +11,7 @@
         ]
     },
     "BatchUseDetectorFindWulingDetector": {
-        "desc": "寻找武陵武陵探物器",
+        "desc": "寻找武陵探物器",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -27,7 +27,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "focus": {
-            "Node.Action.Starting": "寻找武陵武陵探物器"
+            "Node.Action.Starting": "寻找武陵探物器"
         },
         "next": [
             "BatchUseDetectorConfirmWulingDetectorName"
@@ -35,7 +35,7 @@
     },
     "BatchUseDetectorConfirmWulingDetectorName": {
         "desc": "确认武陵探物器名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,
@@ -80,7 +80,7 @@
     },
     "BatchUseDetectorConfirmWulingCompassName": {
         "desc": "确认武陵罗盘名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,

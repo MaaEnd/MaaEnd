@@ -11,7 +11,7 @@
         ]
     },
     "BatchUseDetectorFind${Detector}":{
-        "desc": "寻找${LocationName}${LocationDetector}",
+        "desc": "寻找${LocationDetector}",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -27,7 +27,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "focus": {
-            "Node.Action.Starting": "寻找${LocationName}${LocationDetector}"
+            "Node.Action.Starting": "寻找${LocationDetector}"
         },
         "next": [
             "BatchUseDetectorConfirm${Detector}Name"
@@ -35,7 +35,7 @@
     },
     "BatchUseDetectorConfirm${Detector}Name":{
         "desc": "确认${LocationDetector}名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,
@@ -80,7 +80,7 @@
     },
     "BatchUseDetectorConfirm${Compass}Name":{
         "desc": "确认${LocationCompass}名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,

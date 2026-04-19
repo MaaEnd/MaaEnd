@@ -11,7 +11,7 @@
         ]
     },
     "BatchUseDetectorFindValleyIVDetector": {
-        "desc": "寻找四号谷地谷地探物器",
+        "desc": "寻找谷地探物器",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -27,7 +27,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "focus": {
-            "Node.Action.Starting": "寻找四号谷地谷地探物器"
+            "Node.Action.Starting": "寻找谷地探物器"
         },
         "next": [
             "BatchUseDetectorConfirmValleyIVDetectorName"
@@ -35,7 +35,7 @@
     },
     "BatchUseDetectorConfirmValleyIVDetectorName": {
         "desc": "确认谷地探物器名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,
@@ -80,7 +80,7 @@
     },
     "BatchUseDetectorConfirmValleyIVCompassName": {
         "desc": "确认谷地罗盘名称",
-        "enabled": false,
+        "enabled": true,
         "recognition": "OCR",
         "roi": [
             981,
