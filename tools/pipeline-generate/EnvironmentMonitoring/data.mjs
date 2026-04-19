@@ -305,7 +305,7 @@ const ROUTE_CONFIG = [
     {
         Id: "Waterlamp",
         Name: "水灯虫",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -314,7 +314,7 @@ const ROUTE_CONFIG = [
     {
         Id: "XiraniteNexus",
         Name: "枢壤仪",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -323,7 +323,7 @@ const ROUTE_CONFIG = [
     {
         Id: "PierWaterwheel",
         Name: "码头水车",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -332,7 +332,7 @@ const ROUTE_CONFIG = [
     {
         Id: "MiniShellbeast",
         Name: "小壳兽",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -341,7 +341,7 @@ const ROUTE_CONFIG = [
     {
         Id: "AnnularWaterfall",
         Name: "环形瀑布",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -350,7 +350,7 @@ const ROUTE_CONFIG = [
     {
         Id: "BambooWaterChimes",
         Name: "水竹铃",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -359,7 +359,7 @@ const ROUTE_CONFIG = [
     {
         Id: "WitheredBranches",
         Name: "枯枝",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -368,7 +368,7 @@ const ROUTE_CONFIG = [
     {
         Id: "MysteriousCryptidGraffiti",
         Name: "谜之生物的涂鸦",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -377,7 +377,7 @@ const ROUTE_CONFIG = [
     {
         Id: "TreeOfTheOldCourtyard",
         Name: "“旧庭树”",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -386,7 +386,7 @@ const ROUTE_CONFIG = [
     {
         Id: "HangingVines",
         Name: "垂藤",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -395,7 +395,7 @@ const ROUTE_CONFIG = [
     {
         Id: "FloraObservationPoint",
         Name: "植物观察点",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -404,7 +404,7 @@ const ROUTE_CONFIG = [
     {
         Id: "CloudrestEcoSite",
         Name: "栖云生态点",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -413,7 +413,7 @@ const ROUTE_CONFIG = [
     {
         Id: "Rainbow",
         Name: "彩虹",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -422,7 +422,7 @@ const ROUTE_CONFIG = [
     {
         Id: "PeachTreeAtBabblesSHome",
         Name: "念念家的桃树",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -431,7 +431,7 @@ const ROUTE_CONFIG = [
     {
         Id: "WaterTemperatureController",
         Name: "净水温控装置",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -440,7 +440,7 @@ const ROUTE_CONFIG = [
     {
         Id: "SerenityGardenTianshiPillar",
         Name: "安思园的天师桩",
-        EnterMap: "__TODO_FILL_ENTER_MAP__",
+        EnterMap: "SceneAnyEnterWorld",
         MapName: "__TODO_FILL_MAP_NAME__",
         MapTarget: [0, 0, 1, 1],
         MapPath: [[0, 0]],
@@ -453,7 +453,7 @@ const ROUTE_OVERRIDE_BY_NAME = new Map(
 );
 
 const ROUTE_DEFAULTS = {
-    EnterMap: "__TODO_FILL_ENTER_MAP__",
+    EnterMap: "SceneAnyEnterWorld",
     MapName: "__TODO_FILL_MAP_NAME__",
     MapTarget: [0, 0, 1, 1],
     MapPath: [[0, 0]],

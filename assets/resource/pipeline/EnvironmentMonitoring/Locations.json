@@ -1,0 +1,22 @@
+{
+    "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal": {
+        "desc": "前往城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "OutskirtsMonitoringTerminal"
+        ]
+    },
+    "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal": {
+        "desc": "前往首墩监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "MarkerStoneMonitoringTerminal"
+        ]
+    }
+}

@@ -395,8 +395,57 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "EnvironmentMonitoringCheckMonitoringTerminalText": {
+        "desc": "检查环境监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            230,
+            62
+        ],
+        "expected": [
+            "环境监测终端",
+            "環境監測終端",
+            "(?i)Environment\\s*Monitoring\\s*Terminal",
+            "環境観測端末",
+            "환경 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringInMonitoringTerminal": {
+        "desc": "检查是否在环境监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckMonitoringTerminalText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
     "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
         "desc": "检查是否在城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
+    "EnvironmentMonitoringInMarkerStoneMonitoringTerminal": {
+        "desc": "检查是否在首墩监测终端",
         "recognition": "And",
         "all_of": [
             "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
