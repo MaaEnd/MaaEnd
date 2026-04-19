@@ -1,6 +1,7 @@
 {
     "outputPattern": "${Id}.json",
     "data": [
+        // 1.0 版本
         {
             "Id": "AncientTree",
             "Name": "古树",
@@ -121,42 +122,7 @@
             ],
             "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
         },
-        {
-            "Id": "EcologyNearTheFieldLogisticsDepot",
-            "Name": "储备站周围的生态环境",
-            "ExpectedText": [
-                "储备站周围的生态环境",
-                "儲備站周圍的生態環境",
-                "(?i)Ecology\\s*Near\\s*the\\s*Field\\s*Logistics\\s*Depot",
-                "備蓄施設周辺の生態環境",
-                "보급소 주변의 생태 환경"
-            ],
-            "InExpectedText": [
-                "储备站周围的生态环境",
-                "儲備站周圍的生態環境",
-                "(?i)Ecology\\s*Near\\s*the\\s*Field\\s*Logistics\\s*Depot",
-                "備蓄施設周辺の生態環境",
-                "보급소 주변의 생태 환경"
-            ],
-            "EnterMap": "SceneEnterWorldWulingWulingCity8",
-            "MapName": "map02_lv002",
-            "MapTarget": [689.6, 917.3, 6.0, 5.5],
-            "MapPath": [
-                [691.3, 922.7],
-                [678.3, 925.9],
-                [672.5, 918.3],
-                [648.4, 916.3],
-                [648.7, 928.2],
-                [653.1, 931.8],
-                [666.8, 907.8],
-                [664.6, 897.7],
-                [659.9, 896.1],
-                [651.9, 894.2],
-                [627.7, 898.2],
-                [617.8, 901.6]
-            ],
-            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
-        },
+        
         {
             "Id": "EternalSunset",
             "Name": "栖霞驻影",
@@ -196,6 +162,63 @@
                 [190, 729]
             ],
             "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        },
+        {
+            "Id": "RainbowFin",
+            "Name": "七彩鳞",
+            "ExpectedText": ["七彩鳞", "七彩鱗", "(?i)Rainbow\\s*Fin", "七色鱗獣", "무지개 린수"],
+            "InExpectedText": ["七彩鳞", "七彩鱗", "(?i)Rainbow\\s*Fin", "七色鱗獣", "무지개 린수"],
+            "EnterMap": "SceneEnterWorldWulingJingyuValley10",
+            "MapName": "map02_lv001",
+            "MapTarget": [125, 815, 15, 15],
+            "MapPath": [
+                [131, 820],
+                [142, 818],
+                [151, 813],
+                [163, 808],
+                [172, 799],
+                [188, 789],
+                [194, 765],
+                [205, 755]
+            ],
+            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        },
+        // 1.1 版本
+        {
+            "Id": "EcologyNearTheFieldLogisticsDepot",
+            "Name": "储备站周围的生态环境",
+            "ExpectedText": [
+                "储备站周围的生态环境",
+                "儲備站周圍的生態環境",
+                "(?i)Ecology\\s*Near\\s*the\\s*Field\\s*Logistics\\s*Depot",
+                "備蓄施設周辺の生態環境",
+                "보급소 주변의 생태 환경"
+            ],
+            "InExpectedText": [
+                "储备站周围的生态环境",
+                "儲備站周圍的生態環境",
+                "(?i)Ecology\\s*Near\\s*the\\s*Field\\s*Logistics\\s*Depot",
+                "備蓄施設周辺の生態環境",
+                "보급소 주변의 생태 환경"
+            ],
+            "EnterMap": "SceneEnterWorldWulingWulingCity8",
+            "MapName": "map02_lv002",
+            "MapTarget": [689.6, 917.3, 6.0, 5.5],
+            "MapPath": [
+                [691.3, 922.7],
+                [678.3, 925.9],
+                [672.5, 918.3],
+                [648.4, 916.3],
+                [648.7, 928.2],
+                [653.1, 931.8],
+                [666.8, 907.8],
+                [664.6, 897.7],
+                [659.9, 896.1],
+                [651.9, 894.2],
+                [627.7, 898.2],
+                [617.8, 901.6]
+            ],
+            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
         },
         {
             "Id": "InflatedAndGlowingBugspittingLankybeast",
@@ -246,26 +269,6 @@
             "MapPath": [
                 [349.9, 128.0],
                 [373.3, 135.6]
-            ],
-            "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
-        },
-        {
-            "Id": "RainbowFin",
-            "Name": "七彩鳞",
-            "ExpectedText": ["七彩鳞", "七彩鱗", "(?i)Rainbow\\s*Fin", "七色鱗獣", "무지개 린수"],
-            "InExpectedText": ["七彩鳞", "七彩鱗", "(?i)Rainbow\\s*Fin", "七色鱗獣", "무지개 린수"],
-            "EnterMap": "SceneEnterWorldWulingJingyuValley10",
-            "MapName": "map02_lv001",
-            "MapTarget": [125, 815, 15, 15],
-            "MapPath": [
-                [131, 820],
-                [142, 818],
-                [151, 813],
-                [163, 808],
-                [172, 799],
-                [188, 789],
-                [194, 765],
-                [205, 755]
             ],
             "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
         },

@@ -1,6 +1,6 @@
 {
     "template": "template.jsonc",
-    "data": "data.json",
+    "data": "data.jsonc",
     "outputDir": "../../../../assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal",
     "format": true,
     "merged": false
