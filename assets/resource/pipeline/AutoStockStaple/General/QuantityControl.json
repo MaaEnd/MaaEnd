@@ -106,7 +106,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsValleyEngravingPermit",
-                    "AutoStockStapleGoodsValleyEngravingPermit"
+                    "AutoStockStapleGoodsValleyEngravingPermitExcludeValidate"
                 ]
             }
         },
@@ -184,7 +184,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsKunstTube",
-                    "AutoStockStapleGoodsKunstTube"
+                    "AutoStockStapleGoodsKunstTubeExcludeValidate"
                 ]
             }
         },
@@ -262,7 +262,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsJakubsLegacy",
-                    "AutoStockStapleGoodsJakubsLegacy"
+                    "AutoStockStapleGoodsJakubsLegacyExcludeValidate"
                 ]
             }
         },
@@ -340,7 +340,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsPulledSlugMeat",
-                    "AutoStockStapleGoodsPulledSlugMeat"
+                    "AutoStockStapleGoodsPulledSlugMeatExcludeValidate"
                 ]
             }
         },
@@ -418,7 +418,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsHazefyreBlossom",
-                    "AutoStockStapleGoodsHazefyreBlossom"
+                    "AutoStockStapleGoodsHazefyreBlossomExcludeValidate"
                 ]
             }
         },
@@ -496,7 +496,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsCartilageCookie",
-                    "AutoStockStapleGoodsCartilageCookie"
+                    "AutoStockStapleGoodsCartilageCookieExcludeValidate"
                 ]
             }
         },
@@ -574,7 +574,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsCosmoMeltoJelly",
-                    "AutoStockStapleGoodsCosmoMeltoJelly"
+                    "AutoStockStapleGoodsCosmoMeltoJellyExcludeValidate"
                 ]
             }
         },
@@ -652,7 +652,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsKeenValleyDetector",
-                    "AutoStockStapleGoodsKeenValleyDetector"
+                    "AutoStockStapleGoodsKeenValleyDetectorExcludeValidate"
                 ]
             }
         },
@@ -730,7 +730,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsKeenValleyCompass",
-                    "AutoStockStapleGoodsKeenValleyCompass"
+                    "AutoStockStapleGoodsKeenValleyCompassExcludeValidate"
                 ]
             }
         },
@@ -808,7 +808,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsBreezeOfKjersch",
-                    "AutoStockStapleGoodsBreezeOfKjersch"
+                    "AutoStockStapleGoodsBreezeOfKjerschExcludeValidate"
                 ]
             }
         },
@@ -886,7 +886,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsTidestoneSpecimen",
-                    "AutoStockStapleGoodsTidestoneSpecimen"
+                    "AutoStockStapleGoodsTidestoneSpecimenExcludeValidate"
                 ]
             }
         },
@@ -964,7 +964,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsSimonchShawl",
-                    "AutoStockStapleGoodsSimonchShawl"
+                    "AutoStockStapleGoodsSimonchShawlExcludeValidate"
                 ]
             }
         },
@@ -1042,7 +1042,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsFrontiersWatch",
-                    "AutoStockStapleGoodsFrontiersWatch"
+                    "AutoStockStapleGoodsFrontiersWatchExcludeValidate"
                 ]
             }
         },
@@ -1120,7 +1120,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsAuryleneCamera",
-                    "AutoStockStapleGoodsAuryleneCamera"
+                    "AutoStockStapleGoodsAuryleneCameraExcludeValidate"
                 ]
             }
         },
@@ -1198,7 +1198,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsCosmicGatePuzzle",
-                    "AutoStockStapleGoodsCosmicGatePuzzle"
+                    "AutoStockStapleGoodsCosmicGatePuzzleExcludeValidate"
                 ]
             }
         },
@@ -1276,7 +1276,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsSurfingFestivalTicket",
-                    "AutoStockStapleGoodsSurfingFestivalTicket"
+                    "AutoStockStapleGoodsSurfingFestivalTicketExcludeValidate"
                 ]
             }
         },
@@ -1354,7 +1354,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsWulingEngravingPermit",
-                    "AutoStockStapleGoodsWulingEngravingPermit"
+                    "AutoStockStapleGoodsWulingEngravingPermitExcludeValidate"
                 ]
             }
         },
@@ -1432,7 +1432,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsFortifyingInfusion",
-                    "AutoStockStapleGoodsFortifyingInfusion"
+                    "AutoStockStapleGoodsFortifyingInfusionExcludeValidate"
                 ]
             }
         },
@@ -1510,7 +1510,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsGardenFriedRice",
-                    "AutoStockStapleGoodsGardenFriedRice"
+                    "AutoStockStapleGoodsGardenFriedRiceExcludeValidate"
                 ]
             }
         },
@@ -1588,7 +1588,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsMasterPansEggPudding",
-                    "AutoStockStapleGoodsMasterPansEggPudding"
+                    "AutoStockStapleGoodsMasterPansEggPuddingExcludeValidate"
                 ]
             }
         },
@@ -1666,7 +1666,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsEchoingRemedy",
-                    "AutoStockStapleGoodsEchoingRemedy"
+                    "AutoStockStapleGoodsEchoingRemedyExcludeValidate"
                 ]
             }
         },
@@ -1744,7 +1744,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsWulingArtificingCatalyst",
-                    "AutoStockStapleGoodsWulingArtificingCatalyst"
+                    "AutoStockStapleGoodsWulingArtificingCatalystExcludeValidate"
                 ]
             }
         },
@@ -1822,7 +1822,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsKeenWulingDetector",
-                    "AutoStockStapleGoodsKeenWulingDetector"
+                    "AutoStockStapleGoodsKeenWulingDetectorExcludeValidate"
                 ]
             }
         },
@@ -1900,7 +1900,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsKeenWulingCompass",
-                    "AutoStockStapleGoodsKeenWulingCompass"
+                    "AutoStockStapleGoodsKeenWulingCompassExcludeValidate"
                 ]
             }
         },
@@ -1978,7 +1978,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsEurekaTeabox",
-                    "AutoStockStapleGoodsEurekaTeabox"
+                    "AutoStockStapleGoodsEurekaTeaboxExcludeValidate"
                 ]
             }
         },
@@ -2056,7 +2056,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsYinglungDumbbells",
-                    "AutoStockStapleGoodsYinglungDumbbells"
+                    "AutoStockStapleGoodsYinglungDumbbellsExcludeValidate"
                 ]
             }
         },
@@ -2134,7 +2134,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsWovenAggelos",
-                    "AutoStockStapleGoodsWovenAggelos"
+                    "AutoStockStapleGoodsWovenAggelosExcludeValidate"
                 ]
             }
         },
@@ -2212,7 +2212,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsScrimshawOfThePack",
-                    "AutoStockStapleGoodsScrimshawOfThePack"
+                    "AutoStockStapleGoodsScrimshawOfThePackExcludeValidate"
                 ]
             }
         },
@@ -2290,7 +2290,7 @@
             "param": {
                 "all_of": [
                     "AutoStockStapleGoodsChubbyLungFangxingMemorabilia",
-                    "AutoStockStapleGoodsChubbyLungFangxingMemorabilia"
+                    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaExcludeValidate"
                 ]
             }
         },

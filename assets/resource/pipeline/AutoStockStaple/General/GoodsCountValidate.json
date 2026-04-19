@@ -364,5 +364,353 @@
                 }
             }
         }
+    },
+    "AutoStockStapleGoodsValleyEngravingPermitExcludeValidate": {
+        "desc": "谷地刻写券数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsKunstTubeExcludeValidate": {
+        "desc": "附术铁瓶数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsJakubsLegacyExcludeValidate": {
+        "desc": "雅各布的遗产数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsPulledSlugMeatExcludeValidate": {
+        "desc": "手撕虫肉数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsHazefyreBlossomExcludeValidate": {
+        "desc": "雾火之花数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsCartilageCookieExcludeValidate": {
+        "desc": "软骨饼干数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsCosmoMeltoJellyExcludeValidate": {
+        "desc": "星融果冻数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsKeenValleyDetectorExcludeValidate": {
+        "desc": "新锐谷地探物器数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsKeenValleyCompassExcludeValidate": {
+        "desc": "新锐谷地罗盘数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsBreezeOfKjerschExcludeValidate": {
+        "desc": "耶尔什微风数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsTidestoneSpecimenExcludeValidate": {
+        "desc": "浪潮海石数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsSimonchShawlExcludeValidate": {
+        "desc": "塞梦珂披巾数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFrontiersWatchExcludeValidate": {
+        "desc": "《前沿瞭望》数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsAuryleneCameraExcludeValidate": {
+        "desc": "醚质相机数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsCosmicGatePuzzleExcludeValidate": {
+        "desc": "星门锁数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsSurfingFestivalTicketExcludeValidate": {
+        "desc": "冲浪大赛门票数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsWulingEngravingPermitExcludeValidate": {
+        "desc": "武陵刻写券数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFortifyingInfusionExcludeValidate": {
+        "desc": "正本补元汤剂数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsGardenFriedRiceExcludeValidate": {
+        "desc": "锦素炒饭数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsMasterPansEggPuddingExcludeValidate": {
+        "desc": "潘师傅蛋羹数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsEchoingRemedyExcludeValidate": {
+        "desc": "回响秘剂数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsWulingArtificingCatalystExcludeValidate": {
+        "desc": "武陵精锻助剂数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsKeenWulingDetectorExcludeValidate": {
+        "desc": "新锐武陵探物器数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsKeenWulingCompassExcludeValidate": {
+        "desc": "新锐武陵罗盘数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsEurekaTeaboxExcludeValidate": {
+        "desc": "岳研茶盒数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsYinglungDumbbellsExcludeValidate": {
+        "desc": "应龙哑铃数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsWovenAggelosExcludeValidate": {
+        "desc": "草编天使数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsScrimshawOfThePackExcludeValidate": {
+        "desc": "狼群骨雕数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaExcludeValidate": {
+        "desc": "龙泡泡·方兴纪念数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
     }
 }

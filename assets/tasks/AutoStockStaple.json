@@ -228,6 +228,15 @@
                             }
                         }
                     }
+                },
+                "AutoStockStapleGoodsValleyEngravingPermitExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -256,11 +265,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsKunstTubeExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsJakubsLegacyValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsJakubsLegacyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -274,11 +301,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsPulledSlugMeatExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsHazefyreBlossomValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsHazefyreBlossomExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -292,11 +337,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsCartilageCookieExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsCosmoMeltoJellyValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsCosmoMeltoJellyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -373,11 +436,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsKeenValleyDetectorExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsKeenValleyCompassValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsKeenValleyCompassExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -535,11 +616,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsBreezeOfKjerschExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsTidestoneSpecimenValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsTidestoneSpecimenExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -553,11 +652,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsSimonchShawlExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsFrontiersWatchValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFrontiersWatchExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -571,6 +688,15 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsAuryleneCameraExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsCosmicGatePuzzleValidate": {
                     "recognition": {
                         "param": {
@@ -580,11 +706,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsCosmicGatePuzzleExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsSurfingFestivalTicketValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{ValleyGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSurfingFestivalTicketExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ValleyGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -798,6 +942,15 @@
                             }
                         }
                     }
+                },
+                "AutoStockStapleGoodsWulingEngravingPermitExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -826,11 +979,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsFortifyingInfusionExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsGardenFriedRiceValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsGardenFriedRiceExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -844,11 +1015,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsMasterPansEggPuddingExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsEchoingRemedyValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsEchoingRemedyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -942,6 +1131,15 @@
                             }
                         }
                     }
+                },
+                "AutoStockStapleGoodsWulingArtificingCatalystExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingArtificingCatalystLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -970,11 +1168,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsKeenWulingDetectorExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsKeenWulingCompassValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{WulingDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsKeenWulingCompassExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1098,11 +1314,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsEurekaTeaboxExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsYinglungDumbbellsValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsYinglungDumbbellsExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
@@ -1116,6 +1350,15 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsWovenAggelosExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsScrimshawOfThePackValidate": {
                     "recognition": {
                         "param": {
@@ -1125,11 +1368,29 @@
                         }
                     }
                 },
+                "AutoStockStapleGoodsScrimshawOfThePackExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
                 "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
                             }
                         }
                     }
