@@ -179,7 +179,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone1"
             ]
         },
         "next": [
@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        491.2,
+                        197.9,
+                        11.7,
+                        10.7
                     ]
                 }
             ]
@@ -214,7 +214,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone1"
             ]
         },
         "next": [
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        491.2,
+                        197.9,
+                        11.7,
+                        10.7
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone1"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        491.2,
+                        197.9,
+                        11.7,
+                        10.7
                     ]
                 }
             ]
@@ -282,13 +282,51 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "__TODO_FILL_MAP_NAME__",
+            "map_name": "map02_lv004",
             "path": [
                 [
-                    0,
-                    0
+                    498.6,
+                    210.6
+                ],
+                [
+                    517.6,
+                    210.5
+                ],
+                [
+                    517.6,
+                    192.0
+                ],
+                [
+                    535.2,
+                    191.6
+                ],
+                [
+                    536.0,
+                    165.7
+                ],
+                [
+                    554.6,
+                    165.6
                 ]
             ]
+            //[
+            //    {
+            //        "action": "ZONE",
+            //        "zone_id": "Wuling_Base"
+            //    },
+            //    [
+            //        491,
+            //        1069
+            //    ],
+            //    [
+            //        492,
+            //        1071
+            //    ],
+            //    [
+            //        501,
+            //        1071
+            //    ]
+            //]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",

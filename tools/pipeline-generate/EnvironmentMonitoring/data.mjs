@@ -382,10 +382,17 @@ const ROUTE_CONFIG = [
     {
         Id: "TreeOfTheOldCourtyard",
         Name: "“旧庭树”",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "__TODO_FILL_MAP_NAME__",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingMarkerStone1",
+        MapName: "map02_lv004",
+        MapTarget: [491.2, 197.9, 11.7, 10.7],
+        MapPath: [
+            [498.6, 210.6],
+            [517.6, 210.5],
+            [517.6, 192.0],
+            [535.2, 191.6],
+            [536.0, 165.7],
+            [554.6, 165.6]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
