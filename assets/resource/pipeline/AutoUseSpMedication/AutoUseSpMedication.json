@@ -22,11 +22,11 @@
             }
         },
         "next": [
-            "AutoUseSpMedicationLoop"
+            "AutoUseSpMedicationMain"
         ]
     },
-    "AutoUseSpMedicationLoop": {
-        "desc": "主循环，仅支持从珍贵物品页界面开始",
+    "AutoUseSpMedicationMain": {
+        "desc": "主任务流程",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
