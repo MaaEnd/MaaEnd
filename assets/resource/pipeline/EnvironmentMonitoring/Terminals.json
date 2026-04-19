@@ -1,0 +1,60 @@
+{
+    "OutskirtsMonitoringTerminal": {
+        "desc": "城郊监测终端",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "OutskirtsMonitoringTerminalLoop",
+            "[JumpBack]EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        ]
+    },
+    "MarkerStoneMonitoringTerminal": {
+        "desc": "首墩监测终端",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "MarkerStoneMonitoringTerminalLoop",
+            "[JumpBack]EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+        ]
+    },
+    "OutskirtsMonitoringTerminalLoop": {
+        "desc": "城郊监测终端循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ],
+        "next": [
+            // 1.1 的任务
+            "[JumpBack]VigorousCisternOriginiumSlugJob",
+            "[JumpBack]InflatedAndGlowingBugspittingLankybeastJob",
+            "[JumpBack]ObservantSableChestedFowlbeastJob",
+            "[JumpBack]EcologyNearTheFieldLogisticsDepotJob",
+            // 1.0 的任务
+            "[JumpBack]EternalSunsetJob",
+            "[JumpBack]AncientTreeJob",
+            "[JumpBack]CisternOriginiumSlugsJob",
+            "[JumpBack]CollapsedTianshiPillarJob",
+            "[JumpBack]IndoorCropsJob",
+            "[JumpBack]BeaconDamagedInBlightTideJob",
+            "[JumpBack]RainbowFinJob",
+            "[JumpBack]CleansingJadeJob",
+            "EnvironmentMonitoringFinish"
+        ]
+    },
+    "MarkerStoneMonitoringTerminalLoop": {
+        "desc": "首墩监测终端循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMarkerStoneMonitoringTerminal"
+        ],
+        "next": [
+            "EnvironmentMonitoringFinish"
+        ]
+    }
+}

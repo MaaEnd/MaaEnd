@@ -1,28 +1,20 @@
 {
     "EnvironmentMonitoringMain": {
-        "desc": "城郊监测终端任务",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
-            ]
-        },
+        "desc": "环境监测主流程",
         "next": [
-            // 1.1 的任务
-            "[JumpBack]VigorousCisternOriginiumSlugJob",
-            "[JumpBack]InflatedAndGlowingBugspittingLankybeastJob",
-            "[JumpBack]ObservantSableChestedFowlbeastJob",
-            "[JumpBack]EcologyNearTheFieldLogisticsDepotJob",
-            // 1.0 的任务
-            "[JumpBack]EternalSunsetJob",
-            "[JumpBack]AncientTreeJob",
-            "[JumpBack]CisternOriginiumSlugsJob",
-            "[JumpBack]CollapsedTianshiPillarJob",
-            "[JumpBack]IndoorCropsJob",
-            "[JumpBack]BeaconDamagedInBlightTideJob",
-            "[JumpBack]RainbowFinJob",
-            "[JumpBack]CleansingJadeJob",
+            "EnvironmentMonitoringLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+        ]
+    },
+    "EnvironmentMonitoringLoop": {
+        "desc": "环境监测循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+        ],
+        "next": [
+            "[JumpBack]OutskirtsMonitoringTerminal",
+            "[JumpBack]MarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringFinish"
         ]
     },
