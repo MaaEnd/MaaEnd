@@ -70,6 +70,27 @@
             "BakerSaveFilter"
         ]
     },
+    "BakerDeselectUnread": {
+        "desc": "刷新筛选流程: 反选已选中的未读选项",
+        "recognition": "OCR",
+        "roi": [
+            97,
+            287,
+            379,
+            270
+        ],
+        "expected": [
+            "未读",
+            "未讀",
+            "(?i)Unread",
+            "未読"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSaveFilterRefresh"
+        ]
+    },
     "BakerExpend": {
         "desc": "会话信息流程: 检测 Baker 联系人是否可以下拉,展开选项之后进行后续点击流程",
         "recognition": "TemplateMatch",
