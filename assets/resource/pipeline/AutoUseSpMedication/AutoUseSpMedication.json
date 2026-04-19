@@ -66,6 +66,27 @@
         "desc": "优先选择红时限应急理智加强剂",
         "enabled": false,
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "FindEmergencySanityBoosterExpSoon",
+                    "ColorRecognitionEmergencySanityBooster"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationIfExpireSoon",
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择即将过期的药剂"
+        }
+    },
+    "FindEmergencySanityBoosterExpSoon": {
+        "desc": "识别红时限应急理智加强剂",
+        "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
@@ -79,15 +100,32 @@
                 "threshold": 0.84,
                 "order_by": "Score"
             }
-        },
-        "action": "Click",
-        "post_wait_freezes": 300,
-        "next": [
-            "AutoUseSpMedicationIfExpireSoon",
-            "AutoUseSpMedicationUseEmergencySpBooster"
-        ],
-        "focus": {
-            "Node.Action.Starting": "开始选择即将过期的药剂"
+        }
+    },
+    "ColorRecognitionEmergencySanityBooster": {
+        "desc": "颜色识别,确认是过期理智药",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "FindEmergencySanityBoosterExpSoon",
+                "roi_offset": [
+                    0,
+                    0,
+                    -79,
+                    -81
+                ],
+                "method": 40,
+                "lower": [
+                    161,
+                    0,
+                    0
+                ],
+                "upper": [
+                    191,
+                    255,
+                    255
+                ]
+            }
         }
     },
     "AutoUseSpMedicationIfExpireSoon": {
