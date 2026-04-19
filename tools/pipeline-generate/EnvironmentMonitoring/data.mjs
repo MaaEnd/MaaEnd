@@ -349,10 +349,15 @@ const ROUTE_CONFIG = [
     {
         Id: "AnnularWaterfall",
         Name: "环形瀑布",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "__TODO_FILL_MAP_NAME__",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingQingboStockade3",
+        MapName: "map02_lv003",
+        MapTarget: [502.2, 360.2, 13.2, 13.9],
+        MapPath: [
+            [498.8, 360.5],
+            [501.1, 347.9],
+            [506.4, 334.0],
+            [507.4, 330.5]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
