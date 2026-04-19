@@ -2322,7 +2322,6 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockStapleGoodsConfirm",
                     //这里只是确认仍然还在购买商品的界面
                     "AutoStockStapleQuantityControl",
                     "YellowConfirmButtonType1"
@@ -2334,7 +2333,7 @@
             "type": "Click"
         },
         "next": [
-            "AutoStockStapleQuantityControlCloseBuyWindow"
+            "AutoStockStapleQuantityControlCloseRewards"
         ]
     },
     "AutoStockStapleQuantityControlResetRecognitionParams": {
@@ -2368,6 +2367,20 @@
             "param": {
                 "all_of": [
                     "CloseButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "AutoStockStapleQuantityControlCloseRewards": {
+        "desc": "关闭奖励窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
                 ]
             }
         },
