@@ -1,17 +1,17 @@
 {
-    "BatchUseDetectorFindWulingItem": {
-        "desc": "进入武陵物品选取流程",
+    "BatchUseDetectorFindValleyIVItem": {
+        "desc": "进入四号谷地物品选取流程",
         "recognition": "DirectHit",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "BatchUseDetectorFindWulingDetector",
-            "BatchUseDetectorFindWulingCompass"
+            "BatchUseDetectorFindValleyIVDetector",
+            "BatchUseDetectorFindValleyIVCompass"
         ]
     },
-    "BatchUseDetectorFindWulingDetector": {
-        "desc": "寻找武陵武陵探物器",
+    "BatchUseDetectorFindValleyIVDetector": {
+        "desc": "寻找四号谷地谷地探物器",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -20,21 +20,21 @@
             1280,
             720
         ],
-        "template": "BatchUseDetector/WulingDetector.png",
+        "template": "BatchUseDetector/ValleyIVDetector.png",
         "threshold": 0.75,
         "order_by": "Score",
         "pre_wait_freezes": 500,
         "action": "Click",
         "post_wait_freezes": 300,
         "focus": {
-            "Node.Action.Starting": "寻找武陵武陵探物器"
+            "Node.Action.Starting": "寻找四号谷地谷地探物器"
         },
         "next": [
-            "BatchUseDetectorConfirmWulingDetectorName"
+            "BatchUseDetectorConfirmValleyIVDetectorName"
         ]
     },
-    "BatchUseDetectorConfirmWulingDetectorName": {
-        "desc": "确认武陵探物器名称",
+    "BatchUseDetectorConfirmValleyIVDetectorName": {
+        "desc": "确认谷地探物器名称",
         "enabled": false,
         "recognition": "OCR",
         "roi": [
@@ -44,19 +44,19 @@
             27
         ],
         "expected": [
-            "武陵探物器"
+            "谷地探物器"
         ],
         "threshold": 0.7,
         "focus": {
-            "Node.Action.Starting": "确认武陵探物器名称"
+            "Node.Action.Starting": "确认谷地探物器名称"
         },
         "next": [
             "BatchUseDetectorClickWhiteConfirmButton",
             "BatchUseDetectorFinished"
         ]
     },
-    "BatchUseDetectorFindWulingCompass": {
-        "desc": "寻找武陵武陵罗盘",
+    "BatchUseDetectorFindValleyIVCompass": {
+        "desc": "寻找四号谷地谷地罗盘",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -65,21 +65,21 @@
             1280,
             720
         ],
-        "template": "BatchUseDetector/WulingCompass.png",
+        "template": "BatchUseDetector/ValleyIVCompass.png",
         "threshold": 0.75,
         "order_by": "Score",
         "pre_wait_freezes": 500,
         "action": "Click",
         "post_wait_freezes": 300,
         "focus": {
-            "Node.Action.Starting": "寻找武陵武陵罗盘"
+            "Node.Action.Starting": "寻找四号谷地谷地罗盘"
         },
         "next": [
-            "BatchUseDetectorConfirmWulingCompassName"
+            "BatchUseDetectorConfirmValleyIVCompassName"
         ]
     },
-    "BatchUseDetectorConfirmWulingCompassName": {
-        "desc": "确认武陵罗盘名称",
+    "BatchUseDetectorConfirmValleyIVCompassName": {
+        "desc": "确认谷地罗盘名称",
         "enabled": false,
         "recognition": "OCR",
         "roi": [
@@ -89,11 +89,11 @@
             27
         ],
         "expected": [
-            "武陵罗盘"
+            "谷地罗盘"
         ],
         "threshold": 0.7,
         "focus": {
-            "Node.Action.Starting": "确认武陵罗盘名称"
+            "Node.Action.Starting": "确认谷地罗盘名称"
         },
         "next": [
             "BatchUseDetectorClickWhiteConfirmButton",
