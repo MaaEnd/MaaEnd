@@ -314,10 +314,18 @@ const ROUTE_CONFIG = [
     {
         Id: "XiraniteNexus",
         Name: "枢壤仪",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "__TODO_FILL_MAP_NAME__",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingWulingCity4",
+        MapName: "map02_lv002",
+        MapTarget: [240, 695, 15, 15],
+        MapPath: [
+            [241.3, 703.6],
+            [215.2, 703.7],
+            [213.6, 693.7],
+            [195.1, 680.2],
+            [183.7, 680.2],
+            [177.6, 675.2],
+            [170.8, 674.6]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
