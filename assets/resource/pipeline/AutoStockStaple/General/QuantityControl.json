@@ -1,5 +1,6 @@
 {
     "AutoStockStapleQuantityControl": {
+        "desc": "购买商品界面的数量控制",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -844,18 +845,14 @@
             "param": {
                 "all_of": [
                     //这里只是确认仍然还在购买商品的界面
-                    "AutoStockStapleQuantityControl"
-                ]
+                    "AutoStockStapleQuantityControl",
+                    "YellowConfirmButtonType1"
+                ],
+                "box_index": 1
             }
         },
         "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AttachToExpectedRegexAction", //初始化正则表达式
-                "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
-                }
-            }
+            "type": "Click"
         },
         "next": [
             "AutoStockStapleQuantityControlCloseBuyWindow"
