@@ -1,0 +1,8 @@
+{
+    "template": "goods-count-validate-template.jsonc",
+    "data": "data.mjs",
+    "outputDir": "../../../../assets/resource/pipeline/AutoStockStaple/General",
+    "outputFile": "GoodsCountValidate.json",
+    "format": true,
+    "merged": true
+}

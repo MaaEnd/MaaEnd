@@ -1,0 +1,8 @@
+{
+    "template": "goods-template.jsonc",
+    "data": "data.mjs",
+    "outputDir": "../../../../assets/resource/pipeline/AutoStockStaple/General",
+    "outputFile": "Goods.json",
+    "format": true,
+    "merged": true
+}

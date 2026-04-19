@@ -1,0 +1,8 @@
+{
+    "template": "quantity-control-template.jsonc",
+    "data": "data.mjs",
+    "outputDir": "../../../../assets/resource/pipeline/AutoStockStaple/General",
+    "outputFile": "QuantityControl.json",
+    "format": true,
+    "merged": true
+}
