@@ -2,6 +2,18 @@
     "WeaponUpgradeStart": {
         "desc": "升级武器任务入口",
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "WeaponUpgradeSwitchLowLevel",
+                        "WeaponUpgradeSwitchAscending"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -181,6 +193,7 @@
     },
     "WeaponUpgradeSwitchLowLevel": {
         "desc": "识别品质，切换到等级分类",
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -201,6 +214,15 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                0,
+                -200,
+                400,
+                200
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -208,7 +230,7 @@
         ]
     },
     "WeaponUpgradeClickLevelSort": {
-        "desc": "识别武器等级",
+        "desc": "在下拉菜单中识别武器等级并选择",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -226,13 +248,21 @@
                 ]
             }
         },
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                16,
+                561,
+                375,
+                133
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 300,
             "target": [
                 0,
                 -300,
@@ -245,6 +275,7 @@
     },
     "WeaponUpgradeSwitchAscending": {
         "desc": "识别到降序，变成升序",
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {
