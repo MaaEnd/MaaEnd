@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        300,
+                        460,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -214,7 +214,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "__TODO_FILL_ENTER_MAP__"
+                "SceneEnterWorldWulingQingboStockade1"
             ]
         },
         "next": [
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        300,
+                        460,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "__TODO_FILL_ENTER_MAP__"
+                "SceneEnterWorldWulingQingboStockade1"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        300,
+                        460,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -282,11 +282,23 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "__TODO_FILL_MAP_NAME__",
+            "map_name": "map02_lv003",
             "path": [
                 [
-                    0,
-                    0
+                    291.7,
+                    473.5
+                ],
+                [
+                    269.9,
+                    474.2
+                ],
+                [
+                    269.6,
+                    464.1
+                ],
+                [
+                    268.8,
+                    458.1
                 ]
             ]
         },
