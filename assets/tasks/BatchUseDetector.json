@@ -32,15 +32,6 @@
                     "pipeline_override": {
                         "BatchUseDetectorFindWulingItem": {
                             "enabled": true
-                        },
-                        "BatchUseDetectorConfirmWulingItemName": {
-                            "enabled": true
-                        },
-                        "BatchUseDetectorFindValleyIVItem": {
-                            "enabled": false
-                        },
-                        "BatchUseDetectorConfirmValleyIVItemName": {
-                            "enabled": false
                         }
                     }
                 },
@@ -48,16 +39,7 @@
                     "name": "ValleyIV",
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
-                        "BatchUseDetectorFindWulingItem": {
-                            "enabled": false
-                        },
-                        "BatchUseDetectorConfirmWulingItemName": {
-                            "enabled": false
-                        },
                         "BatchUseDetectorFindValleyIVItem": {
-                            "enabled": true
-                        },
-                        "BatchUseDetectorConfirmValleyIVItemName": {
                             "enabled": true
                         }
                     }
@@ -73,21 +55,11 @@
                     "name": "Detector",
                     "label": "$task.BatchUseDetector.option.Category.Detector",
                     "pipeline_override": {
-                        "BatchUseDetectorFindWulingItem": {
-                            "template": "BatchUseDetector/wuling_detector.png"
+                        "BatchUseDetectorFindValleyIVDetector": {
+                            "enabled": true
                         },
-                        "BatchUseDetectorConfirmWulingItemName": {
-                            "expected": [
-                                "武陵探物器"
-                            ]
-                        },
-                        "BatchUseDetectorFindValleyIVItem": {
-                            "template": "BatchUseDetector/valleyiv_detector.png"
-                        },
-                        "BatchUseDetectorConfirmValleyIVItemName": {
-                            "expected": [
-                                "谷地探物器"
-                            ]
+                        "BatchUseDetectorFindWulingDetector": {
+                            "enabled": true
                         }
                     }
                 },
@@ -95,21 +67,11 @@
                     "name": "Compass",
                     "label": "$task.BatchUseDetector.option.Category.Compass",
                     "pipeline_override": {
-                        "BatchUseDetectorFindWulingItem": {
-                            "template": "BatchUseDetector/wuling_compass.png"
+                        "BatchUseDetectorFindValleyIVCompass": {
+                            "enabled": true
                         },
-                        "BatchUseDetectorConfirmWulingItemName": {
-                            "expected": [
-                                "武陵罗盘"
-                            ]
-                        },
-                        "BatchUseDetectorFindValleyIVItem": {
-                            "template": "BatchUseDetector/valleyiv_compass.png"
-                        },
-                        "BatchUseDetectorConfirmValleyIVItemName": {
-                            "expected": [
-                                "谷地罗盘"
-                            ]
+                        "BatchUseDetectorFindWulingCompass": {
+                            "enabled": true
                         }
                     }
                 }
@@ -129,7 +91,7 @@
                 }
             ],
             "pipeline_override": {
-                "BatchUseDetectorClickWhiteConfirmButton": {
+                "BatchUseDetectorMainProcessLoop": {
                     "max_hit": "{Times}"
                 }
             }

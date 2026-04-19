@@ -2,18 +2,39 @@
     "AutoUseSpMedicationEntry": {
         "desc": "自动使用理智药剂任务入口",
         "pre_delay": 0,
-        "anchor": {
-            "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon",
-            "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationChooseEmergencySanityBooster",
-            "ValuableStashValuablesTabInNext3": "AutoUseSpMedicationUseNoEmergencySanityBooster"
-        },
         "post_delay": 0,
         "next": [
-            "ValuableStashValuablesTab"
+            "AutoUseSpMedicationInStashValuablesTab",
+            "[JumpBack]SceneStashValuablesTab"
         ],
         "focus": {
             "Node.Action.Starting": "即将进入珍贵物品标签页"
         }
+    },
+    "AutoUseSpMedicationInStashValuablesTab": {
+        "desc": "识别是否在珍贵物品页界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "next": [
+            "AutoUseSpMedicationMain"
+        ]
+    },
+    "AutoUseSpMedicationMain": {
+        "desc": "主任务流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon",
+            "AutoUseSpMedicationChooseEmergencySanityBooster",
+            "AutoUseSpMedicationUseNoEmergencySanityBooster",
+            "AutoUseSpMedicationSkipRegular"
+        ]
     },
     "AutoUseSpMedicationChooseEmergencySanityBooster": {
         "desc": "选择应急理智加强剂",
@@ -42,7 +63,29 @@
         }
     },
     "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-        "desc": "选择红时限应急理智加强剂",
+        "desc": "优先选择红时限应急理智加强剂",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "FindEmergencySanityBoosterExpSoon",
+                    "ColorRecognitionEmergencySanityBooster"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationIfExpireSoon",
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择即将过期的药剂"
+        }
+    },
+    "FindEmergencySanityBoosterExpSoon": {
+        "desc": "识别红时限应急理智加强剂",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -57,19 +100,36 @@
                 "threshold": 0.84,
                 "order_by": "Score"
             }
-        },
-        "action": "Click",
-        "post_wait_freezes": 300,
-        "next": [
-            //"AutoUseSpMedicationIfExpireSoon" if option yes
-            "AutoUseSpMedicationUseEmergencySpBooster"
-        ],
-        "focus": {
-            "Node.Action.Starting": "开始选择即将过期的药剂"
+        }
+    },
+    "ColorRecognitionEmergencySanityBooster": {
+        "desc": "颜色识别,确认是过期理智药",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "FindEmergencySanityBoosterExpSoon",
+                "roi_offset": [
+                    0,
+                    0,
+                    -79,
+                    -81
+                ],
+                "method": 40,
+                "lower": [
+                    161,
+                    0,
+                    0
+                ],
+                "upper": [
+                    191,
+                    255,
+                    255
+                ]
+            }
         }
     },
     "AutoUseSpMedicationIfExpireSoon": {
-        "desc": "详情页检测到红色限时",
+        "desc": "详情页检测到红色限时,只有在UseAllExpireSoonSpMedication为yes时才会启用",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -82,9 +142,6 @@
                 "template": "Valuables/ExpireSoon.png",
                 "threshold": 0.8
             }
-        },
-        "anchor": {
-            "AutoUseSpMedicationUseEmergencySpBoosterNext": "AutoUseSpMedicationAdd"
         },
         "next": [
             "AutoUseSpMedicationUseEmergencySpBooster"
@@ -162,7 +219,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "next": [
-            "[Anchor]AutoUseSpMedicationUseEmergencySpBoosterNext", // AutoUseSpMedicationAdd
+            "AutoUseSpMedicationAdd",
             "AutoUseSpMedicationQuickUse",
             "AutoUseSpMedicationQuickUseCancel"
         ]
@@ -187,45 +244,21 @@
             "AutoUseSpMedicationQuickUseError"
         ],
         "focus": {
-            "Node.Action.Failed": "无法使用理智药剂！"
+            "Node.Action.Succeeded": "无法使用理智药剂！"
         }
     },
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-        "desc": "提示没有应急理智加强剂并结束任务",
+        "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智的任意选项才会跳转到这个节点",
+        "enabled": false,
         "focus": {
             "Node.Action.Succeeded": "没有应急理智加强剂，结束任务"
         }
     },
-    "AutoUseSpMedicationCloseDetailNotExpSoon": {
-        "desc": "关闭详情页（非过期药误匹配），尝试应急药剂",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "WhiteConfirmButtonType1"
-                ],
-                "box_index": 0
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    1084,
-                    203,
-                    33,
-                    31
-                ]
-            }
-        },
-        "post_wait_freezes": 300,
-        "next": [
-            "AutoUseSpMedicationChooseEmergencySanityBooster",
-            "AutoUseSpMedicationUseNoEmergencySanityBooster"
-        ]
-    },
     "AutoUseSpMedicationSkipRegular": {
-        "desc": "用户选择不使用应急药剂，静默结束"
+        "desc": "用户未选择使用应急药剂,放弃任务并回调",
+        "focus": {
+            "Node.Action.Succeeded": "用户选择不使用应急药剂，结束任务"
+        }
     },
     "AutoUseSpMedicationAdd": {
         "desc": "点击添加按钮",

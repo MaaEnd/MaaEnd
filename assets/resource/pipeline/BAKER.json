@@ -143,7 +143,7 @@
         ]
     },
     "BakerRefreshFilter": {
-        "desc": "刷新 Baker 联系人的循环流程, 点击筛选框之后直接点击保存可以省一步",
+        "desc": "刷新 Baker 联系人的循环流程, 打开筛选框后反选未读再重新勾选",
         "recognition": "OCR",
         "roi": [
             17,
@@ -158,7 +158,69 @@
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
-            "BakerSaveFilter"
+            "BakerDeselectUnread"
+        ]
+    },
+    "BakerDeselectUnread": {
+        "desc": "刷新筛选流程: 反选已选中的未读选项",
+        "recognition": "OCR",
+        "roi": [
+            219,
+            296,
+            153,
+            220
+        ],
+        "expected": [
+            "未读",
+            "未讀",
+            "(?i)Unread",
+            "未読"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSaveFilterRefresh"
+        ]
+    },
+    "BakerSaveFilterRefresh": {
+        "desc": "刷新筛选流程: 保存反选后的筛选(全部显示)",
+        "recognition": "OCR",
+        "roi": [
+            903,
+            448,
+            247,
+            170
+        ],
+        "expected": [
+            "保存",
+            "儲存",
+            "(?i)Save"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerReopenFilter"
+        ]
+    },
+    "BakerReopenFilter": {
+        "desc": "刷新筛选流程: 重新打开筛选列表以重新选择未读",
+        "recognition": "OCR",
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "expected": [
+            "全部显示",
+            "全部顯示",
+            "(?i)Show\\s*All",
+            "すべて"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerFilterUnread"
         ]
     },
     "BakerResetFilter": {

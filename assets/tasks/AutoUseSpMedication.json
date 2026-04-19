@@ -22,19 +22,24 @@
             "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes"
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
+                            "enabled": true
+                        },
+                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
+                            "enabled": true
+                        },
+                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "AutoUseSpMedicationChooseEmergencySanityBooster": {
-                            "action": "DoNothing",
-                            "next": [
-                                "AutoUseSpMedicationSkipRegular"
-                            ],
-                            "focus": {
-                                "Node.Action.Starting": "未选择使用应急药剂，跳过"
-                            }
+                            "enabled": false
                         }
                     }
                 }
@@ -47,25 +52,28 @@
             "default_case": "No",
             "cases": [
                 {
-                    "name": "No",
+                    "name": "Yes",
                     "pipeline_override": {
-                        "AutoUseSpMedicationEntry": {
-                            "anchor": {
-                                "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBooster",
-                                "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationUseNoEmergencySanityBooster",
-                                "ValuableStashValuablesTabInNext3": "AutoUseSpMedicationUseNoEmergencySanityBooster"
-                            }
+                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
+                            "enabled": true
+                        },
+                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
+                            "enabled": true,
+                            "next": [
+                                "AutoUseSpMedicationIfExpireSoon"
+                            ]
+                        },
+                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
+                            "enabled": false
                         }
                     }
                 },
                 {
-                    "name": "Yes",
+                    "name": "No",
                     "pipeline_override": {
-                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-                            "next": [
-                                "AutoUseSpMedicationIfExpireSoon",
-                                "AutoUseSpMedicationCloseDetailNotExpSoon"
-                            ]
+                        "AutoUseSpMedicationIfExpireSoon": {
+                            //如果用户不选择使用全部即将过期的药剂,在检测到即将过期的药剂时只使用一次,即不进人添加药剂使用次数的节点
+                            "enabled": false
                         }
                     }
                 }

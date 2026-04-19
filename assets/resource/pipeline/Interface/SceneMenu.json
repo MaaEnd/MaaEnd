@@ -41,6 +41,16 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneStashValuablesTab": {
+        "desc": "从任意界面进入贵重品库的珍贵物品页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_SceneStashValuablesTabIn",
+            "_SceneStashValuablesTabSwitch",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
     "SceneEnterMenuOperationalManual": {
         "desc": "从任意界面进入行动手册菜单",
         "pre_delay": 0,

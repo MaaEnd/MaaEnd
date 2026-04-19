@@ -1,0 +1,8 @@
+{
+    "template": "template.jsonc",
+    "data": "data.json",
+    "outputDir": "../../../assets/resource/pipeline/BatchUseDetector",
+    "outputPattern": "${LocationId}.json",
+    "format": true,
+    "merged": false
+}

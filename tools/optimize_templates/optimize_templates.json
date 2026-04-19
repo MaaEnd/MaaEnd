@@ -662,5 +662,21 @@
     "resource/image/SceneManager/MenuPassNew": "2090d22529cc28d2f622c676f0f8215df8a04912a6ed9d2e07bc9f31fa16e9fe",
     "resource/image/MapLocator/Wuling/Lv004Tier330": "1695949634957d96b65fc985f1be52cc3542c7b5ae19b7fb602e51395a2b02b9",
     "resource/image/MapLocator/Wuling/Lv004Tier328": "062cba1aae39eda8df3ed3a26fb4f484ea05ea92f09056171160a7d40ce77235",
-    "resource/image/MapTracker/map/map02_lv004": "6d63bd9404f6a8b480182a6dd56af3cbc544d1da9f7601af303b318db5652045"
+    "resource/image/MapTracker/map/map02_lv004": "6d63bd9404f6a8b480182a6dd56af3cbc544d1da9f7601af303b318db5652045",
+    "resource/image/AutoStockpile/Goods/Wuling/QingboRafts.Tier2": "e07833f36b8b908da16a9b891f37e3f587e3e581956b44db61a862d61f91d371",
+    "resource/image/AutoStockpile/Goods/Wuling/XiraniteFilterCores.Tier2": "c1b2a18dd02306d2da6828bf6226aff4e37dd61f13cbafc46b8168d1cd31d2b6",
+    "resource/image/MapTracker/map/map02_lv003_tier_298": "8b20e07d8d7f20463a714b5f6973cb23dbccbb58747513aef9fa250a91e8b832",
+    "resource/image/MapTracker/map/map02_lv003_tier_294": "b09d2379fc20d4cf45217a48b9f6ce405fa16a4f07bd7f4b3a605f1acabc4b65",
+    "resource/image/MapTracker/map/map02_lv003_tier_295": "f4665c1194b8c45e66d7792aa24e4b6a8a7b828507d25c872abde38125a36521",
+    "resource/image/MapTracker/map/map02_lv004_tier_330": "fafc71af401a7046f6b6b45d5c5e2e0896b6b29c61b1c62dfe969adbbfc26528",
+    "resource/image/MapTracker/map/map02_lv003_tier_296": "30a41e5d67d6255797d70b53573c092393d26d8ea98ac28ae575f9944eace7ca",
+    "resource/image/MapTracker/map/map02_lv003_tier_299": "a54e0e6c2ad2549e4b4885a3ca0997b83861b29094baa9f76229be3474ee9256",
+    "resource/image/MapTracker/map/map02_lv003_tier_297": "ae8b5d0316a481817731c8b2dcc345fddaf205521474b86ecc2f55ae3f75ebf8",
+    "resource/image/MapTracker/map/map02_lv004_tier_328": "840dddf1dee3a8d752125edd160066d25ccfd211487dff8f30a508dd8f6fb858",
+    "resource/image/SceneManager/ValuablesTabNotChoose": "bd2159bba4363866c2bc074323d382553c67790e1478915d8bcb12dfc2b3966e",
+    "resource/image/SceneManager/ValuablesTabChoosed": "50b7b4bb7061f8458c51bd7c9445820f7dbd0753c556cdab798ad0ecb63e37b1",
+    "resource/image/BatchUseDetector/WulingCompass": "40200dc5324d7aefa546c4aa2885d4c16751f832ccf691f361acfe64763f4bd0",
+    "resource/image/BatchUseDetector/WulingDetector": "39f8cda6ceeb9b06abf87d8eaaf293541ec64b1f46b8b7e1ca30501137df6213",
+    "resource/image/BatchUseDetector/ValleyIVCompass": "1ffca727d8e689823edaa19df6b82502499dce7e30610cb4b4987e0355fc9f23",
+    "resource/image/BatchUseDetector/ValleyIVDetector": "833a331a8a706e8c234212355b7ee66dcd18849db59c75d920458935268462d9"
 }
