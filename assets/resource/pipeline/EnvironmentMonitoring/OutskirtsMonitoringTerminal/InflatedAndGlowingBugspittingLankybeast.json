@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "肚子鼓气后发光的吐虫长股兽",
-            "肚子鼓氣後發光的吐蟲長股獸",
-            "(?i)Inflated\\s*and\\s*Glowing\\s*Bugspitting\\s*Lankybeast",
-            "腹が膨らんで光る虫吐き長脚獣",
-            "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
+            "拍摄肚子鼓气后发光的吐虫长股兽",
+            "拍攝肚子鼓氣後發光的吐蟲長股獸",
+            "(?i)Photograph\\s*an\\s*Inflated\\s*and\\s*Glowing\\s*Bugspitting\\s*Lankybeast",
+            "腹が膨らんで光る虫吐き長脚獣の写真を撮る",
+            "배를 부풀려 빛을 내는 버그스피팅 랭키비스트를 촬영하기"
         ]
     },
     "AcceptInflatedAndGlowingBugspittingLankybeast": {
@@ -285,7 +285,7 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    425.0,
+                    425,
                     851.2
                 ],
                 [

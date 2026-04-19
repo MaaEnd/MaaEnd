@@ -1,0 +1,308 @@
+{
+    "PeachTreeAtBabblesSHomeJob": {
+        "desc": "念念家的桃树任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckPeachTreeAtBabblesSHomeText",
+            "CheckPeachTreeAtBabblesSHomeIcon",
+            "CheckPeachTreeAtBabblesSHomeReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptPeachTreeAtBabblesSHome",
+            "GoToPeachTreeAtBabblesSHomeMission"
+        ]
+    },
+    "CheckPeachTreeAtBabblesSHomeText": {
+        "desc": "检查是否有念念家的桃树文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "念念家的桃树",
+            "念念家的桃樹",
+            "(?i)Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
+            "ネンネンの家にある桃の木",
+            "염념이네 복숭아나무"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckPeachTreeAtBabblesSHomeIcon": {
+        "desc": "检查念念家的桃树文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckPeachTreeAtBabblesSHomeText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckPeachTreeAtBabblesSHomeReadyText": {
+        "desc": "检查念念家的桃树委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckPeachTreeAtBabblesSHomeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckPeachTreeAtBabblesSHomeJob": {
+        "desc": "检查念念家的桃树委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckPeachTreeAtBabblesSHomeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckPeachTreeAtBabblesSHomeGoToMissionText": {
+        "desc": "检查念念家的桃树委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckPeachTreeAtBabblesSHomeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InPeachTreeAtBabblesSHomeMission": {
+        "desc": "是否在念念家的桃树任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄念念家的桃树",
+            "拍攝念念家的桃樹",
+            "(?i)Photo:\\s*Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
+            "ネンネンの家にある桃の木の写真を撮る",
+            "염념이네 복숭아나무를 촬영하기"
+        ]
+    },
+    "AcceptPeachTreeAtBabblesSHome": {
+        "desc": "接取念念家的桃树委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckPeachTreeAtBabblesSHomeText",
+            "CheckPeachTreeAtBabblesSHomeIcon",
+            "CheckPeachTreeAtBabblesSHomeJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeMission"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeMission": {
+        "desc": "前往念念家的桃树任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckPeachTreeAtBabblesSHomeText",
+            "CheckPeachTreeAtBabblesSHomeIcon",
+            "CheckPeachTreeAtBabblesSHomeGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "PeachTreeAtBabblesSHomeTrackOrGoTo"
+        ]
+    },
+    "PeachTreeAtBabblesSHomeTrackOrGoTo": {
+        "desc": "在念念家的桃树任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InPeachTreeAtBabblesSHomeMission"
+        ],
+        "next": [
+            "TrackPeachTreeAtBabblesSHome",
+            "GoToPeachTreeAtBabblesSHome"
+        ]
+    },
+    "TrackPeachTreeAtBabblesSHome": {
+        "desc": "追踪念念家的桃树任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InPeachTreeAtBabblesSHomeMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToPeachTreeAtBabblesSHome"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHome": {
+        "desc": "前往念念家的桃树，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeStartPos",
+            "GoToPeachTreeAtBabblesSHomeNotAtStartPos"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeStartPos": {
+        "desc": "在念念家的桃树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
+        "desc": "不在念念家的桃树任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeRecheckStartPos",
+            "GoToPeachTreeAtBabblesSHomeReEnterMap"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeRecheckStartPos": {
+        "desc": "传送后再次检查是否已在念念家的桃树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeReEnterMap": {
+        "desc": "传送后仍未到达念念家的桃树任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在念念家的桃树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
+        ]
+    },
+    "GoToPeachTreeAtBabblesSHomeMapTrackerMove": {
+        "desc": "前往念念家的桃树",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "__TODO_FILL_MAP_NAME__",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringAdjustCamera": "PeachTreeAtBabblesSHomeAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "PeachTreeAtBabblesSHomeAdjustCamera": {
+        "desc": "念念家的桃树任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

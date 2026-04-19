@@ -1,22 +1,22 @@
 {
-    "CleansingJadeJob": {
-        "desc": "漱玉任务",
+    "WitheredBranchesJob": {
+        "desc": "枯枝任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeReadyText"
+            "CheckWitheredBranchesText",
+            "CheckWitheredBranchesIcon",
+            "CheckWitheredBranchesReadyText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJade",
-            "GoToCleansingJadeMission"
+            "AcceptWitheredBranches",
+            "GoToWitheredBranchesMission"
         ]
     },
-    "CheckCleansingJadeText": {
-        "desc": "检查是否有漱玉文本",
+    "CheckWitheredBranchesText": {
+        "desc": "检查是否有枯枝文本",
         "recognition": "OCR",
         "roi": [
             63,
@@ -25,18 +25,18 @@
             71
         ],
         "expected": [
-            "“漱玉”",
-            "「漱玉」",
-            "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
-            "'수옥'"
+            "枯枝",
+            "枯枝",
+            "(?i)Withered\\s*Branches",
+            "枯れ枝",
+            "마른 가지"
         ],
         "order_by": "Vertical"
     },
-    "CheckCleansingJadeIcon": {
-        "desc": "检查漱玉文本下方的图标",
+    "CheckWitheredBranchesIcon": {
+        "desc": "检查枯枝文本下方的图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckWitheredBranchesText",
         "roi_offset": [
             -18,
             0,
@@ -46,10 +46,10 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "CheckCleansingJadeReadyText": {
-        "desc": "检查漱玉委托是否准备好",
+    "CheckWitheredBranchesReadyText": {
+        "desc": "检查枯枝委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckWitheredBranchesIcon",
         "roi_offset": [
             -14,
             332,
@@ -69,10 +69,10 @@
             "임무로 이동하기"
         ]
     },
-    "CheckCleansingJadeJob": {
-        "desc": "检查漱玉委托是否可以接取",
+    "CheckWitheredBranchesJob": {
+        "desc": "检查枯枝委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckWitheredBranchesIcon",
         "roi_offset": [
             -14,
             332,
@@ -87,10 +87,10 @@
             "의뢰 수령"
         ]
     },
-    "CheckCleansingJadeGoToMissionText": {
-        "desc": "检查漱玉委托是否可以前往",
+    "CheckWitheredBranchesGoToMissionText": {
+        "desc": "检查枯枝委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckWitheredBranchesIcon",
         "roi_offset": [
             -14,
             332,
@@ -105,8 +105,8 @@
             "임무로 이동하기"
         ]
     },
-    "InCleansingJadeMission": {
-        "desc": "是否在漱玉任务界面",
+    "InWitheredBranchesMission": {
+        "desc": "是否在枯枝任务界面",
         "recognition": "OCR",
         "roi": [
             415,
@@ -115,66 +115,66 @@
             241
         ],
         "expected": [
-            "拍摄在石柱上侧向生长的“漱玉”",
-            "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
-            "石柱の横にある「漱玉」の写真を撮る",
-            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+            "拍摄祖泉周边的枯枝",
+            "拍攝祖泉周邊的枯枝",
+            "(?i)Photo:\\s*Withered\\s*Branches",
+            "祖泉周辺の枯れ枝の写真を撮る",
+            "선조의 샘 주변의 마른 가지를 촬영하기"
         ]
     },
-    "AcceptCleansingJade": {
-        "desc": "接取漱玉委托",
+    "AcceptWitheredBranches": {
+        "desc": "接取枯枝委托",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckWitheredBranchesText",
+            "CheckWitheredBranchesIcon",
+            "CheckWitheredBranchesJob"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "GoToCleansingJadeMission"
+            "GoToWitheredBranchesMission"
         ]
     },
-    "GoToCleansingJadeMission": {
-        "desc": "前往漱玉任务",
+    "GoToWitheredBranchesMission": {
+        "desc": "前往枯枝任务",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeGoToMissionText"
+            "CheckWitheredBranchesText",
+            "CheckWitheredBranchesIcon",
+            "CheckWitheredBranchesGoToMissionText"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CleansingJadeTrackOrGoTo"
+            "WitheredBranchesTrackOrGoTo"
         ]
     },
-    "CleansingJadeTrackOrGoTo": {
-        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+    "WitheredBranchesTrackOrGoTo": {
+        "desc": "在枯枝任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
         "recognition": "And",
         "all_of": [
-            "InCleansingJadeMission"
+            "InWitheredBranchesMission"
         ],
         "next": [
-            "TrackCleansingJade",
-            "GoToCleansingJade"
+            "TrackWitheredBranches",
+            "GoToWitheredBranches"
         ]
     },
-    "TrackCleansingJade": {
-        "desc": "追踪漱玉任务",
+    "TrackWitheredBranches": {
+        "desc": "追踪枯枝任务",
         "recognition": "And",
         "all_of": [
             "TrackMissionButton",
-            "InCleansingJadeMission"
+            "InWitheredBranchesMission"
         ],
         "action": "Click",
         "next": [
-            "GoToCleansingJade"
+            "GoToWitheredBranches"
         ]
     },
-    "GoToCleansingJade": {
-        "desc": "前往漱玉，先回到大世界再进行判断",
+    "GoToWitheredBranches": {
+        "desc": "前往枯枝，先回到大世界再进行判断",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -183,123 +183,123 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeStartPos",
-            "GoToCleansingJadeNotAtStartPos"
+            "GoToWitheredBranchesStartPos",
+            "GoToWitheredBranchesNotAtStartPos"
         ]
     },
-    "GoToCleansingJadeStartPos": {
-        "desc": "在漱玉任务开始位置附近",
+    "GoToWitheredBranchesStartPos": {
+        "desc": "在枯枝任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToWitheredBranchesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+    "GoToWitheredBranchesNotAtStartPos": {
+        "desc": "不在枯枝任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToWitheredBranchesRecheckStartPos",
+            "GoToWitheredBranchesReEnterMap"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToWitheredBranchesRecheckStartPos": {
+        "desc": "传送后再次检查是否已在枯枝任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToWitheredBranchesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
+    "GoToWitheredBranchesReEnterMap": {
+        "desc": "传送后仍未到达枯枝任务开始位置附近，重试一次传送",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
+            "GoToWitheredBranchesFinalCheckStartPos"
         ]
     },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToWitheredBranchesFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在枯枝任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToWitheredBranchesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToWitheredBranchesMapTrackerMove": {
+        "desc": "前往枯枝",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "__TODO_FILL_MAP_NAME__",
             "path": [
                 [
-                    246,
-                    394
+                    0,
+                    0
                 ]
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
-            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+            "EnvironmentMonitoringAdjustCamera": "WitheredBranchesAdjustCamera"
         },
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "CleansingJadeAdjustCamera": {
-        "desc": "漱玉任务中调整朝向",
+    "WitheredBranchesAdjustCamera": {
+        "desc": "枯枝任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"

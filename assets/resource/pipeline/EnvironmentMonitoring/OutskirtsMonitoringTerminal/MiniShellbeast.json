@@ -1,22 +1,22 @@
 {
-    "CleansingJadeJob": {
-        "desc": "漱玉任务",
+    "MiniShellbeastJob": {
+        "desc": "小壳兽任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeReadyText"
+            "CheckMiniShellbeastText",
+            "CheckMiniShellbeastIcon",
+            "CheckMiniShellbeastReadyText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJade",
-            "GoToCleansingJadeMission"
+            "AcceptMiniShellbeast",
+            "GoToMiniShellbeastMission"
         ]
     },
-    "CheckCleansingJadeText": {
-        "desc": "检查是否有漱玉文本",
+    "CheckMiniShellbeastText": {
+        "desc": "检查是否有小壳兽文本",
         "recognition": "OCR",
         "roi": [
             63,
@@ -25,18 +25,18 @@
             71
         ],
         "expected": [
-            "“漱玉”",
-            "「漱玉」",
-            "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
-            "'수옥'"
+            "小壳兽",
+            "小殼獸",
+            "(?i)Mini\\s*Shellbeast",
+            "小さな甲獣",
+            "작은 셸비스트"
         ],
         "order_by": "Vertical"
     },
-    "CheckCleansingJadeIcon": {
-        "desc": "检查漱玉文本下方的图标",
+    "CheckMiniShellbeastIcon": {
+        "desc": "检查小壳兽文本下方的图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckMiniShellbeastText",
         "roi_offset": [
             -18,
             0,
@@ -46,10 +46,10 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "CheckCleansingJadeReadyText": {
-        "desc": "检查漱玉委托是否准备好",
+    "CheckMiniShellbeastReadyText": {
+        "desc": "检查小壳兽委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckMiniShellbeastIcon",
         "roi_offset": [
             -14,
             332,
@@ -69,10 +69,10 @@
             "임무로 이동하기"
         ]
     },
-    "CheckCleansingJadeJob": {
-        "desc": "检查漱玉委托是否可以接取",
+    "CheckMiniShellbeastJob": {
+        "desc": "检查小壳兽委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckMiniShellbeastIcon",
         "roi_offset": [
             -14,
             332,
@@ -87,10 +87,10 @@
             "의뢰 수령"
         ]
     },
-    "CheckCleansingJadeGoToMissionText": {
-        "desc": "检查漱玉委托是否可以前往",
+    "CheckMiniShellbeastGoToMissionText": {
+        "desc": "检查小壳兽委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckMiniShellbeastIcon",
         "roi_offset": [
             -14,
             332,
@@ -105,8 +105,8 @@
             "임무로 이동하기"
         ]
     },
-    "InCleansingJadeMission": {
-        "desc": "是否在漱玉任务界面",
+    "InMiniShellbeastMission": {
+        "desc": "是否在小壳兽任务界面",
         "recognition": "OCR",
         "roi": [
             415,
@@ -115,66 +115,66 @@
             241
         ],
         "expected": [
-            "拍摄在石柱上侧向生长的“漱玉”",
-            "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
-            "石柱の横にある「漱玉」の写真を撮る",
-            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+            "拍摄缩进壳中的小壳兽",
+            "拍攝縮進殼中的小殼獸",
+            "(?i)Photo:\\s*Mini\\s*Shellbeast\\s*in\\s*Defense",
+            "殻にこもる小さな甲獣の写真を撮る",
+            "껍질 속으로 숨은 작은 셸비스트를 촬영하기"
         ]
     },
-    "AcceptCleansingJade": {
-        "desc": "接取漱玉委托",
+    "AcceptMiniShellbeast": {
+        "desc": "接取小壳兽委托",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckMiniShellbeastText",
+            "CheckMiniShellbeastIcon",
+            "CheckMiniShellbeastJob"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "GoToCleansingJadeMission"
+            "GoToMiniShellbeastMission"
         ]
     },
-    "GoToCleansingJadeMission": {
-        "desc": "前往漱玉任务",
+    "GoToMiniShellbeastMission": {
+        "desc": "前往小壳兽任务",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeGoToMissionText"
+            "CheckMiniShellbeastText",
+            "CheckMiniShellbeastIcon",
+            "CheckMiniShellbeastGoToMissionText"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CleansingJadeTrackOrGoTo"
+            "MiniShellbeastTrackOrGoTo"
         ]
     },
-    "CleansingJadeTrackOrGoTo": {
-        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+    "MiniShellbeastTrackOrGoTo": {
+        "desc": "在小壳兽任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
         "recognition": "And",
         "all_of": [
-            "InCleansingJadeMission"
+            "InMiniShellbeastMission"
         ],
         "next": [
-            "TrackCleansingJade",
-            "GoToCleansingJade"
+            "TrackMiniShellbeast",
+            "GoToMiniShellbeast"
         ]
     },
-    "TrackCleansingJade": {
-        "desc": "追踪漱玉任务",
+    "TrackMiniShellbeast": {
+        "desc": "追踪小壳兽任务",
         "recognition": "And",
         "all_of": [
             "TrackMissionButton",
-            "InCleansingJadeMission"
+            "InMiniShellbeastMission"
         ],
         "action": "Click",
         "next": [
-            "GoToCleansingJade"
+            "GoToMiniShellbeast"
         ]
     },
-    "GoToCleansingJade": {
-        "desc": "前往漱玉，先回到大世界再进行判断",
+    "GoToMiniShellbeast": {
+        "desc": "前往小壳兽，先回到大世界再进行判断",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -183,123 +183,123 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeStartPos",
-            "GoToCleansingJadeNotAtStartPos"
+            "GoToMiniShellbeastStartPos",
+            "GoToMiniShellbeastNotAtStartPos"
         ]
     },
-    "GoToCleansingJadeStartPos": {
-        "desc": "在漱玉任务开始位置附近",
+    "GoToMiniShellbeastStartPos": {
+        "desc": "在小壳兽任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToMiniShellbeastMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+    "GoToMiniShellbeastNotAtStartPos": {
+        "desc": "不在小壳兽任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToMiniShellbeastRecheckStartPos",
+            "GoToMiniShellbeastReEnterMap"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToMiniShellbeastRecheckStartPos": {
+        "desc": "传送后再次检查是否已在小壳兽任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToMiniShellbeastMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
+    "GoToMiniShellbeastReEnterMap": {
+        "desc": "传送后仍未到达小壳兽任务开始位置附近，重试一次传送",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
+            "GoToMiniShellbeastFinalCheckStartPos"
         ]
     },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToMiniShellbeastFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在小壳兽任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToMiniShellbeastMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToMiniShellbeastMapTrackerMove": {
+        "desc": "前往小壳兽",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "__TODO_FILL_MAP_NAME__",
             "path": [
                 [
-                    246,
-                    394
+                    0,
+                    0
                 ]
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
-            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+            "EnvironmentMonitoringAdjustCamera": "MiniShellbeastAdjustCamera"
         },
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "CleansingJadeAdjustCamera": {
-        "desc": "漱玉任务中调整朝向",
+    "MiniShellbeastAdjustCamera": {
+        "desc": "小壳兽任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"

@@ -1,0 +1,308 @@
+{
+    "MysteriousCryptidGraffitiJob": {
+        "desc": "谜之生物的涂鸦任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptMysteriousCryptidGraffiti",
+            "GoToMysteriousCryptidGraffitiMission"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiText": {
+        "desc": "检查是否有谜之生物的涂鸦文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "谜之生物的涂鸦",
+            "謎之生物的塗鴉",
+            "(?i)Mysterious\\s*Cryptid\\s*Graffiti",
+            "謎の生物に関する落書き",
+            "미지의 생물이 남긴 낙서"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckMysteriousCryptidGraffitiIcon": {
+        "desc": "检查谜之生物的涂鸦文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckMysteriousCryptidGraffitiText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckMysteriousCryptidGraffitiReadyText": {
+        "desc": "检查谜之生物的涂鸦委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiJob": {
+        "desc": "检查谜之生物的涂鸦委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiGoToMissionText": {
+        "desc": "检查谜之生物的涂鸦委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InMysteriousCryptidGraffitiMission": {
+        "desc": "是否在谜之生物的涂鸦任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄谜之生物的涂鸦",
+            "拍攝謎之生物的塗鴉",
+            "(?i)Photo:\\s*Mysterious\\s*Cryptid\\s*Graffiti",
+            "謎の生物に関する落書きの写真を撮る",
+            "미지의 생물이 남긴 낙서를 촬영하기"
+        ]
+    },
+    "AcceptMysteriousCryptidGraffiti": {
+        "desc": "接取谜之生物的涂鸦委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToMysteriousCryptidGraffitiMission"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiMission": {
+        "desc": "前往谜之生物的涂鸦任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "MysteriousCryptidGraffitiTrackOrGoTo"
+        ]
+    },
+    "MysteriousCryptidGraffitiTrackOrGoTo": {
+        "desc": "在谜之生物的涂鸦任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InMysteriousCryptidGraffitiMission"
+        ],
+        "next": [
+            "TrackMysteriousCryptidGraffiti",
+            "GoToMysteriousCryptidGraffiti"
+        ]
+    },
+    "TrackMysteriousCryptidGraffiti": {
+        "desc": "追踪谜之生物的涂鸦任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InMysteriousCryptidGraffitiMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToMysteriousCryptidGraffiti"
+        ]
+    },
+    "GoToMysteriousCryptidGraffiti": {
+        "desc": "前往谜之生物的涂鸦，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiStartPos",
+            "GoToMysteriousCryptidGraffitiNotAtStartPos"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiStartPos": {
+        "desc": "在谜之生物的涂鸦任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiNotAtStartPos": {
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiRecheckStartPos",
+            "GoToMysteriousCryptidGraffitiReEnterMap"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiRecheckStartPos": {
+        "desc": "传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiReEnterMap": {
+        "desc": "传送后仍未到达谜之生物的涂鸦任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiFinalCheckStartPos"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiMapTrackerMove": {
+        "desc": "前往谜之生物的涂鸦",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "__TODO_FILL_MAP_NAME__",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringAdjustCamera": "MysteriousCryptidGraffitiAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "MysteriousCryptidGraffitiAdjustCamera": {
+        "desc": "谜之生物的涂鸦任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

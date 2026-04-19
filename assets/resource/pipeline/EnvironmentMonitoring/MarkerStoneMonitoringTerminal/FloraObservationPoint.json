@@ -1,0 +1,308 @@
+{
+    "FloraObservationPointJob": {
+        "desc": "植物观察点任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckFloraObservationPointText",
+            "CheckFloraObservationPointIcon",
+            "CheckFloraObservationPointReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptFloraObservationPoint",
+            "GoToFloraObservationPointMission"
+        ]
+    },
+    "CheckFloraObservationPointText": {
+        "desc": "检查是否有植物观察点文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "植物观察点",
+            "植物觀察點",
+            "(?i)Flora\\s*Observation\\s*Point",
+            "植物観察スポット",
+            "식물 관찰 지점"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckFloraObservationPointIcon": {
+        "desc": "检查植物观察点文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckFloraObservationPointText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckFloraObservationPointReadyText": {
+        "desc": "检查植物观察点委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckFloraObservationPointIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckFloraObservationPointJob": {
+        "desc": "检查植物观察点委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckFloraObservationPointIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckFloraObservationPointGoToMissionText": {
+        "desc": "检查植物观察点委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckFloraObservationPointIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InFloraObservationPointMission": {
+        "desc": "是否在植物观察点任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄植物观察点",
+            "拍攝植物觀察點",
+            "(?i)Photo:\\s*Flora\\s*Observation\\s*Point",
+            "植物観察スポットの写真を撮る",
+            "식물 관찰 지점을 촬영하기"
+        ]
+    },
+    "AcceptFloraObservationPoint": {
+        "desc": "接取植物观察点委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckFloraObservationPointText",
+            "CheckFloraObservationPointIcon",
+            "CheckFloraObservationPointJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToFloraObservationPointMission"
+        ]
+    },
+    "GoToFloraObservationPointMission": {
+        "desc": "前往植物观察点任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckFloraObservationPointText",
+            "CheckFloraObservationPointIcon",
+            "CheckFloraObservationPointGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "FloraObservationPointTrackOrGoTo"
+        ]
+    },
+    "FloraObservationPointTrackOrGoTo": {
+        "desc": "在植物观察点任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InFloraObservationPointMission"
+        ],
+        "next": [
+            "TrackFloraObservationPoint",
+            "GoToFloraObservationPoint"
+        ]
+    },
+    "TrackFloraObservationPoint": {
+        "desc": "追踪植物观察点任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InFloraObservationPointMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToFloraObservationPoint"
+        ]
+    },
+    "GoToFloraObservationPoint": {
+        "desc": "前往植物观察点，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointStartPos",
+            "GoToFloraObservationPointNotAtStartPos"
+        ]
+    },
+    "GoToFloraObservationPointStartPos": {
+        "desc": "在植物观察点任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointMapTrackerMove"
+        ]
+    },
+    "GoToFloraObservationPointNotAtStartPos": {
+        "desc": "不在植物观察点任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointRecheckStartPos",
+            "GoToFloraObservationPointReEnterMap"
+        ]
+    },
+    "GoToFloraObservationPointRecheckStartPos": {
+        "desc": "传送后再次检查是否已在植物观察点任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointMapTrackerMove"
+        ]
+    },
+    "GoToFloraObservationPointReEnterMap": {
+        "desc": "传送后仍未到达植物观察点任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__TODO_FILL_ENTER_MAP__"
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointFinalCheckStartPos"
+        ]
+    },
+    "GoToFloraObservationPointFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在植物观察点任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToFloraObservationPointMapTrackerMove"
+        ]
+    },
+    "GoToFloraObservationPointMapTrackerMove": {
+        "desc": "前往植物观察点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "__TODO_FILL_MAP_NAME__",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringAdjustCamera": "FloraObservationPointAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "FloraObservationPointAdjustCamera": {
+        "desc": "植物观察点任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

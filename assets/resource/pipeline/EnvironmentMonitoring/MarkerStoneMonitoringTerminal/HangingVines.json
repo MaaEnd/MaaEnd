@@ -1,22 +1,22 @@
 {
-    "CleansingJadeJob": {
-        "desc": "漱玉任务",
+    "HangingVinesJob": {
+        "desc": "垂藤任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeReadyText"
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesReadyText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJade",
-            "GoToCleansingJadeMission"
+            "AcceptHangingVines",
+            "GoToHangingVinesMission"
         ]
     },
-    "CheckCleansingJadeText": {
-        "desc": "检查是否有漱玉文本",
+    "CheckHangingVinesText": {
+        "desc": "检查是否有垂藤文本",
         "recognition": "OCR",
         "roi": [
             63,
@@ -25,18 +25,18 @@
             71
         ],
         "expected": [
-            "“漱玉”",
-            "「漱玉」",
-            "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
-            "'수옥'"
+            "垂藤",
+            "垂藤",
+            "(?i)Hanging\\s*Vines",
+            "垂れ藤",
+            "덩굴 식물"
         ],
         "order_by": "Vertical"
     },
-    "CheckCleansingJadeIcon": {
-        "desc": "检查漱玉文本下方的图标",
+    "CheckHangingVinesIcon": {
+        "desc": "检查垂藤文本下方的图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckHangingVinesText",
         "roi_offset": [
             -18,
             0,
@@ -46,10 +46,10 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "CheckCleansingJadeReadyText": {
-        "desc": "检查漱玉委托是否准备好",
+    "CheckHangingVinesReadyText": {
+        "desc": "检查垂藤委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckHangingVinesIcon",
         "roi_offset": [
             -14,
             332,
@@ -69,10 +69,10 @@
             "임무로 이동하기"
         ]
     },
-    "CheckCleansingJadeJob": {
-        "desc": "检查漱玉委托是否可以接取",
+    "CheckHangingVinesJob": {
+        "desc": "检查垂藤委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckHangingVinesIcon",
         "roi_offset": [
             -14,
             332,
@@ -87,10 +87,10 @@
             "의뢰 수령"
         ]
     },
-    "CheckCleansingJadeGoToMissionText": {
-        "desc": "检查漱玉委托是否可以前往",
+    "CheckHangingVinesGoToMissionText": {
+        "desc": "检查垂藤委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckHangingVinesIcon",
         "roi_offset": [
             -14,
             332,
@@ -105,8 +105,8 @@
             "임무로 이동하기"
         ]
     },
-    "InCleansingJadeMission": {
-        "desc": "是否在漱玉任务界面",
+    "InHangingVinesMission": {
+        "desc": "是否在垂藤任务界面",
         "recognition": "OCR",
         "roi": [
             415,
@@ -115,66 +115,66 @@
             241
         ],
         "expected": [
-            "拍摄在石柱上侧向生长的“漱玉”",
-            "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
-            "石柱の横にある「漱玉」の写真を撮る",
-            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+            "拍摄垂藤",
+            "拍攝垂藤",
+            "(?i)Photo:\\s*Hanging\\s*Vines",
+            "垂れ藤の写真を撮る",
+            "덩굴 식물 촬영하기"
         ]
     },
-    "AcceptCleansingJade": {
-        "desc": "接取漱玉委托",
+    "AcceptHangingVines": {
+        "desc": "接取垂藤委托",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesJob"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "GoToCleansingJadeMission"
+            "GoToHangingVinesMission"
         ]
     },
-    "GoToCleansingJadeMission": {
-        "desc": "前往漱玉任务",
+    "GoToHangingVinesMission": {
+        "desc": "前往垂藤任务",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeGoToMissionText"
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesGoToMissionText"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CleansingJadeTrackOrGoTo"
+            "HangingVinesTrackOrGoTo"
         ]
     },
-    "CleansingJadeTrackOrGoTo": {
-        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+    "HangingVinesTrackOrGoTo": {
+        "desc": "在垂藤任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
         "recognition": "And",
         "all_of": [
-            "InCleansingJadeMission"
+            "InHangingVinesMission"
         ],
         "next": [
-            "TrackCleansingJade",
-            "GoToCleansingJade"
+            "TrackHangingVines",
+            "GoToHangingVines"
         ]
     },
-    "TrackCleansingJade": {
-        "desc": "追踪漱玉任务",
+    "TrackHangingVines": {
+        "desc": "追踪垂藤任务",
         "recognition": "And",
         "all_of": [
             "TrackMissionButton",
-            "InCleansingJadeMission"
+            "InHangingVinesMission"
         ],
         "action": "Click",
         "next": [
-            "GoToCleansingJade"
+            "GoToHangingVines"
         ]
     },
-    "GoToCleansingJade": {
-        "desc": "前往漱玉，先回到大世界再进行判断",
+    "GoToHangingVines": {
+        "desc": "前往垂藤，先回到大世界再进行判断",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -183,123 +183,123 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeStartPos",
-            "GoToCleansingJadeNotAtStartPos"
+            "GoToHangingVinesStartPos",
+            "GoToHangingVinesNotAtStartPos"
         ]
     },
-    "GoToCleansingJadeStartPos": {
-        "desc": "在漱玉任务开始位置附近",
+    "GoToHangingVinesStartPos": {
+        "desc": "在垂藤任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToHangingVinesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+    "GoToHangingVinesNotAtStartPos": {
+        "desc": "不在垂藤任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToHangingVinesRecheckStartPos",
+            "GoToHangingVinesReEnterMap"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToHangingVinesRecheckStartPos": {
+        "desc": "传送后再次检查是否已在垂藤任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToHangingVinesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
+    "GoToHangingVinesReEnterMap": {
+        "desc": "传送后仍未到达垂藤任务开始位置附近，重试一次传送",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
+            "GoToHangingVinesFinalCheckStartPos"
         ]
     },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToHangingVinesFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在垂藤任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToHangingVinesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToHangingVinesMapTrackerMove": {
+        "desc": "前往垂藤",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "__TODO_FILL_MAP_NAME__",
             "path": [
                 [
-                    246,
-                    394
+                    0,
+                    0
                 ]
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
-            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+            "EnvironmentMonitoringAdjustCamera": "HangingVinesAdjustCamera"
         },
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "CleansingJadeAdjustCamera": {
-        "desc": "漱玉任务中调整朝向",
+    "HangingVinesAdjustCamera": {
+        "desc": "垂藤任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"

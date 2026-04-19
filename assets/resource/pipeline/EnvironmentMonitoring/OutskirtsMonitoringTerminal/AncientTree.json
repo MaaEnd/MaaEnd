@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "古树",
-            "古樹",
-            "(?i)Ancient\\s*Tree",
-            "古木",
-            "고목"
+            "拍摄生长在小水潭上的古树",
+            "拍攝生長在小水潭上的古樹",
+            "(?i)Photograph\\s*the\\s*ancient\\s*tree\\s*in\\s*the\\s*small\\s*lake",
+            "水中から生えた古木の写真を撮る",
+            "작은 웅덩이에서 자라는 고목을 촬영하기"
         ]
     },
     "AcceptAncientTree": {

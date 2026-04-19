@@ -1,22 +1,22 @@
 {
-    "CleansingJadeJob": {
-        "desc": "漱玉任务",
+    "RainbowJob": {
+        "desc": "彩虹任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeReadyText"
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowReadyText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJade",
-            "GoToCleansingJadeMission"
+            "AcceptRainbow",
+            "GoToRainbowMission"
         ]
     },
-    "CheckCleansingJadeText": {
-        "desc": "检查是否有漱玉文本",
+    "CheckRainbowText": {
+        "desc": "检查是否有彩虹文本",
         "recognition": "OCR",
         "roi": [
             63,
@@ -25,18 +25,18 @@
             71
         ],
         "expected": [
-            "“漱玉”",
-            "「漱玉」",
-            "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
-            "'수옥'"
+            "彩虹",
+            "彩虹",
+            "(?i)Rainbow",
+            "虹",
+            "무지개"
         ],
         "order_by": "Vertical"
     },
-    "CheckCleansingJadeIcon": {
-        "desc": "检查漱玉文本下方的图标",
+    "CheckRainbowIcon": {
+        "desc": "检查彩虹文本下方的图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckRainbowText",
         "roi_offset": [
             -18,
             0,
@@ -46,10 +46,10 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "CheckCleansingJadeReadyText": {
-        "desc": "检查漱玉委托是否准备好",
+    "CheckRainbowReadyText": {
+        "desc": "检查彩虹委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckRainbowIcon",
         "roi_offset": [
             -14,
             332,
@@ -69,10 +69,10 @@
             "임무로 이동하기"
         ]
     },
-    "CheckCleansingJadeJob": {
-        "desc": "检查漱玉委托是否可以接取",
+    "CheckRainbowJob": {
+        "desc": "检查彩虹委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckRainbowIcon",
         "roi_offset": [
             -14,
             332,
@@ -87,10 +87,10 @@
             "의뢰 수령"
         ]
     },
-    "CheckCleansingJadeGoToMissionText": {
-        "desc": "检查漱玉委托是否可以前往",
+    "CheckRainbowGoToMissionText": {
+        "desc": "检查彩虹委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckRainbowIcon",
         "roi_offset": [
             -14,
             332,
@@ -105,8 +105,8 @@
             "임무로 이동하기"
         ]
     },
-    "InCleansingJadeMission": {
-        "desc": "是否在漱玉任务界面",
+    "InRainbowMission": {
+        "desc": "是否在彩虹任务界面",
         "recognition": "OCR",
         "roi": [
             415,
@@ -115,66 +115,66 @@
             241
         ],
         "expected": [
-            "拍摄在石柱上侧向生长的“漱玉”",
-            "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
-            "石柱の横にある「漱玉」の写真を撮る",
-            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+            "拍摄彩虹",
+            "拍攝彩虹",
+            "(?i)Photo:\\s*Rainbow",
+            "虹の写真を撮る",
+            "무지개를 촬영하기"
         ]
     },
-    "AcceptCleansingJade": {
-        "desc": "接取漱玉委托",
+    "AcceptRainbow": {
+        "desc": "接取彩虹委托",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowJob"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "GoToCleansingJadeMission"
+            "GoToRainbowMission"
         ]
     },
-    "GoToCleansingJadeMission": {
-        "desc": "前往漱玉任务",
+    "GoToRainbowMission": {
+        "desc": "前往彩虹任务",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeGoToMissionText"
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowGoToMissionText"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CleansingJadeTrackOrGoTo"
+            "RainbowTrackOrGoTo"
         ]
     },
-    "CleansingJadeTrackOrGoTo": {
-        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+    "RainbowTrackOrGoTo": {
+        "desc": "在彩虹任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
         "recognition": "And",
         "all_of": [
-            "InCleansingJadeMission"
+            "InRainbowMission"
         ],
         "next": [
-            "TrackCleansingJade",
-            "GoToCleansingJade"
+            "TrackRainbow",
+            "GoToRainbow"
         ]
     },
-    "TrackCleansingJade": {
-        "desc": "追踪漱玉任务",
+    "TrackRainbow": {
+        "desc": "追踪彩虹任务",
         "recognition": "And",
         "all_of": [
             "TrackMissionButton",
-            "InCleansingJadeMission"
+            "InRainbowMission"
         ],
         "action": "Click",
         "next": [
-            "GoToCleansingJade"
+            "GoToRainbow"
         ]
     },
-    "GoToCleansingJade": {
-        "desc": "前往漱玉，先回到大世界再进行判断",
+    "GoToRainbow": {
+        "desc": "前往彩虹，先回到大世界再进行判断",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -183,123 +183,123 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeStartPos",
-            "GoToCleansingJadeNotAtStartPos"
+            "GoToRainbowStartPos",
+            "GoToRainbowNotAtStartPos"
         ]
     },
-    "GoToCleansingJadeStartPos": {
-        "desc": "在漱玉任务开始位置附近",
+    "GoToRainbowStartPos": {
+        "desc": "在彩虹任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToRainbowMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+    "GoToRainbowNotAtStartPos": {
+        "desc": "不在彩虹任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToRainbowRecheckStartPos",
+            "GoToRainbowReEnterMap"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToRainbowRecheckStartPos": {
+        "desc": "传送后再次检查是否已在彩虹任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToRainbowMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
+    "GoToRainbowReEnterMap": {
+        "desc": "传送后仍未到达彩虹任务开始位置附近，重试一次传送",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
+            "GoToRainbowFinalCheckStartPos"
         ]
     },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToRainbowFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在彩虹任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToRainbowMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToRainbowMapTrackerMove": {
+        "desc": "前往彩虹",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "__TODO_FILL_MAP_NAME__",
             "path": [
                 [
-                    246,
-                    394
+                    0,
+                    0
                 ]
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
-            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+            "EnvironmentMonitoringAdjustCamera": "RainbowAdjustCamera"
         },
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "CleansingJadeAdjustCamera": {
-        "desc": "漱玉任务中调整朝向",
+    "RainbowAdjustCamera": {
+        "desc": "彩虹任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"

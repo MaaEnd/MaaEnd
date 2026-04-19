@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "蓄水源石虫",
-            "蓄水源石蟲",
-            "(?i)Cistern\\s*Originium\\s*Slugs",
-            "貯水オリジムシ",
-            "저수 원석충"
+            "拍摄一群蓄水源石虫",
+            "拍攝一群蓄水源石蟲",
+            "(?i)Photograph\\s*a\\s*group\\s*of\\s*Cistern\\s*Originium\\s*Slugs",
+            "貯水オリジムシの群れの写真を撮る",
+            "저수 원석충 무리를 촬영하기"
         ]
     },
     "AcceptCisternOriginiumSlugs": {

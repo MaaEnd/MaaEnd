@@ -1,22 +1,22 @@
 {
-    "CleansingJadeJob": {
-        "desc": "漱玉任务",
+    "BambooWaterChimesJob": {
+        "desc": "水竹铃任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeReadyText"
+            "CheckBambooWaterChimesText",
+            "CheckBambooWaterChimesIcon",
+            "CheckBambooWaterChimesReadyText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJade",
-            "GoToCleansingJadeMission"
+            "AcceptBambooWaterChimes",
+            "GoToBambooWaterChimesMission"
         ]
     },
-    "CheckCleansingJadeText": {
-        "desc": "检查是否有漱玉文本",
+    "CheckBambooWaterChimesText": {
+        "desc": "检查是否有水竹铃文本",
         "recognition": "OCR",
         "roi": [
             63,
@@ -25,18 +25,18 @@
             71
         ],
         "expected": [
-            "“漱玉”",
-            "「漱玉」",
-            "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
-            "'수옥'"
+            "水竹铃",
+            "水竹鈴",
+            "(?i)Bamboo\\s*Water\\s*Chimes",
+            "水竹鈴",
+            "수죽령"
         ],
         "order_by": "Vertical"
     },
-    "CheckCleansingJadeIcon": {
-        "desc": "检查漱玉文本下方的图标",
+    "CheckBambooWaterChimesIcon": {
+        "desc": "检查水竹铃文本下方的图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckBambooWaterChimesText",
         "roi_offset": [
             -18,
             0,
@@ -46,10 +46,10 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "CheckCleansingJadeReadyText": {
-        "desc": "检查漱玉委托是否准备好",
+    "CheckBambooWaterChimesReadyText": {
+        "desc": "检查水竹铃委托是否准备好",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckBambooWaterChimesIcon",
         "roi_offset": [
             -14,
             332,
@@ -69,10 +69,10 @@
             "임무로 이동하기"
         ]
     },
-    "CheckCleansingJadeJob": {
-        "desc": "检查漱玉委托是否可以接取",
+    "CheckBambooWaterChimesJob": {
+        "desc": "检查水竹铃委托是否可以接取",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckBambooWaterChimesIcon",
         "roi_offset": [
             -14,
             332,
@@ -87,10 +87,10 @@
             "의뢰 수령"
         ]
     },
-    "CheckCleansingJadeGoToMissionText": {
-        "desc": "检查漱玉委托是否可以前往",
+    "CheckBambooWaterChimesGoToMissionText": {
+        "desc": "检查水竹铃委托是否可以前往",
         "recognition": "OCR",
-        "roi": "CheckCleansingJadeIcon",
+        "roi": "CheckBambooWaterChimesIcon",
         "roi_offset": [
             -14,
             332,
@@ -105,8 +105,8 @@
             "임무로 이동하기"
         ]
     },
-    "InCleansingJadeMission": {
-        "desc": "是否在漱玉任务界面",
+    "InBambooWaterChimesMission": {
+        "desc": "是否在水竹铃任务界面",
         "recognition": "OCR",
         "roi": [
             415,
@@ -115,66 +115,66 @@
             241
         ],
         "expected": [
-            "拍摄在石柱上侧向生长的“漱玉”",
-            "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
-            "石柱の横にある「漱玉」の写真を撮る",
-            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+            "拍摄水竹铃",
+            "拍攝水竹鈴",
+            "(?i)Photo:\\s*Bamboo\\s*Water\\s*Chimes",
+            "水竹鈴の写真を撮る",
+            "수죽령을 촬영하기"
         ]
     },
-    "AcceptCleansingJade": {
-        "desc": "接取漱玉委托",
+    "AcceptBambooWaterChimes": {
+        "desc": "接取水竹铃委托",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckBambooWaterChimesText",
+            "CheckBambooWaterChimesIcon",
+            "CheckBambooWaterChimesJob"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "GoToCleansingJadeMission"
+            "GoToBambooWaterChimesMission"
         ]
     },
-    "GoToCleansingJadeMission": {
-        "desc": "前往漱玉任务",
+    "GoToBambooWaterChimesMission": {
+        "desc": "前往水竹铃任务",
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeIcon",
-            "CheckCleansingJadeGoToMissionText"
+            "CheckBambooWaterChimesText",
+            "CheckBambooWaterChimesIcon",
+            "CheckBambooWaterChimesGoToMissionText"
         ],
         "box_index": 2,
         "action": "Click",
         "next": [
-            "CleansingJadeTrackOrGoTo"
+            "BambooWaterChimesTrackOrGoTo"
         ]
     },
-    "CleansingJadeTrackOrGoTo": {
-        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+    "BambooWaterChimesTrackOrGoTo": {
+        "desc": "在水竹铃任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
         "recognition": "And",
         "all_of": [
-            "InCleansingJadeMission"
+            "InBambooWaterChimesMission"
         ],
         "next": [
-            "TrackCleansingJade",
-            "GoToCleansingJade"
+            "TrackBambooWaterChimes",
+            "GoToBambooWaterChimes"
         ]
     },
-    "TrackCleansingJade": {
-        "desc": "追踪漱玉任务",
+    "TrackBambooWaterChimes": {
+        "desc": "追踪水竹铃任务",
         "recognition": "And",
         "all_of": [
             "TrackMissionButton",
-            "InCleansingJadeMission"
+            "InBambooWaterChimesMission"
         ],
         "action": "Click",
         "next": [
-            "GoToCleansingJade"
+            "GoToBambooWaterChimes"
         ]
     },
-    "GoToCleansingJade": {
-        "desc": "前往漱玉，先回到大世界再进行判断",
+    "GoToBambooWaterChimes": {
+        "desc": "前往水竹铃，先回到大世界再进行判断",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -183,123 +183,123 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeStartPos",
-            "GoToCleansingJadeNotAtStartPos"
+            "GoToBambooWaterChimesStartPos",
+            "GoToBambooWaterChimesNotAtStartPos"
         ]
     },
-    "GoToCleansingJadeStartPos": {
-        "desc": "在漱玉任务开始位置附近",
+    "GoToBambooWaterChimesStartPos": {
+        "desc": "在水竹铃任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToBambooWaterChimesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+    "GoToBambooWaterChimesNotAtStartPos": {
+        "desc": "不在水竹铃任务开始位置附近，先传送再复核落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToBambooWaterChimesRecheckStartPos",
+            "GoToBambooWaterChimesReEnterMap"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToBambooWaterChimesRecheckStartPos": {
+        "desc": "传送后再次检查是否已在水竹铃任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToBambooWaterChimesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
+    "GoToBambooWaterChimesReEnterMap": {
+        "desc": "传送后仍未到达水竹铃任务开始位置附近，重试一次传送",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "__TODO_FILL_ENTER_MAP__"
             ]
         },
         "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
+            "GoToBambooWaterChimesFinalCheckStartPos"
         ]
     },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
+    "GoToBambooWaterChimesFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在水竹铃任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "__TODO_FILL_MAP_NAME__",
                     "target": [
-                        255,
-                        395,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToBambooWaterChimesMapTrackerMove"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToBambooWaterChimesMapTrackerMove": {
+        "desc": "前往水竹铃",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "__TODO_FILL_MAP_NAME__",
             "path": [
                 [
-                    246,
-                    394
+                    0,
+                    0
                 ]
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
-            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+            "EnvironmentMonitoringAdjustCamera": "BambooWaterChimesAdjustCamera"
         },
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "CleansingJadeAdjustCamera": {
-        "desc": "漱玉任务中调整朝向",
+    "BambooWaterChimesAdjustCamera": {
+        "desc": "水竹铃任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
