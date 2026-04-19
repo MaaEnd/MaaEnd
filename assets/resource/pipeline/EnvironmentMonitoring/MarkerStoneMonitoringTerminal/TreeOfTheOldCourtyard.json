@@ -179,7 +179,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone1"
+                "SceneAnyEnterWorld"
             ]
         },
         "next": [
@@ -294,14 +294,14 @@
                 ],
                 [
                     517.6,
-                    192.0
+                    192
                 ],
                 [
                     535.2,
                     191.6
                 ],
                 [
-                    536.0,
+                    536,
                     165.7
                 ],
                 [
@@ -309,27 +309,9 @@
                     165.6
                 ]
             ]
-            //[
-            //    {
-            //        "action": "ZONE",
-            //        "zone_id": "Wuling_Base"
-            //    },
-            //    [
-            //        491,
-            //        1069
-            //    ],
-            //    [
-            //        492,
-            //        1071
-            //    ],
-            //    [
-            //        501,
-            //        1071
-            //    ]
-            //]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "TreeOfTheOldCourtyardAdjustCamera"
         },
         "next": [

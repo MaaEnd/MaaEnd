@@ -490,6 +490,19 @@ function buildStationName(terminalId) {
     return toPascalCase(stationEnglishName || terminalId) || terminalId;
 }
 
+function buildGoToMonitoringTerminal(station) {
+    if (station === "OutskirtsMonitoringTerminal") {
+        return "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal";
+    }
+    if (station === "MarkerStoneMonitoringTerminal") {
+        return "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal";
+    }
+    console.warn(
+        `[EnvironmentMonitoring] 未识别的监测终端分组: ${station}，已回退到城郊监测终端符号。`,
+    );
+    return "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal";
+}
+
 function buildRow(mission, usedIds) {
     const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
     const override = ROUTE_OVERRIDE_BY_NAME.get(normalizeMissionName(missionName));
@@ -516,11 +529,13 @@ function buildRow(mission, usedIds) {
     const baseId = override?.Id || buildDefaultId(mission);
     const Id = ensureUniqueId(baseId, usedIds, mission?.missionId);
     const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
+    const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
     return {
         Station,
         Id,
         Name: sanitizeDisplayName(missionName),
+        GoToMonitoringTerminal,
         EnterMap,
         MapName,
         MapTarget,
