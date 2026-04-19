@@ -3,20 +3,24 @@
         "desc": "前往城郊监测终端",
         "recognition": "And",
         "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
             "EnvironmentMonitoringInMonitoringTerminal"
         ],
+        "action": "Click",
         "next": [
-            "OutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
         ]
     },
     "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal": {
         "desc": "前往首墩监测终端",
         "recognition": "And",
         "all_of": [
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
             "EnvironmentMonitoringInMonitoringTerminal"
         ],
+        "action": "Click",
         "next": [
-            "MarkerStoneMonitoringTerminal"
+            "EnvironmentMonitoringInMarkerStoneMonitoringTerminal"
         ]
     }
 }

@@ -449,11 +449,92 @@
             ]
         }
     },
+    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
+        "desc": "检查城郊监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            57,
+            1034,
+            85
+        ],
+        "expected": [
+            "城郊监测终端",
+            "城郊監測終端",
+            "(?i)Outskirts\\s*Monitoring\\s*Terminal",
+            "郊外観測端末",
+            "교외 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText": {
+        "desc": "检查首墩监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            57,
+            1034,
+            85
+        ],
+        "expected": [
+            "首墩监测终端",
+            "首墩監測終端",
+            "(?i)Marker\\s*Stone\\s*Monitoring\\s*Terminal",
+            "マーカーストーン観測端末",
+            "마커 스톤 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected": {
+        "desc": "城郊监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            238
+        ],
+        "upper": [
+            0,
+            2,
+            238
+        ],
+        "count": 1000
+    },
+    "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected": {
+        "desc": "首墩监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            238
+        ],
+        "upper": [
+            0,
+            2,
+            238
+        ],
+        "count": 1000
+    },
     "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
         "desc": "检查是否在城郊监测终端",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+            "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected"
         ],
         "pre_wait_freezes": {
             "time": 80,
@@ -469,7 +550,8 @@
         "desc": "检查是否在首墩监测终端",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+            "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected"
         ],
         "pre_wait_freezes": {
             "time": 80,
@@ -480,23 +562,6 @@
                 71
             ]
         }
-    },
-    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
-        "desc": "检查城郊监测终端文本",
-        "recognition": "OCR",
-        "roi": [
-            65,
-            57,
-            184,
-            85
-        ],
-        "expected": [
-            "城郊监测终端",
-            "城郊監測終端",
-            "(?i)Outskirts\\s*Monitoring\\s*Terminal",
-            "郊外観測端末",
-            "교외 관측 단말기"
-        ]
     },
     "InStashValuablesTab": {
         "desc": "当前正在珍贵物品页界面",
