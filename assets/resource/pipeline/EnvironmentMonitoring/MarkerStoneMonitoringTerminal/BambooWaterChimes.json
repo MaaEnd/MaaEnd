@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "__TODO_FILL_ENTER_MAP__"
+                "SceneEnterWorldWulingQingboStockade1"
             ]
         },
         "next": [

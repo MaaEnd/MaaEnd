@@ -350,10 +350,15 @@ const ROUTE_CONFIG = [
     {
         Id: "BambooWaterChimes",
         Name: "水竹铃",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "__TODO_FILL_MAP_NAME__",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingQingboStockade1",
+        MapName: "map02_lv003",
+        MapTarget: [300, 460, 15, 15],
+        MapPath: [
+            [291.7, 473.5],
+            [269.9, 474.2],
+            [269.6, 464.1],
+            [268.8, 458.1]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
