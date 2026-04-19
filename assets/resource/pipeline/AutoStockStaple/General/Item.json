@@ -153,8 +153,8 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    //"expression": "{AutoStockTargetStockBill} < {AutoStockCurrentStockBill}",暂时硬链接对比24万
-                    "expression": "240000< {AutoStockCurrentStockBill}"
+                    "expression": "{AutoStockTargetStockBill} < {AutoStockCurrentStockBill}"
+                    //"expression": "240000< {AutoStockCurrentStockBill}"
                 }
             }
         }
