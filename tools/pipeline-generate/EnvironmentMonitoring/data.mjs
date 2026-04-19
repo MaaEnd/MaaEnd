@@ -377,10 +377,13 @@ const ROUTE_CONFIG = [
     {
         Id: "WitheredBranches",
         Name: "枯枝",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "__TODO_FILL_MAP_NAME__",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingQingboStockade3",
+        MapName: "map02_lv003",
+        MapTarget: [502.2, 360.2, 13.2, 13.9],
+        MapPath: [
+            [506.3, 378.0],
+            [507.5, 379.2]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
