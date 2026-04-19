@@ -3,7 +3,7 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const kiteStationData = require("./kite_station.json");
 
-const MONITORING_TERMINAL_IDS = ["kitestation_002_1", "kitestation_004_1"];
+export const MONITORING_TERMINAL_IDS = ["kitestation_002_1", "kitestation_004_1"];
 const LOCALES = ["zh-CN", "zh-TW", "en-US", "ja-JP", "ko-KR"];
 
 function escapeRegex(str) {

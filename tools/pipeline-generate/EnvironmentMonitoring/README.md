@@ -5,7 +5,8 @@
 ## 运行方式
 
 ```bash
-npx @joebao/maa-pipeline-generate
+npx @joebao/maa-pipeline-generate --config config.json
+npx @joebao/maa-pipeline-generate --config terminals-config.json
 ```
 
 ## 致谢

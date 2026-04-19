@@ -1,0 +1,8 @@
+{
+    "template": "terminals-template.jsonc",
+    "data": "terminals-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
+    "outputFile": "Terminals.json",
+    "format": true,
+    "merged": true
+}
