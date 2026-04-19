@@ -24,7 +24,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -36,7 +36,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -48,7 +48,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -60,7 +60,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -72,7 +72,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -84,7 +84,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -96,7 +96,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -108,7 +108,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -120,7 +120,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -132,7 +132,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -144,7 +144,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -156,7 +156,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -168,7 +168,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -180,7 +180,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -192,7 +192,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -204,7 +204,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -216,7 +216,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -228,7 +228,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -240,7 +240,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -252,7 +252,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -264,7 +264,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -276,7 +276,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -288,7 +288,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -300,7 +300,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -312,7 +312,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -324,7 +324,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -336,7 +336,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -348,7 +348,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }
@@ -360,7 +360,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
                 }
             }
         }

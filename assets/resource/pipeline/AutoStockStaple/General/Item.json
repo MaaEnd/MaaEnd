@@ -224,5 +224,48 @@
                 "box_index": 1
             }
         }
+    },
+    "AutoStockStapleBetterSliding": {
+        "desc": "自动购买稳定物资 - BetterSliding 精确滑动到指定数量",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "Direction": "right",
+                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "GreenMask": true,
+                    "Quantity": {
+                        "Box": [
+                            365,
+                            493,
+                            111,
+                            60
+                        ],
+                        "OnlyRec": false
+                    },
+                    "QuantityFilter": {
+                        "lower": [
+                            28,
+                            255,
+                            255
+                        ],
+                        "upper": [
+                            28,
+                            255,
+                            255
+                        ],
+                        "method": 40
+                    }
+                }
+            }
+        },
+        "attach": {
+            "Target": 10 //这里会被custom程序覆盖后运行
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

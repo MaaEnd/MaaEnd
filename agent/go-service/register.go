@@ -5,6 +5,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockstaple"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
@@ -62,6 +63,7 @@ func registerAll() {
 	autofight.Register()
 	visitfriends.Register()
 	scenemanager.Register()
+	autostockstaple.Register()
 	autostockpile.Register()
 	itemtransfer.Register()
 	log.Info().
