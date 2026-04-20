@@ -64,26 +64,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask", //子任务，先移除筛选再重置识别参数
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter",
             "AutoStockStapleQuantityControlValleyEngravingPermitBuy",
             "AutoStockStapleQuantityControlValleyEngravingPermitExclude"
         ]
     },
     "AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter": {
+        "max_hit": 1,
         "desc": "谷地刻写券移除筛选",
         "pre_delay": 0,
         "action": {
@@ -102,7 +92,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlValleyEngravingPermitBuy": {
         "desc": "谷地刻写券低于阈值时购买指定数量",
@@ -160,26 +153,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlKunstTubeRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKunstTubeRemoveFilter",
             "AutoStockStapleQuantityControlKunstTubeBuy",
             "AutoStockStapleQuantityControlKunstTubeExclude"
         ]
     },
     "AutoStockStapleQuantityControlKunstTubeRemoveFilter": {
+        "max_hit": 1,
         "desc": "附术铁瓶移除筛选",
         "pre_delay": 0,
         "action": {
@@ -198,7 +181,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKunstTubeBuy": {
         "desc": "附术铁瓶低于阈值时购买指定数量",
@@ -256,26 +242,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
             "AutoStockStapleQuantityControlJakubsLegacyBuy",
             "AutoStockStapleQuantityControlJakubsLegacyExclude"
         ]
     },
     "AutoStockStapleQuantityControlJakubsLegacyRemoveFilter": {
+        "max_hit": 1,
         "desc": "雅各布的遗产移除筛选",
         "pre_delay": 0,
         "action": {
@@ -294,7 +270,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlJakubsLegacyBuy": {
         "desc": "雅各布的遗产低于阈值时购买指定数量",
@@ -352,26 +331,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
             "AutoStockStapleQuantityControlPulledSlugMeatBuy",
             "AutoStockStapleQuantityControlPulledSlugMeatExclude"
         ]
     },
     "AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter": {
+        "max_hit": 1,
         "desc": "手撕虫肉移除筛选",
         "pre_delay": 0,
         "action": {
@@ -390,7 +359,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlPulledSlugMeatBuy": {
         "desc": "手撕虫肉低于阈值时购买指定数量",
@@ -448,26 +420,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
             "AutoStockStapleQuantityControlHazefyreBlossomBuy",
             "AutoStockStapleQuantityControlHazefyreBlossomExclude"
         ]
     },
     "AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter": {
+        "max_hit": 1,
         "desc": "雾火之花移除筛选",
         "pre_delay": 0,
         "action": {
@@ -486,7 +448,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlHazefyreBlossomBuy": {
         "desc": "雾火之花低于阈值时购买指定数量",
@@ -544,26 +509,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
             "AutoStockStapleQuantityControlCartilageCookieBuy",
             "AutoStockStapleQuantityControlCartilageCookieExclude"
         ]
     },
     "AutoStockStapleQuantityControlCartilageCookieRemoveFilter": {
+        "max_hit": 1,
         "desc": "软骨饼干移除筛选",
         "pre_delay": 0,
         "action": {
@@ -582,7 +537,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlCartilageCookieBuy": {
         "desc": "软骨饼干低于阈值时购买指定数量",
@@ -640,26 +598,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
             "AutoStockStapleQuantityControlCosmoMeltoJellyBuy",
             "AutoStockStapleQuantityControlCosmoMeltoJellyExclude"
         ]
     },
     "AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter": {
+        "max_hit": 1,
         "desc": "星融果冻移除筛选",
         "pre_delay": 0,
         "action": {
@@ -678,7 +626,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlCosmoMeltoJellyBuy": {
         "desc": "星融果冻低于阈值时购买指定数量",
@@ -736,26 +687,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
             "AutoStockStapleQuantityControlKeenValleyDetectorBuy",
             "AutoStockStapleQuantityControlKeenValleyDetectorExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter": {
+        "max_hit": 1,
         "desc": "新锐谷地探物器移除筛选",
         "pre_delay": 0,
         "action": {
@@ -774,7 +715,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenValleyDetectorBuy": {
         "desc": "新锐谷地探物器低于阈值时购买指定数量",
@@ -832,26 +776,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
             "AutoStockStapleQuantityControlKeenValleyCompassBuy",
             "AutoStockStapleQuantityControlKeenValleyCompassExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter": {
+        "max_hit": 1,
         "desc": "新锐谷地罗盘移除筛选",
         "pre_delay": 0,
         "action": {
@@ -870,7 +804,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenValleyCompassBuy": {
         "desc": "新锐谷地罗盘低于阈值时购买指定数量",
@@ -928,26 +865,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
             "AutoStockStapleQuantityControlBreezeOfKjerschBuy",
             "AutoStockStapleQuantityControlBreezeOfKjerschExclude"
         ]
     },
     "AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter": {
+        "max_hit": 1,
         "desc": "耶尔什微风移除筛选",
         "pre_delay": 0,
         "action": {
@@ -966,7 +893,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlBreezeOfKjerschBuy": {
         "desc": "耶尔什微风低于阈值时购买指定数量",
@@ -1024,26 +954,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
             "AutoStockStapleQuantityControlTidestoneSpecimenBuy",
             "AutoStockStapleQuantityControlTidestoneSpecimenExclude"
         ]
     },
     "AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter": {
+        "max_hit": 1,
         "desc": "浪潮海石移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1062,7 +982,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlTidestoneSpecimenBuy": {
         "desc": "浪潮海石低于阈值时购买指定数量",
@@ -1120,26 +1043,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
             "AutoStockStapleQuantityControlSimonchShawlBuy",
             "AutoStockStapleQuantityControlSimonchShawlExclude"
         ]
     },
     "AutoStockStapleQuantityControlSimonchShawlRemoveFilter": {
+        "max_hit": 1,
         "desc": "塞梦珂披巾移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1158,7 +1071,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlSimonchShawlBuy": {
         "desc": "塞梦珂披巾低于阈值时购买指定数量",
@@ -1216,26 +1132,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
             "AutoStockStapleQuantityControlFrontiersWatchBuy",
             "AutoStockStapleQuantityControlFrontiersWatchExclude"
         ]
     },
     "AutoStockStapleQuantityControlFrontiersWatchRemoveFilter": {
+        "max_hit": 1,
         "desc": "《前沿瞭望》移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1254,7 +1160,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlFrontiersWatchBuy": {
         "desc": "《前沿瞭望》低于阈值时购买指定数量",
@@ -1312,26 +1221,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
             "AutoStockStapleQuantityControlAuryleneCameraBuy",
             "AutoStockStapleQuantityControlAuryleneCameraExclude"
         ]
     },
     "AutoStockStapleQuantityControlAuryleneCameraRemoveFilter": {
+        "max_hit": 1,
         "desc": "醚质相机移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1350,7 +1249,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlAuryleneCameraBuy": {
         "desc": "醚质相机低于阈值时购买指定数量",
@@ -1408,26 +1310,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
             "AutoStockStapleQuantityControlCosmicGatePuzzleBuy",
             "AutoStockStapleQuantityControlCosmicGatePuzzleExclude"
         ]
     },
     "AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter": {
+        "max_hit": 1,
         "desc": "星门锁移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1446,7 +1338,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlCosmicGatePuzzleBuy": {
         "desc": "星门锁低于阈值时购买指定数量",
@@ -1504,26 +1399,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
             "AutoStockStapleQuantityControlSurfingFestivalTicketBuy",
             "AutoStockStapleQuantityControlSurfingFestivalTicketExclude"
         ]
     },
     "AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter": {
+        "max_hit": 1,
         "desc": "冲浪大赛门票移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1542,7 +1427,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlSurfingFestivalTicketBuy": {
         "desc": "冲浪大赛门票低于阈值时购买指定数量",
@@ -1600,26 +1488,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
             "AutoStockStapleQuantityControlWulingEngravingPermitBuy",
             "AutoStockStapleQuantityControlWulingEngravingPermitExclude"
         ]
     },
     "AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter": {
+        "max_hit": 1,
         "desc": "武陵刻写券移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1638,7 +1516,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWulingEngravingPermitBuy": {
         "desc": "武陵刻写券低于阈值时购买指定数量",
@@ -1696,26 +1577,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
             "AutoStockStapleQuantityControlFortifyingInfusionBuy",
             "AutoStockStapleQuantityControlFortifyingInfusionExclude"
         ]
     },
     "AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter": {
+        "max_hit": 1,
         "desc": "正本补元汤剂移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1734,7 +1605,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlFortifyingInfusionBuy": {
         "desc": "正本补元汤剂低于阈值时购买指定数量",
@@ -1792,26 +1666,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
             "AutoStockStapleQuantityControlGardenFriedRiceBuy",
             "AutoStockStapleQuantityControlGardenFriedRiceExclude"
         ]
     },
     "AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter": {
+        "max_hit": 1,
         "desc": "锦素炒饭移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1830,7 +1694,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlGardenFriedRiceBuy": {
         "desc": "锦素炒饭低于阈值时购买指定数量",
@@ -1888,26 +1755,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
             "AutoStockStapleQuantityControlMasterPansEggPuddingBuy",
             "AutoStockStapleQuantityControlMasterPansEggPuddingExclude"
         ]
     },
     "AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter": {
+        "max_hit": 1,
         "desc": "潘师傅蛋羹移除筛选",
         "pre_delay": 0,
         "action": {
@@ -1926,7 +1783,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlMasterPansEggPuddingBuy": {
         "desc": "潘师傅蛋羹低于阈值时购买指定数量",
@@ -1984,26 +1844,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
             "AutoStockStapleQuantityControlEchoingRemedyBuy",
             "AutoStockStapleQuantityControlEchoingRemedyExclude"
         ]
     },
     "AutoStockStapleQuantityControlEchoingRemedyRemoveFilter": {
+        "max_hit": 1,
         "desc": "回响秘剂移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2022,7 +1872,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlEchoingRemedyBuy": {
         "desc": "回响秘剂低于阈值时购买指定数量",
@@ -2080,26 +1933,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
             "AutoStockStapleQuantityControlWulingArtificingCatalystBuy",
             "AutoStockStapleQuantityControlWulingArtificingCatalystExclude"
         ]
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter": {
+        "max_hit": 1,
         "desc": "武陵精锻助剂移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2118,7 +1961,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalystBuy": {
         "desc": "武陵精锻助剂低于阈值时购买指定数量",
@@ -2176,26 +2022,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
             "AutoStockStapleQuantityControlKeenWulingDetectorBuy",
             "AutoStockStapleQuantityControlKeenWulingDetectorExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter": {
+        "max_hit": 1,
         "desc": "新锐武陵探物器移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2214,7 +2050,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenWulingDetectorBuy": {
         "desc": "新锐武陵探物器低于阈值时购买指定数量",
@@ -2272,26 +2111,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
             "AutoStockStapleQuantityControlKeenWulingCompassBuy",
             "AutoStockStapleQuantityControlKeenWulingCompassExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter": {
+        "max_hit": 1,
         "desc": "新锐武陵罗盘移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2310,7 +2139,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlKeenWulingCompassBuy": {
         "desc": "新锐武陵罗盘低于阈值时购买指定数量",
@@ -2368,26 +2200,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
             "AutoStockStapleQuantityControlEurekaTeaboxBuy",
             "AutoStockStapleQuantityControlEurekaTeaboxExclude"
         ]
     },
     "AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter": {
+        "max_hit": 1,
         "desc": "岳研茶盒移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2406,7 +2228,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlEurekaTeaboxBuy": {
         "desc": "岳研茶盒低于阈值时购买指定数量",
@@ -2464,26 +2289,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
             "AutoStockStapleQuantityControlYinglungDumbbellsBuy",
             "AutoStockStapleQuantityControlYinglungDumbbellsExclude"
         ]
     },
     "AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter": {
+        "max_hit": 1,
         "desc": "应龙哑铃移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2502,7 +2317,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlYinglungDumbbellsBuy": {
         "desc": "应龙哑铃低于阈值时购买指定数量",
@@ -2560,26 +2378,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
             "AutoStockStapleQuantityControlWovenAggelosBuy",
             "AutoStockStapleQuantityControlWovenAggelosExclude"
         ]
     },
     "AutoStockStapleQuantityControlWovenAggelosRemoveFilter": {
+        "max_hit": 1,
         "desc": "草编天使移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2598,7 +2406,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlWovenAggelosBuy": {
         "desc": "草编天使低于阈值时购买指定数量",
@@ -2656,26 +2467,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
             "AutoStockStapleQuantityControlScrimshawOfThePackBuy",
             "AutoStockStapleQuantityControlScrimshawOfThePackExclude"
         ]
     },
     "AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter": {
+        "max_hit": 1,
         "desc": "狼群骨雕移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2694,7 +2495,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlScrimshawOfThePackBuy": {
         "desc": "狼群骨雕低于阈值时购买指定数量",
@@ -2752,26 +2556,16 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
-                        "AutoStockStapleQuantityControlResetRecognitionParams"
-                    ]
-                }
-            }
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaBuy",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude"
         ]
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter": {
+        "max_hit": 1,
         "desc": "龙泡泡·方兴纪念移除筛选",
         "pre_delay": 0,
         "action": {
@@ -2790,7 +2584,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaBuy": {
         "desc": "龙泡泡·方兴纪念低于阈值时购买指定数量",
@@ -2907,10 +2704,7 @@
         },
         "action": {
             "type": "Click"
-        },
-        "next": [
-            "AutoStockStapleQuantityControlRefreshItemNameExpected"
-        ]
+        }
     },
     "AutoStockStapleQuantityControlRefreshItemNameExpected": {
         "desc": "购买后刷新商品名称筛选正则",
