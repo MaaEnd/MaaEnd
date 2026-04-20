@@ -2,12 +2,28 @@ package charactercontroller
 
 import (
 	"encoding/json"
+	"math"
+	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 func rotateView(ctx *maa.Context, dx, dy int) {
+	ctrl := ctx.GetTasker().GetController()
+	if control.GetCachedOrDetectControlType(ctrl) == control.CONTROL_TYPE_WLROOTS {
+		const (
+			wlrootsRotationScale = 2.6 / 2.0
+			rotateDelayMillis    = 100
+		)
+		scaledDX := int(math.Round(float64(dx) * wlrootsRotationScale))
+		scaledDY := int(math.Round(float64(dy) * wlrootsRotationScale))
+		ctrl.PostRelativeMove(int32(scaledDX), int32(scaledDY)).Wait()
+		time.Sleep(rotateDelayMillis * time.Millisecond)
+		return
+	}
+
 	cx, cy := 1280/2, 720/2
 	override := map[string]any{
 		"__CharacterControllerDeltaSwipeAction": map[string]any{
