@@ -132,6 +132,25 @@
             "BakerTalkWith"
         ]
     },
+    "BakerSaySmile": {
+        "desc": "通用聊天点击流程: 点击聊天框中的表情包",
+        "recognition": "TemplateMatch",
+        "roi": [
+            487,
+            124,
+            763,
+            554
+        ],
+        "template": "Baker/SaySmile.png",
+        "threshold": 0.7, // 表情包太多了.jpg
+        "order_by": "Vertical",
+        "index": -1,
+        "action": "Click",
+        "repeat": 3, // 这里进行一下重复点击，如果遇到无法识别的表情会在这里点击第一个表情
+        "next": [
+            "BakerCheckChatPage"
+        ]
+    },
     "BakerTalkWithHint": {
         "desc": "事务通讯的小红点",
         "recognition": "TemplateMatch",
