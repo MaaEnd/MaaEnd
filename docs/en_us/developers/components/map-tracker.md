@@ -273,14 +273,22 @@ python tools/map_tracker/map_tracker_editor.py
 
 ### How to Use
 
-**Mouse operations**: Left click can add, move, or select path points; right click can pan the map; the mouse wheel can be used to zoom.
+🖱**Mouse operations**: Left click can add, move, or select path points; right click can pan the map; the mouse wheel can be used to zoom.
 
-**Path recording**: In the path editing page, two recording modes are available: **Loop** (continuous recording) and **Once** (single-point recording). In Loop mode, pressing the record button will continuously record the player's path points; in Once mode, each press of the record button records only one path point.
+📷**Path recording**: In the path editing page, two recording modes are available: **Loop** (continuous recording) and **Once** (single-point recording). In Loop mode, pressing the record button will continuously record the player's path points; in Once mode, each press of the record button records only one path point.
 
 > [!NOTE]
 >
 > To use path recording, make sure you have successfully set up the full environment according to the project's quick start guide.
+>
+> Path recording supports both Win32 and ADB controllers, with Win32 taking priority. The program will automatically detect the currently available game window and connect to it, so no manual selection is required.
 
-**Tier switching**: Some maps support tiers. You can view the different tiers in the Tiers List panel on the left.
+↕️**Tier switching**: Some maps support tiers. You can view the different tiers in the Tiers List panel on the left.
 
-**Point properties**: Click a path point to view its coordinate information, and you can delete it or copy its coordinates.
+👀**Point properties**: Click a path point to view its coordinate information, and you can delete it or copy its coordinates.
+
+✅**Finish editing**: On the sidebar of any editing page, click the Finish button to choose an export method.
+
+> [!TIP]
+>
+> If you are editing in "Import from existing node" mode, you can also click the Save button directly to save your changes to the file in one step!
