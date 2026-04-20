@@ -2709,20 +2709,5 @@
         "action": {
             "type": "Click"
         }
-    },
-    "AutoStockStapleQuantityControlRefreshItemNameExpected": {
-        "desc": "购买后刷新商品名称筛选正则",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AttachToExpectedRegexAction",
-                "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
