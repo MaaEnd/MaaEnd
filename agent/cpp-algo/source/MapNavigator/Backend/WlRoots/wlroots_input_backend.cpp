@@ -22,11 +22,11 @@ public:
     SteeringTransportProfile steering_transport_profile() const override
     {
         return SteeringTransportProfile {
-            .supports_concurrent_move_and_look = false,
-            .min_send_interval_ms = 100,
+            .supports_concurrent_move_and_look = true,
+            .min_send_interval_ms = 16,
             .min_emit_delta_deg = 2.0,
             .max_batch_delta_deg = 18.0,
-            .action_quiet_period_ms = 50,
+            .action_quiet_period_ms = 0,
         };
     }
 };
