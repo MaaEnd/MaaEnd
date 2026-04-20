@@ -19,14 +19,16 @@ func newWlrootsControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) 
 	}
 }
 
-func (wca *wlrootsControlAdaptor) SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+// SwipeHover on wlroots is implemented via relative mouse movement, so the
+// absolute anchor (contact/x/y) is ignored and only dx/dy are honored.
+func (wca *wlrootsControlAdaptor) SwipeHover(_ /*contact*/, _ /*x*/, _ /*y*/, dx, dy int, durationMillis, delayMillis int) {
 	wca.ctrl.PostRelativeMove(int32(dx), int32(dy)).Wait()
 	time.Sleep(time.Duration(durationMillis+delayMillis) * time.Millisecond)
 }
 
 func (wca *wlrootsControlAdaptor) RotateCamera(dx, dy int) {
-	cx, cy := wca.w/2, wca.h/2
-	wca.SwipeHover(0, cx, cy, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
+	// No screen-center anchor: wlroots SwipeHover ignores x/y and sends a relative move.
+	wca.SwipeHover(0, 0, 0, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
 }
 
 func (wca *wlrootsControlAdaptor) AggressivelyResetCamera() {
