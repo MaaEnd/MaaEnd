@@ -340,10 +340,15 @@ const ROUTE_CONFIG = [
     {
         Id: "MiniShellbeast",
         Name: "小壳兽",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingWulingCity4",
+        MapName: "map02_lv002",
+        MapTarget: [238.6, 694.1, 15.2, 14.6],
+        MapPath: [
+            [240.3, 703.6],
+            [214.6, 703.7],
+            [214.0, 708.3],
+            [182.8, 707.9]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
@@ -402,12 +407,12 @@ const ROUTE_CONFIG = [
         MapName: "map02_lv004",
         MapTarget: [491.2, 197.9, 11.7, 10.7],
         MapPath: [
-            [498.6,210.6],
-            [519.5,210.5],
-            [517.6,192.0],
-            [535.2,191.6],
-            [536.0,165.7],
-            [541.2,188.0]
+            [498.6, 210.6],
+            [519.5, 210.5],
+            [517.6, 192.0],
+            [535.2, 191.6],
+            [536.0, 165.7],
+            [541.2, 188.0]
         ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
