@@ -347,8 +347,6 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 			Msg("tasker is unavailable for fatal stop")
 		return false
 	}
-	// TODO 由于SubTask中的子Task错误时不能全部停止，此处使用PostStop强制停止，代价是会抛出一部分报错
-	ctx.GetTasker().PostStop()
 	return false
 }
 
