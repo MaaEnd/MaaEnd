@@ -293,16 +293,12 @@
                     210.5
                 ],
                 [
-                    517.6,
-                    192.0
+                    519.7,
+                    195.6
                 ],
                 [
-                    535.2,
-                    191.6
-                ],
-                [
-                    536.0,
-                    165.7
+                    539.3,
+                    193.9
                 ],
                 [
                     541.2,
@@ -322,7 +318,7 @@
         "desc": "旧庭树任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }

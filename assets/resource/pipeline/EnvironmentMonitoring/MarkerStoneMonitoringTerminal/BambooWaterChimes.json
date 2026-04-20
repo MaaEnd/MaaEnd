@@ -314,7 +314,7 @@
         "desc": "水竹铃任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenLeft"
         ]
     }
 }
