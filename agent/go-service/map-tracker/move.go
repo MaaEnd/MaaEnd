@@ -117,7 +117,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	loopInterval := time.Duration(mt.INFER_INTERVAL_MS) * time.Millisecond
-	ctrlType := control.GetCachedOrDetectControlType(ctrl)
+	ctrlType := control.CachedControlType
+	if ctrlType == "" {
+		ctrlType, _ = control.GetControlType(ctrl)
+	}
 
 	if param.PathTrim && len(param.Path) > 1 {
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {

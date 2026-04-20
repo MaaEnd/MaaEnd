@@ -12,7 +12,11 @@ import (
 
 func rotateView(ctx *maa.Context, dx, dy int) {
 	ctrl := ctx.GetTasker().GetController()
-	if control.GetCachedOrDetectControlType(ctrl) == control.CONTROL_TYPE_WLROOTS {
+	ctrlType := control.CachedControlType
+	if ctrlType == "" {
+		ctrlType, _ = control.GetControlType(ctrl)
+	}
+	if ctrlType == control.CONTROL_TYPE_WLROOTS {
 		const (
 			wlrootsRotationScale = 2.6 / 2.0
 			rotateDelayMillis    = 100
