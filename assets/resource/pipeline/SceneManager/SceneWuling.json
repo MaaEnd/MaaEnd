@@ -240,10 +240,10 @@
         "desc": "在武陵总览界面，进入武陵-首墩地图",
         "action": "Click",
         "target": [
-            770,
-            360,
-            115,
-            55
+            312,
+            393,
+            75,
+            57
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
