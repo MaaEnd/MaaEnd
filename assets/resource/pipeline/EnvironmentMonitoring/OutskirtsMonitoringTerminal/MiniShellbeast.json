@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv002",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        238.6,
+                        694.1,
+                        15.2,
+                        14.6
                     ]
                 }
             ]
@@ -214,7 +214,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingWulingCity4"
             ]
         },
         "next": [
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv002",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        238.6,
+                        694.1,
+                        15.2,
+                        14.6
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingWulingCity4"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv002",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        238.6,
+                        694.1,
+                        15.2,
+                        14.6
                     ]
                 }
             ]
@@ -282,11 +282,23 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv002",
             "path": [
                 [
-                    0,
-                    0
+                    240.3,
+                    703.6
+                ],
+                [
+                    214.6,
+                    703.7
+                ],
+                [
+                    214.0,
+                    708.3
+                ],
+                [
+                    182.8,
+                    707.9
                 ]
             ]
         },
@@ -302,7 +314,7 @@
         "desc": "小壳兽任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenLeft"
         ]
     }
 }
