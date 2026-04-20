@@ -44,6 +44,9 @@ public:
     void MouseRightUpSync(int delay_millis) override;
     virtual bool SendViewDeltaSync(int dx, int dy) override;
 
+protected:
+    static void SleepIfNeeded(int delay_millis);
+
 private:
     void EnsureHoverAnchorSync();
     void PostKeyDownSync(int key_code, int delay_millis);
