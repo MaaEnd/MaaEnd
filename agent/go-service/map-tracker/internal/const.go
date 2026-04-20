@@ -40,10 +40,11 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS      = 100
-	ROTATION_MAX_SPEED     = 4.0
-	ROTATION_DEFAULT_SPEED = 2.0
-	ROTATION_MIN_SPEED     = 1.0
+	INFER_INTERVAL_MS              = 100
+	ROTATION_MAX_SPEED             = 4.0
+	ROTATION_DEFAULT_SPEED         = 2.0
+	ROTATION_DEFAULT_SPEED_WLROOTS = 2.6
+	ROTATION_MIN_SPEED             = 1.0
 )
 
 // Misc

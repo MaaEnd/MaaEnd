@@ -73,9 +73,10 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	}
 
 	switch controlType {
-	// Win32 与 Wlroots（use_win32_vk_code）共用 adaptor_desktop.go 中的 defaultDesktopKeyBindings。
-	case CONTROL_TYPE_WIN32, CONTROL_TYPE_WLROOTS:
+	case CONTROL_TYPE_WIN32:
 		return newDefaultDesktopControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_WLROOTS:
+		return newWlrootsControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_ADB:
 		return newADBControlAdaptor(ctx, ctrl, w, h), nil
 	default:

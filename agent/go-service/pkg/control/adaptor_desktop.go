@@ -175,8 +175,8 @@ func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
 
 const defaultDesktopKeyActionDelayMillis = 25
 
-// defaultDesktopKeyBindings 返回 Win32 与 Wlroots（interface.json 中开启 use_win32_vk_code）
-// 共用的默认按键表；数值按 Win32 Virtual-Key 约定，WlRoots 侧由 MaaFramework 转为 evdev。
+// defaultDesktopKeyBindings returns the default key bindings for desktop controllers.
+// Values follow Win32 Virtual-Key conventions.
 func defaultDesktopKeyBindings() desktopKeyBindings {
 	const (
 		vkW     = 0x57

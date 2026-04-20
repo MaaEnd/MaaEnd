@@ -72,6 +72,20 @@ const (
 
 var CachedControlType string = ""
 
+// GetCachedOrDetectControlType returns cached control type if available,
+// otherwise tries to detect it from controller info.
+func GetCachedOrDetectControlType(ctrl *maa.Controller) string {
+	if CachedControlType != "" {
+		return CachedControlType
+	}
+	controlType, err := GetControlType(ctrl)
+	if err != nil {
+		log.Debug().Err(err).Msg("Failed to detect control type, using fallback behavior")
+		return ""
+	}
+	return controlType
+}
+
 /* ******** Screen Diagonal Size ******** */
 
 // GetScreenDiagonalSize calculates the diagonal size of the screen based on the controller's raw resolution,

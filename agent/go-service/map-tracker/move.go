@@ -117,6 +117,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	loopInterval := time.Duration(mt.INFER_INTERVAL_MS) * time.Millisecond
+	ctrlType := control.GetCachedOrDetectControlType(ctrl)
 
 	if param.PathTrim && len(param.Path) > 1 {
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
@@ -144,7 +145,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	ca.AggressivelyResetPlayerMovement()
 
 	// Adaptive rotation sensitivity local state
-	rotationSpeed := mt.ROTATION_DEFAULT_SPEED
+	rotationSpeed := getInitialRotationSpeed(ctrlType)
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
@@ -596,6 +597,15 @@ func calcDeltaRotation(current, target int) int {
 		diff += 360
 	}
 	return diff
+}
+
+func getInitialRotationSpeed(ctrlType string) float64 {
+	switch ctrlType {
+	case control.CONTROL_TYPE_WLROOTS:
+		return mt.ROTATION_DEFAULT_SPEED_WLROOTS
+	default:
+		return mt.ROTATION_DEFAULT_SPEED
+	}
 }
 
 func (a *MapTrackerMove) buildNavigationMovingHTML(
