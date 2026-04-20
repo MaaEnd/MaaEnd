@@ -9,8 +9,8 @@ const DATA_MJS_PATH = path.join(__dirname, "data.mjs");
 const KITE_STATION_JSON_PATH = path.join(__dirname, "kite_station.json");
 const MONITORING_TERMINAL_IDS = ["kitestation_002_1", "kitestation_004_1"];
 const PLACEHOLDER_DEFAULTS = {
-    EnterMap: "__TODO_FILL_ENTER_MAP__",
-    MapName: "__TODO_FILL_MAP_NAME__",
+    EnterMap: "SceneAnyEnterWorld",
+    MapName: "^map\\d+_lv\\d+$",
     MapTarget: [0, 0, 1, 1],
     MapPath: [[0, 0]],
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",

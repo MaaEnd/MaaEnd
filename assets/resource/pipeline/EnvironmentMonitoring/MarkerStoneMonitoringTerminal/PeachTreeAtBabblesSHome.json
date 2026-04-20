@@ -194,7 +194,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "^map\\d+_lv\\d+$",
                     "target": [
                         0,
                         0,
@@ -229,7 +229,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "^map\\d+_lv\\d+$",
                     "target": [
                         0,
                         0,
@@ -263,7 +263,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "__TODO_FILL_MAP_NAME__",
+                    "map_name": "^map\\d+_lv\\d+$",
                     "target": [
                         0,
                         0,
@@ -282,7 +282,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "__TODO_FILL_MAP_NAME__",
+            "map_name": "^map\\d+_lv\\d+$",
             "path": [
                 [
                     0,
