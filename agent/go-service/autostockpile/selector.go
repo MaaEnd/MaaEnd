@@ -340,13 +340,6 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	maafocus.Print(ctx, i18n.RenderHTML("autostockpile.fatal_error", map[string]any{
 		"Reason": reasonText,
 	}))
-	if ctx == nil || ctx.GetTasker() == nil {
-		log.Error().
-			Str("component", "autostockpile").
-			Str("abort_reason", string(reason)).
-			Msg("tasker is unavailable for fatal stop")
-		return false
-	}
 	return false
 }
 
