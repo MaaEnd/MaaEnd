@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        602.8,
+                        325.0,
+                        9.7,
+                        8.1
                     ]
                 }
             ]
@@ -214,7 +214,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "next": [
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        602.8,
+                        325.0,
+                        9.7,
+                        8.1
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        602.8,
+                        325.0,
+                        9.7,
+                        8.1
                     ]
                 }
             ]
@@ -282,11 +282,55 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv004",
             "path": [
                 [
-                    0,
-                    0
+                    604.6,
+                    307.8
+                ],
+                [
+                    587.6,
+                    308.6
+                ],
+                [
+                    586.3,
+                    302.6
+                ],
+                [
+                    578.8,
+                    302.4
+                ],
+                [
+                    576.7,
+                    296.5
+                ],
+                [
+                    575.2,
+                    280.9
+                ],
+                [
+                    551.7,
+                    282.1
+                ],
+                [
+                    526.0,
+                    278.8
+                ],
+                [
+                    526.0,
+                    270.4
+                ],
+                [
+                    543.4,
+                    269.3
+                ],
+                [
+                    543.9,
+                    255.1
+                ],
+                [
+                    547.9,
+                    255.2
                 ]
             ]
         },
@@ -302,7 +346,7 @@
         "desc": "植物观察点任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenLeft"
         ]
     }
 }
