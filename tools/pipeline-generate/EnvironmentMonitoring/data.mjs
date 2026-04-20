@@ -349,7 +349,7 @@ const ROUTE_CONFIG = [
             [214.0, 708.3],
             [182.8, 707.9]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
         Id: "AnnularWaterfall",
@@ -377,7 +377,7 @@ const ROUTE_CONFIG = [
             [269.6, 464.1],
             [268.8, 458.1]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
         Id: "WitheredBranches",
@@ -414,7 +414,7 @@ const ROUTE_CONFIG = [
             [536.0, 165.7],
             [541.2, 188.0]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
     },
     {
         Id: "HangingVines",
