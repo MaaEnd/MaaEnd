@@ -1,0 +1,31 @@
+{
+    "__CharacterControllerDeltaSwipeAction": {
+        "desc": "相对鼠标移动（wlroots 下用 relative move 实现视角旋转）",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerRelativeMoveAction",
+        "custom_action_param": {
+            "dx": 0,
+            "dy": 0
+        },
+        "post_delay": 100
+    },
+    "__CharacterControllerDeltaClickCenterAction": {
+        "desc": "NoOp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__CharacterControllerDeltaAltKeyDownAction": {
+        "desc": "NoOp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__CharacterControllerDeltaAltKeyUpAction": {
+        "desc": "NoOp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    }
+}
