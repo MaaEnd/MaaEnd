@@ -205,8 +205,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -389,7 +388,16 @@
                 "expected": [
                     "线索",
                     "線索",
+                    "(?i)Clues",
+                    "手がかり",
                     "Clue"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    239,
+                    0
                 ]
             }
         },

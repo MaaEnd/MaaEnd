@@ -52,7 +52,7 @@
                 "expected": [
                     "生产助力",
                     "生產助力",
-                    "Production Assist",
+                    "(?i)Production\\s*Assist",
                     "生産サポート",
                     "생산 지원"
                 ]
@@ -72,8 +72,11 @@
                 ],
                 "expected": [
                     "今日助力好友",
-                    "Assists Today",
+                    "(?i)Assists\\s*Today",
                     "本日のサポート記録",
+                    "干员心情已满，无法使用助力",
+                    "幹員心情已滿，無法使用助力",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
                     "オペレーターは体力が十分なため、サポートできません",
                     "오늘 지원한 친구"
                 ]

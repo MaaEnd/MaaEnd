@@ -1295,7 +1295,7 @@
                     100
                 ],
                 "expected": [
-                    "(?i)Baker"
+                    "Baker"
                 ]
             }
         },

@@ -11,7 +11,7 @@
         "expected": [
             "弹性需求物资",
             "彈性需求物資",
-            "Elastic Goods",
+            "(?i)Elastic\\s*Goods",
             "時価商品",
             "변동 수요 물자"
         ],
@@ -57,7 +57,7 @@
         "expected": [
             "好友价格",
             "好友價格",
-            "Friends' Prices",
+            "(?i)Friends\\s*'\\s*Prices",
             "フレンド価格",
             "친구의 가격"
         ],

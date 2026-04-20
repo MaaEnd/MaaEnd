@@ -188,8 +188,7 @@
                 "expected": [
                     "基质",
                     "基質",
-                    "Essence",
-                    "基質",
+                    "(?i)Essence",
                     "기질"
                 ],
                 "threshold": 0.8

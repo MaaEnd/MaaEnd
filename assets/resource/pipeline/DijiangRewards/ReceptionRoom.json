@@ -103,7 +103,7 @@
                 "expected": [
                     "情报交流结束",
                     "情報交流結束",
-                    "Clue Exchange Ended",
+                    "(?i)Clue\\s*Exchange\\s*Ended",
                     "共有会終了",
                     "정보 교류 종료"
                 ]
@@ -238,7 +238,7 @@
                 "expected": [
                     "收集线索",
                     "收集線索",
-                    "Collect Clue",
+                    "(?i)Collect\\s*Clue",
                     "手がかり捜索",
                     "단서 수집"
                 ]
@@ -418,7 +418,7 @@
                 "expected": [
                     "接收线索",
                     "接收線索",
-                    "Receive Clue",
+                    "(?i)Receive\\s*Clue",
                     "受け取る",
                     "단서 받기"
                 ]
@@ -452,7 +452,17 @@
                     338
                 ],
                 "expected": [
-                    "加载中"
+                    "加载中",
+                    "載入中",
+                    "(?i)Loading",
+                    "読み込み中"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    138,
+                    0
                 ]
             }
         }
@@ -542,7 +552,16 @@
                 "expected": [
                     "线索",
                     "線索",
+                    "(?i)Clues",
+                    "手がかり",
                     "Clue"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    239,
+                    0
                 ]
             }
         },
@@ -761,8 +780,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -902,30 +920,45 @@
                 "expected": [
                     "联盟工团的线索",
                     "聯盟工團的線索",
-                    "(?i)UWST",
+                    "(?i)Clue\\s*:\\s*UWST",
                     "工業団連盟",
                     "环塔商会的线索",
                     "環塔商會的線索",
-                    "(?i)TGCC",
+                    "(?i)Clue\\s*:\\s*TGCC",
                     "環タロ商会",
                     "宏山科学院的线索",
                     "宏山科學院的線索",
-                    "(?i)HAS",
+                    "(?i)Clue\\s*:\\s*HAS",
                     "宏山科学院",
                     "铁誓军的线索",
                     "鐵誓軍的線索",
-                    "(?i)Order\\s*of\\s*Steel\\s*Oath",
+                    "(?i)Clue\\s*:\\s*Order\\s*of\\s*Steel\\s*Oath",
                     "鉄誓軍",
+                    "铁誓军",
+                    "鐵誓軍",
+                    "(?i)Order\\s*of\\s*Steel\\s*Oath",
                     "寂语修会的线索",
                     "寂語修會的線索",
-                    "(?i)Cabal\\s*of\\s*Tranquility",
+                    "(?i)Clue\\s*:\\s*Cabal\\s*of\\s*Tranquility",
                     "静語伝道会",
+                    "寂语修会",
+                    "寂語修會",
+                    "(?i)Cabal\\s*of\\s*Tranquility",
                     "塞什卡的线索",
                     "塞什卡的線索",
-                    "(?i)Se[sš]?'?qa",
+                    "(?i)Clue\\s*:\\s*Se\\s*š'\\s*qa",
                     "セシュカ",
                     "众生长地的线索",
-                    "(?i)Hannabit\\s*Circuit"
+                    "眾生長地的線索",
+                    "(?i)Clue\\s*:\\s*Hannabit\\s*Circuit",
+                    "衆生長地",
+                    "众生长地",
+                    "眾生長地",
+                    "(?i)Hannabit\\s*Circuit",
+                    "(?i)UWST",
+                    "(?i)TGCC",
+                    "(?i)HAS",
+                    "(?i)Se[sš]?'?qa"
                 ],
                 "order_by": "Vertical"
             }

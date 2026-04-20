@@ -36,8 +36,9 @@
                 "expected": [
                     "标记显示管理",
                     "標記顯示管理",
-                    "(?i)Marker Tags",
+                    "(?i)Marker\\s*Tags",
                     "ソート",
+                    "(?i)Marker Tags",
                     "표식 관리"
                 ],
                 "threshold": 0.9
@@ -63,8 +64,9 @@
                 "expected": [
                     "标记显示管理",
                     "標記顯示管理",
-                    "(?i)Marker Tags",
+                    "(?i)Marker\\s*Tags",
                     "ソート",
+                    "(?i)Marker Tags",
                     "표식 관리"
                 ],
                 "threshold": 0.9
@@ -89,8 +91,9 @@
                 "expected": [
                     "清空选中",
                     "清除選取",
-                    "(?i)Clear All",
+                    "(?i)Clear\\s*All",
                     "一括解除",
+                    "(?i)Clear All",
                     "선택 초기화"
                 ],
                 "threshold": 0.9
@@ -337,7 +340,6 @@
                     35
                 ],
                 "expected": [
-                    "取消",
                     "取消",
                     "(?i)Cancel",
                     "キャンセル",

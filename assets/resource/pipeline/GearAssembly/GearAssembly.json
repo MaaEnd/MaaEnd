@@ -67,7 +67,7 @@
                 "expected": [
                     "独立装备",
                     "獨立裝備",
-                    "Non-set Gear",
+                    "(?i)Non\\s*-\\s*set\\s*Gear",
                     "単品装備"
                 ]
             }
