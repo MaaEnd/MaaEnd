@@ -662,7 +662,96 @@
         "next": [
             "BakerTalkWith",
             "BakerTalkWithHint",
-            "BakerRefreshFilter"
+            "BakerTaskRefreshFilter"
+        ]
+    },
+    //
+    // 通用的循环重置未读筛选 (目前只有事务通讯，会话消息先用 @Daydreamer114 的)
+    // 
+    //筛选按钮是（筛选生效中）的时候，直接点击筛选按钮然后点击清空按钮然后回到开头
+    //筛选按钮是（全部显示）的时候就就走一个根据当前任务而类型进行不同的筛选操作的逻辑，最后回到 BakerCheckHome
+    //
+    "BakerTaskRefreshFilter": {
+        "desc": "事务通讯: 重置后重新选择筛选栏目 后续可以整合会话消息到此处",
+        "next": [
+            "BakerClickFilterEnable",
+            "BakerClickFilter"
+        ]
+    },
+    "BakerClickFilter": {
+        "desc": "点击过滤按钮，后续流程是直接选择对应的点击未读方案后保存回到主流程",
+        "recognition": "OCR",
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "expected": [
+            "全部显示",
+            "全部顯示",
+            "(?i)Show\\s*All",
+            "すべて"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSwipeFilter"
+        ]
+    },
+    "BakerClickFilterEnable": {
+        "desc": "点击过滤按钮（已启用），后续的流程是无脑清除所有过滤条件然后走未过滤的流程",
+        "recognition": "OCR",
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "expected": [
+            "筛选生效中",
+            "篩選生效中"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerFilterAllResetBtnClick"
+        ]
+    },
+    "BakerFilterAllResetBtnClick": {
+        "desc": "清除所有过滤条件",
+        "recognition": "TemplateMatch",
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "template": "Baker/ResetBakerFilter.png",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerFilterSave"
+        ]
+    },
+    "BakerFilterSave": {
+        "desc": "点击过滤保存按钮",
+        "recognition": "OCR",
+        "roi": [
+            903,
+            448,
+            247,
+            170
+        ],
+        "expected": [
+            "保存",
+            "儲存",
+            "(?i)Save"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerClickFilter"
         ]
     }
 }

@@ -246,7 +246,7 @@
         "next": [
             "BakerTalkWith",
             "BakerTalkWithHint",
-            "BakerRefreshFilter"
+            "BakerTaskRefreshFilter"
         ]
     }
 }
