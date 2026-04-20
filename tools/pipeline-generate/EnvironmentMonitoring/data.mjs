@@ -305,10 +305,10 @@ const ROUTE_CONFIG = [
     {
         Id: "Waterlamp",
         Name: "水灯虫",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingWulingCity7",
+        MapName: "map02_lv002",
+        MapTarget: [420.3, 848.0, 10.3, 8.9],
+        MapPath: [[428.3, 844.0]],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
