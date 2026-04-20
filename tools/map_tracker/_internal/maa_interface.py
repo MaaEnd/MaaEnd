@@ -97,8 +97,9 @@ class MaaInterface:
                 self.controller = AdbController(adb.adb_path, adb.address)
             except Exception as e_adb:
                 raise MaaInitializationError(
-                    "Failed to initialize any available controller"
-                ) from ExceptionGroup("MaaInitializationError", [e_win, e_adb])
+                    "Failed to initialize any available controller: "
+                    f"win32={e_win!r}; adb={e_adb!r}"
+                )
 
         try:
             self.controller.post_connection().wait()
