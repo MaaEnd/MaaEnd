@@ -2679,6 +2679,8 @@
         }
     },
     "AutoStockStapleQuantityControlCloseBuyWindow": {
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "desc": "关闭购买窗口",
         "recognition": {
             "type": "And",
@@ -2693,6 +2695,8 @@
         }
     },
     "AutoStockStapleQuantityControlCloseRewards": {
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "desc": "关闭奖励窗口",
         "recognition": {
             "type": "And",

@@ -61,7 +61,9 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	resolvedExpression, values, err := resolveExpressionValues(ctx, arg, params.Expression)
 	if err != nil {
-		log.Error().
+		// 这里常见于画面/节点结果尚未稳定（例如 And 节点 combined_result 不完整）。
+		// 维持原行为：本次不匹配，等待下一次心跳重试；但将日志降级，避免刷屏 error。
+		log.Debug().
 			Err(err).
 			Str("component", "ExpressionRecognition").
 			Str("expression", params.Expression).
