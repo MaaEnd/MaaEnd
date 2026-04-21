@@ -30,6 +30,7 @@
         ]
     },
     "CloseFastCollectProductionRewards": {
+        "desc": "关闭快速收取产物奖励界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -72,12 +73,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CloseFastCollectCluesRewards"
-        ]
+        "rate_limit": 0
     },
     "CloseFastCollectCluesRewards": {
+        "desc": "关闭快速收取线索奖励界面",
         "recognition": {
             "type": "And",
             "param": {
