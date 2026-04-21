@@ -96,44 +96,99 @@
             "type": "Click"
         }
     },
-    "__ScenePrivateLoginMonthlyPassConfirm": {
-        "desc": "领取月卡，无法跳过必须领取",
+    "__ScenePrivateLoginMonthlyPassTitle": {
+        "desc": "登录月卡弹窗：标题区 OCR，用于与领取区分组合识别（点击框使用领取区）",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    400,
-                    180,
-                    500,
-                    362
+                    360,
+                    150,
+                    560,
+                    220
                 ],
                 "expected": [
+                    "今日焕新月卡奖励",
+                    "今日煥新月卡獎勵",
+                    "今日月卡奖励",
+                    "今日月卡獎勵",
+                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards",
+                    "(?i)Daily\\s*Renewed\\s*Monthly\\s*Pass\\s*Rewards",
                     "月卡剩余天数",
                     "月卡剩餘天數",
                     "(?i)Monthly\\s*Pass\\s*Day\\s*\\(\\s*s\\s*\\)\\s*Left",
                     "月パス残り",
-                    "今日月卡奖励",
-                    "今日月卡獎勵",
-                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards",
                     "本日報酬",
                     "月卡奖励$",
                     "月卡獎勵$"
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateLoginMonthlyPassClaimLine": {
+        "desc": "登录月卡弹窗：「点击领取」一行，点击目标取此识别框（避免点在标题文本框中心）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    280,
+                    400,
+                    720,
+                    240
+                ],
+                "expected": [
+                    "点击领取今日焕新月卡奖励",
+                    "點擊領取今日煥新月卡獎勵",
+                    "点击领取",
+                    "點擊領取",
+                    "领取",
+                    "領取",
+                    "(?i)Tap\\s*to\\s*[Cc]laim",
+                    "(?i)[Cc]laim",
+                    "タップして受け取る",
+                    "本日の報酬を受け取る"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateLoginMonthlyPassConfirm": {
+        "desc": "领取月卡：标题+领取行同时命中后才点击（点击框为领取行，识别→点击→由父节点 next 再验）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateLoginMonthlyPassTitle",
+                    "__ScenePrivateLoginMonthlyPassClaimLine"
+                ],
+                "box_index": 1
+            }
+        },
         "pre_delay": 1000, // 3d移动，pre_wait_freeze不生效
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateLoginCloseDialog": {
-        "desc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
+        "desc": "兜底按 ESC 关闭阻塞弹窗；有 max_hit 上限，避免月卡等节点未命中时无限 ESC",
+        "max_hit": 8,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 27 // ESC
             }
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateLoginSuccess": {
         "desc": "进入大世界成功",

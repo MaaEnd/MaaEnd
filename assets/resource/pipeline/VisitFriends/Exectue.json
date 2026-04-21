@@ -459,7 +459,7 @@
         ]
     },
     "VisitFriendsMenuTerminalExitToWorldShip": {
-        "desc": "从好友菜单返回世界界面",
+        "desc": "从好友菜单返回世界界面；点击后先尝试进入世界船，若仍在访客终端则自循环重试（缓解 ADB 等场景下点击未生效）",
         "recognition": "And",
         "all_of": [
             {
@@ -485,9 +485,19 @@
         "pre_wait_freezes": 400,
         "pre_delay": 0,
         "action": "Click",
+        "post_wait_freezes": {
+            "time": 350,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "post_delay": 0,
         "next": [
-            "VisitFriendsWorldShipExitToMenuFriends"
+            "VisitFriendsWorldShipExitToMenuFriends",
+            "VisitFriendsMenuTerminalExitToWorldShip"
         ]
     },
     "VisitFriendsWorldShipExitToMenuFriends": {
