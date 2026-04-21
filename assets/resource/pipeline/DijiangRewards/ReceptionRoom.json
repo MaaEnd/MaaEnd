@@ -69,10 +69,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    1070,
+                    1016,
                     0,
-                    61,
-                    50
+                    115,
+                    57
                 ],
                 "method": 40,
                 "lower": [
