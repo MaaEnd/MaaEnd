@@ -168,8 +168,16 @@ function buildSettlementTextExpected(settlementId, settlement) {
 }
 
 // ===== 从 settlement 数据生成 settlementId → 售卖点配置映射 =====
+// 排序策略：先按 domainId（domain_1=ValleyIV=四号谷地 在前，domain_2=Wuling=武陵 在后），
+// 同 domain 内再按 settlementId 字典序。直接按 settlementId 排序会让武陵（stm_hongs_*）
+// 排在四号谷地（stm_tundra_*）前面，与游戏内区域解锁顺序和 UI 习惯不符。
 const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort(([aId, aData], [bId, bData]) => {
+        const aDomain = aData.domainId || "";
+        const bDomain = bData.domainId || "";
+        if (aDomain !== bDomain) return aDomain.localeCompare(bDomain);
+        return aId.localeCompare(bId);
+    })
     .reduce((acc, [settlementId, settlement]) => {
         const override = SETTLEMENT_OVERRIDE[settlementId] || {};
         const regionPrefix =
