@@ -739,7 +739,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
-            "default_case": "Any",
+            "default_case": "70",
             "cases": [
                 {
                     "name": "Any",
@@ -1496,7 +1496,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
-            "default_case": "Any",
+            "default_case": "70",
             "cases": [
                 {
                     "name": "Any",
@@ -1508,10 +1508,10 @@
                                 "param": {
                                     "roi": "AutoStockInStapleItem",
                                     "roi_offset": [
-                                        94,
-                                        -6,
-                                        -13,
-                                        7
+                                        54,
+                                        -176,
+                                        -7,
+                                        11
                                     ],
                                     "method": 40,
                                     "lower": [
