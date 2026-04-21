@@ -24,13 +24,13 @@ func GetImageStats(img *image.RGBA) StatsResult {
 	w, h := img.Rect.Dx(), img.Rect.Dy()
 	ipx, is := img.Pix, img.Stride
 
-	sum := 0.0
-	sumSq := 0.0
+	var sum int
+	var sumSq int
 
 	for y := range h {
 		off := y * is
 		for range w {
-			r, g, b := float64(ipx[off]), float64(ipx[off+1]), float64(ipx[off+2])
+			r, g, b := int(ipx[off]), int(ipx[off+1]), int(ipx[off+2])
 			sum += r + g + b
 			sumSq += r*r + g*g + b*b
 			off += 4
@@ -38,8 +38,8 @@ func GetImageStats(img *image.RGBA) StatsResult {
 	}
 
 	count := float64(w * h * 3)
-	mean := sum / count
-	variance := sumSq - count*(mean*mean)
+	mean := float64(sum) / count
+	variance := float64(sumSq) - count*(mean*mean)
 	if variance < 1e-12 {
 		return StatsResult{Mean: mean, Std: 0}
 	}
@@ -57,16 +57,16 @@ func GetIntegralArray(img *image.RGBA) IntegralArray {
 	ipx, is := img.Pix, img.Stride
 
 	for y := range h {
-		var sumRow, sumSqRow float64
+		var sumRow, sumSqRow int
 		off := y * is
 		for x := range w {
-			r, g, b := float64(ipx[off]), float64(ipx[off+1]), float64(ipx[off+2])
+			r, g, b := int(ipx[off]), int(ipx[off+1]), int(ipx[off+2])
 			sumRow += r + g + b
 			sumSqRow += r*r + g*g + b*b
 
 			idx := (y+1)*stride + (x + 1)
-			sumArr[idx] = sumArr[y*stride+(x+1)] + sumRow
-			sumSqArr[idx] = sumSqArr[y*stride+(x+1)] + sumSqRow
+			sumArr[idx] = sumArr[y*stride+(x+1)] + float64(sumRow)
+			sumSqArr[idx] = sumSqArr[y*stride+(x+1)] + float64(sumSqRow)
 			off += 4
 		}
 	}
