@@ -287,7 +287,7 @@ During recording, the following hotkeys are available:
 
 > [!TIP]
 >
-> Use `G` to quickly capture coordinates of interest without interrupting the recording flow. Use `X` to mark key positions (interaction points, portal triggers, etc.) — these points are guaranteed to be recorded and will not be removed by path optimization.
+> Use `G` to quickly capture coordinates of interest without interrupting the recording flow. Use `X` to mark key positions (interaction points, portal triggers, etc.) so they are guaranteed to be recorded and marked as strict-arrival points.
 
 One important note: points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` are **not inferred automatically during recording**. The usual workflow is to stop recording first, then manually change those points to the desired action in the GUI.
 
@@ -302,12 +302,11 @@ So the most basic workflow is simply:
 
 After clicking **`Stop Recording`**, the tool performs one round of cleanup on the raw trace, including:
 
-- Compressing overly dense path points.
-- Keeping important turning points and action points.
+- Normalizing coordinates, actions, `strict`, and `zone` data into the canonical format.
 - Automatically adding `PORTAL` semantics on cross-zone boundaries.
 - Splitting the view by the current zone for easier browsing.
 
-Under normal circumstances, what you see is no longer raw "one point per frame" data, but an editable and exportable navigation route.
+What you see here is a normalized, editable, and exportable navigation route.
 
 #### Step 4: Arrange the path in the GUI
 
@@ -346,10 +345,9 @@ Control nodes such as `HEADING` are outside this GUI action-chain model.
 
 In practice, these are usually the only edits you really need:
 
-1. Delete points that are too dense and not meaningful.
-2. Change key interaction points to `INTERACT` and enable `Strict` (points placed with the `X` hotkey during recording are already strict-arrival and will survive path optimization automatically).
-3. Change points that need jumping, sprinting, external transfer, or zone-transition behavior into the corresponding action (for example `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
-4. Check whether the points before and after a zone transition are placed reasonably.
+1. Change key interaction points to `INTERACT` and enable `Strict` (points placed with the `X` hotkey during recording are already strict-arrival points).
+2. Change points that need jumping, sprinting, external transfer, or zone-transition behavior into the corresponding action (for example `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
+3. Check whether the points before and after a zone transition are placed reasonably.
 
 #### Step 5: Copy the `path` and paste it into Pipeline
 

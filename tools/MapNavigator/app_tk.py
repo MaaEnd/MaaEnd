@@ -26,7 +26,6 @@ from model import (
     normalize_zone_id,
     resolve_zone_image,
     set_manual_point_actions,
-    simplify_path,
 )
 from point_editing import PointEditingService
 from recording_service import RecordingService
@@ -76,8 +75,6 @@ class RouteEditorApp:
         self.raw_points: list[PathPoint] = []
         self.points: list[PathPoint] = []
         self.available_zone_ids = list_available_zone_ids()
-        self.density_val = tk.IntVar(value=50)
-        self.disable_optimization_var = tk.BooleanVar(value=False)
         self.assert_mode_var = tk.BooleanVar(value=False)
         self.assert_zone_var = tk.StringVar(value="")
         self.strict_var = tk.BooleanVar(value=False)
@@ -197,39 +194,14 @@ class RouteEditorApp:
         self.btn_next = tk.Button(zone_frame, text="▶", command=self.next_zone, width=4)
         self.btn_next.pack(side=tk.LEFT, padx=(4, 0))
 
-        density_frame = tk.Frame(primary_row)
-        density_frame.pack(side=tk.RIGHT, fill=tk.Y)
+        view_frame = tk.Frame(primary_row)
+        view_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
-        tk.Label(density_frame, text="密度:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(2, 0))
-        self.slider_density = tk.Scale(
-            density_frame,
-            from_=0,
-            to=100,
-            orient=tk.HORIZONTAL,
-            variable=self.density_val,
-            showvalue=False,
-            width=10,
-            length=88,
-            command=lambda _value: self.reprocess_points(),
-        )
-        self.slider_density.pack(side=tk.LEFT)
-
-        self.btn_zoom_out = tk.Button(density_frame, text="-", command=self.zoom_out, width=3)
+        self.btn_zoom_out = tk.Button(view_frame, text="-", command=self.zoom_out, width=3)
         self.btn_zoom_out.pack(side=tk.LEFT, padx=(6, 2))
 
-        self.btn_zoom_in = tk.Button(density_frame, text="+", command=self.zoom_in, width=3)
+        self.btn_zoom_in = tk.Button(view_frame, text="+", command=self.zoom_in, width=3)
         self.btn_zoom_in.pack(side=tk.LEFT, padx=(0, 6))
-
-        self.disable_optimization_check = tk.Checkbutton(
-            density_frame,
-            text="禁优化",
-            variable=self.disable_optimization_var,
-            onvalue=True,
-            offvalue=False,
-            font=("Microsoft YaHei", 9),
-            command=self._on_optimization_mode_changed,
-        )
-        self.disable_optimization_check.pack(side=tk.LEFT, padx=(6, 0))
 
         secondary_row = tk.Frame(toolbar_frame)
         secondary_row.pack(fill=tk.X, pady=(4, 0))
@@ -638,12 +610,6 @@ class RouteEditorApp:
 
     def zoom_out(self) -> None:
         self._zoom_view(0.8)
-
-    def _on_optimization_mode_changed(self) -> None:
-        slider_state = tk.DISABLED if self.disable_optimization_var.get() else tk.NORMAL
-        self.slider_density.config(state=slider_state)
-        if self.raw_points:
-            self.reprocess_points()
 
     def _default_assert_zone(self) -> str:
         current_zone = normalize_zone_id(self.zone_state.current_zone())
@@ -1120,10 +1086,7 @@ class RouteEditorApp:
         if not self.recording_service:
             return
         self.recording_service.stop()
-        if self.disable_optimization_var.get():
-            self._set_status("正在停止录制并输出完整路径点...", "#f59e0b")
-        else:
-            self._set_status("正在停止录制并优化路径点...", "#f59e0b")
+        self._set_status("正在停止录制并整理路径点...", "#f59e0b")
         self.btn_stop.config(state=tk.DISABLED)
 
     def _on_recording_finished(self, raw_path: list[PathPoint]) -> None:
@@ -1139,10 +1102,7 @@ class RouteEditorApp:
     def reprocess_points(self) -> None:
         if not self.raw_points:
             return
-        if self.disable_optimization_var.get():
-            self.points = normalize_path_points(self.raw_points)
-        else:
-            self.points = simplify_path(self.raw_points, self.density_val.get())
+        self.points = normalize_path_points(self.raw_points)
         self.history.clear()
         self._clear_selection()
         self._reset_point_property_controls()
