@@ -83,7 +83,6 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
         return result;
     }
 
-
     const auto now = std::chrono::steady_clock::now();
     if (steering_quiet_until_.time_since_epoch().count() > 0 && now < steering_quiet_until_) {
         return result;

@@ -80,7 +80,8 @@ struct RecoveryState
 
     bool IsActive() const { return stuck_start_time.time_since_epoch().count() > 0; }
 
-    void Reset() { 
+    void Reset()
+    {
         stuck_start_time = {};
         stuck_anchor_pos = {};
         next_action_time = {};

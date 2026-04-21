@@ -80,7 +80,6 @@ DesktopKeyCodes MakeDesktopKeyCodes();
 
 // 构造以 VK 码为语义的桌面端（Win32 / WlRoots）输入后端。
 // backend_name 仅用于日志区分（"win32" / "wlroots"）。
-std::unique_ptr<IInputBackend>
-    CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name);
+std::unique_ptr<IInputBackend> CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name);
 
 } // namespace mapnavigator::backend::desktop

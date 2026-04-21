@@ -31,17 +31,14 @@ RecoveryStatus RecoveryManager::Tick(
         return RecoveryStatus::InProgress;
     }
 
-    const double escape_dist = std::hypot(
-        position.x - state.stuck_anchor_pos.x,
-        position.y - state.stuck_anchor_pos.y);
+    const double escape_dist = std::hypot(position.x - state.stuck_anchor_pos.x, position.y - state.stuck_anchor_pos.y);
 
     if (escape_dist > 2.0) {
         state.Reset();
         return RecoveryStatus::Recovered;
     }
 
-    const int64_t total_stuck_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - state.stuck_start_time).count();
+    const int64_t total_stuck_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - state.stuck_start_time).count();
 
     if (total_stuck_ms >= 60000) {
         return RecoveryStatus::TimeoutFailed;
@@ -49,8 +46,8 @@ RecoveryStatus RecoveryManager::Tick(
 
     if (total_stuck_ms > 10000) {
         motion_controller->SetForwardState(false);
-        LogInfo << "Jump recovery ineffective after 10s. Requesting rejoin from previous waypoint."
-                << VAR(total_stuck_ms) << VAR(escape_dist);
+        LogInfo << "Jump recovery ineffective after 10s. Requesting rejoin from previous waypoint." << VAR(total_stuck_ms)
+                << VAR(escape_dist);
         return RecoveryStatus::RequestRejoin;
     }
 

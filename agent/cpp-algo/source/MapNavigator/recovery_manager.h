@@ -11,7 +11,8 @@
 namespace mapnavigator
 {
 
-enum class RecoveryStatus {
+enum class RecoveryStatus
+{
     NotTriggered,
     InProgress,
     Recovered,

@@ -85,8 +85,8 @@ DesktopInputBackend::DesktopInputBackend(
     LogInfo << backend_name_ << " backend mouse lock follow." << VAR(controller_type_) << VAR(mouse_lock_follow_enabled_);
 
     const std::vector<int32_t> managed_keys {
-        key_codes_.move_forward, key_codes_.move_left, key_codes_.move_backward, key_codes_.move_right,
-        key_codes_.interact,     key_codes_.jump,
+        key_codes_.move_forward, key_codes_.move_left, key_codes_.move_backward,
+        key_codes_.move_right,   key_codes_.interact,  key_codes_.jump,
     };
     background_managed_keys_enabled_ = TrySetBackgroundManagedKeys(ctrl_, managed_keys);
     LogInfo << backend_name_ << " backend background managed keys." << VAR(controller_type_) << VAR(background_managed_keys_enabled_);
@@ -311,8 +311,7 @@ DesktopKeyCodes MakeDesktopKeyCodes()
     };
 }
 
-std::unique_ptr<IInputBackend>
-    CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name)
+std::unique_ptr<IInputBackend> CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name)
 {
     LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << VAR(backend_name);
     return std::make_unique<DesktopInputBackend>(ctrl, std::move(controller_type), std::move(backend_name), MakeDesktopKeyCodes());

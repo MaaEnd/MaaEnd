@@ -254,10 +254,10 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     }
     tracking.along_track_remaining = remaining_distance;
 
-    LogDebug << "RouteTracker update." << VAR(session->current_node_idx()) << VAR(position.x) << VAR(position.y)
-             << VAR(waypoint.x) << VAR(waypoint.y) << VAR(segment->from_idx) << VAR(segment->to_idx)
-             << VAR(segment->raw_projection) << VAR(projection_anchor) << VAR(segment->cross_track_distance)
-             << VAR(tracking.waypoint_distance) << VAR(tracking.route_heading) << VAR(tracking.along_track_remaining);
+    LogDebug << "RouteTracker update." << VAR(session->current_node_idx()) << VAR(position.x) << VAR(position.y) << VAR(waypoint.x)
+             << VAR(waypoint.y) << VAR(segment->from_idx) << VAR(segment->to_idx) << VAR(segment->raw_projection) << VAR(projection_anchor)
+             << VAR(segment->cross_track_distance) << VAR(tracking.waypoint_distance) << VAR(tracking.route_heading)
+             << VAR(tracking.along_track_remaining);
     return tracking;
 }
 
