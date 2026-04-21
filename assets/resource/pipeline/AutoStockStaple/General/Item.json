@@ -233,6 +233,7 @@
             "param": {
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
+                    "ClampTargetToMax": true,
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",

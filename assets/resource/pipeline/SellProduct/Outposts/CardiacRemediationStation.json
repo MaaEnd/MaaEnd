@@ -97,6 +97,12 @@
             331,
             127
         ],
+        "roi_offset": [
+            0,
+            0,
+            359,
+            0
+        ],
         "expected": [
             "心脏修缮站",
             "心臟修繕站",
@@ -107,13 +113,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    ,
-        "roi_offset": [
-            0,
-            0,
-            359,
-            0
-        ]
     },
     // ===== 售卖尝试 1 =====
     "SellProductCardiacRemediationStationSellAttempt1": {

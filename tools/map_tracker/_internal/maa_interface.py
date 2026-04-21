@@ -5,11 +5,12 @@ from typing import TypedDict
 
 from maa.agent_client import AgentClient
 from maa.tasker import Tasker, TaskDetail
-from maa.toolkit import Toolkit, DesktopWindow
+from maa.toolkit import Toolkit, DesktopWindow, AdbDevice
 from maa.resource import Resource
 from maa.controller import (
     Controller,
     Win32Controller,
+    AdbController,
     MaaWin32ScreencapMethodEnum,
     MaaWin32InputMethodEnum,
 )
@@ -49,10 +50,7 @@ class MaaInterface:
         self.agent_client: AgentClient | None = None
         self.agent_process: subprocess.Popen | None = None
 
-    def init_controller(self):
-        if self.controller is not None:
-            return
-
+    def _find_win32_window(self) -> DesktopWindow:
         # Win32
         def _calc_window_likelihood(window: DesktopWindow):
             return (
@@ -72,18 +70,41 @@ class MaaInterface:
 
         if max_likelihood == 0:
             raise MaaInitializationError("No target window found")
+        return all_windows[all_windows_likelihood.index(max_likelihood)]
+
+    def _find_adb_device(self) -> AdbDevice:
+        all_adb = self.toolkit.find_adb_devices()
+        if not all_adb:
+            raise MaaInitializationError("No adb device found")
+        return all_adb[0]
+
+    def init_controller(self):
+        if self.controller is not None:
+            return
 
         # Init controller
         try:
+            window = self._find_win32_window()
             self.controller = Win32Controller(
-                all_windows[all_windows_likelihood.index(max_likelihood)].hwnd,
+                window.hwnd,
                 screencap_method=MaaWin32ScreencapMethodEnum.Background,
                 mouse_method=MaaWin32InputMethodEnum.PostMessageWithCursorPos,
                 keyboard_method=MaaWin32InputMethodEnum.PostMessage,
             )
+        except Exception as e_win:
+            try:
+                adb = self._find_adb_device()
+                self.controller = AdbController(adb.adb_path, adb.address)
+            except Exception as e_adb:
+                raise MaaInitializationError(
+                    "Failed to initialize any available controller: "
+                    f"win32={e_win!r}; adb={e_adb!r}"
+                )
+
+        try:
             self.controller.post_connection().wait()
         except Exception as e:
-            raise MaaInitializationError("Failed to initialize Win32Controller") from e
+            raise MaaInitializationError("Failed to connect controller") from e
 
         if not MaaInterface.ASSET_DIR.exists():
             raise MaaInitializationError(

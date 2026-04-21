@@ -20,14 +20,6 @@ constexpr int32_t kDesktopHoverTouchContactId = 0;
 constexpr int32_t kDesktopPrimaryTouchContactId = 1;
 constexpr int32_t kDesktopDefaultTouchPressure = 0;
 
-void SleepIfNeeded(int delay_millis)
-{
-    if (delay_millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay_millis));
-}
-
 double ComputeDefaultTurnUnitsPerDegree(MaaController* ctrl, const std::string& backend_name)
 {
     int32_t screen_width = 0;
@@ -46,6 +38,14 @@ double ComputeDefaultTurnUnitsPerDegree(MaaController* ctrl, const std::string& 
 }
 
 } // namespace
+
+void DesktopInputBackend::SleepIfNeeded(int delay_millis)
+{
+    if (delay_millis <= 0) {
+        return;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay_millis));
+}
 
 DesktopInputBackend::DesktopInputBackend(
     MaaController* ctrl,

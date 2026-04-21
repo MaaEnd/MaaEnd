@@ -2,7 +2,9 @@ package charactercontroller
 
 import (
 	"encoding/json"
+	"math"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -13,6 +15,10 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 		"__CharacterControllerDeltaSwipeAction": map[string]any{
 			"begin": maa.Rect{cx, cy, 4, 4},
 			"end":   maa.Rect{cx + dx, cy + dy, 4, 4},
+			"custom_action_param": map[string]any{
+				"dx": dx,
+				"dy": dy,
+			},
 		},
 	}
 	ctx.RunAction("__CharacterControllerDeltaSwipeAction",
@@ -23,6 +29,31 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 		maa.Rect{0, 0, 0, 0}, "", nil)
 	ctx.RunAction("__CharacterControllerDeltaAltKeyUpAction",
 		maa.Rect{0, 0, 0, 0}, "", nil)
+}
+
+type characterControllerRelativeMoveParam struct {
+	Dx int `json:"dx"`
+	Dy int `json:"dy"`
+}
+
+// dx/dy are compensated by control.WlrootsRelativeMoveScale
+type CharacterControllerRelativeMoveAction struct{}
+
+func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params characterControllerRelativeMoveParam
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "CharacterController").
+			Str("action", "CharacterControllerRelativeMove").
+			Msg("failed to parse CustomActionParam")
+		return false
+	}
+
+	scaledDX := int32(math.Round(float64(params.Dx) * control.WlrootsRelativeMoveScale))
+	scaledDY := int32(math.Round(float64(params.Dy) * control.WlrootsRelativeMoveScale))
+	ctx.GetTasker().GetController().PostRelativeMove(scaledDX, scaledDY).Wait()
+	return true
 }
 
 func moveAxis(ctx *maa.Context, duration int) {
@@ -166,6 +197,7 @@ var (
 	_ maa.CustomActionRunner = &CharacterControllerYawDeltaAction{}
 	_ maa.CustomActionRunner = &CharacterControllerPitchDeltaAction{}
 	_ maa.CustomActionRunner = &CharacterControllerForwardAxisAction{}
+	_ maa.CustomActionRunner = &CharacterControllerRelativeMoveAction{}
 	_ maa.CustomActionRunner = &CharacterMoveToTargetAction{}
 	_ maa.CustomActionRunner = &CharacterMoveToTargetNotFoundAction{}
 )
