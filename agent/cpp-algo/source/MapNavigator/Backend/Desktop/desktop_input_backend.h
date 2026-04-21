@@ -22,6 +22,7 @@ class DesktopInputBackend : public IInputBackend
 {
 public:
     DesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name, DesktopKeyCodes key_codes);
+    ~DesktopInputBackend() override;
 
     MaaController* GetCtrl() const override;
     const std::string& controller_type() const override;
@@ -61,6 +62,8 @@ private:
     std::string unsupported_reason_;
     DesktopKeyCodes key_codes_ {};
     double default_turn_units_per_degree_ = 0.0;
+    bool mouse_lock_follow_enabled_ = false;
+    bool background_managed_keys_enabled_ = false;
     int hover_x_ = 0;
     int hover_y_ = 0;
     bool hover_inited_ = false;

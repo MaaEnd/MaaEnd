@@ -1,6 +1,7 @@
 #include <chrono>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include <MaaUtils/Logger.h>
 
@@ -19,6 +20,21 @@ constexpr int32_t kDesktopDefaultHoverAnchorY = kDesktopReferenceFrameHeight / 2
 constexpr int32_t kDesktopHoverTouchContactId = 0;
 constexpr int32_t kDesktopPrimaryTouchContactId = 1;
 constexpr int32_t kDesktopDefaultTouchPressure = 0;
+
+bool TrySetMouseLockFollow(MaaController* ctrl, bool enabled)
+{
+    return ctrl != nullptr && MaaControllerSetOption(ctrl, MaaCtrlOption_MouseLockFollow, &enabled, sizeof(enabled));
+}
+
+bool TrySetBackgroundManagedKeys(MaaController* ctrl, const std::vector<int32_t>& keycodes)
+{
+    return ctrl != nullptr
+           && MaaControllerSetOption(
+               ctrl,
+               MaaCtrlOption_BackgroundManagedKeys,
+               keycodes.empty() ? nullptr : const_cast<int32_t*>(keycodes.data()),
+               static_cast<MaaOptionValueSize>(sizeof(int32_t) * keycodes.size()));
+}
 
 double ComputeDefaultTurnUnitsPerDegree(MaaController* ctrl, const std::string& backend_name)
 {
@@ -62,6 +78,27 @@ DesktopInputBackend::DesktopInputBackend(
 {
     if (ctrl_ == nullptr) {
         unsupported_reason_ = "controller handle is null";
+        return;
+    }
+
+    mouse_lock_follow_enabled_ = TrySetMouseLockFollow(ctrl_, true);
+    LogInfo << backend_name_ << " backend mouse lock follow." << VAR(controller_type_) << VAR(mouse_lock_follow_enabled_);
+
+    const std::vector<int32_t> managed_keys {
+        key_codes_.move_forward, key_codes_.move_left, key_codes_.move_backward, key_codes_.move_right,
+        key_codes_.interact,     key_codes_.jump,
+    };
+    background_managed_keys_enabled_ = TrySetBackgroundManagedKeys(ctrl_, managed_keys);
+    LogInfo << backend_name_ << " backend background managed keys." << VAR(controller_type_) << VAR(background_managed_keys_enabled_);
+}
+
+DesktopInputBackend::~DesktopInputBackend()
+{
+    if (mouse_lock_follow_enabled_ && !TrySetMouseLockFollow(ctrl_, false)) {
+        LogWarn << backend_name_ << " backend: failed to disable mouse lock follow." << VAR(controller_type_);
+    }
+    if (background_managed_keys_enabled_ && !TrySetBackgroundManagedKeys(ctrl_, {})) {
+        LogWarn << backend_name_ << " backend: failed to clear background managed keys." << VAR(controller_type_);
     }
 }
 

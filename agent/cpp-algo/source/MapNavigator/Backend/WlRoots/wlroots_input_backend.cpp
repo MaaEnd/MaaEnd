@@ -35,8 +35,6 @@ public:
 
     void TriggerSprintSync() override
     {
-        // 准则：wlroots 在 3D 界面下不发送绝对坐标。
-        // 混用相对移动和绝对坐标会导致视角跳变
         MaaControllerWait(GetCtrl(), MaaControllerPostKeyDown(GetCtrl(), kVkShift));
         SleepIfNeeded(kActionSprintPressMs);
         MaaControllerWait(GetCtrl(), MaaControllerPostKeyUp(GetCtrl(), kVkShift));
