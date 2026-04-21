@@ -92,11 +92,11 @@
                 "expected": [
                     "情报交流中",
                     "情報交流中",
-                    "Exchanging Clues",
+                    "(?i)Exchanging\\s*Clues",
                     "情報共有中",
                     "集齐所有线索可开展情报交流",
                     "集齊所有線索可開展情報交流",
-                    "Gather all clues to start Clue Exchange",
+                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
                     "手がかりをすべて集めると情報共有可能"
                 ]
             }
