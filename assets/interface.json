@@ -168,7 +168,7 @@
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
         "tasks/BatchUseDetector.json",
-        "tasks/SimpleProductionBatchStart.json",
+        "tasks/SimpleProductionBatchTask.json",
         "tasks/ReceiveProdManual.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",

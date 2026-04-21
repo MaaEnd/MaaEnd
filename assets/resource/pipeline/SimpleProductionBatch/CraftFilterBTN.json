@@ -1,0 +1,463 @@
+{
+    "$__mpe_config_CraftFilterBTN": {
+        "$__mpe_code": {
+            "prefix": "",
+            "savedViewport": {
+                "x": -1647,
+                "y": -170,
+                "zoom": 1.26
+            },
+            "filename": "CraftFilterBTN",
+            "version": "v1.3.1"
+        }
+    },
+    "CraftFilterstart1": {
+        "desc": "谷地物品筛选入口",
+        "next": [
+            "FilterWhite1",
+            "FilterBlack1"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -512,
+                "y": 13
+            }
+        }
+    },
+    "CraftFilterstart2": {
+        "desc": "武陵物品筛选入口",
+        "next": [
+            "FilterWhite2",
+            "FilterBlack2"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -475,
+                "y": 666
+            }
+        }
+    },
+    "FilterWhite1": {
+        "desc": "点击白按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    252,
+                    614,
+                    92,
+                    96
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftTags2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterToValley"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -18,
+                "y": -255
+            }
+        }
+    },
+    "FilterBlack1": {
+        "desc": "点击黑按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    252,
+                    614,
+                    92,
+                    96
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftTags1.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterReset1"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -30,
+                "y": 140
+            }
+        }
+    },
+    "FilterWhite2": {
+        "desc": "点击白按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    252,
+                    614,
+                    92,
+                    96
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftTags2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterToWuling"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -33,
+                "y": 501
+            }
+        }
+    },
+    "FilterBlack2": {
+        "desc": "点击黑按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    252,
+                    614,
+                    92,
+                    96
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftTags1.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterReset2"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": -40,
+                "y": 809
+            }
+        }
+    },
+    "FilterToValley": {
+        "desc": "点击谷地",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    437,
+                    195,
+                    74,
+                    70
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftNO.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 500,
+        "next": [
+            "CraftSave"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 659,
+                "y": -234
+            }
+        }
+    },
+    "FilterToWuling": {
+        "desc": "点击武陵",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    710,
+                    194,
+                    74,
+                    72
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftNO.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 500,
+        "next": [
+            "CraftSave"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 679,
+                "y": 490
+            }
+        }
+    },
+    "FilterReset1": {
+        "desc": "重置",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    803,
+                    496,
+                    100,
+                    104
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftReset.png"
+                ]
+            }
+        },
+        "pre_delay": 300,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterToValley"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 348,
+                "y": 137
+            }
+        }
+    },
+    "CraftSave": {
+        "desc": "保存筛选设置",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    983,
+                    502,
+                    132,
+                    95
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftSave.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "CraftFilterSortStart"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1039,
+                "y": 310
+            }
+        }
+    },
+    "FilterReset2": {
+        "desc": "重置",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    803,
+                    496,
+                    100,
+                    104
+                ],
+                "template": [
+                    "SimpleProductionBatch/CraftReset.png"
+                ]
+            }
+        },
+        "pre_delay": 300,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FilterToWuling"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 362,
+                "y": 804
+            }
+        }
+    },
+    "CraftFilterSortStart": {
+        "pre_delay": 500,
+        "next": [
+            "CraftFilterSort",
+            "CraftFilterSort1"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1368,
+                "y": 332
+            }
+        }
+    },
+    "CraftFilterSort1": {
+        "desc": "点默认筛选品质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    19,
+                    626,
+                    96,
+                    72
+                ],
+                "expected": [
+                    "默认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    130,
+                    660,
+                    1,
+                    1
+                ]
+            }
+        },
+        "next": [
+            "CraftFilterSort2"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1679,
+                "y": 188
+            }
+        }
+    },
+    "CraftFilterSort2": {
+        "desc": "此处不点留作验证",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    33,
+                    595,
+                    72,
+                    41
+                ],
+                "expected": [
+                    "品质"
+                ]
+            }
+        },
+        "next": [
+            "CraftFinish"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1955,
+                "y": 202
+            }
+        }
+    },
+    "CraftFinish": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2322,
+                "y": 348
+            }
+        }
+    },
+    "CraftFilterSort": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    19,
+                    626,
+                    96,
+                    72
+                ],
+                "expected": [
+                    "品质"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    130,
+                    660,
+                    1,
+                    1
+                ]
+            }
+        },
+        "next": [
+            "CraftFilterSort4"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1689,
+                "y": 531
+            }
+        }
+    },
+    "CraftFilterSort4": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    39,
+                    554,
+                    61,
+                    40
+                ],
+                "expected": [
+                    "默认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "CraftFilterSort1"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1984,
+                "y": 534
+            }
+        }
+    }
+}

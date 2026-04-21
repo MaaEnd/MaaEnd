@@ -1,0 +1,385 @@
+{
+    "task": [
+        {
+            "name": "SimpleProductionBatch",
+            "label": "$task.SimpleProductionBatch.label",
+            "entry": "CraftStart0",
+            "description": "$task.SimpleProductionBatch.description",
+            "option": [
+                "MakeAll"
+            ],
+            "group": [
+                "utility"
+            ]
+        }
+    ],
+    "option": {
+        "MakeAll": {
+            "type": "switch",
+            "label": "$option.MakeAll.label",
+            "description": "$option.MakeAll.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CraftMakeALL": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CraftMakeALL": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "TeleportToDijin",
+                        "CraftEMS",
+                        "CraftFine"
+                    ]
+                }
+            ]
+        },
+        "TeleportToDijin": {
+            "type": "switch",
+            "label": "$option.TeleportToDijin.label",
+            "description": "$option.TeleportToDijin.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "craft2tele": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "craft2tele": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CraftEMS": {
+            "type": "switch",
+            "label": "$global.region.CraftEMS",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CraftEMS": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "Citromix",
+                        "ThornyYazhenPowder",
+                        "FluffedJincaoPowder"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DeliveryJobsValleyIV": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "Citromix": {
+            "type": "switch",
+            "label": "$global.region.Citromix",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "Citromix": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "Citromix": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ThornyYazhenPowder": {
+            "type": "switch",
+            "label": "$global.region.ThornyYazhenPowder",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ThornyYazhenPowder": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ThornyYazhenPowder": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "FluffedJincaoPowder": {
+            "type": "switch",
+            "label": "$global.region.FluffedJincaoPowder",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "FluffedJincaoPowder": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "FluffedJincaoPowder": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "CraftFine": {
+            "type": "switch",
+            "label": "$global.region.CraftFine",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CraftFine": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "PerplexingMedication",
+                        "KunstTube",
+                        "ArtsTube",
+                        "GinsengMeatStew",
+                        "YazhenSprayL",
+                        "YazhenSprayS",
+                        "WulingFriedRice",
+                        "EchoingRemedy"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CraftFine": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "PerplexingMedication": {
+            "type": "switch",
+            "label": "$global.region.PerplexingMedication",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "PerplexingMedication": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "PerplexingMedication": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "KunstTube": {
+            "type": "switch",
+            "label": "$global.region.KunstTube",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "KunstTube": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "KunstTube": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ArtsTube": {
+            "type": "switch",
+            "label": "$global.region.ArtsTube",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ArtsTube": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ArtsTube": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GinsengMeatStew": {
+            "type": "switch",
+            "label": "$global.region.GinsengMeatStew",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GinsengMeatStew": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "GinsengMeatStew": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "YazhenSprayL": {
+            "type": "switch",
+            "label": "$global.region.YazhenSprayL",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "YazhenSprayL": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "YazhenSprayL": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "YazhenSprayS": {
+            "type": "switch",
+            "label": "$global.region.YazhenSprayS",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "YazhenSprayS": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "YazhenSprayS": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingFriedRice": {
+            "type": "switch",
+            "label": "$global.region.WulingFriedRice",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "WulingFriedRice": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "WulingFriedRice": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EchoingRemedy": {
+            "type": "switch",
+            "label": "$global.region.EchoingRemedy",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EchoingRemedy": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EchoingRemedy": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
