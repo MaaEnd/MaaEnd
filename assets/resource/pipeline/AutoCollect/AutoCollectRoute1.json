@@ -34,16 +34,17 @@
             }
         },
         "next": [
-            "AutoCollectRoute1GotoFind1"
+            "AutoCollectRoute1Goto"
         ]
     },
-    "AutoCollectRoute1GotoFind1": {
-        "desc": "前往收集地1",
+    "AutoCollectRoute1Goto": {
+        "desc": "前往收集地",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
+                    "map_name": "map02_lv002",
                     "path": [
                         {
                             "action": "ZONE",
@@ -156,213 +157,49 @@
                         [
                             933,
                             650,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind2": {
-        "desc": "前往收集地2",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             935,
                             648,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind3": {
-        "desc": "前往收集地3",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             935,
                             646,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind4": {
-        "desc": "前往收集地4",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             931,
                             642,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind5": {
-        "desc": "前往收集地5",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             928,
                             645,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind6": {
-        "desc": "前往收集地6",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             927,
                             647,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind7": {
-        "desc": "前往收集地7",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             929,
                             649,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind8"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute1GotoFind8": {
-        "desc": "前往收集地8",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             931,
                             652,
-                            true
+                            "COLLECT"
                         ]
                     ]
                 }
             }
         },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1End"
-        },
         "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute1End"
         ]
     }
 }

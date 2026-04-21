@@ -946,8 +946,8 @@ class RouteEditorApp:
                 outline_color = "#f59e0b"
                 outline_width = 2
             else:
-                outline_color = "#facc15" if is_strict else "white"
-                outline_width = 1
+                outline_color = "#fde047" if is_strict else "white"
+                outline_width = 2 if is_strict else 1
             label_core = f"{idx}x{action_count}" if action_count > 1 else str(idx)
             label_text = f"{label_core}!" if is_strict else label_core
 

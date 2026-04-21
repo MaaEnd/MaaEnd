@@ -4,6 +4,8 @@
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
 
+struct MaaContext;
+
 namespace mapnavigator
 {
 
@@ -23,6 +25,7 @@ struct Context
     IActionExecutor* action_executor = nullptr;
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;
+    MaaContext* maa_context = nullptr;
 };
 
 struct Result

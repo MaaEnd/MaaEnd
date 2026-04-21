@@ -17,6 +17,11 @@ namespace mapnavigator
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
 // ZONE     - 无坐标区域声明节点，要求后续定位稳定落在指定 zone 后再继续
+// COLLECT  - 精确抵达后停车，同步触发 AutoCollectClickStart pipeline 子任务
+//            （OCR + AutoAltClickAction），不退出 NaviController，避免每次采集
+//            都重建定位/重新 Bootstrap/吃掉起步宽限
+// DIG      - 同 COLLECT，但触发的是 AutoCollectDigStart pipeline 子任务
+//            （无条件 Click target=true 两次），用于挖掘点
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -26,7 +31,9 @@ namespace mapnavigator
     X(TRANSFER)              \
     X(PORTAL)                \
     X(HEADING)               \
-    X(ZONE)
+    X(ZONE)                  \
+    X(COLLECT)               \
+    X(DIG)
 
 enum class ActionType
 {
@@ -62,7 +69,8 @@ struct Waypoint
             return false;
         }
         return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
-               || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL;
+               || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL
+               || action == ActionType::COLLECT || action == ActionType::DIG;
     }
 
     bool HasPosition() const { return has_position; }

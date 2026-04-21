@@ -154,7 +154,8 @@ semantic_nodes::Context BuildSemanticContext(
     MotionController* motion_controller,
     IActionExecutor* action_executor,
     NaviPosition* position,
-    NavigationRuntimeState* runtime_state)
+    NavigationRuntimeState* runtime_state,
+    MaaContext* maa_context)
 {
     semantic_nodes::Context ctx;
     ctx.action_wrapper = action_wrapper;
@@ -164,6 +165,7 @@ semantic_nodes::Context BuildSemanticContext(
     ctx.action_executor = action_executor;
     ctx.position = position;
     ctx.runtime_state = runtime_state;
+    ctx.maa_context = maa_context;
     return ctx;
 }
 
@@ -177,7 +179,8 @@ NavigationStateMachine::NavigationStateMachine(
     MotionController* motion_controller,
     IActionExecutor* action_executor,
     NaviPosition* position,
-    std::function<bool()> should_stop)
+    std::function<bool()> should_stop,
+    MaaContext* maa_context)
     : param_(param)
     , action_wrapper_(action_wrapper)
     , position_provider_(position_provider)
@@ -186,6 +189,7 @@ NavigationStateMachine::NavigationStateMachine(
     , action_executor_(action_executor)
     , position_(position)
     , should_stop_(std::move(should_stop))
+    , maa_context_(maa_context)
 {
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
@@ -253,7 +257,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
                 motion_controller_,
                 action_executor_,
                 position_,
-                &runtime_state_),
+                &runtime_state_,
+                maa_context_),
             phase);
         if (semantic_result.request_failure) {
             return FailNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
@@ -286,7 +291,8 @@ bool NavigationStateMachine::TickNavigate()
         motion_controller_,
         action_executor_,
         position_,
-        &runtime_state_);
+        &runtime_state_,
+        maa_context_);
     const semantic_nodes::Result active_semantic_result = semantic_nodes::TickSemanticFlow(semantic_ctx, NaviPhase::Navigate);
     if (active_semantic_result.request_failure) {
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
@@ -339,8 +345,8 @@ bool NavigationStateMachine::TickNavigate()
     const int64_t stalled_ms = session_->StalledMs(now);
 
     if (session_->phase() == NaviPhase::Navigate) {
-        RecoveryStatus recovery_status = RecoveryManager::Tick(
-            motion_controller_, session_, &runtime_state_, *position_, route, stalled_ms);
+        RecoveryStatus recovery_status =
+            RecoveryManager::Tick(motion_controller_, session_, &runtime_state_, *position_, route, stalled_ms);
 
         if (recovery_status == RecoveryStatus::TimeoutFailed) {
             return FailNavigation(
@@ -350,7 +356,7 @@ bool NavigationStateMachine::TickNavigate()
                 NaviMath::NormalizeAngle(route.route_heading - current_heading),
                 60000);
         }
-        
+
         if (recovery_status == RecoveryStatus::Recovered) {
             LogInfo << "Successfully recovered from stuck. Returning control to main loop.";
             session_->ResetProgress();
@@ -376,9 +382,8 @@ bool NavigationStateMachine::TickNavigate()
             }
 
             const size_t slice_start = session_->FindRejoinSliceStart(best_idx);
-            LogInfo << "Recovery rejoin: nearest waypoint found, re-slicing route."
-                    << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id)
-                    << VAR(best_idx) << VAR(best_dist) << VAR(slice_start);
+            LogInfo << "Recovery rejoin: nearest waypoint found, re-slicing route." << VAR(position_->x) << VAR(position_->y)
+                    << VAR(position_->zone_id) << VAR(best_idx) << VAR(best_dist) << VAR(slice_start);
 
             session_->ApplyRejoinSlice(slice_start, *position_);
             session_->ResetProgress();
@@ -390,12 +395,11 @@ bool NavigationStateMachine::TickNavigate()
                 const Waypoint& target_wp = session_->CurrentWaypoint();
                 if (target_wp.HasPosition()) {
                     const double rejoin_heading = NaviMath::NormalizeAngle(position_->angle);
-                    const double target_heading = NaviMath::CalcTargetRotation(
-                        position_->x, position_->y, target_wp.x, target_wp.y);
+                    const double target_heading = NaviMath::CalcTargetRotation(position_->x, position_->y, target_wp.x, target_wp.y);
                     const double heading_error = NaviMath::NormalizeAngle(target_heading - rejoin_heading);
 
-                    LogInfo << "Recovery rejoin: aligning heading to first waypoint."
-                            << VAR(target_heading) << VAR(rejoin_heading) << VAR(heading_error);
+                    LogInfo << "Recovery rejoin: aligning heading to first waypoint." << VAR(target_heading) << VAR(rejoin_heading)
+                            << VAR(heading_error);
 
                     if (std::abs(heading_error) > 3.0) {
                         motion_controller_->ApplySteering(heading_error);
@@ -481,9 +485,10 @@ bool NavigationStateMachine::TickNavigate()
              << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
 
     const bool turn_calm = !steering.issued || std::abs(steering.yaw_delta_deg) < 30.0;
+    const bool target_requires_strict_arrival = waypoint.RequiresStrictArrival();
     const bool allow_sprint =
         turn_calm && motion_controller_->SupportsSprint() && startup_grace_elapsed && param_.sprint_threshold > 0.0
-        && route.along_track_remaining > param_.sprint_threshold
+        && !target_requires_strict_arrival && route.along_track_remaining > param_.sprint_threshold
         && (runtime_state_.flow.last_auto_sprint_time.time_since_epoch().count() == 0
             || std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.last_auto_sprint_time).count()
                    >= kAutoSprintCooldownMs);

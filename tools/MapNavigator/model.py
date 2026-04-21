@@ -31,6 +31,8 @@ class ActionType(IntEnum):
     INTERACT = 4
     PORTAL = 5
     TRANSFER = 6
+    COLLECT = 7
+    DIG = 8
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -42,6 +44,8 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.INTERACT: "#2ecc71",
     ActionType.PORTAL: "#facc15",
     ActionType.TRANSFER: "#fb7185",
+    ActionType.COLLECT: "#22d3ee",
+    ActionType.DIG: "#a16207",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -53,6 +57,8 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.INTERACT: "Interact",
     ActionType.PORTAL: "Portal",
     ActionType.TRANSFER: "Transfer",
+    ActionType.COLLECT: "Collect",
+    ActionType.DIG: "Dig",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -63,6 +69,8 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.INTERACT: "INTERACT",
     ActionType.PORTAL: "PORTAL",
     ActionType.TRANSFER: "TRANSFER",
+    ActionType.COLLECT: "COLLECT",
+    ActionType.DIG: "DIG",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -74,6 +82,8 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "INTERACT": int(ActionType.INTERACT),
     "PORTAL": int(ActionType.PORTAL),
     "TRANSFER": int(ActionType.TRANSFER),
+    "COLLECT": int(ActionType.COLLECT),
+    "DIG": int(ActionType.DIG),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -83,6 +93,8 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.INTERACT,
     ActionType.PORTAL,
     ActionType.TRANSFER,
+    ActionType.COLLECT,
+    ActionType.DIG,
 )
 ACTION_MENU_NAMES: tuple[str, ...] = tuple(ACTION_NAMES[action_type] for action_type in ACTION_MENU_TYPES)
 INVALID_ZONE_IDS = {"NONE", "NULL", "N/A"}

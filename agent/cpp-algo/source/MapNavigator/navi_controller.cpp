@@ -61,7 +61,7 @@ bool NaviController::Navigate(const NaviParam& param)
     MotionController motion_controller(&action_wrapper, param.enable_local_driver);
     ActionExecutor action_executor(&action_wrapper, &motion_controller, param.enable_local_driver);
     NavigationStateMachine
-        state_machine(param, &action_wrapper, &position_provider, &session, &motion_controller, &action_executor, &pos, is_stopping);
+        state_machine(param, &action_wrapper, &position_provider, &session, &motion_controller, &action_executor, &pos, is_stopping, ctx_);
 
     return state_machine.Run();
 }

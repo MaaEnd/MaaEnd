@@ -25,7 +25,8 @@ public:
         MotionController* motion_controller,
         IActionExecutor* action_executor,
         NaviPosition* position,
-        std::function<bool()> should_stop);
+        std::function<bool()> should_stop,
+        MaaContext* maa_context);
 
     bool Run();
 
@@ -46,6 +47,7 @@ private:
     IActionExecutor* action_executor_;
     NaviPosition* position_;
     std::function<bool()> should_stop_;
+    MaaContext* maa_context_;
     NavigationRuntimeState runtime_state_ {};
 };
 

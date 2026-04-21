@@ -105,4 +105,12 @@ constexpr int32_t kSevereDivergenceStallMs = 800;
 constexpr int32_t kPostTurnForwardCommitMs = 500;
 constexpr double kPostTurnForwardCommitMinDegrees = 15.0;
 
+constexpr const char* kDefaultCollectEntry = "AutoCollectClickStart";
+constexpr const char* kCollectPipelineOverride = R"({"AutoCollectClickEnd":{"next":[]}})";
+constexpr int32_t kCollectPostSleepMs = 80;
+
+constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
+constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
+constexpr int32_t kDigPostSleepMs = 80;
+
 } // namespace mapnavigator

@@ -74,6 +74,14 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
     case ActionType::ZONE:
         LogWarn << "ZONE action dispatched to ActionExecutor unexpectedly.";
         break;
+
+    case ActionType::COLLECT:
+        LogWarn << "COLLECT action dispatched to ActionExecutor unexpectedly.";
+        break;
+
+    case ActionType::DIG:
+        LogWarn << "DIG action dispatched to ActionExecutor unexpectedly.";
+        break;
     }
 
     return result;
