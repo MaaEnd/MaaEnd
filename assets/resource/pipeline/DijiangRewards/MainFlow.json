@@ -17,8 +17,8 @@
             }
         },
         "next": [
-            "[JumpBack]DijjiangRewardsFastCollectProDuction",
-            "[JumpBack]DijjiangRewardsFastCollectClues",
+            "[JumpBack]DijiangRewardsFastCollectProduction",
+            "[JumpBack]DijiangRewardsFastCollectClues",
             "[JumpBack]RecoveryEmotionMain",
             "[JumpBack]ReceptionRoomMain",
             "[JumpBack]MFGCabinMain",

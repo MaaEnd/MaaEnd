@@ -71,10 +71,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DijjiangRewardsFastCollectProDuction": {
+                        "DijiangRewardsFastCollectProduction": {
                             "enabled": true
                         },
-                        "DijjiangRewardsFastCollectClues": {
+                        "DijiangRewardsFastCollectClues": {
                             "enabled": true
                         }
                     }
@@ -82,10 +82,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DijjiangRewardsFastCollectProDuction": {
+                        "DijiangRewardsFastCollectProduction": {
                             "enabled": false
                         },
-                        "DijjiangRewardsFastCollectClues": {
+                        "DijiangRewardsFastCollectClues": {
                             "enabled": false
                         }
                     }
