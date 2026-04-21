@@ -45,6 +45,29 @@ func BenchmarkGetImageStats(b *testing.B) {
 	}
 }
 
+func BenchmarkGetImageStatsInCircle(b *testing.B) {
+	img := generateBenchmarkImage(1280, 720)
+
+	benchmarks := []struct {
+		name   string
+		circle Circle
+	}{
+		{name: "720p_r23", circle: Circle{X: 640, Y: 360, Radius: 23}},
+		{name: "720p_r45", circle: Circle{X: 640, Y: 360, Radius: 45}},
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			b.ReportAllocs()
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				_ = GetImageCircleStats(img, bm.circle)
+			}
+		})
+	}
+}
+
 func BenchmarkGetIntegralArray(b *testing.B) {
 	benchmarks := []struct {
 		name string
