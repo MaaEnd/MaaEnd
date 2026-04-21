@@ -75,7 +75,11 @@ const ITEM_META = [...collectTradeItems().entries()]
     }, {});
 
 // ===== 从 settlement 数据提取全局物品字典 =====
-// expected 顺序: TC, CN, JP, EN
+// candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductFuzzyItemMatch
+// 自定义识别做抗噪声匹配。不再带 `^...$` 锚定符，噪声剥离和严格相等由
+// Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
+// 这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」
+// （见 MaaEnd issue #2344、PR #1790 / issue #1793）。
 const ITEMS = {};
 for (const settlement of Object.values(settlementData.settlements)) {
     for (const level of Object.values(settlement.byProsperityLevel)) {
@@ -83,15 +87,15 @@ for (const settlement of Object.values(settlementData.settlements)) {
             const meta = ITEM_META[item.itemId];
             if (!meta) continue;
             if (ITEMS[meta.key]) continue; // 已收集过
-            const enName = item.name.EN?.replace(/[\[\]|]+/g, "") || "";
+            const enName = item.name.EN?.replace(/[\[\]|]+/g, "").trim() || "";
             ITEMS[meta.key] = {
                 name: item.name.CN,
                 label: meta.label,
-                expected: [
-                    `^${escapeRegex(item.name.TC)}$`,
-                    `^${escapeRegex(item.name.CN)}$`,
-                    `^${escapeRegex(item.name.JP)}$`,
-                    enName ? `^${escapeRegex(enName)}$` : null,
+                candidates: [
+                    item.name.TC,
+                    item.name.CN,
+                    item.name.JP,
+                    enName || null,
                 ].filter(Boolean),
             };
         }
@@ -252,7 +256,9 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
             pipeline_override: {
                 [selectKey]: {
                     enabled: true,
-                    expected: item.expected,
+                    custom_recognition_param: {
+                        candidates: item.candidates,
+                    },
                 },
                 [missHandlerKey]: {
                     anchor: {

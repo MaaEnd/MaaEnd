@@ -220,19 +220,16 @@
     "SellProduct${LocationId}SelectItem1": {
         "desc": "${LocationDesc}售卖优先物品1",
         "enabled": false,
-        "recognition": "OCR",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
         "roi": [
             145,
             103,
             998,
             518
-        ],
-        "expected": [],
-        "replace": [
-            [
-                "[\\[\\]|]+",
-                ""
-            ]
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -249,19 +246,16 @@
     "SellProduct${LocationId}SelectItem2": {
         "desc": "${LocationDesc}售卖优先物品2",
         "enabled": false,
-        "recognition": "OCR",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
         "roi": [
             145,
             103,
             998,
             518
-        ],
-        "expected": [],
-        "replace": [
-            [
-                "[\\[\\]|]+",
-                ""
-            ]
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -278,19 +272,16 @@
     "SellProduct${LocationId}SelectItem3": {
         "desc": "${LocationDesc}售卖优先物品3",
         "enabled": false,
-        "recognition": "OCR",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
         "roi": [
             145,
             103,
             998,
             518
-        ],
-        "expected": [],
-        "replace": [
-            [
-                "[\\[\\]|]+",
-                ""
-            ]
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -307,19 +298,16 @@
     "SellProduct${LocationId}SelectItem4": {
         "desc": "${LocationDesc}售卖优先物品4",
         "enabled": false,
-        "recognition": "OCR",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
         "roi": [
             145,
             103,
             998,
             518
-        ],
-        "expected": [],
-        "replace": [
-            [
-                "[\\[\\]|]+",
-                ""
-            ]
         ],
         "pre_delay": 0,
         "action": "Click",
