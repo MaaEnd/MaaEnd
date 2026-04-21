@@ -458,11 +458,25 @@ const ROUTE_CONFIG = [
     {
         Id: "Rainbow",
         Name: "彩虹",
+        // TODO: 缺少栖云窟传送点
         EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+        MapName: "map02_lv004_tier_328",
+        MapTarget: [508.2, 663.0, 18.1, 15.6],
+        MapPath: [
+            [520.2, 672.8],
+            [522.8, 664.0],
+            [509.0, 647.7],
+            [509.1, 624.0],
+            [516.4, 603.9],
+            [504.0, 591.6],
+            [500.1, 591.6],
+            [497.9, 592.8],
+            [492.8, 603.9],
+            [489.0, 606.4],
+            [476.6, 602.8],
+            [476.5, 603.9]
+        ],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
         Id: "PeachTreeAtBabblesSHome",

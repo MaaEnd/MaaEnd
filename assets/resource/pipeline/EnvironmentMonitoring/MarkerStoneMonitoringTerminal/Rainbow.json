@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
                     ]
                 }
             ]
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
                     ]
                 }
             ]
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
                     ]
                 }
             ]
@@ -282,11 +282,55 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv004_tier_328",
             "path": [
                 [
-                    0,
-                    0
+                    520.2,
+                    672.8
+                ],
+                [
+                    522.8,
+                    664
+                ],
+                [
+                    509,
+                    647.7
+                ],
+                [
+                    509.1,
+                    624
+                ],
+                [
+                    516.4,
+                    603.9
+                ],
+                [
+                    504,
+                    591.6
+                ],
+                [
+                    500.1,
+                    591.6
+                ],
+                [
+                    497.9,
+                    592.8
+                ],
+                [
+                    492.8,
+                    603.9
+                ],
+                [
+                    489,
+                    606.4
+                ],
+                [
+                    476.6,
+                    602.8
+                ],
+                [
+                    476.5,
+                    603.9
                 ]
             ]
         },
@@ -302,7 +346,7 @@
         "desc": "彩虹任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }
