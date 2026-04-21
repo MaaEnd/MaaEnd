@@ -139,9 +139,10 @@
             "param": {
                 "all_of": [
                     "InReceptionRoom",
-                    "FacilityDetails"
+                    "FacilityDetails",
+                    "ExchangeTextTips"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_wait_freezes": {
