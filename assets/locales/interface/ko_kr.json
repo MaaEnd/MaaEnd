@@ -161,6 +161,8 @@
     "option.VisitFriendsRemark.label": "메모가 있는 친구 우선 방문",
     "option.StageTaskSetting.label": "단계 작업 설정",
     "option.StageTaskSetting.description": "활성화하면 기분 회복, 접견실, 제조실, 배양실 단계를 각각 켜거나 끌 수 있습니다.",
+    "option.FastCollect.label": "빠른 수집",
+    "option.FastCollect.description": "단서와 생산물을 빠르게 회수합니다.",
     "option.RecoveryEmotionStage.label": "기분 회복",
     "option.RecoveryEmotionStage.description": "마스터 컨트롤 넥서스의 기분 회복 단계를 실행할지 여부를 설정합니다.",
     "option.ReceptionRoomStage.label": "접견실",

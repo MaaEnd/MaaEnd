@@ -1,0 +1,50 @@
+{
+    "DijjiangRewardsFastCollectProDuction": {
+        "desc": "快速收取产物",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "产物"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseRewardsButton"
+        ]
+    },
+    "DijjiangRewardsFastCollectClues": {
+        "desc": "快速收取线索",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "线索"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseRewardsButton"
+        ]
+    }
+}

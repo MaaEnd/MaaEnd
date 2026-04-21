@@ -161,6 +161,8 @@
     "option.VisitFriendsRemark.label": "Prioritize friends with remarks",
     "option.StageTaskSetting.label": "Stage Task Settings",
     "option.StageTaskSetting.description": "Enable to control the mood recovery, Reception Room, Manufacturing, and Growth Chamber stages individually.",
+    "option.FastCollect.label": "Fast Collect",
+    "option.FastCollect.description": "Quickly collect clues and products.",
     "option.RecoveryEmotionStage.label": "Mood Recovery",
     "option.RecoveryEmotionStage.description": "Controls whether the mood recovery stage in the Master Control Nexus is executed.",
     "option.ReceptionRoomStage.label": "Reception Room",

@@ -161,6 +161,8 @@
     "option.VisitFriendsRemark.label": "优先拜访带备注的好友",
     "option.StageTaskSetting.label": "阶段任务设置",
     "option.StageTaskSetting.description": "开启后可单独控制回复心情、会客室、制造舱、培养舱这几个阶段任务的开关。",
+    "option.FastCollect.label": "快速收取",
+    "option.FastCollect.description": "快速收取线索和产物",
     "option.RecoveryEmotionStage.label": "回复心情",
     "option.RecoveryEmotionStage.description": "控制是否执行总控中枢的回复心情阶段。",
     "option.ReceptionRoomStage.label": "会客室",

@@ -161,6 +161,8 @@
     "option.VisitFriendsRemark.label": "優先拜訪有備註的好友",
     "option.StageTaskSetting.label": "階段任務設定",
     "option.StageTaskSetting.description": "開啟後可分別控制恢復心情、會客室、製造艙、培養艙這幾個階段任務的開關。",
+    "option.FastCollect.label": "快速收取",
+    "option.FastCollect.description": "快速收取線索和產物",
     "option.RecoveryEmotionStage.label": "恢復心情",
     "option.RecoveryEmotionStage.description": "控制是否執行總控中樞的恢復心情階段。",
     "option.ReceptionRoomStage.label": "會客室",

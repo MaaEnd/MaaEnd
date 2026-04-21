@@ -161,6 +161,8 @@
     "option.VisitFriendsRemark.label": "メモ付きフレンドを優先",
     "option.StageTaskSetting.label": "段階タスク設定",
     "option.StageTaskSetting.description": "有効にすると、気分回復、応接室、製造室、培養室の各段階を個別に切り替えられます。",
+    "option.FastCollect.label": "クイック回収",
+    "option.FastCollect.description": "手掛かりと製造物を素早く回収します。",
     "option.RecoveryEmotionStage.label": "気分回復",
     "option.RecoveryEmotionStage.description": "総合制御中枢での気分回復段階を実行するかどうかを切り替えます。",
     "option.ReceptionRoomStage.label": "応接室",
