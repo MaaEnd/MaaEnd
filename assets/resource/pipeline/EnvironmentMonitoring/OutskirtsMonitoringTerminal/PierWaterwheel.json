@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        492.5,
+                        178,
+                        13.2,
+                        13
                     ]
                 }
             ]
@@ -214,7 +214,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingJingyuValley1"
             ]
         },
         "next": [
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        492.5,
+                        178,
+                        13.2,
+                        13
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingJingyuValley1"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        492.5,
+                        178,
+                        13.2,
+                        13
                     ]
                 }
             ]
@@ -282,11 +282,15 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv001",
             "path": [
                 [
-                    0,
-                    0
+                    504.6,
+                    189
+                ],
+                [
+                    512,
+                    192
                 ]
             ]
         },

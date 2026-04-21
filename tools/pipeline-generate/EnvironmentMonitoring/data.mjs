@@ -331,10 +331,13 @@ const ROUTE_CONFIG = [
     {
         Id: "PierWaterwheel",
         Name: "码头水车",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingJingyuValley1",
+        MapName: "map02_lv001",
+        MapTarget: [492.5, 178.0, 13.2, 13.0],
+        MapPath: [
+            [504.6, 189.0],
+            [512.0, 192.0]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
