@@ -736,5 +736,6 @@
     "option.ResourceRecycleStationWuling.label": "무릉",
     "option.ResourceRecycleStationValleyIV.label": "4호 계곡",
     "task.ResourceRecycleStation.focus.WulingStart": "무릉 자원 재활용 스테이션 수집 중",
-    "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중"
+    "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중",
+    "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중"
 }

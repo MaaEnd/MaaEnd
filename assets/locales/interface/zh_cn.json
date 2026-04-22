@@ -736,5 +736,6 @@
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.ResourceRecycleStationValleyIV.label": "四号谷地",
     "task.ResourceRecycleStation.focus.WulingStart": "开始收取武陵资源回收站",
-    "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站"
+    "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站",
+    "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看"
 }

@@ -736,5 +736,6 @@
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.ResourceRecycleStationValleyIV.label": "四号谷地",
     "task.ResourceRecycleStation.focus.WulingStart": "武陵の資源回収ステーションを収集中",
-    "task.ResourceRecycleStation.focus.ValleyIVStart": "四号谷地の資源回収ステーションを収集中"
+    "task.ResourceRecycleStation.focus.ValleyIVStart": "四号谷地の資源回収ステーションを収集中",
+    "task.ResourceRecycleStation.focus.LimitReached": "希少資源が上限に達しました、スクロール中"
 }

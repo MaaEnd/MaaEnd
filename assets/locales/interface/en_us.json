@@ -736,5 +736,6 @@
     "option.ResourceRecycleStationWuling.label": "Wuling",
     "option.ResourceRecycleStationValleyIV.label": "Valley IV",
     "task.ResourceRecycleStation.focus.WulingStart": "Collecting Wuling Resource Recycle Station",
-    "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station"
+    "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
+    "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling"
 }

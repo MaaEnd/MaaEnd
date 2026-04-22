@@ -155,7 +155,7 @@
             "ResourceRecycleCheckEmpty"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "列表已达上限，滑动查看"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
         }
     },
 
@@ -188,7 +188,7 @@
             "ResourceRecycleCheckEmpty"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "列表已达上限，滑动查看"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
         }
     },
 
