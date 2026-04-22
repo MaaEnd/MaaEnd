@@ -55,6 +55,7 @@
         "post_delay": 500,
         "next": [
             "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimit",
             "ResourceRecycleCheckEmpty"
         ]
     },
@@ -80,6 +81,39 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "发现资源回收站"
+        }
+    },
+
+    "ResourceRecycleCheckLimit": {
+        "desc": "列表已达上限，滑动查看更多",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "上限"
+        ],
+        "max_hit": 3,
+        "action": "Swipe",
+        "begin": [
+            165,
+            222
+        ],
+        "end": [
+            165,
+            124
+        ],
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimit",
+            "ResourceRecycleCheckEmpty"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "列表已达上限，滑动查看"
         }
     },
 
