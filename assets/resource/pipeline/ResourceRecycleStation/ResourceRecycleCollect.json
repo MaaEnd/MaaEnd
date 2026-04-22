@@ -96,7 +96,7 @@
         "expected": [
             "上限"
         ],
-        "max_hit": 3,
+        "max_hit": 6,
         "action": "Swipe",
         "begin": [
             165,
