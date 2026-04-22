@@ -152,6 +152,7 @@ function buildRow(mission, usedIds) {
     const CameraSwipeDirection =
         override?.CameraSwipeDirection ?? ROUTE_DEFAULTS.CameraSwipeDirection;
     if (!override?.CameraSwipeDirection) missingFields.push("CameraSwipeDirection");
+    const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
 
     if (missingFields.length > 0) {
         console.warn(
@@ -174,6 +175,7 @@ function buildRow(mission, usedIds) {
         MapTarget,
         MapPath,
         CameraSwipeDirection,
+        CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
     };
