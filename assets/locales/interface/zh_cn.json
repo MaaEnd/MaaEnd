@@ -735,8 +735,6 @@
     "option.ResourceRecycleStationRegion.label": "收取地区",
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.ResourceRecycleStationValleyIV.label": "四号谷地",
-    "task.ResourceRecycleStation.focus.Wuling": "前往武陵地图",
-    "task.ResourceRecycleStation.focus.ValleyIV": "前往四号谷地地图",
     "task.ResourceRecycleStation.focus.WulingStart": "开始收取武陵资源回收站",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站"
 }

@@ -735,8 +735,6 @@
     "option.ResourceRecycleStationRegion.label": "Collect Region",
     "option.ResourceRecycleStationWuling.label": "Wuling",
     "option.ResourceRecycleStationValleyIV.label": "Valley IV",
-    "task.ResourceRecycleStation.focus.Wuling": "Heading to Wuling map",
-    "task.ResourceRecycleStation.focus.ValleyIV": "Heading to Valley IV map",
     "task.ResourceRecycleStation.focus.WulingStart": "Collecting Wuling Resource Recycle Station",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station"
 }
