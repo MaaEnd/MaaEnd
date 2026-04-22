@@ -152,7 +152,7 @@
         "next": [
             "ResourceRecycleCheckStation",
             "ResourceRecycleCheckLimitWuling",
-            "ResourceRecycleCheckEmpty"
+            "ResourceRecycleRegionEnd"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
@@ -185,7 +185,7 @@
         "next": [
             "ResourceRecycleCheckStation",
             "ResourceRecycleCheckLimitValleyIV",
-            "ResourceRecycleCheckEmpty"
+            "ResourceRecycleRegionEnd"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
