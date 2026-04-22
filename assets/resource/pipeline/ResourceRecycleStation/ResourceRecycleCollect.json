@@ -159,17 +159,9 @@
 
     "ResourceRecycleConfirmDialog": {
         "desc": "点击确认按钮",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            680,
-            400,
-            80,
-            40
-        ],
-        "post_delay": 1000,
         "next": [
-            "ResourceRecycleConfirm"
+            "ResourceRecycleConfirm",
+            "[JumpBack]SceneDialogConfirm"
         ]
     },
 
