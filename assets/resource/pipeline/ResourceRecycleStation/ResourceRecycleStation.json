@@ -9,6 +9,13 @@
     "ResourceRecycleStationWulingSub": {
         "enabled": false,
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "ResourceRecycleStationWulingStart"
         ]
@@ -16,13 +23,19 @@
     "ResourceRecycleStationValleyIVSub": {
         "enabled": false,
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "ResourceRecycleStationValleyIVStart"
         ]
     },
     "ResourceRecycleStationEnd": {
-        "next": [
-            "SceneAnyEnterWorld"
-        ]
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
