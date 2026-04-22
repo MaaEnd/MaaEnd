@@ -729,5 +729,10 @@
     "task.BatchUseDetector.option.Category.Detector": "探知器",
     "task.BatchUseDetector.option.Category.Compass": "コンパス",
     "task.BatchUseDetector.option.Times.label": "使用回数",
-    "task.BatchUseDetector.option.Times.input.label": "回数"
+    "task.BatchUseDetector.option.Times.input.label": "回数",
+    "task.ResourceRecycleStation.label": "🦉資源回収ステーション",
+    "task.ResourceRecycleStation.description": "武陵と四号谷地の資源回収ステーションから自動的に収集します",
+    "option.ResourceRecycleStationRegion.label": "収集地域",
+    "option.ResourceRecycleStationWuling.label": "武陵",
+    "option.ResourceRecycleStationValleyIV.label": "四号谷地"
 }

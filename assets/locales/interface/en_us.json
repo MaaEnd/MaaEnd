@@ -729,5 +729,10 @@
     "task.BatchUseDetector.option.Category.Detector": "Detector",
     "task.BatchUseDetector.option.Category.Compass": "Compass",
     "task.BatchUseDetector.option.Times.label": "Use Count",
-    "task.BatchUseDetector.option.Times.input.label": "Count"
+    "task.BatchUseDetector.option.Times.input.label": "Count",
+    "task.ResourceRecycleStation.label": "🦉Resource Recycle Station",
+    "task.ResourceRecycleStation.description": "Automatically collect resources from Resource Recycle Stations in Wuling and Valley IV",
+    "option.ResourceRecycleStationRegion.label": "Collect Region",
+    "option.ResourceRecycleStationWuling.label": "Wuling",
+    "option.ResourceRecycleStationValleyIV.label": "Valley IV"
 }

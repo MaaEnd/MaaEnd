@@ -147,6 +147,7 @@
         "tasks/SellProduct.json",
         "tasks/AutoStockpile.json",
         "tasks/AutoStockStaple.json",
+        "tasks/ResourceRecycleStation.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",

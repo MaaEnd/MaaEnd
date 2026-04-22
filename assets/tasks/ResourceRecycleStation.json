@@ -1,0 +1,46 @@
+{
+    "task": [
+        {
+            "name": "ResourceRecycleStation",
+            "label": "$task.ResourceRecycleStation.label",
+            "entry": "ResourceRecycleStationStart",
+            "description": "$task.ResourceRecycleStation.description",
+            "option": [
+                "ResourceRecycleStationRegion"
+            ],
+            "group": [
+                "daily"
+            ]
+        }
+    ],
+    "option": {
+        "ResourceRecycleStationRegion": {
+            "type": "checkbox",
+            "label": "$option.ResourceRecycleStationRegion.label",
+            "default_case": [
+                "Wuling",
+                "ValleyIV"
+            ],
+            "cases": [
+                {
+                    "name": "Wuling",
+                    "label": "$option.ResourceRecycleStationWuling.label",
+                    "pipeline_override": {
+                        "ResourceRecycleStationWulingSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "ValleyIV",
+                    "label": "$option.ResourceRecycleStationValleyIV.label",
+                    "pipeline_override": {
+                        "ResourceRecycleStationValleyIVSub": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

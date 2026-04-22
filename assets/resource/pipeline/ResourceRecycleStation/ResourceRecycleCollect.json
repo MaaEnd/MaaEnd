@@ -1,0 +1,164 @@
+{
+    "ResourceRecycleStationWulingStart": {
+        "next": [
+            "ResourceRecycleClickReminder",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始收取武陵资源回收站"
+        }
+    },
+    "ResourceRecycleStationValleyIVStart": {
+        "next": [
+            "ResourceRecycleClickReminder",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始收取四号谷地资源回收站"
+        }
+    },
+
+    "ResourceRecycleClickReminder": {
+        "desc": "点击事务提醒",
+        "recognition": "OCR",
+        "roi": [
+            14,
+            26,
+            131,
+            69
+        ],
+        "expected": [
+            "事务提醒"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectPrompt"
+        ]
+    },
+
+    "ResourceRecycleClickCollectPrompt": {
+        "desc": "点击采集提示",
+        "recognition": "OCR",
+        "roi": [
+            168,
+            28,
+            124,
+            71
+        ],
+        "expected": [
+            "采集提示"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckEmpty"
+        ]
+    },
+
+    "ResourceRecycleCheckStation": {
+        "desc": "检查是否有可收取的资源回收站",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "资源",
+            "回收站"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectBtn"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "发现资源回收站"
+        }
+    },
+
+    "ResourceRecycleCheckEmpty": {
+        "desc": "暂无可收取资源",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "暂无"
+        ],
+        "next": [
+            "ResourceRecycleRegionEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "该地区暂无可收取资源"
+        }
+    },
+
+    "ResourceRecycleClickCollectBtn": {
+        "desc": "点击收取按钮",
+        "recognition": "OCR",
+        "roi": [
+            944,
+            523,
+            310,
+            100
+        ],
+        "expected": [
+            "收取"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 1000,
+        "next": [
+            "ResourceRecycleConfirm"
+        ]
+    },
+
+    "ResourceRecycleConfirm": {
+        "desc": "点击奖励确认关闭弹窗",
+        "recognition": "And",
+        "all_of": [
+            "InNoticeRewards",
+            "CloseRewardsButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "next": [
+            "ResourceRecycleRegionEnd"
+        ]
+    },
+
+    "ResourceRecycleRegionEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

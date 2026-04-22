@@ -1,0 +1,33 @@
+{
+    "ResourceRecycleStationStart": {
+        "next": [
+            "[JumpBack]ResourceRecycleStationWulingSub",
+            "[JumpBack]ResourceRecycleStationValleyIVSub",
+            "ResourceRecycleStationEnd"
+        ]
+    },
+    "ResourceRecycleStationWulingSub": {
+        "enabled": false,
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.ResourceRecycleStationWuling.label"
+        },
+        "next": [
+            "ResourceRecycleStationWulingStart"
+        ]
+    },
+    "ResourceRecycleStationValleyIVSub": {
+        "enabled": false,
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.ResourceRecycleStationValleyIV.label"
+        },
+        "next": [
+            "ResourceRecycleStationValleyIVStart"
+        ]
+    },
+    "ResourceRecycleStationEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}
