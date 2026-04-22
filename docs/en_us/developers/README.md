@@ -80,9 +80,10 @@ Only when you maintain the matching task.
 
 | Document                                              | Description                                                                 |
 | ----------------------------------------------------- | --------------------------------------------------------------------------- |
-| [AutoStockpile](./tasks/auto-stockpile-maintain.md)   | Item templates, mapping, price thresholds, region extensions                |
-| [DijiangRewards](./tasks/dijiang-rewards-maintain.md) | Main flow, stage roles, interface option overrides                          |
-| [CreditShopping](./tasks/credit-shopping-maintain.md) | Purchase priority, credit top-up linkage, refresh strategy, item extensions |
+| [AutoStockpile](./tasks/auto-stockpile-maintain.md)                             | Item templates, mapping, price thresholds, region extensions                |
+| [DijiangRewards](./tasks/dijiang-rewards-maintain.md)                           | Main flow, stage roles, interface option overrides                          |
+| [CreditShopping](./tasks/credit-shopping-maintain.md)                           | Purchase priority, credit top-up linkage, refresh strategy, item extensions |
+| [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md)             | Observation-point route data, `pipeline-generate` auto-generation, and onboarding new points |
 
 ## Quick lookup
 

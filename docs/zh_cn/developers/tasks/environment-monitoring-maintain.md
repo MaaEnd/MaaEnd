@@ -210,6 +210,10 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 新增的观察点一般来自游戏更新，体现在 `kite_station.json` 中多出一条 `mission`。维护流程：
 
+> [!TIP]
+>
+> 如果你在使用支持 AI Skill 的客户端（如 Claude Code 或 GitHub Copilot），可以直接调用 **`environment-monitoring-add-route` skill**，它会自动检测缺失条目并通过交互式问答帮你填写 `ROUTE_CONFIG`，省去手动查表的步骤。
+
 ### 1. 更新游戏数据
 
 把最新的 `kite_station.json` 替换到 `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`（数据来源：`zmdmap`）。
