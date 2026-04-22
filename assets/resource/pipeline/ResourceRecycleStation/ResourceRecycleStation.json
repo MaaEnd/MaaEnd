@@ -9,9 +9,6 @@
     "ResourceRecycleStationWulingSub": {
         "enabled": false,
         "max_hit": 1,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.ResourceRecycleStationWuling.label"
-        },
         "next": [
             "ResourceRecycleStationWulingStart"
         ]
@@ -19,9 +16,6 @@
     "ResourceRecycleStationValleyIVSub": {
         "enabled": false,
         "max_hit": 1,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.ResourceRecycleStationValleyIV.label"
-        },
         "next": [
             "ResourceRecycleStationValleyIVStart"
         ]
