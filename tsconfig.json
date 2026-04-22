@@ -12,7 +12,6 @@
     },
     "include": [
         "maatools.config.mts",
-        "tests/scripts/**/*.mts",
-        "global.d.ts"
+        "tests/scripts/**/*.mts"
     ]
 }

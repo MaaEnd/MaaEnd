@@ -1,5 +1,6 @@
 import { TestCases } from '@nekosu/maa-tools'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 type MatrixValue = string | string[]
 type Rect = [number, number, number, number]
@@ -125,7 +126,7 @@ export async function fetchCases(): Promise<TestCases[]> {
     // 'PlayCover': '',
   }
 
-  const testsRoot = path.resolve(import.meta.dirname, '..')
+  const testsRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
   const [
     allTestCases,
     failPaths,
