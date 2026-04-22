@@ -377,7 +377,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "HangingVinesAdjustCamera"
         },
         "next": [

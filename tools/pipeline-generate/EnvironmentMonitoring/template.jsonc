@@ -260,7 +260,7 @@
             "path": "${MapPath}"
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "${GoToMonitoringTerminal}",
+            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
         },
         "next": [

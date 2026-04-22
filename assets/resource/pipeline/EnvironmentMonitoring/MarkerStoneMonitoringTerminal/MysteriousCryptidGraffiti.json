@@ -357,7 +357,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "MysteriousCryptidGraffitiAdjustCamera"
         },
         "next": [

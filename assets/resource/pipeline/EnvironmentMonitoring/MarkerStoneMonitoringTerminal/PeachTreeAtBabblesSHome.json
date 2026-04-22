@@ -297,7 +297,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "PeachTreeAtBabblesSHomeAdjustCamera"
         },
         "next": [

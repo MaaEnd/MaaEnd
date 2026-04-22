@@ -317,7 +317,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "TreeOfTheOldCourtyardAdjustCamera"
         },
         "next": [

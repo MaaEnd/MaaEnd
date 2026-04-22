@@ -66,19 +66,19 @@ The chain inside each observation-point `{Id}Job` (rendered from `template.jsonc
                            ├─ GoTo{Id}RecheckStartPos     (re-check position after teleport)
                            └─ GoTo{Id}ReEnterMap          (second teleport → FinalCheck)
                                 └─ GoTo{Id}MapTrackerMove
-                                     ├─ anchor: EnvironmentMonitoringBactToTerminal → ${GoToMonitoringTerminal}
+                                     ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
                                      ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
                                      └─ next:   EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto        (enters photo mode → adjusts facing → takes photo)
-  └─ [Anchor]EnvironmentMonitoringBactToTerminal
+  └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
 > [!NOTE]
 >
-> The two `anchor` keys are hard-coded placeholder names in the template (`EnvironmentMonitoringBactToTerminal` spelling is intentionally preserved from history—do not correct it). At runtime they are replaced with:
+> The two `anchor` keys are hard-coded placeholder names in the template (`EnvironmentMonitoringBackToTerminal` spelling is intentionally preserved from history—do not correct it). At runtime they are replaced with:
 >
-> - `EnvironmentMonitoringBactToTerminal` → the `EnvironmentMonitoringGoTo{Station}` node for the terminal this observation point belongs to (returns to the correct terminal after shooting)
+> - `EnvironmentMonitoringBackToTerminal` → the `EnvironmentMonitoringGoTo{Station}` node for the terminal this observation point belongs to (returns to the correct terminal after shooting)
 > - `EnvironmentMonitoringAdjustCamera` → `{Id}AdjustCamera` (executes the camera-swipe direction for this observation point)
 
 ## Naming conventions
@@ -192,7 +192,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 The three phases "teleport → recheck → pathfind" for each observation point all depend on `agent/go-service/map-tracker/`:
 
 - `MapTrackerAssertLocation` (recognizer): determines whether the current minimap position is within the `MapTarget` rectangle.
-- `MapTrackerMove` (action): walks along `MapPath` to the target, with anchor-rewrite support for `EnvironmentMonitoringBactToTerminal` / `EnvironmentMonitoringAdjustCamera`.
+- `MapTrackerMove` (action): walks along `MapPath` to the target, with anchor-rewrite support for `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`.
 
 For detailed parameters and coordinate recording, see [map-tracker.md](../components/map-tracker.md) and [map-navigator.md](../components/map-navigator.md).
 
@@ -299,5 +299,5 @@ Before committing, at minimum verify:
 - **`EnterMap` references a non-existent Scene node**: The generator does not validate this; at runtime the task will loop indefinitely at `GoTo{Id}NotAtStartPos`.
 - **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.
-- **`anchor` placeholder name spelling**: `EnvironmentMonitoringBactToTerminal` is the historical spelling (missing a `k`—intentional, not a bug). It must stay consistent with `[Anchor]EnvironmentMonitoringBactToTerminal` in `TakePhoto.json`. Do not "fix" it to `Back`.
+- **`anchor` placeholder name spelling**: `EnvironmentMonitoringBackToTerminal` is the historical spelling (missing a `k`—intentional, not a bug). It must stay consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`. Do not "fix" it to `Back`.
 - **"Passes generation ≠ passes runtime"**: `ROUTE_DEFAULTS` prevents generation-stage errors, but `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` will never reach the target at runtime. Before committing, manually verify that no placeholder entries remain in `ROUTE_CONFIG` (entries with `EnterMap` set to `SceneAnyEnterWorld` and no `// TODO:` comment should raise a flag).
