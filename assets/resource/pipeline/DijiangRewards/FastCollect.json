@@ -23,7 +23,15 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 150,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                229,
+                273,
+                815,
+                159
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -74,7 +82,15 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 150,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                229,
+                273,
+                815,
+                159
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
