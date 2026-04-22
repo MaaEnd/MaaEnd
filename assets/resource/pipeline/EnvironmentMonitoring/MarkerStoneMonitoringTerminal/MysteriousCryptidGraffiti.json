@@ -194,12 +194,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        384.5,
+                        542.0,
+                        28.0,
+                        28.0
                     ]
                 }
             ]
@@ -229,12 +229,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        384.5,
+                        542.0,
+                        28.0,
+                        28.0
                     ]
                 }
             ]
@@ -249,7 +249,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingQingboStockade2"
             ]
         },
         "next": [
@@ -263,12 +263,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv003",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        384.5,
+                        542.0,
+                        28.0,
+                        28.0
                     ]
                 }
             ]
@@ -282,11 +282,71 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv003",
             "path": [
                 [
-                    0,
-                    0
+                    407.4,
+                    548.1
+                ],
+                [
+                    420.8,
+                    537.6
+                ],
+                [
+                    434.6,
+                    527.3
+                ],
+                [
+                    438.2,
+                    523.6
+                ],
+                [
+                    437.4,
+                    519.3
+                ],
+                [
+                    435.2,
+                    515.8
+                ],
+                [
+                    435.0,
+                    505.6
+                ],
+                [
+                    436.2,
+                    503.6
+                ],
+                [
+                    438.8,
+                    503.1
+                ],
+                [
+                    441.3,
+                    503.1
+                ],
+                [
+                    442.5,
+                    508.0
+                ],
+                [
+                    445.0,
+                    513.0
+                ],
+                [
+                    445.1,
+                    519.3
+                ],
+                [
+                    442.5,
+                    525.4
+                ],
+                [
+                    441.3,
+                    528.0
+                ],
+                [
+                    442.5,
+                    531.7
                 ]
             ]
         },
@@ -302,7 +362,7 @@
         "desc": "谜之生物的涂鸦任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenLeft"
         ]
     }
 }
