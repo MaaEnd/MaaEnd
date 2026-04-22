@@ -11,18 +11,17 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 ## 适用范围
 
-当用户提出下面这类问题时使用本 skill：
+只要你要分析 `AutoStockStapleMain` 的日志，就使用本 skill（不需要用户先提出特定问题）。  
+并且：**只要运行本 skill，就必须执行“账单重建/剩余账单时间线”的还原**，而不是只在用户问到“还剩多少券/账单”时才做。
 
-- "`AutoStockStapleMain` 都买了什么"
-- "每次剩余的调度券是多少"
-- "武陵/四号谷地稳定需求物资买了哪些"
-- "这两个 `AutoStockStaple` 节点适不适合记录日志"
-- "为什么 `AutoStockStapleMain` 没买/停止买了"
+重要澄清：
+
+- 本 skill **不适用于** `AutoStockpileMain`；后者是另一套任务流，应使用独立的分析流程/skill。
 
 本 skill 重点包括：
 
 - 购买重建：`AutoStockStapleMain` 实际买了什么
-- 剩余账单时间线：逐步还原可见的剩余账单（券/账单）变化
+- 账单重建（必做）：逐步还原可见的剩余账单（券/账单）变化并建立时间线
 - 跨场景账单解读：`ValleyIV` 与 `Wuling` 之间切换时如何解释账单数值
 - 把日志证据映射回 `AutoStockStaple` 的 pipeline 节点
 - 指出最佳加日志/埋点位置（instrumentation points）
@@ -45,6 +44,14 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - `docs/en_us/developers/custom.md`
 
 ## 工作流
+
+### 0. 输出契约（必产物）
+
+无论用户具体问什么，运行本 skill 的输出里都必须包含：
+
+- 实际购买顺序（以及“识别到但未购买”的解释，如有）
+- 事件时间线
+- 账单（券/账单）时间线（基于 `CurrentStockBillText` 的逐步重建）
 
 ### 1. 锁定任务实例
 
@@ -443,10 +450,10 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 | ---- | ------------------------------------------------- | ---- |
 | ...  | 进入四号谷地 / 购买某商品 / 切换到武陵 / 任务结束 | ...  |
 
-## 调度券时间线
+## 账单（券/账单）时间线
 
-| 时间 | 商品 | 购买前剩余调度券 | 购买后下一次可见调度券 |
-| ---- | ---- | ---------------- | ---------------------- |
+| 时间 | 场景 | 商品 | 购买前可见剩余账单（券/账单） | 购买后下一次可见剩余账单（券/账单） |
+| ---- | ---- | ---- | ------------------------ | ------------------------------------ |
 | ...  | ...  | ...              | ...                    |
 
 说明:
@@ -465,7 +472,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 - 记录购买项: `AutoStockBuyItemValleyIVTask` / `AutoStockBuyItemWulingTask`
 - 记录停止原因: `AutoStockTargetCanNotBuyValleyIV` / `AutoStockTargetCanNotBuyWuling`
-- 记录剩余调度券: `AutoStockCurrentStockBill`
+- 记录剩余账单（券/账单）: `AutoStockCurrentStockBill`
 ```
 
 ## 约束（Guardrails）
