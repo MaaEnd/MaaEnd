@@ -422,7 +422,30 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapBackToMainMap"
+        ]
+    },
+    "__ScenePrivateMapBackToMainMap": {
+        "desc": "从可能存在的分层地图中返回",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    29,
+                    504,
+                    186,
+                    185
+                ],
+                "template": [
+                    "SceneManager/BackToMainMap.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "__ScenePrivateMapTeleportClose": {
         "desc": "在地图界面，关闭传送弹窗",
