@@ -138,7 +138,7 @@
     },
 
     "ResourceRecycleClickCollectBtn": {
-        "desc": "点击收取按钮",
+        "desc": "点击远程收取资源按钮",
         "recognition": "OCR",
         "roi": [
             944,
@@ -147,10 +147,26 @@
             100
         ],
         "expected": [
-            "收取"
+            "远程收取资源"
         ],
         "action": "Click",
         "target": true,
+        "post_delay": 1000,
+        "next": [
+            "ResourceRecycleConfirmDialog"
+        ]
+    },
+
+    "ResourceRecycleConfirmDialog": {
+        "desc": "点击确认按钮",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            680,
+            400,
+            80,
+            40
+        ],
         "post_delay": 1000,
         "next": [
             "ResourceRecycleConfirm"
