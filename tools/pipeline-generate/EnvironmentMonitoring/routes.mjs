@@ -419,11 +419,11 @@ export const ROUTE_CONFIG = [
     {
         Id: "PeachTreeAtBabblesSHome",
         Name: "念念家的桃树",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+        EnterMap: "SceneEnterWorldWulingMarkerStone4",
+        MapName: "map02_lv004_tier_328",
+        MapTarget: [514, 666, 15, 15],
+        MapPath: [[520.3, 672.8]],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
     },
     {
         Id: "WaterTemperatureController",
