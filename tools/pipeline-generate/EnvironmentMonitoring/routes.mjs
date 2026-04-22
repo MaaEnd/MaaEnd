@@ -3,6 +3,7 @@
 //   - ROUTE_DEFAULTS：未提供 ROUTE_CONFIG 时的默认占位值
 // 其余生成逻辑（任务收集、ID 处理、终端归类、行装配等）见 data.mjs，
 // 它会读取这里的 ROUTE_CONFIG / ROUTE_DEFAULTS 装配出最终行数据。
+// 字段说明见 README.md。
 
 export const ROUTE_CONFIG = [
     {

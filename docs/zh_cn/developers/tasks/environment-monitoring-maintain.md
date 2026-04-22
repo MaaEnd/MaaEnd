@@ -29,7 +29,6 @@
 | 游戏数据快照       | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`                   | 由 `zmdmap` 提供的官方监测终端/委托数据（多语言名称、`shotTargetName`）                                                                  |
 | 生成器配置         | `tools/pipeline-generate/EnvironmentMonitoring/config.json`                         | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"`                                                                               |
 | 终端生成器配置     | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`               | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"`                                                                               |
-| 缺失检测脚本       | `tools/pipeline-generate/EnvironmentMonitoring/print-missing-route-config-todo.mjs` | 列出 `kite_station.json` 里有但 `ROUTE_CONFIG` 里漏写或仍是占位的观察点                                                                  |
 | 多语言文案         | `assets/locales/interface/*.json`                                                   | `task.EnvironmentMonitoring.*` 的 label / description（任务级；观察点名走 OCR）                                                          |
 | 通用组件依赖       | `agent/go-service/map-tracker/`                                                     | `MapTrackerMove`、`MapTrackerAssertLocation`（详见 [map-tracker.md](../components/map-tracker.md)）                                      |
 | 场景跳转依赖       | `assets/resource/pipeline/SceneManager/`、`Interface/`                              | `SceneEnterWorldWuling*`、`SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`（详见 [scene-manager.md](../scene-manager.md)） |
@@ -147,6 +146,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `EnterMap`                          | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                     |
 | `MapName` / `MapTarget` / `MapPath` | `ROUTE_CONFIG[*]`，对应 `MapTrackerMove` / `MapTrackerAssertLocation` 参数             |
 | `CameraSwipeDirection`              | `ROUTE_CONFIG[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一  |
+| `CameraMaxHit`                      | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `ExpectedText`                      | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则） |
 | `InExpectedText`                    | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                            |
 
@@ -179,15 +179,11 @@ npx @joebao/maa-pipeline-generate
 
 # 2) 渲染终端入口
 npx @joebao/maa-pipeline-generate --config terminals-config.json
-
-# 3) 列出 ROUTE_CONFIG 中漏写或仍是占位（默认值）的观察点
-node print-missing-route-config-todo.mjs        # 仅打印待补
-node print-missing-route-config-todo.mjs --all  # 完整状态总览（已补全 / 占位 / 缺失）
 ```
 
 > [!NOTE]
 >
-> `data.mjs` 在渲染时如果某观察点缺字段，会用 `ROUTE_DEFAULTS`（`SceneAnyEnterWorld` + 占位坐标）兜底，并 `console.warn`。**占位渲染出的 Pipeline 能跑过 lint，但运行时无法真正抵达观察点**。所以新增观察点后务必跑一次 `print-missing-route-config-todo.mjs` 确认没遗留占位。
+> `data.mjs` 在渲染时如果某观察点缺字段，会用 `ROUTE_DEFAULTS`（`SceneAnyEnterWorld` + 占位坐标）兜底，并 `console.warn`。**占位渲染出的 Pipeline 能跑过 lint，但运行时无法真正抵达观察点**。新增观察点后务必确认 `ROUTE_CONFIG` 字段已全部填写，避免遗留占位。
 
 ## 关键依赖
 
@@ -220,15 +216,10 @@ node print-missing-route-config-todo.mjs --all  # 完整状态总览（已补全
 
 ### 2. 检查缺失项
 
-```bash
-cd tools/pipeline-generate/EnvironmentMonitoring
-node print-missing-route-config-todo.mjs
-```
-
-输出会按终端分组列出：
+对比 `kite_station.json` 中的 `entrustTasks` 与 `ROUTE_CONFIG` 的条目，确认：
 
 - **缺失配置**：`ROUTE_CONFIG` 完全没有该观察点 → 走步骤 3。
-- **占位待补全**：`ROUTE_CONFIG` 已加但仍是默认值 → 走步骤 4。
+- **占位待补全**：`ROUTE_CONFIG` 已加但 `EnterMap` / `MapPath` 等字段仍是默认值 → 走步骤 4。
 
 ### 3. 在 `ROUTE_CONFIG` 中新增条目
 
@@ -243,6 +234,7 @@ node print-missing-route-config-todo.mjs
     MapTarget: [x, y, w, h],             // 目标矩形（小地图坐标）
     MapPath: [[x1, y1], [x2, y2], ...],  // 寻路路径（小地图坐标）
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp", // 朝向调整方向
+    // CameraMaxHit: 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
 }
 ```
 
@@ -288,7 +280,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 提交前至少检查：
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG` 中新增/修改条目是否字段齐全。
-2. `node print-missing-route-config-todo.mjs` 输出为空（或所剩条目均为已知 TODO）。
+2. `ROUTE_CONFIG` 中新增条目的 `EnterMap`、`MapTarget`、`MapPath`、`CameraSwipeDirection` 均已填写真实值（非 `ROUTE_DEFAULTS` 占位）。
 3. 重生成的 `Terminals.json` 中两个 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
 4. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
 5. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
@@ -304,4 +296,4 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名拼写**：`EnvironmentMonitoringBactToTerminal` 是历史拼写（少了一个 `k` 不影响功能），与模板和 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBactToTerminal` 必须保持一致。不要好心改成 `Back`。
-- **「占位值能跑通生成 ≠ 任务能跑通运行」**：`ROUTE_DEFAULTS` 让生成阶段不报错，但运行时 `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` 永远走不到目标。`print-missing-route-config-todo.mjs` 的存在就是为了挡住这一类提交。
+- **「占位值能跑通生成 ≠ 任务能跑通运行」**：`ROUTE_DEFAULTS` 让生成阶段不报错，但运行时 `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` 永远走不到目标。提交前请人工核对 `ROUTE_CONFIG` 中没有遗留占位条目（`EnterMap` 为 `SceneAnyEnterWorld` 且没有 `// TODO:` 注释时应引起注意）。
