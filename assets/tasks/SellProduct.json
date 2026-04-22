@@ -1041,7 +1041,7 @@
         },
         "ValleyIVInfrastructureOutpostReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVInfrastructureOutpostReserveValue1",
@@ -1079,7 +1079,7 @@
         },
         "ValleyIVInfrastructureOutpostReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVInfrastructureOutpostReserveValue2",
@@ -1117,7 +1117,7 @@
         },
         "ValleyIVInfrastructureOutpostReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVInfrastructureOutpostReserveValue3",
@@ -1155,7 +1155,7 @@
         },
         "ValleyIVInfrastructureOutpostReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVInfrastructureOutpostReserveValue4",
@@ -2087,7 +2087,7 @@
         },
         "ValleyIVReconstructionCommandReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVReconstructionCommandReserveValue1",
@@ -2125,7 +2125,7 @@
         },
         "ValleyIVReconstructionCommandReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVReconstructionCommandReserveValue2",
@@ -2163,7 +2163,7 @@
         },
         "ValleyIVReconstructionCommandReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVReconstructionCommandReserveValue3",
@@ -2201,7 +2201,7 @@
         },
         "ValleyIVReconstructionCommandReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVReconstructionCommandReserveValue4",
@@ -2594,7 +2594,6 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
-                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
@@ -2845,7 +2844,6 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "^紫晶零件$",
                                 "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
@@ -3098,7 +3096,6 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
-                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
@@ -3350,7 +3347,6 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
-                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
@@ -3385,7 +3381,7 @@
         },
         "ValleyIVRefugeeCampReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVRefugeeCampReserveValue1",
@@ -3423,7 +3419,7 @@
         },
         "ValleyIVRefugeeCampReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVRefugeeCampReserveValue2",
@@ -3461,7 +3457,7 @@
         },
         "ValleyIVRefugeeCampReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVRefugeeCampReserveValue3",
@@ -3499,7 +3495,7 @@
         },
         "ValleyIVRefugeeCampReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "ValleyIVRefugeeCampReserveValue4",
@@ -3836,7 +3832,6 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
-                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
@@ -3856,7 +3851,6 @@
                         "SellProductCardiacRemediationStationSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -4025,7 +4019,6 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
-                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
@@ -4045,7 +4038,6 @@
                         "SellProductCardiacRemediationStationSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -4214,7 +4206,6 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
-                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
@@ -4234,7 +4225,6 @@
                         "SellProductCardiacRemediationStationSelectItem3": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -4403,7 +4393,6 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
-                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
@@ -4423,7 +4412,6 @@
                         "SellProductCardiacRemediationStationSelectItem4": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -4459,7 +4447,7 @@
         },
         "WulingCardiacRemediationStationReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingCardiacRemediationStationReserveValue1",
@@ -4497,7 +4485,7 @@
         },
         "WulingCardiacRemediationStationReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingCardiacRemediationStationReserveValue2",
@@ -4535,7 +4523,7 @@
         },
         "WulingCardiacRemediationStationReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingCardiacRemediationStationReserveValue3",
@@ -4573,7 +4561,7 @@
         },
         "WulingCardiacRemediationStationReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingCardiacRemediationStationReserveValue4",
@@ -4945,7 +4933,6 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
-                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
@@ -5175,7 +5162,6 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "^息壤$",
                                 "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
@@ -5407,7 +5393,6 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
-                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
@@ -5638,7 +5623,6 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
-                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
@@ -5673,7 +5657,7 @@
         },
         "WulingSkyKingFlatsReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingSkyKingFlatsReserveValue1",
@@ -5711,7 +5695,7 @@
         },
         "WulingSkyKingFlatsReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingSkyKingFlatsReserveValue2",
@@ -5749,7 +5733,7 @@
         },
         "WulingSkyKingFlatsReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingSkyKingFlatsReserveValue3",
@@ -5787,7 +5771,7 @@
         },
         "WulingSkyKingFlatsReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "WulingSkyKingFlatsReserveValue4",

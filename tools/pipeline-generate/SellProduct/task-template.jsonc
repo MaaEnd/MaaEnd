@@ -228,7 +228,7 @@
         },
         "${RegionPrefix}${LocationId}ReserveValue1": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "${RegionPrefix}${LocationId}ReserveValue1",
@@ -266,7 +266,7 @@
         },
         "${RegionPrefix}${LocationId}ReserveValue2": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "${RegionPrefix}${LocationId}ReserveValue2",
@@ -304,7 +304,7 @@
         },
         "${RegionPrefix}${LocationId}ReserveValue3": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "${RegionPrefix}${LocationId}ReserveValue3",
@@ -342,7 +342,7 @@
         },
         "${RegionPrefix}${LocationId}ReserveValue4": {
             "type": "input",
-            "label": "$task.SellProduct.ReserveValue",
+            "label": "$task.SellProduct.ReserveValueInput",
             "inputs": [
                 {
                     "name": "${RegionPrefix}${LocationId}ReserveValue4",

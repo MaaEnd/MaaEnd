@@ -394,6 +394,7 @@
     "task.SellProduct.Reserve3": "보류 수량 (판매 시도 3)",
     "task.SellProduct.Reserve4": "보류 수량 (판매 시도 4)",
     "task.SellProduct.ReserveDescription": "이번 판매 시도에서 창고에 최소한으로 남길 수량입니다. \"지정 수량 보류\"를 선택하면 설정한 수량(>=1)을 남기고 나머지를 모두 판매합니다. 설정값이 현재 재고보다 크면 이번 판매 시도는 실패하고 다음 시도로 넘어갑니다.",
+    "task.SellProduct.ReserveValueInput": "보류 수량 설정",
     "task.SellProduct.ReserveValue": "보류 수량 (>=1)",
     "task.VisitFriends.label": "🤝 친구 방문",
     "task.VisitFriends.description": "친구를 방문하여 지원 및 정보 교환을 수행합니다.",
