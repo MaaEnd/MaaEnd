@@ -271,7 +271,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 只调整路线/朝向（不变更英文名）：
 
 1. 改 `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG[i]`。
-2. 重新生成（仅需跑 `npx @joebao/maa-pipeline-generate`，终端列表未变化无需重生 `Terminals.json`）。
+2. 重新生成（仅需跑 `npx @joebao/maa-pipeline-generate`，终端列表未变化无需重新生成 `Terminals.json`）。
 3. 提交 `routes.mjs` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
 
 如果观察点的官方英文名变了导致 `Id` 漂移：
