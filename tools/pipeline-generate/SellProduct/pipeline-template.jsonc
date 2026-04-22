@@ -26,6 +26,7 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductBetterSliding": "SellProductBetterSliding",
             "SellProductSellAttempt1": "SellProduct${LocationId}SellAttempt1",
             "SellProductSellAttempt2": "SellProduct${LocationId}SellAttempt2",
             "SellProductSellAttempt3": "SellProduct${LocationId}SellAttempt3",
@@ -108,7 +109,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem1",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -128,7 +130,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem2",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -148,7 +151,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem3",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -168,7 +172,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem4",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -291,5 +296,109 @@
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
+    },
+    "SellProduct${LocationId}BetterSliding1": {
+        "desc": "${LocationDesc}第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProduct${LocationId}BetterSliding2": {
+        "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProduct${LocationId}BetterSliding3": {
+        "desc": "${LocationDesc}第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProduct${LocationId}BetterSliding4": {
+        "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
     }
 }

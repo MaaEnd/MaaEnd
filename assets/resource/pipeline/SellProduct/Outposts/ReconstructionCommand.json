@@ -26,6 +26,7 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductBetterSliding": "SellProductBetterSliding",
             "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
             "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
             "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
@@ -120,7 +121,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -140,7 +142,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -160,7 +163,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -180,7 +184,8 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-            "SellProductPriorityGoodMissHandler": ""
+            "SellProductPriorityGoodMissHandler": "",
+            "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -303,5 +308,109 @@
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
+    },
+    "SellProductReconstructionCommandBetterSliding1": {
+        "desc": "重建指挥部第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProductReconstructionCommandBetterSliding2": {
+        "desc": "重建指挥部第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProductReconstructionCommandBetterSliding3": {
+        "desc": "重建指挥部第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SellProductReconstructionCommandBetterSliding4": {
+        "desc": "重建指挥部第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1064,
+                    528,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
     }
 }

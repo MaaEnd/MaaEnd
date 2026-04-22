@@ -29,7 +29,7 @@
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
-            "SellProductBetterSliding"
+            "[Anchor]SellProductBetterSliding"
         ]
     },
     "SellProductZeroProductColorMatch": {

@@ -134,6 +134,20 @@ const DOMAIN_REGION_PREFIX = {
     domain_2: "Wuling",
 };
 
+const REGION_PRIORITY = {
+    ValleyIV: 0,
+    Wuling: 1,
+};
+
+function compareRegionPrefix(a, b) {
+    const aOrder = REGION_PRIORITY[a] ?? Number.MAX_SAFE_INTEGER;
+    const bOrder = REGION_PRIORITY[b] ?? Number.MAX_SAFE_INTEGER;
+    if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+    }
+    return a.localeCompare(b);
+}
+
 function buildSettlementTextExpected(settlementId, settlement) {
     const override = SETTLEMENT_OVERRIDE[settlementId]?.TextExpected;
     if (override) {
@@ -176,8 +190,8 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce((acc, [, con
 }, {});
 
 // ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
-const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
-    ([settlementId, config]) => {
+const LOCATIONS = Object.entries(SETTLEMENT_MAP)
+    .map(([settlementId, config]) => {
         const settlement = settlementData.settlements[settlementId];
         // 取所有 level 的 tradeItems 并集（按 itemId 去重），记录 rarity 和最高 unitPrice
         const itemMap = new Map();
@@ -207,8 +221,12 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
             LocationDesc: settlement.settlementName.CN,
             items,
         };
-    },
-);
+    })
+    .sort(
+        (a, b) =>
+            compareRegionPrefix(a.RegionPrefix, b.RegionPrefix) ||
+            a.LocationId.localeCompare(b.LocationId),
+    );
 
 // ===== 构建 cases 数组 =====
 function buildItemCases(nodePrefix, itemNum, itemIds) {
