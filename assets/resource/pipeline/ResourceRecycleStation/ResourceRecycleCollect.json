@@ -1,7 +1,7 @@
 {
     "ResourceRecycleStationWulingStart": {
         "next": [
-            "ResourceRecycleClickReminder",
+            "ResourceRecycleClickReminderWuling",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ],
         "focus": {
@@ -10,7 +10,7 @@
     },
     "ResourceRecycleStationValleyIVStart": {
         "next": [
-            "ResourceRecycleClickReminder",
+            "ResourceRecycleClickReminderValleyIV",
             "[JumpBack]SceneEnterMapValleyIVTheHub"
         ],
         "focus": {
@@ -18,8 +18,8 @@
         }
     },
 
-    "ResourceRecycleClickReminder": {
-        "desc": "点击事务提醒",
+    "ResourceRecycleClickReminderWuling": {
+        "desc": "点击事务提醒（武陵）",
         "recognition": "OCR",
         "roi": [
             14,
@@ -34,12 +34,32 @@
         "target": true,
         "post_delay": 500,
         "next": [
-            "ResourceRecycleClickCollectPrompt"
+            "ResourceRecycleClickCollectPromptWuling"
         ]
     },
 
-    "ResourceRecycleClickCollectPrompt": {
-        "desc": "点击采集提示",
+    "ResourceRecycleClickReminderValleyIV": {
+        "desc": "点击事务提醒（四号谷地）",
+        "recognition": "OCR",
+        "roi": [
+            14,
+            26,
+            131,
+            69
+        ],
+        "expected": [
+            "事务提醒"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectPromptValleyIV"
+        ]
+    },
+
+    "ResourceRecycleClickCollectPromptWuling": {
+        "desc": "点击采集提示（武陵）",
         "recognition": "OCR",
         "roi": [
             168,
@@ -55,7 +75,29 @@
         "post_delay": 500,
         "next": [
             "ResourceRecycleCheckStation",
-            "ResourceRecycleCheckLimit",
+            "ResourceRecycleCheckLimitWuling",
+            "ResourceRecycleCheckEmpty"
+        ]
+    },
+
+    "ResourceRecycleClickCollectPromptValleyIV": {
+        "desc": "点击采集提示（四号谷地）",
+        "recognition": "OCR",
+        "roi": [
+            168,
+            28,
+            124,
+            71
+        ],
+        "expected": [
+            "采集提示"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitValleyIV",
             "ResourceRecycleCheckEmpty"
         ]
     },
@@ -84,8 +126,8 @@
         }
     },
 
-    "ResourceRecycleCheckLimit": {
-        "desc": "列表已达上限，滑动查看更多",
+    "ResourceRecycleCheckLimitWuling": {
+        "desc": "武陵列表已达上限，滑动查看更多",
         "recognition": "OCR",
         "roi": [
             33,
@@ -96,7 +138,7 @@
         "expected": [
             "上限"
         ],
-        "max_hit": 6,
+        "max_hit": 3,
         "action": "Swipe",
         "begin": [
             165,
@@ -109,7 +151,40 @@
         "post_delay": 500,
         "next": [
             "ResourceRecycleCheckStation",
-            "ResourceRecycleCheckLimit",
+            "ResourceRecycleCheckLimitWuling",
+            "ResourceRecycleCheckEmpty"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "列表已达上限，滑动查看"
+        }
+    },
+
+    "ResourceRecycleCheckLimitValleyIV": {
+        "desc": "四号谷地列表已达上限，滑动查看更多",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "上限"
+        ],
+        "max_hit": 3,
+        "action": "Swipe",
+        "begin": [
+            165,
+            222
+        ],
+        "end": [
+            165,
+            124
+        ],
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitValleyIV",
             "ResourceRecycleCheckEmpty"
         ],
         "focus": {
