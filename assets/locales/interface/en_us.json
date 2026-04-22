@@ -737,5 +737,7 @@
     "option.ResourceRecycleStationValleyIV.label": "Valley IV",
     "task.ResourceRecycleStation.focus.WulingStart": "Collecting Wuling Resource Recycle Station",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
-    "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling"
+    "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
+    "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
+    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region"
 }

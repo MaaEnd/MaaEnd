@@ -122,7 +122,7 @@
             "ResourceRecycleClickCollectBtn"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "发现资源回收站"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Found"
         }
     },
 
@@ -208,7 +208,7 @@
             "ResourceRecycleRegionEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "该地区暂无可收取资源"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Empty"
         }
     },
 
