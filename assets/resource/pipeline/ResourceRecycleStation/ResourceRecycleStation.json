@@ -9,6 +9,9 @@
     "ResourceRecycleStationWulingSub": {
         "enabled": false,
         "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "前往武陵地图"
+        },
         "next": [
             "ResourceRecycleStationWulingStart"
         ]
@@ -16,6 +19,9 @@
     "ResourceRecycleStationValleyIVSub": {
         "enabled": false,
         "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "前往四号谷地地图"
+        },
         "next": [
             "ResourceRecycleStationValleyIVStart"
         ]
