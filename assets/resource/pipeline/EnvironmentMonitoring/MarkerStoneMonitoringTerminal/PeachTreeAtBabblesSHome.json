@@ -157,7 +157,8 @@
             "InPeachTreeAtBabblesSHomeMission"
         ],
         "next": [
-            "TrackPeachTreeAtBabblesSHome"
+            "TrackPeachTreeAtBabblesSHome",
+            "GoToPeachTreeAtBabblesSHome"
         ]
     },
     "TrackPeachTreeAtBabblesSHome": {
@@ -169,7 +170,7 @@
         ],
         "action": "Click",
         "next": [
-            "PeachTreeAtBabblesSHomeNotAdapted"
+            "GoToPeachTreeAtBabblesSHome"
         ]
     },
     "PeachTreeAtBabblesSHomeNotAdapted": {
@@ -199,12 +200,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        514,
+                        666,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -219,7 +220,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone4"
             ]
         },
         "next": [
@@ -234,12 +235,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        514,
+                        666,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -254,7 +255,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone4"
             ]
         },
         "next": [
@@ -268,12 +269,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004_tier_328",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        514,
+                        666,
+                        15,
+                        15
                     ]
                 }
             ]
@@ -287,11 +288,11 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv004_tier_328",
             "path": [
                 [
-                    0,
-                    0
+                    520.3,
+                    672.8
                 ]
             ]
         },
@@ -307,7 +308,7 @@
         "desc": "念念家的桃树任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }
