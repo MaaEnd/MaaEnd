@@ -76,7 +76,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
 
 > [!NOTE]
 >
-> `anchor` 字段的两个 key 是模板里硬编码的占位符名（`EnvironmentMonitoringBackToTerminal` 拼写沿用历史，请勿改），运行时被替换为：
+> `anchor` 字段的两个 key 是模板里硬编码的占位符名，运行时被替换为：
 >
 > - `EnvironmentMonitoringBackToTerminal` → 当前观察点所属终端的 `EnvironmentMonitoringGoTo{Station}` 节点（拍完回到正确终端）
 > - `EnvironmentMonitoringAdjustCamera` → `{Id}AdjustCamera`（执行该观察点的摄像头滑动方向）
@@ -299,5 +299,5 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **`EnterMap` 写了不存在的 Scene 节点**：生成器不校验，运行时会卡在 `GoTo{Id}NotAtStartPos` 死循环。
 - **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
-- **`anchor` 占位符名拼写**：`EnvironmentMonitoringBackToTerminal` 是历史拼写（少了一个 `k` 不影响功能），与模板和 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 必须保持一致。不要好心改成 `Back`。
+- **`anchor` 占位符名一致性**：`template.jsonc` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
 - **「占位值能跑通生成 ≠ 任务能跑通运行」**：`ROUTE_DEFAULTS` 让生成阶段不报错，但运行时 `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` 永远走不到目标。提交前请人工核对 `ROUTE_CONFIG` 中没有遗留占位条目（`EnterMap` 为 `SceneAnyEnterWorld` 且没有 `// TODO:` 注释时应引起注意）。

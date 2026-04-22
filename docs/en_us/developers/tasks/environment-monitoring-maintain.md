@@ -76,7 +76,7 @@ EnvironmentMonitoringTakePhoto        (enters photo mode → adjusts facing → 
 
 > [!NOTE]
 >
-> The two `anchor` keys are hard-coded placeholder names in the template (`EnvironmentMonitoringBackToTerminal` spelling is intentionally preserved from history—do not correct it). At runtime they are replaced with:
+> The two `anchor` keys are hard-coded placeholder names in the template. At runtime they are replaced with:
 >
 > - `EnvironmentMonitoringBackToTerminal` → the `EnvironmentMonitoringGoTo{Station}` node for the terminal this observation point belongs to (returns to the correct terminal after shooting)
 > - `EnvironmentMonitoringAdjustCamera` → `{Id}AdjustCamera` (executes the camera-swipe direction for this observation point)
@@ -299,5 +299,5 @@ Before committing, at minimum verify:
 - **`EnterMap` references a non-existent Scene node**: The generator does not validate this; at runtime the task will loop indefinitely at `GoTo{Id}NotAtStartPos`.
 - **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.
-- **`anchor` placeholder name spelling**: `EnvironmentMonitoringBackToTerminal` is the historical spelling (missing a `k`—intentional, not a bug). It must stay consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`. Do not "fix" it to `Back`.
+- **`anchor` key name consistency**: The `anchor` key `EnvironmentMonitoringBackToTerminal` in `template.jsonc` must stay exactly consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; a mismatch silently disables the anchor mechanism.
 - **"Passes generation ≠ passes runtime"**: `ROUTE_DEFAULTS` prevents generation-stage errors, but `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` will never reach the target at runtime. Before committing, manually verify that no placeholder entries remain in `ROUTE_CONFIG` (entries with `EnterMap` set to `SceneAnyEnterWorld` and no `// TODO:` comment should raise a flag).
