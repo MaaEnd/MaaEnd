@@ -359,7 +359,8 @@ export const ROUTE_CONFIG = [
             [526.0, 270.4],
             [543.4, 269.3],
             [543.9, 255.1],
-            [547.9, 255.2]],
+            [547.9, 255.2]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
@@ -396,7 +397,9 @@ export const ROUTE_CONFIG = [
         EnterMap: "SceneEnterWorldWulingMarkerStone4",
         MapName: "map02_lv004_tier_328",
         MapTarget: [514, 666, 15, 15],
-        MapPath: [[520.3, 672.8]],
+        MapPath: [
+            [520.3, 672.8]
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
         CameraMaxHit: 1,
     },
