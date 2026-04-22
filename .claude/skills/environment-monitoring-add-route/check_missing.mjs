@@ -15,7 +15,6 @@ const emDir = resolve(__dir, "../../../tools/pipeline-generate/EnvironmentMonito
 const kite = JSON.parse(readFileSync(resolve(emDir, "kite_station.json"), "utf8"));
 const routes = readFileSync(resolve(emDir, "routes.mjs"), "utf8");
 
-const existingIds = Array.from(routes.matchAll(/Id:\s*"([^"]+)"/g)).map((m) => m[1]);
 const existingNames = Array.from(routes.matchAll(/Name:\s*"([^"]+)"/g)).map((m) =>
     m[1].replace(/[^\p{L}\p{N}]/gu, "").toLowerCase(),
 );
@@ -33,12 +32,7 @@ for (const [
     ] of Object.entries(tasks)) {
         const zhName = task.name?.["zh-CN"] ?? "";
         const enName = task.name?.["en-US"] ?? "";
-        const id = enName
-            .replace(/[^a-zA-Z0-9 ]/g, "")
-            .replace(/\b\w/g, (c) => c.toUpperCase())
-            .replace(/\s+/g, "");
-        if (id && !existingIds.includes(id) && !existingNames.includes(normalize(zhName)))
-            missing.push({id, zhName, enName});
+        if (zhName && !existingNames.includes(normalize(zhName))) missing.push({zhName, enName});
     }
 }
 

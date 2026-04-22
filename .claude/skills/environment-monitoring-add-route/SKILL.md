@@ -12,9 +12,8 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 ## 字段说明
 
-`Id` 和 `Name` 均从 `kite_station.json` 自动提取，**不需要询问用户**：
+`Name` 从 `kite_station.json` 自动提取，**不需要询问用户**：
 
-- `Id`：将 `name["en-US"]` 转为 PascalCase（去除标点、首字母大写）
 - `Name`：直接取 `name["zh-CN"]`
 
 需向用户逐字段询问的路线字段：
@@ -34,8 +33,8 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 - 若用户已指定（如"我想适配 XX 任务"），直接跳到第二步。
 - 否则：运行 [check_missing.mjs](./check_missing.mjs) 自动检测缺失条目。检测逻辑：
-    - 从 `kite_station.json` 提取所有 mission 的 `name["zh-CN"]`（作为 Name）与 `name["en-US"]`（转 PascalCase 作为 Id）
-    - 与 `routes.mjs` 中 `ROUTE_CONFIG` 已有的 `Id` 和 `Name` 做双重对比（去符号小写）
+    - 从 `kite_station.json` 提取所有 mission 的 `name["zh-CN"]`（作为 Name）
+    - 与 `routes.mjs` 中 `ROUTE_CONFIG` 已有的 `Name` 做对比（去符号小写）
     - 列出真正缺失的条目供用户选择
 
 ### 第二步：逐字段问路线数据
