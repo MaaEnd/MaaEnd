@@ -115,7 +115,6 @@
             "资源",
             "回收站"
         ],
-        "max_hit": 1,
         "action": "Click",
         "target": true,
         "post_delay": 500,
@@ -139,7 +138,7 @@
         "expected": [
             "上限"
         ],
-        "max_hit": 3,
+        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             165,
@@ -172,7 +171,7 @@
         "expected": [
             "上限"
         ],
-        "max_hit": 3,
+        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             165,
