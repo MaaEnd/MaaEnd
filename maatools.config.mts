@@ -4,7 +4,7 @@ import { fetchCases } from './tests/scripts/loader.mts'
 import parserConfig from './tools/parser'
 
 const config: FullConfig = {
-  cwd: (import.meta as ImportMeta & { dirname: string }).dirname,
+  cwd: import.meta.dirname,
 
   maaVersion: 'latest',
   maaStdoutLevel: 'Error',
