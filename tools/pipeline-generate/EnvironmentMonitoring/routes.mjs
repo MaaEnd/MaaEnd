@@ -424,6 +424,7 @@ export const ROUTE_CONFIG = [
         MapTarget: [514, 666, 15, 15],
         MapPath: [[520.3, 672.8]],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
+        CameraMaxHit: 1,
     },
     {
         Id: "WaterTemperatureController",

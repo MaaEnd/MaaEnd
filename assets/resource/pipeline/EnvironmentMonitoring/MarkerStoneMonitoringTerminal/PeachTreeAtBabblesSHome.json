@@ -306,7 +306,7 @@
     },
     "PeachTreeAtBabblesSHomeAdjustCamera": {
         "desc": "念念家的桃树任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "next": [
             "EnvironmentMonitoringSwipeScreenRight"
         ]
