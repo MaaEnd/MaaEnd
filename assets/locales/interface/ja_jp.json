@@ -18,6 +18,7 @@
     "task.DeliveryJobs.PackCargoSelectItem.label": "指定貨物を補充",
     "task.DeliveryJobs.WhatToFillValleyIV": "補充する貨物（第4谷地）",
     "task.DeliveryJobs.WhatToFillWuling": "補充する貨物（武陵）",
+    "task.EnvironmentMonitoring.not_adapted": "このタスクはまだ対応していません。受注・追跡のみ行います。",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
     "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
     "option.AutoSkip.label": "ストーリー自動",

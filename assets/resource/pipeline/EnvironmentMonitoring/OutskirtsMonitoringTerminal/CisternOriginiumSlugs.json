@@ -173,6 +173,12 @@
             "GoToCisternOriginiumSlugs"
         ]
     },
+    "CisternOriginiumSlugsNotAdapted": {
+        "desc": "蓄水源石虫任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToCisternOriginiumSlugs": {
         "desc": "前往蓄水源石虫，先回到大世界再进行判断",
         "action": "Custom",

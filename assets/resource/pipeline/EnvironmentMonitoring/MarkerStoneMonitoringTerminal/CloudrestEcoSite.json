@@ -157,8 +157,7 @@
             "InCloudrestEcoSiteMission"
         ],
         "next": [
-            "TrackCloudrestEcoSite",
-            "GoToCloudrestEcoSite"
+            "TrackCloudrestEcoSite"
         ]
     },
     "TrackCloudrestEcoSite": {
@@ -170,8 +169,14 @@
         ],
         "action": "Click",
         "next": [
-            "GoToCloudrestEcoSite"
+            "CloudrestEcoSiteNotAdapted"
         ]
+    },
+    "CloudrestEcoSiteNotAdapted": {
+        "desc": "栖云生态点任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToCloudrestEcoSite": {
         "desc": "前往栖云生态点，先回到大世界再进行判断",

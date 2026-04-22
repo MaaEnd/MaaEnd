@@ -157,8 +157,7 @@
             "InSerenityGardenTianshiPillarMission"
         ],
         "next": [
-            "TrackSerenityGardenTianshiPillar",
-            "GoToSerenityGardenTianshiPillar"
+            "TrackSerenityGardenTianshiPillar"
         ]
     },
     "TrackSerenityGardenTianshiPillar": {
@@ -170,8 +169,14 @@
         ],
         "action": "Click",
         "next": [
-            "GoToSerenityGardenTianshiPillar"
+            "SerenityGardenTianshiPillarNotAdapted"
         ]
+    },
+    "SerenityGardenTianshiPillarNotAdapted": {
+        "desc": "安思园的天师桩任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToSerenityGardenTianshiPillar": {
         "desc": "前往安思园的天师桩，先回到大世界再进行判断",

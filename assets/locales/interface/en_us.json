@@ -18,6 +18,7 @@
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",
     "task.DeliveryJobs.WhatToFillValleyIV": "Goods to Fill (Valley IV)",
     "task.DeliveryJobs.WhatToFillWuling": "Goods to Fill (Wuling)",
+    "task.EnvironmentMonitoring.not_adapted": "This task is not yet supported; it will only accept and track the mission.",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.AutoSkip.label": "Auto Story",

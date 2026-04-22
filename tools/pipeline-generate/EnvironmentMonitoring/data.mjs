@@ -165,6 +165,26 @@ function buildRow(mission, usedIds) {
     const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
+    // 判断任务是否已适配路线：ROUTE_CONFIG 中无条目或使用了占位值的视为未适配
+    const isAdapted =
+        override != null &&
+        EnterMap !== ROUTE_DEFAULTS.EnterMap &&
+        MapName !== ROUTE_DEFAULTS.MapName &&
+        JSON.stringify(MapTarget) !== JSON.stringify(ROUTE_DEFAULTS.MapTarget) &&
+        JSON.stringify(MapPath) !== JSON.stringify(ROUTE_DEFAULTS.MapPath);
+
+    if (!isAdapted) {
+        console.warn(
+            `[EnvironmentMonitoring] 任务 ${sanitizeDisplayName(missionName)} (${mission.missionId}) 尚未适配路线，仅接取并追踪。`,
+        );
+    }
+
+    // 已适配：追踪后前往任务地点；未适配：仅接取并追踪，不前往
+    const TrackOrGoToNext = isAdapted
+        ? [`Track${Id}`, `GoTo${Id}`]
+        : [`Track${Id}`];
+    const TrackNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+
     return {
         Station,
         Id,
@@ -178,6 +198,8 @@ function buildRow(mission, usedIds) {
         CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
+        TrackOrGoToNext,
+        TrackNext,
     };
 }
 

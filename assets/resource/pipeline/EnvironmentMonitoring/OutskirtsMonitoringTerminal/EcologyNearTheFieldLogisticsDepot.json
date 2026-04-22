@@ -173,6 +173,12 @@
             "GoToEcologyNearTheFieldLogisticsDepot"
         ]
     },
+    "EcologyNearTheFieldLogisticsDepotNotAdapted": {
+        "desc": "储备站周围的生态环境任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToEcologyNearTheFieldLogisticsDepot": {
         "desc": "前往储备站周围的生态环境，先回到大世界再进行判断",
         "action": "Custom",

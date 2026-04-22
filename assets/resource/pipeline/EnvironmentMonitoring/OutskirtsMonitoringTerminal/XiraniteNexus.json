@@ -173,6 +173,12 @@
             "GoToXiraniteNexus"
         ]
     },
+    "XiraniteNexusNotAdapted": {
+        "desc": "枢壤仪任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToXiraniteNexus": {
         "desc": "前往枢壤仪，先回到大世界再进行判断",
         "action": "Custom",

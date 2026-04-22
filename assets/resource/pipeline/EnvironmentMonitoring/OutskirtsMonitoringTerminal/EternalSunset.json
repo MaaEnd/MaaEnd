@@ -173,6 +173,12 @@
             "GoToEternalSunset"
         ]
     },
+    "EternalSunsetNotAdapted": {
+        "desc": "栖霞驻影任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToEternalSunset": {
         "desc": "前往栖霞驻影，先回到大世界再进行判断",
         "action": "Custom",

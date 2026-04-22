@@ -173,6 +173,12 @@
             "GoToAnnularWaterfall"
         ]
     },
+    "AnnularWaterfallNotAdapted": {
+        "desc": "环形瀑布任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToAnnularWaterfall": {
         "desc": "前往环形瀑布，先回到大世界再进行判断",
         "action": "Custom",

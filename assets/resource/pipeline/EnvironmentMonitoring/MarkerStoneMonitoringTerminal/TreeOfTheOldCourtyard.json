@@ -173,6 +173,12 @@
             "GoToTreeOfTheOldCourtyard"
         ]
     },
+    "TreeOfTheOldCourtyardNotAdapted": {
+        "desc": "旧庭树任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToTreeOfTheOldCourtyard": {
         "desc": "前往旧庭树，先回到大世界再进行判断",
         "action": "Custom",

@@ -18,6 +18,7 @@
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定貨物",
     "task.DeliveryJobs.WhatToFillValleyIV": "要填入的貨物（四號谷地）",
     "task.DeliveryJobs.WhatToFillWuling": "要填入的貨物（武陵）",
+    "task.EnvironmentMonitoring.not_adapted": "當前任務尚未適配，僅接取並追蹤",
     "task.RealTimeTask.label": "🤖即時開荒輔助",
     "task.RealTimeTask.description": "該任務會一直執行，即時監控識別遊戲畫面，自動按下需要的按鍵",
     "option.AutoSkip.label": "自動劇情",

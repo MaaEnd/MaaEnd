@@ -173,6 +173,12 @@
             "GoToInflatedAndGlowingBugspittingLankybeast"
         ]
     },
+    "InflatedAndGlowingBugspittingLankybeastNotAdapted": {
+        "desc": "肚子鼓气后发光的吐虫长股兽任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToInflatedAndGlowingBugspittingLankybeast": {
         "desc": "前往肚子鼓气后发光的吐虫长股兽，先回到大世界再进行判断",
         "action": "Custom",

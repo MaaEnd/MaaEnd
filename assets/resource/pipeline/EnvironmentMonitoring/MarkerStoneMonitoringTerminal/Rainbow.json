@@ -157,8 +157,7 @@
             "InRainbowMission"
         ],
         "next": [
-            "TrackRainbow",
-            "GoToRainbow"
+            "TrackRainbow"
         ]
     },
     "TrackRainbow": {
@@ -170,8 +169,14 @@
         ],
         "action": "Click",
         "next": [
-            "GoToRainbow"
+            "RainbowNotAdapted"
         ]
+    },
+    "RainbowNotAdapted": {
+        "desc": "彩虹任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToRainbow": {
         "desc": "前往彩虹，先回到大世界再进行判断",

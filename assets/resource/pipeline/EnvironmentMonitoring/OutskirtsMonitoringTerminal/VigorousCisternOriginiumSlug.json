@@ -173,6 +173,12 @@
             "GoToVigorousCisternOriginiumSlug"
         ]
     },
+    "VigorousCisternOriginiumSlugNotAdapted": {
+        "desc": "充满活力的蓄水源石虫任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
     "GoToVigorousCisternOriginiumSlug": {
         "desc": "前往充满活力的蓄水源石虫，先回到大世界再进行判断",
         "action": "Custom",
