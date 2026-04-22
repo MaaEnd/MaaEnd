@@ -134,8 +134,9 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 	return (float64(dot) - count*imgStats.Mean*tplStats.Mean) / stdProd
 }
 
-// computeNCCInCircle computes masked NCC at the given top-left corner using circle spans.
-func computeNCCInCircle(
+// ComputeNCCInCircle computes masked normalized cross-correlation at the given top-left corner using circle spans.
+// See [ComputeNCC] for the unmasked version.
+func ComputeNCCInCircle(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
@@ -374,7 +375,7 @@ func MatchCircleTemplateInArea(
 			lx, ly, lm := minX, minY, -1.0
 			for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
 				for x := minX; x <= maxX; x += stepLen {
-					s := computeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+					s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
 					if s > lm {
 						lm, lx, ly = s, x, y
 					}
@@ -398,7 +399,7 @@ func MatchCircleTemplateInArea(
 	fm, fx, fy := bc.s, bc.x, bc.y
 	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
 		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
-			s := computeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+			s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
@@ -409,7 +410,7 @@ func MatchCircleTemplateInArea(
 		if tx < minX || tx > maxX || ty < minY || ty > maxY {
 			return fallback
 		}
-		return computeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, tx, ty)
+		return ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, tx, ty)
 	}
 
 	upNCC := evalOr(fx, fy-1, fm)
