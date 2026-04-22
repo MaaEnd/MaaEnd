@@ -397,8 +397,7 @@ export const ROUTE_CONFIG = [
     {
         Id: "Rainbow",
         Name: "彩虹",
-        // TODO: 缺少栖云窟传送点
-        EnterMap: "SceneAnyEnterWorld",
+        EnterMap: "SceneEnterWorldWulingMarkerStone4",
         MapName: "map02_lv004_tier_328",
         MapTarget: [508.2, 663.0, 18.1, 15.6],
         MapPath: [

@@ -157,7 +157,8 @@
             "InRainbowMission"
         ],
         "next": [
-            "TrackRainbow"
+            "TrackRainbow",
+            "GoToRainbow"
         ]
     },
     "TrackRainbow": {
@@ -169,7 +170,7 @@
         ],
         "action": "Click",
         "next": [
-            "RainbowNotAdapted"
+            "GoToRainbow"
         ]
     },
     "RainbowNotAdapted": {
@@ -219,7 +220,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone4"
             ]
         },
         "next": [
@@ -254,7 +255,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone4"
             ]
         },
         "next": [
