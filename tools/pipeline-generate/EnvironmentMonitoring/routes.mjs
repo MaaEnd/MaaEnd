@@ -7,7 +7,6 @@
 
 export const ROUTE_CONFIG = [
     {
-        Id: "AncientTree",
         Name: "古树",
         EnterMap: "SceneEnterWorldWulingJingyuValley7",
         MapName: "map02_lv001",
@@ -34,7 +33,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "BeaconDamagedInBlightTide",
         Name: "侵蚀潮中损坏的信标",
         EnterMap: "SceneEnterWorldWulingWulingCity0",
         MapName: "map02_lv002",
@@ -55,7 +53,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
-        Id: "CisternOriginiumSlugs",
         Name: "蓄水源石虫",
         EnterMap: "SceneEnterWorldWulingJingyuValley7",
         MapName: "map02_lv001",
@@ -70,7 +67,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
     },
     {
-        Id: "CleansingJade",
         Name: "漱玉",
         EnterMap: "SceneEnterWorldWulingJingyuValley4",
         MapName: "map02_lv001_tier_277",
@@ -79,7 +75,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "CollapsedTianshiPillar",
         Name: "倒塌的天师桩",
         EnterMap: "SceneEnterWorldWulingJingyuValley8",
         MapName: "map02_lv001",
@@ -93,7 +88,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "EternalSunset",
         Name: "栖霞驻影",
         EnterMap: "SceneEnterWorldWulingJingyuValley2",
         MapName: "map02_lv001",
@@ -105,7 +99,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "IndoorCrops",
         Name: "室内作物",
         EnterMap: "SceneEnterWorldWulingWulingCity4",
         MapName: "map02_lv002",
@@ -123,7 +116,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "RainbowFin",
         Name: "七彩鳞",
         EnterMap: "SceneEnterWorldWulingJingyuValley10",
         MapName: "map02_lv001",
@@ -141,7 +133,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
-        Id: "EcologyNearTheFieldLogisticsDepot",
         Name: "储备站周围的生态环境",
         EnterMap: "SceneEnterWorldWulingWulingCity8",
         MapName: "map02_lv002",
@@ -163,7 +154,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
-        Id: "InflatedAndGlowingBugspittingLankybeast",
         Name: "肚子鼓气后发光的吐虫长股兽",
         EnterMap: "SceneEnterWorldWulingWulingCity7",
         MapName: "map02_lv002",
@@ -175,7 +165,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "ObservantSableChestedFowlbeast",
         Name: "东张西望的黑腹雉羽兽",
         EnterMap: "SceneEnterWorldWulingJingyuValley0",
         MapName: "map02_lv001",
@@ -187,7 +176,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
-        Id: "VigorousCisternOriginiumSlug",
         Name: "充满活力的蓄水源石虫",
         EnterMap: "SceneEnterWorldWulingJingyuValley8",
         MapName: "map02_lv001",
@@ -199,7 +187,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
     },
     {
-        Id: "Waterlamp",
         Name: "水灯虫",
         EnterMap: "SceneEnterWorldWulingWulingCity7",
         MapName: "map02_lv002",
@@ -208,7 +195,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "XiraniteNexus",
         Name: "枢壤仪",
         EnterMap: "SceneEnterWorldWulingWulingCity4",
         MapName: "map02_lv002",
@@ -225,7 +211,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "PierWaterwheel",
         Name: "码头水车",
         EnterMap: "SceneEnterWorldWulingJingyuValley1",
         MapName: "map02_lv001",
@@ -237,7 +222,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "MiniShellbeast",
         Name: "小壳兽",
         EnterMap: "SceneEnterWorldWulingWulingCity4",
         MapName: "map02_lv002",
@@ -251,7 +235,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
-        Id: "AnnularWaterfall",
         Name: "环形瀑布",
         EnterMap: "SceneEnterWorldWulingQingboStockade3",
         MapName: "map02_lv003",
@@ -265,7 +248,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "BambooWaterChimes",
         Name: "水竹铃",
         EnterMap: "SceneEnterWorldWulingQingboStockade1",
         MapName: "map02_lv003",
@@ -279,7 +261,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
-        Id: "WitheredBranches",
         Name: "枯枝",
         EnterMap: "SceneEnterWorldWulingQingboStockade3",
         MapName: "map02_lv003",
@@ -291,7 +272,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "MysteriousCryptidGraffiti",
         Name: "谜之生物的涂鸦",
         EnterMap: "SceneEnterWorldWulingQingboStockade2",
         MapName: "map02_lv003",
@@ -317,7 +297,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
-        Id: "TreeOfTheOldCourtyard",
         Name: "“旧庭树”",
         EnterMap: "SceneEnterWorldWulingMarkerStone1",
         MapName: "map02_lv004",
@@ -333,7 +312,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
     },
     {
-        Id: "HangingVines",
         Name: "垂藤",
         EnterMap: "SceneEnterWorldWulingMarkerStone3",
         MapName: "map02_lv004",
@@ -365,7 +343,6 @@ export const ROUTE_CONFIG = [
         CameraMaxHit: 4,
     },
     {
-        Id: "FloraObservationPoint",
         Name: "植物观察点",
         EnterMap: "SceneEnterWorldWulingMarkerStone3",
         MapName: "map02_lv004",
@@ -386,7 +363,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     },
     {
-        Id: "CloudrestEcoSite",
         Name: "栖云生态点",
         EnterMap: "SceneAnyEnterWorld",
         MapName: "^map\\d+_lv\\d+$",
@@ -395,7 +371,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "Rainbow",
         Name: "彩虹",
         EnterMap: "SceneEnterWorldWulingMarkerStone4",
         MapName: "map02_lv004_tier_328",
@@ -417,7 +392,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
-        Id: "PeachTreeAtBabblesSHome",
         Name: "念念家的桃树",
         EnterMap: "SceneEnterWorldWulingMarkerStone4",
         MapName: "map02_lv004_tier_328",
@@ -427,7 +401,6 @@ export const ROUTE_CONFIG = [
         CameraMaxHit: 1,
     },
     {
-        Id: "WaterTemperatureController",
         Name: "净水温控装置",
         EnterMap: "SceneEnterWorldWulingMarkerStone2",
         MapName: "map02_lv004",
@@ -451,7 +424,6 @@ export const ROUTE_CONFIG = [
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
     {
-        Id: "SerenityGardenTianshiPillar",
         Name: "安思园的天师桩",
         EnterMap: "SceneAnyEnterWorld",
         MapName: "^map\\d+_lv\\d+$",

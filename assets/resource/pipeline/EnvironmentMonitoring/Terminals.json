@@ -18,7 +18,7 @@
             "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
         ],
         "next": [
-            "[JumpBack]BeaconDamagedInBlightTideJob",
+            "[JumpBack]BeaconDamagedInTheBlightTideJob",
             "[JumpBack]CisternOriginiumSlugsJob",
             "[JumpBack]RainbowFinJob",
             "[JumpBack]IndoorCropsJob",
