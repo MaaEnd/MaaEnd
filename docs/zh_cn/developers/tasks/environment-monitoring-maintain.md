@@ -24,7 +24,7 @@
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`                | **每个观察点一份 JSON**，由模板渲染（**生成**）                                                                                          |
 | 观察点模板         | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`                      | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照）                                                                          |
 | 终端模板           | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc`            | 终端分组节点模板                                                                                                                         |
-| 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/data.mjs`                            | `ROUTE_CONFIG`：每个观察点的传送点、地图、路径、摄像头滑动方向                                                                           |
+| 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`                          | `ROUTE_CONFIG`：每个观察点的传送点、地图、路径、摄像头滑动方向                                                                           |
 | 终端列表数据       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`                  | 终端 ID 列表，对每个观察点 Job 节点串成 `next`                                                                                           |
 | 游戏数据快照       | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`                   | 由 `zmdmap` 提供的官方监测终端/委托数据（多语言名称、`shotTargetName`）                                                                  |
 | 生成器配置         | `tools/pipeline-generate/EnvironmentMonitoring/config.json`                         | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"`                                                                               |
@@ -86,7 +86,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
 
 ### 观察点 ID（`Id`）
 
-`data.mjs` 里 `ROUTE_CONFIG[*].Id`，等价于生成出的所有节点名前缀：
+`routes.mjs` 里 `ROUTE_CONFIG[*].Id`，等价于生成出的所有节点名前缀：
 
 ```text
 {PascalCase 英文名}
@@ -115,13 +115,11 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | 城郊监测终端 | `OutskirtsMonitoringTerminal`   | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal`   |
 | 首墩监测终端 | `MarkerStoneMonitoringTerminal` | `kitestation_004_1` | `EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal` |
 
-如果出现新的 Station，需要同时改：
+如果出现新的 Station，**生成器侧（`routes.mjs` + `data.mjs`）零改动**：`MONITORING_TERMINAL_IDS` 自动从 `kite_station.json` 派生，`GoToMonitoringTerminal` 锚点名按 `EnvironmentMonitoringGoTo{Station}` 模板拼接。但生成出来的 Pipeline 引用的下列**手写联动节点**必须先补齐，否则 MaaFramework 运行时会报「引用了未定义的任务」：
 
-1. `data.mjs` 的 `MONITORING_TERMINAL_IDS`：加入新的 `kitestation_xxx`。
-2. `data.mjs` 的 `buildGoToMonitoringTerminal()`：增加新分组到 `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` 的 case，否则会回退到 OutskirtsMonitoringTerminal 并打印警告。
-3. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`：新增 `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` 与 `EnvironmentMonitoringSelect{Station}MonitoringTerminal` 节点。
-4. `assets/resource/pipeline/EnvironmentMonitoring.json` 的 `EnvironmentMonitoringLoop.next`：加入 `[JumpBack]{Station}MonitoringTerminal`。
-5. 如有新文本识别节点（如 `EnvironmentMonitoringCheck{Station}MonitoringTerminalText`、`EnvironmentMonitoringIn{Station}MonitoringTerminal`），在 Pipeline 中补齐（手写）。
+1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`：新增 `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` 与 `EnvironmentMonitoringSelect{Station}MonitoringTerminal` 节点。
+2. `assets/resource/pipeline/EnvironmentMonitoring.json` 的 `EnvironmentMonitoringLoop.next`：加入 `[JumpBack]{Station}MonitoringTerminal`。
+3. 如有新文本识别节点（如 `EnvironmentMonitoringCheck{Station}MonitoringTerminalText`、`EnvironmentMonitoringIn{Station}MonitoringTerminal`），在 Pipeline 中补齐（手写）。
 
 ## 自动生成机制
 
@@ -138,7 +136,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.jsonc` 中 `${Xxx}` 占位符对应）：
+`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.jsonc` 中 `${Xxx}` 占位符对应）。它从 `routes.mjs` 读取维护者手动维护的 `ROUTE_CONFIG` / `ROUTE_DEFAULTS`，再结合 `kite_station.json` 装配出最终行：
 
 | 字段                                | 来源                                                                                   |
 | ----------------------------------- | -------------------------------------------------------------------------------------- |
@@ -165,7 +163,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`terminals-data.mjs` 会扫描 `data.mjs` 的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringFinish` 收尾。
+`terminals-data.mjs` 会扫描 `data.mjs` 装配后的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringFinish` 收尾。
 
 ### 运行命令
 
@@ -206,7 +204,7 @@ node print-missing-route-config-todo.mjs --all  # 完整状态总览（已补全
 
 `EnterMap` 字段必须填写 SceneManager 中已存在的传送节点名，例如 `SceneEnterWorldWulingJingyuValley7`。如果新增观察点位于尚未支持的传送点，需要先在 `assets/resource/pipeline/SceneManager/` 与 `assets/resource/pipeline/Interface/` 下补齐对应的 `SceneEnterWorld*` 与场景识别节点（参见 [scene-manager.md](../scene-manager.md)）。
 
-特殊兜底：`SceneAnyEnterWorld` 表示「不传送、直接回到当前世界」。当观察点本身没有合适的传送点（比如本分支里的「彩虹（缺少栖云窟传送点）」），可以临时填 `SceneAnyEnterWorld`，配合精确的 `MapTarget` / `MapPath` 让玩家跑过去；但要在 `data.mjs` 注释 `// TODO:` 标记。
+特殊兜底：`SceneAnyEnterWorld` 表示「不传送、直接回到当前世界」。当观察点本身没有合适的传送点（比如本分支里的「彩虹（缺少栖云窟传送点）」），可以临时填 `SceneAnyEnterWorld`，配合精确的 `MapTarget` / `MapPath` 让玩家跑过去；但要在 `routes.mjs` 注释 `// TODO:` 标记。
 
 ### 主菜单入口
 
@@ -234,7 +232,7 @@ node print-missing-route-config-todo.mjs
 
 ### 3. 在 `ROUTE_CONFIG` 中新增条目
 
-`tools/pipeline-generate/EnvironmentMonitoring/data.mjs` → `ROUTE_CONFIG`：
+`tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` → `ROUTE_CONFIG`：
 
 ```javascript
 {
@@ -276,9 +274,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 只调整路线/朝向（不变更英文名）：
 
-1. 改 `tools/pipeline-generate/EnvironmentMonitoring/data.mjs` 的 `ROUTE_CONFIG[i]`。
+1. 改 `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG[i]`。
 2. 重新生成（仅需跑 `npx @joebao/maa-pipeline-generate`，终端列表未变化无需重生 `Terminals.json`）。
-3. 提交 `data.mjs` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
+3. 提交 `routes.mjs` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
 
 如果观察点的官方英文名变了导致 `Id` 漂移：
 
@@ -289,7 +287,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 提交前至少检查：
 
-1. `tools/pipeline-generate/EnvironmentMonitoring/data.mjs` 的 `ROUTE_CONFIG` 中新增/修改条目是否字段齐全。
+1. `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG` 中新增/修改条目是否字段齐全。
 2. `node print-missing-route-config-todo.mjs` 输出为空（或所剩条目均为已知 TODO）。
 3. 重生成的 `Terminals.json` 中两个 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
 4. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。

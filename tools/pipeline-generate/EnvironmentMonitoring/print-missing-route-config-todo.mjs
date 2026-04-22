@@ -5,9 +5,18 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DATA_MJS_PATH = path.join(__dirname, "data.mjs");
+const ROUTES_MJS_PATH = path.join(__dirname, "routes.mjs");
 const KITE_STATION_JSON_PATH = path.join(__dirname, "kite_station.json");
-const MONITORING_TERMINAL_IDS = ["kitestation_002_1", "kitestation_004_1"];
+// 与 data.mjs 的 MONITORING_TERMINAL_IDS 派生口径保持一致：
+// 凡是 kite_station.json 里有 entrustTasks 的条目都算监测终端。
+function deriveMonitoringTerminalIds(kiteStationData) {
+    return Object.keys(kiteStationData)
+        .filter(
+            (terminalId) =>
+                Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0,
+        )
+        .sort();
+}
 const PLACEHOLDER_DEFAULTS = {
     EnterMap: "SceneAnyEnterWorld",
     MapName: "^map\\d+_lv\\d+$",
@@ -99,7 +108,7 @@ function detectPlaceholderFields(routeItem) {
 function collectMonitoringMissions(kiteStationData) {
     const missions = [];
 
-    for (const terminalId of MONITORING_TERMINAL_IDS) {
+    for (const terminalId of deriveMonitoringTerminalIds(kiteStationData)) {
         const terminal = kiteStationData[terminalId];
         if (!terminal) {
             continue;
@@ -230,7 +239,7 @@ function renderFullReportMarkdown({ completed, placeholders, missing }) {
 }
 
 function main() {
-    const source = fs.readFileSync(DATA_MJS_PATH, "utf8");
+    const source = fs.readFileSync(ROUTES_MJS_PATH, "utf8");
     const routeItems = extractRouteConfigItems(source);
     const routeMapByName = new Map(
         routeItems.map((item) => [normalizeMissionName(item?.Name), item]),
