@@ -734,5 +734,9 @@
     "task.ResourceRecycleStation.description": "무릉과 4호 계곡의 자원 재활용 스테이션에서 자동으로 수집합니다",
     "option.ResourceRecycleStationRegion.label": "수집 지역",
     "option.ResourceRecycleStationWuling.label": "무릉",
-    "option.ResourceRecycleStationValleyIV.label": "4호 계곡"
+    "option.ResourceRecycleStationValleyIV.label": "4호 계곡",
+    "task.ResourceRecycleStation.focus.Wuling": "무릉 맵으로 이동",
+    "task.ResourceRecycleStation.focus.ValleyIV": "4호 계곡 맵으로 이동",
+    "task.ResourceRecycleStation.focus.WulingStart": "무릉 자원 재활용 스테이션 수집 중",
+    "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중"
 }

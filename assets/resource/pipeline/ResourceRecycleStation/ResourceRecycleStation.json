@@ -10,7 +10,7 @@
         "enabled": false,
         "max_hit": 1,
         "focus": {
-            "Node.Recognition.Succeeded": "前往武陵地图"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Wuling"
         },
         "next": [
             "ResourceRecycleStationWulingStart"
@@ -20,7 +20,7 @@
         "enabled": false,
         "max_hit": 1,
         "focus": {
-            "Node.Recognition.Succeeded": "前往四号谷地地图"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.ValleyIV"
         },
         "next": [
             "ResourceRecycleStationValleyIVStart"

@@ -5,7 +5,7 @@
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始收取武陵资源回收站"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.WulingStart"
         }
     },
     "ResourceRecycleStationValleyIVStart": {
@@ -14,7 +14,7 @@
             "[JumpBack]SceneEnterMapValleyIVTheHub"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始收取四号谷地资源回收站"
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.ValleyIVStart"
         }
     },
 
