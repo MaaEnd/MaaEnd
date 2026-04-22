@@ -1,5 +1,5 @@
 ---
-name: em-add-route
+name: environment-monitoring-add-route
 description: "向 routes.mjs 添加环境监测（EnvironmentMonitoring）新观察点条目。使用时：新增 kite_station 观察点路线配置、适配新版本的环境监测任务、补全缺失的 MapPath / EnterMap 数据。会自动检测缺失任务，逐字段询问路线数据后写入 ROUTE_CONFIG。"
 argument-hint: "可选：直接说明要适配哪个观察点名称，否则自动列出所有缺失条目"
 ---
