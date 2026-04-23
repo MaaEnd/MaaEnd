@@ -265,8 +265,10 @@ public:
         // 突变防御：若帧间换算速度超过限制，则认为是发生了传送或视角剧变，需打断追踪状态强制重搜
         v.isTeleported = currentSpeed > trackingCfg.maxNormalSpeed;
 
+        // 分数硬下限：低于 kTrackingHardScoreFloor 时无论 psr/delta 如何均判为 ambiguous，走 hold 路径
+        const bool belowHardFloor = trackResult.score < kTrackingHardScoreFloor;
         bool lowScore = trackResult.score < 0.80;
-        bool ambiguous = lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02);
+        bool ambiguous = belowHardFloor || (lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02));
         v.isScreenBlocked = trackResult.score < trackingCfg.screenBlockedThreshold;
 
         v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;

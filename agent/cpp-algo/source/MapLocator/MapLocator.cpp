@@ -297,12 +297,13 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     std::chrono::duration<double> dt = now - motionTracker->getLastTime();
 
-    double trackScale = motionTracker->getLastPos()->scale;
-    if (trackScale <= 0.0) {
-        trackScale = 1.0;
+    double baseScale = motionTracker->getLastPos()->scale;
+    if (baseScale <= 0.0) {
+        baseScale = 1.0;
     }
 
-    cv::Rect searchRect = motionTracker->predictNextSearchRect(trackScale, tmplFeat.image.cols, tmplFeat.image.rows, now);
+    // 用最大候选 scale 来 size 搜索窗，确保所有尺度的模板都能装下；与 kTrackingScaleSteps 对齐
+    cv::Rect searchRect = motionTracker->predictNextSearchRect(baseScale + 0.04, tmplFeat.image.cols, tmplFeat.image.rows, now);
 
     cv::Rect mapBounds(0, 0, zoneMap.cols, zoneMap.rows);
     cv::Rect validRoi = searchRect & mapBounds;
@@ -320,19 +321,54 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     auto searchFeature = strategy->extractSearchFeature(searchRoiWithPad);
 
+    // 窄带多尺度匹配：先以 baseScale 尝试，分数足够则直接接受；
+    // 否则遍历邻近尺度取最优，并通过 kScaleHysteresisDelta 抑制尺度频繁切换
+    std::optional<MatchResultRaw> trackResult;
     cv::Mat scaledTempl, scaledWeightMask;
-    if (std::abs(trackScale - 1.0) > 0.001) {
-        cv::resize(tmplFeat.image, scaledTempl, cv::Size(), trackScale, trackScale, cv::INTER_LINEAR);
-        cv::resize(tmplFeat.mask, scaledWeightMask, cv::Size(), trackScale, trackScale, cv::INTER_NEAREST);
-    }
-    else {
-        scaledTempl = tmplFeat.image;
-        scaledWeightMask = tmplFeat.mask;
+    double trackScale = baseScale;
+    double baseScore = -1.0;
+    for (double delta : kTrackingScaleSteps) {
+        if (delta != 0.0 && trackResult && trackResult->score >= kFastTrackingPassScore) {
+            break;
+        }
+        const double s = baseScale + delta;
+        if (s <= 0.0) {
+            continue;
+        }
+
+        cv::Mat templ, mask;
+        if (std::abs(s - 1.0) > 0.001) {
+            cv::resize(tmplFeat.image, templ, cv::Size(), s, s, cv::INTER_LINEAR);
+            cv::resize(tmplFeat.mask, mask, cv::Size(), s, s, cv::INTER_NEAREST);
+        }
+        else {
+            templ = tmplFeat.image;
+            mask = tmplFeat.mask;
+        }
+        if (templ.cols > searchFeature.image.cols || templ.rows > searchFeature.image.rows || cv::countNonZero(mask) < 5) {
+            continue;
+        }
+
+        auto cand = CoreMatch(searchFeature.image, templ, mask, matchCfg.blurSize);
+        if (!cand) {
+            continue;
+        }
+
+        if (delta == 0.0) {
+            baseScore = cand->score;
+        }
+        const bool isBetter = !trackResult || cand->score > trackResult->score;
+        const bool overHysteresis = baseScore < 0.0 || delta == 0.0 || (cand->score - baseScore) >= kScaleHysteresisDelta;
+        if (isBetter && overHysteresis) {
+            trackResult = cand;
+            scaledTempl = std::move(templ);
+            scaledWeightMask = std::move(mask);
+            trackScale = s;
+        }
     }
 
-    auto trackResult = CoreMatch(searchFeature.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
     if (!trackResult) {
-        LogInfo << "tryTracking: CoreMatch returned nullopt.";
+        LogInfo << "tryTracking: multi-scale CoreMatch returned nullopt for all scales.";
         return std::nullopt;
     }
 
@@ -428,6 +464,20 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     if (validation.isValid) {
+        // 坐标 outlier 拒绝：跳变距离超过阈值且分数不足以支撑大幅位移时，hold 上一帧而非接受
+        if (auto last = motionTracker->getLastPos(); last && trackResult->score < kTrackingOutlierMinScore) {
+            const double jumpDist = std::hypot(validation.absX - last->x, validation.absY - last->y);
+            if (jumpDist > kTrackingOutlierDistance) {
+                auto held = *last;
+                held.score = trackResult->score;
+                held.scale = trackScale;
+                held.isHeld = true;
+                motionTracker->hold(held, now);
+                LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score) << VAR(trackScale);
+                return held;
+            }
+        }
+
         MapPosition pos;
         pos.zoneId = currentZoneId;
         pos.x = validation.absX;
@@ -925,7 +975,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         const bool fallbackHeld = fallbackResult.has_value() && fallbackResult->isHeld;
         const double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
 
-        if (rawFallbackPos.score > 0.1 && dist <= 5.0) {
+        // 双策略互证：两者分数均需满足最低要求，且坐标差在容差内，才视为结果可信
+        if (rawPrimaryPos.score >= kDualVerifyMinScore && rawFallbackPos.score >= kDualVerifyMinScore && dist <= kDualVerifyMaxDistance) {
             LogInfo << "Dual-Mode Tracking Verified! Coords matched. Dist: " << dist;
 
             MapPosition verifiedPos = rawPrimaryPos;
@@ -1071,8 +1122,9 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     const MapPosition& rawGlobalFallbackPos = fallbackAttempt.rawPos;
     const double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
 
-    // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近（误差<5像素），说明虽然个别策略信心不足，但互为佐证，此即确信坐标
-    if (rawGlobalPrimaryPos.score > 0.1 && rawGlobalFallbackPos.score > 0.1 && dist <= 5.0) {
+    // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近，且双方分数都过线，才视为互证。
+    if (rawGlobalPrimaryPos.score >= kDualGlobalVerifyMinScore && rawGlobalFallbackPos.score >= kDualGlobalVerifyMinScore
+        && dist <= kDualVerifyMaxDistance) {
         LogInfo << "Dual-Mode Global Search Verified! Dist: " << dist;
         globalResult = rawGlobalPrimaryPos;
         globalResult->score = std::max(rawGlobalPrimaryPos.score, rawGlobalFallbackPos.score);

@@ -17,8 +17,8 @@ void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock:
     if (lastKnownPos.has_value() && lostTrackingCount == 0) {
         std::chrono::duration<double> dt = now - lastTime;
         double dtSec = dt.count();
-        // 16ms~maxDt: 正常帧间隔; 超出范围说明速度不可信
-        if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction) {
+        // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
+        if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= kVelocityUpdateMinScore) {
             double rawVx = (newPos.x - lastKnownPos->x) / dtSec;
             double rawVy = (newPos.y - lastKnownPos->y) / dtSec;
             double alpha = trackingCfg.velocitySmoothingAlpha;

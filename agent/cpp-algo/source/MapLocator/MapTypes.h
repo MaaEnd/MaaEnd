@@ -157,6 +157,25 @@ constexpr double kPositionConsensusRadius = 12.0; // 近点判定半径
 constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
 constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 
+// tracking 窄带多尺度搜索参数。第一项必须为 0.0（即 baseScale），
+// 循环时 baseScale 先跑，达到 kFastTrackingPassScore 则跳过后续尺度
+constexpr double kTrackingScaleSteps[] = { 0.0, -0.04, -0.02, 0.02, 0.04 };
+// baseScale 的单次匹配达到此分时直接接受，无需再尝试其他尺度
+constexpr double kFastTrackingPassScore = 0.75;
+// 非 baseScale 的候选须比 baseScale 高出此值才会替换，抑制小幅波动引起的尺度频繁切换
+constexpr double kScaleHysteresisDelta = 0.015;
+// tracking 接受结果的分数下限；低于此值无论 psr/delta 如何均判为 ambiguous，走 hold 路径
+constexpr double kTrackingHardScoreFloor = 0.60;
+// 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
+constexpr double kVelocityUpdateMinScore = 0.70;
+// tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 kTrackingOutlierMinScore 时 hold 上一帧
+constexpr double kTrackingOutlierDistance = 25.0;
+constexpr double kTrackingOutlierMinScore = 0.78;
+// dual-mode 互证要求：两个策略的分数均需达到阈值，且坐标距离在容差内
+constexpr double kDualVerifyMinScore = 0.45;
+constexpr double kDualVerifyMaxDistance = 4.0;
+constexpr double kDualGlobalVerifyMinScore = 0.50;
+
 inline bool IsPathHeatmapZone(const std::string& zoneId)
 {
     constexpr const char* kPathHeatmapZoneMarkers[] = { "OMVBase" };
