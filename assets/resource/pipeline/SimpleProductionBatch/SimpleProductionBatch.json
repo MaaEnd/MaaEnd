@@ -1,4 +1,16 @@
 {
+    "$__mpe_config_SimpleProductionBatch": {
+        "$__mpe_code": {
+            "prefix": "",
+            "savedViewport": {
+                "x": 1148,
+                "y": 616,
+                "zoom": 1.06
+            },
+            "filename": "SimpleProductionBatch",
+            "version": "v1.3.1"
+        }
+    },
     "BuckfIowerPowder": {
         "desc": "荞花粉末入口",
         "next": [
@@ -28,9 +40,6 @@
                 ],
                 "threshold": 0.7
             }
-        },
-        "anchor": {
-            "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
         },
         "next": [
             "CraftMenuMain"
@@ -98,8 +107,8 @@
         },
         "$__mpe_code": {
             "position": {
-                "x": 682,
-                "y": 109
+                "x": 673,
+                "y": -18
             }
         }
     },
@@ -115,18 +124,6 @@
             }
         }
     },
-    "craftSimpleProductionBatchEnd放弃节点": {
-        "desc": "不是简易制作页面，非法情况直接结束,X",
-        "focus": {
-            "Node.Action.Succeeded": "$task.SimpleProductionBatch.error_not_found"
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 359,
-                "y": 966
-            }
-        }
-    },
     "craftSimpleProductionBatchLoop": {
         "desc": "SimpleProductionBatch 的循环模式。能进到这里说明确定是在简易制作页面了，只有执行到无法制作的时候才会退出",
         "pre_delay": 1000,
@@ -137,37 +134,6 @@
             "position": {
                 "x": 1896,
                 "y": 533
-            }
-        }
-    },
-    "craftCheckCantProduceAnyMore": {
-        "desc": "检测是否材料不足，没有材料直接结束",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    986,
-                    616,
-                    294,
-                    104
-                ],
-                "expected": [
-                    "肥料数量不足",
-                    "肥料數量不足",
-                    "(?i)Insufficient",
-                    "肥料が足りません",
-                    "当前材料不足",
-                    "目前材料不足",
-                    "(?i)Insufficient\\s*materials",
-                    "素材が不足しています",
-                    "Not enough"
-                ]
-            }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 671,
-                "y": 966
             }
         }
     },
@@ -257,14 +223,13 @@
         ],
         "$__mpe_code": {
             "position": {
-                "x": 652,
-                "y": 500
+                "x": 662,
+                "y": 534
             }
         }
     },
     "craftClickProduceBtn": {
         "desc": "点击制作按钮",
-        "max_hit": 3,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -277,17 +242,13 @@
                 "template": "SimpleProductionBatch/ProduceBtn.png"
             }
         },
-        "pre_wait_freezes": 200,
-        "pre_delay": 0,
+        "pre_wait_freezes": 300,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "craftCheckMaterialEnough",
-            "craftClickSimpleProductionSuccess",
             "craftClickSimpleProductionSuccess2"
         ],
         "$__mpe_code": {
@@ -297,72 +258,7 @@
             }
         }
     },
-    "craftClickSimpleProductionSuccess": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    570,
-                    55,
-                    142,
-                    84
-                ],
-                "expected": [
-                    "制作成功",
-                    "製作成功",
-                    "(?i)Crafting\\s*Successful",
-                    "Success",
-                    "Crafted"
-                ]
-            }
-        },
-        "pre_delay": 1000,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "craftClickSimpleProductionRightDown"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1290,
-                "y": 435
-            }
-        }
-    },
-    "craftClickSimpleProductionSuccess2": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    559,
-                    335,
-                    161,
-                    102
-                ],
-                "expected": [
-                    "制作成功",
-                    "製作成功",
-                    "(?i)Crafting\\s*Successful",
-                    "Success",
-                    "Crafted"
-                ]
-            }
-        },
-        "pre_delay": 1000,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "craftClickSimpleProductionRightDown"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1292,
-                "y": 84
-            }
-        }
-    },
     "craftClickSimpleProductionRightDown": {
-        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -374,14 +270,13 @@
                 ]
             }
         },
-        "post_delay": 0,
         "next": [
             "craftSimpleProductionBatchLoop"
         ],
         "$__mpe_code": {
             "position": {
-                "x": 1613,
-                "y": 40
+                "x": 1614,
+                "y": 69
             }
         }
     },
@@ -722,7 +617,9 @@
                     46
                 ],
                 "expected": [
-                    "柑实冲剂"
+                    "柑实冲剂",
+                    "柑實粉末",
+                    "Citromix"
                 ]
             }
         },
@@ -768,7 +665,9 @@
                     486
                 ],
                 "expected": [
-                    "荞花粉末"
+                    "荞花粉末",
+                    "蔷花粉末",
+                    "BuckflowerPowder"
                 ]
             }
         },
@@ -787,36 +686,6 @@
             }
         }
     },
-    "ThornyYazhenPowderOCR1": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    25,
-                    152,
-                    60,
-                    487
-                ],
-                "template": [
-                    "SimpleProductionBatch/CraftThornyYazhenPowder.png"
-                ],
-                "threshold": [
-                    0.95
-                ]
-            }
-        },
-        "pre_wait_freezes": 300,
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": -1712,
-                "y": 1345
-            }
-        }
-    },
     "FluffedJincaoPowderOCR": {
         "recognition": {
             "type": "OCR",
@@ -828,7 +697,9 @@
                     46
                 ],
                 "expected": [
-                    "蓬茸锦草粉末"
+                    "蓬茸锦草粉末",
+                    "蓬茸錦草粉末",
+                    "FluffedJincaoPowder"
                 ],
                 "threshold": 0.8
             }
@@ -859,7 +730,9 @@
                     230
                 ],
                 "expected": [
-                    "意乱药剂"
+                    "意乱药剂",
+                    "意鼠藥劑",
+                    "PerplexingMedication"
                 ]
             }
         },
@@ -889,7 +762,9 @@
                     230
                 ],
                 "expected": [
-                    "附术铁瓶"
+                    "附术铁瓶",
+                    "附術鐵瓶",
+                    "KunstTube"
                 ]
             }
         },
@@ -919,7 +794,9 @@
                     230
                 ],
                 "expected": [
-                    "刻术铁瓶"
+                    "刻术铁瓶",
+                    "刻術鐵瓶",
+                    "ArtsTube"
                 ]
             }
         },
@@ -949,7 +826,9 @@
                     234
                 ],
                 "expected": [
-                    "清炖兽排参须汤"
+                    "清炖兽排参须汤",
+                    "清墩獸排菱湯",
+                    "GinsengMeatStew"
                 ]
             }
         },
@@ -979,7 +858,9 @@
                     234
                 ],
                 "expected": [
-                    "大瓶芽针喷剂"
+                    "大瓶芽针喷剂",
+                    "大瓶芽針喷劑",
+                    "YazhenSpray[L]"
                 ]
             }
         },
@@ -1009,7 +890,9 @@
                     485
                 ],
                 "expected": [
-                    "芽针喷剂"
+                    "芽针喷剂",
+                    "芽針喷劑",
+                    "YazhenSpray[S]"
                 ]
             }
         },
@@ -1039,7 +922,9 @@
                     234
                 ],
                 "expected": [
-                    "武陵炒饭"
+                    "武陵炒饭",
+                    "武陵炒飯",
+                    "WulingFriedRice"
                 ]
             }
         },
@@ -1084,7 +969,9 @@
                     234
                 ],
                 "expected": [
-                    "回响秘剂"
+                    "回响秘剂",
+                    "誓秘劑",
+                    "EchoingRemedy"
                 ]
             }
         },
@@ -1135,7 +1022,9 @@
                     47
                 ],
                 "expected": [
-                    "荆刺芽针粉末"
+                    "荆刺芽针粉末",
+                    "荆刺芽針粉末",
+                    "ThornyYazhenPowder"
                 ],
                 "threshold": 0.8
             }
@@ -1150,8 +1039,8 @@
         ],
         "$__mpe_code": {
             "position": {
-                "x": -270,
-                "y": 29
+                "x": -277,
+                "y": 27
             }
         }
     },
@@ -1167,7 +1056,9 @@
                     54
                 ],
                 "expected": [
-                    "升序"
+                    "升序",
+                    "ASC",
+                    "昇顺"
                 ]
             }
         },
@@ -1194,7 +1085,9 @@
                     54
                 ],
                 "expected": [
-                    "降序"
+                    "降序",
+                    "DESC",
+                    "降顺"
                 ]
             }
         },
@@ -1250,7 +1143,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1280,7 +1177,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1293,8 +1194,8 @@
         ],
         "$__mpe_code": {
             "position": {
-                "x": -511,
-                "y": -237
+                "x": -528,
+                "y": -229
             }
         }
     },
@@ -1309,7 +1210,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1338,7 +1243,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1367,7 +1276,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1396,7 +1309,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1425,7 +1342,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1454,7 +1375,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1483,7 +1408,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1512,7 +1441,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1541,7 +1474,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1571,7 +1508,11 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality",
+                    "Quality",
+                    "Quality"
                 ]
             }
         },
@@ -1614,6 +1555,35 @@
             "position": {
                 "x": -2345,
                 "y": 602
+            }
+        }
+    },
+    "craftClickSimpleProductionSuccess2": {
+        "desc": "制作成功确认",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    590,
+                    573,
+                    100,
+                    117
+                ],
+                "template": "DailyRewards/CloseReward.png",
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "craftClickSimpleProductionRightDown"
+        ],
+        "$__mpe_code": {
+            "position": {
+                "x": 1270,
+                "y": 43
             }
         }
     }

@@ -1,4 +1,16 @@
 {
+    "$__mpe_config_CraftFilterBTN": {
+        "$__mpe_code": {
+            "prefix": "",
+            "savedViewport": {
+                "x": -724,
+                "y": -49,
+                "zoom": 0.95
+            },
+            "filename": "CraftFilterBTN",
+            "version": "v1.3.1"
+        }
+    },
     "CraftFilterstart1": {
         "desc": "谷地物品筛选入口",
         "next": [
@@ -7,8 +19,8 @@
         ],
         "$__mpe_code": {
             "position": {
-                "x": -512,
-                "y": 13
+                "x": -490,
+                "y": 11
             }
         }
     },
@@ -171,8 +183,8 @@
         ],
         "$__mpe_code": {
             "position": {
-                "x": 659,
-                "y": -234
+                "x": 636,
+                "y": -276
             }
         }
     },
@@ -223,11 +235,11 @@
                 ]
             }
         },
-        "pre_delay": 300,
         "action": {
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 300,
         "next": [
             "FilterToValley"
         ],
@@ -284,11 +296,11 @@
                 ]
             }
         },
-        "pre_delay": 300,
         "action": {
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 300,
         "next": [
             "FilterToWuling"
         ],
@@ -324,7 +336,9 @@
                     72
                 ],
                 "expected": [
-                    "默认"
+                    "默认",
+                    "预設",
+                    "Default"
                 ]
             }
         },
@@ -361,7 +375,9 @@
                     41
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality"
                 ]
             }
         },
@@ -394,7 +410,9 @@
                     72
                 ],
                 "expected": [
-                    "品质"
+                    "品质",
+                    "品質",
+                    "Quality"
                 ]
             }
         },
@@ -430,7 +448,9 @@
                     40
                 ],
                 "expected": [
-                    "默认"
+                    "默认",
+                    "预設",
+                    "Default"
                 ]
             }
         },

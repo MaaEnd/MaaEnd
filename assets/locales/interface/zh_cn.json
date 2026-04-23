@@ -507,7 +507,7 @@
     "task.BakerEntry.label": "💬会话消息嘴替",
     "task.BakerEntry.description": "清掉所有会话消息，聊个五毛钱的.jpg",
     "task.SimpleProductionBatch.label": "🔨批量简易制作",
-    "task.SimpleProductionBatch.description": "一键进行批量的简易制作，执行时需要保证背包充裕。",
+    "task.SimpleProductionBatch.description": "一键进行批量的简易制作，执行时需要保证背包充裕。目前仅中英支持较好",
     "task.SimpleProductionBatch.error_not_found": "**请在简易制作页面中先选好要制作的道具再启动脚本**",
     "option.MakeAll.label": "**选择该选项时请在简易制作页面中先选好要制作的道具再启动脚本**",
     "option.MakeAll.description": "背包物品请提前准备或者前往帝江号",
