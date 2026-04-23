@@ -14,23 +14,5 @@
             109,
             26
         ]
-    },
-    "SellProductBetterSliding": {
-        "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "Quantity": {
-                "Box": [
-                    1025,
-                    497,
-                    166,
-                    37
-                ]
-            },
-            "Direction": "right",
-            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
-        }
     }
 }

@@ -26,7 +26,6 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBetterSliding": "SellProductBetterSliding",
             "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
             "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
             "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
