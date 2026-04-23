@@ -157,7 +157,8 @@
             "InSerenityGardenTianshiPillarMission"
         ],
         "next": [
-            "TrackSerenityGardenTianshiPillar"
+            "TrackSerenityGardenTianshiPillar",
+            "GoToSerenityGardenTianshiPillar"
         ]
     },
     "TrackSerenityGardenTianshiPillar": {
@@ -169,7 +170,7 @@
         ],
         "action": "Click",
         "next": [
-            "SerenityGardenTianshiPillarNotAdapted"
+            "GoToSerenityGardenTianshiPillar"
         ]
     },
     "SerenityGardenTianshiPillarNotAdapted": {
@@ -199,12 +200,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        402.4,
+                        313.4,
+                        20.8,
+                        17.4
                     ]
                 }
             ]
@@ -219,7 +220,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone2"
             ]
         },
         "next": [
@@ -234,12 +235,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        402.4,
+                        313.4,
+                        20.8,
+                        17.4
                     ]
                 }
             ]
@@ -254,7 +255,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone2"
             ]
         },
         "next": [
@@ -268,12 +269,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        402.4,
+                        313.4,
+                        20.8,
+                        17.4
                     ]
                 }
             ]
@@ -287,11 +288,39 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv004",
             "path": [
                 [
-                    0,
-                    0
+                    418.8,
+                    322.3
+                ],
+                [
+                    418.8,
+                    328.5
+                ],
+                [
+                    415,
+                    328.5
+                ],
+                [
+                    415,
+                    322.2
+                ],
+                [
+                    323.8,
+                    322.2
+                ],
+                [
+                    325,
+                    378.6
+                ],
+                [
+                    324.9,
+                    404.7
+                ],
+                [
+                    295.1,
+                    404.7
                 ]
             ]
         },

@@ -428,10 +428,19 @@ export const ROUTE_CONFIG = [
     },
     {
         Name: "安思园的天师桩",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingMarkerStone2",
+        MapName: "map02_lv004",
+        MapTarget: [402.4, 313.4, 20.8, 17.4],
+        MapPath: [
+            [418.8, 322.3],
+            [418.8, 328.5],
+            [415.0, 328.5],
+            [415.0, 322.2],
+            [323.8, 322.2],
+            [325.0, 378.6],
+            [324.9, 404.7],
+            [295.1, 404.7],
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
 ];
