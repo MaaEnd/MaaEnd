@@ -93,6 +93,27 @@
             }
         ]
     },
+    "InMapWulingMarkerStone": {
+        "desc": "在武陵-首墩地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "首墩",
+                    "Marker Stone",
+                    "首礎"
+                ]
+            }
+        ]
+    },
     "InMapDijiang": {
         "desc": "在帝江号地图界面",
         "recognition": "And",
@@ -395,11 +416,28 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
-        "desc": "检查是否在城郊监测终端",
+    "EnvironmentMonitoringCheckMonitoringTerminalText": {
+        "desc": "检查环境监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            230,
+            62
+        ],
+        "expected": [
+            "环境监测终端",
+            "環境監測終端",
+            "(?i)Environment\\s*Monitoring\\s*Terminal",
+            "環境観測端末",
+            "환경 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringInMonitoringTerminal": {
+        "desc": "检查是否在环境监测终端",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+            "EnvironmentMonitoringCheckMonitoringTerminalText"
         ],
         "pre_wait_freezes": {
             "time": 80,
@@ -415,9 +453,9 @@
         "desc": "检查城郊监测终端文本",
         "recognition": "OCR",
         "roi": [
-            65,
+            16,
             57,
-            184,
+            1034,
             85
         ],
         "expected": [
@@ -427,6 +465,103 @@
             "郊外観測端末",
             "교외 관측 단말기"
         ]
+    },
+    "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText": {
+        "desc": "检查首墩监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            57,
+            1034,
+            85
+        ],
+        "expected": [
+            "首墩监测终端",
+            "首墩監測終端",
+            "(?i)Marker\\s*Stone\\s*Monitoring\\s*Terminal",
+            "マーカーストーン観測端末",
+            "마커 스톤 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected": {
+        "desc": "城郊监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            200
+        ],
+        "upper": [
+            0,
+            10,
+            255
+        ],
+        "count": 1000
+    },
+    "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected": {
+        "desc": "首墩监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            200
+        ],
+        "upper": [
+            0,
+            10,
+            255
+        ],
+        "count": 1000
+    },
+    "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
+        "desc": "检查是否在城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+            "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
+    "EnvironmentMonitoringInMarkerStoneMonitoringTerminal": {
+        "desc": "检查是否在首墩监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+            "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
     },
     "InStashValuablesTab": {
         "desc": "当前正在珍贵物品页界面",

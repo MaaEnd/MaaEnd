@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "充满活力的蓄水源石虫",
-            "充滿活力的蓄水源石蟲",
-            "(?i)Vigorous\\s*Cistern\\s*Originium\\s*Slug",
-            "活発になっている貯水オリジムシ",
-            "활기찬 저수 원석충"
+            "拍摄充满活力的蓄水源石虫",
+            "拍攝充滿活力的蓄水源石蟲",
+            "(?i)Photograph\\s*a\\s*Vigorous\\s*Cistern\\s*Originium\\s*Slug",
+            "活発になっている貯水オリジムシの写真を撮る",
+            "활기찬 저수 원석충 촬영하기"
         ]
     },
     "AcceptVigorousCisternOriginiumSlug": {
@@ -172,6 +172,12 @@
         "next": [
             "GoToVigorousCisternOriginiumSlug"
         ]
+    },
+    "VigorousCisternOriginiumSlugNotAdapted": {
+        "desc": "充满活力的蓄水源石虫任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToVigorousCisternOriginiumSlug": {
         "desc": "前往充满活力的蓄水源石虫，先回到大世界再进行判断",
@@ -285,17 +291,17 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    213.0,
-                    632.0
+                    213,
+                    632
                 ],
                 [
-                    216.0,
+                    216,
                     630.4
                 ]
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "VigorousCisternOriginiumSlugAdjustCamera"
         },
         "next": [

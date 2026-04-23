@@ -1,0 +1,394 @@
+{
+    "HangingVinesJob": {
+        "desc": "垂藤任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptHangingVines",
+            "GoToHangingVinesMission"
+        ]
+    },
+    "CheckHangingVinesText": {
+        "desc": "检查是否有垂藤文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "垂藤",
+            "垂藤",
+            "(?i)Hanging\\s*Vines",
+            "垂れ藤",
+            "덩굴 식물"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckHangingVinesIcon": {
+        "desc": "检查垂藤文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckHangingVinesText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckHangingVinesReadyText": {
+        "desc": "检查垂藤委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckHangingVinesIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckHangingVinesJob": {
+        "desc": "检查垂藤委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckHangingVinesIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckHangingVinesGoToMissionText": {
+        "desc": "检查垂藤委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckHangingVinesIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InHangingVinesMission": {
+        "desc": "是否在垂藤任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄垂藤",
+            "拍攝垂藤",
+            "(?i)Photo:\\s*Hanging\\s*Vines",
+            "垂れ藤の写真を撮る",
+            "덩굴 식물 촬영하기"
+        ]
+    },
+    "AcceptHangingVines": {
+        "desc": "接取垂藤委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToHangingVinesMission"
+        ]
+    },
+    "GoToHangingVinesMission": {
+        "desc": "前往垂藤任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckHangingVinesText",
+            "CheckHangingVinesIcon",
+            "CheckHangingVinesGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "HangingVinesTrackOrGoTo"
+        ]
+    },
+    "HangingVinesTrackOrGoTo": {
+        "desc": "在垂藤任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InHangingVinesMission"
+        ],
+        "next": [
+            "TrackHangingVines",
+            "GoToHangingVines"
+        ]
+    },
+    "TrackHangingVines": {
+        "desc": "追踪垂藤任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InHangingVinesMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToHangingVines"
+        ]
+    },
+    "HangingVinesNotAdapted": {
+        "desc": "垂藤任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToHangingVines": {
+        "desc": "前往垂藤，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToHangingVinesStartPos",
+            "GoToHangingVinesNotAtStartPos"
+        ]
+    },
+    "GoToHangingVinesStartPos": {
+        "desc": "在垂藤任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        602.8,
+                        325,
+                        9.7,
+                        8.1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToHangingVinesMapTrackerMove"
+        ]
+    },
+    "GoToHangingVinesNotAtStartPos": {
+        "desc": "不在垂藤任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone3"
+            ]
+        },
+        "next": [
+            "GoToHangingVinesRecheckStartPos",
+            "GoToHangingVinesReEnterMap"
+        ]
+    },
+    "GoToHangingVinesRecheckStartPos": {
+        "desc": "传送后再次检查是否已在垂藤任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        602.8,
+                        325,
+                        9.7,
+                        8.1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToHangingVinesMapTrackerMove"
+        ]
+    },
+    "GoToHangingVinesReEnterMap": {
+        "desc": "传送后仍未到达垂藤任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone3"
+            ]
+        },
+        "next": [
+            "GoToHangingVinesFinalCheckStartPos"
+        ]
+    },
+    "GoToHangingVinesFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在垂藤任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        602.8,
+                        325,
+                        9.7,
+                        8.1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToHangingVinesMapTrackerMove"
+        ]
+    },
+    "GoToHangingVinesMapTrackerMove": {
+        "desc": "前往垂藤",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    604.6,
+                    307.8
+                ],
+                [
+                    587.6,
+                    308.6
+                ],
+                [
+                    586.3,
+                    302.6
+                ],
+                [
+                    578.8,
+                    302.4
+                ],
+                [
+                    576.7,
+                    296.5
+                ],
+                [
+                    575.2,
+                    280.9
+                ],
+                [
+                    546.2,
+                    279.8
+                ],
+                [
+                    531.2,
+                    279.7
+                ],
+                [
+                    528.8,
+                    278.6
+                ],
+                [
+                    527.5,
+                    278.6
+                ],
+                [
+                    527.5,
+                    268.5
+                ],
+                [
+                    534.5,
+                    267.5
+                ],
+                [
+                    543.3,
+                    267.4
+                ],
+                [
+                    543.3,
+                    265.1
+                ],
+                [
+                    544.4,
+                    263.8
+                ],
+                [
+                    544.6,
+                    255.1
+                ],
+                [
+                    545.7,
+                    253.8
+                ],
+                [
+                    545.7,
+                    252.5
+                ],
+                [
+                    555.8,
+                    252.6
+                ],
+                [
+                    558.2,
+                    253.7
+                ],
+                [
+                    579.5,
+                    253.7
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "HangingVinesAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "HangingVinesAdjustCamera": {
+        "desc": "垂藤任务中调整朝向",
+        "max_hit": 4,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

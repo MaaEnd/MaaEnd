@@ -26,6 +26,15 @@
             "[JumpBack]SceneEnterMapAny"
         ]
     },
+    "SceneEnterMapWulingMarkerStone": {
+        "desc": "从任意界面进入武陵-首墩地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingMarkerStone",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
     "SceneEnterWorldWulingJingyuValley0": {
         "desc": "从任意界面进入-景玉谷-生态实验站",
         "pre_delay": 0,
@@ -346,6 +355,54 @@
         "next": [
             "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStone1": {
+        "desc": "从任意界面进入武陵-首墩-望楼蓄水站大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingMarkerStone"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStone2": {
+        "desc": "从任意界面进入武陵-首墩-湖心岛大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingMarkerStone"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStone3": {
+        "desc": "从任意界面进入武陵-首墩-控制区大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingMarkerStone"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStone4": {
+        "desc": "从任意界面进入武陵-首墩-栖云窟大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingMarkerStone"
         ]
     }
 }

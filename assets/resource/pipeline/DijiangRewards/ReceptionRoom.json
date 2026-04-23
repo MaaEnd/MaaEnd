@@ -69,23 +69,22 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    961,
+                    1016,
                     0,
-                    319,
-                    92
+                    115,
+                    35
                 ],
                 "method": 40,
                 "lower": [
                     31,
-                    0,
-                    0
+                    70,
+                    90
                 ],
                 "upper": [
-                    33,
+                    35,
                     255,
                     255
-                ],
-                "count": 5
+                ]
             }
         }
     },
@@ -140,19 +139,11 @@
             "param": {
                 "all_of": [
                     "InReceptionRoom",
-                    "FacilityDetails"
+                    "FacilityDetails",
+                    "ExchangeTextTips"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
         },
         //"pre_delay": 3000, // 等待可能出现的情报交流结束弹窗
         "post_delay": 0,
@@ -172,7 +163,8 @@
             "param": {
                 "all_of": [
                     "InReceptionRoom",
-                    "FacilityDetails"
+                    "FacilityDetails",
+                    "ExchangeTextTips"
                 ],
                 "box_index": 1
             }

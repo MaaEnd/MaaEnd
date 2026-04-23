@@ -1,0 +1,36 @@
+{
+    "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal": {
+        "desc": "前往城郊监测终端",
+        "next": [
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal",
+            "[JumpBack]EnvironmentMonitoringSelectOutskirtsMonitoringTerminal",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+        ]
+    },
+    "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal": {
+        "desc": "前往首墩监测终端",
+        "next": [
+            "EnvironmentMonitoringInMarkerStoneMonitoringTerminal",
+            "[JumpBack]EnvironmentMonitoringSelectMarkerStoneMonitoringTerminal",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+        ]
+    },
+    "EnvironmentMonitoringSelectOutskirtsMonitoringTerminal": {
+        "desc": "选择城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "action": "Click"
+    },
+    "EnvironmentMonitoringSelectMarkerStoneMonitoringTerminal": {
+        "desc": "选择首墩监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "action": "Click"
+    }
+}

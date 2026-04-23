@@ -1,0 +1,74 @@
+{
+    "OutskirtsMonitoringTerminal": {
+        "desc": "城郊监测终端",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "OutskirtsMonitoringTerminalLoop",
+            "[JumpBack]EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        ]
+    },
+    "OutskirtsMonitoringTerminalLoop": {
+        "desc": "城郊监测终端循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ],
+        "next": [
+            "[JumpBack]BeaconDamagedInTheBlightTideJob",
+            "[JumpBack]CisternOriginiumSlugsJob",
+            "[JumpBack]RainbowFinJob",
+            "[JumpBack]IndoorCropsJob",
+            "[JumpBack]AncientTreeJob",
+            "[JumpBack]CollapsedTianshiPillarJob",
+            "[JumpBack]EternalSunsetJob",
+            "[JumpBack]CleansingJadeJob",
+            "[JumpBack]VigorousCisternOriginiumSlugJob",
+            "[JumpBack]InflatedAndGlowingBugspittingLankybeastJob",
+            "[JumpBack]ObservantSableChestedFowlbeastJob",
+            "[JumpBack]EcologyNearTheFieldLogisticsDepotJob",
+            "[JumpBack]WaterlampJob",
+            "[JumpBack]XiraniteNexusJob",
+            "[JumpBack]PierWaterwheelJob",
+            "[JumpBack]MiniShellbeastJob",
+            "EnvironmentMonitoringFinish"
+        ]
+    },
+    "MarkerStoneMonitoringTerminal": {
+        "desc": "首墩监测终端",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal"
+        ],
+        "next": [
+            "MarkerStoneMonitoringTerminalLoop",
+            "[JumpBack]EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+        ]
+    },
+    "MarkerStoneMonitoringTerminalLoop": {
+        "desc": "首墩监测终端循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMarkerStoneMonitoringTerminal"
+        ],
+        "next": [
+            "[JumpBack]AnnularWaterfallJob",
+            "[JumpBack]BambooWaterChimesJob",
+            "[JumpBack]WitheredBranchesJob",
+            "[JumpBack]MysteriousCryptidGraffitiJob",
+            "[JumpBack]TreeOfTheOldCourtyardJob",
+            "[JumpBack]HangingVinesJob",
+            "[JumpBack]FloraObservationPointJob",
+            "[JumpBack]CloudrestEcoSiteJob",
+            "[JumpBack]RainbowJob",
+            "[JumpBack]PeachTreeAtBabblesSHomeJob",
+            "[JumpBack]WaterTemperatureControllerJob",
+            "[JumpBack]SerenityGardenTianshiPillarJob",
+            "EnvironmentMonitoringFinish"
+        ]
+    }
+}

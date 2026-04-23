@@ -50,6 +50,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "FastCollect",
                         "RecoveryEmotionStage",
                         "ReceptionRoomStage",
                         "ManufacturingStage",
@@ -58,6 +59,36 @@
                 },
                 {
                     "name": "No"
+                }
+            ]
+        },
+        "FastCollect": {
+            "type": "switch",
+            "label": "$option.FastCollect.label",
+            "description": "$option.FastCollect.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectProduction": {
+                            "enabled": true
+                        },
+                        "DijiangRewardsFastCollectClues": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectProduction": {
+                            "enabled": false
+                        },
+                        "DijiangRewardsFastCollectClues": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },

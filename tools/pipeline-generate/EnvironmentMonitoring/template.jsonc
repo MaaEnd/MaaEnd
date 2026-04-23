@@ -144,10 +144,7 @@
         "all_of": [
             "In${Id}Mission"
         ],
-        "next": [
-            "Track${Id}",
-            "GoTo${Id}"
-        ]
+        "next": "${TrackOrGoToNext}"
     },
     "Track${Id}": {
         "desc": "追踪${Name}任务",
@@ -157,9 +154,13 @@
             "In${Id}Mission"
         ],
         "action": "Click",
-        "next": [
-            "GoTo${Id}"
-        ]
+        "next": "${TrackNext}"
+    },
+    "${Id}NotAdapted": {
+        "desc": "${Name}任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoTo${Id}": {
         "desc": "前往${Name}，先回到大世界再进行判断",
@@ -259,7 +260,7 @@
             "path": "${MapPath}"
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
         },
         "next": [
@@ -268,7 +269,7 @@
     },
     "${Id}AdjustCamera": {
         "desc": "${Name}任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": "${CameraMaxHit}",
         "next": [
             "${CameraSwipeDirection}"
         ]

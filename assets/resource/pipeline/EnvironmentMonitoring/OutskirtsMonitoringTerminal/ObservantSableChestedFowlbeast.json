@@ -29,7 +29,7 @@
             "東張西望的黑腹雉羽獸",
             "(?i)Observant\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
             "キョロキョロする黒腹羽獣",
-            "두리번거리는 검은 배의 파울비스트"
+            "두리번거리는 세이블체스티드 파울비스트"
         ],
         "order_by": "Vertical"
     },
@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "东张西望的黑腹雉羽兽",
-            "東張西望的黑腹雉羽獸",
-            "(?i)Observant\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
-            "キョロキョロする黒腹羽獣",
-            "두리번거리는 검은 배의 파울비스트"
+            "拍摄农田中东张西望的黑腹雉羽兽",
+            "拍攝農田中東張西望的黑腹雉羽獸",
+            "(?i)Photograph\\s*an\\s*Observant\\s*Sable\\s*-\\s*chested\\s*Fowlbeast\\s*in\\s*the\\s*Field",
+            "農地でキョロキョロする黒腹羽獣の写真を撮る",
+            "논밭에서 두리번거리는 세이블체스티드 파울비스트를 촬영하기"
         ]
     },
     "AcceptObservantSableChestedFowlbeast": {
@@ -172,6 +172,12 @@
         "next": [
             "GoToObservantSableChestedFowlbeast"
         ]
+    },
+    "ObservantSableChestedFowlbeastNotAdapted": {
+        "desc": "东张西望的黑腹雉羽兽任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToObservantSableChestedFowlbeast": {
         "desc": "前往东张西望的黑腹雉羽兽，先回到大世界再进行判断",
@@ -286,7 +292,7 @@
             "path": [
                 [
                     349.9,
-                    128.0
+                    128
                 ],
                 [
                     373.3,
@@ -295,7 +301,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "ObservantSableChestedFowlbeastAdjustCamera"
         },
         "next": [

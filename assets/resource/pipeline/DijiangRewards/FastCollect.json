@@ -1,0 +1,120 @@
+{
+    "DijiangRewardsFastCollectProduction": {
+        "desc": "快速收取产物",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "产物",
+                    "產物",
+                    "(?i)Products",
+                    "製品"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                229,
+                273,
+                815,
+                159
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CloseFastCollectProductionRewards",
+            "InDijiangControlNexus"
+        ]
+    },
+    "CloseFastCollectProductionRewards": {
+        "desc": "关闭快速收取产物奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_wait_freezes": 150,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DijiangRewardsFastCollectClues": {
+        "desc": "快速收取线索",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "线索",
+                    "線索",
+                    "(?i)Clues",
+                    "手がかり"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                229,
+                273,
+                815,
+                159
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CloseFastCollectCluesRewards",
+            "InDijiangControlNexus"
+        ]
+    },
+    "CloseFastCollectCluesRewards": {
+        "desc": "关闭快速收取线索奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_wait_freezes": 150,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

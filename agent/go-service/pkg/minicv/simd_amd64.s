@@ -1,0 +1,85 @@
+//go:build amd64 && !purego
+
+#include "textflag.h"
+
+DATA ·rgba3Mask<>(SB)/8, $0x00FFFFFF00FFFFFF
+DATA ·rgba3Mask<>+8(SB)/8, $0x00FFFFFF00FFFFFF
+GLOBL ·rgba3Mask<>(SB), RODATA, $16
+
+TEXT ·dotRGBA3SIMD(SB), NOSPLIT, $16-32
+	MOVQ imgPix+0(FP), SI
+	MOVQ tplPix+8(FP), DI
+	MOVQ pixels+16(FP), CX
+
+	PXOR X0, X0
+	PXOR X5, X5
+	MOVOU ·rgba3Mask<>(SB), X7
+
+	CMPQ CX, $4
+	JLT tail
+
+loop4:
+	MOVOU (SI), X1
+	MOVOU (DI), X2
+	PAND X7, X1
+	PAND X7, X2
+
+	MOVOU X1, X3
+	PUNPCKLBW X0, X3
+	MOVOU X1, X4
+	PUNPCKHBW X0, X4
+
+	MOVOU X2, X8
+	PUNPCKLBW X0, X8
+	MOVOU X2, X9
+	PUNPCKHBW X0, X9
+
+	PMADDWL X8, X3
+	PMADDWL X9, X4
+	PADDD X3, X5
+	PADDD X4, X5
+
+	ADDQ $16, SI
+	ADDQ $16, DI
+	SUBQ $4, CX
+	CMPQ CX, $4
+	JGE loop4
+
+tail:
+	MOVOU X5, 0(SP)
+	MOVL 0(SP), AX
+	MOVL 4(SP), BX
+	ADDL BX, AX
+	MOVL 8(SP), BX
+	ADDL BX, AX
+	MOVL 12(SP), BX
+	ADDL BX, AX
+	MOVLQZX AX, AX
+
+	CMPQ CX, $0
+	JEQ done
+
+tailLoop:
+	MOVBLZX 0(SI), BX
+	MOVBLZX 0(DI), DX
+	IMULQ DX, BX
+	ADDQ BX, AX
+
+	MOVBLZX 1(SI), BX
+	MOVBLZX 1(DI), DX
+	IMULQ DX, BX
+	ADDQ BX, AX
+
+	MOVBLZX 2(SI), BX
+	MOVBLZX 2(DI), DX
+	IMULQ DX, BX
+	ADDQ BX, AX
+
+	ADDQ $4, SI
+	ADDQ $4, DI
+	DECQ CX
+	JNZ tailLoop
+
+done:
+	MOVQ AX, ret+24(FP)
+	RET

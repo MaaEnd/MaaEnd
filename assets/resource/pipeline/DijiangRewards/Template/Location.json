@@ -78,6 +78,35 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "ExchangeTextTips": {
+        "desc": "[会客室·情报交流] 识别情报交流中提示文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    486,
+                    537,
+                    563,
+                    183
+                ],
+                "expected": [
+                    "情报交流中",
+                    "情報交流中",
+                    "(?i)Exchanging\\s*Clues",
+                    "情報共有中",
+                    "集齐所有线索可开展情报交流",
+                    "集齊所有線索可開展情報交流",
+                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
+                    "手がかりをすべて集めると情報共有可能",
+                    "开展交流",
+                    "開展交流",
+                    "(?i)Start\\s*Exchange",
+                    "情報共有",
+                    "교류 진행"
+                ]
+            }
+        }
+    },
     "InReceptionRoomSetClues": {
         "desc": "[会客室·线索] 识别到会客室内的线索库存界面",
         "recognition": {

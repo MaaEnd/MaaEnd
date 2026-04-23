@@ -1,0 +1,366 @@
+{
+    "WaterTemperatureControllerJob": {
+        "desc": "净水温控装置任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterTemperatureControllerText",
+            "CheckWaterTemperatureControllerIcon",
+            "CheckWaterTemperatureControllerReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptWaterTemperatureController",
+            "GoToWaterTemperatureControllerMission"
+        ]
+    },
+    "CheckWaterTemperatureControllerText": {
+        "desc": "检查是否有净水温控装置文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "净水温控装置",
+            "淨水溫控裝置",
+            "(?i)Water\\s*Temperature\\s*Controller",
+            "浄水温度調整装置",
+            "정수 온도 조절 장치"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckWaterTemperatureControllerIcon": {
+        "desc": "检查净水温控装置文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckWaterTemperatureControllerText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckWaterTemperatureControllerReadyText": {
+        "desc": "检查净水温控装置委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckWaterTemperatureControllerIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckWaterTemperatureControllerJob": {
+        "desc": "检查净水温控装置委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckWaterTemperatureControllerIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckWaterTemperatureControllerGoToMissionText": {
+        "desc": "检查净水温控装置委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckWaterTemperatureControllerIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InWaterTemperatureControllerMission": {
+        "desc": "是否在净水温控装置任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄净水温控装置",
+            "拍攝淨水溫控裝置",
+            "(?i)Photo:\\s*Water\\s*Temperature\\s*Controller",
+            "浄水温度調整装置の写真を撮る",
+            "정수 온도 조절 장치를 촬영하기"
+        ]
+    },
+    "AcceptWaterTemperatureController": {
+        "desc": "接取净水温控装置委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterTemperatureControllerText",
+            "CheckWaterTemperatureControllerIcon",
+            "CheckWaterTemperatureControllerJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToWaterTemperatureControllerMission"
+        ]
+    },
+    "GoToWaterTemperatureControllerMission": {
+        "desc": "前往净水温控装置任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterTemperatureControllerText",
+            "CheckWaterTemperatureControllerIcon",
+            "CheckWaterTemperatureControllerGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "WaterTemperatureControllerTrackOrGoTo"
+        ]
+    },
+    "WaterTemperatureControllerTrackOrGoTo": {
+        "desc": "在净水温控装置任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InWaterTemperatureControllerMission"
+        ],
+        "next": [
+            "TrackWaterTemperatureController",
+            "GoToWaterTemperatureController"
+        ]
+    },
+    "TrackWaterTemperatureController": {
+        "desc": "追踪净水温控装置任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InWaterTemperatureControllerMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToWaterTemperatureController"
+        ]
+    },
+    "WaterTemperatureControllerNotAdapted": {
+        "desc": "净水温控装置任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToWaterTemperatureController": {
+        "desc": "前往净水温控装置，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerStartPos",
+            "GoToWaterTemperatureControllerNotAtStartPos"
+        ]
+    },
+    "GoToWaterTemperatureControllerStartPos": {
+        "desc": "在净水温控装置任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        408.5,
+                        312.7,
+                        16.8,
+                        18.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerMapTrackerMove"
+        ]
+    },
+    "GoToWaterTemperatureControllerNotAtStartPos": {
+        "desc": "不在净水温控装置任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone2"
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerRecheckStartPos",
+            "GoToWaterTemperatureControllerReEnterMap"
+        ]
+    },
+    "GoToWaterTemperatureControllerRecheckStartPos": {
+        "desc": "传送后再次检查是否已在净水温控装置任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        408.5,
+                        312.7,
+                        16.8,
+                        18.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerMapTrackerMove"
+        ]
+    },
+    "GoToWaterTemperatureControllerReEnterMap": {
+        "desc": "传送后仍未到达净水温控装置任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone2"
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerFinalCheckStartPos"
+        ]
+    },
+    "GoToWaterTemperatureControllerFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在净水温控装置任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        408.5,
+                        312.7,
+                        16.8,
+                        18.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToWaterTemperatureControllerMapTrackerMove"
+        ]
+    },
+    "GoToWaterTemperatureControllerMapTrackerMove": {
+        "desc": "前往净水温控装置",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    418.8,
+                    322.2
+                ],
+                [
+                    418.8,
+                    327.9
+                ],
+                [
+                    415.2,
+                    327.9
+                ],
+                [
+                    415,
+                    322.3
+                ],
+                [
+                    395,
+                    322.3
+                ],
+                [
+                    323.7,
+                    322.2
+                ],
+                [
+                    322.8,
+                    278.9
+                ],
+                [
+                    332.7,
+                    272
+                ],
+                [
+                    333.5,
+                    265.1
+                ],
+                [
+                    333.7,
+                    255.4
+                ],
+                [
+                    350,
+                    256
+                ],
+                [
+                    358.8,
+                    256
+                ],
+                [
+                    358.8,
+                    239.7
+                ],
+                [
+                    343.8,
+                    239.7
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "WaterTemperatureControllerAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "WaterTemperatureControllerAdjustCamera": {
+        "desc": "净水温控装置任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

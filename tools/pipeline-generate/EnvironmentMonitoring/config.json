@@ -1,0 +1,8 @@
+{
+    "template": "template.jsonc",
+    "data": "data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
+    "outputPattern": "${Station}/${Id}.json",
+    "format": true,
+    "merged": false
+}

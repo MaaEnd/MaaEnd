@@ -35,6 +35,18 @@
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
+    "__ScenePrivateMapAnyEnterMapWulingMarkerStone": {
+        "desc": "在任意地图界面，进入武陵-首墩地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingMarkerStone",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
@@ -58,6 +70,15 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess": {
+        "desc": "在地图界面，成功进入武陵-首墩地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -153,6 +174,29 @@
             "__ScenePrivateMapOverviewWulingEnterMapWulingQingboStockade"
         ]
     },
+    "__ScenePrivateMapOverviewEnterMapWulingMarkerStone": {
+        "desc": "在地图总览界面，进入武陵-首墩地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone"
+        ]
+    },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "action": "Click",
@@ -190,6 +234,19 @@
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone": {
+        "desc": "在武陵总览界面，进入武陵-首墩地图",
+        "action": "Click",
+        "target": [
+            312,
+            393,
+            75,
+            57
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
@@ -257,6 +314,19 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick": {
+        "desc": "在武陵-首墩地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
         ],
         "pre_delay": 0,
         "post_delay": 0,

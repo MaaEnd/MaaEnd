@@ -1,0 +1,358 @@
+{
+    "RainbowJob": {
+        "desc": "彩虹任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptRainbow",
+            "GoToRainbowMission"
+        ]
+    },
+    "CheckRainbowText": {
+        "desc": "检查是否有彩虹文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "彩虹",
+            "彩虹",
+            "(?i)Rainbow",
+            "虹",
+            "무지개"
+        ],
+        "order_by": "Vertical"
+    },
+    "CheckRainbowIcon": {
+        "desc": "检查彩虹文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckRainbowText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckRainbowReadyText": {
+        "desc": "检查彩虹委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckRainbowIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckRainbowJob": {
+        "desc": "检查彩虹委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckRainbowIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckRainbowGoToMissionText": {
+        "desc": "检查彩虹委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckRainbowIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InRainbowMission": {
+        "desc": "是否在彩虹任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄彩虹",
+            "拍攝彩虹",
+            "(?i)Photo:\\s*Rainbow",
+            "虹の写真を撮る",
+            "무지개를 촬영하기"
+        ]
+    },
+    "AcceptRainbow": {
+        "desc": "接取彩虹委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToRainbowMission"
+        ]
+    },
+    "GoToRainbowMission": {
+        "desc": "前往彩虹任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowText",
+            "CheckRainbowIcon",
+            "CheckRainbowGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "RainbowTrackOrGoTo"
+        ]
+    },
+    "RainbowTrackOrGoTo": {
+        "desc": "在彩虹任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InRainbowMission"
+        ],
+        "next": [
+            "TrackRainbow",
+            "GoToRainbow"
+        ]
+    },
+    "TrackRainbow": {
+        "desc": "追踪彩虹任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InRainbowMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToRainbow"
+        ]
+    },
+    "RainbowNotAdapted": {
+        "desc": "彩虹任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToRainbow": {
+        "desc": "前往彩虹，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToRainbowStartPos",
+            "GoToRainbowNotAtStartPos"
+        ]
+    },
+    "GoToRainbowStartPos": {
+        "desc": "在彩虹任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004_tier_328",
+                    "target": [
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToRainbowMapTrackerMove"
+        ]
+    },
+    "GoToRainbowNotAtStartPos": {
+        "desc": "不在彩虹任务开始位置附近，先传送再复核落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone4"
+            ]
+        },
+        "next": [
+            "GoToRainbowRecheckStartPos",
+            "GoToRainbowReEnterMap"
+        ]
+    },
+    "GoToRainbowRecheckStartPos": {
+        "desc": "传送后再次检查是否已在彩虹任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004_tier_328",
+                    "target": [
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToRainbowMapTrackerMove"
+        ]
+    },
+    "GoToRainbowReEnterMap": {
+        "desc": "传送后仍未到达彩虹任务开始位置附近，重试一次传送",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone4"
+            ]
+        },
+        "next": [
+            "GoToRainbowFinalCheckStartPos"
+        ]
+    },
+    "GoToRainbowFinalCheckStartPos": {
+        "desc": "二次传送后再次检查是否已在彩虹任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004_tier_328",
+                    "target": [
+                        508.2,
+                        663,
+                        18.1,
+                        15.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToRainbowMapTrackerMove"
+        ]
+    },
+    "GoToRainbowMapTrackerMove": {
+        "desc": "前往彩虹",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004_tier_328",
+            "path": [
+                [
+                    520.2,
+                    672.8
+                ],
+                [
+                    522.8,
+                    664
+                ],
+                [
+                    509,
+                    647.7
+                ],
+                [
+                    509.1,
+                    624
+                ],
+                [
+                    516.4,
+                    603.9
+                ],
+                [
+                    504,
+                    591.6
+                ],
+                [
+                    500.1,
+                    591.6
+                ],
+                [
+                    497.9,
+                    592.8
+                ],
+                [
+                    492.8,
+                    603.9
+                ],
+                [
+                    489,
+                    606.4
+                ],
+                [
+                    476.6,
+                    602.8
+                ],
+                [
+                    476.5,
+                    603.9
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "RainbowAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "RainbowAdjustCamera": {
+        "desc": "彩虹任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
+        ]
+    }
+}

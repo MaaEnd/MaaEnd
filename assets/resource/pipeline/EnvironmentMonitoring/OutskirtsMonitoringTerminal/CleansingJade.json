@@ -25,11 +25,11 @@
             71
         ],
         "expected": [
-            "漱玉",
-            "漱玉",
-            "(?i)Cleansing\\s*Jade",
-            "漱玉",
-            "수옥"
+            "“漱玉”",
+            "「漱玉」",
+            "(?i)\"Cleansing\\s*Jade\"",
+            "「漱玉」",
+            "'수옥'"
         ],
         "order_by": "Vertical"
     },
@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "漱玉",
-            "漱玉",
-            "(?i)Cleansing\\s*Jade",
-            "漱玉",
-            "수옥"
+            "拍摄在石柱上侧向生长的“漱玉”",
+            "拍攝在石柱上往側邊生長的「漱玉」",
+            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
+            "石柱の横にある「漱玉」の写真を撮る",
+            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
         ]
     },
     "AcceptCleansingJade": {
@@ -172,6 +172,12 @@
         "next": [
             "GoToCleansingJade"
         ]
+    },
+    "CleansingJadeNotAdapted": {
+        "desc": "漱玉任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToCleansingJade": {
         "desc": "前往漱玉，先回到大世界再进行判断",
@@ -291,7 +297,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
         },
         "next": [

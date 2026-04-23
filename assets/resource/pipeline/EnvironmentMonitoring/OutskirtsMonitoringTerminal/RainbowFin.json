@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "七彩鳞",
-            "七彩鱗",
-            "(?i)Rainbow\\s*Fin",
-            "七色鱗獣",
-            "무지개 린수"
+            "拍摄水中的七彩鳞",
+            "拍攝水中的七彩鱗",
+            "(?i)Photograph\\s*the\\s*rainbow\\s*fin\\s*in\\s*the\\s*water",
+            "水中の七色鱗獣の写真を撮る",
+            "물속의 무지개 린수를 촬영하기"
         ]
     },
     "AcceptRainbowFin": {
@@ -172,6 +172,12 @@
         "next": [
             "GoToRainbowFin"
         ]
+    },
+    "RainbowFinNotAdapted": {
+        "desc": "七彩鳞任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToRainbowFin": {
         "desc": "前往七彩鳞，先回到大世界再进行判断",
@@ -319,7 +325,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "RainbowFinAdjustCamera"
         },
         "next": [

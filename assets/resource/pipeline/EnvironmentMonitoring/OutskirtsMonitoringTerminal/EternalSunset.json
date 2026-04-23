@@ -25,11 +25,11 @@
             71
         ],
         "expected": [
-            "栖霞驻影",
-            "棲霞駐影",
-            "(?i)Eternal\\s*Sunset",
-            "棲霞留影",
-            "노을의 그림자"
+            "“栖霞驻影”",
+            "「棲霞駐影」",
+            "(?i)\"Eternal\\s*Sunset\"",
+            "「棲霞留影」",
+            "'노을의 그림자'"
         ],
         "order_by": "Vertical"
     },
@@ -115,11 +115,11 @@
             241
         ],
         "expected": [
-            "栖霞驻影",
-            "棲霞駐影",
-            "(?i)Eternal\\s*Sunset",
-            "棲霞留影",
-            "노을의 그림자"
+            "拍摄生长在亭子中间的“栖霞驻影”",
+            "拍攝生長在亭子中間的「棲霞駐影」",
+            "(?i)Photograph\\s*the\\s*\"Eternal\\s*Sunset\"\\s*growing\\s*in\\s*the\\s*middle\\s*of\\s*the\\s*pavilion",
+            "東屋中央の「棲霞留影」の写真を撮る",
+            "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
         ]
     },
     "AcceptEternalSunset": {
@@ -172,6 +172,12 @@
         "next": [
             "GoToEternalSunset"
         ]
+    },
+    "EternalSunsetNotAdapted": {
+        "desc": "栖霞驻影任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
     },
     "GoToEternalSunset": {
         "desc": "前往栖霞驻影，先回到大世界再进行判断",
@@ -295,7 +301,7 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring",
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "EternalSunsetAdjustCamera"
         },
         "next": [

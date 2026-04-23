@@ -939,5 +939,113 @@
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1": {
+        "desc": "在地图界面找锚点 (首墩-望楼蓄水站)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                496,
+                199
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2": {
+        "desc": "在地图界面找锚点 (首墩-湖心岛)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                418.8,
+                322.3
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3": {
+        "desc": "在地图界面找锚点 (首墩-控制区)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                600.1,
+                328.4
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4": {
+        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                512.9,
+                673.5
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
     }
 }

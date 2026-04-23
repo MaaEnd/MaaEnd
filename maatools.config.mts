@@ -1,10 +1,14 @@
 import type { FullConfig } from '@nekosu/maa-tools'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { fetchCases } from './tests/scripts/loader.mts'
 import parserConfig from './tools/parser'
 
+const cwd = dirname(fileURLToPath(import.meta.url))
+
 const config: FullConfig = {
-  cwd: import.meta.dirname,
+  cwd,
 
   maaVersion: 'latest',
   maaStdoutLevel: 'Error',

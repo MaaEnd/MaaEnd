@@ -2930,9 +2930,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 0
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 0
+                                "target_class": 0,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -2963,9 +2972,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 8
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 8
+                                "target_class": 8,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
