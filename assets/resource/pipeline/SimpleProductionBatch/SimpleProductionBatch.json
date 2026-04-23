@@ -1,28 +1,11 @@
 {
-    "$__mpe_config_SimpleProductionBatch": {
-        "$__mpe_code": {
-            "prefix": "",
-            "savedViewport": {
-                "x": 1148,
-                "y": 616,
-                "zoom": 1.06
-            },
-            "filename": "SimpleProductionBatch",
-            "version": "v1.3.1"
-        }
-    },
+
     "BuckfIowerPowder": {
         "desc": "荞花粉末入口",
         "next": [
             "[JumpBack]CraftFilterstart1",
             "BuckfIowerPowder1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -805,
-                "y": -499
-            }
-        }
+        ]
     },
     "CraftInDijiang0": {
         "desc": "确认已在帝江号舰桥大世界",
@@ -43,29 +26,13 @@
         },
         "next": [
             "CraftMenuMain"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1440,
-                "y": -146
-            }
-        }
+        ]
     },
-    "$__mpe_external_SceneAnyEnterWorld_SimpleProductionBatch": {
-        "$__mpe_code": {
-            "position": {
-                "x": -2082,
-                "y": 400
-            }
-        }
+    "SceneAnyEnterWorld_SimpleProductionBatch": {
+
     },
-    "$__mpe_external_SceneEnterWorldDijiang0_SimpleProductionBatch": {
-        "$__mpe_code": {
-            "position": {
-                "x": -1443,
-                "y": -293
-            }
-        }
+    "SceneEnterWorldDijiang0_SimpleProductionBatch": {
+
     },
     "CraftTeleport": {
         "desc": "前往帝江号节点",
@@ -73,13 +40,7 @@
         "next": [
             "CraftInDijiang0",
             "[JumpBack]SceneEnterWorldDijiang0"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1758,
-                "y": -162
-            }
-        }
+        ]
     },
     "jumpout": {
         "desc": "检测是否材料不足，没有材料直接结束",
@@ -104,38 +65,21 @@
                     "Not enough"
                 ]
             }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 673,
-                "y": -18
-            }
+            
         }
     },
     "craftstart2": {
         "desc": "开始执行批量简易制作",
         "next": [
             "craftCheckIsSimpleProductionPage"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 78,
-                "y": 567
-            }
-        }
+        ]
     },
     "craftSimpleProductionBatchLoop": {
         "desc": "SimpleProductionBatch 的循环模式。能进到这里说明确定是在简易制作页面了，只有执行到无法制作的时候才会退出",
         "pre_delay": 1000,
         "next": [
             "craftCheckIsSimpleProductionPage"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1896,
-                "y": 533
-            }
-        }
+        ]
     },
     "craftCheckMaterialEnough": {
         "desc": "检测背包是否已满，背包已满直接结束",
@@ -160,12 +104,7 @@
                     "Discard"
                 ]
             }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 1272,
-                "y": -264
-            }
+
         }
     },
     "craftCheckIsSimpleProductionPage": {
@@ -191,13 +130,7 @@
             "jumpout",
             "craftClickMaxBtn",
             "craftClickProduceBtn"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 355,
-                "y": 550
-            }
-        }
+        ]
     },
     "craftClickMaxBtn": {
         "desc": "点击最大数量按钮",
@@ -220,13 +153,7 @@
         },
         "next": [
             "craftClickProduceBtn"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 662,
-                "y": 534
-            }
-        }
+        ]
     },
     "craftClickProduceBtn": {
         "desc": "点击制作按钮",
@@ -250,13 +177,7 @@
         "next": [
             "craftCheckMaterialEnough",
             "craftClickSimpleProductionSuccess2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 962,
-                "y": 68
-            }
-        }
+        ]
     },
     "craftClickSimpleProductionRightDown": {
         "action": {
@@ -272,13 +193,7 @@
         },
         "next": [
             "craftSimpleProductionBatchLoop"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1614,
-                "y": 69
-            }
-        }
+        ]
     },
     "Citromix": {
         "desc": "柑实冲剂入口",
@@ -287,13 +202,7 @@
             "Citromix1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -797,
-                "y": -221
-            }
-        }
+        ]
     },
     "CraftStart0": {
         "desc": "进入制作节点",
@@ -302,13 +211,7 @@
             "CraftTeleport",
             "CraftMenuMain",
             "[JumpBack]SceneAnyEnterWorld"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -2709,
-                "y": 604
-            }
-        }
+        ]
     },
     "CraftBag1": {
         "desc": "按下B进入背包",
@@ -322,13 +225,7 @@
         },
         "next": [
             "CraftBag2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -2047,
-                "y": 603
-            }
-        }
+        ]
     },
     "CraftBag2": {
         "recognition": {
@@ -363,13 +260,7 @@
         },
         "next": [
             "CraftStart1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1762,
-                "y": 578
-            }
-        }
+        ]
     },
     "CraftStart1": {
         "desc": "选择制作物品节点",
@@ -377,13 +268,7 @@
             "[JumpBack]CraftEMS",
             "[JumpBack]CraftFine",
             "CraftEnd"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1479,
-                "y": 594
-            }
-        }
+        ]
     },
     "ThornyYazhenPowder": {
         "desc": "荆刺芽针粉末入口",
@@ -392,13 +277,7 @@
             "ThornyYazhenPowder1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -803,
-                "y": 42
-            }
-        }
+        ]
     },
     "FluffedJincaoPowder": {
         "desc": "蓬茸锦草粉末入口",
@@ -407,13 +286,7 @@
             "FluffedJincaoPowder1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -805,
-                "y": 322
-            }
-        }
+        ]
     },
     "PerplexingMedication": {
         "desc": "意乱药剂入口",
@@ -422,13 +295,7 @@
             "PerplexingMedication1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -791,
-                "y": 863
-            }
-        }
+        ]
     },
     "KunstTube": {
         "desc": "红瓶附术铁瓶",
@@ -437,13 +304,7 @@
             "KunstTube1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -797,
-                "y": 1144
-            }
-        }
+        ]
     },
     "ArtsTube": {
         "desc": "绿瓶刻术铁瓶",
@@ -452,13 +313,7 @@
             "ArtsTube1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -815,
-                "y": 1389
-            }
-        }
+        ]
     },
     "GinsengMeatStew": {
         "desc": " 清炖兽排参须汤入口",
@@ -467,13 +322,7 @@
             "GinsengMeatStew1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -812,
-                "y": 1899
-            }
-        }
+        ]
     },
     "YazhenSprayS": {
         "desc": "芽针喷剂入口",
@@ -482,13 +331,7 @@
             "YazhenSprayS1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -810,
-                "y": 2414
-            }
-        }
+        ]
     },
     "CraftFine": {
         "desc": "药剂制作",
@@ -524,13 +367,7 @@
             "[JumpBack]WulingFriedRice",
             "[JumpBack]EchoingRemedy",
             "CraftEnd"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1073,
-                "y": 863
-            }
-        }
+        ]
     },
     "WulingFriedRice": {
         "desc": "武陵炒饭入口",
@@ -539,13 +376,7 @@
             "WulingFriedRice1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -810,
-                "y": 2167
-            }
-        }
+        ]
     },
     "YazhenSprayL": {
         "desc": "大瓶芽针喷剂入口",
@@ -554,13 +385,7 @@
             "YazhenSprayL1",
             "[JumpBack]CraftSortDOWN",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -811,
-                "y": 1636
-            }
-        }
+        ]
     },
     "CraftEMS": {
         "desc": "基础材料制作",
@@ -598,13 +423,7 @@
             "[JumpBack]ThornyYazhenPowder",
             "[JumpBack]FluffedJincaoPowder",
             "CraftEnd"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -1069,
-                "y": 376
-            }
-        }
+        ]
     },
     "CitromixOCR": {
         "recognition": {
@@ -630,29 +449,13 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -275,
-                "y": -232
-            }
-        }
+        ]
     },
-    "$__mpe_external_CraftFilterstart1_SimpleProductionBatch": {
-        "$__mpe_code": {
-            "position": {
-                "x": -264,
-                "y": 595
-            }
-        }
+    "CraftFilterstart1_SimpleProductionBatch": {
+
     },
-    "$__mpe_external_CraftFilterstart2_SimpleProductionBatch": {
-        "$__mpe_code": {
-            "position": {
-                "x": -261,
-                "y": 736
-            }
-        }
+    "CraftFilterstart2_SimpleProductionBatch": {
+
     },
     "BuckfIowerPowderOCR": {
         "recognition": {
@@ -678,13 +481,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -268,
-                "y": -527
-            }
-        }
+        ]
     },
     "FluffedJincaoPowderOCR": {
         "recognition": {
@@ -711,13 +508,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -273,
-                "y": 305
-            }
-        }
+        ]
     },
     "PerplexingMedicationOCR": {
         "recognition": {
@@ -743,13 +534,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -279,
-                "y": 842
-            }
-        }
+        ]
     },
     "KunstTubeOCR": {
         "recognition": {
@@ -775,13 +560,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -274,
-                "y": 1124
-            }
-        }
+        ]
     },
     "ArtsTubeOCR": {
         "recognition": {
@@ -807,13 +586,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -274,
-                "y": 1372
-            }
-        }
+        ]
     },
     "GinsengMeatStewOCR": {
         "recognition": {
@@ -839,13 +612,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -278,
-                "y": 1865
-            }
-        }
+        ]
     },
     "YazhenSprayLOCR": {
         "recognition": {
@@ -871,13 +638,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -276,
-                "y": 1620
-            }
-        }
+        ]
     },
     "YazhenSpraySOCR": {
         "recognition": {
@@ -903,13 +664,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -278,
-                "y": 2403
-            }
-        }
+        ]
     },
     "WulingFriedRiceOCR": {
         "recognition": {
@@ -935,13 +690,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -279,
-                "y": 2131
-            }
-        }
+        ]
     },
     "EchoingRemedy": {
         "desc": "回响秘剂入口",
@@ -950,13 +699,7 @@
             "EchoingRemedy1",
             "[JumpBack]CraftSortUP",
             "[JumpBack]CraftFilterstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -817,
-                "y": 2670
-            }
-        }
+        ]
     },
     "EchoingRemedyOCR": {
         "recognition": {
@@ -982,34 +725,16 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -272,
-                "y": 2658
-            }
-        }
+        ]
     },
     "CraftEnd": {
-        "desc": "未选择直接结束",
-        "$__mpe_code": {
-            "position": {
-                "x": -783,
-                "y": 577
-            }
-        }
+        "desc": "未选择直接结束"
     },
     "CraftMakeALL": {
         "max_hit": 1,
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -2052,
-                "y": 889
-            }
-        }
+        ]
     },
     "ThornyYazhenPowderOCR": {
         "recognition": {
@@ -1036,13 +761,7 @@
         },
         "next": [
             "craftstart2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -277,
-                "y": 27
-            }
-        }
+        ]
     },
     "CraftSortDOWN": {
         "desc": "排序选择降序",
@@ -1065,12 +784,7 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 58,
-                "y": -148
-            }
+
         }
     },
     "CraftSortUP": {
@@ -1094,12 +808,7 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 79,
-                "y": 2039
-            }
+
         }
     },
     "SwipeSearch": {
@@ -1124,12 +833,7 @@
                     200
                 ]
             }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 100,
-                "y": 929
-            }
+
         }
     },
     "BuckfIowerPowder1": {
@@ -1157,13 +861,7 @@
         },
         "next": [
             "BuckfIowerPowderOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -532,
-                "y": -503
-            }
-        }
+        ]
     },
     "Citromix1": {
         "desc": "此处是CraftFilterBTN留下的一个小尾巴用以识别完成了筛选和排序，目的是避免ocr没识别到造成的重复操作，下同",
@@ -1191,13 +889,7 @@
         },
         "next": [
             "CitromixOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -528,
-                "y": -229
-            }
-        }
+        ]
     },
     "ThornyYazhenPowder1": {
         "recognition": {
@@ -1224,13 +916,7 @@
         },
         "next": [
             "ThornyYazhenPowderOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -526,
-                "y": 32
-            }
-        }
+        ]
     },
     "FluffedJincaoPowder1": {
         "recognition": {
@@ -1257,13 +943,7 @@
         },
         "next": [
             "FluffedJincaoPowderOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -529,
-                "y": 302
-            }
-        }
+        ]
     },
     "PerplexingMedication1": {
         "recognition": {
@@ -1290,13 +970,7 @@
         },
         "next": [
             "PerplexingMedicationOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -529,
-                "y": 864
-            }
-        }
+        ]
     },
     "YazhenSprayL1": {
         "recognition": {
@@ -1323,13 +997,7 @@
         },
         "next": [
             "YazhenSprayLOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -539,
-                "y": 1653
-            }
-        }
+        ]
     },
     "GinsengMeatStew1": {
         "recognition": {
@@ -1356,13 +1024,7 @@
         },
         "next": [
             "GinsengMeatStewOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -536,
-                "y": 1938
-            }
-        }
+        ]
     },
     "WulingFriedRice1": {
         "recognition": {
@@ -1389,13 +1051,7 @@
         },
         "next": [
             "WulingFriedRiceOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -540,
-                "y": 2189
-            }
-        }
+        ]
     },
     "YazhenSprayS1": {
         "recognition": {
@@ -1422,13 +1078,7 @@
         },
         "next": [
             "YazhenSpraySOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -536,
-                "y": 2446
-            }
-        }
+        ]
     },
     "EchoingRemedy1": {
         "recognition": {
@@ -1455,13 +1105,7 @@
         },
         "next": [
             "EchoingRemedyOCR"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -536,
-                "y": 2698
-            }
-        }
+        ]
     },
     "ArtsTube1": {
         "recognition": {
@@ -1489,13 +1133,7 @@
         "next": [
             "ArtsTubeOCR",
             "[JumpBack]SwipeSearch"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -534,
-                "y": 1421
-            }
-        }
+        ]
     },
     "KunstTube1": {
         "recognition": {
@@ -1523,13 +1161,7 @@
         "next": [
             "KunstTubeOCR",
             "[JumpBack]SwipeSearch"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -524,
-                "y": 1142
-            }
-        }
+        ]
     },
     "CraftMenuMain": {
         "recognition": {
@@ -1550,13 +1182,7 @@
         "pre_wait_freezes": 500,
         "next": [
             "CraftBag1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -2345,
-                "y": 602
-            }
-        }
+        ]
     },
     "craftClickSimpleProductionSuccess2": {
         "desc": "制作成功确认",
@@ -1579,12 +1205,6 @@
         },
         "next": [
             "craftClickSimpleProductionRightDown"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1270,
-                "y": 43
-            }
-        }
+        ]
     }
 }

@@ -1,41 +1,18 @@
 {
-    "$__mpe_config_CraftFilterBTN": {
-        "$__mpe_code": {
-            "prefix": "",
-            "savedViewport": {
-                "x": -724,
-                "y": -49,
-                "zoom": 0.95
-            },
-            "filename": "CraftFilterBTN",
-            "version": "v1.3.1"
-        }
-    },
+    
     "CraftFilterstart1": {
         "desc": "谷地物品筛选入口",
         "next": [
             "FilterWhite1",
             "FilterBlack1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -490,
-                "y": 11
-            }
-        }
+        ]
     },
     "CraftFilterstart2": {
         "desc": "武陵物品筛选入口",
         "next": [
             "FilterWhite2",
             "FilterBlack2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -475,
-                "y": 666
-            }
-        }
+        ]
     },
     "FilterWhite1": {
         "desc": "点击白按钮",
@@ -59,13 +36,7 @@
         },
         "next": [
             "FilterToValley"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -18,
-                "y": -255
-            }
-        }
+        ]
     },
     "FilterBlack1": {
         "desc": "点击黑按钮",
@@ -89,13 +60,7 @@
         },
         "next": [
             "FilterReset1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -30,
-                "y": 140
-            }
-        }
+        ]
     },
     "FilterWhite2": {
         "desc": "点击白按钮",
@@ -119,13 +84,7 @@
         },
         "next": [
             "FilterToWuling"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -33,
-                "y": 501
-            }
-        }
+        ]
     },
     "FilterBlack2": {
         "desc": "点击黑按钮",
@@ -149,13 +108,7 @@
         },
         "next": [
             "FilterReset2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": -40,
-                "y": 809
-            }
-        }
+        ]
     },
     "FilterToValley": {
         "desc": "点击谷地",
@@ -180,13 +133,7 @@
         "post_delay": 500,
         "next": [
             "CraftSave"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 636,
-                "y": -276
-            }
-        }
+        ]
     },
     "FilterToWuling": {
         "desc": "点击武陵",
@@ -211,13 +158,7 @@
         "post_delay": 500,
         "next": [
             "CraftSave"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 679,
-                "y": 490
-            }
-        }
+        ]
     },
     "FilterReset1": {
         "desc": "重置",
@@ -242,13 +183,7 @@
         "post_wait_freezes": 300,
         "next": [
             "FilterToValley"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 348,
-                "y": 137
-            }
-        }
+        ]
     },
     "CraftSave": {
         "desc": "保存筛选设置",
@@ -272,13 +207,7 @@
         },
         "next": [
             "CraftFilterSortStart"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1039,
-                "y": 310
-            }
-        }
+        ]
     },
     "FilterReset2": {
         "desc": "重置",
@@ -303,26 +232,14 @@
         "post_wait_freezes": 300,
         "next": [
             "FilterToWuling"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 362,
-                "y": 804
-            }
-        }
+        ]
     },
     "CraftFilterSortStart": {
         "pre_delay": 500,
         "next": [
             "CraftFilterSort",
             "CraftFilterSort1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1368,
-                "y": 332
-            }
-        }
+        ]
     },
     "CraftFilterSort1": {
         "desc": "点默认筛选品质",
@@ -355,13 +272,7 @@
         },
         "next": [
             "CraftFilterSort2"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1679,
-                "y": 188
-            }
-        }
+        ]
     },
     "CraftFilterSort2": {
         "desc": "此处不点留作验证",
@@ -383,21 +294,10 @@
         },
         "next": [
             "CraftFinish"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1955,
-                "y": 202
-            }
-        }
+        ]
     },
     "CraftFinish": {
-        "$__mpe_code": {
-            "position": {
-                "x": 2322,
-                "y": 348
-            }
-        }
+
     },
     "CraftFilterSort": {
         "recognition": {
@@ -429,13 +329,7 @@
         },
         "next": [
             "CraftFilterSort4"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1689,
-                "y": 531
-            }
-        }
+        ]
     },
     "CraftFilterSort4": {
         "recognition": {
@@ -460,12 +354,6 @@
         },
         "next": [
             "CraftFilterSort1"
-        ],
-        "$__mpe_code": {
-            "position": {
-                "x": 1984,
-                "y": 534
-            }
-        }
+        ]
     }
 }
