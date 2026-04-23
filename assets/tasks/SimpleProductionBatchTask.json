@@ -52,7 +52,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "craft2tele": {
+                        "CraftTeleport": {
                             "enabled": true
                         }
                     }
@@ -60,7 +60,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "craft2tele": {
+                        "CraftTeleport": {
                             "enabled": false
                         }
                     }
@@ -88,7 +88,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DeliveryJobsValleyIV": {
+                        "CraftEMS": {
                             "enabled": false
                         }
                     }
