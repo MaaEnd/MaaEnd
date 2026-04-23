@@ -48,8 +48,8 @@
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockInStapleItemDiscounts",
                     "AutoStockInStapleItemName",
+                    "AutoStockInStapleItemDiscountsWuling",
                     "AutoStockTargetCanBuy"
                 ],
                 "box_index": 2
@@ -59,8 +59,8 @@
             "type": "Click",
             "param": {
                 "target_offset": [
-                    0,
-                    -40,
+                    -20,
+                    40,
                     0,
                     0
                 ]
@@ -94,6 +94,15 @@
                 ],
                 "dx": 120
             }
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                101,
+                131,
+                106,
+                548
+            ]
         }
     }
 }

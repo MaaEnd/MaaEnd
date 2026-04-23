@@ -243,26 +243,38 @@
     },
     "CreditShoppingReserveCreditOCRInternal": {
         "desc": "识别当前信用点",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingReserveCreditOCRInternalColor",
+                    "CreditShoppingReserveCreditOCRInternalText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "CreditShoppingReserveCreditOCRInternalText": {
         "recognition": "OCR",
-        "roi": [
-            1123,
-            21,
-            38,
-            17
+        "roi": "CreditShoppingReserveCreditOCRInternalColor",
+        "roi_offset": [
+            -1,
+            -1,
+            2,
+            2
         ],
         "expected": "^\\d+$",
-        "only_rec": true,
-        "color_filter": "CreditShoppingReserveCreditOCRInternalColor"
+        "only_rec": true
     },
     "CreditShoppingReserveCreditOCRInternalColor": {
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    1083,
-                    17,
-                    114,
-                    27
+                    1084,
+                    0,
+                    133,
+                    66
                 ],
                 "method": 6,
                 "lower": [

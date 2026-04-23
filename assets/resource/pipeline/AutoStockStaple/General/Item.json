@@ -45,49 +45,59 @@
             }
         }
     },
-    "AutoStockInStapleItemDiscounts": {
-        "desc": "识别商品折扣信息框，用于后续识别",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "AutoStockInStapleItem",
-                "roi_offset": [
-                    79,
-                    -17,
-                    10,
-                    29
-                ],
-                "method": 40,
-                "lower": [
-                    26,
-                    255,
-                    255
-                ],
-                "upper": [
-                    26,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 300,
-                "order_by": "Vertical"
-            }
-        }
-    },
     "AutoStockInStapleItemName": {
         "desc": "识别商品名称",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockInStapleItemDiscounts",
+                "roi": "AutoStockInStapleItem",
                 "roi_offset": [
-                    -91,
-                    165,
-                    95,
+                    -4,
+                    163,
+                    88,
                     22
                 ],
                 "expected": [],
                 "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWuling": {
+        "desc": "识别商品折扣信息框，武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemName",
+                "roi_offset": [
+                    54,
+                    -176,
+                    -7,
+                    11
+                ],
+                "expected": [
+                    "85|80|75|50|25"
+                ],
+                "order_by": "Vertical",
+                "only_rec": true
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsValleyIV": {
+        "desc": "识别商品折扣信息框，四号谷地",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemName",
+                "roi_offset": [
+                    54,
+                    -176,
+                    -7,
+                    11
+                ],
+                "expected": [
+                    "95|90|85|80|75|50|25"
+                ],
+                "only_rec": true
             }
         }
     },
@@ -240,26 +250,26 @@
                     "GreenMask": true,
                     "Quantity": {
                         "Box": [
-                            367,
-                            473,
-                            102,
-                            94
+                            375,
+                            508,
+                            36,
+                            24
                         ],
-                        "OnlyRec": false
-                    },
-                    "QuantityFilter": {
-                        "lower": [
-                            28,
-                            100,
-                            100
-                        ],
-                        "upper": [
-                            28,
-                            255,
-                            255
-                        ],
-                        "method": 40
+                        "OnlyRec": true
                     }
+                    //"QuantityFilter": {
+                    //    "lower": [
+                    //        28,
+                    //        100,
+                    //        100
+                    //    ],
+                    //    "upper": [
+                    //        28,
+                    //        255,
+                    //        255
+                    //    ],
+                    //    "method": 40
+                    //}
                 }
             }
         },

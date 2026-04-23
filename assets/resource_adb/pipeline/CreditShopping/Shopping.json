@@ -7,20 +7,12 @@
             25
         ]
     },
-    "CreditShoppingReserveCreditOCRInternal": {
-        "roi": [
-            1082,
-            26,
-            49,
-            21
-        ]
-    },
     "CreditShoppingReserveCreditOCRInternalColor": {
         "roi": [
-            1034,
-            20,
-            138,
-            35
+            1037,
+            0,
+            160,
+            59
         ]
     },
     "ADBSpecial": {

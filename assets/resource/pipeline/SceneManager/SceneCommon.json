@@ -22,6 +22,32 @@
         },
         "post_delay": 0
     },
+    "__ScenePrivateEndVisit": {
+        "desc": "识别处于好友飞船大世界",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    199,
+                    126
+                ],
+                "expected": [
+                    "离开",
+                    "離開",
+                    "(?i)Leave",
+                    "退出"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
+    },
     "__ScenePrivateEndVisitConfirm": {
         "desc": "识别结束拜访的确认弹框",
         "recognition": {

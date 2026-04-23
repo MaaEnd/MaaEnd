@@ -678,5 +678,6 @@
     "resource/image/BatchUseDetector/WulingCompass": "40200dc5324d7aefa546c4aa2885d4c16751f832ccf691f361acfe64763f4bd0",
     "resource/image/BatchUseDetector/WulingDetector": "39f8cda6ceeb9b06abf87d8eaaf293541ec64b1f46b8b7e1ca30501137df6213",
     "resource/image/BatchUseDetector/ValleyIVCompass": "1ffca727d8e689823edaa19df6b82502499dce7e30610cb4b4987e0355fc9f23",
-    "resource/image/BatchUseDetector/ValleyIVDetector": "833a331a8a706e8c234212355b7ee66dcd18849db59c75d920458935268462d9"
+    "resource/image/BatchUseDetector/ValleyIVDetector": "833a331a8a706e8c234212355b7ee66dcd18849db59c75d920458935268462d9",
+    "resource/image/SceneManager/BackToMainMap": "35d5bf3e3a58fcffdd146f079f6fc9f0862bf3a1b713ce64f4edc225981fff8a"
 }

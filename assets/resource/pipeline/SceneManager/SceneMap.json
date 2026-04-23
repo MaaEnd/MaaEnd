@@ -387,8 +387,9 @@
         ]
     },
     "__ScenePrivateAnyEnterMapSuccess": {
-        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡",
+        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡，并且在顶层地图",
         "recognition": "And",
+        "box_index": 2,
         "all_of": [
             {
                 "recognition": "TemplateMatch",
@@ -418,9 +419,32 @@
                     "業務通知",
                     "업무 알림"
                 ]
+            },
+            {
+                "recognition": {
+                    "type": "TemplateMatch",
+                    "param": {
+                        "roi": [
+                            29,
+                            504,
+                            186,
+                            185
+                        ],
+                        "template": [
+                            "SceneManager/BackToMainMap.png"
+                        ]
+                    }
+                }
             }
         ],
-        "pre_wait_freezes": 100,
+        "action": "Click",
+        "target_offset": [
+            7,
+            7,
+            -14,
+            -14
+        ],
+        "post_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },

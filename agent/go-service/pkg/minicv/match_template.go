@@ -500,54 +500,54 @@ func MatchTemplateAnyScale(
 
 		workerCount := min(stepCount, 8)
 		results := make([]result, stepCount)
-		runMatchWorkers(workerCount, func(id int) {
-			for idx := id; idx < stepCount; idx += workerCount {
-				scale := minScale
-				if stepCount == 1 {
-					scale = (minScale + maxScale) * 0.5
-				} else {
-					scale = minScale + float64(idx)*stepLen
-				}
 
-				if scale <= 0 {
-					results[idx] = result{idx: idx, scale: scale, score: -1.0, valid: false}
-					continue
-				}
+		var wg sync.WaitGroup
+		wg.Add(workerCount)
+		for workerID := range workerCount {
+			go func(id int) {
+				defer wg.Done()
 
-				scaledTpl := ImageScale(tpl, scale)
-				scaledStats := GetImageStats(scaledTpl)
-				if scaledStats.Std < 1e-12 {
+				for idx := id; idx < stepCount; idx += workerCount {
+					scale := minScale
+					if stepCount == 1 {
+						scale = (minScale + maxScale) * 0.5
+					} else {
+						scale = minScale + float64(idx)*stepLen
+					}
+
+					if scale <= 0 {
+						results[idx] = result{idx: idx, scale: scale, score: -1.0, valid: false}
+						continue
+					}
+
+					scaledTpl := ImageScale(tpl, scale)
+					scaledStats := GetImageStats(scaledTpl)
+					if scaledStats.Std < 1e-12 {
+						results[idx] = result{idx: idx, scale: scale, score: -1.0, valid: false}
+						continue
+					}
+
+					x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
 					results[idx] = result{
 						idx:   idx,
 						scale: scale,
-						score: -1.0,
-						valid: false,
+						x:     x,
+						y:     y,
+						score: score,
+						valid: true,
 					}
-					continue
 				}
-
-				x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
-
-				results[idx] = result{
-					idx:   idx,
-					scale: scale,
-					x:     x,
-					y:     y,
-					score: score,
-					valid: true,
-				}
-			}
-		})
+			}(workerID)
+		}
+		wg.Wait()
 
 		for _, res := range results {
-			if res.valid {
-				if res.score > iterBestScore {
-					iterBestScore = res.score
-					iterBestX = res.x
-					iterBestY = res.y
-					iterBestScale = res.scale
-					iterBestIdx = res.idx
-				}
+			if res.valid && res.score > iterBestScore {
+				iterBestScore = res.score
+				iterBestX = res.x
+				iterBestY = res.y
+				iterBestScale = res.scale
+				iterBestIdx = res.idx
 			}
 		}
 

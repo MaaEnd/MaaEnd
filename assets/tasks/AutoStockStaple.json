@@ -736,21 +736,26 @@
             }
         },
         "AutoStockUseDiscountsValleyIV": {
-            "type": "switch",
+            "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
-            "default_case": "Yes",
+            "default_case": "70",
             "cases": [
                 {
-                    "name": "Yes"
-                },
-                {
-                    "name": "No",
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "AutoStockInStapleItemDiscounts": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
+                                    "roi": "AutoStockInStapleItemName",
+                                    "roi_offset": [
+                                        54,
+                                        -176,
+                                        -7,
+                                        11
+                                    ],
                                     "lower": [
                                         0,
                                         0,
@@ -760,6 +765,96 @@
                                         255,
                                         255,
                                         255
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "95",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.95.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "90",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.90.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "85",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.85.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "80",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.80.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "80|85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "75",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.75.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "75|80|85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "70",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.70.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "70|75|80|85|90|95|99"
                                     ]
                                 }
                             }
@@ -1277,10 +1372,10 @@
                         "AutoStockInStapleItemName": {
                             "attach": {
                                 "chubby_lung_fangxing_memorabilia": [
-                                    "龙泡泡·方兴纪念",
-                                    "龍泡泡·方興紀念",
+                                    "方兴纪念",
+                                    "方興紀念",
                                     "Chubby Lung: Fangxing Memorabilia",
-                                    "龍泡泡・方興記念",
+                                    "方興記念",
                                     "드래곤 버블 · 방흥 에디션"
                                 ]
                             }
@@ -1398,21 +1493,27 @@
             }
         },
         "AutoStockUseDiscountsWuling": {
-            "type": "switch",
+            "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
-            "default_case": "Yes",
+            "default_case": "70",
             "cases": [
                 {
-                    "name": "Yes"
-                },
-                {
-                    "name": "No",
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "AutoStockInStapleItemDiscounts": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
+                                    "roi": "AutoStockInStapleItem",
+                                    "roi_offset": [
+                                        54,
+                                        -176,
+                                        -7,
+                                        11
+                                    ],
+                                    "method": 40,
                                     "lower": [
                                         0,
                                         0,
@@ -1422,6 +1523,97 @@
                                         255,
                                         255,
                                         255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "95",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.95.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "90",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.90.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "85",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.85.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "80",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.80.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "80|85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "75",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.75.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "75|80|85|90|95|99"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "70",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.70.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "70|75|80|85|90|95|99"
                                     ]
                                 }
                             }
