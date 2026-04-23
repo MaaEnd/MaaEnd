@@ -17,7 +17,8 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmValleyIV",
-            "_AutoEcoFarmGotoEcoFarmAnchor": "_AutoEcoFarmGotoEcoFarmValleyIV",
+            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoValleyIV",
+            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmValleyIV",
             //AutoEcoFarmSwipeToTarget.json 拉近标记部分
@@ -36,8 +37,8 @@
         ]
     },
     //不同地区前往农场的寻路节点，使用Maptracker的节点，改节点名和custom_action_param，具体方法参考对应的文档
-    "_AutoEcoFarmGotoEcoFarmValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场",
+    "_AutoEcoFarmGotoEcoFarmGoValleyIV": {
+        "desc": "[ValleyIV版]前往生态农场Go版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
@@ -114,6 +115,230 @@
                 [
                     570.8,
                     343.0
+                ]
+            ]
+        },
+        "next": [
+            //JumpBack
+        ]
+    },
+    "_AutoEcoFarmGotoEcoFarmCppValleyIV": {
+        "desc": "[ValleyIV版]前往生态农场cpp版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    1293,
+                    763
+                ],
+                [
+                    1293,
+                    765
+                ],
+                [
+                    1292,
+                    766
+                ],
+                [
+                    1292,
+                    768
+                ],
+                [
+                    1292,
+                    770
+                ],
+                [
+                    1292,
+                    771
+                ],
+                [
+                    1292,
+                    773
+                ],
+                [
+                    1293,
+                    775
+                ],
+                [
+                    1293,
+                    776
+                ],
+                [
+                    1293,
+                    778
+                ],
+                [
+                    1294,
+                    780
+                ],
+                [
+                    1295,
+                    781
+                ],
+                [
+                    1295,
+                    783
+                ],
+                [
+                    1296,
+                    785
+                ],
+                [
+                    1296,
+                    786
+                ],
+                [
+                    1297,
+                    788
+                ],
+                [
+                    1297,
+                    790
+                ],
+                [
+                    1298,
+                    791
+                ],
+                [
+                    1298,
+                    793
+                ],
+                [
+                    1298,
+                    794
+                ],
+                [
+                    1298,
+                    796
+                ],
+                [
+                    1297,
+                    797
+                ],
+                [
+                    1296,
+                    799
+                ],
+                [
+                    1295,
+                    800
+                ],
+                [
+                    1294,
+                    802
+                ],
+                [
+                    1294,
+                    803
+                ],
+                [
+                    1294,
+                    805
+                ],
+                [
+                    1294,
+                    807
+                ],
+                [
+                    1295,
+                    808
+                ],
+                [
+                    1296,
+                    810
+                ],
+                [
+                    1297,
+                    811
+                ],
+                [
+                    1298,
+                    813
+                ],
+                [
+                    1299,
+                    814
+                ],
+                [
+                    1302,
+                    816
+                ],
+                [
+                    1304,
+                    818
+                ],
+                [
+                    1305,
+                    820
+                ],
+                [
+                    1307,
+                    821
+                ],
+                [
+                    1308,
+                    823
+                ],
+                [
+                    1310,
+                    825
+                ],
+                [
+                    1311,
+                    828
+                ],
+                [
+                    1312,
+                    830
+                ],
+                [
+                    1315,
+                    841
+                ],
+                [
+                    1315,
+                    844
+                ],
+                [
+                    1317,
+                    846
+                ],
+                [
+                    1319,
+                    847
+                ],
+                [
+                    1321,
+                    848
+                ],
+                [
+                    1323,
+                    849
+                ],
+                [
+                    1325,
+                    850
+                ],
+                [
+                    1327,
+                    851
+                ],
+                [
+                    1332,
+                    853
+                ],
+                [
+                    1337.54,
+                    856.11
                 ]
             ]
         },

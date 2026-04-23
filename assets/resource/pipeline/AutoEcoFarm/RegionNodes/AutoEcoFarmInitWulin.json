@@ -17,7 +17,8 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
-            "_AutoEcoFarmGotoEcoFarmAnchor": "_AutoEcoFarmGotoEcoFarmWulin",
+            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
+            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
             //AutoEcoFarmSwipeToTarget.json 拉近标记部分
@@ -37,8 +38,8 @@
         ]
     },
     //不同地区前往农场的寻路节点，使用Maptracker的节点，改custom_action_param，具体方法参考对应的文档
-    "_AutoEcoFarmGotoEcoFarmWulin": {
-        "desc": "[Wulin版]前往生态农场",
+    "_AutoEcoFarmGotoEcoFarmGoWulin": {
+        "desc": "[Wulin版]前往生态农场Go版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
@@ -49,8 +50,8 @@
             "fine_approach": "Never",
             "path": [
                 [
-                    386.3,
-                    237.1
+                    386.2,
+                    250.0
                 ],
                 [
                     386.2,
@@ -99,6 +100,150 @@
                 [
                     443.7,
                     193.2
+                ]
+            ]
+        },
+        "next": [
+            //JumpBack
+        ]
+    },
+    "_AutoEcoFarmGotoEcoFarmCppWulin": {
+        "desc": "[Wulin版]前往生态农场cpp版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    666,
+                    240
+                ],
+                [
+                    667,
+                    239
+                ],
+                [
+                    668,
+                    237
+                ],
+                [
+                    670,
+                    236
+                ],
+                [
+                    682,
+                    229
+                ],
+                [
+                    685,
+                    228
+                ],
+                [
+                    687,
+                    227
+                ],
+                [
+                    689,
+                    226
+                ],
+                [
+                    691,
+                    226
+                ],
+                [
+                    699,
+                    226
+                ],
+                [
+                    710,
+                    224
+                ],
+                [
+                    711,
+                    222
+                ],
+                [
+                    713,
+                    217
+                ],
+                [
+                    712,
+                    215
+                ],
+                [
+                    712,
+                    212
+                ],
+                [
+                    711,
+                    210
+                ],
+                [
+                    710,
+                    207
+                ],
+                [
+                    710,
+                    205
+                ],
+                [
+                    709,
+                    202
+                ],
+                [
+                    709,
+                    200
+                ],
+                [
+                    709,
+                    197
+                ],
+                [
+                    709,
+                    195
+                ],
+                [
+                    709,
+                    192
+                ],
+                [
+                    709,
+                    190
+                ],
+                [
+                    710,
+                    187
+                ],
+                [
+                    712,
+                    185
+                ],
+                [
+                    714,
+                    186
+                ],
+                [
+                    717,
+                    186
+                ],
+                [
+                    719,
+                    186
+                ],
+                [
+                    722,
+                    188
+                ],
+                [
+                    724,
+                    190
                 ]
             ]
         },

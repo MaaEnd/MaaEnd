@@ -12,6 +12,7 @@
             "option": [
                 "SelectFarm",
                 "FarmlandFindingScheme",
+                "GotoEcoFarmPathMethod",
                 "AutoEcoFarmClearBagBeforeTasks",
                 "AutoEcoFarmClearBagAfterTasks"
             ],
@@ -155,6 +156,51 @@
                         },
                         "_AutoEcoFarmInAnyFarm": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GotoEcoFarmPathMethod": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.label",
+            "description": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description",
+            "default_case": "MapNavigator",
+            "cases": [
+                {
+                    "name": "MapTracker",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmGoAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MapNavigator",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[2].label",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmCppAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ManualFarmBottomRight",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
                         }
                     }
                 }
