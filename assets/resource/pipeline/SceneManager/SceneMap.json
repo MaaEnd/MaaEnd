@@ -387,7 +387,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMapSuccess": {
-        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡,并且在顶层地图",
+        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡，并且在顶层地图",
         "recognition": "And",
         "box_index": 2,
         "all_of": [
@@ -444,7 +444,7 @@
             -14,
             -14
         ],
-        "pre_wait_freezes": 100,
+        "post_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
