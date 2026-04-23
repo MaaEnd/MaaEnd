@@ -232,6 +232,7 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP)
 function buildItemCases(nodePrefix, itemNum, itemIds) {
     const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
     const attemptKey = `SellProduct${nodePrefix}SellAttempt${itemNum}`;
+    const betterSlidingKey = `SellProduct${nodePrefix}BetterSliding${itemNum}`;
     const cases = [
         {
             name: "无",
@@ -241,6 +242,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                     anchor: {
                         SellProductSelectNewGood: selectKey,
                         SellProductPriorityGoodMissHandler: "",
+                        SellProductBetterSliding: betterSlidingKey,
                     },
                 },
             },
@@ -260,6 +262,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                         SellProductSelectNewGood: selectKey,
                         SellProductPriorityGoodMissHandler:
                             "SellProductPriorityGoodMissWarning",
+                        SellProductBetterSliding: betterSlidingKey,
                     },
                 },
             },

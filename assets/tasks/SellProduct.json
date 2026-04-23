@@ -196,7 +196,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     }
@@ -216,7 +217,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -237,7 +239,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -258,7 +261,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -279,7 +283,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -300,7 +305,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -321,7 +327,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -342,7 +349,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -363,7 +371,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -384,7 +393,8 @@
                         "SellProductInfrastructureOutpostSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
                             }
                         }
                     },
@@ -406,7 +416,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     }
@@ -426,7 +437,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -447,7 +459,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -468,7 +481,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -489,7 +503,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -510,7 +525,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -531,7 +547,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -552,7 +569,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -573,7 +591,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -594,7 +613,8 @@
                         "SellProductInfrastructureOutpostSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
                             }
                         }
                     },
@@ -616,7 +636,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     }
@@ -636,7 +657,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -657,7 +679,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -678,7 +701,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -699,7 +723,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -720,7 +745,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -741,7 +767,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -762,7 +789,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -783,7 +811,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -804,7 +833,8 @@
                         "SellProductInfrastructureOutpostSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
                             }
                         }
                     },
@@ -826,7 +856,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     }
@@ -846,7 +877,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -867,7 +899,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -888,7 +921,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -909,7 +943,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -930,7 +965,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -951,7 +987,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -972,7 +1009,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -993,7 +1031,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -1014,7 +1053,8 @@
                         "SellProductInfrastructureOutpostSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
                             }
                         }
                     },
@@ -1326,7 +1366,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     }
@@ -1346,7 +1387,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1367,7 +1409,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1388,7 +1431,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1409,7 +1453,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1430,7 +1475,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1451,7 +1497,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1472,7 +1519,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1493,7 +1541,8 @@
                         "SellProductReconstructionCommandSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
                             }
                         }
                     },
@@ -1515,7 +1564,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     }
@@ -1535,7 +1585,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1556,7 +1607,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1577,7 +1629,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1598,7 +1651,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1619,7 +1673,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1640,7 +1695,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1661,7 +1717,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1682,7 +1739,8 @@
                         "SellProductReconstructionCommandSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
                             }
                         }
                     },
@@ -1704,7 +1762,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     }
@@ -1724,7 +1783,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1745,7 +1805,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1766,7 +1827,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1787,7 +1849,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1808,7 +1871,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1829,7 +1893,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1850,7 +1915,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1871,7 +1937,8 @@
                         "SellProductReconstructionCommandSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
                             }
                         }
                     },
@@ -1893,7 +1960,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     }
@@ -1913,7 +1981,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -1934,7 +2003,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -1955,7 +2025,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -1976,7 +2047,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -1997,7 +2069,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -2018,7 +2091,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -2039,7 +2113,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -2060,7 +2135,8 @@
                         "SellProductReconstructionCommandSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
                             }
                         }
                     },
@@ -2372,7 +2448,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     }
@@ -2392,7 +2469,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2413,7 +2491,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2434,7 +2513,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2455,7 +2535,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2476,7 +2557,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2497,7 +2579,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2518,7 +2601,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2539,7 +2623,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2560,7 +2645,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2581,7 +2667,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2601,7 +2688,8 @@
                         "SellProductRefugeeCampSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
                             }
                         }
                     },
@@ -2623,7 +2711,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     }
@@ -2643,7 +2732,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2664,7 +2754,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2685,7 +2776,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2706,7 +2798,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2727,7 +2820,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2748,7 +2842,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2769,7 +2864,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2790,7 +2886,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2811,7 +2908,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2832,7 +2930,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2852,7 +2951,8 @@
                         "SellProductRefugeeCampSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
                             }
                         }
                     },
@@ -2874,7 +2974,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     }
@@ -2894,7 +2995,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -2915,7 +3017,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -2936,7 +3039,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -2957,7 +3061,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -2978,7 +3083,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -2999,7 +3105,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3020,7 +3127,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3041,7 +3149,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3062,7 +3171,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3083,7 +3193,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3103,7 +3214,8 @@
                         "SellProductRefugeeCampSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
                             }
                         }
                     },
@@ -3125,7 +3237,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     }
@@ -3145,7 +3258,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3166,7 +3280,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3187,7 +3302,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3208,7 +3324,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3229,7 +3346,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3250,7 +3368,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3271,7 +3390,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3292,7 +3412,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3313,7 +3434,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3334,7 +3456,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3354,7 +3477,8 @@
                         "SellProductRefugeeCampSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
                             }
                         }
                     },
@@ -3694,7 +3818,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     }
@@ -3714,7 +3839,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3735,7 +3861,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3756,7 +3883,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3777,7 +3905,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3798,7 +3927,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3819,7 +3949,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3839,7 +3970,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3859,7 +3991,8 @@
                         "SellProductCardiacRemediationStationSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
                             }
                         }
                     },
@@ -3881,7 +4014,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     }
@@ -3901,7 +4035,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -3922,7 +4057,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -3943,7 +4079,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -3964,7 +4101,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -3985,7 +4123,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -4006,7 +4145,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -4026,7 +4166,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -4046,7 +4187,8 @@
                         "SellProductCardiacRemediationStationSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
                             }
                         }
                     },
@@ -4068,7 +4210,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     }
@@ -4088,7 +4231,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4109,7 +4253,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4130,7 +4275,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4151,7 +4297,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4172,7 +4319,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4193,7 +4341,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4213,7 +4362,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4233,7 +4383,8 @@
                         "SellProductCardiacRemediationStationSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
                             }
                         }
                     },
@@ -4255,7 +4406,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     }
@@ -4275,7 +4427,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4296,7 +4449,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4317,7 +4471,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4338,7 +4493,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4359,7 +4515,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4380,7 +4537,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4400,7 +4558,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4420,7 +4579,8 @@
                         "SellProductCardiacRemediationStationSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
                             }
                         }
                     },
@@ -4732,7 +4892,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     }
@@ -4752,7 +4913,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4773,7 +4935,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4794,7 +4957,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4815,7 +4979,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4836,7 +5001,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4857,7 +5023,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4878,7 +5045,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4899,7 +5067,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4920,7 +5089,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4940,7 +5110,8 @@
                         "SellProductSkyKingFlatsSellAttempt1": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
                             }
                         }
                     },
@@ -4962,7 +5133,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     }
@@ -4982,7 +5154,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5003,7 +5176,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5024,7 +5198,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5045,7 +5220,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5066,7 +5242,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5087,7 +5264,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5108,7 +5286,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5129,7 +5308,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5150,7 +5330,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5170,7 +5351,8 @@
                         "SellProductSkyKingFlatsSellAttempt2": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
                             }
                         }
                     },
@@ -5192,7 +5374,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     }
@@ -5212,7 +5395,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5233,7 +5417,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5254,7 +5439,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5275,7 +5461,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5296,7 +5483,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5317,7 +5505,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5338,7 +5527,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5359,7 +5549,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5380,7 +5571,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5400,7 +5592,8 @@
                         "SellProductSkyKingFlatsSellAttempt3": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
                             }
                         }
                     },
@@ -5422,7 +5615,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": ""
+                                "SellProductPriorityGoodMissHandler": "",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     }
@@ -5442,7 +5636,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5463,7 +5658,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5484,7 +5680,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5505,7 +5702,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5526,7 +5724,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5547,7 +5746,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5568,7 +5768,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5589,7 +5790,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5610,7 +5812,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
@@ -5630,7 +5833,8 @@
                         "SellProductSkyKingFlatsSellAttempt4": {
                             "anchor": {
                                 "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
+                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
                             }
                         }
                     },
