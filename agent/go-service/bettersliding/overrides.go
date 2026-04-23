@@ -29,7 +29,10 @@ func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilte
 		nodeBetterSlidingSwipeToMax: map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
-					"end": append([]int(nil), end...),
+					"end": []any{
+						nodeBetterSlidingFindStart,
+						append([]int(nil), end...),
+					},
 				},
 			},
 		},
