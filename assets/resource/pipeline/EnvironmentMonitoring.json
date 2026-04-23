@@ -10,7 +10,7 @@
         "desc": "环境监测循环",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+            "EnvironmentMonitoringCheckMonitoringTerminalText"
         ],
         "next": [
             "[JumpBack]OutskirtsMonitoringTerminal",

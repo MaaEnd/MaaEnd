@@ -418,7 +418,7 @@
         "desc": "在武陵地区建设界面，进入环境监测界面成功",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+            "EnvironmentMonitoringCheckMonitoringTerminalText"
         ],
         "pre_wait_freezes": {
             "time": 80,
