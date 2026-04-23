@@ -314,13 +314,15 @@
                 ]
             },
             "Direction": "right",
-            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [
+            "SellProductSell"
+        ]
     },
     "SellProduct${LocationId}BetterSliding2": {
         "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 将进度条拖到最大",
@@ -340,13 +342,15 @@
                 ]
             },
             "Direction": "right",
-            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [
+            "SellProductSell"
+        ]
     },
     "SellProduct${LocationId}BetterSliding3": {
         "desc": "${LocationDesc}第3次尝试-使用 BetterSliding 将进度条拖到最大",
@@ -366,13 +370,15 @@
                 ]
             },
             "Direction": "right",
-            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [
+            "SellProductSell"
+        ]
     },
     "SellProduct${LocationId}BetterSliding4": {
         "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 将进度条拖到最大",
@@ -392,12 +398,14 @@
                 ]
             },
             "Direction": "right",
-            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-            "IncreaseButton": "AutoStockpile/IncreaseButton.png"
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [
+            "SellProductSell"
+        ]
     }
 }
