@@ -342,12 +342,7 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "Quantity": {
-                "Box": [
-                    1064,
-                    528,
-                    138,
-                    36
-                ]
+                "Box": "${QuantityBox}"
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -371,12 +366,7 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "Quantity": {
-                "Box": [
-                    1064,
-                    528,
-                    138,
-                    36
-                ]
+                "Box": "${QuantityBox}"
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -400,12 +390,7 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "Quantity": {
-                "Box": [
-                    1064,
-                    528,
-                    138,
-                    36
-                ]
+                "Box": "${QuantityBox}"
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -429,12 +414,7 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "Quantity": {
-                "Box": [
-                    1064,
-                    528,
-                    138,
-                    36
-                ]
+                "Box": "${QuantityBox}"
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",

@@ -14,7 +14,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
     "SellProductCardiacRemediationStationBetterSliding2": {
@@ -32,7 +33,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
     "SellProductCardiacRemediationStationBetterSliding3": {
@@ -50,7 +52,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
     "SellProductCardiacRemediationStationBetterSliding4": {
@@ -68,7 +71,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     }
 }

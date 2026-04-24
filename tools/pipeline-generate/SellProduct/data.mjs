@@ -270,12 +270,19 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
     return cases;
 }
 
+// ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
+// 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
+const QUANTITY_BOX = [1064, 528, 138, 36];
+const QUANTITY_BOX_ADB = [1049, 499, 138, 36];
+
 export const settlementFlatRows = LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
     SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
     LocationId: loc.LocationId,
     LocationDesc: loc.LocationDesc,
     TextExpected: loc.TextExpected,
+    QuantityBox: QUANTITY_BOX,
+    QuantityBoxAdb: QUANTITY_BOX_ADB,
     ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
     ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
     ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
