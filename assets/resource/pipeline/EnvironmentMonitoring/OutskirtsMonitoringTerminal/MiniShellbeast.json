@@ -291,20 +291,16 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    240.3,
-                    703.6
+                    239.8,
+                    704.8
                 ],
                 [
-                    214.6,
-                    703.7
+                    214.7,
+                    706.1
                 ],
                 [
-                    214,
-                    708.3
-                ],
-                [
-                    182.8,
-                    707.9
+                    216.1,
+                    702.7
                 ]
             ]
         },
@@ -320,7 +316,7 @@
         "desc": "小壳兽任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenLeft"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

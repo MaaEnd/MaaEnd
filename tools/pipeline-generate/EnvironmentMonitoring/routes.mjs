@@ -227,12 +227,11 @@ export const ROUTE_CONFIG = [
         MapName: "map02_lv002",
         MapTarget: [238.6, 694.1, 15.2, 14.6],
         MapPath: [
-            [240.3, 703.6],
-            [214.6, 703.7],
-            [214.0, 708.3],
-            [182.8, 707.9]
+            [239.8, 704.8],
+            [214.7, 706.1],
+            [216.1, 702.7]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
         Name: "环形瀑布",
