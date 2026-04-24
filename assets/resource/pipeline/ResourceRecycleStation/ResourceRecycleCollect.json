@@ -146,6 +146,7 @@
 
     "ResourceRecycleCheckLimitWuling": {
         "desc": "武陵列表已达上限，滑动查看更多",
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             33,
@@ -158,7 +159,6 @@
             "(?i)Full",
             "최대"
         ],
-        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             165,
@@ -181,6 +181,7 @@
 
     "ResourceRecycleCheckLimitValleyIV": {
         "desc": "四号谷地列表已达上限，滑动查看更多",
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             33,
@@ -193,7 +194,6 @@
             "(?i)Full",
             "최대"
         ],
-        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             165,

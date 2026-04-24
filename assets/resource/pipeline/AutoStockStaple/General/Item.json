@@ -77,8 +77,8 @@
                 "expected": [
                     "85|80|75|50|25"
                 ],
-                "order_by": "Vertical",
-                "only_rec": true
+                "only_rec": true,
+                "order_by": "Vertical"
             }
         }
     },
