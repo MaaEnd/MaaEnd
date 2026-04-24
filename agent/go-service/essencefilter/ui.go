@@ -354,6 +354,12 @@ func logCalculatorResult(ctx *maa.Context) {
 			Str("path", planRecommendHTMLPath).
 			Err(err).
 			Msg("failed to write EssencePlan.html")
+		LogMXUSimpleHTML(ctx,
+			`<span style="color:#ff4d4f;font-weight:700;">保存 EssencePlan.html 失败</span><br/>路径：`+
+				html.EscapeString(planRecommendHTMLPath)+
+				`<br/>错误：`+
+				html.EscapeString(err.Error()),
+		)
 	} else {
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.html_saved"))
 	}
