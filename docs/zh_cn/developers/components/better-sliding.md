@@ -195,7 +195,8 @@ clickY = startY + (endY - startY) * numerator / denominator
 | `GreenMask`               | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。                                                                                        |
 | `Quantity.Box`            | `int[4]`                | 是\* | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。仅滑动模式下忽略。                                                                                              |
 | `MaxQuantity.Box`         | `int[4]`                | 否   | `BetterSlidingGetMaxQuantity` 用于识别“最大可选数量”的 OCR 区域，格式固定为 `[x, y, w, h]`。若整个 `MaxQuantity` 都未填写，go-service 会回落到 `Quantity`。 |
-| `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                           |
+| `Quantity.Filter`         | `object`                | 否   | 当前数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                       |
+| `MaxQuantity.Filter`      | `object`                | 否   | 最大数量 OCR 的可选颜色过滤参数。若整个 `MaxQuantity` 都未填写，go-service 会回落到 `Quantity.Filter`。                                                      |
 | `Quantity.OnlyRec`        | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。当前默认值为 `false`；若显式传入，则按传入值覆盖。Go 侧仍只从 `Results.Best.AsOCR().Text` 读取数量文本。                  |
 | `MaxQuantity.OnlyRec`     | `bool`                  | 否   | 是否为 `BetterSlidingGetMaxQuantity` 的 OCR 节点启用 `only_rec`。若整个 `MaxQuantity` 都未填写，go-service 会回落到 `Quantity`。一旦传入 `MaxQuantity`，就按与 `Quantity` 相同的 JSON 结构独立解析。 |
 | `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                                    |
@@ -219,7 +220,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 }
 ```
 
-只有当界面上的**最大数量**与**当前可滑动数量**不在同一个 OCR 区域时，才需要单独填写 `MaxQuantity`。如果 `MaxQuantity` 整个对象缺失，或显式写成 `null`，go-service 会把 `Quantity` 作为 `BetterSlidingGetMaxQuantity` 的实际配置复用，包括 `Box` 与 `OnlyRec`。
+只有当界面上的**最大数量**与**当前可滑动数量**不在同一个 OCR 区域时，才需要单独填写 `MaxQuantity`。如果 `MaxQuantity` 整个对象缺失，或显式写成 `null`，go-service 会把 `Quantity` 作为 `BetterSlidingGetMaxQuantity` 的实际配置复用，包括 `Box`、`Filter` 与 `OnlyRec`。
 
 这种回落是“整对象级别”的，不是按字段逐个继承。也就是说，一旦传入了 `MaxQuantity`，go-service 就不会再把其中缺失的子字段从 `Quantity` 补齐。
 
@@ -231,17 +232,22 @@ clickY = startY + (endY - startY) * numerator / denominator
 - `y` 为垂直方向偏移，负数表示向上，正数表示向下；
 - 不传时默认使用 `[-10, 0]`，即相对滑块中心向左偏移 10 像素。
 
-### `QuantityFilter`
+### `Quantity.Filter` / `MaxQuantity.Filter`
 
-`QuantityFilter` 是一个**可选增强项**。不传时，仅表示不启用 `BetterSlidingGetQuantity` 的颜色过滤预处理；传入后，会先对该 OCR 结果做颜色过滤，再识别数字。
+`Quantity.Filter` 是一个**可选增强项**。不传时，仅表示不启用 `BetterSlidingGetQuantity` 的颜色过滤预处理；传入后，会先对该 OCR 结果做颜色过滤，再识别数字。
+
+`MaxQuantity.Filter` 与它使用完全相同的结构，但作用于 `BetterSlidingGetMaxQuantity`。如果整个 `MaxQuantity` 未传，`MaxQuantity.Filter` 会随 `MaxQuantity` 一起整对象回落到 `Quantity.Filter`；一旦传入了 `MaxQuantity`，就按该对象内的 `Filter` 独立解析，不再按字段级别从 `Quantity` 补齐。
 
 最小示例：
 
 ```json
-"QuantityFilter": {
-    "method": 4,
-    "lower": [0, 0, 0],
-    "upper": [255, 255, 255]
+"Quantity": {
+    "Box": [340, 430, 200, 140],
+    "Filter": {
+        "method": 4,
+        "lower": [0, 0, 0],
+        "upper": [255, 255, 255]
+    }
 }
 ```
 
@@ -251,8 +257,8 @@ clickY = startY + (endY - startY) * numerator / denominator
 - 通道数量必须与 `method` 匹配：`4`（RGB）和 `40`（HSV）需要 3 个通道，`6`（GRAY）需要 1 个通道；
 - 当前仅支持**单组**颜色阈值，不支持 `[[...], [...]]` 这种多段范围；
 - 可以把它理解为对数量区域先做一次按颜色的"近似二值化"，尽量只留下目标数字再交给 OCR；
-- 如果干扰数字和目标数字颜色完全一致，`QuantityFilter` 也无法从根本上区分，这时仍应优先收紧 `Quantity.Box`；
-- `QuantityFilter` 只是增强 OCR 预处理，不是 `Quantity.Box` 选区不准时的替代品。
+- 如果干扰数字和目标数字颜色完全一致，`Quantity.Filter` / `MaxQuantity.Filter` 也无法从根本上区分，这时仍应优先收紧对应的 `Box`；
+- `Quantity.Filter` / `MaxQuantity.Filter` 只是增强 OCR 预处理，不是 `Quantity.Box` / `MaxQuantity.Box` 选区不准时的替代品。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
 
@@ -351,12 +357,12 @@ clickY = startY + (endY - startY) * numerator / denominator
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                 "Quantity": {
                     "Box": [340, 430, 200, 140],
+                    "Filter": {
+                        "lower": [20, 150, 150],
+                        "upper": [35, 255, 255],
+                        "method": 40
+                    },
                     "OnlyRec": true
-                },
-                "QuantityFilter": {
-                    "lower": [20, 150, 150],
-                    "upper": [35, 255, 255],
-                    "method": 40
                 }
             }
         }
@@ -434,12 +440,12 @@ clickY = startY + (endY - startY) * numerator / denominator
                 "Target": 1,
                 "Quantity": {
                     "Box": [340, 430, 200, 140],
+                    "Filter": {
+                        "lower": [20, 150, 150],
+                        "upper": [35, 255, 255],
+                        "method": 40
+                    },
                     "OnlyRec": true
-                },
-                "QuantityFilter": {
-                    "lower": [20, 150, 150],
-                    "upper": [35, 255, 255],
-                    "method": 40
                 }
             }
         }

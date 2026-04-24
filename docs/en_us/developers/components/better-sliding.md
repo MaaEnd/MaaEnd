@@ -195,7 +195,8 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 | `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`.                                                                                                                                                                |
 | `Quantity.Box`            | `int[4]`                | Yes\*    | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode.                                                                                                                                                                                     |
 | `MaxQuantity.Box`         | `int[4]`                | No       | OCR region for `BetterSlidingGetMaxQuantity`, used to read the maximum selectable quantity. The format must be `[x, y, w, h]`. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`.                                                                            |
-| `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                                                                               |
+| `Quantity.Filter`         | `object`                | No       | Optional color filtering for current-quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                                                                       |
+| `MaxQuantity.Filter`      | `object`                | No       | Optional color filtering for max-quantity OCR. If the whole `MaxQuantity` object is omitted, go-service falls back to `Quantity.Filter`.                                                                                                                                               |
 | `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`.                                                         |
 | `MaxQuantity.OnlyRec`     | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxQuantity` OCR node. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`. When `MaxQuantity` is provided, it is treated as an independent OCR config with the same JSON shape as `Quantity`.            |
 | `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                                                                                                                |
@@ -219,7 +220,7 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 }
 ```
 
-Use it only when the OCR area for the screen's **maximum quantity** differs from the OCR area for the **current quantity**. If `MaxQuantity` is omitted or set to `null`, go-service reuses `Quantity` as the effective configuration for `BetterSlidingGetMaxQuantity`, including its `Box` and `OnlyRec` values.
+Use it only when the OCR area for the screen's **maximum quantity** differs from the OCR area for the **current quantity**. If `MaxQuantity` is omitted or set to `null`, go-service reuses `Quantity` as the effective configuration for `BetterSlidingGetMaxQuantity`, including its `Box`, `Filter`, and `OnlyRec` values.
 
 This fallback is whole-object only. If `MaxQuantity` is present, go-service does not inherit missing subfields from `Quantity` field by field.
 
@@ -231,17 +232,22 @@ This means the common case still needs only `Quantity`; `MaxQuantity` is an over
 - `y` is the vertical offset. Negative moves up, positive moves down.
 - If omitted, the default is `[-10, 0]`, which means clicking 10 pixels to the left of the slider center.
 
-### `QuantityFilter`
+### `Quantity.Filter` / `MaxQuantity.Filter`
 
-`QuantityFilter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `BetterSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
+`Quantity.Filter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `BetterSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
+
+`MaxQuantity.Filter` has the same structure, but applies to `BetterSlidingGetMaxQuantity`. If the whole `MaxQuantity` object is omitted, `MaxQuantity.Filter` falls back together with the rest of `MaxQuantity` to `Quantity.Filter`. Once `MaxQuantity` is provided, its `Filter` is parsed independently and is not inherited field by field from `Quantity`.
 
 Minimal example:
 
 ```json
-"QuantityFilter": {
-    "method": 4,
-    "lower": [0, 0, 0],
-    "upper": [255, 255, 255]
+"Quantity": {
+    "Box": [340, 430, 200, 140],
+    "Filter": {
+        "method": 4,
+        "lower": [0, 0, 0],
+        "upper": [255, 255, 255]
+    }
 }
 ```
 
@@ -251,8 +257,8 @@ Constraints and limits:
 - The channel count must match the `method`: `4` (RGB) and `40` (HSV) require 3 channels, `6` (GRAY) requires 1 channel;
 - Only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
 - You can treat it as an approximate color-based binarization step for the quantity area before OCR;
-- If the interfering digits use exactly the same color as the target digits, `QuantityFilter` cannot fundamentally separate them, so tightening `Quantity.Box` is still the first choice;
-- `QuantityFilter` improves OCR preprocessing, but it is not a substitute for an inaccurate `Quantity.Box`.
+- If the interfering digits use exactly the same color as the target digits, `Quantity.Filter` / `MaxQuantity.Filter` cannot fundamentally separate them, so tightening the corresponding `Box` is still the first choice;
+- `Quantity.Filter` / `MaxQuantity.Filter` improves OCR preprocessing, but it is not a substitute for an inaccurate `Quantity.Box` / `MaxQuantity.Box`.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
@@ -351,12 +357,12 @@ When `true`, `BetterSliding` returns success immediately after the precise click
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                 "Quantity": {
                     "Box": [340, 430, 200, 140],
+                    "Filter": {
+                        "lower": [20, 150, 150],
+                        "upper": [35, 255, 255],
+                        "method": 40
+                    },
                     "OnlyRec": true
-                },
-                "QuantityFilter": {
-                    "lower": [20, 150, 150],
-                    "upper": [35, 255, 255],
-                    "method": 40
                 }
             }
         }
@@ -434,12 +440,12 @@ When `ExceedingOverrideEnable` is **not** set and the target is out of range (in
                 "Target": 1,
                 "Quantity": {
                     "Box": [340, 430, 200, 140],
+                    "Filter": {
+                        "lower": [20, 150, 150],
+                        "upper": [35, 255, 255],
+                        "method": 40
+                    },
                     "OnlyRec": true
-                },
-                "QuantityFilter": {
-                    "lower": [20, 150, 150],
-                    "upper": [35, 255, 255],
-                    "method": 40
                 }
             }
         }

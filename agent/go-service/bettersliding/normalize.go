@@ -68,17 +68,17 @@ func normalizeCenterPointOffset(raw any) ([2]int, error) {
 	return [2]int{numbers[0], numbers[1]}, nil
 }
 
-func normalizeQuantityFilter(raw *quantityFilterParam) (*quantityFilterParam, error) {
+func normalizeQuantityFilter(fieldName string, raw *quantityFilterParam) (*quantityFilterParam, error) {
 	if raw == nil {
 		return nil, nil
 	}
 
 	if len(raw.Lower) == 0 || len(raw.Upper) == 0 {
-		return nil, fmt.Errorf("QuantityFilter lower and upper must both be provided")
+		return nil, fmt.Errorf("%s lower and upper must both be provided", fieldName)
 	}
 
 	if len(raw.Lower) != len(raw.Upper) {
-		return nil, fmt.Errorf("QuantityFilter lower and upper must have the same length, got lower=%d upper=%d", len(raw.Lower), len(raw.Upper))
+		return nil, fmt.Errorf("%s lower and upper must have the same length, got lower=%d upper=%d", fieldName, len(raw.Lower), len(raw.Upper))
 	}
 
 	channelCount, err := quantityFilterChannelCount(raw.Method)
@@ -87,7 +87,7 @@ func normalizeQuantityFilter(raw *quantityFilterParam) (*quantityFilterParam, er
 	}
 
 	if len(raw.Lower) != channelCount {
-		return nil, fmt.Errorf("QuantityFilter lower and upper must each contain %d values for method %d, got %d", channelCount, raw.Method, len(raw.Lower))
+		return nil, fmt.Errorf("%s lower and upper must each contain %d values for method %d, got %d", fieldName, channelCount, raw.Method, len(raw.Lower))
 	}
 
 	return &quantityFilterParam{
@@ -218,7 +218,6 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.Target &&
 		!params.presence.Quantity &&
 		!params.presence.MaxQuantity &&
-		!params.presence.QuantityFilter &&
 		!params.presence.GreenMask &&
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
