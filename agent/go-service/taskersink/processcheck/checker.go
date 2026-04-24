@@ -1,10 +1,10 @@
 package processcheck
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/shirou/gopsutil/v4/process"
@@ -52,7 +52,10 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		Msg("Blacklisted processes detected!")
 
 	names := strings.Join(found, ", ")
-	fmt.Println(i18n.RenderHTML("tasker.process_warning", map[string]any{"ProcessNames": names}))
+
+	maafocus.PrintLargeContent(
+		i18n.RenderHTML("tasker.process_warning", map[string]any{"ProcessNames": names}),
+	)
 
 	c.warned = true
 }
