@@ -235,6 +235,62 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
+    "SellProductSellThenLoop": {
+        "desc": "交易，完成后直接进入下一次售卖尝试",
+        "recognition": "OCR",
+        "roi": [
+            975,
+            615,
+            300,
+            105
+        ],
+        "expected": [
+            "交易",
+            "(?i)Trade",
+            "取引",
+            "거래"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellCheckThenLoop"
+        ]
+    },
+    "SellProductSellCheckThenLoop": {
+        "desc": "交易后确认，直接进入下一次售卖尝试",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    577,
+                    10,
+                    138,
+                    118
+                ],
+                "template": [
+                    "SellProduct/SellProductCheckHeader.png"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoney"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        }
+    },
     "SellProductSellLoopEnd": {
         "desc": "售卖循环结束，所有售卖尝试完成",
         "pre_delay": 0,

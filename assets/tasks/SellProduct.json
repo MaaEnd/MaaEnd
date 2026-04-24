@@ -1013,6 +1013,9 @@
             ],
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVInfrastructureOutpostReserveValue1}",
                         "TargetReverse": true
@@ -1051,6 +1054,9 @@
             ],
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVInfrastructureOutpostReserveValue2}",
                         "TargetReverse": true
@@ -1089,6 +1095,9 @@
             ],
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVInfrastructureOutpostReserveValue3}",
                         "TargetReverse": true
@@ -1127,6 +1136,9 @@
             ],
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVInfrastructureOutpostReserveValue4}",
                         "TargetReverse": true
@@ -2023,6 +2035,9 @@
             ],
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVReconstructionCommandReserveValue1}",
                         "TargetReverse": true
@@ -2061,6 +2076,9 @@
             ],
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVReconstructionCommandReserveValue2}",
                         "TargetReverse": true
@@ -2099,6 +2117,9 @@
             ],
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVReconstructionCommandReserveValue3}",
                         "TargetReverse": true
@@ -2137,6 +2158,9 @@
             ],
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVReconstructionCommandReserveValue4}",
                         "TargetReverse": true
@@ -3273,6 +3297,9 @@
             ],
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVRefugeeCampReserveValue1}",
                         "TargetReverse": true
@@ -3311,6 +3338,9 @@
             ],
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVRefugeeCampReserveValue2}",
                         "TargetReverse": true
@@ -3349,6 +3379,9 @@
             ],
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVRefugeeCampReserveValue3}",
                         "TargetReverse": true
@@ -3387,6 +3420,9 @@
             ],
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{ValleyIVRefugeeCampReserveValue4}",
                         "TargetReverse": true
@@ -4311,6 +4347,9 @@
             ],
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue1}",
                         "TargetReverse": true
@@ -4349,6 +4388,9 @@
             ],
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue2}",
                         "TargetReverse": true
@@ -4387,6 +4429,9 @@
             ],
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue3}",
                         "TargetReverse": true
@@ -4425,6 +4470,9 @@
             ],
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue4}",
                         "TargetReverse": true
@@ -5481,6 +5529,9 @@
             ],
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingSkyKingFlatsReserveValue1}",
                         "TargetReverse": true
@@ -5519,6 +5570,9 @@
             ],
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingSkyKingFlatsReserveValue2}",
                         "TargetReverse": true
@@ -5557,6 +5611,9 @@
             ],
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingSkyKingFlatsReserveValue3}",
                         "TargetReverse": true
@@ -5595,6 +5652,9 @@
             ],
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{WulingSkyKingFlatsReserveValue4}",
                         "TargetReverse": true

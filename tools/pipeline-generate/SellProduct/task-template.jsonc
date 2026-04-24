@@ -240,6 +240,9 @@
             ],
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding1": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{${RegionPrefix}${LocationId}ReserveValue1}",
                         "TargetReverse": true
@@ -278,6 +281,9 @@
             ],
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding2": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{${RegionPrefix}${LocationId}ReserveValue2}",
                         "TargetReverse": true
@@ -316,6 +322,9 @@
             ],
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding3": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{${RegionPrefix}${LocationId}ReserveValue3}",
                         "TargetReverse": true
@@ -354,6 +363,9 @@
             ],
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding4": {
+                    "next": [
+                        "SellProductSellThenLoop"
+                    ],
                     "attach": {
                         "Target": "{${RegionPrefix}${LocationId}ReserveValue4}",
                         "TargetReverse": true
