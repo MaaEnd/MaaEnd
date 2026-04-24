@@ -10,7 +10,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 仅用于上游公开仓库 `https://github.com/MaaEnd/MaaEnd`。
 - 输入可以是完整 issue URL，或 `#1234` 形式的 issue 编号。
 - 只分析公开 issue 中可直接访问的附件。
-- 如果 issue 没有 `MaaEnd-logs-*.zip`，要先明确说明证据不足，再尽量基于 issue 文本、截图、代码和文档给出初步判断。
+- 如果 issue 没有形如 `MaaEnd-logs-*.zip` 的日志包，且明确是 bug，则直接停止分析并说明证据不足。
 
 ## Workflow
 
@@ -29,6 +29,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
     - 关注 `MaaEnd-logs-*.zip`。
     - 如果同一个 issue 有多个日志包，先看最新一次复现；如果 issue 在对比不同版本或不同控制器，再补看前面的包。
+    - 如果 issue 没有日志包，且明确是 bug，则直接停止分析并说明证据不足。
 
 4. 下载并解压日志包。
 
