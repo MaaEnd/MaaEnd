@@ -116,11 +116,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
+        "desc": "基建前站第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -137,11 +146,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
+        "desc": "基建前站第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -158,11 +176,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
+        "desc": "基建前站第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -179,11 +206,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
+        "desc": "基建前站第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]

@@ -120,11 +120,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsSellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+        "desc": "天王坪援建点第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -141,11 +150,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsSellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+        "desc": "天王坪援建点第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -162,11 +180,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsSellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+        "desc": "天王坪援建点第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -183,11 +210,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsSellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+        "desc": "天王坪援建点第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]

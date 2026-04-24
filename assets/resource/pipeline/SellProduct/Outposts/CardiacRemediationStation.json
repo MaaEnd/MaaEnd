@@ -118,11 +118,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
+        "desc": "心脏修缮站第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -139,11 +148,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
+        "desc": "心脏修缮站第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -160,11 +178,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
+        "desc": "心脏修缮站第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -181,11 +208,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
+        "desc": "心脏修缮站第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]

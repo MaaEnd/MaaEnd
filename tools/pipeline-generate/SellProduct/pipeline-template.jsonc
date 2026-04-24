@@ -108,11 +108,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem1",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProduct${LocationId}SellAttempt1SetMissHandler": {
+        "desc": "${LocationDesc}第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -129,11 +138,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem2",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProduct${LocationId}SellAttempt2SetMissHandler": {
+        "desc": "${LocationDesc}第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -150,11 +168,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem3",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProduct${LocationId}SellAttempt3SetMissHandler": {
+        "desc": "${LocationDesc}第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -171,11 +198,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem4",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProduct${LocationId}SellAttempt4SetMissHandler": {
+        "desc": "${LocationDesc}第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]

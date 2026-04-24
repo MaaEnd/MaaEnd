@@ -120,11 +120,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
+        "desc": "重建指挥部第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -141,11 +150,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
+        "desc": "重建指挥部第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -162,11 +180,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
+        "desc": "重建指挥部第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]
@@ -183,11 +210,20 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-            "SellProductPriorityGoodMissHandler": "",
             "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
+        "desc": "重建指挥部第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
         "next": [
             "SellProductChangeGoods"
         ]

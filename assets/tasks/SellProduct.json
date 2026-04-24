@@ -193,11 +193,9 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": false
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -214,11 +212,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -236,11 +232,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -258,11 +252,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -280,11 +272,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -302,11 +292,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -324,11 +312,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -346,11 +332,9 @@
                                 "^LC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -368,11 +352,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -390,11 +372,9 @@
                                 "^Ferrium Part$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt1": {
+                        "SellProductInfrastructureOutpostSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -413,11 +393,9 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": false
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -434,11 +412,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -456,11 +432,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -478,11 +452,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -500,11 +472,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -522,11 +492,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -544,11 +512,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -566,11 +532,9 @@
                                 "^LC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -588,11 +552,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -610,11 +572,9 @@
                                 "^Ferrium Part$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt2": {
+                        "SellProductInfrastructureOutpostSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -633,11 +593,9 @@
                         "SellProductInfrastructureOutpostSelectItem3": {
                             "enabled": false
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -654,11 +612,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -676,11 +632,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -698,11 +652,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -720,11 +672,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -742,11 +692,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -764,11 +712,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -786,11 +732,9 @@
                                 "^LC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -808,11 +752,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -830,11 +772,9 @@
                                 "^Ferrium Part$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt3": {
+                        "SellProductInfrastructureOutpostSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -853,11 +793,9 @@
                         "SellProductInfrastructureOutpostSelectItem4": {
                             "enabled": false
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -874,11 +812,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -896,11 +832,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -918,11 +852,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -940,11 +872,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -962,11 +892,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -984,11 +912,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1006,11 +932,9 @@
                                 "^LC Valley Battery$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1028,11 +952,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1050,11 +972,9 @@
                                 "^Ferrium Part$"
                             ]
                         },
-                        "SellProductInfrastructureOutpostSellAttempt4": {
+                        "SellProductInfrastructureOutpostSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductInfrastructureOutpostBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1363,11 +1283,9 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": false
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -1384,11 +1302,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1406,11 +1322,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1428,11 +1342,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1450,11 +1362,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1472,11 +1382,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1494,11 +1402,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1516,11 +1422,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1538,11 +1442,9 @@
                                 "^Steel Part$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt1": {
+                        "SellProductReconstructionCommandSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1561,11 +1463,9 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": false
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -1582,11 +1482,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1604,11 +1502,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1626,11 +1522,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1648,11 +1542,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1670,11 +1562,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1692,11 +1582,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1714,11 +1602,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1736,11 +1622,9 @@
                                 "^Steel Part$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt2": {
+                        "SellProductReconstructionCommandSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1759,11 +1643,9 @@
                         "SellProductReconstructionCommandSelectItem3": {
                             "enabled": false
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -1780,11 +1662,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1802,11 +1682,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1824,11 +1702,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1846,11 +1722,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1868,11 +1742,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1890,11 +1762,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1912,11 +1782,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1934,11 +1802,9 @@
                                 "^Steel Part$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt3": {
+                        "SellProductReconstructionCommandSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -1957,11 +1823,9 @@
                         "SellProductReconstructionCommandSelectItem4": {
                             "enabled": false
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -1978,11 +1842,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2000,11 +1862,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2022,11 +1882,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2044,11 +1902,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2066,11 +1922,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2088,11 +1942,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2110,11 +1962,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2132,11 +1982,9 @@
                                 "^Steel Part$"
                             ]
                         },
-                        "SellProductReconstructionCommandSellAttempt4": {
+                        "SellProductReconstructionCommandSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductReconstructionCommandBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2445,11 +2293,9 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": false
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -2466,11 +2312,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2488,11 +2332,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2510,11 +2352,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2532,11 +2372,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2554,11 +2392,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2576,11 +2412,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2598,11 +2432,9 @@
                                 "^Buck Capsule C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2620,11 +2452,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2642,11 +2472,9 @@
                                 "^Amethyst Bottle$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2664,11 +2492,9 @@
                                 "^Origocrust$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2681,15 +2507,14 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
+                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt1": {
+                        "SellProductRefugeeCampSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2708,11 +2533,9 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": false
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -2729,11 +2552,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2751,11 +2572,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2773,11 +2592,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2795,11 +2612,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2817,11 +2632,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2839,11 +2652,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2861,11 +2672,9 @@
                                 "^Buck Capsule C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2883,11 +2692,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2905,11 +2712,9 @@
                                 "^Amethyst Bottle$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2927,11 +2732,9 @@
                                 "^Origocrust$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2944,15 +2747,14 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
+                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt2": {
+                        "SellProductRefugeeCampSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -2971,11 +2773,9 @@
                         "SellProductRefugeeCampSelectItem3": {
                             "enabled": false
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -2992,11 +2792,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3014,11 +2812,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3036,11 +2832,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3058,11 +2852,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3080,11 +2872,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3102,11 +2892,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3124,11 +2912,9 @@
                                 "^Buck Capsule C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3146,11 +2932,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3168,11 +2952,9 @@
                                 "^Amethyst Bottle$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3190,11 +2972,9 @@
                                 "^Origocrust$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3207,15 +2987,14 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
+                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt3": {
+                        "SellProductRefugeeCampSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3234,11 +3013,9 @@
                         "SellProductRefugeeCampSelectItem4": {
                             "enabled": false
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -3255,11 +3032,9 @@
                                 "^Buck Capsule A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3277,11 +3052,9 @@
                                 "^HC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3299,11 +3072,9 @@
                                 "^Canned Citrome A$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3321,11 +3092,9 @@
                                 "^SC Valley Battery$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3343,11 +3112,9 @@
                                 "^Buck Capsule B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3365,11 +3132,9 @@
                                 "^Canned Citrome B$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3387,11 +3152,9 @@
                                 "^Buck Capsule C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3409,11 +3172,9 @@
                                 "^Canned Citrome C$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3431,11 +3192,9 @@
                                 "^Amethyst Bottle$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3453,11 +3212,9 @@
                                 "^Origocrust$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3470,15 +3227,14 @@
                             "enabled": true,
                             "expected": [
                                 "^紫晶零件$",
+                                "^紫晶零件$",
                                 "^紫晶部品$",
                                 "^Amethyst Part$"
                             ]
                         },
-                        "SellProductRefugeeCampSellAttempt4": {
+                        "SellProductRefugeeCampSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3815,11 +3571,9 @@
                         "SellProductCardiacRemediationStationSelectItem1": {
                             "enabled": false
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -3836,11 +3590,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3858,11 +3610,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3880,11 +3630,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3902,11 +3650,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3924,11 +3670,9 @@
                                 "^Jincao Tea$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3946,11 +3690,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3963,15 +3705,14 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
+                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -3984,15 +3725,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt1": {
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4011,11 +3751,9 @@
                         "SellProductCardiacRemediationStationSelectItem2": {
                             "enabled": false
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -4032,11 +3770,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4054,11 +3790,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4076,11 +3810,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4098,11 +3830,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4120,11 +3850,9 @@
                                 "^Jincao Tea$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4142,11 +3870,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4159,15 +3885,14 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
+                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4180,15 +3905,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt2": {
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4207,11 +3931,9 @@
                         "SellProductCardiacRemediationStationSelectItem3": {
                             "enabled": false
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -4228,11 +3950,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4250,11 +3970,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4272,11 +3990,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4294,11 +4010,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4316,11 +4030,9 @@
                                 "^Jincao Tea$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4338,11 +4050,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4355,15 +4065,14 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
+                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4376,15 +4085,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt3": {
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4403,11 +4111,9 @@
                         "SellProductCardiacRemediationStationSelectItem4": {
                             "enabled": false
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -4424,11 +4130,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4446,11 +4150,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4468,11 +4170,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4490,11 +4190,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4512,11 +4210,9 @@
                                 "^Jincao Tea$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4534,11 +4230,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4551,15 +4245,14 @@
                             "enabled": true,
                             "expected": [
                                 "^重息壤$",
+                                "^重息壤$",
                                 "^重息壌$",
                                 "^Heavy Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4572,15 +4265,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductCardiacRemediationStationSellAttempt4": {
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4889,11 +4581,9 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": false
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -4910,11 +4600,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4932,11 +4620,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4954,11 +4640,9 @@
                                 "^Hetonite Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4976,11 +4660,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -4998,11 +4680,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5020,11 +4700,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5042,11 +4720,9 @@
                                 "^Yazhen Syringe C$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5064,11 +4740,9 @@
                                 "^Jincao Drink$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5086,11 +4760,9 @@
                                 "^Cuprium Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5103,15 +4775,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt1": {
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5130,11 +4801,9 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": false
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -5151,11 +4820,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5173,11 +4840,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5195,11 +4860,9 @@
                                 "^Hetonite Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5217,11 +4880,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5239,11 +4900,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5261,11 +4920,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5283,11 +4940,9 @@
                                 "^Yazhen Syringe C$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5305,11 +4960,9 @@
                                 "^Jincao Drink$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5327,11 +4980,9 @@
                                 "^Cuprium Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5344,15 +4995,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt2": {
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5371,11 +5021,9 @@
                         "SellProductSkyKingFlatsSelectItem3": {
                             "enabled": false
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -5392,11 +5040,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5414,11 +5060,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5436,11 +5080,9 @@
                                 "^Hetonite Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5458,11 +5100,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5480,11 +5120,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5502,11 +5140,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5524,11 +5160,9 @@
                                 "^Yazhen Syringe C$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5546,11 +5180,9 @@
                                 "^Jincao Drink$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5568,11 +5200,9 @@
                                 "^Cuprium Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5585,15 +5215,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt3": {
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5612,11 +5241,9 @@
                         "SellProductSkyKingFlatsSelectItem4": {
                             "enabled": false
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": ""
                             }
                         }
                     }
@@ -5633,11 +5260,9 @@
                                 "^Xiranite Jade Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5655,11 +5280,9 @@
                                 "^SC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5677,11 +5300,9 @@
                                 "^Hetonite Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5699,11 +5320,9 @@
                                 "^Xiranite Gourd$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5721,11 +5340,9 @@
                                 "^LC Wuling Battery$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5743,11 +5360,9 @@
                                 "^Yazhen Syringe A$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5765,11 +5380,9 @@
                                 "^Yazhen Syringe C$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5787,11 +5400,9 @@
                                 "^Jincao Drink$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5809,11 +5420,9 @@
                                 "^Cuprium Part$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
@@ -5826,15 +5435,14 @@
                             "enabled": true,
                             "expected": [
                                 "^息壤$",
+                                "^息壤$",
                                 "^息壌$",
                                 "^Xiranite$"
                             ]
                         },
-                        "SellProductSkyKingFlatsSellAttempt4": {
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
                             "anchor": {
-                                "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
-                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning",
-                                "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     },
