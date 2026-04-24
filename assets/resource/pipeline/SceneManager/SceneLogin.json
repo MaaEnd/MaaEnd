@@ -47,7 +47,7 @@
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
-            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]__ScenePrivateLoginPristineMonthlyPassConfirm",
             "__ScenePrivateLoginSuccess",
             "[JumpBack]__ScenePrivateLoginCloseDialog"
         ]
@@ -125,6 +125,34 @@
         "action": {
             "type": "Click"
         }
+    },
+    "__ScenePrivateLoginPristineMonthlyPassConfirm": {
+        "desc": "领取焕新月卡，无法跳过必须领取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    850,
+                    180,
+                    250,
+                    150
+                ],
+                "expected": [
+                    "焕新月卡赠礼",
+                    "煥新月卡贈禮",
+                    "Pristine Monthly Pass Tribute",
+                    "月パス特典",
+                    "리뉴얼 월정액 선물"
+                ]
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
     },
     "__ScenePrivateLoginCloseDialog": {
         "desc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
