@@ -3,7 +3,13 @@
         "desc": "用于定位滑动按钮",
         "recognition": {
             "type": "TemplateMatch",
-            "param": {"template": ["BetterSliding/SwipeButton.png"], "green_mask": true, "order_by": "Score"}
+            "param": {
+                "template": [
+                    "BetterSliding/SwipeButton.png"
+                ],
+                "green_mask": true,
+                "order_by": "Score"
+            }
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -14,9 +20,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": ["BetterSliding/SwipeButton.png"],
+                "template": [
+                    "BetterSliding/SwipeButton.png"
+                ],
                 "green_mask": false,
-                "threshold": [0.8],
+                "threshold": [
+                    0.8
+                ],
                 "order_by": "Score"
             }
         },
@@ -29,9 +39,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": ["BetterSliding/SwipeButton.png"],
+                "template": [
+                    "BetterSliding/SwipeButton.png"
+                ],
                 "green_mask": false,
-                "threshold": [0.8],
+                "threshold": [
+                    0.8
+                ],
                 "order_by": "Score"
             }
         },
@@ -39,36 +53,72 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "BetterSlidingGetQuantity": {"desc": "识别当前选择的数量", "recognition": {"type": "OCR", "param": {"roi": [
+    "BetterSlidingGetQuantity": {
+        "desc": "识别当前选择的数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
                     0,
                     0,
                     0,
                     0
-                ], "expected": [
+                ],
+                "expected": [
                     "\\d+"
-                ], "only_rec": false, "order_by": "Length"}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0},
+                ],
+                "only_rec": false,
+                "order_by": "Length"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "BetterSlidingQuantityFilter": {
         "desc": "辅助GetQuantity节点进行OCR",
-        "recognition": {"type": "ColorMatch", "param": {"method": 4, "lower": [[
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [
+                    [
                         0,
                         0,
                         0
-                    ]], "upper": [[
+                    ]
+                ],
+                "upper": [
+                    [
                         255,
                         255,
                         255
-                    ]]}}
+                    ]
+                ]
+            }
+        }
     },
     "BetterSlidingMaxQuantityFilter": {
         "desc": "辅助GetMaxQuantity节点进行OCR",
-        "recognition": {"type": "ColorMatch", "param": {"method": 4, "lower": [[
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [
+                    [
                         0,
                         0,
                         0
-                    ]], "upper": [[
+                    ]
+                ],
+                "upper": [
+                    [
                         255,
                         255,
                         255
-                    ]]}}
+                    ]
+                ]
+            }
+        }
     }
 }
