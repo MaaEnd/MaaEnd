@@ -19,6 +19,15 @@ import (
 
 var screenAnalyzer = NewScreenAnalyzer()
 
+func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img)
+	if err != nil || detail == nil {
+		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
+		return false
+	}
+	return detail.Hit
+}
+
 type AutoFightEntryRecognition struct{}
 
 func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -149,6 +158,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	log.Debug().Str("component", "AutoFight").Str("step", "parse params").Interface("params", params).Msg("parsed action attach parameters")
 	var pauseStart time.Time
 	var facingOnlyStart time.Time
+	var lastLevelShowCheck time.Time
 	characterCount := -1
 	skillCycleIndex := 1
 
@@ -211,6 +221,17 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			saveExitImage(img, "character_level")
 			result = true
 			break
+		}
+
+		if time.Since(lastLevelShowCheck) >= 5*time.Second {
+			lastLevelShowCheck = time.Now()
+			if inFightSpace && getCharactorLevelShow(ctx, img) {
+				log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
+				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+				saveExitImage(img, "character_level_show")
+				result = true
+				break
+			}
 		}
 		// CharacterLevel小概率识别不到，comboEmpty大概率不显示了依然命中，双重保险
 		// if len(comboFull) == 0 && len(comboEmpty) == 0 {
@@ -393,9 +414,9 @@ func drainActionQueue(ctx *maa.Context, characterCount int) {
 				continue
 			}
 			op := fa.operator + characterCount - 4
-			ctx.RunAction("__AutoFightActionEndSkillAltKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			// ctx.RunAction("__AutoFightActionEndSkillAltKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction(fmt.Sprintf("__AutoFightActionEndSkillOperators%d", op), maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionEndSkillAltKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			// ctx.RunAction("__AutoFightActionEndSkillAltKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionLockTarget:
 			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionDodge:
