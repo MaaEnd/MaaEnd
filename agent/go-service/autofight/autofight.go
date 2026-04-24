@@ -230,7 +230,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		if time.Since(lastLevelShowCheck) >= 5*time.Second {
 			lastLevelShowCheck = time.Now()
-			if inFightSpace && getCharactorLevelShow(ctx, img) {
+			if getCharactorLevelShow(ctx, img) {
 				log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 				saveExitImage(img, "character_level_show")
