@@ -11,7 +11,8 @@ tests/MaaEndTestset
 tools/schema/
 
 # pipeline-generate 数据文件含大量坐标嵌套数组，跳过自动格式化以保留可读性
-tools/pipeline-generate/
+tools/pipeline-generate/*
+!tools/pipeline-generate/BatchUseDetector/
 
 # 锁文件
 pnpm-lock.yaml

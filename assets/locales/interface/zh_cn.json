@@ -576,7 +576,7 @@
     "task.AutoUseSpMedication.description": "自动使用一次应急理智加强剂(+40理智)",
     "task.AutoUseSpMedication.label": "💊应急理智加强剂",
     "option.UseAllExpireSoonMedication.label": "使用所有要过期的应急理智加强剂",
-    "option.UseAllExpireSoonMedication.description": "开启后吃完所有时限小于三天的应急理智加强剂（时限变红的理智药，最多使用15个）；",
+    "option.UseAllExpireSoonMedication.description": "开启后吃完所有时限小于三天的应急理智加强剂（时限变红的理智药，最多使用15个）",
     "option.UseRegularSpMedication.label": "使用应急理智加强剂",
     "option.UseRegularSpMedication.description": "默认开启，找到普通应急理智加强剂时使用一颗；关闭后跳过普通药",
     "task.AutoCollect.description": "自动采集野外资源（需一直保持前台，不要乱动鼠标）\n 注意，作物没有完全生长齐的时候作物会随机生长，会导致收集不齐的情况。\n 受限于识别精度即使齐了也会有个别无法收集",
