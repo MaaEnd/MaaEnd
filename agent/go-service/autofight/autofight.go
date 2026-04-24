@@ -22,7 +22,12 @@ var screenAnalyzer = NewScreenAnalyzer()
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img)
 	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
+		log.Error().
+			Err(err).
+			Str("component", "AutoFight").
+			Str("step", "getCharactorLevelShow").
+			Str("recognition", "__AutoFightRecognitionCharactorLevelShow").
+			Msg("failed to run recognition for character level show")
 		return false
 	}
 	return detail.Hit
