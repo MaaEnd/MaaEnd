@@ -114,6 +114,7 @@
     "essencefilter.focus.plan.html_title": "預刻寫方案",
     "essencefilter.focus.plan.html_notice": "與上方日誌內容相同，每次執行會覆寫本檔。",
     "essencefilter.focus.plan.html_saved": "同內容已寫入工作目錄下的 EssencePlan.html。",
+    "essencefilter.focus.plan.html_save_failed": "<span style=\"color:#ff4d4f;font-weight:700;\">儲存 EssencePlan.html 失敗</span><br/>路徑：%s<br/>錯誤：%s",
     "tasker.process_warning.title": "⚠️ 警告：偵測到黑名單進程正在執行",
     "tasker.process_warning.detected": "🔍 偵測到的進程：",
     "tasker.process_warning.impact": "💡 這些進程會干擾圖像識別",

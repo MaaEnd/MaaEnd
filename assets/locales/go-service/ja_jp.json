@@ -113,6 +113,7 @@
     "essencefilter.focus.plan.html_title": "プレ刻印プラン",
     "essencefilter.focus.plan.html_notice": "上のログと同じ内容。実行のたびに上書きします。",
     "essencefilter.focus.plan.html_saved": "同じ内容を作業ディレクトリの EssencePlan.html に保存しました。",
+    "essencefilter.focus.plan.html_save_failed": "<span style=\"color:#ff4d4f;font-weight:700;\">EssencePlan.html の保存に失敗しました</span><br/>パス：%s<br/>エラー：%s",
     "tasker.process_warning.title": "⚠️ 警告：ブラックリストのプロセスが実行中です",
     "tasker.process_warning.detected": "🔍 検出されたプロセス：",
     "tasker.process_warning.impact": "💡 これらのプロセスは画像認識に影響を与える可能性があります",

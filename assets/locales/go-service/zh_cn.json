@@ -114,6 +114,7 @@
     "essencefilter.focus.plan.html_title": "预刻写方案",
     "essencefilter.focus.plan.html_notice": "与上方日志内容相同，每次运行会覆写本文件。",
     "essencefilter.focus.plan.html_saved": "同内容已写入工作目录下的 EssencePlan.html。",
+    "essencefilter.focus.plan.html_save_failed": "<span style=\"color:#ff4d4f;font-weight:700;\">保存 EssencePlan.html 失败</span><br/>路径：%s<br/>错误：%s",
     "tasker.process_warning.title": "⚠️ 警告：检测到黑名单进程正在运行",
     "tasker.process_warning.detected": "🔍 检测到的进程：",
     "tasker.process_warning.impact": "💡 这些进程会干扰图像识别",
