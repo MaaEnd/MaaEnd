@@ -113,7 +113,7 @@
     "option.DiscardUnmatched.label": "不一致時に破棄",
     "option.DiscardUnmatched.description": "有効にすると、目標スキル組み合わせに一致しない基質はスキップではなく破棄されます",
     "option.ExportCalculatorScript.label": "予刻写プランを推薦",
-    "option.ExportCalculatorScript.description": "フィルタリング終了後、すべての予刻写プランを列挙し、未育成武器のニーズを満たす数の降順でログに推薦プランを出力します",
+    "option.ExportCalculatorScript.description": "フィルタ後、未育成ニーズの多い順にプランを列挙しログに出力し、作業ディレクトリに EssencePlan.html として保存します。",
     "task.AutoEssence.label": "🎱基質周回",
     "task.AutoEssence.description": "重度蓄積ポイントを自動で攻略します。\n## 警告：\n- 必ず **[設定] - [ショートカット]** で **グローバルショートカット** を有効にし、**タスク終了** のキーを覚えておいてください。プログラムに不具合が生じた場合、そのキーを長押しして停止できます。",
     "option.AutoEssenceDoOverride.label": "刻印券を使用する",

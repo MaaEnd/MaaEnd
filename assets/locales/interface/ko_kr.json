@@ -113,7 +113,7 @@
     "option.DiscardUnmatched.label": "불일치 시 폐기",
     "option.DiscardUnmatched.description": "활성화하면 목표 스킬 조합과 일치하지 않는 기질은 건너뛰지 않고 폐기됩니다",
     "option.ExportCalculatorScript.label": "예각인 방안 추천",
-    "option.ExportCalculatorScript.description": "필터링 완료 후, 모든 예각인 방안을 열거하여 미졸업 무기 수요를 만족시키는 수 기준 내림차순으로 로그에 추천 방안을 출력합니다",
+    "option.ExportCalculatorScript.description": "필터 후 미졸업 수요 많은 순으로 방안을 나열해 로그에 출력하고, 작업 폴더에 EssencePlan.html로 저장합니다",
     "task.AutoEssence.label": "🎱기질 파밍",
     "task.AutoEssence.description": "과도 축적 지점을 자동으로 도전합니다.\n## 경고:\n- **[설정] - [단축키]** 에서 **전역 단축키** 옵션을 활성화하고, **태스크 종료** 단축키를 숙지하십시오. 장애 발생 시 해당 키를 길게 눌러 중지할 수 있습니다.",
     "option.AutoEssenceDoOverride.label": "각인권 사용",

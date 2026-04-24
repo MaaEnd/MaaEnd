@@ -342,9 +342,19 @@ func logCalculatorResult(ctx *maa.Context) {
 			Msg("skip recommend output: no feasible location plans")
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.no_feasible_location_plans"))
 	}
-	LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.plan_recommend", map[string]any{
+	planHTML := i18n.RenderHTML("essencefilter.plan_recommend", map[string]any{
 		"UngraduatedCount":   len(ungraduated),
 		"UngraduatedWeapons": weaponsToViews(ungraduatedWeapons),
 		"Sections":           sections,
-	}))
+	})
+	LogMXUHTML(ctx, planHTML)
+	if err := writePlanRecommendHTMLFile(planRecommendHTMLPath, planHTML); err != nil {
+		log.Warn().
+			Str("component", "EssenceFilter").
+			Str("path", planRecommendHTMLPath).
+			Err(err).
+			Msg("failed to write EssencePlan.html")
+	} else {
+		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.html_saved"))
+	}
 }
