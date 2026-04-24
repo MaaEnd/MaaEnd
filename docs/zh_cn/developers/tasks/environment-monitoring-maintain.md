@@ -21,11 +21,11 @@
 | 拍照流程           | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | 进入拍照模式、调整朝向、识别拍照按钮、达成目标后回到终端                                                                                 |
 | 摄像头滑动         | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四向调整朝向                                                                      |
 | 公共按钮           | `assets/resource/pipeline/EnvironmentMonitoring/Button.json`             | `TrackMissionButton` 等环境监测专用通用按钮                                                                                              |
-| 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`     | **每个观察点一份 JSON**，由模板渲染（**生成**）                                                                                          |
+| 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`     | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `data.mjs` 自动生成，通常不用手写                                               |
 | 观察点模板         | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`           | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照）                                                                          |
 | 终端模板           | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc` | 终端分组节点模板                                                                                                                         |
-| 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | `ROUTE_CONFIG`：每个观察点的传送点、地图、路径、摄像头滑动方向                                                                           |
-| 终端列表数据       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`       | 终端 ID 列表，对每个观察点 Job 节点串成 `next`                                                                                           |
+| 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | `ROUTE_CONFIG`：按观察点中文 `Name` 匹配的路线覆盖（传送点、地图、路径、摄像头滑动方向）                                                 |
+| 终端列表数据       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`       | 从 `data.mjs` 的行数据和自动派生的终端列表生成各终端 `next`                                                                              |
 | 游戏数据快照       | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`        | 由 `zmdmap` 提供的官方监测终端/委托数据（多语言名称、`shotTargetName`）                                                                  |
 | 生成器配置         | `tools/pipeline-generate/EnvironmentMonitoring/config.json`              | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"`                                                                               |
 | 终端生成器配置     | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`    | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"`                                                                               |
@@ -59,7 +59,9 @@ EnvironmentMonitoringMain
   └─ GoTo{Id}Mission                 （委托已接 → 点击前往）
        └─ {Id}TrackOrGoTo
             ├─ Track{Id}             （存在「开始追踪」按钮则点击）
-            └─ GoTo{Id}              （SubTask: SceneAnyEnterWorld 回大世界）
+            │    ├─ {Id}NotAdapted   （路线未适配 → 仅提示并结束该观察点）
+            │    └─ GoTo{Id}         （路线已适配 → 继续前往）
+            └─ GoTo{Id}              （路线已适配且无需点击追踪 → SubTask: SceneAnyEnterWorld 回大世界）
                  ├─ GoTo{Id}StartPos （MapTrackerAssertLocation 已就位 → MapTrackerMove）
                  └─ GoTo{Id}NotAtStartPos
                       └─ SubTask: ${EnterMap}            （传送）
@@ -83,9 +85,9 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
 
 ## 命名规则
 
-### 观察点 ID（`Id`）
+### 观察点节点 ID（`Id`，自动生成）
 
-`routes.mjs` 里 `ROUTE_CONFIG[*].Id`，等价于生成出的所有节点名前缀：
+`Id` 是 `data.mjs` 装配出的生成字段，等价于所有观察点节点名和输出文件名的前缀：
 
 ```text
 {PascalCase 英文名}
@@ -99,11 +101,13 @@ EcologyNearTheFieldLogisticsDepot → 储备站周围的生态环境
 MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 ```
 
-`Id` 默认从 `kite_station.json` 中该任务的 `name["en-US"]` 转 PascalCase 得到，规则在 `data.mjs` 的 `buildDefaultId()` / `toPascalCase()`。**当 `ROUTE_CONFIG` 中显式提供 `Id` 时以显式值为准**——这是 `Id` 与游戏官方英文名脱钩的唯一入口。
+默认情况下，`Id` 从 `kite_station.json` 中该任务的 `name["en-US"]` 转 PascalCase 得到，规则在 `data.mjs` 的 `buildDefaultId()` / `toPascalCase()`。如果英文名缺失，会回退到 `missionId` / `entrustIdx`；如果出现重复，`ensureUniqueId()` 会自动追加后缀。
+
+维护 `ROUTE_CONFIG` 时 **通常不需要写 `Id`**。`ROUTE_CONFIG` 的匹配键是中文 `Name`，`Id` 只是生成器内部用来拼节点名和文件名的字段。只有在需要主动锁定旧节点名时才显式写 `Id`，典型场景是游戏官方英文名变了，但希望继续沿用旧的生成文件名，避免产生无意义的大量重命名。
 
 > [!IMPORTANT]
 >
-> 不要把 `Id` 当作展示文案。展示文案走 `Name`（中文）或 OCR；`Id` 只用于拼接节点名、文件名（`outputPattern: "${Station}/${Id}.json"`）。`Id` 必须是合法的标识符（仅 `[A-Za-z0-9]`），且应与该观察点 `next` 列表里的 `[JumpBack]{Id}Job` 完全一致。
+> 不要把 `Id` 当作展示文案，也不要为了新增观察点默认加 `Id`。展示文案走 `Name`（中文）或 OCR；`Id` 只用于拼接节点名、文件名（`outputPattern: "${Station}/${Id}.json"`）。如果确实手写 `Id`，请保持合法标识符风格（仅 `[A-Za-z0-9]`）。
 
 ### 终端分组（`Station`）
 
@@ -140,8 +144,8 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | 字段                                | 来源                                                                                                                         |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `Station`                           | `kite_station.json` 的英文站名（PascalCase）                                                                                 |
-| `Id`                                | `ROUTE_CONFIG[*].Id` 优先；否则官方英文名 PascalCase                                                                         |
-| `Name`                              | `kite_station.json` 的 `name["zh-CN"]`，去掉特殊符号                                                                         |
+| `Id`                                | 默认由官方英文名 PascalCase 自动生成；仅当 `ROUTE_CONFIG[*].Id` 显式提供时覆盖                                               |
+| `Name`                              | `kite_station.json` 的 `name["zh-CN"]`，去掉特殊符号；`ROUTE_CONFIG` 也按这个中文名归并匹配                                  |
 | `GoToMonitoringTerminal`            | 由 `Station` 决定                                                                                                            |
 | `EnterMap`                          | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                                                           |
 | `MapName` / `MapTarget` / `MapPath` | `ROUTE_CONFIG[*]`，对应 `MapTrackerMove` / `MapTrackerAssertLocation` 参数                                                   |
@@ -149,6 +153,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `CameraMaxHit`                      | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `ExpectedText`                      | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                       |
 | `InExpectedText`                    | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                                                                  |
+| `TrackOrGoToNext` / `TrackNext`     | 由 `data.mjs` 根据路线是否完整自动决定：已适配则继续前往拍照，未适配则仅接取并追踪                                           |
 
 ### 终端分组：`terminals-config.json`
 
@@ -183,7 +188,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!NOTE]
 >
-> `data.mjs` 在渲染时如果某观察点缺字段，会用 `ROUTE_DEFAULTS`（`SceneAnyEnterWorld` + 占位坐标）兜底，并 `console.warn`。**占位渲染出的 Pipeline 能跑过 lint，但运行时无法真正抵达观察点**。新增观察点后务必确认 `ROUTE_CONFIG` 字段已全部填写，避免遗留占位。
+> `data.mjs` 在渲染时如果某观察点没有 `ROUTE_CONFIG`，或路线字段仍等于 `ROUTE_DEFAULTS`（`SceneAnyEnterWorld` + 占位坐标），会 `console.warn` 并把该观察点视为 **未适配**。未适配观察点仍会生成 Pipeline，但运行时只会接取并追踪任务，然后在 `${Id}NotAdapted` 提示后结束，不会执行占位传送或占位寻路。
 
 ## 关键依赖
 
@@ -200,7 +205,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 `EnterMap` 字段必须填写 SceneManager 中已存在的传送节点名，例如 `SceneEnterWorldWulingJingyuValley7`。如果新增观察点位于尚未支持的传送点，需要先在 `assets/resource/pipeline/SceneManager/` 与 `assets/resource/pipeline/Interface/` 下补齐对应的 `SceneEnterWorld*` 与场景识别节点（参见 [scene-manager.md](../scene-manager.md)）。
 
-特殊兜底：`SceneAnyEnterWorld` 表示「不传送、直接回到当前世界」。当观察点本身没有合适的传送点（比如本分支里的「彩虹（缺少栖云窟传送点）」），可以临时填 `SceneAnyEnterWorld`，配合精确的 `MapTarget` / `MapPath` 让玩家跑过去；但要在 `routes.mjs` 注释 `// TODO:` 标记。
+`SceneAnyEnterWorld` 目前只作为未适配占位值使用。`data.mjs` 会把 `EnterMap === ROUTE_DEFAULTS.EnterMap` 的观察点判定为未适配，因此即使同时填写了 `MapTarget` / `MapPath`，也不会进入寻路和拍照流程。要让观察点完整自动化，`EnterMap` 必须改成真实的 `SceneEnterWorld*` 传送节点；暂时没有可用传送点时，可以先不加 `ROUTE_CONFIG` 条目，让它按“仅接取并追踪”的降级流程运行。
 
 ### 主菜单入口
 
@@ -218,20 +223,19 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 把最新的 `kite_station.json` 替换到 `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`（数据来源：`zmdmap`）。
 
-### 2. 检查缺失项
+### 2. 检查路线适配状态
 
-对比 `kite_station.json` 中的 `entrustTasks` 与 `ROUTE_CONFIG` 的条目，确认：
+对比 `kite_station.json` 中的 `entrustTasks` 与 `ROUTE_CONFIG` 的条目，确认每个观察点的状态。匹配方式是中文 `Name` 归一化匹配，而不是 `Id` 匹配：
 
-- **缺失配置**：`ROUTE_CONFIG` 完全没有该观察点 → 走步骤 3。
-- **占位待补全**：`ROUTE_CONFIG` 已加但 `EnterMap` / `MapPath` 等字段仍是默认值 → 走步骤 4。
+- **未适配**：`ROUTE_CONFIG` 没有该观察点，或仍使用 `ROUTE_DEFAULTS` 占位字段 → 生成后只会接取并追踪。
+- **准备适配**：需要让该观察点自动前往并拍照 → 走步骤 3，补齐真实路线。
 
-### 3. 在 `ROUTE_CONFIG` 中新增条目
+### 3. 在 `ROUTE_CONFIG` 中新增/补全条目
 
 `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` → `ROUTE_CONFIG`：
 
 ```javascript
 {
-    Id: "MyNewObservationPoint",         // PascalCase，作为节点前缀和文件名
     Name: "我的新观察点",                 // 必须与 kite_station.json 中的 zh-CN 名（去掉特殊符号后）匹配
     EnterMap: "SceneEnterWorldWulingXxx",// SceneManager 中存在的传送节点
     MapName: "map02_lv001",              // MapTracker 的小地图标识
@@ -239,12 +243,13 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
     MapPath: [[x1, y1], [x2, y2], ...],  // 寻路路径（小地图坐标）
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp", // 朝向调整方向
     // CameraMaxHit: 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
+    // Id: "ExistingObservationPoint", // 可选；仅在需要锁定旧节点/文件名时填写，新增点通常不要加
 }
 ```
 
 > [!IMPORTANT]
 >
-> `Name` 是 `data.mjs` 内部 `normalizeMissionName()` 的匹配键，会与 `kite_station.json` 中的 `mission.name["zh-CN"]` 做去符号、小写对比。如果对不上，`ROUTE_CONFIG` 里的覆盖不会生效，会被默认值兜底。
+> `Name` 是 `data.mjs` 内部 `normalizeMissionName()` 的匹配键，会与 `kite_station.json` 中的 `mission.name["zh-CN"]` 做去符号、小写对比。如果对不上，`ROUTE_CONFIG` 里的覆盖不会生效，该观察点会按未适配处理。`Id` 不是匹配键，新增观察点时不要默认添加。
 
 ### 4. 录制坐标和路径
 
@@ -266,6 +271,8 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`
 - `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`（`{Station}MonitoringTerminalLoop.next` 中包含 `[JumpBack]{Id}Job`）
 
+这里的 `{Id}` 是生成结果里的节点 ID。通常直接看生成出的文件名即可确认；维护 `routes.mjs` 时不需要提前手算。
+
 ## 修改已有观察点路线
 
 只调整路线/朝向（不变更英文名）：
@@ -274,9 +281,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 2. 重新生成（仅需跑 `npx @joebao/maa-pipeline-generate`，终端列表未变化无需重新生成 `Terminals.json`）。
 3. 提交 `routes.mjs` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
 
-如果观察点的官方英文名变了导致 `Id` 漂移：
+如果观察点的官方英文名变了，生成出的 `Id` / 文件名也会跟着变。多数情况下重新生成即可；如果希望保留旧节点名和文件名：
 
-1. 在 `ROUTE_CONFIG` 中显式加 `Id: "ExistingId"` 锁定旧 ID（避免 `next` 链路里所有 `[JumpBack]{Id}Job` 都失效）。
+1. 在 `ROUTE_CONFIG` 中显式加 `Id: "ExistingId"` 锁定旧 ID（避免生成文件和 `[JumpBack]{Id}Job` 链路整体改名）。
 2. 重新生成。
 
 ## 自检清单
@@ -284,20 +291,22 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 提交前至少检查：
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG` 中新增/修改条目是否字段齐全。
-2. `ROUTE_CONFIG` 中新增条目的 `EnterMap`、`MapTarget`、`MapPath`、`CameraSwipeDirection` 均已填写真实值（非 `ROUTE_DEFAULTS` 占位）。
-3. 重生成的 `Terminals.json` 中两个 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
-4. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
-5. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
-6. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.jsonc` / `terminals-template.jsonc` 中扩展）。
-7. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
+2. `ROUTE_CONFIG` 中新增条目的 `Name` 是否能匹配 `kite_station.json` 的 `mission.name["zh-CN"]`；不要为了新增点默认添加 `Id`。
+3. 已适配条目的 `EnterMap`、`MapTarget`、`MapPath`、`CameraSwipeDirection` 均已填写真实值（非 `ROUTE_DEFAULTS` 占位）。
+4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
+5. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
+6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
+7. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.jsonc` / `terminals-template.jsonc` 中扩展）。
+8. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
 
 ## 常见坑
 
 - **手改生成产物**：直接编辑 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` 或 `Terminals.json`，下次重新生成时改动会丢。改源数据 + 重新生成才是正确做法。
-- **`Name` 与游戏文本对不上**：`ROUTE_CONFIG[i].Name` 只用于在 `data.mjs` 内部匹配 `kite_station.json` 的 `mission.name["zh-CN"]`，不是显示文本也不是 OCR 期望。匹配失败时 `console.warn` 提示，并使用占位值兜底。
-- **`Id` 与 `kite_station.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，导致 `Terminals.json` 中旧的 `[JumpBack]{Id}Job` 失效。补 `ROUTE_CONFIG[i].Id` 显式锁定旧 ID 即可。
+- **`Name` 与游戏文本对不上**：`ROUTE_CONFIG[i].Name` 只用于在 `data.mjs` 内部匹配 `kite_station.json` 的 `mission.name["zh-CN"]`，不是显示文本也不是 OCR 期望。匹配失败时 `console.warn` 提示，并按未适配处理（仅接取并追踪）。
+- **把 `Id` 当必填字段**：新增观察点通常不要写 `Id`。只有需要锁定旧节点名/文件名时才补 `ROUTE_CONFIG[i].Id`。
+- **`Id` 与 `kite_station.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留。若想保留旧名，补 `ROUTE_CONFIG[i].Id` 显式锁定即可。
 - **`EnterMap` 写了不存在的 Scene 节点**：生成器不校验，运行时会卡在 `GoTo{Id}NotAtStartPos` 死循环。
 - **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.jsonc` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
-- **「占位值能跑通生成 ≠ 任务能跑通运行」**：`ROUTE_DEFAULTS` 让生成阶段不报错，但运行时 `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` 永远走不到目标。提交前请人工核对 `ROUTE_CONFIG` 中没有遗留占位条目（`EnterMap` 为 `SceneAnyEnterWorld` 且没有 `// TODO:` 注释时应引起注意）。
+- **「生成成功 ≠ 已完整适配」**：没有路线配置或仍使用 `ROUTE_DEFAULTS` 的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补真实的 `EnterMap`、`MapTarget`、`MapPath` 和 `CameraSwipeDirection`。

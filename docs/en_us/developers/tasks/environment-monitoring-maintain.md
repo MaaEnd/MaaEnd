@@ -12,26 +12,26 @@ The core characteristic of environment monitoring is **"data-driven + template b
 
 The core maintenance points for environment monitoring are:
 
-| Module                  | Path                                                                     | Purpose                                                                                                                                |
-| ----------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Task entry              | `assets/tasks/EnvironmentMonitoring.json`                                | Interface task definition (no configurable options; controller = Win32-Front / Wlroots / ADB)                                          |
-| Main-flow Pipeline      | `assets/resource/pipeline/EnvironmentMonitoring.json`                    | Top-level entry node `EnvironmentMonitoringMain`, loops over the two monitoring terminals                                              |
-| Terminal groups (gen.)  | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`          | Entry nodes for Outskirts / MarkerStone terminals and their observation-point `next` lists (**generated**)                             |
-| Terminal navigation     | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`          | `EnvironmentMonitoringGoTo*` and `Select*` nodes that navigate from the main menu into the respective terminal                         |
-| Photo-taking flow       | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | Enters photo mode, adjusts camera facing, identifies the shutter button, returns to the terminal after completion                      |
-| Camera swipe            | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` four-direction facing adjustment                                                |
-| Shared buttons          | `assets/resource/pipeline/EnvironmentMonitoring/Button.json`             | Environment-monitoring-specific shared buttons such as `TrackMissionButton`                                                            |
-| Observation-point nodes | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`     | **One JSON per observation point**, rendered from the template (**generated**)                                                         |
-| Point template          | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`           | Single-observation-point Pipeline template (text recognition, accept/go-to, teleport, pathfinding, photo)                              |
-| Terminal template       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc` | Terminal-group node template                                                                                                           |
-| Route / coordinate data | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | `ROUTE_CONFIG`: teleport target, map name, path, camera-swipe direction for each observation point                                     |
-| Terminal list data      | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`       | Terminal ID list; chains each observation-point Job node into the corresponding terminal's `next`                                      |
-| Game data snapshot      | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`        | Official terminal/commission data from `zmdmap` (multi-language names, `shotTargetName`)                                               |
-| Generator config        | `tools/pipeline-generate/EnvironmentMonitoring/config.json`              | Per-point output config: `outputPattern: "${Station}/${Id}.json"`                                                                      |
-| Terminal gen. config    | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`    | Merged terminal output config: `outputFile: "Terminals.json"`                                                                          |
-| Locale strings          | `assets/locales/interface/*.json`                                        | `task.EnvironmentMonitoring.*` label / description (task level; observation-point names use OCR)                                       |
-| MapTracker dependency   | `agent/go-service/map-tracker/`                                          | `MapTrackerMove`, `MapTrackerAssertLocation` (see [map-tracker.md](../components/map-tracker.md))                                      |
-| SceneManager dependency | `assets/resource/pipeline/SceneManager/`, `Interface/`                   | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see [scene-manager.md](../scene-manager.md)) |
+| Module                  | Path                                                                     | Purpose                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Task entry              | `assets/tasks/EnvironmentMonitoring.json`                                | Interface task definition (no configurable options; controller = Win32-Front / Wlroots / ADB)                                                    |
+| Main-flow Pipeline      | `assets/resource/pipeline/EnvironmentMonitoring.json`                    | Top-level entry node `EnvironmentMonitoringMain`, loops over the two monitoring terminals                                                        |
+| Terminal groups (gen.)  | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`          | Entry nodes for Outskirts / MarkerStone terminals and their observation-point `next` lists (**generated**)                                       |
+| Terminal navigation     | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`          | `EnvironmentMonitoringGoTo*` and `Select*` nodes that navigate from the main menu into the respective terminal                                   |
+| Photo-taking flow       | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | Enters photo mode, adjusts camera facing, identifies the shutter button, returns to the terminal after completion                                |
+| Camera swipe            | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` four-direction facing adjustment                                                          |
+| Shared buttons          | `assets/resource/pipeline/EnvironmentMonitoring/Button.json`             | Environment-monitoring-specific shared buttons such as `TrackMissionButton`                                                                      |
+| Observation-point nodes | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`     | **One JSON per observation point**, rendered from the template (**generated**); `Id` is generated by `data.mjs` and normally not written by hand |
+| Point template          | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`           | Single-observation-point Pipeline template (text recognition, accept/go-to, teleport, pathfinding, photo)                                        |
+| Terminal template       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc` | Terminal-group node template                                                                                                                     |
+| Route / coordinate data | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | `ROUTE_CONFIG`: route overrides matched by the observation point's Chinese `Name` (teleport target, map name, path, camera-swipe direction)      |
+| Terminal list data      | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`       | Builds each terminal's `next` list from `data.mjs` rows and the automatically derived terminal list                                              |
+| Game data snapshot      | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`        | Official terminal/commission data from `zmdmap` (multi-language names, `shotTargetName`)                                                         |
+| Generator config        | `tools/pipeline-generate/EnvironmentMonitoring/config.json`              | Per-point output config: `outputPattern: "${Station}/${Id}.json"`                                                                                |
+| Terminal gen. config    | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`    | Merged terminal output config: `outputFile: "Terminals.json"`                                                                                    |
+| Locale strings          | `assets/locales/interface/*.json`                                        | `task.EnvironmentMonitoring.*` label / description (task level; observation-point names use OCR)                                                 |
+| MapTracker dependency   | `agent/go-service/map-tracker/`                                          | `MapTrackerMove`, `MapTrackerAssertLocation` (see [map-tracker.md](../components/map-tracker.md))                                                |
+| SceneManager dependency | `assets/resource/pipeline/SceneManager/`, `Interface/`                   | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see [scene-manager.md](../scene-manager.md))           |
 
 ## Main flow
 
@@ -59,7 +59,9 @@ The chain inside each observation-point `{Id}Job` (rendered from `template.jsonc
   └─ GoTo{Id}Mission                  (commission already accepted → click go-to)
        └─ {Id}TrackOrGoTo
             ├─ Track{Id}              (if "Start Tracking" button present → click it)
-            └─ GoTo{Id}              (SubTask: SceneAnyEnterWorld → back to open world)
+            │    ├─ {Id}NotAdapted    (route not adapted → show notice and finish this point)
+            │    └─ GoTo{Id}          (route adapted → continue to the location)
+            └─ GoTo{Id}               (route adapted and no tracking click needed → SubTask: SceneAnyEnterWorld)
                  ├─ GoTo{Id}StartPos  (MapTrackerAssertLocation confirms position → MapTrackerMove)
                  └─ GoTo{Id}NotAtStartPos
                       └─ SubTask: ${EnterMap}             (teleport)
@@ -83,9 +85,9 @@ EnvironmentMonitoringTakePhoto        (enters photo mode → adjusts facing → 
 
 ## Naming conventions
 
-### Observation-point ID (`Id`)
+### Observation-point node ID (`Id`, generated)
 
-`ROUTE_CONFIG[*].Id` in `routes.mjs`; serves as the prefix for all generated node names:
+`Id` is a generated field assembled by `data.mjs`; it serves as the prefix for all generated observation-point node names and output files:
 
 ```text
 {PascalCase English name}
@@ -99,11 +101,13 @@ EcologyNearTheFieldLogisticsDepot → 储备站周围的生态环境
 MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 ```
 
-`Id` is derived by default from the `name["en-US"]` of the corresponding task in `kite_station.json`, PascalCase'd via `buildDefaultId()` / `toPascalCase()` in `data.mjs`. **When an explicit `Id` is provided in `ROUTE_CONFIG`, that value takes precedence**—this is the only way to decouple `Id` from the game's official English name.
+By default, `Id` is derived from the corresponding task's `name["en-US"]` in `kite_station.json`, PascalCase'd via `buildDefaultId()` / `toPascalCase()` in `data.mjs`. If the English name is missing, it falls back to `missionId` / `entrustIdx`; if duplicates occur, `ensureUniqueId()` appends a suffix automatically.
+
+When maintaining `ROUTE_CONFIG`, you **normally do not need to write `Id`**. `ROUTE_CONFIG` is matched by the Chinese `Name`; `Id` is only an internal generation field for node names and file names. Write an explicit `Id` only when you intentionally need to pin an old node name, typically when the game's official English name changed but you want to keep the old generated file name and avoid noisy renames.
 
 > [!IMPORTANT]
 >
-> Do not use `Id` as display text. Display text comes from `Name` (Chinese) or OCR; `Id` is only used for constructing node names and file names (`outputPattern: "${Station}/${Id}.json"`). `Id` must be a valid identifier (only `[A-Za-z0-9]`) and must match the `[JumpBack]{Id}Job` entries in the `next` list exactly.
+> Do not use `Id` as display text, and do not add it by default for new observation points. Display text comes from `Name` (Chinese) or OCR; `Id` is only used for constructing node names and file names (`outputPattern: "${Station}/${Id}.json"`). If you do write `Id` manually, keep it identifier-like (`[A-Za-z0-9]` only).
 
 ### Terminal group (`Station`)
 
@@ -140,8 +144,8 @@ When a new Station appears, **the generator side (`routes.mjs` + `data.mjs`) req
 | Field                               | Source                                                                                                                                          |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Station`                           | English terminal name from `kite_station.json` (PascalCase)                                                                                     |
-| `Id`                                | `ROUTE_CONFIG[*].Id` if provided; otherwise official English name PascalCase'd                                                                  |
-| `Name`                              | `name["zh-CN"]` from `kite_station.json`, special characters stripped                                                                           |
+| `Id`                                | Generated from the official English name by default; overridden only when `ROUTE_CONFIG[*].Id` is explicitly provided                           |
+| `Name`                              | `name["zh-CN"]` from `kite_station.json`, special characters stripped; `ROUTE_CONFIG` is also matched by this Chinese name                      |
 | `GoToMonitoringTerminal`            | Determined by `Station`                                                                                                                         |
 | `EnterMap`                          | `ROUTE_CONFIG[*].EnterMap`; **must be an existing SceneManager node name**                                                                      |
 | `MapName` / `MapTarget` / `MapPath` | `ROUTE_CONFIG[*]`; maps to `MapTrackerMove` / `MapTrackerAssertLocation` parameters                                                             |
@@ -149,6 +153,7 @@ When a new Station appears, **the generator side (`routes.mjs` + `data.mjs`) req
 | `CameraMaxHit`                      | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe |
 | `ExpectedText`                      | Expanded automatically from `mission.name` multi-language map in `kite_station.json` (5 languages, English converted to a flexible regex)       |
 | `InExpectedText`                    | Expanded from `mission.shotTargetName` in `kite_station.json`                                                                                   |
+| `TrackOrGoToNext` / `TrackNext`     | Decided automatically by `data.mjs`: adapted points continue to photo-taking, while unadapted points only accept and track                      |
 
 ### Terminal groups: `terminals-config.json`
 
@@ -183,7 +188,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!NOTE]
 >
-> If an observation point is missing fields at render time, `data.mjs` falls back to `ROUTE_DEFAULTS` (`SceneAnyEnterWorld` + placeholder coordinates) and emits a `console.warn`. **Pipelines rendered with placeholder values pass lint but cannot reach the observation point at runtime.** After adding a new point, always confirm that all `ROUTE_CONFIG` fields are filled in to avoid leaving placeholder entries behind.
+> If an observation point has no `ROUTE_CONFIG`, or if its route fields still equal `ROUTE_DEFAULTS` (`SceneAnyEnterWorld` + placeholder coordinates), `data.mjs` emits a `console.warn` and treats the point as **not adapted**. The point still gets a generated Pipeline, but at runtime it only accepts and tracks the mission, then stops at `${Id}NotAdapted`; placeholder teleport/pathfinding is not executed.
 
 ## Key dependencies
 
@@ -200,7 +205,7 @@ For detailed parameters and coordinate recording, see [map-tracker.md](../compon
 
 The `EnterMap` field must be an existing teleport node name in SceneManager, e.g. `SceneEnterWorldWulingJingyuValley7`. If a new observation point is in a yet-unsupported teleport location, the corresponding `SceneEnterWorld*` and scene-recognition nodes must first be added under `assets/resource/pipeline/SceneManager/` and `assets/resource/pipeline/Interface/` (see [scene-manager.md](../scene-manager.md)).
 
-Special fallback: `SceneAnyEnterWorld` means "skip teleport, return to the current world directly." When no suitable teleport exists for an observation point (e.g. the "Rainbow" point that lacks a Qingyun Cave teleport in this branch), `SceneAnyEnterWorld` can be used temporarily combined with a precise `MapTarget` / `MapPath` so the character walks there; mark it with a `// TODO:` comment in `routes.mjs`.
+`SceneAnyEnterWorld` is currently only the unadapted placeholder value. `data.mjs` treats any point with `EnterMap === ROUTE_DEFAULTS.EnterMap` as not adapted, so even if `MapTarget` / `MapPath` are filled in, the route and photo flow will not run. To fully automate a point, `EnterMap` must be a real `SceneEnterWorld*` teleport node. If no usable teleport exists yet, leave the point without a `ROUTE_CONFIG` entry and let it use the degraded "accept and track only" flow for now.
 
 ### Main menu entry
 
@@ -218,20 +223,19 @@ New observation points generally come from game updates, reflected as additional
 
 Replace `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json` with the latest version (source: `zmdmap`).
 
-### 2. Identify missing entries
+### 2. Check route adaptation status
 
-Compare `entrustTasks` in `kite_station.json` against entries in `ROUTE_CONFIG` and confirm:
+Compare `entrustTasks` in `kite_station.json` against entries in `ROUTE_CONFIG` and confirm each observation point's status. Matching is done by normalized Chinese `Name`, not by `Id`:
 
-- **Missing config**: the observation point is absent from `ROUTE_CONFIG` entirely → proceed to step 3.
-- **Placeholder pending completion**: the entry exists in `ROUTE_CONFIG` but `EnterMap` / `MapPath` etc. are still default values → proceed to step 4.
+- **Not adapted**: the observation point has no `ROUTE_CONFIG`, or still uses `ROUTE_DEFAULTS` placeholder fields → after generation, it only accepts and tracks.
+- **Ready to adapt**: the observation point should automatically travel and take the photo → proceed to step 3 and fill real route data.
 
-### 3. Add an entry to `ROUTE_CONFIG`
+### 3. Add or complete an entry in `ROUTE_CONFIG`
 
 In `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` → `ROUTE_CONFIG`:
 
 ```javascript
 {
-    Id: "MyNewObservationPoint",         // PascalCase; used as node prefix and file name
     Name: "我的新观察点",                 // must match zh-CN name in kite_station.json (after stripping special characters)
     EnterMap: "SceneEnterWorldWulingXxx",// existing teleport node in SceneManager
     MapName: "map02_lv001",              // MapTracker minimap identifier
@@ -239,12 +243,13 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` → `ROUTE_CONFIG`
     MapPath: [[x1, y1], [x2, y2], ...],  // pathfinding route (minimap coordinates)
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp", // facing-adjustment direction
     // CameraMaxHit: 2,  // optional; max swipe count, default 2; increase if the target is hard to frame
+    // Id: "ExistingObservationPoint", // optional; only pin old node/file names when needed, usually omit for new points
 }
 ```
 
 > [!IMPORTANT]
 >
-> `Name` is the matching key used internally by `data.mjs`'s `normalizeMissionName()`; it is compared against `mission.name["zh-CN"]` in `kite_station.json` with symbols stripped and lowercased. If the match fails, the override in `ROUTE_CONFIG` will not take effect and the default values will be used as fallback.
+> `Name` is the matching key used internally by `data.mjs`'s `normalizeMissionName()`; it is compared against `mission.name["zh-CN"]` in `kite_station.json` with symbols stripped and lowercased. If the match fails, the override in `ROUTE_CONFIG` will not take effect and the point is treated as not adapted. `Id` is not the matching key, so do not add it by default for new observation points.
 
 ### 4. Record coordinates and path
 
@@ -266,6 +271,8 @@ Verify the two categories of generated files:
 - `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`
 - `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` (`{Station}MonitoringTerminalLoop.next` contains `[JumpBack]{Id}Job`)
 
+Here, `{Id}` is the generated node ID. In normal maintenance, just inspect the generated file name; you do not need to precompute it in `routes.mjs`.
+
 ## Modifying an existing observation-point route
 
 Adjusting only the route/facing (no change to the English name):
@@ -274,9 +281,9 @@ Adjusting only the route/facing (no change to the English name):
 2. Regenerate (only `npx @joebao/maa-pipeline-generate` is needed; re-generating `Terminals.json` is unnecessary when the terminal list is unchanged).
 3. Commit `routes.mjs` together with the regenerated `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`.
 
-If the observation point's official English name changes and causes the `Id` to drift:
+If the observation point's official English name changes, the generated `Id` / file name changes too. In most cases, regenerating is enough; if you want to keep the old node and file name:
 
-1. Explicitly add `Id: "ExistingId"` in `ROUTE_CONFIG` to pin the old ID (prevents all `[JumpBack]{Id}Job` entries in `next` chains from breaking).
+1. Explicitly add `Id: "ExistingId"` in `ROUTE_CONFIG` to pin the old ID (prevents generated files and `[JumpBack]{Id}Job` chains from being renamed together).
 2. Regenerate.
 
 ## Pre-submit checklist
@@ -284,20 +291,22 @@ If the observation point's official English name changes and causes the `Id` to 
 Before committing, at minimum verify:
 
 1. New/modified entries in `ROUTE_CONFIG` in `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` have all required fields.
-2. `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` in new `ROUTE_CONFIG` entries all hold real values (not `ROUTE_DEFAULTS` placeholders).
-3. The regenerated `Terminals.json` has `[JumpBack]{Id}Job` for every new point in both `{Station}MonitoringTerminalLoop.next` lists, ending with `EnvironmentMonitoringFinish`.
-4. The `Scene*` node referenced by `EnterMap` actually exists under `assets/resource/pipeline/SceneManager/` and `Interface/`.
-5. `CameraSwipeDirection` is one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`.
-6. **No hand-edits** to `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` or `Terminals.json` (hand-edits are overwritten on the next generation run; if special nodes are truly needed, extend `template.jsonc` / `terminals-template.jsonc`).
-7. JSON files conform to `.prettierrc` formatting (the generator has `format: true`, but running `pnpm prettier --write` before committing is even safer).
+2. The `Name` of each new `ROUTE_CONFIG` entry matches `mission.name["zh-CN"]` in `kite_station.json`; do not add `Id` by default for new points.
+3. Adapted entries have real `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values (not `ROUTE_DEFAULTS` placeholders).
+4. The regenerated `Terminals.json` has `[JumpBack]{Id}Job` for every new point in each `{Station}MonitoringTerminalLoop.next` list, ending with `EnvironmentMonitoringFinish`.
+5. The `Scene*` node referenced by `EnterMap` actually exists under `assets/resource/pipeline/SceneManager/` and `Interface/`.
+6. `CameraSwipeDirection` is one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`.
+7. **No hand-edits** to `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` or `Terminals.json` (hand-edits are overwritten on the next generation run; if special nodes are truly needed, extend `template.jsonc` / `terminals-template.jsonc`).
+8. JSON files conform to `.prettierrc` formatting (the generator has `format: true`, but running `pnpm prettier --write` before committing is even safer).
 
 ## Common pitfalls
 
 - **Hand-editing generated artifacts**: Directly editing `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` or `Terminals.json` will lose changes on the next generation run. Edit source data and regenerate.
-- **`Name` does not match game text**: `ROUTE_CONFIG[i].Name` is only used internally in `data.mjs` to match `mission.name["zh-CN"]` in `kite_station.json`. It is not display text or an OCR expectation. A mismatch emits a `console.warn` and falls back to the placeholder.
-- **`Id` drifts from `kite_station.json` English name**: When the game renames an item in English, the auto-computed `Id` changes, invalidating old `[JumpBack]{Id}Job` entries in `Terminals.json`. Add `ROUTE_CONFIG[i].Id` explicitly to pin the old ID.
+- **`Name` does not match game text**: `ROUTE_CONFIG[i].Name` is only used internally in `data.mjs` to match `mission.name["zh-CN"]` in `kite_station.json`. It is not display text or an OCR expectation. A mismatch emits a `console.warn` and treats the point as not adapted (accept and track only).
+- **Treating `Id` as required**: new observation points normally should not write `Id`. Add `ROUTE_CONFIG[i].Id` only when you need to pin an old node/file name.
+- **`Id` drifts from `kite_station.json` English name**: When the game renames an item in English, the auto-computed `Id` changes, which can cause generated file renames or stale old files. Add `ROUTE_CONFIG[i].Id` explicitly if you want to keep the old name.
 - **`EnterMap` references a non-existent Scene node**: The generator does not validate this; at runtime the task will loop indefinitely at `GoTo{Id}NotAtStartPos`.
 - **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.
 - **`anchor` key name consistency**: The `anchor` key `EnvironmentMonitoringBackToTerminal` in `template.jsonc` must stay exactly consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; a mismatch silently disables the anchor mechanism.
-- **"Passes generation ≠ passes runtime"**: `ROUTE_DEFAULTS` prevents generation-stage errors, but `EnterMap=SceneAnyEnterWorld` + `MapPath=[[0,0]]` will never reach the target at runtime. Before committing, manually verify that no placeholder entries remain in `ROUTE_CONFIG` (entries with `EnterMap` set to `SceneAnyEnterWorld` and no `// TODO:` comment should raise a flag).
+- **"Generated successfully ≠ fully adapted"**: points without route config, or points still using `ROUTE_DEFAULTS`, are generated as a degraded flow. They only accept and track; they do not travel or take the photo. Full automation requires real `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values.
