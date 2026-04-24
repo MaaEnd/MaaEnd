@@ -1,0 +1,74 @@
+{
+    "SellProductReconstructionCommandBetterSliding1": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1049,
+                    499,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
+        }
+    },
+    "SellProductReconstructionCommandBetterSliding2": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1049,
+                    499,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
+        }
+    },
+    "SellProductReconstructionCommandBetterSliding3": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1049,
+                    499,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
+        }
+    },
+    "SellProductReconstructionCommandBetterSliding4": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "Quantity": {
+                "Box": [
+                    1049,
+                    499,
+                    138,
+                    36
+                ]
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png"
+        }
+    }
+}

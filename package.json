@@ -10,7 +10,7 @@
         "check": "maa-tools check",
         "test": "maa-tools test",
         "generate:EnvironmentMonitoring": "cd tools/pipeline-generate/EnvironmentMonitoring && maa-pipeline-generate && maa-pipeline-generate --config terminals-config.json",
-        "generate:SellProduct": "cd tools/pipeline-generate/SellProduct && maa-pipeline-generate --config pipeline-config.json && maa-pipeline-generate --config task-config.json"
+        "generate:SellProduct": "cd tools/pipeline-generate/SellProduct && maa-pipeline-generate --config task-config.json && maa-pipeline-generate --config pipeline-config.json && maa-pipeline-generate --config pipeline-adb-config.json"
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.2.0",

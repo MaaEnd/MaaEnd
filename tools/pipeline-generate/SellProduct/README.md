@@ -9,6 +9,7 @@ pnpm generate:SellProduct
 # 等价于在当前目录运行
 npx @joebao/maa-pipeline-generate --config pipeline-config.json
 npx @joebao/maa-pipeline-generate --config task-config.json
+npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```
 
 ## 致谢
