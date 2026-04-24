@@ -443,7 +443,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMapSuccess": {
-        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡，并且在顶层地图",
+        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡",
         "recognition": "And",
         "all_of": [
             {
