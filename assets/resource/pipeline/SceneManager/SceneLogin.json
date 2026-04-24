@@ -114,10 +114,7 @@
                     "月パス残り",
                     "今日月卡奖励",
                     "今日月卡獎勵",
-                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards",
-                    "本日報酬",
-                    "月卡奖励$",
-                    "月卡獎勵$"
+                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards"
                 ]
             }
         },
