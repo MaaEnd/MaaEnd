@@ -1508,10 +1508,10 @@
                                 "param": {
                                     "roi": "AutoStockInStapleItem",
                                     "roi_offset": [
-                                        54,
-                                        -176,
-                                        -7,
-                                        11
+                                        39,
+                                        -212,
+                                        25,
+                                        63
                                     ],
                                     "method": 40,
                                     "lower": [

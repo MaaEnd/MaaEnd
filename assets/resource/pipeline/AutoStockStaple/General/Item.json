@@ -69,15 +69,14 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    54,
-                    -176,
-                    -7,
-                    11
+                    39,
+                    -212,
+                    25,
+                    63
                 ],
                 "expected": [
                     "85|80|75|50|25"
                 ],
-                "only_rec": true,
                 "order_by": "Vertical"
             }
         }
@@ -89,15 +88,14 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    54,
-                    -176,
-                    -7,
-                    11
+                    39,
+                    -212,
+                    25,
+                    63
                 ],
                 "expected": [
                     "95|90|85|80|75|50|25"
-                ],
-                "only_rec": true
+                ]
             }
         }
     },
