@@ -64,6 +64,12 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 			Msg("invalid quantity box, expected [x,y,w,h]")
 		return false
 	}
+	if !a.SwipeOnlyMode && len(a.MaxQuantityBox) != 4 {
+		a.logger.Error().
+			Ints("max_quantity_box", a.MaxQuantityBox).
+			Msg("invalid max quantity box, expected [x,y,w,h]")
+		return false
+	}
 
 	end, err := buildSwipeEnd(a.Direction)
 	if err != nil {
@@ -77,8 +83,10 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 	override := buildMainInitializationOverride(
 		end,
 		a.QuantityBox,
+		a.MaxQuantityBox,
 		a.QuantityFilter,
 		a.QuantityOnlyRec,
+		a.MaxQuantityOnlyRec,
 		a.SwipeButton,
 		a.GreenMask,
 	)
@@ -100,8 +108,11 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Str("direction", a.Direction).
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
+		Ints("max_quantity_roi", a.MaxQuantityBox).
 		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
+		Bool("quantity_only_rec", a.QuantityOnlyRec).
+		Bool("max_quantity_only_rec", a.MaxQuantityOnlyRec).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.QuantityFilter != nil {

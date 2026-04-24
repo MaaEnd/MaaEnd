@@ -129,7 +129,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 如果你只需要将滑块拖到最大位置，而不需要读取数量或进行微调，可以使用**仅滑动模式**。
 
-仅滑动模式在 `custom_action_param` 中**仅传入 `Direction`（必填）**，以及**可选传入 `SwipeButton`**，且**不包含其他参数**时自动激活。
+仅滑动模式在 `custom_action_param` 中**仅传入 `Direction`（必填）**，以及**可选传入 `SwipeButton`**，且不包含正常模式所需参数时自动激活。`FinishAfterPreciseClick` 不参与仅滑动模式判定。
 
 在此模式下，`BetterSliding` 执行 `SwipeToMax` 拖动后立即返回成功，跳过 OCR、比例点击和微调。`Direction` 用于指定"最大值所在方向"，为必填项；`SwipeButton` 仍然有效——你可以在仅滑动模式下提供自定义滑块模板路径。
 
@@ -194,8 +194,10 @@ clickY = startY + (endY - startY) * numerator / denominator
 | ------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GreenMask`               | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。                                                                                        |
 | `Quantity.Box`            | `int[4]`                | 是\* | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。仅滑动模式下忽略。                                                                                              |
+| `MaxQuantity.Box`         | `int[4]`                | 否   | `BetterSlidingGetMaxQuantity` 用于识别“最大可选数量”的 OCR 区域，格式固定为 `[x, y, w, h]`。若整个 `MaxQuantity` 都未填写，go-service 会回落到 `Quantity`。 |
 | `QuantityFilter`          | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                                                           |
 | `Quantity.OnlyRec`        | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。当前默认值为 `false`；若显式传入，则按传入值覆盖。Go 侧仍只从 `Results.Best.AsOCR().Text` 读取数量文本。                  |
+| `MaxQuantity.OnlyRec`     | `bool`                  | 否   | 是否为 `BetterSlidingGetMaxQuantity` 的 OCR 节点启用 `only_rec`。若整个 `MaxQuantity` 都未填写，go-service 会回落到 `Quantity`。一旦传入 `MaxQuantity`，就按与 `Quantity` 相同的 JSON 结构独立解析。 |
 | `Direction`               | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。Go 侧会先去掉首尾空白并转成小写后再校验。                                                                    |
 | `IncreaseButton`          | `string` 或 `int[2\|4]` | 是\* | "增加数量"按钮。可传模板路径，也可传坐标。仅滑动模式下忽略。                                                                                                  |
 | `DecreaseButton`          | `string` 或 `int[2\|4]` | 是\* | "减少数量"按钮。可传模板路径，也可传坐标。仅滑动模式下忽略。                                                                                                  |
@@ -205,6 +207,23 @@ clickY = startY + (endY - startY) * numerator / denominator
 | `ExceedingOverrideEnable` | `string`                | 否   | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。用于目标无法到达时触发降级分支。默认 `""`（禁用，动作直接失败）。 |
 
 \* 正常模式下必填；仅滑动模式下忽略。
+
+### `MaxQuantity`
+
+`MaxQuantity` 与 `Quantity` 使用完全相同的 JSON 结构：
+
+```json
+"MaxQuantity": {
+    "Box": [360, 420, 110, 70],
+    "OnlyRec": false
+}
+```
+
+只有当界面上的**最大数量**与**当前可滑动数量**不在同一个 OCR 区域时，才需要单独填写 `MaxQuantity`。如果 `MaxQuantity` 整个对象缺失，或显式写成 `null`，go-service 会把 `Quantity` 作为 `BetterSlidingGetMaxQuantity` 的实际配置复用，包括 `Box` 与 `OnlyRec`。
+
+这种回落是“整对象级别”的，不是按字段逐个继承。也就是说，一旦传入了 `MaxQuantity`，go-service 就不会再把其中缺失的子字段从 `Quantity` 补齐。
+
+也就是说，常见场景依然只需要写 `Quantity`；`MaxQuantity` 只是为“最大数量显示区域与当前数量显示区域不一致”的少数场景提供覆盖入口。
 
 `CenterPointOffset` 用于微调 `BetterSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 

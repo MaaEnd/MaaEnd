@@ -97,6 +97,15 @@ func normalizeQuantityFilter(raw *quantityFilterParam) (*quantityFilterParam, er
 	}, nil
 }
 
+func normalizeQuantityParam(raw quantityParam) ([]int, bool) {
+	onlyRec := false
+	if raw.OnlyRec != nil {
+		onlyRec = *raw.OnlyRec
+	}
+
+	return append([]int(nil), raw.Box...), onlyRec
+}
+
 func quantityFilterChannelCount(method int) (int, error) {
 	switch method {
 	case 4, 40:
@@ -208,6 +217,7 @@ func resolveTarget(target int, targetType string, targetReverse bool, maxQuantit
 func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.Target &&
 		!params.presence.Quantity &&
+		!params.presence.MaxQuantity &&
 		!params.presence.QuantityFilter &&
 		!params.presence.GreenMask &&
 		!params.presence.IncreaseButton &&

@@ -129,7 +129,7 @@ In a business Pipeline, call it like a normal `Custom` action. The example below
 
 If you only need to drag the slider to its maximum position without reading any quantity or fine-tuning, you can use **swipe-only mode**.
 
-Swipe-only mode is activated automatically when `custom_action_param` contains **only `Direction` (required)** and an optional `SwipeButton`, with **no other parameters** present.
+Swipe-only mode is activated automatically when `custom_action_param` contains **only `Direction` (required)** and an optional `SwipeButton`, with no normal-mode parameters present. `FinishAfterPreciseClick` does not participate in swipe-only detection.
 
 In this mode, `BetterSliding` performs the `SwipeToMax` drag and returns success immediately, skipping OCR, proportional clicking, and fine-tuning entirely. `Direction` is required and specifies which side corresponds to the maximum value, while `SwipeButton` is still respected — you can supply a custom slider template path even in swipe-only mode.
 
@@ -194,8 +194,10 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 | ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`.                                                                                                                                                                |
 | `Quantity.Box`            | `int[4]`                | Yes\*    | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode.                                                                                                                                                                                     |
+| `MaxQuantity.Box`         | `int[4]`                | No       | OCR region for `BetterSlidingGetMaxQuantity`, used to read the maximum selectable quantity. The format must be `[x, y, w, h]`. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`.                                                                            |
 | `QuantityFilter`          | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                                                                               |
 | `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`.                                                         |
+| `MaxQuantity.OnlyRec`     | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxQuantity` OCR node. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`. When `MaxQuantity` is provided, it is treated as an independent OCR config with the same JSON shape as `Quantity`.            |
 | `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                                                                                                                |
 | `IncreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
 | `DecreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
@@ -205,6 +207,23 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 | `ExceedingOverrideEnable` | `string`                | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. Useful for triggering a fallback branch when the target cannot be reached. Default: `""` (disabled — the action fails immediately instead). |
 
 \* Required in normal mode; ignored in swipe-only mode.
+
+### `MaxQuantity`
+
+`MaxQuantity` has the same JSON shape as `Quantity`:
+
+```json
+"MaxQuantity": {
+    "Box": [360, 420, 110, 70],
+    "OnlyRec": false
+}
+```
+
+Use it only when the OCR area for the screen's **maximum quantity** differs from the OCR area for the **current quantity**. If `MaxQuantity` is omitted or set to `null`, go-service reuses `Quantity` as the effective configuration for `BetterSlidingGetMaxQuantity`, including its `Box` and `OnlyRec` values.
+
+This fallback is whole-object only. If `MaxQuantity` is present, go-service does not inherit missing subfields from `Quantity` field by field.
+
+This means the common case still needs only `Quantity`; `MaxQuantity` is an override for the uncommon case where “maximum quantity” and “current slidable quantity” are displayed in different regions.
 
 `CenterPointOffset` is used to fine-tune the final click position for `BetterSlidingPreciseClick`. Its format must be `[x, y]`:
 
