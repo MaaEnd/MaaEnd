@@ -751,10 +751,10 @@
                                 "param": {
                                     "roi": "AutoStockInStapleItemName",
                                     "roi_offset": [
-                                        54,
-                                        -176,
-                                        -7,
-                                        11
+                                        39,
+                                        -212,
+                                        25,
+                                        63
                                     ],
                                     "lower": [
                                         0,
@@ -1506,7 +1506,7 @@
                             "recognition": {
                                 "type": "ColorMatch",
                                 "param": {
-                                    "roi": "AutoStockInStapleItem",
+                                    "roi": "AutoStockInStapleItemName",
                                     "roi_offset": [
                                         39,
                                         -212,
