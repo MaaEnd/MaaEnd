@@ -1014,6 +1014,7 @@
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -1055,6 +1056,7 @@
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -1096,6 +1098,7 @@
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -1137,6 +1140,7 @@
             "pipeline_override": {
                 "SellProductInfrastructureOutpostBetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -2036,6 +2040,7 @@
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -2077,6 +2082,7 @@
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -2118,6 +2124,7 @@
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -2159,6 +2166,7 @@
             "pipeline_override": {
                 "SellProductReconstructionCommandBetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -3298,6 +3306,7 @@
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -3339,6 +3348,7 @@
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -3380,6 +3390,7 @@
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -3421,6 +3432,7 @@
             "pipeline_override": {
                 "SellProductRefugeeCampBetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -4348,6 +4360,7 @@
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -4389,6 +4402,7 @@
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -4430,6 +4444,7 @@
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -4471,6 +4486,7 @@
             "pipeline_override": {
                 "SellProductCardiacRemediationStationBetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -5530,6 +5546,7 @@
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -5571,6 +5588,7 @@
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -5612,6 +5630,7 @@
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -5653,6 +5672,7 @@
             "pipeline_override": {
                 "SellProductSkyKingFlatsBetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {

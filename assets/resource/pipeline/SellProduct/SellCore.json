@@ -291,6 +291,19 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
+    "SellProductSkipToNextSellLoop": {
+        "desc": "保留数量大于当前库存，跳过本次交易尝试",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ],
+        "focus": {
+            "Node.Action.Starting": "保留数量大于当前库存，跳过本次交易尝试"
+        }
+    },
     "SellProductSellLoopEnd": {
         "desc": "售卖循环结束，所有售卖尝试完成",
         "pre_delay": 0,

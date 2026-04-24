@@ -241,6 +241,7 @@
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding1": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -282,6 +283,7 @@
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding2": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -323,6 +325,7 @@
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding3": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {
@@ -364,6 +367,7 @@
             "pipeline_override": {
                 "SellProduct${LocationId}BetterSliding4": {
                     "next": [
+                        "SellProductSkipToNextSellLoop",
                         "SellProductSellThenLoop"
                     ],
                     "attach": {

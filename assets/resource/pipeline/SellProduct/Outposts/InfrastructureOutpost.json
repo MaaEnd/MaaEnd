@@ -359,7 +359,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
@@ -387,7 +388,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
@@ -415,7 +417,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
@@ -443,7 +446,8 @@
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png"
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
