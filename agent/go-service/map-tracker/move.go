@@ -499,7 +499,6 @@ func doEmergencyStop(ca control.ControlAdaptor, noPrint bool) {
 		maafocus.Print(ca.Ctx(), i18n.RenderHTML("maptracker.emergency_stop", nil))
 	}
 	doPlayerStop(ca)
-	ca.Ctx().GetTasker().PostStop()
 }
 
 func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*MapTrackerInferResult, error) {
