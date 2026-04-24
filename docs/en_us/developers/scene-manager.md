@@ -74,4 +74,69 @@ These node names **do not start with `__ScenePrivate`**.
 | Helper   | `SceneNoticeRewardsConfirm`         | Click confirm button on rewards screens.                         |
 | Helper   | `SceneWaitLoadingExit`              | Wait for loading screen to disappear.                            |
 
+## Protocol Teleport Point Interfaces
+
+### Valley IV
+
+| Interface Name                                     | Description                                                                                           |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `SceneEnterMapValleyIVTheHub`                      | Enter the Valley IV - The Hub map screen from any screen.                                             |
+| `SceneEnterMapValleyIVValleyPass`                  | Enter the Valley IV - Valley Pass map screen from any screen.                                         |
+| `SceneEnterMapValleyIVOriginiumSciencePark`        | Enter the Valley IV - Originium Science Park map screen from any screen.                              |
+| `SceneEnterMapValleyIVAburreyQuarry`               | Enter the Valley IV - Aburrey Quarry map screen from any screen.                                      |
+| `SceneEnterMapValleyIVOriginLodespring`            | Enter the Valley IV - Origin Lodespring map screen from any screen.                                   |
+| `SceneEnterMapValleyIVPowerPlateau`                | Enter the Valley IV - Power Plateau map screen from any screen.                                       |
+| `SceneEnterWorldValleyIVTheHub`                    | Enter the Valley IV - The Hub overworld from any screen.                                              |
+| `SceneEnterWorldValleyIVTheHub1`                   | Enter the Valley IV - The Hub (East of Old Water Supply Facility) overworld from any screen.          |
+| `SceneEnterWorldValleyIVTheHub2`                   | Enter the Valley IV - The Hub (Rock Hill Passage) overworld from any screen.                          |
+| `SceneEnterWorldValleyIVOriginiumSciencePark0`     | Enter the Valley IV - Originium Science Park (Origin Lodespring Entrance) overworld from any screen.  |
+| `SceneEnterWorldValleyIVOriginiumSciencePark1`     | Enter the Valley IV - Originium Science Park (Originium Experimental Park) overworld from any screen. |
+| `SceneEnterWorldValleyIVOriginiumSciencePark2`     | Enter the Valley IV - Originium Science Park (Gentle Mountain Slope) overworld from any screen.       |
+| `SceneEnterWorldValleyIVOriginiumSciencePark3`     | Enter the Valley IV - Originium Science Park (Highway 5) overworld from any screen.                   |
+| `SceneEnterWorldValleyIVOriginiumSciencePark4`     | Enter the Valley IV - Originium Science Park (Alcohol Compound Factory) overworld from any screen.    |
+| `SceneEnterWorldValleyIVOriginiumScienceParkInfra` | Enter the Valley IV - Originium Science Park (Infrastructure Outpost) overworld from any screen.      |
+| `SceneEnterWorldValleyIVOriginLodespring0`         | Enter the Valley IV - Origin Lodespring (Originium Tunnel) overworld from any screen.                 |
+| `SceneEnterWorldValleyIVOriginLodespring1`         | Enter the Valley IV - Origin Lodespring (Transport Area) overworld from any screen.                   |
+| `SceneEnterWorldValleyIVOriginLodespring2`         | Enter the Valley IV - Origin Lodespring (Old Mining Area) overworld from any screen.                  |
+| `SceneEnterWorldValleyIVOriginLodespring3`         | Enter the Valley IV - Origin Lodespring (Mining Medical Station) overworld from any screen.           |
+| `SceneEnterWorldValleyIVOriginLodespring4`         | Enter the Valley IV - Origin Lodespring (Landbreaker Camp) overworld from any screen.                 |
+| `SceneEnterWorldValleyIVPowerPlateau0`             | Enter the Valley IV - Power Plateau (Power Station Communication Station) overworld from any screen.  |
+| `SceneEnterWorldValleyIVPowerPlateau1`             | Enter the Valley IV - Power Plateau (Highland Main Road) overworld from any screen.                   |
+| `SceneEnterWorldValleyIVPowerPlateau2`             | Enter the Valley IV - Power Plateau (Bonegrinder Camp) overworld from any screen.                     |
+| `SceneEnterWorldValleyIVPowerPlateau3`             | Enter the Valley IV - Power Plateau (Evacuation Zone) overworld from any screen.                      |
+
+### Wuling
+
+| Interface Name                         | Description                                                                             |
+| -------------------------------------- | --------------------------------------------------------------------------------------- |
+| `SceneEnterMapWulingWulingCity`        | Enter the Wuling - Wuling City map screen from any screen.                              |
+| `SceneEnterMapWulingJingyuValley`      | Enter the Wuling - Jingyu Valley map screen from any screen.                            |
+| `SceneEnterMapWulingQingboStockade`    | Enter the Wuling - Qingbo Stockade map screen from any screen.                          |
+| `SceneEnterWorldWulingJingyuValley0`   | Enter Wuling - Jingyu Valley (Ecological Experiment Station) overworld from any screen. |
+| `SceneEnterWorldWulingJingyuValley1`   | Enter Wuling - Jingyu Valley (Caidao) overworld from any screen.                        |
+| `SceneEnterWorldWulingJingyuValley2`   | Enter Wuling - Jingyu Valley (Outside Treasure Cave) overworld from any screen.         |
+| `SceneEnterWorldWulingJingyuValley3`   | Enter Wuling - Jingyu Valley (Outer Qingbo Stockade) overworld from any screen.         |
+| `SceneEnterWorldWulingJingyuValley4`   | Enter Wuling - Jingyu Valley (Inside Treasure Cave) overworld from any screen.          |
+| `SceneEnterWorldWulingJingyuValley5`   | Enter Wuling - Jingyu Valley (Tianwang Flat) overworld from any screen.                 |
+| `SceneEnterWorldWulingJingyuValley6`   | Enter Wuling - Jingyu Valley (Tuobi Mountain) overworld from any screen.                |
+| `SceneEnterWorldWulingJingyuValley7`   | Enter Wuling - Jingyu Valley (Lost Forest) overworld from any screen.                   |
+| `SceneEnterWorldWulingJingyuValley8`   | Enter Wuling - Jingyu Valley (Zhailing Islet) overworld from any screen.                |
+| `SceneEnterWorldWulingJingyuValley9`   | Enter Wuling - Jingyu Valley (South Mountain) overworld from any screen.                |
+| `SceneEnterWorldWulingJingyuValley10`  | Enter Wuling - Jingyu Valley (Shuize Ravine) overworld from any screen.                 |
+| `SceneEnterWorldWulingWulingCityCore`  | Enter Wuling - Wuling City Core overworld from any screen.                              |
+| `SceneEnterWorldWulingWulingCity0`     | Enter Wuling - Wuling City (Observation Station) overworld from any screen.             |
+| `SceneEnterWorldWulingWulingCity1`     | Enter Wuling - Wuling City (Boundary Stone Flat) overworld from any screen.             |
+| `SceneEnterWorldWulingWulingCity2`     | Enter Wuling - Wuling City (Pending Repair Area) overworld from any screen.             |
+| `SceneEnterWorldWulingWulingCity3`     | Enter Wuling - Wuling City (Fangxing Avenue) overworld from any screen.                 |
+| `SceneEnterWorldWulingWulingCity4`     | Enter Wuling - Wuling City (Tianshi Academy) overworld from any screen.                 |
+| `SceneEnterWorldWulingWulingCity5`     | Enter Wuling - Wuling City (Tianjing Courtyard) overworld from any screen.              |
+| `SceneEnterWorldWulingWulingCity6`     | Enter Wuling - Wuling City (Reserve Station Upper Left) overworld from any screen.      |
+| `SceneEnterWorldWulingWulingCity7`     | Enter Wuling - Wuling City (Sanku Gang) overworld from any screen.                      |
+| `SceneEnterWorldWulingWulingCity8`     | Enter Wuling - Wuling City (Reserve Station Lower Right) overworld from any screen.     |
+| `SceneEnterWorldWulingQingboStockade0` | Enter Wuling - Qingbo Stockade (Dingtian Ridge) overworld from any screen.              |
+| `SceneEnterWorldWulingQingboStockade1` | Enter Wuling - Qingbo Stockade (Plank Bridge Path) overworld from any screen.           |
+| `SceneEnterWorldWulingQingboStockade2` | Enter Wuling - Qingbo Stockade (Main Stockade Southwest) overworld from any screen.     |
+| `SceneEnterWorldWulingQingboStockade3` | Enter Wuling - Qingbo Stockade (Ancestral Spring) overworld from any screen.            |
+| `SceneEnterWorldWulingQingboStockade4` | Enter Wuling - Qingbo Stockade (Main Stockade Southeast) overworld from any screen.     |
+
 For the complete list of interfaces and detailed descriptions, please refer to the `desc` field of each node in the `SceneXXX.json` files under `assets/resource/pipeline/Interface`.
