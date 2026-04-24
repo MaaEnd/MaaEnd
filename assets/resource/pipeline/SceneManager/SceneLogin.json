@@ -131,7 +131,7 @@
                 "roi": [
                     850,
                     180,
-                    250,
+                    300,
                     150
                 ],
                 "expected": [
@@ -158,6 +158,15 @@
             "param": {
                 "key": 27 // ESC
             }
+        },
+        "post_wait_freezes": {
+            "target": [
+                0,
+                0,
+                100,
+                100
+            ],
+            "time": 600
         }
     },
     "__ScenePrivateLoginSuccess": {
