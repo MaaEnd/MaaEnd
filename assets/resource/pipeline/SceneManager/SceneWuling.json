@@ -259,6 +259,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -276,6 +277,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -293,6 +295,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     },
@@ -306,6 +309,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     },
@@ -319,6 +323,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     },
@@ -332,6 +337,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     }

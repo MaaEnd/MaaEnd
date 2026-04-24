@@ -333,6 +333,62 @@
             "__ScenePrivateMapFilterClearAll"
         ]
     },
+    "__ScenePrivateMapLayerSwitchToMain": {
+        "desc": "在分层地图，切换到主地图",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "layers_other",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    -200,
+                    250,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapLayersOther.png"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "layers_other",
+                "lower": [
+                    245,
+                    229,
+                    0
+                ],
+                "upper": [
+                    255,
+                    249,
+                    10
+                ],
+                "connected": true,
+                "count": 10
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    -200,
+                    250,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapLayersMain.png"
+                ]
+            }
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "target_offset": [
+            7,
+            7,
+            -14,
+            -14
+        ],
+        "post_wait_freezes": 200
+    },
     "__ScenePrivateMapFilterClearAll": {
         "desc": "在标记显示管理界面，点击清空选中",
         "recognition": "OCR",
@@ -418,33 +474,9 @@
                     "業務通知",
                     "업무 알림"
                 ]
-            },
-            {
-                "recognition": {
-                    "type": "TemplateMatch",
-                    "param": {
-                        "roi": [
-                            29,
-                            504,
-                            186,
-                            185
-                        ],
-                        "template": [
-                            "SceneManager/BackToMainMap.png"
-                        ]
-                    }
-                }
             }
         ],
-        "box_index": 2,
         "pre_delay": 0,
-        "action": "Click",
-        "target_offset": [
-            7,
-            7,
-            -14,
-            -14
-        ],
         "post_wait_freezes": 100,
         "post_delay": 0
     },
