@@ -186,7 +186,15 @@ The next node, `SellProductLoop`, should **recognize** that you are in Regional 
 }
 ```
 
-`InRegionalDevelopment` is a shared recognition node shipped with the project for confirming the Regional Development main screen. The example below shows `InRegionalDevelopmentView2`, which recognizes the Regional Development secondary screen by OCR'ing the top function names.
+`InRegionalDevelopment` is a shared recognition node already defined in the project. **You can reuse any existing recognition logic by simply referencing its node name**—no need to duplicate the definition.
+
+> **💡 Tip: Combination recognition (And / Or)**
+>
+> Beyond `TemplateMatch`, `Color`, and other basic methods, Pipeline supports logical **`And`** and **`Or`** conditions to combine multiple recognition nodes—useful for complex or variable UI states.
+>
+> See [MaaFramework Pipeline protocol – And/Or](https://maafw.com/docs/3.1-PipelineProtocol#and) for syntax and advanced usage.
+
+The example below shows `InRegionalDevelopmentView2`, which recognizes the Regional Development secondary screen by OCR'ing the top function names.
 
 ```json
 {
