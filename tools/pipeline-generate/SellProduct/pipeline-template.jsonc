@@ -341,6 +341,9 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
+            "MaxQuantity": {
+                "Box": "${MaxQuantityBox}"
+            },
             "Quantity": {
                 "Box": "${QuantityBox}"
             },
@@ -365,6 +368,9 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
+            "MaxQuantity": {
+                "Box": "${MaxQuantityBox}"
+            },
             "Quantity": {
                 "Box": "${QuantityBox}"
             },
@@ -389,6 +395,9 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
+            "MaxQuantity": {
+                "Box": "${MaxQuantityBox}"
+            },
             "Quantity": {
                 "Box": "${QuantityBox}"
             },
@@ -413,6 +422,9 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
+            "MaxQuantity": {
+                "Box": "${MaxQuantityBox}"
+            },
             "Quantity": {
                 "Box": "${QuantityBox}"
             },
