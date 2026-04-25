@@ -21,6 +21,19 @@ pnpm install
 >
 > 如果 `setup_workspace.py` 出错，参考下方[手动配置指南](#手动配置指南)。
 
+### 编辑器（推荐）
+
+推荐使用 [Visual Studio Code](https://code.visualstudio.com/)（VS Code）作为本项目的日常开发 IDE。完成上方克隆与初始化后，用 VS Code **打开仓库根目录**（需包含 `.vscode/extensions.json`），并安装工作区**推荐扩展（Workspace Recommendations）**，以便与团队环境一致（例如 Black、Prettier、**Maa Pipeline Support**、Markdownlint、Go、LLDB 等，完整列表见仓库内 `.vscode/extensions.json`）。
+
+**安装推荐扩展：**
+
+1. **打开工作区**：菜单 **文件 → 打开文件夹…**，选中克隆下来的仓库根目录。
+2. **通知栏安装**：若右下角提示「此工作区具有扩展建议」或类似文案，选择 **安装** / **全部安装**。
+3. **扩展视图**：按 `Ctrl+Shift+X`（macOS：`Cmd+Shift+X`）打开扩展侧栏，在搜索框输入 `@recommended`，展开 **工作区推荐**，对需要的扩展点击 **安装**。
+4. **命令面板**：`Ctrl+Shift+P`（macOS：`Cmd+Shift+P`）→ 执行 **`Extensions: Show Recommended Extensions`**，在列表中安装。
+
+更完整的说明见 VS Code 文档：[工作区推荐扩展](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions)。
+
 ## 0. Git 前置知识与规范
 
 本项目依赖部分 Git 特性（特别是子模块）。在正式开始堆代码之前，请确保你已经掌握了基本的 Git 分支操作。

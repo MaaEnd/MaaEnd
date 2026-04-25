@@ -21,6 +21,19 @@ pnpm install
 >
 > If `setup_workspace.py` fails, see the [manual setup guide](#manual-setup-guide) below.
 
+### Editor (recommended)
+
+We recommend [Visual Studio Code](https://code.visualstudio.com/) (VS Code) for day-to-day development. After the clone and setup commands above, **open the repo root** in VS Code (it must contain `.vscode/extensions.json`) and install the **workspace recommended extensions** so your setup matches the team—Black, Prettier, **Maa Pipeline Support**, Markdownlint, Go, LLDB, and others listed in `.vscode/extensions.json`.
+
+**How to install recommended extensions:**
+
+1. **Open the workspace:** **File → Open Folder…** and select the cloned repository root.
+2. **Notification:** If VS Code shows “This workspace has extension recommendations,” choose **Install** / **Install All**.
+3. **Extensions view:** Press `Ctrl+Shift+X` (Windows/Linux) or `Cmd+Shift+X` (macOS), type `@recommended` in the search box, expand **Workspace Recommendations**, then **Install** what you need.
+4. **Command Palette:** `Ctrl+Shift+P` / `Cmd+Shift+P` → run **`Extensions: Show Recommended Extensions`** and install from the list.
+
+See also: [Workspace recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) in the VS Code docs.
+
 ## 0. Git basics and conventions
 
 This project relies on Git features—**submodules** in particular. Before you dive into code, be comfortable with basic branching and history.
