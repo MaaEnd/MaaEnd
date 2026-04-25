@@ -23,7 +23,7 @@
             "cwd": "${workspaceFolder}/install",
             "windows": {
                 "env": {
-                    "PATH": "${workspaceFolder}/install/maafw;${env:PATH}"
+                    "Path": "${workspaceFolder}/install/maafw;${env:Path}"
                 }
             }
         }
