@@ -21,6 +21,41 @@ pnpm install
 >
 > If `setup_workspace.py` fails, see the [manual setup guide](#manual-setup-guide) below.
 
+## 0. Git basics and conventions
+
+This project relies on Git features—**submodules** in particular. Before you dive into code, be comfortable with basic branching and history.
+
+**If Git is still new, work through this interactive tutorial first:**
+👉 **[Learn Git Branching](https://learngitbranching.js.org/)**
+
+Beyond `add` / `commit` / `push` / `pull`, two topics matter here:
+
+### Conventional Commits
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). A clear history helps reviewers. Use these prefixes:
+
+- `feat:` new feature (e.g. new Pipeline nodes)
+- `fix:` bug fix (e.g. incorrect ROI)
+- `docs:` documentation only
+- `style:` formatting, whitespace, etc. (no behavior change)
+- `chore:` tooling and housekeeping (not production logic)
+
+> **Example:** `feat(SellProduct): add Regional Development auto-sell Pipeline`
+
+### Submodule updates
+
+Git submodules hold standalone dependencies and large assets (e.g. recognition **model** libraries).
+
+**Common pitfall:** When you commit, `git status` may show `model` (or another submodule) as modified even though you never touched those files. You often just **pulled** or **switched branches**: the superproject now records a new submodule revision, but your **local submodule checkout is out of date**, so Git reports a diff.
+
+The same mismatch can show up as strange changes or “model not found” errors after a pull or branch switch.
+
+**What to do:** Whenever you see that ghost diff, or after each `git pull`, run this from the repo root:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## 1. Confirm the requirement
 
 Open or file an [Issue](https://github.com/MaaEnd/MaaEnd/issues), e.g. “Automatically sell selected items from inventory.”
@@ -47,9 +82,9 @@ For “sell items,” organize Pipeline under the task name **SellProduct**: put
 
 Use PascalCase and keep the task prefix, e.g. `SellProductOpenBag`, `SellProductSelectItem`, `SellProductConfirmSell`.
 
-### Think like a state machine
+### Think like a state machine / decision tree
 
-Pipeline is a **finite state machine (FSM)**: each node recognizes the screen, acts, then follows `next`:
+Pipeline core logic is similar to a **finite state machine (FSM)** / **decision tree (Decision Tree)**: each node recognizes the screen, acts, then follows `next`:
 
 ```text
 Open bag → recognize item → tap item → recognize sell → tap sell → recognize confirm → confirm → back to list
