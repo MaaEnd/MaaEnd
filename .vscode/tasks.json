@@ -29,6 +29,26 @@
                 "instanceLimit": 1
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Generate: EnvironmentMonitoring",
+            "type": "shell",
+            "command": "pnpm generate:EnvironmentMonitoring",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Generate: SellProduct",
+            "type": "shell",
+            "command": "pnpm generate:SellProduct",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
         }
     ]
 }
