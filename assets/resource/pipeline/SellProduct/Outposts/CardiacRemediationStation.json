@@ -79,7 +79,6 @@
         "expected": [
             "心脏修缮站",
             "心臟修繕站",
-            "(?i)Cardiac\\s*Remediation\\s*Station",
             "心臓修復施設",
             "(?i)^Cardiac\\s*Remediation\\s*Station$"
         ],
@@ -97,16 +96,9 @@
             331,
             127
         ],
-        "roi_offset": [
-            0,
-            0,
-            359,
-            0
-        ],
         "expected": [
             "心脏修缮站",
             "心臟修繕站",
-            "(?i)Cardiac\\s*Remediation\\s*Station",
             "心臓修復施設",
             "(?i)^Cardiac\\s*Remediation\\s*Station$"
         ],
