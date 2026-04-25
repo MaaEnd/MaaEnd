@@ -84,7 +84,7 @@ Use PascalCase and keep the task prefix, e.g. `SellProductOpenBag`, `SellProduct
 
 ### Think like a state machine / decision tree
 
-Pipeline core logic is similar to a **finite state machine (FSM)** / **decision tree (Decision Tree)**: each node recognizes the screen, acts, then follows `next`:
+Pipeline core logic is similar to a **finite state machine (FSM)** / **decision tree**: each node recognizes the screen, acts, then follows `next`:
 
 ```text
 Open bag → recognize item → tap item → recognize sell → tap sell → recognize confirm → confirm → back to list
