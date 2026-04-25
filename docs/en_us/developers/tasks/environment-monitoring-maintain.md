@@ -173,11 +173,10 @@ When a new Station appears, **the generator side (`routes.mjs` + `data.mjs`) req
 ### Run commands
 
 ```bash
-# Install dependency (first time only)
-npm i -g @joebao/maa-pipeline-generate
-# Or as a one-off: npx @joebao/maa-pipeline-generate
+# Recommended: run from the repository root
+pnpm generate:EnvironmentMonitoring
 
-# Run in the tools/pipeline-generate/EnvironmentMonitoring/ directory:
+# Equivalent to running in tools/pipeline-generate/EnvironmentMonitoring/:
 
 # 1) Render all observation-point Pipelines
 npx @joebao/maa-pipeline-generate
@@ -261,6 +260,10 @@ Use the GUI tool described in [map-navigator.md](../components/map-navigator.md)
 ### 5. Regenerate the Pipeline
 
 ```bash
+# Run from the repository root
+pnpm generate:EnvironmentMonitoring
+
+# Or run the generator commands individually
 cd tools/pipeline-generate/EnvironmentMonitoring
 npx @joebao/maa-pipeline-generate
 npx @joebao/maa-pipeline-generate --config terminals-config.json
@@ -278,7 +281,7 @@ Here, `{Id}` is the generated node ID. In normal maintenance, just inspect the g
 Adjusting only the route/facing (no change to the English name):
 
 1. Edit `ROUTE_CONFIG[i]` in `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`.
-2. Regenerate (only `npx @joebao/maa-pipeline-generate` is needed; re-generating `Terminals.json` is unnecessary when the terminal list is unchanged).
+2. Regenerate. In the common case, run `pnpm generate:EnvironmentMonitoring` from the repository root; if you know the terminal list is unchanged, you can instead run only `npx @joebao/maa-pipeline-generate` in `tools/pipeline-generate/EnvironmentMonitoring/`, without re-generating `Terminals.json`.
 3. Commit `routes.mjs` together with the regenerated `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`.
 
 If the observation point's official English name changes, the generated `Id` / file name changes too. In most cases, regenerating is enough; if you want to keep the old node and file name:
