@@ -18,6 +18,7 @@
     "autosell.check_item_price_large": "Checking price for %s; large price volatility",
     "autosell.check_item_price_massive": "Checking price for %s; extreme price volatility",
     "autosell.check_item_price_unknown": "Checking price for %s; unknown price volatility",
+    "autosell.scan_item_owned": "Elastic demand supplies owned: %s",
     "autostockpile.recognition_done": "Recognition complete, %d items found",
     "autostockpile.no_qualifying_product": "No qualifying items found (%s)",
     "autostockpile.hit_but_skip": "Item matched but not purchasing (%s)",

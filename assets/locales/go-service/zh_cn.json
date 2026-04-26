@@ -18,6 +18,7 @@
     "autosell.check_item_price_large": "检查物资 %s 价格，该物资价格变动较大",
     "autosell.check_item_price_massive": "检查物资 %s 价格，该物资价格变动极大",
     "autosell.check_item_price_unknown": "检查物资 %s 价格，该物资价格变动未知",
+    "autosell.scan_item_owned": "拥有弹性需求物资：%s",
     "autostockpile.recognition_done": "识别完成，共识别到 %d 个商品",
     "autostockpile.no_qualifying_product": "未找到符合条件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最终不购买（%s）",

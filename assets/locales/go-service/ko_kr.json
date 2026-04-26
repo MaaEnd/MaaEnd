@@ -18,6 +18,7 @@
     "autosell.check_item_price_large": "%s 물자 가격 확인 중, 가격 변동 큼",
     "autosell.check_item_price_massive": "%s 물자 가격 확인 중, 가격 변동 매우 큼",
     "autosell.check_item_price_unknown": "%s 물자 가격 확인 중, 가격 변동 알 수 없음",
+    "autosell.scan_item_owned": "보유한 탄력 수요 물자: %s",
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.hit_but_skip": "상품이 일치했지만 최종적으로 구매하지 않습니다 (%s)",

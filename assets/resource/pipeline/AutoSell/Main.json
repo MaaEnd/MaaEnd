@@ -2,221 +2,24 @@
     "AutoSellMain": {
         "desc": "自动售卖主流程",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuFriends"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellMainInit"
+            "[JumpBack]AutoSellScanValleyIVMain",
+            "[JumpBack]AutoSellExecuteValleyIVMain",
+            "[JumpBack]AutoSellScanWulingMain",
+            "[JumpBack]AutoSellExecuteWulingMain",
+            "AutoSellFinish"
         ]
     },
-    "AutoSellMainInit": {
-        "desc": "初始化custom",
+    "AutoSellExecuteValleyIVMain": {
+        "desc": "执行四号谷地自动售卖流程",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoSellItemRecordAction",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
         "custom_action_param": {
-            "record_type": "init"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellFriendsMenu"
-        ]
-    },
-    "AutoSellFriendsMenu": {
-        "desc": "进入好友界面",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    0,
-                    0,
-                    230,
-                    60
-                ],
-                "expected": [
-                    "好友",
-                    "(?i)Friends",
-                    "フレンド",
-                    "친구"
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    -150,
-                    135,
-                    150,
-                    460
-                ],
-                "template": "VisitFriends/EnterButton.png",
-                "threshold": 0.9
-            }
-        ],
-        "box_index": 1,
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                -100,
-                300,
-                300
-            ]
-        },
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterShipConfirm"
-        ]
-    },
-    "AutoSellEnterShipConfirm": {
-        "desc": "识别进入好友船的确认,第一次进入好友",
-        "recognition": "And",
-        "all_of": [
-            "YellowConfirmButtonType1"
-        ],
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchValleyIV"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellStockRedistributionItemNext",
-            "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]AutoSellShipEnterStockRedistribution"
-        ]
-    },
-    "AutoSellStockRedistributionItemNext": {
-        "desc": "进入物资调度界面，继续任务",
-        "recognition": "And",
-        "all_of": [
-            "InFriendsStockRedistribution"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack][Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor",
-            "AutoSellEnterStockRedistributionOpenItem",
-            "AutoSellEnterStockRedistributionOpenItemFinish"
-        ]
-    },
-    "AutoSellEnterStockRedistributionAreaSwitchValleyIV": {
-        "desc": "切换地区到四号谷地",
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "icon",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    0,
-                    600,
-                    150
-                ],
-                "template": [
-                    "AutoSell/StockRedistributionValleyIVChoose.png",
-                    "AutoSell/StockRedistributionValleyIVNotChoose.png"
-                ],
-                "threshold": 0.9
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": "icon",
-                "roi_offset": [
-                    0,
-                    15,
-                    0,
-                    0
-                ],
-                "lower": [
-                    60,
-                    60,
-                    60
-                ],
-                "upper": [
-                    80,
-                    80,
-                    80
-                ],
-                "connected": true,
-                "count": 300
-            }
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 200,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoSellEnterStockRedistributionAreaSwitchWuling": {
-        "desc": "切换地区到武陵",
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "icon",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    0,
-                    600,
-                    150
-                ],
-                "template": [
-                    "AutoSell/StockRedistributionWulingChoose.png",
-                    "AutoSell/StockRedistributionWulingNotChoose.png"
-                ],
-                "threshold": 0.9
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": "icon",
-                "roi_offset": [
-                    0,
-                    15,
-                    0,
-                    0
-                ],
-                "lower": [
-                    60,
-                    60,
-                    60
-                ],
-                "upper": [
-                    80,
-                    80,
-                    80
-                ],
-                "connected": true,
-                "count": 300
-            }
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 200,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoSellEnterStockRedistributionOpenItem": {
-        "desc": "打开目标物资调度界面下一个待识别item",
-        "recognition": "Custom",
-        "custom_recognition": "AutoSellStockRedistributionOpenItemTextRecognition",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoSellStockRedistributionOpenItemTextAction",
-        "custom_action_param": {
+            "region": "ValleyIV",
             "moderate_price": 4600,
             "large_price": 5000,
             "massive_price": 5300
@@ -224,64 +27,20 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoSellEnterStockRedistributionOpenItemFinish": {
-        "desc": "当前页面物资调度界面item打开完成",
+    "AutoSellExecuteWulingMain": {
+        "desc": "执行武陵自动售卖流程",
+        "max_hit": 1,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistributionOpenItemValleyIVFinish",
-            "AutoSellEnterStockRedistributionOpenItemWulingFinish"
-        ]
-    },
-    "AutoSellEnterStockRedistributionOpenItemValleyIVFinish": {
-        "desc": "当前四号谷地物资调度界面item打开完成，切换到下一个地区",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            600,
-            150
-        ],
-        "template": [
-            "AutoSell/StockRedistributionValleyIVChoose.png"
-        ],
-        "threshold": 0.9,
-        "pre_delay": 0,
-        "anchor": {
-            "AutoSellEnterStockRedistributionAreaSwitchAnchor": "AutoSellEnterStockRedistributionAreaSwitchWuling"
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "Wuling",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellStockRedistributionItemNext"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "四号谷地物资检查完毕，前往武陵物资检查"
-        }
-    },
-    "AutoSellEnterStockRedistributionOpenItemWulingFinish": {
-        "desc": "当前武陵物资调度界面item打开完成，任务结束",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            600,
-            150
-        ],
-        "template": [
-            "AutoSell/StockRedistributionWulingChoose.png"
-        ],
-        "threshold": 0.9,
-        "pre_delay": 0,
-        "anchor": {
-            "AutoSellEnterStockRedistributionAreaSwitchAnchor": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "武陵物资检查完毕，任务结束"
-        }
+        "rate_limit": 0
     },
     "AutoSellFinish": {
         "pre_delay": 0,

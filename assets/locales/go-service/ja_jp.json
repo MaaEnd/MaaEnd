@@ -18,6 +18,7 @@
     "autosell.check_item_price_large": "物資 %s の価格を確認中（価格変動は大きい）",
     "autosell.check_item_price_massive": "物資 %s の価格を確認中（価格変動は極大）",
     "autosell.check_item_price_unknown": "物資 %s の価格を確認中（価格変動は不明）",
+    "autosell.scan_item_owned": "所持している弾性需要物資：%s",
     "autostockpile.recognition_done": "認識完了。商品を%d件検出しました",
     "autostockpile.no_qualifying_product": "条件を満たす商品がありません (%s)",
     "autostockpile.hit_but_skip": "商品に一致しましたが、最終的に購入しません（%s）",
