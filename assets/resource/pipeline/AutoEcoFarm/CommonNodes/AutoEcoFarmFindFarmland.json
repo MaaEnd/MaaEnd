@@ -6,6 +6,7 @@
     "_AutoEcoFarmFindFarmlandStart": {
         "desc": "在地图上查找农田标记并追踪标记",
         "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
             "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },

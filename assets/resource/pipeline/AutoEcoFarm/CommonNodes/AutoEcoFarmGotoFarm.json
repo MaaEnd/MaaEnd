@@ -7,7 +7,6 @@
     "_AutoEcoFarmGotoEcoFarmStart": {
         "desc": "这块代码是用来前往农场的",
         "next": [
-            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
             "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmCppAnchor",
             "_AutoEcoFarmGotoEcoFarmExit"
         ]
