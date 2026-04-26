@@ -10,7 +10,7 @@ import (
 )
 
 type autoEcoFarmOverrideTargetTemplateParam struct {
-	TargetTemplatePath string `json:"TargetTemplatePath"`
+	Template string `json:"template"`
 }
 
 type autoEcoFarmOverrideTargetTemplate struct{}
@@ -51,7 +51,7 @@ func overrideTargetTemplatePath(ctx *maa.Context, targetTemplatePath string) err
 	})
 }
 
-// Run applies TargetTemplatePath to AutoEcoFarm target-recognition nodes.
+// Run applies template to AutoEcoFarm target-recognition nodes.
 func (a *autoEcoFarmOverrideTargetTemplate) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().
@@ -70,18 +70,18 @@ func (a *autoEcoFarmOverrideTargetTemplate) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 
-	if err := overrideTargetTemplatePath(ctx, params.TargetTemplatePath); err != nil {
+	if err := overrideTargetTemplatePath(ctx, params.Template); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", "AutoEcoFarm").
-			Str("target_template_path", params.TargetTemplatePath).
+			Str("template", params.Template).
 			Msg("override target template: apply pipeline override failed")
 		return false
 	}
 
 	log.Debug().
 		Str("component", "AutoEcoFarm").
-		Str("target_template_path", strings.TrimSpace(params.TargetTemplatePath)).
+		Str("template", strings.TrimSpace(params.Template)).
 		Msg("override target template: pipeline override applied")
 	return true
 }
