@@ -11,11 +11,11 @@ import (
 type parsedBetterSlidingParams struct {
 	target                  int
 	quantityBox             []int
-	maxQuantityBox          []int
+	maxTargetBox            []int
 	quantityFilter          *quantityFilterParam
-	maxQuantityFilter       *quantityFilterParam
+	maxTargetFilter         *quantityFilterParam
 	quantityOnlyRec         bool
-	maxQuantityOnlyRec      bool
+	maxTargetOnlyRec        bool
 	greenMask               bool
 	direction               string
 	increaseButton          buttonTarget
@@ -41,7 +41,7 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 	return betterSlidingParamPresence{
 		Target:                  hasNonNullRawKey(rawKeys, "Target"),
 		Quantity:                quantityPresent,
-		MaxQuantity:             hasNonNullRawKey(rawKeys, "MaxQuantity"),
+		MaxTarget:               hasNonNullRawKey(rawKeys, "MaxTarget"),
 		GreenMask:               hasNonNullRawKey(rawKeys, "GreenMask"),
 		Direction:               hasNonNullRawKey(rawKeys, "Direction"),
 		IncreaseButton:          hasNonNullRawKey(rawKeys, "IncreaseButton"),
@@ -123,11 +123,11 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		return parsedBetterSlidingParams{
 			target:                  0,
 			quantityBox:             nil,
-			maxQuantityBox:          nil,
+			maxTargetBox:            nil,
 			quantityFilter:          nil,
-			maxQuantityFilter:       nil,
+			maxTargetFilter:         nil,
 			quantityOnlyRec:         false,
-			maxQuantityOnlyRec:      false,
+			maxTargetOnlyRec:        false,
 			greenMask:               params.GreenMask,
 			direction:               direction,
 			increaseButton:          buttonTarget{},
@@ -184,27 +184,27 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 
 	quantityBox, quantityOnlyRec := normalizeQuantityParam(params.Quantity)
 
-	maxQuantityParam := params.Quantity
-	if params.presence.MaxQuantity {
-		maxQuantityParam = params.MaxQuantity
+	maxTargetParam := params.Quantity
+	if params.presence.MaxTarget {
+		maxTargetParam = params.MaxTarget
 	}
-	maxQuantityFilter, err := normalizeQuantityFilter("MaxQuantity.Filter", maxQuantityParam.Filter)
+	maxTargetFilter, err := normalizeQuantityFilter("MaxTarget.Filter", maxTargetParam.Filter)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
-			Msg("failed to normalize max quantity filter")
+			Msg("failed to normalize max target filter")
 		return parsedBetterSlidingParams{}, false
 	}
-	maxQuantityBox, maxQuantityOnlyRec := normalizeQuantityParam(maxQuantityParam)
+	maxTargetBox, maxTargetOnlyRec := normalizeQuantityParam(maxTargetParam)
 
 	return parsedBetterSlidingParams{
 		target:                  params.Target,
 		quantityBox:             quantityBox,
-		maxQuantityBox:          maxQuantityBox,
+		maxTargetBox:            maxTargetBox,
 		quantityFilter:          quantityFilter,
-		maxQuantityFilter:       maxQuantityFilter,
+		maxTargetFilter:         maxTargetFilter,
 		quantityOnlyRec:         quantityOnlyRec,
-		maxQuantityOnlyRec:      maxQuantityOnlyRec,
+		maxTargetOnlyRec:        maxTargetOnlyRec,
 		greenMask:               params.GreenMask,
 		direction:               strings.ToLower(strings.TrimSpace(params.Direction)),
 		increaseButton:          increaseButton,
@@ -226,11 +226,11 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 		a.Target = params.target
 	}
 	a.QuantityBox = params.quantityBox
-	a.MaxQuantityBox = params.maxQuantityBox
+	a.MaxTargetBox = params.maxTargetBox
 	a.QuantityFilter = params.quantityFilter
-	a.MaxQuantityFilter = params.maxQuantityFilter
+	a.MaxTargetFilter = params.maxTargetFilter
 	a.QuantityOnlyRec = params.quantityOnlyRec
-	a.MaxQuantityOnlyRec = params.maxQuantityOnlyRec
+	a.MaxTargetOnlyRec = params.maxTargetOnlyRec
 	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
@@ -249,15 +249,15 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 	parseLog := a.logger.Info().
 		Int("target", a.OriginalTarget).
 		Ints("quantity_box", a.QuantityBox).
-		Ints("max_quantity_box", a.MaxQuantityBox).
+		Ints("max_target_box", a.MaxTargetBox).
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
 		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Bool("max_quantity_filter_enabled", a.MaxQuantityFilter != nil).
+		Bool("max_target_filter_enabled", a.MaxTargetFilter != nil).
 		Bool("quantity_only_rec", a.QuantityOnlyRec).
-		Bool("max_quantity_only_rec", a.MaxQuantityOnlyRec).
+		Bool("max_target_only_rec", a.MaxTargetOnlyRec).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_max", a.ClampTargetToMax).
 		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
@@ -278,11 +278,11 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
 	}
 
-	if a.MaxQuantityFilter != nil {
+	if a.MaxTargetFilter != nil {
 		parseLog = parseLog.
-			Int("max_quantity_filter_method", a.MaxQuantityFilter.Method).
-			Ints("max_quantity_filter_lower", a.MaxQuantityFilter.Lower).
-			Ints("max_quantity_filter_upper", a.MaxQuantityFilter.Upper)
+			Int("max_target_filter_method", a.MaxTargetFilter.Method).
+			Ints("max_target_filter_lower", a.MaxTargetFilter.Lower).
+			Ints("max_target_filter_upper", a.MaxTargetFilter.Upper)
 	}
 
 	parseLog.Msg("parsed custom action parameters")

@@ -68,7 +68,7 @@ If you add new parameter semantics or new branching behavior to `BetterSliding`,
 `BetterSliding` currently has two execution modes:
 
 1. **External invocation mode**: when a business task calls it with `custom_action: "BetterSliding"`, the Go side automatically constructs the internal Pipeline override and starts running the full internal flow from `BetterSlidingMain` through its downstream nodes.
-2. **Internal node mode**: when the current node itself is one of `BetterSlidingMain`, `BetterSlidingFindStart`, `BetterSlidingGetMaxQuantity`, `BetterSlidingFindEnd`, `BetterSlidingCheckQuantity`, or `BetterSlidingDone`, the Go side directly handles that specific stage.
+2. **Internal node mode**: when the current node itself is one of `BetterSlidingMain`, `BetterSlidingFindStart`, `BetterSlidingGetMaxTarget`, `BetterSlidingGetMaxQuantity`, `BetterSlidingFindEnd`, `BetterSlidingCheckQuantity`, or `BetterSlidingDone`, the Go side directly handles that specific stage.
 
 The business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
 
@@ -79,15 +79,16 @@ The business-side caller usually only needs to pass `custom_action_param` once a
 The overall steps are:
 
 1. Recognize the current slider handle position and record the drag start point.
-2. Drag the slider to the maximum value.
-3. Use OCR to recognize the current maximum selectable quantity.
-4. Recognize the slider handle position again and record the drag end point.
-5. Calculate the exact click position from `Target` and `maxQuantity`.
-6. Click that position.
-7. Use OCR again to read the current quantity. If it still does not equal the target value, fine-tune it through the increase/decrease buttons.
-8. Finish after the quantity matches the target value.
+2. If `MaxTarget` is provided, use OCR to read the item's **maximum available quantity** (from the dedicated `MaxTarget.Box` region), then resolve the effective target from it. If `MaxTarget` is omitted, this step is skipped.
+3. Drag the slider to the maximum value.
+4. Use OCR to read the **slider endpoint value** from the `Quantity.Box` region. If step 2 was skipped, resolve the effective target using this value as fallback.
+5. Recognize the slider handle position again and record the drag end point.
+6. Calculate the exact click position from the resolved target and the slider endpoint value.
+7. Click that position.
+8. Use OCR again to read the current quantity. If it still does not equal the target value, fine-tune it through the increase/decrease buttons.
+9. Finish after the quantity matches the target value.
 
-For step 5, the current implementation computes the precise click position using linear interpolation:
+For step 6, the current implementation computes the precise click position using linear interpolation:
 
 ```text
 numerator = Target - 1
@@ -194,11 +195,11 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 | ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GreenMask`               | `bool`                  | No       | Whether to enable green mask filtering for template matching when locating buttons via template paths. Default: `false`.                                                                                                                                                                |
 | `Quantity.Box`            | `int[4]`                | Yes\*    | OCR region for the current quantity. The format must be `[x, y, w, h]`. Ignored in swipe-only mode.                                                                                                                                                                                     |
-| `MaxQuantity.Box`         | `int[4]`                | No       | OCR region for `BetterSlidingGetMaxQuantity`, used to read the maximum selectable quantity. The format must be `[x, y, w, h]`. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`.                                                                               |
+| `MaxTarget.Box`           | `int[4]`                | No       | OCR region for reading the item's maximum available quantity (how many you can buy/sell), used by `BetterSlidingGetMaxTarget` for TargetType / TargetReverse calculation. The format must be `[x, y, w, h]`. If `MaxTarget` is omitted entirely, go-service uses the slider endpoint from `BetterSlidingGetMaxQuantity` as fallback. |
 | `Quantity.Filter`         | `object`                | No       | Optional color filtering for current-quantity OCR, useful when digit color is stable but the background is noisy.                                                                                                                                                                       |
-| `MaxQuantity.Filter`      | `object`                | No       | Optional color filtering for max-quantity OCR. If the whole `MaxQuantity` object is omitted, go-service falls back to `Quantity.Filter`.                                                                                                                                                |
+| `MaxTarget.Filter`        | `object`                | No       | Optional color filtering for max-target OCR. If the whole `MaxTarget` object is omitted, go-service falls back to `Quantity.Filter`.                                                                                                                                                    |
 | `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. The current default is `false`; if provided explicitly, the passed value takes precedence. The Go side still reads quantity text only from `Results.Best.AsOCR().Text`.                                                         |
-| `MaxQuantity.OnlyRec`     | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxQuantity` OCR node. If `MaxQuantity` is omitted entirely, go-service falls back to `Quantity`. When `MaxQuantity` is provided, it is treated as an independent OCR config with the same JSON shape as `Quantity`.              |
+| `MaxTarget.OnlyRec`       | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxTarget` OCR node. If `MaxTarget` is omitted entirely, go-service falls back to `Quantity`. When `MaxTarget` is provided, it is treated as an independent OCR config with the same JSON shape as `Quantity`.                    |
 | `Direction`               | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`. The Go side trims surrounding whitespace and lowercases it before validation.                                                                                                                                                |
 | `IncreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "increase quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
 | `DecreaseButton`          | `string` or `int[2\|4]` | Yes\*    | The "decrease quantity" button. Can be a template path or coordinates. Ignored in swipe-only mode.                                                                                                                                                                                      |
@@ -209,22 +210,27 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 
 \* Required in normal mode; ignored in swipe-only mode.
 
-### `MaxQuantity`
+### `MaxTarget`
 
-`MaxQuantity` has the same JSON shape as `Quantity`:
+`MaxTarget` represents the **item's maximum available quantity** (how many you can buy or sell), which is often displayed in a separate region from the slider controls. It has the same JSON shape as `Quantity`:
 
 ```json
-"MaxQuantity": {
+"MaxTarget": {
     "Box": [360, 420, 110, 70],
     "OnlyRec": false
 }
 ```
 
-Use it only when the OCR area for the screen's **maximum quantity** differs from the OCR area for the **current quantity**. If `MaxQuantity` is omitted or set to `null`, go-service reuses `Quantity` as the effective configuration for `BetterSlidingGetMaxQuantity`, including its `Box`, `Filter`, and `OnlyRec` values.
+`MaxTarget` is a distinct concept from the slider endpoint value:
 
-This fallback is whole-object only. If `MaxQuantity` is present, go-service does not inherit missing subfields from `Quantity` field by field.
+- **`MaxTarget.Box`**: OCR region for the **item's maximum available quantity** (e.g., "how many of this item you can buy"). This is read before the slider is dragged, from a region that shows the item's stock or cap. When provided, `BetterSlidingGetMaxTarget` reads this value and uses it for `resolveTarget` (TargetType / TargetReverse calculation).
+- **`Quantity.Box`**: OCR region shared between reading the **current slider quantity** (`BetterSlidingGetQuantity`) and reading the **slider endpoint value** after swiping to max (`BetterSlidingGetMaxQuantity`).
 
-This means the common case still needs only `Quantity`; `MaxQuantity` is an override for the uncommon case where “maximum quantity” and “current slidable quantity” are displayed in different regions.
+If `MaxTarget` is omitted or set to `null`, the slider endpoint value from `BetterSlidingGetMaxQuantity` is used as the fallback for `resolveTarget` instead.
+
+This two-phase approach addresses scenarios where the slider endpoint value is not the item's actual maximum — for example, when the slider max is 9999 regardless of stock, but the item itself only has 37 available.
+
+Note: the fallback is whole-object only. If `MaxTarget` is present, go-service does not inherit missing subfields from `Quantity` field by field.
 
 `CenterPointOffset` is used to fine-tune the final click position for `BetterSlidingPreciseClick`. Its format must be `[x, y]`:
 
@@ -232,11 +238,11 @@ This means the common case still needs only `Quantity`; `MaxQuantity` is an over
 - `y` is the vertical offset. Negative moves up, positive moves down.
 - If omitted, the default is `[-10, 0]`, which means clicking 10 pixels to the left of the slider center.
 
-### `Quantity.Filter` / `MaxQuantity.Filter`
+### `Quantity.Filter` / `MaxTarget.Filter`
 
 `Quantity.Filter` is an **optional enhancement**. If omitted, it only means color-filter preprocessing is disabled for `BetterSlidingGetQuantity`; if provided, that OCR result is color-filtered before reading digits.
 
-`MaxQuantity.Filter` has the same structure, but applies to `BetterSlidingGetMaxQuantity`. If the whole `MaxQuantity` object is omitted, `MaxQuantity.Filter` falls back together with the rest of `MaxQuantity` to `Quantity.Filter`. Once `MaxQuantity` is provided, its `Filter` is parsed independently and is not inherited field by field from `Quantity`.
+`MaxTarget.Filter` has the same structure, but applies to `BetterSlidingGetMaxTarget`. If the whole `MaxTarget` object is omitted, `MaxTarget.Filter` falls back together with the rest of `MaxTarget` to `Quantity.Filter`. Once `MaxTarget` is provided, its `Filter` is parsed independently and is not inherited field by field from `Quantity`.
 
 Minimal example:
 
@@ -257,8 +263,8 @@ Constraints and limits:
 - The channel count must match the `method`: `4` (RGB) and `40` (HSV) require 3 channels, `6` (GRAY) requires 1 channel;
 - Only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
 - You can treat it as an approximate color-based binarization step for the quantity area before OCR;
-- If the interfering digits use exactly the same color as the target digits, `Quantity.Filter` / `MaxQuantity.Filter` cannot fundamentally separate them, so tightening the corresponding `Box` is still the first choice;
-- `Quantity.Filter` / `MaxQuantity.Filter` improves OCR preprocessing, but it is not a substitute for an inaccurate `Quantity.Box` / `MaxQuantity.Box`.
+- If the interfering digits use exactly the same color as the target digits, `Quantity.Filter` / `MaxTarget.Filter` cannot fundamentally separate them, so tightening the corresponding `Box` is still the first choice;
+- `Quantity.Filter` / `MaxTarget.Filter` improves OCR preprocessing, but it is not a substitute for an inaccurate `Quantity.Box` / `MaxTarget.Box`.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 

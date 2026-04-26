@@ -6,6 +6,7 @@ const (
 	nodeBetterSlidingMain           = "BetterSlidingMain"
 	nodeBetterSlidingFindStart      = "BetterSlidingFindStart"
 	nodeBetterSlidingGetMaxQuantity = "BetterSlidingGetMaxQuantity"
+	nodeBetterSlidingGetMaxTarget   = "BetterSlidingGetMaxTarget"
 	nodeBetterSlidingFindEnd        = "BetterSlidingFindEnd"
 	nodeBetterSlidingCheckQuantity  = "BetterSlidingCheckQuantity"
 	nodeBetterSlidingDone           = "BetterSlidingDone"
@@ -13,7 +14,7 @@ const (
 	nodeBetterSlidingSwipeToMax        = "BetterSlidingSwipeToMax"
 	nodeBetterSlidingGetQuantity       = "BetterSlidingGetQuantity"
 	nodeBetterSlidingQuantityFilter    = "BetterSlidingQuantityFilter"
-	nodeBetterSlidingMaxQuantityFilter = "BetterSlidingMaxQuantityFilter"
+	nodeBetterSlidingMaxTargetFilter = "BetterSlidingMaxTargetFilter"
 	nodeBetterSlidingSwipeButton       = "BetterSlidingSwipeButton"
 	nodeBetterSlidingIncreaseButton    = "BetterSlidingIncreaseButton"
 	nodeBetterSlidingDecreaseButton    = "BetterSlidingDecreaseButton"
@@ -30,6 +31,7 @@ var betterSlidingActionNodes = []string{
 	nodeBetterSlidingMain,
 	nodeBetterSlidingFindStart,
 	nodeBetterSlidingGetMaxQuantity,
+	nodeBetterSlidingGetMaxTarget,
 	nodeBetterSlidingFindEnd,
 	nodeBetterSlidingCheckQuantity,
 	nodeBetterSlidingDone,

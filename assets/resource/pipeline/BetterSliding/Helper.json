@@ -98,8 +98,8 @@
             }
         }
     },
-    "BetterSlidingMaxQuantityFilter": {
-        "desc": "辅助GetMaxQuantity节点进行OCR",
+    "BetterSlidingMaxTargetFilter": {
+        "desc": "辅助GetMaxTarget节点进行OCR",
         "recognition": {
             "type": "ColorMatch",
             "param": {

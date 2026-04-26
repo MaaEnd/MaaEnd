@@ -38,6 +38,8 @@ func (a *BetterSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.Cust
 		return a.handleFindStart(ctx, arg)
 	case nodeBetterSlidingGetMaxQuantity:
 		return a.handleGetMaxQuantity(ctx, arg)
+	case nodeBetterSlidingGetMaxTarget:
+		return a.handleGetMaxTarget(ctx, arg)
 	case nodeBetterSlidingFindEnd:
 		return a.handleFindEnd(ctx, arg)
 	case nodeBetterSlidingCheckQuantity:
@@ -64,12 +66,6 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 			Msg("invalid quantity box, expected [x,y,w,h]")
 		return false
 	}
-	if !a.SwipeOnlyMode && len(a.MaxQuantityBox) != 4 {
-		a.logger.Error().
-			Ints("max_quantity_box", a.MaxQuantityBox).
-			Msg("invalid max quantity box, expected [x,y,w,h]")
-		return false
-	}
 
 	end, err := buildSwipeEnd(a.Direction)
 	if err != nil {
@@ -83,11 +79,11 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 	override := buildMainInitializationOverride(
 		end,
 		a.QuantityBox,
-		a.MaxQuantityBox,
+		a.MaxTargetBox,
 		a.QuantityFilter,
-		a.MaxQuantityFilter,
+		a.MaxTargetFilter,
 		a.QuantityOnlyRec,
-		a.MaxQuantityOnlyRec,
+		a.MaxTargetOnlyRec,
 		a.SwipeButton,
 		a.GreenMask,
 	)
@@ -109,12 +105,12 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Str("direction", a.Direction).
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
-		Ints("max_quantity_roi", a.MaxQuantityBox).
+		Ints("max_target_roi", a.MaxTargetBox).
 		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Bool("max_quantity_filter_enabled", a.MaxQuantityFilter != nil).
+		Bool("max_target_filter_enabled", a.MaxTargetFilter != nil).
 		Bool("quantity_only_rec", a.QuantityOnlyRec).
-		Bool("max_quantity_only_rec", a.MaxQuantityOnlyRec).
+		Bool("max_target_only_rec", a.MaxTargetOnlyRec).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.QuantityFilter != nil {
@@ -123,11 +119,12 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
 			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
 	}
-	if a.MaxQuantityFilter != nil {
+
+	if a.MaxTargetFilter != nil {
 		initializationLog = initializationLog.
-			Int("max_quantity_filter_method", a.MaxQuantityFilter.Method).
-			Ints("max_quantity_filter_lower", a.MaxQuantityFilter.Lower).
-			Ints("max_quantity_filter_upper", a.MaxQuantityFilter.Upper)
+			Int("max_target_filter_method", a.MaxTargetFilter.Method).
+			Ints("max_target_filter_lower", a.MaxTargetFilter.Lower).
+			Ints("max_target_filter_upper", a.MaxTargetFilter.Upper)
 	}
 
 	initializationLog.Msg("main initialization completed with pipeline overrides")
@@ -169,28 +166,30 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 
 	a.maxQuantity = maxQuantity
 
-	resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxQuantity)
-	if resolveErr != nil {
-		a.logger.Error().
-			Err(resolveErr).
-			Int("target", a.OriginalTarget).
-			Str("target_type", a.TargetType).
-			Bool("target_reverse", a.TargetReverse).
-			Msg("failed to resolve target")
-		return false
-	}
+	if !a.maxTargetResolved {
+		resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxQuantity)
+		if resolveErr != nil {
+			a.logger.Error().
+				Err(resolveErr).
+				Int("target", a.OriginalTarget).
+				Str("target_type", a.TargetType).
+				Bool("target_reverse", a.TargetReverse).
+				Msg("failed to resolve target")
+			return false
+		}
 
-	if resolved != a.OriginalTarget {
-		a.logger.Info().
-			Int("original_target", a.OriginalTarget).
-			Int("resolved_target", resolved).
-			Str("target_type", a.TargetType).
-			Bool("target_reverse", a.TargetReverse).
-			Int("max_quantity", a.maxQuantity).
-			Msg("target resolved")
+		if resolved != a.OriginalTarget {
+			a.logger.Info().
+				Int("original_target", a.OriginalTarget).
+				Int("resolved_target", resolved).
+				Str("target_type", a.TargetType).
+				Bool("target_reverse", a.TargetReverse).
+				Int("max_quantity", a.maxQuantity).
+				Msg("target resolved")
+		}
+		a.Target = resolved
+		a.runtimeTargetResolved = true
 	}
-	a.Target = resolved
-	a.runtimeTargetResolved = true
 
 	a.exceeded = false
 	outOfRange := a.Target > a.maxQuantity
@@ -285,6 +284,55 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 		Int("max_quantity", a.maxQuantity).
 		Int("target", a.Target).
 		Msg("max quantity parsed")
+	return true
+}
+
+func (a *BetterSlidingAction) handleGetMaxTarget(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil {
+		a.logger.Error().Msg("context is nil")
+		return false
+	}
+	if arg == nil {
+		a.logger.Error().Msg("custom action arg is nil")
+		return false
+	}
+
+	maxTarget, err := readQuantityValue(arg.RecognitionDetail)
+	if err != nil {
+		a.logger.Error().Err(err).Msg("failed to parse max target from ocr")
+		return false
+	}
+
+	a.maxTarget = maxTarget
+
+	resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxTarget)
+	if resolveErr != nil {
+		a.logger.Error().
+			Err(resolveErr).
+			Int("target", a.OriginalTarget).
+			Str("target_type", a.TargetType).
+			Bool("target_reverse", a.TargetReverse).
+			Msg("failed to resolve target from max target")
+		return false
+	}
+
+	if resolved != a.OriginalTarget {
+		a.logger.Info().
+			Int("original_target", a.OriginalTarget).
+			Int("resolved_target", resolved).
+			Str("target_type", a.TargetType).
+			Bool("target_reverse", a.TargetReverse).
+			Int("max_target", a.maxTarget).
+			Msg("target resolved from max target")
+	}
+	a.Target = resolved
+	a.runtimeTargetResolved = true
+	a.maxTargetResolved = true
+
+	a.logger.Info().
+		Int("max_target", a.maxTarget).
+		Int("resolved_target", a.Target).
+		Msg("max target parsed")
 	return true
 }
 
@@ -602,6 +650,8 @@ func (a *BetterSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
 	a.maxQuantity = 0
+	a.maxTarget = 0
+	a.maxTargetResolved = false
 	a.exceeded = false
 	a.runtimeTargetResolved = false
 }

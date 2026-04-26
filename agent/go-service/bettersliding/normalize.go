@@ -217,7 +217,7 @@ func resolveTarget(target int, targetType string, targetReverse bool, maxQuantit
 func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.Target &&
 		!params.presence.Quantity &&
-		!params.presence.MaxQuantity &&
+		!params.presence.MaxTarget &&
 		!params.presence.GreenMask &&
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
