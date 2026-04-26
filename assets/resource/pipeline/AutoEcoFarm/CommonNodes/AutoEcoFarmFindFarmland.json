@@ -12,6 +12,7 @@
     },
     "_AutoEcoFarmFindFarmlandExit": {
         "next": [
+            "[JumpBack]_AutoEcoFarmReturnToWorld",
             "_AutoEcoFarmBlindWalkStart",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
@@ -441,12 +442,25 @@
             "type": "Click"
         }
     },
+    "_AutoEcoFarmReturnToWorld": {
+        "desc": "返回大世界",
+        "recognition": "And",
+        "all_of": ["_AutoEcoFarmInWorld"],
+        "inverse": true,
+        "next": ["SceneAnyEnterWorld"]
+    },
     //盲走避障模块，一般用来出基地
     "_AutoEcoFarmBlindWalkStart": {
         "desc": "关闭工业设备朝标记盲走一段距离，默认关闭",
         "enabled": true,
         "next": [
             "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "_AutoEcoFarmBlindWalkPhotoMode"
+        ]
+    },
+    "_AutoEcoFarmBlindWalkPhotoMode": {
+        "desc": "进入拍照模式，准备盲走",
+        "next": [
             "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
             "_AutoEcoFarmPressW"
         ]
@@ -457,7 +471,7 @@
         "action": {
             "type": "LongPressKey",
             "param": {
-                "duration": 5000,
+                "duration": 20000,
                 "key": 87 //w键
             }
         },
