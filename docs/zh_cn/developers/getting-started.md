@@ -21,6 +21,57 @@ pnpm install
 >
 > 如果 `setup_workspace.py` 出错，参考下方[手动配置指南](#手动配置指南)。
 
+### 编辑器（推荐）
+
+推荐使用 [Visual Studio Code](https://code.visualstudio.com/)（VS Code）作为本项目的日常开发 IDE。完成上方克隆与初始化后，用 VS Code **打开仓库根目录**（需包含 `.vscode/extensions.json`），并安装工作区**推荐扩展（Workspace Recommendations）**，以便与团队环境一致（例如 Black、Prettier、**Maa Pipeline Support**、Markdownlint、Go、LLDB 等，完整列表见仓库内 `.vscode/extensions.json`）。
+
+**安装推荐扩展：**
+
+1. **打开工作区**：菜单 **文件 → 打开文件夹…**，选中克隆下来的仓库根目录。
+2. **通知栏安装**：若右下角提示「此工作区具有扩展建议」或类似文案，选择 **安装** / **全部安装**。
+3. **扩展视图**：按 `Ctrl+Shift+X`（macOS：`Cmd+Shift+X`）打开扩展侧栏，在搜索框输入 `@recommended`，展开 **工作区推荐**，对需要的扩展点击 **安装**。
+4. **命令面板**：`Ctrl+Shift+P`（macOS：`Cmd+Shift+P`）→ 执行 **`Extensions: Show Recommended Extensions`**，在列表中安装。
+
+更完整的说明见 VS Code 文档：[工作区推荐扩展](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions)。
+
+## 0. Git 前置知识与规范
+
+本项目依赖部分 Git 特性（特别是子模块）。在正式开始堆代码之前，请确保你已经掌握了基本的 Git 分支操作。
+
+**如果你对 Git 还不太熟悉，请务必先通过以下外链进行互动练习，熟练后再继续往下看：**
+👉 **[Learn Git Branching (Git 交互式学习与练习)](https://learngitbranching.js.org/)**
+
+除了基础的 `add` / `commit` / `push` / `pull` 外，参与本项目你还需要了解以下两点：
+
+### 提交规范 (Conventional Commits)
+
+本项目的代码提交严格遵循 [约定式提交规范 (Conventional Commits)](https://www.conventionalcommits.org/zh-hans/v1.0.0/)。清晰的 Commit 历史能帮助 Reviewer 快速理解你的意图。每次提交请使用以下前缀：
+
+- `feat:` 新增功能（例如：写了新的 Pipeline 节点）
+- `fix:` 修复 Bug（例如：修正了某处 ROI 坐标错误）
+- `docs:` 仅文档更改
+- `style:` 不影响代码含义的更改（空白、格式、缺少分号等）
+- `chore:` 日常构建过程或辅助工具的变动（不涉及生产代码）
+
+> **示例**：`feat(SellProduct): 新增地区建设自动售卖 Pipeline`
+
+### 关于子模块 (Submodule) 更新
+
+本项目使用 Git Submodule 来管理一些独立的依赖库和体积较大的文件（例如用于识别的模型库）。
+
+**🚧 新手常见踩坑点：**
+在准备 `commit` 提交代码时，你可能会在 Git 状态中看到提示 `model`（或其他子模块）发生了修改，但你确信自己并没有改过任何模型文件。
+这通常是因为你刚拉取了最新代码或切换了分支，主仓库记录的子模块版本指针已经更新，但你**本地的子模块文件还没有同步**，导致 Git 认为你「修改」了它。
+
+也可能在拉取主分支更新或切换分支后，出现莫名其妙的修改，或代码报找不到模型——同样多因**主仓库的指针更新了，但你本地的子模块文件还没有同步**。
+
+**💡 解决办法：**
+遇到这种「幽灵修改」，或每次执行 `git pull` 拉取最新代码后，在仓库根目录执行：
+
+```bash
+git submodule update --init --recursive
+```
+
 ## 1. 确认需求
 
 去 [Issue](https://github.com/MaaEnd/MaaEnd/issues) 找到或创建对应需求。例如：「希望自动售卖背包中的指定物品」。
@@ -47,9 +98,9 @@ git checkout -b feat/auto-sell-items
 
 节点名使用 PascalCase，并与任务前缀一致，例如：`SellProductOpenBag`、`SellProductSelectItem`、`SellProductConfirmSell`。
 
-### 像写状态机一样思考
+### 像写状态机/决策树一样思考
 
-Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识别当前画面，执行操作，再由 `next` 跳到下一个状态：
+Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision Tree）**：每个节点先识别当前画面，执行操作，再由 `next` 跳到下一个状态：
 
 ```text
 打开背包 → 识别物品 → 点击物品 → 识别售卖按钮 → 点击售卖 → 识别确认弹窗 → 确认 → 回到列表
@@ -137,7 +188,15 @@ Pipeline 的核心逻辑是**有限状态机（FSM）**——每个节点先识�
 }
 ```
 
-上述 `all_of` 中的 `InRegionalDevelopment` 为项目中已定义的识别节点，用于确认当前在地区建设主界面。下方示例展示了一个用于识别地区建设二级界面的节点 `InRegionalDevelopmentView2`，它通过 OCR 识别顶部功能名称来确认界面状态。
+上述 `all_of` 中调用的 `InRegionalDevelopment` 是项目中已经定义好的识别节点，用于确认当前处于地区建设主界面。**你可以直接通过填写节点名称来复用已有的识别逻辑**，从而避免重复编写相同的代码。
+
+> **💡 进阶提示：组合识别 (And / Or)**
+>
+> 除了传统的 `TemplateMatch` (模板匹配)、`Color` (颜色匹配) 等基础方法外，Pipeline 还支持使用逻辑条件 **`And` (与)** 和 **`Or` (或)** 来组合多个识别节点。这在处理复杂或多变的 UI 状态时非常有用。
+>
+> 关于组合识别的具体语法和高级用法，请参阅 [MaaFramework 官方文档 - Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol#and)。
+
+下方示例展示了另一个用于识别地区建设二级界面的节点 `InRegionalDevelopmentView2`，它通过 OCR 识别顶部功能名称，来精准确认当前的界面状态：
 
 ```json
 {

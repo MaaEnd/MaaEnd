@@ -2,7 +2,6 @@ package autosell
 
 import (
 	"encoding/json"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -12,7 +11,169 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var scannedItemNameList []string
+var (
+	regionItemMap = make(map[string][]string)
+)
+
+type AutoSellScanItemRecognition struct{}
+
+func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
+
+	var params struct {
+		Region string `json:"region"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err != nil {
+		log.Error().Err(err).Str("component", "autosell").Str("step", "scan_item").Msg("parse params")
+		return nil, false
+	}
+	if params.Region == "" {
+		log.Error().Str("component", "autosell").Str("step", "scan_item").Msg("empty region param")
+		return nil, false
+	}
+
+	detail, recoErr := ctx.RunRecognition("AutoSellStockRedistributionItemText", arg.Img)
+	if recoErr != nil || detail == nil {
+		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "scan_item").Msg("run recognition")
+		return nil, false
+	}
+	if !detail.Hit {
+		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition not hit")
+		return nil, false
+	}
+	if len(detail.CombinedResult) < 4 {
+		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition miss")
+		return nil, false
+	}
+
+	var detailJson struct {
+		Filtered []struct {
+			Score float64 `json:"score"`
+			Text  string  `json:"text"`
+		} `json:"filtered"`
+	}
+	// Results.Best是空，暂时只能这样获取
+	if err := json.Unmarshal([]byte(detail.CombinedResult[3].DetailJson), &detailJson); err != nil {
+		log.Error().Err(err).Str("component", "autosell").Str("step", "scan_item").Msg("parse detail json")
+		return nil, false
+	}
+
+	names := make([]string, 0, len(detailJson.Filtered))
+	for _, item := range detailJson.Filtered {
+		names = append(names, item.Text)
+	}
+	regionItemMap[params.Region] = names
+
+	log.Info().
+		Str("component", "autosell").
+		Str("step", "scan_item").
+		Str("region", params.Region).
+		Int("count", len(names)).
+		Strs("items", names).
+		Msg("save region items")
+
+	maafocus.Print(ctx, i18n.T("autosell.scan_item_owned", strings.Join(names, i18n.Separator())))
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: `{"custom": "fake result"}`,
+	}, true
+}
+
+type AutoSellItemExecuteItemTaskAction struct{}
+
+func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var param struct {
+		Region        string `json:"region"`
+		ModeratePrice int    `json:"moderate_price"`
+		LargePrice    int    `json:"large_price"`
+		MassivePrice  int    `json:"massive_price"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
+		log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Msg("parse params")
+		return false
+	}
+	if param.Region == "" {
+		log.Error().Str("component", "autosell").Str("step", "execute_sell").Msg("empty region param")
+		return false
+	}
+
+	names, ok := regionItemMap[param.Region]
+	if !ok {
+		log.Warn().Str("component", "autosell").Str("step", "execute_sell").Str("region", param.Region).Msg("no scanned items for region")
+		return true
+	}
+
+	hasError := false
+	for _, name := range names {
+		// 翻译有缘再写
+		targetPrice := 9999
+		targetName := "unknown"
+		if k := firstContainedKeyword(name, moderatePriceKeywords); k != "" {
+			targetPrice = param.ModeratePrice
+			targetName = k
+			maafocus.Print(ctx, i18n.T("autosell.check_item_price_moderate", name))
+		} else if k := firstContainedKeyword(name, largePriceKeywords); k != "" {
+			targetPrice = param.LargePrice
+			targetName = k
+			maafocus.Print(ctx, i18n.T("autosell.check_item_price_large", name))
+		} else if k := firstContainedKeyword(name, massivePriceKeywords); k != "" {
+			targetPrice = param.MassivePrice
+			targetName = k
+			maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", name))
+		} else {
+			log.Warn().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Msg("unknown item, default price")
+			maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", name))
+		}
+
+		override := map[string]any{
+			"AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV": map[string]any{
+				"enabled": param.Region == "ValleyIV",
+			},
+			"AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling": map[string]any{
+				"enabled": param.Region == "Wuling",
+			},
+			"AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": map[string]any{
+				"enabled": param.Region == "ValleyIV",
+			},
+			"AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": map[string]any{
+				"enabled": param.Region == "Wuling",
+			},
+			"AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": map[string]any{
+				"enabled": param.Region == "ValleyIV",
+			},
+			"AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling": map[string]any{
+				"enabled": param.Region == "Wuling",
+			},
+			"AutoSellFriendsPricesExpected": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"lowest_price": targetPrice,
+				},
+			},
+			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
+				"expected": targetName,
+			},
+		}
+
+		detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
+		if detail == nil || err != nil {
+			log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Str("item_name", name).Msg("run prepare task")
+			hasError = true
+			break
+		}
+	}
+	if hasError {
+		return false
+	}
+
+	return true
+}
 
 type AutoSellPriceCompareRecognition struct{}
 
@@ -72,99 +233,6 @@ func (r *AutoSellPriceCompareRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}, true
 }
 
-type AutoSellItemRecordAction struct{}
-
-func (a *AutoSellItemRecordAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	var params struct {
-		RecordType string `json:"record_type"`
-		ItemName   string `json:"item_name"`
-	}
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "autosell").Str("step", "item_record").
-			Msg("parse params")
-		return false
-	}
-
-	switch params.RecordType {
-	case "init":
-		scannedItemNameList = []string{}
-		log.Info().Str("component", "autosell").Str("step", "item_record").Msg("init scan list")
-	case "record":
-		if slices.Contains(scannedItemNameList, params.ItemName) {
-			log.Info().Str("component", "autosell").Str("step", "item_record").Str("item_name", params.ItemName).Msg("item already scanned")
-			return true
-		}
-		scannedItemNameList = append(scannedItemNameList, params.ItemName)
-		log.Info().Str("component", "autosell").Str("step", "item_record").Str("item_name", params.ItemName).Msg("record item")
-	}
-	return true
-}
-
-type scanItem struct {
-	Box  []int  `json:"box"`
-	Text string `json:"text"`
-}
-
-type AutoSellStockRedistributionOpenItemTextRecognition struct{}
-
-func (r *AutoSellStockRedistributionOpenItemTextRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if arg == nil || arg.Img == nil {
-		return nil, false
-	}
-	detail, recoErr := ctx.RunRecognition("AutoSellStockRedistributionOpenItemText", arg.Img)
-	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("run recognition")
-		return nil, false
-	}
-
-	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
-		log.Warn().Str("component", "autosell").Str("step", "scan_item_text").Msg("recognition miss")
-		return nil, false
-	}
-
-	var detailJson struct {
-		Filtered []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-			Text  string  `json:"text"`
-		} `json:"filtered"`
-	}
-	// Results.Best是空，暂时只能这样获取
-	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("parse detail json")
-		return nil, false
-	}
-
-	var resultItem scanItem
-
-	for _, item := range detailJson.Filtered {
-		if slices.Contains(scannedItemNameList, item.Text) {
-			log.Info().Str("component", "autosell").Str("step", "scan_item_text").Str("item_name", item.Text).Msg("item already scanned")
-			continue
-		}
-		resultItem.Box = item.Box
-		resultItem.Text = item.Text
-		break
-	}
-
-	if len(resultItem.Text) == 0 {
-		log.Info().Str("component", "autosell").Str("step", "scan_item_text").Msg("no new item")
-		return nil, false
-	}
-
-	resultJson, marshalErr := json.Marshal(resultItem)
-	if marshalErr != nil {
-		log.Error().Err(marshalErr).Str("component", "autosell").Str("step", "scan_item_text").Msg("marshal result")
-		return nil, false
-	}
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(resultJson),
-	}, true
-}
-
 // firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。
 func firstContainedKeyword(s string, subs []string) string {
 	for _, sub := range subs {
@@ -181,128 +249,9 @@ var (
 	massivePriceKeywords  = []string{"源石", "警戒", "硬脑", "边角"}
 )
 
-type AutoSellStockRedistributionOpenItemTextAction struct{}
-
-func (a *AutoSellStockRedistributionOpenItemTextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
-	if !ok {
-		log.Error().Str("component", "autosell").Str("step", "open_item_text").Msg("get custom result")
-		return false
-	}
-	var resultItem scanItem
-	if err := json.Unmarshal([]byte(customResult.Detail), &resultItem); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "autosell").Str("step", "open_item_text").
-			Msg("parse custom result")
-		return false
-	}
-
-	var param struct {
-		ModeratePrice int `json:"moderate_price"`
-		LargePrice    int `json:"large_price"`
-		MassivePrice  int `json:"massive_price"`
-	}
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "autosell").Str("step", "open_item_text").
-			Msg("parse params")
-		return false
-	}
-
-	// 翻译有缘再写
-	targetPrice := 9999
-	targetName := "unknown"
-	if k := firstContainedKeyword(resultItem.Text, moderatePriceKeywords); k != "" {
-		targetPrice = param.ModeratePrice
-		targetName = k
-		maafocus.Print(ctx, i18n.T("autosell.check_item_price_moderate", resultItem.Text))
-	} else if k := firstContainedKeyword(resultItem.Text, largePriceKeywords); k != "" {
-		targetPrice = param.LargePrice
-		targetName = k
-		maafocus.Print(ctx, i18n.T("autosell.check_item_price_large", resultItem.Text))
-	} else if k := firstContainedKeyword(resultItem.Text, massivePriceKeywords); k != "" {
-		targetPrice = param.MassivePrice
-		targetName = k
-		maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", resultItem.Text))
-	} else {
-		log.Warn().
-			Str("component", "autosell").
-			Str("step", "open_item_text").
-			Str("item_name", resultItem.Text).
-			Msg("unknown item, default price")
-		maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", resultItem.Text))
-	}
-
-	if len(resultItem.Box) != 4 {
-		log.Error().Str("component", "autosell").Str("step", "open_item_text").Msg("invalid bbox")
-		return false
-	}
-
-	override := map[string]any{
-		"AutoSellStockRedistributionItemOpen": map[string]any{
-			"target": maa.Rect{
-				resultItem.Box[0],
-				resultItem.Box[1],
-				resultItem.Box[2],
-				resultItem.Box[3],
-			},
-		},
-		"AutoSellStockRedistributionItemTicketByText": map[string]any{
-			"roi": maa.Rect{
-				resultItem.Box[0],
-				resultItem.Box[1],
-				resultItem.Box[2],
-				resultItem.Box[3],
-			},
-		},
-		"AutoSellStockRedistributionItemCountEmpty": map[string]any{
-			"custom_action_param": map[string]any{
-				"item_name":   resultItem.Text,
-				"record_type": "record",
-			},
-		},
-		"AutoSellSellGoodsEmpty": map[string]any{
-			"custom_action_param": map[string]any{
-				"item_name":   resultItem.Text,
-				"record_type": "record",
-			},
-		},
-		"AutoSellFriendsPricesUnExpected": map[string]any{
-			"custom_action_param": map[string]any{
-				"item_name":   resultItem.Text,
-				"record_type": "record",
-			},
-		},
-		"AutoSellFriendsPricesExpectedBuyRecord": map[string]any{
-			"custom_action_param": map[string]any{
-				"item_name":   resultItem.Text,
-				"record_type": "record",
-			},
-		},
-		"AutoSellFriendsPricesExpected": map[string]any{
-			"custom_recognition_param": map[string]any{
-				"lowest_price": targetPrice,
-			},
-		},
-		"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
-			"expected": targetName,
-		},
-	}
-
-	detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
-	if detail == nil || err != nil {
-		log.Error().Err(err).Str("component", "autosell").Str("step", "open_item_text").Msg("run prepare task")
-		return false
-	}
-	return true
-}
-
 // Compile-time interface checks
 var (
+	_ maa.CustomRecognitionRunner = (*AutoSellScanItemRecognition)(nil)
 	_ maa.CustomRecognitionRunner = (*AutoSellPriceCompareRecognition)(nil)
-	_ maa.CustomActionRunner      = (*AutoSellItemRecordAction)(nil)
-	_ maa.CustomRecognitionRunner = (*AutoSellStockRedistributionOpenItemTextRecognition)(nil)
-	_ maa.CustomActionRunner      = (*AutoSellStockRedistributionOpenItemTextAction)(nil)
+	_ maa.CustomActionRunner      = (*AutoSellItemExecuteItemTaskAction)(nil)
 )

@@ -11,3 +11,4 @@ npx @joebao/maa-pipeline-generate --config BatchUseDetector-config.json
 ## 新增/更新地区探测器和罗盘
 
 修改文档同目录下的 `data.json`中的物品名称
+```

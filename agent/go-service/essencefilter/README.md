@@ -12,6 +12,7 @@
 | `state.go`         | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()`；持有 `matchapi.Engine` 与统计结果                               |
 | `filter.go`        | 小工具：`skillCombinationKey`（用于 UI 统计聚合）                                                                                  |
 | `ui.go`            | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（结果来自 `matchapi`）                                             |
+| `plan_export.go`   | 预刻写推荐与日志同时写入 `./EssencePlan.html`（`export_calculator_script` 时）；页眉/焦点提示见 `essencefilter.focus.plan.html_*`  |
 | `actions.go`       | 所有 CustomAction：Init / OCR 库存与 Trace / CheckItem·CheckItemLevel·SkillDecision / RowCollect·RowNextItem·Finish·SwipeCalibrate |
 | `options.go`       | 从节点 attach 读取 `EssenceFilterOptions`、 rarity/essence 列表格式化                                                              |
 | `resource_path.go` | 监听资源加载路径，供 Init 解析数据目录                                                                                             |
@@ -22,7 +23,7 @@
 
 1. **Init**：读资源路径 → 按 `attach.input_language`（仅 `CN|TC|EN|JP|KR`，非法值回退 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
 2. **运行中**：Pipeline 依次调用 RowCollect（收集本行格子并 ColorMatch；按 `skip_thumb_lock` / `skip_thumb_discard` 对缩略图跑 `EssenceThumbMarked`（双开）或 `EssenceThumbLock` / `EssenceThumbDiscard`（单开），命中则从本行待处理列表排除）→ RowNextItem（点击下一格）→ CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。旧 attach 仅含 `skip_locked_row` 时仍兼容，会同时映射到两个布尔值。
-3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案 → `setRunState(nil)`。
+3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案（`export_calculator_script`）；开启时会将同内容覆写为工作目录下 `./EssencePlan.html` → `setRunState(nil)`。
 
 所有运行时可变状态集中在 `RunState`，由 Init 分配、Finish 清空；匹配数据由 `matchapi.Engine` 管理与缓存。
 

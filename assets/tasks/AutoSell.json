@@ -9,6 +9,8 @@
                 "Wlroots"
             ],
             "option": [
+                "AutoSellValleyIV",
+                "AutoSellWuling",
                 "AutoSellPriceType"
             ],
             "group": [
@@ -17,6 +19,64 @@
         }
     ],
     "option": {
+        "AutoSellValleyIV": {
+            "type": "switch",
+            "label": "$global.region.ValleyIV",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoSellScanValleyIVMain": {
+                            "enabled": true
+                        },
+                        "AutoSellExecuteValleyIVMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoSellScanValleyIVMain": {
+                            "enabled": false
+                        },
+                        "AutoSellExecuteValleyIVMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoSellWuling": {
+            "type": "switch",
+            "label": "$global.region.Wuling",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoSellScanWulingMain": {
+                            "enabled": true
+                        },
+                        "AutoSellExecuteWulingMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoSellScanWulingMain": {
+                            "enabled": false
+                        },
+                        "AutoSellExecuteWulingMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "AutoSellPriceType": {
             "type": "select",
             "label": "$option.AutoSellPriceType.label",
@@ -51,8 +111,17 @@
                 }
             ],
             "pipeline_override": {
-                "AutoSellEnterStockRedistributionOpenItem": {
+                "AutoSellExecuteValleyIVMain": {
                     "custom_action_param": {
+                        "region": "ValleyIV",
+                        "moderate_price": "{AutoSellPriceGlobalValue}",
+                        "large_price": "{AutoSellPriceGlobalValue}",
+                        "massive_price": "{AutoSellPriceGlobalValue}"
+                    }
+                },
+                "AutoSellExecuteWulingMain": {
+                    "custom_action_param": {
+                        "region": "Wuling",
                         "moderate_price": "{AutoSellPriceGlobalValue}",
                         "large_price": "{AutoSellPriceGlobalValue}",
                         "massive_price": "{AutoSellPriceGlobalValue}"
@@ -87,8 +156,17 @@
                 }
             ],
             "pipeline_override": {
-                "AutoSellEnterStockRedistributionOpenItem": {
+                "AutoSellExecuteValleyIVMain": {
                     "custom_action_param": {
+                        "region": "ValleyIV",
+                        "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
+                        "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
+                        "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}"
+                    }
+                },
+                "AutoSellExecuteWulingMain": {
+                    "custom_action_param": {
+                        "region": "Wuling",
                         "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
                         "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
                         "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}"

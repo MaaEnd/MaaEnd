@@ -7,7 +7,8 @@
         "post_delay": 0,
         "next": [
             "BatchUseDetectorFind${Detector}",
-            "BatchUseDetectorFind${Compass}"
+            "BatchUseDetectorFind${Compass}",
+            "BatchUseDetectorFindNoItem"
         ]
     },
     "BatchUseDetectorFind${Detector}": {

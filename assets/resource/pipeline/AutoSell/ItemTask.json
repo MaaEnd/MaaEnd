@@ -1,102 +1,236 @@
 {
     "AutoSellStockRedistributionItemOpenPrepare": {
-        "desc": "打开物资调度item界面",
+        "desc": "准备售卖物资",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellStockRedistributionItemCountEmpty",
-            "AutoSellStockRedistributionItemOpen"
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling",
+            "AutoSellStockRedistributionItemOpenPrepareFriends"
         ]
     },
-    "AutoSellStockRedistributionItemTicketByText": {
-        "desc": "基于货物名称位置识别item界面的票券icon",
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV": {
+        "desc": "在地区建设界面，尝试售卖物资",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            60
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "4번 협곡"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling": {
+        "desc": "在地区建设界面，尝试售卖物资",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            60
+        ],
+        "expected": [
+            "武陵",
+            "Wuling",
+            "무릉"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab": {
+        "desc": "切换到弹性需求物资",
         "recognition": "TemplateMatch",
         "roi": [
             0,
-            200,
-            1280,
-            500
-        ],
-        "roi_offset": [
             0,
-            -60,
-            0,
-            40
+            650,
+            180
         ],
-        "template": [
-            "AutoSell/SellTicketItemValleyIV.png",
-            "AutoSell/SellTicketItemWuling.png"
-        ],
-        "threshold": 0.9
+        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTabSuccess"
+        ]
     },
-    "AutoSellStockRedistributionItemCountEmpty": {
-        "desc": "物资调度数量为0",
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTabSuccess": {
+        "desc": "切换到弹性需求物资成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoodsActive.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriends": {
+        "desc": "当前在好友界面，尝试查找目标物资",
         "recognition": "And",
         "all_of": [
-            "AutoSellStockRedistributionItemTicketByText",
-            {
-                "sub_name": "count_text",
-                "recognition": "ColorMatch",
-                "roi": "AutoSellStockRedistributionItemTicketByText",
-                "roi_offset": [
-                    -70,
-                    -35,
-                    135,
-                    30
-                ],
-                "lower": [
-                    34,
-                    34,
-                    34
-                ],
-                "upper": [
-                    54,
-                    54,
-                    54
-                ],
-                "count": 500
-            },
-            {
-                "recognition": "OCR",
-                "roi": "count_text",
-                "roi_offset": [
-                    -10,
-                    -10,
-                    -50,
-                    20
-                ],
-                "expected": [
-                    "^(?=.*0)[^1-9]*$"
-                ]
-            }
+            "InFriendsStockRedistribution"
         ],
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": {
+        "desc": "当前在好友界面，尝试切换到四号谷地",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png",
+            "AutoSell/StockRedistributionValleyIVNotChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenInFriends",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
+        "desc": "当前在好友界面，尝试切换到武陵",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionWulingChoose.png",
+            "AutoSell/StockRedistributionWulingNotChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenInFriends",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": {
+        "desc": "当前在好友界面，回到地区建设界面，切换地区到四号谷地",
+        "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoSellItemRecordAction",
+        "custom_action": "SubTask",
         "custom_action_param": {
-            "item_name": "锚点厨具货组",
-            "record_type": "record"
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellStockRedistributionItemNext"
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "物资数量为空，跳过"
+            "Node.Recognition.Succeeded": "该好友没有目标物品，查找下一个好友"
         }
     },
-    "AutoSellStockRedistributionItemOpen": {
-        "desc": "打开物资调度item界面",
+    "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling": {
+        "desc": "当前在好友界面，回到地区建设界面，切换地区到武陵",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "该好友没有目标物品，查找下一个好友"
+        }
+    },
+    "AutoSellStockRedistributionItemOpenInFriends": {
+        "desc": "在好友物资调度界面打开item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemFindTextRecognition"
+        ],
+        "box_index": 3,
         "pre_delay": 0,
         "action": "Click",
-        "target": [
-            100,
-            300,
-            1,
-            1
+        // item左右20个像素无法点击
+        "target_offset": [
+            30,
+            -50,
+            -60,
+            0
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenInRegionalDevelopment": {
+        "desc": "在地区建设物资调度界面打开item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemFindTextRecognition"
+        ],
+        "box_index": 3,
+        "pre_delay": 0,
+        "action": "Click",
         // item左右20个像素无法点击
         "target_offset": [
             30,
@@ -154,12 +288,6 @@
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoSellItemRecordAction",
-        "custom_action_param": {
-            "item_name": "锚点厨具货组",
-            "record_type": "record"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -241,12 +369,6 @@
     "AutoSellFriendsPricesUnExpected": {
         "desc": "价格不符合预期",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoSellItemRecordAction",
-        "custom_action_param": {
-            "item_name": "锚点厨具货组",
-            "record_type": "record"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -278,10 +400,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellStockRedistributionItemNext"
-        ]
+        "rate_limit": 0
     },
     "AutoSellFriendsPricesExpectedBuy": {
         "desc": "当前价格符合预期，在当前好友飞船上，可以直接购买",
@@ -359,27 +478,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyRecord"
+            "SceneNoticeRewardsConfirm"
         ],
         "focus": {
             "Node.Action.Succeeded": "售卖成功"
         }
-    },
-    "AutoSellFriendsPricesExpectedBuyRecord": {
-        "desc": "记录已经购买的物品",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoSellItemRecordAction",
-        "custom_action_param": {
-            "item_name": "锚点厨具货组",
-            "record_type": "record"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellStockRedistributionItemNext",
-            "[JumpBack]SceneNoticeRewardsConfirm"
-        ]
     },
     "AutoSellFriendsPricesExpectedGoTo": {
         "desc": "当前价格符合预期，需要前往好友飞船",
@@ -448,24 +551,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellStockRedistributionItemFind",
+            "AutoSellStockRedistributionItemOpenPrepareFriends",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]AutoSellShipEnterStockRedistribution"
-        ]
-    },
-    "AutoSellStockRedistributionItemFind": {
-        "desc": "进入物资调度界面，查找目标item",
-        "recognition": "And",
-        "all_of": [
-            "InFriendsStockRedistribution"
-        ],
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack][Anchor]AutoSellEnterStockRedistributionAreaSwitchAnchor",
-            "AutoSellStockRedistributionItemFindText"
         ]
     },
     "AutoSellStockRedistributionItemFindTextRecognition": {
@@ -480,32 +568,5 @@
         ],
         "expected": "锚点",
         "only_rec": true
-    },
-    "AutoSellStockRedistributionItemFindText": {
-        "desc": "打开物资调度item界面",
-        "recognition": "And",
-        "all_of": [
-            "AutoSellStockRedistributionItemTicketRecognition",
-            "AutoSellStockRedistributionItemNameAreaRecognition",
-            "AutoSellStockRedistributionItemFindTextRecognition"
-        ],
-        "box_index": 2,
-        "pre_delay": 0,
-        "action": "Click",
-        // item左右20个像素无法点击
-        "target_offset": [
-            30,
-            -50,
-            -40,
-            0
-        ],
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellSellGoodsOpenSuccess"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "打开指定物品"
-        }
     }
 }

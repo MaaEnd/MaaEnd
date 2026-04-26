@@ -7,15 +7,44 @@
     "_AutoEcoFarmGotoEcoFarmStart": {
         "desc": "这块代码是用来前往农场的",
         "next": [
-            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
             "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmCppAnchor",
             "_AutoEcoFarmGotoEcoFarmExit"
         ]
     },
     "_AutoEcoFarmGotoEcoFarmExit": {
         "next": [
-            //到目的地后开始识别农田并靠近
-            "_AutoEcoFarmFindFarmlandStart"
+            //到目的地后再次识别农田并靠近
+            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
+            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "_AutoEcoFarmMoveAndWorkStart"
         ]
+    },
+    //盲走避障模块，一般用来出基地
+
+    "_AutoEcoFarmBlindWalkPhotoMode": {
+        "desc": "进入拍照模式，准备盲走",
+        "next": [
+            "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
+            "_AutoEcoFarmPressW"
+        ]
+    },
+    "_AutoEcoFarmPressW": {
+        "desc": "长按W盲走一段距离,然后进入下一步",
+        "pre_delay": 0,
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 20000,
+                "key": 87 //w键
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]_AutoEcoFarmExitCameraMode",
+            "_AutoEcoFarmGotoEcoFarmStart"
+        ],
+        "focus": {
+            "Node.Action.Starting": "盲走20秒出基地，可能会撞墙或落水，这些不影响脚本运行，不用在意"
+        }
     }
 }

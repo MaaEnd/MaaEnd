@@ -5,6 +5,10 @@
 ## 运行方式
 
 ```bash
+# 在仓库根目录运行
+pnpm generate:EnvironmentMonitoring
+
+# 等价于在当前目录运行
 npx @joebao/maa-pipeline-generate
 npx @joebao/maa-pipeline-generate --config terminals-config.json
 ```

@@ -281,6 +281,9 @@
                         },
                         "GrowthChamberGrowAgain": {
                             "enabled": true
+                        },
+                        "GrowthChamberFakeTrue": {
+                            "enabled": false
                         }
                     }
                 },

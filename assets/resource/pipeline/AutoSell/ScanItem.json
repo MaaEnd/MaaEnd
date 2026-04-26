@@ -1,0 +1,160 @@
+{
+    "AutoSellScanValleyIVMain": {
+        "desc": "扫描四号谷地拥有物资",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanValleyIVSwitchTab"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在前往四号谷地扫描拥有物资"
+        }
+    },
+    "AutoSellScanValleyIVSwitchTab": {
+        "desc": "切换到弹性需求物资",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanValleyIVSwitchTabSuccess"
+        ]
+    },
+    "AutoSellScanValleyIVSwitchTabSuccess": {
+        "desc": "切换到弹性需求物资成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoodsActive.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanValleyIVSave",
+            "AutoSellScanRegionNull"
+        ]
+    },
+    "AutoSellScanValleyIVSave": {
+        "desc": "保存四号谷地拥有物资，供后续售卖",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellScanItemRecognition",
+        "custom_recognition_param": {
+            "region": "ValleyIV"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellScanWulingMain": {
+        "desc": "扫描武陵拥有物资",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanWulingSwitchTab"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在前往武陵扫描拥有物资"
+        }
+    },
+    "AutoSellScanWulingSwitchTab": {
+        "desc": "切换到弹性需求物资",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target_offset": [
+                0,
+                -300,
+                200,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanWulingSwitchTabSuccess"
+        ]
+    },
+    "AutoSellScanWulingSwitchTabSuccess": {
+        "desc": "切换到弹性需求物资成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoodsActive.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanWulingSave",
+            "AutoSellScanRegionNull"
+        ]
+    },
+    "AutoSellScanWulingSave": {
+        "desc": "保存武陵拥有物资，供后续售卖",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellScanItemRecognition",
+        "custom_recognition_param": {
+            "region": "Wuling"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellScanRegionNull": {
+        "desc": "当前区域物资为空",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "当前区域物资为空"
+        }
+    }
+}

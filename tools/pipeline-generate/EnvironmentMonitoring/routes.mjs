@@ -301,14 +301,15 @@ export const ROUTE_CONFIG = [
         MapName: "map02_lv004",
         MapTarget: [491.2, 197.9, 11.7, 10.7],
         MapPath: [
-            [498.6, 210.6],
-            [519.5, 210.5],
-            [517.6, 192.0],
-            [535.2, 191.6],
-            [536.0, 165.7],
-            [541.2, 188.0]
+            [500.0, 211.0],
+            [520.8, 211.2],
+            [520.8, 196.3],
+            [538.3, 195.1],
+            [539.4, 178.7],
+            [555.8, 177.5],
+            [555.8, 178.8]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
         Name: "垂藤",
