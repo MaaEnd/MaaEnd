@@ -24,6 +24,7 @@
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin"
         },
         "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
             "_AutoEcoFarmFindFarmlandStart"
         ]
     },

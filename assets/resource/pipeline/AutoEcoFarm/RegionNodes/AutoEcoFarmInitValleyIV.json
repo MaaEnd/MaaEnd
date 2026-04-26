@@ -24,6 +24,7 @@
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartValleyIV"
         },
         "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
             "_AutoEcoFarmFindFarmlandStart"
         ]
     },
