@@ -206,7 +206,7 @@ Other than the 4 fields above, all remaining parameters are currently read only 
 | `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                                                                                                                                                                                                                                               |
 | `ClampTargetToMax`        | `bool`                  | No       | If `true`, when the target exceeds the recognized `maxQuantity`, the target is clamped to `maxQuantity` and the action continues instead of failing. Default: `false` (fail immediately).                                                                                                                                            |
 | `SwipeButton`             | `string`                | No       | Custom slider template path. When provided, overrides the `BetterSlidingSwipeButton` node's default template. Path is relative to the `resource/image/` directory. Default: `""` (use the shared default template).                                                                                                                  |
-| `ExceedingOverrideEnable` | `string`                | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. Useful for triggering a fallback branch when the target cannot be reached. Default: `""` (disabled — the action fails immediately instead).                                              |
+| `ExceedingOverrideEnable` | `string`                | No       | When the resolved target is out of the slidable range, sets the `enabled` field of the named Pipeline node to `true`, then returns success. For upper overflow, `ClampTargetToMax` now wins first; for lower-bound reverse overflow, this fallback path still applies. Default: `""` (disabled — the action fails immediately instead). |
 
 \* Required in normal mode; ignored in swipe-only mode.
 
@@ -422,14 +422,15 @@ When the resolved target is out of the slidable range, this parameter determines
 - `resolved target > maxQuantity` — always out of range.
 - `TargetType = "Value"` and `TargetReverse = true` and `maxQuantity - target < 1` — the computed value is negative or zero, treated as out of range.
 
-### Priority over `ClampTargetToMax`
+### Priority with `ClampTargetToMax`
 
-`ExceedingOverrideEnable` is evaluated **before** `ClampTargetToMax`. When `ExceedingOverrideEnable` is set:
+For upper-bound overflow (`Target > maxQuantity`), `ClampTargetToMax` is evaluated first. When both are enabled, the target is clamped to `maxQuantity` before any `ExceedingOverrideEnable` branch is considered.
 
-1. If out of range: the named Pipeline node's `enabled` is set to `true`, the flow branches directly to `BetterSlidingDone`, and `BetterSliding` returns **success**.
-2. If in range: the named Pipeline node's `enabled` is set to `false`, and the normal flow continues (including any `ClampTargetToMax` logic).
+When `ExceedingOverrideEnable` is set and the resolved target is still in range after that upper clamp, the named Pipeline node's `enabled` is set to `false`, and the normal flow continues.
 
-When `ExceedingOverrideEnable` is **not** set and the target is out of range (including `Value + TargetReverse` yielding `< 1`), the action returns **false** immediately and `ClampTargetToMax` is not applied.
+Lower-bound reverse overflow (`Value + TargetReverse` yielding `< 1`) is still treated as out of range, and `ExceedingOverrideEnable` remains the active fallback for that case.
+
+When `ExceedingOverrideEnable` is **not** set and the target is out of range, the action returns **false** immediately.
 
 ### Example
 

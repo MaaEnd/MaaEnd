@@ -199,14 +199,24 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 		a.runtimeTargetResolved = true
 	}
 
-	a.exceeded = false
-	outOfRange := a.Target > a.maxQuantity
-	if a.TargetType == TargetTypeValue && a.TargetReverse && a.Target < 1 {
-		outOfRange = true
+	upperOverflow := a.Target > a.maxQuantity
+	lowerOverflow := a.TargetType == TargetTypeValue && a.TargetReverse && a.Target < 1
+
+	// Clamp upper overflow before any exceeding-override handling so clamp takes priority.
+	if a.ClampTargetToMax && upperOverflow {
+		originalTarget := a.Target
+		a.Target = a.maxQuantity
+		a.logger.Warn().
+			Int("original_target", originalTarget).
+			Int("clamped_target", a.Target).
+			Int("max_quantity", a.maxQuantity).
+			Msg("target clamped to max quantity")
+		upperOverflow = false
 	}
 
+	a.exceeded = false
 	if a.ExceedingOverrideEnable != "" {
-		if outOfRange {
+		if upperOverflow || lowerOverflow {
 			a.exceeded = true
 			if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 				logEvent := a.logger.Error().
@@ -238,23 +248,12 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 				Msg("failed to override exceeding disable state")
 			return false
 		}
-	} else if a.Target < 1 || (a.Target > a.maxQuantity && !a.ClampTargetToMax) {
+	} else if lowerOverflow || upperOverflow {
 		a.logger.Error().
 			Int("resolved_target", a.Target).
 			Int("max_quantity", a.maxQuantity).
 			Msg("target out of range and no exceeding override configured")
 		return false
-	}
-
-	// Clamp Target before calculating nextNode to avoid division-by-zero when maxQuantity==1.
-	if a.ClampTargetToMax && a.maxQuantity < a.Target {
-		originalTarget := a.Target
-		a.Target = a.maxQuantity
-		a.logger.Warn().
-			Int("original_target", originalTarget).
-			Int("clamped_target", a.Target).
-			Int("max_quantity", a.maxQuantity).
-			Msg("target clamped to max quantity")
 	}
 
 	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)

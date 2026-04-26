@@ -206,7 +206,7 @@ clickY = startY + (endY - startY) * numerator / denominator
 | `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                                                                                                                                                                                                              |
 | `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若目标超过识别到的 `maxQuantity`，自动将目标值钳制为 `maxQuantity` 并继续，而非直接失败。默认 `false`（超过上限时直接失败）。                                                                                                                    |
 | `SwipeButton`             | `string`                | 否   | 自定义滑块模板路径。提供时覆盖 `BetterSlidingSwipeButton` 节点的默认模板。路径相对于 `resource/image/` 目录。默认 `""`（使用共享默认模板）。                                                                                                                   |
-| `ExceedingOverrideEnable` | `string`                | 否   | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。用于目标无法到达时触发降级分支。默认 `""`（禁用，动作直接失败）。                                                                                                  |
+| `ExceedingOverrideEnable` | `string`                | 否   | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。上限溢出时现在会先由 `ClampTargetToMax` 钳制；下限反向溢出仍会走这里。默认 `""`（禁用，动作直接失败）。                                                                 |
 
 \* 正常模式下必填；仅滑动模式下忽略。
 
@@ -422,14 +422,15 @@ clickY = startY + (endY - startY) * numerator / denominator
 - `解析后的目标 > maxQuantity` —— 总是超出范围。
 - `TargetType = "Value"` 且 `TargetReverse = true` 且 `maxQuantity - target < 1` —— 计算值为负或零，视为超出范围。
 
-### 优先于 `ClampTargetToMax`
+### 与 `ClampTargetToMax` 的优先级
 
-`ExceedingOverrideEnable` 在 `ClampTargetToMax` **之前**评估。当设置了 `ExceedingOverrideEnable` 时：
+对于上限溢出（`Target > maxQuantity`），`ClampTargetToMax` 现在先评估。两个参数同时开启时，会先把目标钳制到 `maxQuantity`，再考虑 `ExceedingOverrideEnable`。
 
-1. 如果超出范围：将指定 Pipeline 节点的 `enabled` 设为 `true`，流程直接分支到 `BetterSlidingDone`，`BetterSliding` 返回**成功**。
-2. 如果在范围内：将指定 Pipeline 节点的 `enabled` 设为 `false`，正常流程继续（包括任何 `ClampTargetToMax` 逻辑）。
+如果上限钳制后目标仍在范围内，`ExceedingOverrideEnable` 对应节点会被设为 `false`，流程继续正常执行。
 
-当**未**设置 `ExceedingOverrideEnable` 且目标超出范围（包括 `Value + TargetReverse` 产生 `< 1` 的情况），动作立即返回 **false**，`ClampTargetToMax` 不会被应用。
+下限反向溢出（`Value + TargetReverse` 产生 `< 1`）仍然视为越界，`ExceedingOverrideEnable` 依然是这里的回退行为。
+
+当**未**设置 `ExceedingOverrideEnable` 且目标超出范围时，动作立即返回 **false**。
 
 ### 示例
 
