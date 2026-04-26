@@ -5,6 +5,7 @@
     //入口节点模板
     "_AutoEcoFarmSwipeToTargetInitDefault": {
         "desc": "设定并将视角拉向{默认}标记，如果标记已经在屏幕中央则跳过自身",
+        "max_hit": 20,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
