@@ -95,7 +95,13 @@
             "param": {
                 "custom_action": "autoEcoFarmOverrideTargetTemplate",
                 "custom_action_param": {
-                    "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png"
+                    "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                    "nodeNames": [
+                        "_AutoEcoFarmTargeRecognitionFullScreen",
+                        "_AutoEcoFarmTargeRecognitionSmallMap",
+                        "_AutoEcoFarmTargeInCenter",
+                        "_AutoEcoFarmTargeInBack"
+                    ]
                 }
             }
         },

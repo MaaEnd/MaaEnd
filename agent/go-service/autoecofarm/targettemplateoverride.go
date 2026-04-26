@@ -17,7 +17,7 @@ type autoEcoFarmOverrideTargetTemplateParam struct {
 	// NodeNames 是要被覆写模板的节点名列表。
 	// 注意：这里要求显式传入，若为空（或只包含空白字符串）会直接失败返回。
 	// 这样可以避免“误覆写默认节点”带来的不可预期行为。
-	NodeNames []string `json:"nodeNames,omitempty"`
+	NodeNames []string `json:"nodeNames"`
 }
 
 type autoEcoFarmOverrideTargetTemplate struct{}
