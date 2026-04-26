@@ -98,6 +98,7 @@
     },
     "__ScenePrivateLoginMonthlyPassConfirm": {
         "desc": "领取月卡，无法跳过必须领取",
+        "max_hit": 1, // 3d移动不好判断什么时候结束，因此只点一次防止影响到下一层弹窗
         "recognition": {
             "type": "OCR",
             "param": {
@@ -125,6 +126,7 @@
     },
     "__ScenePrivateLoginPristineMonthlyPassConfirm": {
         "desc": "领取焕新月卡，无法跳过必须领取",
+        "max_hit": 1, // 3d移动不好判断什么时候结束，因此只点一次防止影响到下一层弹窗
         "recognition": {
             "type": "OCR",
             "param": {
