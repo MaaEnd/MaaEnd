@@ -167,7 +167,17 @@
             150,
             150
         ],
-        "template": "ProtocolSpace/RetreatSpace.png"
+        "template": "ProtocolSpace/RetreatSpace.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                35,
+                25,
+                70,
+                20
+            ]
+        }
     },
     "ProtocolSpaceEnterSpaceSuccess": {
         "desc": "进入协议空间成功",
@@ -528,11 +538,155 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardClaimSanityExamine",
             "ProtocolSpaceRewardExit"
         ],
         "focus": {
-            "Node.Action.Succeeded": "确认领取奖励"
+            "Node.Action.Succeeded": "尝试领取奖励"
         }
+    },
+    "ProtocolSpaceRewardClaimSanityExamine": {
+        "desc": "检查理智是否满足领取奖励",
+        "recognition": "OCR",
+        "roi": [
+            184,
+            200,
+            115,
+            45
+        ],
+        "expected": [
+            "恢复理智",
+            "回復理智",
+            "Sanity Recovery",
+            "サニティ回復",
+            "생명력 회복"
+        ],
+        "next": [
+            "ProtocolSpaceSanityRecoveryClose"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，停止领取奖励"
+        }
+    },
+    "ProtocolSpaceSanityRecoveryClose": {
+        "desc": "关闭理智恢复界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ProtocolSpaceRewardClaimSanityExamine"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            905,
+            8,
+            -90,
+            -20
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceSanityLowRewardClaimClose"
+        ]
+    },
+    "ProtocolSpaceSanityLowRewardClaimClose": {
+        "desc": "关闭领取界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "expected": [
+                    "有可领取的奖励",
+                    "有可領取的獎勵",
+                    "Rewards Available",
+                    "受取可能な報酬",
+                    "획득 가능한 보상"
+                ]
+            },
+            "GrayCancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "target": [
+                425,
+                575,
+                175,
+                30
+            ],
+            "time": 200
+        },
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceOpenExit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "退出协议空间"
+        }
+    },
+    "ProtocolSpaceOpenExit": {
+        "desc": "打开退出协议空间界面",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceIn",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    10,
+                    20,
+                    35,
+                    30
+                ],
+                "template": "ProtocolSpace/RetreatSpace.png"
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationSanityLowExit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "打开退出界面"
+        }
+    },
+    "ProtocolSpaceOperationSanityLowExit": {
+        "desc": "退出协议空间",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationLowSanityExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "理智不足，退出协议空间"
+        }
+    },
+    "ProtocolSpaceOperationLowSanityExitToWorld": {
+        "desc": "理智不足，返回大世界回血，停止战斗",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationStopTask"
+        ]
     },
     "ProtocolSpaceRewardExit": {
         "desc": "协议空间奖励界面退出",
