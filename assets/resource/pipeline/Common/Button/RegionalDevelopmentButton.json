@@ -9,7 +9,8 @@
             84
         ],
         "template": "Common/Button/RegionalDevelopmentButton.png",
-        "threshold": 0.8,
+        "green_mask": true,
+        "threshold": 0.65,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
