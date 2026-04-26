@@ -62,14 +62,14 @@ type quantityFilterParam struct {
 //   - Quantity.Box: OCR ROI [x,y,w,h] for reading the current slider quantity.
 //     Also used by BetterSlidingGetMaxQuantity to read the slider endpoint value after swiping to max.
 //   - MaxTarget.Box: OCR ROI [x,y,w,h] for reading the max available quantity of the item.
-//     When provided, enables BetterSlidingGetMaxTarget, whose OCR result is used for
-//     resolveTarget (TargetReverse / TargetType calculation). Falls back to Quantity when omitted.
-//     When MaxTarget is not provided, resolveTarget falls back to using the
-//     BetterSlidingGetMaxQuantity runtime value (slider endpoint).
+//     When provided, BetterSlidingGetMaxTarget runs after SwipeToMax and its OCR result is used for
+//     resolveTarget (TargetReverse / TargetType calculation).
+//     When MaxTarget is not provided, BetterSlidingGetMaxTarget stays disabled and
+//     resolveTarget falls back to the BetterSlidingGetMaxQuantity runtime value (slider endpoint).
 //   - Quantity.Filter: optional color filter for quantity OCR
 //   - Quantity.OnlyRec: enable only_rec for the quantity OCR node
-//   - MaxTarget.Filter: optional color filter for max-target OCR; falls back to Quantity when MaxTarget is omitted
-//   - MaxTarget.OnlyRec: enable only_rec for the max-target OCR node; falls back to Quantity when MaxTarget is omitted
+//   - MaxTarget.Filter: optional color filter for max-target OCR when MaxTarget is provided
+//   - MaxTarget.OnlyRec: enable only_rec for the max-target OCR node when MaxTarget is provided
 //   - GreenMask: map to green_mask in TemplateMatch for slider/button templates
 //   - Direction: swipe direction (left/right/up/down)
 //   - IncreaseButton: increase button template path or coordinates
@@ -85,6 +85,7 @@ type BetterSlidingAction struct {
 	Target                  int
 	QuantityBox             []int
 	MaxTargetBox            []int
+	MaxTargetExplicit       bool
 	QuantityFilter          *quantityFilterParam
 	MaxTargetFilter         *quantityFilterParam
 	QuantityOnlyRec         bool

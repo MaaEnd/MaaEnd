@@ -14,7 +14,7 @@ const (
 	nodeBetterSlidingSwipeToMax        = "BetterSlidingSwipeToMax"
 	nodeBetterSlidingGetQuantity       = "BetterSlidingGetQuantity"
 	nodeBetterSlidingQuantityFilter    = "BetterSlidingQuantityFilter"
-	nodeBetterSlidingMaxTargetFilter = "BetterSlidingMaxTargetFilter"
+	nodeBetterSlidingMaxTargetFilter   = "BetterSlidingMaxTargetFilter"
 	nodeBetterSlidingSwipeButton       = "BetterSlidingSwipeButton"
 	nodeBetterSlidingIncreaseButton    = "BetterSlidingIncreaseButton"
 	nodeBetterSlidingDecreaseButton    = "BetterSlidingDecreaseButton"

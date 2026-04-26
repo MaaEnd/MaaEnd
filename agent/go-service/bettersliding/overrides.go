@@ -28,6 +28,7 @@ func buildMainInitializationOverride(
 	end []int,
 	quantityBox []int,
 	maxTargetBox []int,
+	maxTargetExplicit bool,
 	quantityFilter *quantityFilterParam,
 	maxTargetFilter *quantityFilterParam,
 	quantityOnlyRec bool,
@@ -101,7 +102,7 @@ func buildMainInitializationOverride(
 		}
 	}
 
-	if len(maxTargetBox) > 0 {
+	if maxTargetExplicit {
 		maxTargetParam := map[string]any{
 			"roi":      append([]int(nil), maxTargetBox...),
 			"only_rec": maxTargetOnlyRec,
@@ -119,7 +120,7 @@ func buildMainInitializationOverride(
 			}
 		}
 		override[nodeBetterSlidingGetMaxTarget] = map[string]any{
-			"enabled":    true,
+			"enabled": true,
 			"recognition": map[string]any{
 				"param": maxTargetParam,
 			},

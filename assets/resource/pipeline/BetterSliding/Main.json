@@ -262,7 +262,7 @@
         ]
     },
     "BetterSlidingGetMaxTarget": {
-        "desc": "识别最大目标数量，存入go，仅在指定MaxTarget时启用，否则使用MaxQuantity作为回落",
+        "desc": "在滑动到最大值后识别最大目标数量并存入go，仅在显式指定MaxTarget时启用",
         "enabled": false,
         "recognition": {
             "type": "OCR",

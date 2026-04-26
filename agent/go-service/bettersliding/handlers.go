@@ -66,6 +66,12 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 			Msg("invalid quantity box, expected [x,y,w,h]")
 		return false
 	}
+	if a.MaxTargetExplicit && len(a.MaxTargetBox) != 4 {
+		a.logger.Error().
+			Ints("max_target_box", a.MaxTargetBox).
+			Msg("invalid max target box, expected [x,y,w,h]")
+		return false
+	}
 
 	end, err := buildSwipeEnd(a.Direction)
 	if err != nil {
@@ -80,6 +86,7 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		end,
 		a.QuantityBox,
 		a.MaxTargetBox,
+		a.MaxTargetExplicit,
 		a.QuantityFilter,
 		a.MaxTargetFilter,
 		a.QuantityOnlyRec,
@@ -106,6 +113,7 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
 		Ints("max_target_roi", a.MaxTargetBox).
+		Bool("max_target_explicit", a.MaxTargetExplicit).
 		Bool("green_mask", a.GreenMask).
 		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
 		Bool("max_target_filter_enabled", a.MaxTargetFilter != nil).
