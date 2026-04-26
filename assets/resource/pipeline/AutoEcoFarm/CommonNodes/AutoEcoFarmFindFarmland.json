@@ -525,6 +525,9 @@
         "next": [
             "[JumpBack]_AutoEcoFarmExitCameraMode",
             "_AutoEcoFarmGotoEcoFarmStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "盲走20秒出基地，可能会撞墙或落水，这些不影响脚本运行，不用在意"
+        }
     }
 }
