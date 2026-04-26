@@ -43,7 +43,7 @@ func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition not hit")
 		return nil, false
 	}
-	if len(detail.CombinedResult) < 3 {
+	if len(detail.CombinedResult) < 4 {
 		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition miss")
 		return nil, false
 	}
