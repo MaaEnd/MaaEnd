@@ -39,7 +39,7 @@
             "DijiangRewardsFastCollectProductionDoNothing"
         ]
     },
-    "CloseFastCollectProductionRewardsTarget": {
+    "DijiangRewardsFastCollectProductionTarget": {
         "desc": "快速收取产物奖励界面识别目标，包含产物奖励界面特征元素的组合",
         "recognition": {
             "type": "OCR",
@@ -63,7 +63,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseFastCollectProductionRewardsTarget",
+                    "DijiangRewardsFastCollectProductionTarget",
                     "CloseRewardsButton",
                     "CloseRewardsButtonText"
                 ],
@@ -84,7 +84,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseFastCollectProductionRewardsTarget",
+                    "DijiangRewardsFastCollectProductionTarget",
                     "InDijiangControlNexus"
                 ]
             }
