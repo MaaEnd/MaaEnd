@@ -605,7 +605,7 @@
             "param": {
                 "roi": [
                     630,
-                    430,
+                    455,
                     420,
                     260
                 ],
@@ -661,29 +661,81 @@
             "Node.Action.Starting": "👆点击确认放弃按钮"
         }
     },
-    "AutoEssenceLowSp": {
-        "desc": "识别理智不足的弹窗；开启战后筛选时先汇总再结束，否则直接结束",
+    "__AutoEssenceLowSpDialog": {
+        "desc": "识别体力不足弹窗的图标（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    420,
+                    400,
                     220,
-                    180,
+                    200,
                     180
                 ],
                 "template": "AutoEssence/SpDialog.png"
             }
+        }
+    },
+    "__AutoEssenceLowSpDialogCloseButton": {
+        "desc": "识别体力不足弹窗的按钮（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1030,
+                    150,
+                    140,
+                    140
+                ],
+                "template": "AutoEssence/SpDialogCloseButton.png"
+            }
+        }
+    },
+    "AutoEssenceLowSp": {
+        "desc": "识别体力不足的弹窗，如有则关闭，随后进入体力不足的分支",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceLowSpDialog",
+                    "__AutoEssenceLowSpDialogCloseButton"
+                ],
+                "box_index": 1
+            }
         },
         "action": {
-            "type": "DoNothing"
+            "type": "Click"
+        },
+        "next": [
+            "AutoEssenceLowSpCancelObtain"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✖️关闭体力不足弹窗"
+        }
+    },
+    "AutoEssenceLowSpCancelObtain": {
+        "desc": "体力不足分支识别并点击取消领取奖励的按钮，以便返回主界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    220,
+                    455,
+                    420,
+                    260
+                ],
+                "template": "Common/Button/CancelButtonType2.png"
+            }
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
             "AutoEssenceLowSpStopTask"
         ],
         "focus": {
-            "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
+            "Node.Action.Starting": "✖️关闭领取奖励界面"
         }
     },
     "AutoEssenceLowSpStopTask": {
