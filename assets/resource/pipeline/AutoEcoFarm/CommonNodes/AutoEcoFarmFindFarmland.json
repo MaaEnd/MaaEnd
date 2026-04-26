@@ -11,8 +11,7 @@
     },
     "_AutoEcoFarmFindFarmlandExit": {
         "next": [
-            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
-            "_AutoEcoFarmMoveAndWorkStart"
+            "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
     //内部节点

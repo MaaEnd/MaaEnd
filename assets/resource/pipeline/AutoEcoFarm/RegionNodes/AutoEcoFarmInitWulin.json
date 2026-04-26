@@ -23,7 +23,7 @@
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin"
         },
         "next": [
-            "_AutoEcoFarmGotoEcoFarmStart"
+            "_AutoEcoFarmFindFarmlandStart"
         ]
     },
     //下面是所有Anchor节点

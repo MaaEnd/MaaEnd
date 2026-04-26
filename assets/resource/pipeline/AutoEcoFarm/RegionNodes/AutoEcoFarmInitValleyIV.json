@@ -23,7 +23,7 @@
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmValleyIV"
         },
         "next": [
-            "_AutoEcoFarmGotoEcoFarmStart"
+            "_AutoEcoFarmFindFarmlandStart"
         ]
     },
     //传送到农场附近的节点，使用万能跳转的节点，改节点名，将next里替换成寻路节点起点附近的传送点，具体方法参考对应的文档
