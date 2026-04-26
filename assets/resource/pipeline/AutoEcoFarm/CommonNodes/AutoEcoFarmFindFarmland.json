@@ -13,7 +13,7 @@
     "_AutoEcoFarmFindFarmlandExit": {
         "next": [
             "[JumpBack]_AutoEcoFarmReturnToWorld",
-            "_AutoEcoFarmBlindWalkStart",
+            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
@@ -450,14 +450,7 @@
         "next": ["SceneAnyEnterWorld"]
     },
     //盲走避障模块，一般用来出基地
-    "_AutoEcoFarmBlindWalkStart": {
-        "desc": "关闭工业设备朝标记盲走一段距离，默认关闭",
-        "enabled": true,
-        "next": [
-            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
-            "_AutoEcoFarmBlindWalkPhotoMode"
-        ]
-    },
+
     "_AutoEcoFarmBlindWalkPhotoMode": {
         "desc": "进入拍照模式，准备盲走",
         "next": [

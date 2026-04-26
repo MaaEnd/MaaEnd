@@ -20,7 +20,8 @@
             "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
-            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin"
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
+            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin"
         },
         "next": [
             "_AutoEcoFarmFindFarmlandStart"
@@ -275,6 +276,15 @@
             "_AutoEcoFarmScroll",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
+    },
+    //决定是否要进入拍照模式，如果是出发点在基地那就开启
+    "_AutoEcoFarmBlindWalkStartWulin": {
+        "desc": "[Wulin版]关闭工业设备朝标记盲走一段距离，默认关闭",
+        "enabled": false,
+        "next": [
+            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "_AutoEcoFarmBlindWalkPhotoMode"
         ]
     }
 }

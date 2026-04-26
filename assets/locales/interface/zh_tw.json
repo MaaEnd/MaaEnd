@@ -656,6 +656,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "自行到右下角",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "任務開始前存放背包雜物",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "任務結束後存放背包雜物",
+    "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "開拍照模式離開武陵基地",
     "task.GiftOperator.label": "🎁贈送幹員禮物",
     "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。\n注意：此任務僅在「電腦端-前台」連接配置下可用。執行期間請勿移動滑鼠，否則可能導致任務失敗。建議優先使用預錄製路線；識別尋路（MapTracker）目前仍可能不穩定。",
     "option.GiftOperatorMoveMode.label": "前往聯絡台方式",
