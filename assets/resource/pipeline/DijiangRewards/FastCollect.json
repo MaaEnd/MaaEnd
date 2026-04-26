@@ -36,8 +36,26 @@
         "rate_limit": 0,
         "next": [
             "CloseFastCollectProductionRewards",
-            "InDijiangControlNexus"
+            "DijiangRewardsFastCollectProductionDoNothing"
         ]
+    },
+    "CloseFastCollectProductionRewardsTarget": {
+        "desc": "快速收取产物奖励界面识别目标，包含产物奖励界面特征元素的组合",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    322,
+                    0,
+                    390,
+                    209
+                ],
+                "expected": [
+                    "制造舱",
+                    "培养舱"
+                ]
+            }
+        }
     },
     "CloseFastCollectProductionRewards": {
         "desc": "关闭快速收取产物奖励界面",
@@ -45,9 +63,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "CloseFastCollectProductionRewardsTarget",
                     "CloseRewardsButton",
                     "CloseRewardsButtonText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "pre_wait_freezes": 150,
@@ -57,6 +77,18 @@
         },
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "DijiangRewardsFastCollectProductionDoNothing": {
+        "desc": "什么都不做",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseFastCollectProductionRewardsTarget",
+                    "InDijiangControlNexus"
+                ]
+            }
+        }
     },
     "DijiangRewardsFastCollectClues": {
         "desc": "快速收取线索",
@@ -95,8 +127,37 @@
         "rate_limit": 0,
         "next": [
             "CloseFastCollectCluesRewards",
-            "InDijiangControlNexus"
+            "DijiangRewardsFastCollectCluesDoNothing"
         ]
+    },
+    "DijiangRewardsFastCollectCluesTarget": {
+        "desc": "快速收取线索奖励界面识别目标，包含线索奖励界面特征元素的组合",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    181,
+                    12,
+                    440,
+                    221
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        }
+    },
+    "DijiangRewardsFastCollectCluesDoNothing": {
+        "desc": "什么都不做",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "DijiangRewardsFastCollectCluesTarget",
+                    "InDijiangControlNexus"
+                ]
+            }
+        }
     },
     "CloseFastCollectCluesRewards": {
         "desc": "关闭快速收取线索奖励界面",
@@ -104,9 +165,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "DijiangRewardsFastCollectCluesTarget",
                     "CloseRewardsButton",
                     "CloseRewardsButtonText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "pre_wait_freezes": 150,
