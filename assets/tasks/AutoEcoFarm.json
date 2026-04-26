@@ -260,7 +260,7 @@
         "LeaveBaseWithCameraMode": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
