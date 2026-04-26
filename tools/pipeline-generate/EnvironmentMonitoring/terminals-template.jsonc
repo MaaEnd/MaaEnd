@@ -4,7 +4,8 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringInMonitoringTerminal"
+            "EnvironmentMonitoringInMonitoringTerminal",
+            "EnvironmentMonitoringCheck${Id}Text"
         ],
         "next": [
             "${Id}Loop",

@@ -1,5 +1,5 @@
 {
-    "data":[
+    "data": [
         {
             "LocationId": "Wuling",
             "LocationName": "武陵",
@@ -7,7 +7,7 @@
             "LocationCompass": "武陵罗盘",
             "ItemType": "WulingItem",
             "Detector": "WulingDetector",
-            "Compass":"WulingCompass"
+            "Compass": "WulingCompass"
         },
         {
             "LocationId": "ValleyIV",
@@ -16,7 +16,7 @@
             "LocationCompass": "谷地罗盘",
             "ItemType": "ValleyIVItem",
             "Detector": "ValleyIVDetector",
-            "Compass":"ValleyIVCompass"
+            "Compass": "ValleyIVCompass"
         }
     ]
 }

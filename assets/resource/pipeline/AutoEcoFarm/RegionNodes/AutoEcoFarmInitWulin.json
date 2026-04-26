@@ -21,10 +21,12 @@
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
-            //AutoEcoFarmSwipeToTarget.json 拉近标记部分
-            "_AutoEcoFarmSwipeLoopAnchor": "_AutoEcoFarmSwipeLoopWuLin"
+            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin"
         },
         "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
+            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
@@ -279,12 +281,13 @@
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
-    //独立控制将视角拉近屏幕中央的循环次数，不用改，除非你需要自定义循环次数
-    "_AutoEcoFarmSwipeLoopWuLin": {
-        "desc": "[Wulin版]控制循环次数节点",
-        "max_hit": 20,
+    //决定是否要进入拍照模式，如果是出发点在基地那就开启
+    "_AutoEcoFarmBlindWalkStartWulin": {
+        "desc": "[Wulin版]关闭工业设备朝标记盲走一段距离，默认关闭",
+        "enabled": false,
         "next": [
-            "_AutoEcoFarmCheckTarget"
+            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "_AutoEcoFarmBlindWalkPhotoMode"
         ]
     }
 }

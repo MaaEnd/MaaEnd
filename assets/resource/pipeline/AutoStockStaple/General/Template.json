@@ -113,9 +113,9 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    1088,
+                    1073,
                     0,
-                    130,
+                    123,
                     49
                 ],
                 "method": 6,

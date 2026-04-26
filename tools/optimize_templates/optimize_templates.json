@@ -477,7 +477,7 @@
     "resource/image/Common/Button/YellowConfirmButtonType2": "c8881af5ff9983d9f590f583e161bdc4cb3e4984de766a6f774fc98b583ddcea",
     "resource/image/Common/Button/CloseRewardButton": "c838dfd7eff5519f17dd6fc87d6dc60361fb6a355c4c0461964163cacda30ea0",
     "resource/image/Common/Button/CancelButtonType2": "cd3dd555bea834295f4fac8d9056d26da15ec332e2cf811ce92aa91b318f7d96",
-    "resource/image/Common/Button/RegionalDevelopmentButton": "fc843e5d2916e7dd259a4e2687357b2c28da1353c1eb521ad44dfad95f7e4c0d",
+    "resource/image/Common/Button/RegionalDevelopmentButton": "7c8961fb24d7947ed9185198d408301188a1e8be05208b52399cc48923a7b3b8",
     "resource/image/Common/Button/ChangeRegionButton": "3bdd552321b527b2dac55509d1ae5a3eabbff28273fabcb0c684c3b6c3c2d5db",
     "resource/image/Common/Button/WhiteConfirmButtonType2Hover": "b9c14165607f8cc944b49c1e4ca3779dc3add5ca94229319f646e13e6e9ba617",
     "resource/image/Common/Button/EnterCameraModeButton": "85097cedc9dd62f3f0c60b6072e2641ebbd0d60d6ed7b7586a445dd3fb99f55a",
@@ -679,5 +679,10 @@
     "resource/image/BatchUseDetector/WulingDetector": "39f8cda6ceeb9b06abf87d8eaaf293541ec64b1f46b8b7e1ca30501137df6213",
     "resource/image/BatchUseDetector/ValleyIVCompass": "1ffca727d8e689823edaa19df6b82502499dce7e30610cb4b4987e0355fc9f23",
     "resource/image/BatchUseDetector/ValleyIVDetector": "833a331a8a706e8c234212355b7ee66dcd18849db59c75d920458935268462d9",
-    "resource/image/SceneManager/BackToMainMap": "35d5bf3e3a58fcffdd146f079f6fc9f0862bf3a1b713ce64f4edc225981fff8a"
+    "resource/image/SceneManager/BackToMainMap": "35d5bf3e3a58fcffdd146f079f6fc9f0862bf3a1b713ce64f4edc225981fff8a",
+    "resource/image/SceneManager/MapLayersOther": "aeef7c708df6e900b4e9863b2a3efe27c5c80432e3da73233972807a29c110ec",
+    "resource/image/SceneManager/MapLayersMain": "35d5bf3e3a58fcffdd146f079f6fc9f0862bf3a1b713ce64f4edc225981fff8a",
+    "resource/image/AutoSell/TabSwitchElasticGoodsActive": "200e60f6d89224b408fceec9e429bd434a9cef47a531100d975cb90efd64aa12",
+    "resource/image/AutoSell/TabSwitchElasticGoods": "45ee0b27feec570a4f74b6c883aab99517f50eaf15f5643a3eead14b68ce033b",
+    "resource/image/AutoEcoFarm/AutoEcoFarmTarget": "0c5d200ceacbc6fa42715f1b0cd1cca6839ee0c62a7353c2bdddc7dd4731d209"
 }

@@ -29,6 +29,26 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
         ]
     },
+    "InStockStaple": {
+        "desc": "识别是否在稳定物资界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    247,
+                    122
+                ],
+                "expected": [
+                    "物资调度",
+                    "物資調度",
+                    "(?i)Stock\\s*Redistribution",
+                    "商品取引"
+                ]
+            }
+        }
+    },
     "AutoStockStapleWuling": {
         "desc": "自动囤货稳定需求物资武陵节点",
         "enabled": false,

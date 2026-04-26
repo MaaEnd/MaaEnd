@@ -209,7 +209,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 }
 
 func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, requirement string) {
-	maafocus.PrintLargeContent(
+	maafocus.PrintLargeContentTrimNewline(
 		i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controllerDisplay, width, height, requirement)),
 	)
 	tasker.PostStop()

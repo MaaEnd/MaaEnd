@@ -21,7 +21,7 @@ type EssenceFilterOptions struct {
 	LockSlot3Practical bool `json:"lock_slot3_practical"`
 	// 未匹配时废弃而非跳过
 	DiscardUnmatched bool `json:"discard_unmatched"`
-	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）
+	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入工作目录 ./EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
 	// 收集每行时对缩略图做已锁定/已废弃标记识别，命中则从本行待处理列表排除（见 RowCollect；双开时用 EssenceThumbMarked，否则单模板节点）
 	SkipThumbLock    bool `json:"skip_thumb_lock"`

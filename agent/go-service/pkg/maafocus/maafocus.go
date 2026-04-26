@@ -4,6 +4,7 @@ package maafocus
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -44,11 +45,22 @@ func Print(ctx *maa.Context, content string) {
 	}
 }
 
-// PrintLargeContent sends payload to [fmt.Println] for large content.
+// PrintLargeContent sends payload to [fmt.Println] as an alternative to the [Print] function.
+// So that the content will not be recorded into Maa's log system in order to reduce Maa's log size.
 //
-// Instead of [Print], this function will not record the content into Maa's log system.
-//
-// Note that this function does not require a context argument.
+// If the content contains newlines, consider using [PrintLargeContentTrimNewline]
+// to avoid client parsing issues.
 func PrintLargeContent(content string) {
+	fmt.Println(content)
+}
+
+// PrintLargeContentTrimNewline sends payload to [fmt.Println]
+// and replaces all newlines and continuous blanks with a single space.
+//
+// This function is useful when printing HTML content.
+func PrintLargeContentTrimNewline(content string) {
+	content = strings.ReplaceAll(content, "\r", " ")
+	content = strings.ReplaceAll(content, "\n", " ")
+	content = strings.Join(strings.Fields(content), " ")
 	fmt.Println(content)
 }

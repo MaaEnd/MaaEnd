@@ -53,7 +53,7 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 
 	names := strings.Join(found, ", ")
 
-	maafocus.PrintLargeContent(
+	maafocus.PrintLargeContentTrimNewline(
 		i18n.RenderHTML("tasker.process_warning", map[string]any{"ProcessNames": names}),
 	)
 

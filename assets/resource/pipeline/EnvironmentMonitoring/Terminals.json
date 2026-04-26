@@ -4,7 +4,8 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringInMonitoringTerminal"
+            "EnvironmentMonitoringInMonitoringTerminal",
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
         ],
         "next": [
             "OutskirtsMonitoringTerminalLoop",
@@ -42,7 +43,8 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringInMonitoringTerminal"
+            "EnvironmentMonitoringInMonitoringTerminal",
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText"
         ],
         "next": [
             "MarkerStoneMonitoringTerminalLoop",

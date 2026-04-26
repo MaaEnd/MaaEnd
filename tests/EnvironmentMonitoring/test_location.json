@@ -1,0 +1,20 @@
+{
+    "configs": {
+        "name": "环境监测，测试地区识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_接取委托.png",
+            "hits": ["EnvironmentMonitoringInMonitoringTerminal"]
+        },
+        {
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_前往任务.png",
+            "hits": ["EnvironmentMonitoringInMonitoringTerminal"]
+        }
+    ]
+}
