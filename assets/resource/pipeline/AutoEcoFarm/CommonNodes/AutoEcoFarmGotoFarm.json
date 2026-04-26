@@ -17,5 +17,6 @@
             //到目的地后开始识别农田并靠近
             "_AutoEcoFarmFindFarmlandStart"
         ]
-    }
+    },
+    "_AutoEcoFarmSetStartAnchor": {}
 }

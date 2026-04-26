@@ -11,10 +11,28 @@
     },
     "_AutoEcoFarmFindFarmlandExit": {
         "next": [
-            "_AutoEcoFarmSwipeToTargetStart"
+            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "_AutoEcoFarmMoveAndWorkStart"
         ]
     },
     //内部节点
+    //拉标记节点入口
+    "_AutoEcoFarmSwipeToTargetInitFarmLand": {
+        "desc": "设定并将视角拉向{农田}标记",
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmOverrideTargetTemplate",
+                "custom_action_param": {
+                    "TargetTemplatePath": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png"
+                }
+            }
+        },
+        "next": [
+            "_AutoEcoFarmSwipeToTargetStart"
+        ]
+    },
     "_AutoEcoFarmFindFarmlandOpenMap": {
         "desc": "先打开大地图",
         "next": [
