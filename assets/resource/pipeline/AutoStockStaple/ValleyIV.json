@@ -6,7 +6,8 @@
             "param": {
                 "all_of": [
                     "InValleyIVText",
-                    "InStapleColor"
+                    "InStapleColor",
+                    "InStockStaple"
                 ]
             }
         },
