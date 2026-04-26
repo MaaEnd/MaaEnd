@@ -14,10 +14,9 @@
     },
     "_AutoEcoFarmGotoEcoFarmExit": {
         "next": [
-            //到目的地后开始识别农田并靠近
+            //到目的地后再次识别农田并靠近
             "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
             "_AutoEcoFarmMoveAndWorkStart"
         ]
-    },
-    "_AutoEcoFarmSetClick": {}
+    }
 }

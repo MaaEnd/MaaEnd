@@ -11,20 +11,36 @@
     },
     "_AutoEcoFarmFindFarmlandExit": {
         "next": [
+            "_AutoEcoFarmBlindWalkStart",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
     //内部节点
     //拉标记节点入口
     "_AutoEcoFarmSwipeToTargetInitFarmLand": {
-        "desc": "设定并将视角拉向{农田}标记",
-        "max_hit": 1,
+        "desc": "设定并将视角拉向{农田}标记，如果标记已经在屏幕中央则跳过自身",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    620,
+                    100,
+                    40,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "inverse": true,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "autoEcoFarmOverrideTargetTemplate",
                 "custom_action_param": {
-                    "TargetTemplatePath": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png"
+                    "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png"
                 }
             }
         },
@@ -423,5 +439,31 @@
         "action": {
             "type": "Click"
         }
+    },
+    //盲走避障模块，一般用来出基地
+    "_AutoEcoFarmBlindWalkStart": {
+        "desc": "关闭工业设备朝标记盲走一段距离，默认关闭",
+        "enabled": true,
+        "next": [
+            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
+            "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
+            "_AutoEcoFarmPressW"
+        ]
+    },
+    "_AutoEcoFarmPressW": {
+        "desc": "长按W盲走一段距离,然后进入下一步",
+        "pre_delay": 0,
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 5000,
+                "key": 87 //w键
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]_AutoEcoFarmExitCameraMode",
+            "_AutoEcoFarmGotoEcoFarmStart"
+        ]
     }
 }
