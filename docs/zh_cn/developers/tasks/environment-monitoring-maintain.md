@@ -173,11 +173,10 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 ### 运行命令
 
 ```bash
-# 安装依赖（首次）
-npm i -g @joebao/maa-pipeline-generate
-# 或一次性：npx @joebao/maa-pipeline-generate
+# 推荐：在仓库根目录运行
+pnpm generate:EnvironmentMonitoring
 
-# 在 tools/pipeline-generate/EnvironmentMonitoring/ 目录下运行：
+# 等价于在 tools/pipeline-generate/EnvironmentMonitoring/ 目录下运行：
 
 # 1) 渲染所有观察点 Pipeline
 npx @joebao/maa-pipeline-generate
@@ -261,6 +260,10 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 ### 5. 重新生成 Pipeline
 
 ```bash
+# 在仓库根目录运行
+pnpm generate:EnvironmentMonitoring
+
+# 或在生成器目录分别执行
 cd tools/pipeline-generate/EnvironmentMonitoring
 npx @joebao/maa-pipeline-generate
 npx @joebao/maa-pipeline-generate --config terminals-config.json
@@ -278,7 +281,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 只调整路线/朝向（不变更英文名）：
 
 1. 改 `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG[i]`。
-2. 重新生成（仅需跑 `npx @joebao/maa-pipeline-generate`，终端列表未变化无需重新生成 `Terminals.json`）。
+2. 重新生成。常规情况下可直接在仓库根目录运行 `pnpm generate:EnvironmentMonitoring`；如果确认终端列表未变化，也可以只在 `tools/pipeline-generate/EnvironmentMonitoring/` 目录运行 `npx @joebao/maa-pipeline-generate`，无需重新生成 `Terminals.json`。
 3. 提交 `routes.mjs` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
 
 如果观察点的官方英文名变了，生成出的 `Id` / 文件名也会跟着变。多数情况下重新生成即可；如果希望保留旧节点名和文件名：

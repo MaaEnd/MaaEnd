@@ -88,20 +88,20 @@
                             480,
                             100,
                             45
-                        ]
-                    },
-                    "QuantityFilter": {
-                        "lower": [
-                            20,
-                            150,
-                            150
                         ],
-                        "upper": [
-                            35,
-                            255,
-                            255
-                        ],
-                        "method": 40
+                        "Filter": {
+                            "lower": [
+                                20,
+                                150,
+                                150
+                            ],
+                            "upper": [
+                                35,
+                                255,
+                                255
+                            ],
+                            "method": 40
+                        }
                     },
                     "ClampTargetToMax": true
                 }

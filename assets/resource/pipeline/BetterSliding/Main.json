@@ -60,29 +60,6 @@
             "BetterSlidingPreciseClick"
         ]
     },
-    "BetterSlidingGetMaxQuantity": {
-        "desc": "识别最大可选数量，存入go，如果小于target，会在此处action返回false",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingGetQuantity"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BetterSlidingFindEnd"
-        ]
-    },
     "BetterSlidingPreciseClick": {
         "desc": "x, y精确点击",
         "pre_delay": 0,
@@ -259,5 +236,36 @@
             }
         },
         "post_delay": 0
+    },
+    "BetterSlidingGetMaxQuantity": {
+        "desc": "识别最大可选数量，存入go，如果小于target，会在此处action返回false",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": false,
+                "order_by": "Length"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingFindEnd"
+        ]
     }
 }

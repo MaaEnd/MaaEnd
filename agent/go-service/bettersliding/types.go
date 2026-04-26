@@ -8,7 +8,7 @@ import (
 type betterSlidingParam struct {
 	Target                  int                        `json:"Target"`
 	Quantity                quantityParam              `json:"Quantity"`
-	QuantityFilter          *quantityFilterParam       `json:"QuantityFilter"`
+	MaxQuantity             quantityParam              `json:"MaxQuantity"`
 	GreenMask               bool                       `json:"GreenMask"`
 	Direction               string                     `json:"Direction"`
 	IncreaseButton          any                        `json:"IncreaseButton"`
@@ -26,7 +26,7 @@ type betterSlidingParam struct {
 type betterSlidingParamPresence struct {
 	Target                  bool
 	Quantity                bool
-	QuantityFilter          bool
+	MaxQuantity             bool
 	GreenMask               bool
 	Direction               bool
 	IncreaseButton          bool
@@ -41,8 +41,9 @@ type betterSlidingParamPresence struct {
 }
 
 type quantityParam struct {
-	Box     []int `json:"Box"`
-	OnlyRec *bool `json:"OnlyRec"`
+	Box     []int                `json:"Box"`
+	Filter  *quantityFilterParam `json:"Filter"`
+	OnlyRec *bool                `json:"OnlyRec"`
 }
 
 // quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
@@ -59,8 +60,11 @@ type quantityFilterParam struct {
 // Parameter fields:
 //   - Target: target quantity (overridden by attach.Target when present)
 //   - Quantity.Box: OCR ROI [x,y,w,h] for reading the quantity
-//   - QuantityFilter: optional color filter for quantity OCR
+//   - MaxQuantity.Box: OCR ROI [x,y,w,h] for reading the maximum quantity; falls back to Quantity when omitted
+//   - Quantity.Filter: optional color filter for quantity OCR
 //   - Quantity.OnlyRec: enable only_rec for the quantity OCR node
+//   - MaxQuantity.Filter: optional color filter for max-quantity OCR; falls back to Quantity when MaxQuantity is omitted
+//   - MaxQuantity.OnlyRec: enable only_rec for the max-quantity OCR node; falls back to Quantity when MaxQuantity is omitted
 //   - GreenMask: map to green_mask in TemplateMatch for slider/button templates
 //   - Direction: swipe direction (left/right/up/down)
 //   - IncreaseButton: increase button template path or coordinates
@@ -75,8 +79,11 @@ type quantityFilterParam struct {
 type BetterSlidingAction struct {
 	Target                  int
 	QuantityBox             []int
+	MaxQuantityBox          []int
 	QuantityFilter          *quantityFilterParam
+	MaxQuantityFilter       *quantityFilterParam
 	QuantityOnlyRec         bool
+	MaxQuantityOnlyRec      bool
 	GreenMask               bool
 	Direction               string
 	IncreaseButton          buttonTarget

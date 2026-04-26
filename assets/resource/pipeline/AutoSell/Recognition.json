@@ -17,11 +17,11 @@
     "AutoSellStockRedistributionItemNameAreaRecognition": {
         "desc": "识别物资调度界面中的item",
         "recognition": "ColorMatch",
-        "roi": "AutoSellStockRedistributionItemTicketRecognition",
+        "roi": "AutoSellStockRedistributionItemOwnedRecognition",
         "roi_offset": [
-            -70,
-            35,
-            135,
+            -5,
+            60,
+            95,
             10
         ],
         "lower": [
@@ -36,22 +36,35 @@
         ],
         "count": 100
     },
-    "AutoSellStockRedistributionOpenItemText": {
-        "desc": "识别物资调度界面中的item",
+    "AutoSellStockRedistributionItemOwnedRecognition": {
+        "desc": "识别物资调度界面中的拥有二字，区分是售卖还是购买物品",
+        "recognition": "OCR",
+        "roi": "AutoSellStockRedistributionItemTicketRecognition",
+        "roi_offset": [
+            -60,
+            -30,
+            60,
+            10
+        ],
+        "expected": [
+            "拥有",
+            "持有",
+            "Owned",
+            "総在庫",
+            "보유"
+        ]
+    },
+    "AutoSellStockRedistributionItemText": {
+        "desc": "识别物资调度界面中所有的item",
         "recognition": "And",
         "all_of": [
             "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
             {
                 "recognition": "OCR",
                 "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
-                "roi_offset": [
-                    -10,
-                    -10,
-                    10,
-                    20
-                ],
-                "only_rec": true,
+                "only_rec": true, // 不加的话复杂字符可能导致ocr结果不在一句话里
                 "order_by": "Vertical"
             }
         ]

@@ -19,6 +19,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 10,
         "next": [
             "BatchUseDetectorMainProcessLoop"
         ]
@@ -32,6 +33,13 @@
             "BatchUseDetectorFindValleyIVItem",
             "BatchUseDetectorFindWulingItem"
         ]
+    },
+    "BatchUseDetectorFindNoItem": {
+        "desc": "没有找到或无法使用选择的探物器/罗盘",
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "没有找到或无法使用选择的探物器/罗盘"
+        }
     },
     "BatchUseDetectorClickWhiteConfirmButton": {
         "desc": "点击详情页白色确认按钮",

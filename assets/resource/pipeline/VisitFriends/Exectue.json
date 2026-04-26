@@ -201,7 +201,47 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueExchangeAction",
-        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuClueExchangeSuccess"
+        ]
+    },
+    "VisitFriendsMenuClueExchangeSuccess": {
+        "desc": "执行线索交换成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    410,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalReceptionRoom.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "额外奖励",
+                    "額外獎勵",
+                    "Bonus Rewards",
+                    "追加報酬",
+                    "추가 보상"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0
     },
     "VisitFriendsMenuClueExchangeFull": {
@@ -316,7 +356,47 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
-        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistControlNexusSuccess"
+        ]
+    },
+    "VisitFriendsMenuAssistControlNexusSuccess": {
+        "desc": "执行助力控制中枢成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    40,
+                    400,
+                    260,
+                    200
+                ],
+                "template": "VisitFriends/TerminalControlNexus.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    250,
+                    200
+                ],
+                "expected": [
+                    "心情恢复",
+                    "心情恢復",
+                    "Mood Regen",
+                    "体力回復",
+                    "컨디션 회복"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0
     },
     "VisitFriendsMenuAssistMFGCabin1": {
@@ -352,7 +432,46 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
-        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin1Success"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin1Success": {
+        "desc": "执行助力制造舱1成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0
     },
     "VisitFriendsMenuAssistMFGCabin2": {
@@ -388,7 +507,46 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
-        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin2Success"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2Success": {
+        "desc": "执行助力制造舱2成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0
     },
     "VisitFriendsMenuAssistGrowthChamberSwipe": {
@@ -452,7 +610,6 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
-        "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
             "SceneNoticeRewardsConfirm"

@@ -97,5 +97,28 @@
                 ]
             }
         }
+    },
+    "BetterSlidingMaxQuantityFilter": {
+        "desc": "辅助GetMaxQuantity节点进行OCR",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        255,
+                        255
+                    ]
+                ]
+            }
+        }
     }
 }

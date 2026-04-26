@@ -13,6 +13,7 @@ const (
 	nodeBetterSlidingSwipeToMax        = "BetterSlidingSwipeToMax"
 	nodeBetterSlidingGetQuantity       = "BetterSlidingGetQuantity"
 	nodeBetterSlidingQuantityFilter    = "BetterSlidingQuantityFilter"
+	nodeBetterSlidingMaxQuantityFilter = "BetterSlidingMaxQuantityFilter"
 	nodeBetterSlidingSwipeButton       = "BetterSlidingSwipeButton"
 	nodeBetterSlidingIncreaseButton    = "BetterSlidingIncreaseButton"
 	nodeBetterSlidingDecreaseButton    = "BetterSlidingDecreaseButton"

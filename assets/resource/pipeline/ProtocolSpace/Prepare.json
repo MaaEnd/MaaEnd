@@ -41,6 +41,7 @@
         "next": [
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceNormalPrepareChooseReward",
+            "ProtocolSpaceExamineSanity",
             "ProtocolSpaceEnterSpace"
         ],
         "focus": {
@@ -137,6 +138,7 @@
         "threshold": 0.9,
         "action": "Click",
         "next": [
+            "ProtocolSpaceExamineSanity",
             "ProtocolSpaceEnterSpace"
         ]
     },
@@ -160,6 +162,7 @@
         "post_delay": 0,
         "next": [
             "ProtocolSpacePrepareLock",
+            "ProtocolSpaceExamineSanity",
             "ProtocolSpaceEnterSpace"
         ]
     },
@@ -179,6 +182,32 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "协议空间未解锁"
+        }
+    },
+        "ProtocolSpaceExamineSanity":{
+        "desc":"检查理智是否满足最小需求",
+        "recognition": "ColorMatch",
+        "roi":[
+            990, 
+            650, 
+            25, 
+            20
+        ],
+        "lower": [
+            150,
+            30,
+            60
+        ],
+        "upper": [
+            250,
+            120,
+            210
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，结束任务"
         }
     }
 }

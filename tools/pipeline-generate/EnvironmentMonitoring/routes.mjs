@@ -301,14 +301,15 @@ export const ROUTE_CONFIG = [
         MapName: "map02_lv004",
         MapTarget: [491.2, 197.9, 11.7, 10.7],
         MapPath: [
-            [498.6, 210.6],
-            [519.5, 210.5],
-            [517.6, 192.0],
-            [535.2, 191.6],
-            [536.0, 165.7],
-            [541.2, 188.0]
+            [500.0, 211.0],
+            [520.8, 211.2],
+            [520.8, 196.3],
+            [538.3, 195.1],
+            [539.4, 178.7],
+            [555.8, 177.5],
+            [555.8, 178.8]
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenRight",
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenDown",
     },
     {
         Name: "垂藤",
@@ -427,10 +428,19 @@ export const ROUTE_CONFIG = [
     },
     {
         Name: "安思园的天师桩",
-        EnterMap: "SceneAnyEnterWorld",
-        MapName: "^map\\d+_lv\\d+$",
-        MapTarget: [0, 0, 1, 1],
-        MapPath: [[0, 0]],
+        EnterMap: "SceneEnterWorldWulingMarkerStone2",
+        MapName: "map02_lv004",
+        MapTarget: [402.4, 313.4, 20.8, 17.4],
+        MapPath: [
+            [418.8, 322.3],
+            [418.8, 328.5],
+            [415.0, 328.5],
+            [415.0, 322.2],
+            [323.8, 322.2],
+            [325.0, 378.6],
+            [324.9, 404.7],
+            [295.1, 404.7],
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     },
 ];

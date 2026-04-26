@@ -7,7 +7,8 @@
         "post_delay": 0,
         "next": [
             "BatchUseDetectorFindWulingDetector",
-            "BatchUseDetectorFindWulingCompass"
+            "BatchUseDetectorFindWulingCompass",
+            "BatchUseDetectorFindNoItem"
         ]
     },
     "BatchUseDetectorFindWulingDetector": {

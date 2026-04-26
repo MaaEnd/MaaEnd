@@ -1,28 +1,61 @@
 //这是一个微调视角直到目标到屏幕中间的节点，可以通用，其他人只需要按以下步骤操作，
-//1.复制整个文件，将出入口节点、自定义识别节点、文件名改成自己专属的名字
-//2.将自定义识别节点改成自己需要识别的东西
-//3.设定custom节点的参数，target一定要指向自定义识别节点
-//连接节点的出入口即可正常工作
-//开始工作后，节点会使用自定义的识别方式查找目标，然后一点点将目标挪到视野正中间
-//节点从Start进入，开始前要保证目标可以被看到
-//节点从Exit离开，这里关联下一个阶段的节点
-//无法中断循环，需要单独将判断距离在范围内做成custom的recognition节点
+//自己建一个入口节点，参考“_AutoEcoFarmSwipeToTargetInitDefault”这个模板（可以直接复制后改），将"template"设定成目标的图片（这个要自己做）
+//然后给这个入口节点加个JumpBack，比如"[JumpBack]_AutoEcoFarmSwipeToTargetInitDefault"，放在需要转向目标的地方即可
 {
-    //节点出入口
+    //入口节点模板
+    "_AutoEcoFarmSwipeToTargetInitDefault": {
+        "desc": "设定并将视角拉向{默认}标记，如果标记已经在屏幕中央则跳过自身",
+        "max_hit": 20,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    620,
+                    100,
+                    40,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
+                "green_mask": true,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmOverrideTargetTemplate",
+                "custom_action_param": {
+                    "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
+                    "nodeNames": [
+                        "_AutoEcoFarmSwipeToTargetInitDefault",
+                        "_AutoEcoFarmTargeRecognitionFullScreen"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "_AutoEcoFarmSwipeToTargetStart"
+        ]
+    },
+    //节点内部出入口（不开放了）
     "_AutoEcoFarmSwipeToTargetStart": {
         "desc": "微调视角直到目标到屏幕中间",
         "next": [
-            "_AutoEcoFarmInWorld",
+            "[JumpBack]_AutoEcoFarmInWorldFactory",
+            "_AutoEcoFarmInWorldExplore",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "_AutoEcoFarmSwipeToTargetExit": {
         "next": [
-            "_AutoEcoFarmMoveAndWorkStart"
+            "_AutoEcoFarmJumpBack"
         ]
     },
-    "_AutoEcoFarmTargeRecognition": {
-        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
+
+    "_AutoEcoFarmTargeRecognitionFullScreen": {
+        "desc": "在大范围识别标记的节点",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -32,7 +65,7 @@
                     951,
                     563
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
                 "green_mask": true,
                 "method": 5,
                 "threshold": 0.5,
@@ -45,6 +78,28 @@
             "_AutoEcoFarmCalculateSwipeTarget"
         ]
     },
+    "_AutoEcoFarmTargeRecognitionSmallMap": {
+        "desc": "在小地图上识别标记的节点，纯识别用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    43,
+                    42,
+                    138,
+                    134
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    //识别模板设置节点，照着这个样子写一个并加JumpBack放在调用位置
     "_AutoEcoFarmTargeInCenter": {
         "desc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
         "recognition": {
@@ -56,7 +111,7 @@
                     40,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
                 "green_mask": true,
                 "threshold": 0.5,
                 "order_by": "Score"
@@ -79,7 +134,7 @@
                     675,
                     243
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
                 "green_mask": true,
                 "threshold": 0.5,
                 "order_by": "Score"
@@ -103,7 +158,7 @@
                     "xStepRatio": 0.5,
                     "yStepRatio": 0.5
                 },
-                "roi": "_AutoEcoFarmTargeRecognition"
+                "roi": "_AutoEcoFarmTargeRecognitionFullScreen"
             }
         },
         "next": [
@@ -112,7 +167,20 @@
     },
     //下面是内部节点，不用改
     "_AutoEcoFarmInWorld": {
-        "desc": "判断是否在大世界，避免误识别地图上的标点",
+        "desc": "判断是否在大世界",
+        "recognition": {
+            "type": "Or",
+            "param": {"any_of": [
+                    "_AutoEcoFarmInWorldFactory",
+                    "_AutoEcoFarmInWorldExplore"
+                ]}
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmInWorldFactory": {
+        "desc": "判断是否在大世界工业模式，如果是点一下切探索模式",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -123,10 +191,82 @@
                     41
                 ],
                 "expected": [
-                    "探索|工业",
-                    "探索|工業",
-                    "(?i)Explore|Factory",
-                    "탐색|공업"
+                    "工业",
+                    "工業",
+                    "(?i)Factory",
+                    "공업"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmChangeToExplore1"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore1": {
+        "desc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmChangeToExplore2"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore2": {
+        "desc": "按下鼠标左键,点击切换模式",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "_AutoEcoFarmInWorldFactory"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmChangeToExplore3"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore3": {
+        "desc": "松开alt",
+        "pre_delay": 0,
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                32,
+                14,
+                128,
+                41
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmInWorldExplore": {
+        "desc": "判断是否在大世界探索模式，是的话进入下一步",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    32,
+                    14,
+                    128,
+                    41
+                ],
+                "expected": [
+                    "探索",
+                    "探索",
+                    "(?i)Explore",
+                    "탐색"
                 ],
                 "threshold": 0.7
             }
@@ -144,7 +284,14 @@
             }
         },
         "next": [
-            "[Anchor]_AutoEcoFarmSwipeLoopAnchor"
+            "_AutoEcoFarmSwipeLoopCommon"
+        ]
+    },
+    "_AutoEcoFarmSwipeLoopCommon": {
+        "desc": "[通用版]控制循环次数节点，防死循环",
+        "max_hit": 100,
+        "next": [
+            "_AutoEcoFarmCheckTarget"
         ]
     },
     "_AutoEcoFarmCheckTarget": {
@@ -152,7 +299,7 @@
         "max_hit": 20,
         "next": [
             "_AutoEcoFarmTargeInBack",
-            "_AutoEcoFarmTargeRecognition",
+            "_AutoEcoFarmTargeRecognitionFullScreen",
             "[JumpBack]_AutoEcoFarmSwipeRandomWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
@@ -275,7 +422,7 @@
         "next": [
             //目标在中央则直接结束该子任务，否则继续循环
             "_AutoEcoFarmTargeInCenter",
-            "[Anchor]_AutoEcoFarmSwipeLoopAnchor",
+            "_AutoEcoFarmSwipeLoopCommon",
             //循环控制节点超上限后会失效，直接结束任务
             "_AutoEcoFarmMoveToTargetErr"
         ]
