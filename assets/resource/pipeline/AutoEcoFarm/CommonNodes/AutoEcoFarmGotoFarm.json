@@ -14,6 +14,7 @@
     "_AutoEcoFarmGotoEcoFarmExit": {
         "next": [
             //到目的地后再次识别农田并靠近
+            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
             "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
             "_AutoEcoFarmMoveAndWorkStart"
         ]

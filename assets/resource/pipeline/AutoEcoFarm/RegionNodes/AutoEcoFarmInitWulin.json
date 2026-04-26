@@ -25,7 +25,9 @@
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-            "_AutoEcoFarmFindFarmlandStart"
+            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
+            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
+            "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
     //下面是所有Anchor节点

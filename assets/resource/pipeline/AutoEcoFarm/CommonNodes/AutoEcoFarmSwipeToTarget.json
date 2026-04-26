@@ -39,7 +39,8 @@
     "_AutoEcoFarmSwipeToTargetStart": {
         "desc": "微调视角直到目标到屏幕中间",
         "next": [
-            "_AutoEcoFarmInWorld",
+            "[JumpBack]_AutoEcoFarmInWorldFactory",
+            "_AutoEcoFarmInWorldExplore",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -72,6 +73,27 @@
         "next": [
             "_AutoEcoFarmCalculateSwipeTarget"
         ]
+    },
+    "_AutoEcoFarmTargeRecognitionSmallMap": {
+        "desc": "在小地图上识别标记的节点，纯识别用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    43,
+                    42,
+                    138,
+                    134
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     //识别模板设置节点，照着这个样子写一个并加JumpBack放在调用位置
     "_AutoEcoFarmTargeInCenter": {
@@ -141,7 +163,20 @@
     },
     //下面是内部节点，不用改
     "_AutoEcoFarmInWorld": {
-        "desc": "判断是否在大世界，避免误识别地图上的标点",
+        "desc": "判断是否在大世界",
+        "recognition": {
+            "type": "Or",
+            "param": {"any_of": [
+                    "_AutoEcoFarmInWorldFactory",
+                    "_AutoEcoFarmInWorldExplore"
+                ]}
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmInWorldFactory": {
+        "desc": "判断是否在大世界工业模式，如果是点一下切探索模式",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -152,10 +187,82 @@
                     41
                 ],
                 "expected": [
-                    "探索|工业",
-                    "探索|工業",
-                    "(?i)Explore|Factory",
-                    "탐색|공업"
+                    "工业",
+                    "工業",
+                    "(?i)Factory",
+                    "공업"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmChangeToExplore1"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore1": {
+        "desc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmChangeToExplore2"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore2": {
+        "desc": "按下鼠标左键,点击切换模式",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "_AutoEcoFarmInWorldFactory"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmChangeToExplore3"
+        ]
+    },
+    "_AutoEcoFarmChangeToExplore3": {
+        "desc": "松开alt",
+        "pre_delay": 0,
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                32,
+                14,
+                128,
+                41
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmInWorldExplore": {
+        "desc": "判断是否在大世界探索模式，是的话进入下一步",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    32,
+                    14,
+                    128,
+                    41
+                ],
+                "expected": [
+                    "探索",
+                    "探索",
+                    "(?i)Explore",
+                    "탐색"
                 ],
                 "threshold": 0.7
             }
