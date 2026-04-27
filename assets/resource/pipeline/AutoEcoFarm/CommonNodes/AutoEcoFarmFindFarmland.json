@@ -507,8 +507,7 @@
         "all_of": ["_AutoEcoFarmInWorld"],
         "inverse": true,
         "next": [
-            "[JumpBack]SceneAnyEnterWorld",
-            "_AutoEcoFarmJumpBack"
+            "SceneAnyEnterWorld"
         ]
     }
 }
