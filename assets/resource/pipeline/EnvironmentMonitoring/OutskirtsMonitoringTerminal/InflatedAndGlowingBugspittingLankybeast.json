@@ -151,15 +151,14 @@
         ]
     },
     "InflatedAndGlowingBugspittingLankybeastTrackOrGoTo": {
-        "desc": "在肚子鼓气后发光的吐虫长股兽任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
+        "desc": "在肚子鼓气后发光的吐虫长股兽任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
         "recognition": "And",
         "all_of": [
             "InInflatedAndGlowingBugspittingLankybeastMission"
         ],
         "next": [
             "TrackInflatedAndGlowingBugspittingLankybeast",
-            "AlreadyTrackedInflatedAndGlowingBugspittingLankybeast",
-            "GoToInflatedAndGlowingBugspittingLankybeast"
+            "AlreadyTrackedInflatedAndGlowingBugspittingLankybeast"
         ]
     },
     "TrackInflatedAndGlowingBugspittingLankybeast": {

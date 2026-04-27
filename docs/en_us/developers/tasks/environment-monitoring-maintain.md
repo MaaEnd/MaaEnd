@@ -61,12 +61,14 @@ The chain inside each observation-point `{Id}Job` (rendered from `template.jsonc
             ├─ Track{Id}              (if "Start Tracking" button present → click it)
             │    ├─ {Id}NotAdapted    (route not adapted → show notice and finish this point)
             │    └─ GoTo{Id}          (route adapted → continue to the location)
-            └─ GoTo{Id}               (route adapted and no tracking click needed → SubTask: SceneAnyEnterWorld)
-                 ├─ GoTo{Id}StartPos  (MapTrackerAssertLocation confirms position → MapTrackerMove)
-                 └─ GoTo{Id}NotAtStartPos
-                      └─ SubTask: ${EnterMap}             (teleport)
-                           ├─ GoTo{Id}RecheckStartPos     (re-check position after teleport)
-                           └─ GoTo{Id}ReEnterMap          (second teleport → FinalCheck)
+            └─ AlreadyTracked{Id}     (already being tracked)
+                 ├─ {Id}NotAdapted    (route not adapted → show notice and finish this point)
+                 └─ GoTo{Id}          (route adapted → continue to the location)
+                      ├─ GoTo{Id}StartPos  (MapTrackerAssertLocation confirms position → MapTrackerMove)
+                      └─ GoTo{Id}NotAtStartPos
+                           └─ SubTask: ${EnterMap}             (teleport)
+                                ├─ GoTo{Id}RecheckStartPos     (re-check position after teleport)
+                                └─ GoTo{Id}ReEnterMap          (second teleport → FinalCheck)
                                 └─ GoTo{Id}MapTrackerMove
                                      ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
                                      ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
@@ -153,7 +155,7 @@ When a new Station appears, **the generator side (`routes.mjs` + `data.mjs`) req
 | `CameraMaxHit`                      | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe |
 | `ExpectedText`                      | Expanded automatically from `mission.name` multi-language map in `kite_station.json` (5 languages, English converted to a flexible regex)       |
 | `InExpectedText`                    | Expanded from `mission.shotTargetName` in `kite_station.json`                                                                                   |
-| `TrackOrGoToNext` / `TrackNext`     | Decided automatically by `data.mjs`: adapted points continue to photo-taking, while unadapted points only accept and track                      |
+| `TrackOrGoToNext` / `TrackNext` / `AlreadyTrackedNext` | Decided automatically by `data.mjs`: it first confirms the mission is tracked, then either continues to photo-taking or degrades to accept-and-track-only |
 
 ### Terminal groups: `terminals-config.json`
 

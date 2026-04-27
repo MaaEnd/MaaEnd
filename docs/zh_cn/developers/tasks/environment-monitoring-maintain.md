@@ -61,12 +61,14 @@ EnvironmentMonitoringMain
             ├─ Track{Id}             （存在「开始追踪」按钮则点击）
             │    ├─ {Id}NotAdapted   （路线未适配 → 仅提示并结束该观察点）
             │    └─ GoTo{Id}         （路线已适配 → 继续前往）
-            └─ GoTo{Id}              （路线已适配且无需点击追踪 → SubTask: SceneAnyEnterWorld 回大世界）
-                 ├─ GoTo{Id}StartPos （MapTrackerAssertLocation 已就位 → MapTrackerMove）
-                 └─ GoTo{Id}NotAtStartPos
-                      └─ SubTask: ${EnterMap}            （传送）
-                           ├─ GoTo{Id}RecheckStartPos    （传送后复核）
-                           └─ GoTo{Id}ReEnterMap         （二次传送 → FinalCheck）
+            └─ AlreadyTracked{Id}    （已经在追踪中）
+                 ├─ {Id}NotAdapted   （路线未适配 → 仅提示并结束该观察点）
+                 └─ GoTo{Id}         （路线已适配 → 继续前往）
+                      ├─ GoTo{Id}StartPos （MapTrackerAssertLocation 已就位 → MapTrackerMove）
+                      └─ GoTo{Id}NotAtStartPos
+                           └─ SubTask: ${EnterMap}            （传送）
+                                ├─ GoTo{Id}RecheckStartPos    （传送后复核）
+                                └─ GoTo{Id}ReEnterMap         （二次传送 → FinalCheck）
                                 └─ GoTo{Id}MapTrackerMove
                                      ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
                                      ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
@@ -153,7 +155,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `CameraMaxHit`                      | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `ExpectedText`                      | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                       |
 | `InExpectedText`                    | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                                                                  |
-| `TrackOrGoToNext` / `TrackNext`     | 由 `data.mjs` 根据路线是否完整自动决定：已适配则继续前往拍照，未适配则仅接取并追踪                                           |
+| `TrackOrGoToNext` / `TrackNext` / `AlreadyTrackedNext` | 由 `data.mjs` 根据路线是否完整自动决定：先确认任务已追踪，再决定是继续前往拍照还是仅接取并追踪 |
 
 ### 终端分组：`terminals-config.json`
 

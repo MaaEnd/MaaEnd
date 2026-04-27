@@ -139,7 +139,7 @@
         ]
     },
     "${Id}TrackOrGoTo": {
-        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
+        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
         "recognition": "And",
         "all_of": [
             "In${Id}Mission"

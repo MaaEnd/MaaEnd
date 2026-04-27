@@ -179,11 +179,9 @@ function buildRow(mission, usedIds) {
         );
     }
 
-    // 已适配：追踪后前往任务地点；未适配：仅接取并追踪，不前往。
-    // 如果任务已经被玩家手动设为追踪中，则直接沿用当前追踪状态继续后续流程。
-    const TrackOrGoToNext = isAdapted
-        ? [`Track${Id}`, `AlreadyTracked${Id}`, `GoTo${Id}`]
-        : [`Track${Id}`, `AlreadyTracked${Id}`];
+    // 先确认任务处于“开始追踪”或“已在追踪”状态，再决定后续是否前往。
+    // 游戏内未追踪时无法完成任务，因此已适配点也不能直接跳过追踪确认。
+    const TrackOrGoToNext = [`Track${Id}`, `AlreadyTracked${Id}`];
     const TrackNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
     const AlreadyTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
