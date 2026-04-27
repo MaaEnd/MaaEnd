@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
+  <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.jpg" width="280" />
+</p>
+
+<h1 align="center">不要去森空岛讨论MAA</h1>
+
+<p align="center">
   <img alt="LOGO" src="https://maaend.com/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
