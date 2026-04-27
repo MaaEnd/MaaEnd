@@ -386,7 +386,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateValuablesItemsExpired",
-            "__ScenePrivateAnyEnterMenuValuablesSuccess"
+            "__ScenePrivateAnyEnterMenuValuablesWaitExpired"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入贵重品库菜单失败"
@@ -427,6 +427,44 @@
             ]
         },
         "next": [
+            "__ScenePrivateAnyEnterMenuValuablesSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuValuablesWaitExpired": {
+        "desc": "进入贵重品库菜单，等一会看看有没有过期弹窗",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "贵重品库",
+                    "Valuables",
+                    "VALUABLES",
+                    "STASH",
+                    "貴重品倉庫",
+                    "귀중품 창고",
+                    "貴重品庫"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 1500, // 没有提示只能硬等
+        "next": [
+            "__ScenePrivateValuablesItemsExpired",
             "__ScenePrivateAnyEnterMenuValuablesSuccess"
         ]
     },
