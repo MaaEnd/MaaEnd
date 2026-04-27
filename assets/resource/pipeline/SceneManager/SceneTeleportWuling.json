@@ -1047,5 +1047,269 @@
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
         ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try1": {
+        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/MarkerStone4Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try2": {
+        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/MarkerStone4Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try3": {
+        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/MarkerStone4Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry1": {
+        "desc": "在地图界面找锚点 (首墩核心区)",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/MarkerStoneCoreLeftTop.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    100,
+                    0,
+                    120,
+                    140
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry2": {
+        "desc": "在地图界面找锚点 (首墩核心区)",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/MarkerStoneCoreLeftBotton.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    100,
+                    -140,
+                    120,
+                    140
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry3": {
+        "desc": "在地图界面找锚点 (首墩核心区)",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/MarkerStoneCoreTopLeft.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    0,
+                    100,
+                    120,
+                    140
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            // "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
     }
 }
