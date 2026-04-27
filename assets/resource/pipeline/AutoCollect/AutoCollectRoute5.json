@@ -208,22 +208,10 @@
             }
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5RestoreWalkMode"
+            "AutoCollectDigAfter": "AutoCollectRoute5End"
         },
         "next": [
             "AutoCollectDigStart"
-        ]
-    },
-    "AutoCollectRoute5RestoreWalkMode": {
-        "desc": "复原为跑步模式",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 160
-            }
-        },
-        "next": [
-            "AutoCollectRoute5End"
         ]
     }
 }
