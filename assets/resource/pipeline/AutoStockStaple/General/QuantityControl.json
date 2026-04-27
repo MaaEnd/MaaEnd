@@ -243,7 +243,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlKunstTubeRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -339,7 +338,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -435,7 +433,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -531,7 +528,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -627,7 +623,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -723,7 +718,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -819,7 +813,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -915,7 +908,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1011,7 +1003,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1107,7 +1098,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1203,7 +1193,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1299,7 +1288,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1395,7 +1383,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1491,7 +1478,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1587,7 +1573,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1683,7 +1668,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1779,7 +1763,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1875,7 +1858,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1971,7 +1953,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2067,7 +2048,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2163,7 +2143,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2259,7 +2238,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2355,7 +2333,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2451,7 +2428,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2547,7 +2523,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2643,7 +2618,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2739,7 +2713,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2835,7 +2808,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
-            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
