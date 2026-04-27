@@ -25,7 +25,6 @@
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
             "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
@@ -286,6 +285,7 @@
         "desc": "[Wulin版]关闭工业设备朝标记盲走一段距离，默认关闭",
         "enabled": false,
         "next": [
+            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
             "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
             "_AutoEcoFarmBlindWalkPhotoMode"
         ]

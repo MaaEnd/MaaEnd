@@ -25,7 +25,6 @@
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
             "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
