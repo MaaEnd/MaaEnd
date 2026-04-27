@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.jpg" width="280" />
+  <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.png" width="280" />
 </p>
 
 <h1 align="center">不要去森空岛讨论MAA!!!!!</h1>
