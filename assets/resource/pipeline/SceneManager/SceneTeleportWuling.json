@@ -1309,7 +1309,7 @@
             ]
         },
         "next": [
-            // "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
     }
 }
