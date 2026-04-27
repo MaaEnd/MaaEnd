@@ -443,7 +443,7 @@
         "roi": [
             680,
             530,
-            90,
+            110,
             35
         ],
         "expected": [
@@ -489,6 +489,7 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
