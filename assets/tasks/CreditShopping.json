@@ -658,10 +658,22 @@
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
                         "IsDiscountPriority1": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         }
                     }
                 },
@@ -670,10 +682,20 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscountPriority1": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         }
                     }
                 },
@@ -682,10 +704,18 @@
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
                         "IsDiscountPriority1": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         }
                     }
                 },
@@ -694,10 +724,16 @@
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
                         "IsDiscountPriority1": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         }
                     }
                 },
@@ -706,10 +742,14 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscountPriority1": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         }
                     }
                 }
@@ -1285,10 +1325,22 @@
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         }
                     }
                 },
@@ -1297,10 +1349,20 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         }
                     }
                 },
@@ -1309,10 +1371,18 @@
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         }
                     }
                 },
@@ -1321,10 +1391,16 @@
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         }
                     }
                 },
@@ -1333,10 +1409,14 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscountPriority2": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         }
                     }
                 }
@@ -1900,10 +1980,22 @@
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
-                            "expected": "25|50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50",
+                                "25"
+                            ]
                         }
                     }
                 },
@@ -1912,10 +2004,20 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
-                            "expected": "50|75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75",
+                                "50"
+                            ]
                         }
                     }
                 },
@@ -1924,10 +2026,18 @@
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
-                            "expected": "75|95|99"
+                            "expected": [
+                                "95",
+                                "99",
+                                "75"
+                            ]
                         }
                     }
                 },
@@ -1936,10 +2046,16 @@
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
-                            "expected": "95|99"
+                            "expected": [
+                                "95",
+                                "99"
+                            ]
                         }
                     }
                 },
@@ -1948,10 +2064,14 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscountPriority3": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
-                            "expected": "99"
+                            "expected": [
+                                "99"
+                            ]
                         }
                     }
                 }

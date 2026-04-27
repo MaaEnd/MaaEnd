@@ -114,10 +114,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "IsDiscountPriority1_CanNotAfford": {
         "desc": "优先购买1买不起时折扣匹配",
@@ -130,10 +134,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "Priority2OCR": {
         "desc": "优先购买2白名单物品",
@@ -172,10 +180,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "IsDiscountPriority2_CanNotAfford": {
         "desc": "优先购买2买不起时折扣匹配",
@@ -188,10 +200,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "Priority3OCR": {
         "desc": "优先购买3白名单物品",
@@ -230,10 +246,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "IsDiscountPriority3_CanNotAfford": {
         "desc": "优先购买3买不起时折扣匹配",
@@ -246,10 +266,14 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     },
     "BlacklistOCR": {
         "desc": "不是黑名单物品",
@@ -275,9 +299,13 @@
             4
         ],
         "expected": [
-            "99|95|75|50|25"
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
         ],
         "only_rec": true,
-        "order_by": "Vertical"
+        "order_by": "Expected"
     }
 }
