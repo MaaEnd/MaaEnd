@@ -157,7 +157,8 @@
             "InCloudrestEcoSiteMission"
         ],
         "next": [
-            "TrackCloudrestEcoSite"
+            "TrackCloudrestEcoSite",
+            "GoToCloudrestEcoSite"
         ]
     },
     "TrackCloudrestEcoSite": {
@@ -169,7 +170,7 @@
         ],
         "action": "Click",
         "next": [
-            "CloudrestEcoSiteNotAdapted"
+            "GoToCloudrestEcoSite"
         ]
     },
     "CloudrestEcoSiteNotAdapted": {
@@ -199,12 +200,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        604.3,
+                        422.8,
+                        42.7,
+                        39.4
                     ]
                 }
             ]
@@ -219,7 +220,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStoneCore"
             ]
         },
         "next": [
@@ -234,12 +235,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        604.3,
+                        422.8,
+                        42.7,
+                        39.4
                     ]
                 }
             ]
@@ -254,7 +255,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStoneCore"
             ]
         },
         "next": [
@@ -268,12 +269,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        604.3,
+                        422.8,
+                        42.7,
+                        39.4
                     ]
                 }
             ]
@@ -287,11 +288,87 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
+            "map_name": "map02_lv004",
             "path": [
                 [
-                    0,
-                    0
+                    627.5,
+                    439.8
+                ],
+                [
+                    608.1,
+                    435.7
+                ],
+                [
+                    565,
+                    434.7
+                ],
+                [
+                    522.5,
+                    452.3
+                ],
+                [
+                    525.2,
+                    460
+                ],
+                [
+                    514.2,
+                    466.7
+                ],
+                [
+                    517.5,
+                    473.5
+                ],
+                [
+                    512,
+                    476.8
+                ],
+                [
+                    512.5,
+                    482.2
+                ],
+                [
+                    502.5,
+                    487.2
+                ],
+                [
+                    485,
+                    482.2
+                ],
+                [
+                    477.3,
+                    475.6
+                ],
+                [
+                    453.8,
+                    473.5
+                ],
+                [
+                    447.5,
+                    473.5
+                ],
+                [
+                    438.4,
+                    481.1
+                ],
+                [
+                    437.5,
+                    509.7
+                ],
+                [
+                    435,
+                    509.8
+                ],
+                [
+                    435.1,
+                    512.4
+                ],
+                [
+                    424.9,
+                    513.5
+                ],
+                [
+                    429.8,
+                    513.5
                 ]
             ]
         },
