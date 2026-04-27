@@ -151,13 +151,14 @@
         ]
     },
     "RainbowFinTrackOrGoTo": {
-        "desc": "在七彩鳞任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在七彩鳞任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InRainbowFinMission"
         ],
         "next": [
             "TrackRainbowFin",
+            "AlreadyTrackedRainbowFin",
             "GoToRainbowFin"
         ]
     },
@@ -169,6 +170,17 @@
             "InRainbowFinMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToRainbowFin"
+        ]
+    },
+    "AlreadyTrackedRainbowFin": {
+        "desc": "七彩鳞任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InRainbowFinMission"
+        ],
         "next": [
             "GoToRainbowFin"
         ]

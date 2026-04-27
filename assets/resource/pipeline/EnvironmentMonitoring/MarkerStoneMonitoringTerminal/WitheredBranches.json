@@ -151,13 +151,14 @@
         ]
     },
     "WitheredBranchesTrackOrGoTo": {
-        "desc": "在枯枝任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在枯枝任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InWitheredBranchesMission"
         ],
         "next": [
             "TrackWitheredBranches",
+            "AlreadyTrackedWitheredBranches",
             "GoToWitheredBranches"
         ]
     },
@@ -169,6 +170,17 @@
             "InWitheredBranchesMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToWitheredBranches"
+        ]
+    },
+    "AlreadyTrackedWitheredBranches": {
+        "desc": "枯枝任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InWitheredBranchesMission"
+        ],
         "next": [
             "GoToWitheredBranches"
         ]

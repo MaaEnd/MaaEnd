@@ -151,13 +151,14 @@
         ]
     },
     "VigorousCisternOriginiumSlugTrackOrGoTo": {
-        "desc": "在充满活力的蓄水源石虫任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在充满活力的蓄水源石虫任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InVigorousCisternOriginiumSlugMission"
         ],
         "next": [
             "TrackVigorousCisternOriginiumSlug",
+            "AlreadyTrackedVigorousCisternOriginiumSlug",
             "GoToVigorousCisternOriginiumSlug"
         ]
     },
@@ -169,6 +170,17 @@
             "InVigorousCisternOriginiumSlugMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToVigorousCisternOriginiumSlug"
+        ]
+    },
+    "AlreadyTrackedVigorousCisternOriginiumSlug": {
+        "desc": "充满活力的蓄水源石虫任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InVigorousCisternOriginiumSlugMission"
+        ],
         "next": [
             "GoToVigorousCisternOriginiumSlug"
         ]

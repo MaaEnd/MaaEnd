@@ -139,7 +139,7 @@
         ]
     },
     "${Id}TrackOrGoTo": {
-        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "In${Id}Mission"
@@ -155,6 +155,15 @@
         ],
         "action": "Click",
         "next": "${TrackNext}"
+    },
+    "AlreadyTracked${Id}": {
+        "desc": "${Name}任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "In${Id}Mission"
+        ],
+        "next": "${AlreadyTrackedNext}"
     },
     "${Id}NotAdapted": {
         "desc": "${Name}任务尚未适配，仅接取并追踪",

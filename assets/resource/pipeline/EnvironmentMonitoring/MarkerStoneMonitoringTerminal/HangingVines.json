@@ -151,13 +151,14 @@
         ]
     },
     "HangingVinesTrackOrGoTo": {
-        "desc": "在垂藤任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在垂藤任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InHangingVinesMission"
         ],
         "next": [
             "TrackHangingVines",
+            "AlreadyTrackedHangingVines",
             "GoToHangingVines"
         ]
     },
@@ -169,6 +170,17 @@
             "InHangingVinesMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToHangingVines"
+        ]
+    },
+    "AlreadyTrackedHangingVines": {
+        "desc": "垂藤任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InHangingVinesMission"
+        ],
         "next": [
             "GoToHangingVines"
         ]

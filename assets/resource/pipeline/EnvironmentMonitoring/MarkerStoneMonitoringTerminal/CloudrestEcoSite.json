@@ -151,13 +151,14 @@
         ]
     },
     "CloudrestEcoSiteTrackOrGoTo": {
-        "desc": "在栖云生态点任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在栖云生态点任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InCloudrestEcoSiteMission"
         ],
         "next": [
             "TrackCloudrestEcoSite",
+            "AlreadyTrackedCloudrestEcoSite",
             "GoToCloudrestEcoSite"
         ]
     },
@@ -169,6 +170,17 @@
             "InCloudrestEcoSiteMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToCloudrestEcoSite"
+        ]
+    },
+    "AlreadyTrackedCloudrestEcoSite": {
+        "desc": "栖云生态点任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InCloudrestEcoSiteMission"
+        ],
         "next": [
             "GoToCloudrestEcoSite"
         ]

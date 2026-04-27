@@ -151,13 +151,14 @@
         ]
     },
     "FloraObservationPointTrackOrGoTo": {
-        "desc": "在植物观察点任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在植物观察点任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InFloraObservationPointMission"
         ],
         "next": [
             "TrackFloraObservationPoint",
+            "AlreadyTrackedFloraObservationPoint",
             "GoToFloraObservationPoint"
         ]
     },
@@ -169,6 +170,17 @@
             "InFloraObservationPointMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToFloraObservationPoint"
+        ]
+    },
+    "AlreadyTrackedFloraObservationPoint": {
+        "desc": "植物观察点任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InFloraObservationPointMission"
+        ],
         "next": [
             "GoToFloraObservationPoint"
         ]

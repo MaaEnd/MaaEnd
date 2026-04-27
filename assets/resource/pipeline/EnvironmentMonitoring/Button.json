@@ -16,5 +16,22 @@
             "추적 시작"
         ],
         "action": "Click"
+    },
+    "AlreadyTrackedMissionButton": {
+        "desc": "已在追踪按钮",
+        "recognition": "OCR",
+        "roi": [
+            1021,
+            598,
+            251,
+            106
+        ],
+        "expected": [
+            "停止追踪",
+            "停止追蹤",
+            "(?i)Stop\\s*Tracking",
+            "追跡停止",
+            "추적 중지"
+        ]
     }
 }

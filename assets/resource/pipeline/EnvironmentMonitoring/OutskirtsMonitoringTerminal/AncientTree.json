@@ -151,13 +151,14 @@
         ]
     },
     "AncientTreeTrackOrGoTo": {
-        "desc": "在古树任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在古树任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InAncientTreeMission"
         ],
         "next": [
             "TrackAncientTree",
+            "AlreadyTrackedAncientTree",
             "GoToAncientTree"
         ]
     },
@@ -169,6 +170,17 @@
             "InAncientTreeMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToAncientTree"
+        ]
+    },
+    "AlreadyTrackedAncientTree": {
+        "desc": "古树任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InAncientTreeMission"
+        ],
         "next": [
             "GoToAncientTree"
         ]

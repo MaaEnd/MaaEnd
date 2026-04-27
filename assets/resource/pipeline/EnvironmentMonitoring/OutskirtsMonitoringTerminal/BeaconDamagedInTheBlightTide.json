@@ -151,13 +151,14 @@
         ]
     },
     "BeaconDamagedInTheBlightTideTrackOrGoTo": {
-        "desc": "在侵蚀潮中损坏的信标任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在侵蚀潮中损坏的信标任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InBeaconDamagedInTheBlightTideMission"
         ],
         "next": [
             "TrackBeaconDamagedInTheBlightTide",
+            "AlreadyTrackedBeaconDamagedInTheBlightTide",
             "GoToBeaconDamagedInTheBlightTide"
         ]
     },
@@ -169,6 +170,17 @@
             "InBeaconDamagedInTheBlightTideMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToBeaconDamagedInTheBlightTide"
+        ]
+    },
+    "AlreadyTrackedBeaconDamagedInTheBlightTide": {
+        "desc": "侵蚀潮中损坏的信标任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InBeaconDamagedInTheBlightTideMission"
+        ],
         "next": [
             "GoToBeaconDamagedInTheBlightTide"
         ]

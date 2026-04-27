@@ -151,13 +151,14 @@
         ]
     },
     "MiniShellbeastTrackOrGoTo": {
-        "desc": "在小壳兽任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在小壳兽任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InMiniShellbeastMission"
         ],
         "next": [
             "TrackMiniShellbeast",
+            "AlreadyTrackedMiniShellbeast",
             "GoToMiniShellbeast"
         ]
     },
@@ -169,6 +170,17 @@
             "InMiniShellbeastMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToMiniShellbeast"
+        ]
+    },
+    "AlreadyTrackedMiniShellbeast": {
+        "desc": "小壳兽任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InMiniShellbeastMission"
+        ],
         "next": [
             "GoToMiniShellbeast"
         ]

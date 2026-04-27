@@ -151,13 +151,14 @@
         ]
     },
     "ObservantSableChestedFowlbeastTrackOrGoTo": {
-        "desc": "在东张西望的黑腹雉羽兽任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "desc": "在东张西望的黑腹雉羽兽任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续，否则就直接前往",
         "recognition": "And",
         "all_of": [
             "InObservantSableChestedFowlbeastMission"
         ],
         "next": [
             "TrackObservantSableChestedFowlbeast",
+            "AlreadyTrackedObservantSableChestedFowlbeast",
             "GoToObservantSableChestedFowlbeast"
         ]
     },
@@ -169,6 +170,17 @@
             "InObservantSableChestedFowlbeastMission"
         ],
         "action": "Click",
+        "next": [
+            "GoToObservantSableChestedFowlbeast"
+        ]
+    },
+    "AlreadyTrackedObservantSableChestedFowlbeast": {
+        "desc": "东张西望的黑腹雉羽兽任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InObservantSableChestedFowlbeastMission"
+        ],
         "next": [
             "GoToObservantSableChestedFowlbeast"
         ]

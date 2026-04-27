@@ -179,11 +179,13 @@ function buildRow(mission, usedIds) {
         );
     }
 
-    // 已适配：追踪后前往任务地点；未适配：仅接取并追踪，不前往
+    // 已适配：追踪后前往任务地点；未适配：仅接取并追踪，不前往。
+    // 如果任务已经被玩家手动设为追踪中，则直接沿用当前追踪状态继续后续流程。
     const TrackOrGoToNext = isAdapted
-        ? [`Track${Id}`, `GoTo${Id}`]
-        : [`Track${Id}`];
+        ? [`Track${Id}`, `AlreadyTracked${Id}`, `GoTo${Id}`]
+        : [`Track${Id}`, `AlreadyTracked${Id}`];
     const TrackNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const AlreadyTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
     return {
         Station,
@@ -200,6 +202,7 @@ function buildRow(mission, usedIds) {
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
         TrackOrGoToNext,
         TrackNext,
+        AlreadyTrackedNext,
     };
 }
 
