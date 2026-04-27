@@ -1,0 +1,377 @@
+{
+    "AutoCollectRoute6Start": {
+        "next": [
+            "AutoCollectRoute6AssertLocation",
+            "[JumpBack]SceneEnterWorldValleyIVTheHub2"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线6"
+        }
+    },
+    "AutoCollectRoute6End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute6AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                520,
+                687,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectRoute6GotoFind1"
+        ]
+    },
+    "AutoCollectRoute6GotoFind1": {
+        "desc": "前往采集点1",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            532,
+                            697
+                        ],
+                        [
+                            534,
+                            698
+                        ],
+                        [
+                            535,
+                            698
+                        ],
+                        [
+                            537,
+                            699
+                        ],
+                        [
+                            538,
+                            701
+                        ],
+                        [
+                            539,
+                            702
+                        ],
+                        [
+                            540,
+                            703
+                        ],
+                        [
+                            541,
+                            705
+                        ],
+                        [
+                            542,
+                            706
+                        ],
+                        [
+                            543,
+                            708
+                        ],
+                        [
+                            544,
+                            709
+                        ],
+                        [
+                            545,
+                            711
+                        ],
+                        [
+                            546,
+                            712
+                        ],
+                        [
+                            547,
+                            713
+                        ],
+                        [
+                            549,
+                            713
+                        ],
+                        [
+                            550,
+                            714
+                        ],
+                        [
+                            552,
+                            713
+                        ],
+                        [
+                            553,
+                            713
+                        ],
+                        [
+                            555,
+                            712
+                        ],
+                        [
+                            557,
+                            712
+                        ],
+                        [
+                            559,
+                            712
+                        ],
+                        [
+                            560,
+                            711
+                        ],
+                        [
+                            562,
+                            711
+                        ],
+                        [
+                            564,
+                            710
+                        ],
+                        [
+                            565,
+                            710
+                        ],
+                        [
+                            567,
+                            710
+                        ],
+                        [
+                            569,
+                            709
+                        ],
+                        [
+                            571,
+                            709
+                        ],
+                        [
+                            572,
+                            709
+                        ],
+                        [
+                            574,
+                            709
+                        ],
+                        [
+                            575,
+                            709
+                        ],
+                        [
+                            575,
+                            710
+                        ],
+                        [
+                            576,
+                            711
+                        ],
+                        [
+                            577,
+                            713
+                        ],
+                        [
+                            579,
+                            713
+                        ],
+                        [
+                            580,
+                            714
+                        ],
+                        [
+                            581,
+                            716
+                        ],
+                        [
+                            583,
+                            717
+                        ],
+                        [
+                            584,
+                            718
+                        ],
+                        [
+                            584,
+                            720
+                        ],
+                        [
+                            585,
+                            721
+                        ],
+                        [
+                            585,
+                            723
+                        ],
+                        [
+                            585,
+                            723,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute6GotoFind2": {
+        "desc": "前往采集点2",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            586,
+                            723
+                        ],
+                        [
+                            585,
+                            724
+                        ],
+                        [
+                            584,
+                            725
+                        ],
+                        [
+                            583,
+                            727
+                        ],
+                        [
+                            582,
+                            728
+                        ],
+                        [
+                            581,
+                            730
+                        ],
+                        [
+                            581,
+                            731
+                        ],
+                        [
+                            580,
+                            733
+                        ],
+                        [
+                            579,
+                            734
+                        ],
+                        [
+                            579,
+                            734,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute6GotoFind3": {
+        "desc": "前往采集点3",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            580,
+                            733
+                        ],
+                        [
+                            579,
+                            734
+                        ],
+                        [
+                            578,
+                            734
+                        ],
+                        [
+                            578,
+                            734,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute6GotoFind4": {
+        "desc": "前往采集点4",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            577,
+                            734
+                        ],
+                        [
+                            575,
+                            735
+                        ],
+                        [
+                            574,
+                            735
+                        ],
+                        [
+                            574,
+                            735,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute6End"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}

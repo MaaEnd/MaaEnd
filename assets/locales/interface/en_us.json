@@ -587,6 +587,7 @@
     "option.AutoCollectRoute3.label": "Collect Route 3: Wuling City - Vitrodendra",
     "option.AutoCollectRoute4.label": "Collect Route 4: Valley IV - Pure Vitrodendra",
     "option.AutoCollectRoute5.label": "Collect Route 5: Valley IV - Kalkonyx",
+    "option.AutoCollectRoute6.label": "Collect Route 6: Valley IV - Pink Bolete",
     "group.daily.label": "Daily Routine",
     "group.daily.description": "Common reward, base, trading, and progression tasks for regular logins.",
     "group.realtime.label": "Real-time Assist",

@@ -587,6 +587,7 @@
     "option.AutoCollectRoute3.label": "채집 경로 3: 무릉성 도심-비트로덴드라",
     "option.AutoCollectRoute4.label": "채집 경로 4: 4호 계곡 바닥-순수 비트로덴드라",
     "option.AutoCollectRoute5.label": "채집 경로 5: 4호 계곡 바닥-연한 흑암석",
+    "option.AutoCollectRoute6.label": "채집 경로 6: 4호 계곡 바닥-핑크 볼레트",
     "group.daily.label": "일상 작업",
     "group.daily.description": "접속 후 자주 사용하는 보상 수령, 기지, 경영, 육성 작업입니다.",
     "group.realtime.label": "실시간 보조",
