@@ -4,17 +4,7 @@
 {
     //通用出入口
     "_AutoEcoFarmFindFarmlandStart": {
-        "desc": "在地图上查找农田标记并追踪标记,如果大小地图中已经能看到则跳过自身",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "_AutoEcoFarmFindFamlandInWorld",
-                    "_AutoEcoFarmFindFamlandInMap"
-                ]
-            }
-        },
-        "inverse": true,
+        "desc": "在地图上查找农田标记并追踪标记",
         "next": [
             "_AutoEcoFarmFindFarmlandOpenMap"
         ]

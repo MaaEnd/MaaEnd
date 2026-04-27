@@ -4,24 +4,8 @@
 {
     //入口节点模板
     "_AutoEcoFarmSwipeToTargetInitDefault": {
-        "desc": "设定并将视角拉向{默认}标记，如果标记已经在屏幕中央则跳过自身",
-        "max_hit": 20,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    620,
-                    100,
-                    40,
-                    300
-                ],
-                "template": "AutoEcoFarm/AutoEcoFarmTarget.png",
-                "green_mask": true,
-                "threshold": 0.5,
-                "order_by": "Score"
-            }
-        },
-        "inverse": true,
+        "desc": "设定并将视角拉向{默认}标记",
+
         "action": {
             "type": "Custom",
             "param": {

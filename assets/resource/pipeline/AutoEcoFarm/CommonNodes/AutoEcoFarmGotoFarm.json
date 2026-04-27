@@ -12,10 +12,14 @@
         ]
     },
     "_AutoEcoFarmGotoEcoFarmExit": {
+        "action": "Custom",
+
+        "custom_action": "SubTask",
+        "custom_action_param": {"sub": [
+                "_AutoEcoFarmFindFarmlandStart",
+                "_AutoEcoFarmSwipeToTargetInitFarmLand"
+            ]},
         "next": [
-            //到目的地后再次识别农田并靠近
-            "[JumpBack]_AutoEcoFarmFindFarmlandStart",
-            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
             "_AutoEcoFarmMoveAndWorkStart"
         ]
     },
