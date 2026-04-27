@@ -1216,7 +1216,7 @@
                     520
                 ],
                 "template": [
-                    "SceneManager/MapWuling/MarkerStoneCoreLeftBotton.png"
+                    "SceneManager/MapWuling/MarkerStoneCoreLeftBottom.png"
                 ],
                 "threshold": 0.9
             },
