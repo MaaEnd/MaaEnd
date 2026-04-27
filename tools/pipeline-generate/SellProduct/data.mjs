@@ -272,10 +272,10 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
 
 // ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
 // 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
-const QUANTITY_BOX = [1064, 528, 138, 36];
-const QUANTITY_BOX_ADB = [1049, 499, 138, 36];
-const MAX_QUANTITY_BOX = [1033, 294, 166, 69];
-const MAX_QUANTITY_BOX_ADB = [973, 206, 199, 69];
+const QUANTITY_BOX = [1114, 535, 74, 29];
+const QUANTITY_BOX_ADB = [1065, 499, 78, 36];
+const MAX_QUANTITY_BOX = [1073, 327, 119, 25];
+const MAX_QUANTITY_BOX_ADB = [1041, 239, 131, 32];
 
 export const settlementFlatRows = LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
@@ -285,8 +285,8 @@ export const settlementFlatRows = LOCATIONS.map((loc) => ({
     TextExpected: loc.TextExpected,
     QuantityBox: QUANTITY_BOX,
     QuantityBoxAdb: QUANTITY_BOX_ADB,
-    MaxQuantityBox: MAX_QUANTITY_BOX,
-    MaxQuantityBoxAdb: MAX_QUANTITY_BOX_ADB,
+    MaxTargetBox: MAX_QUANTITY_BOX,
+    MaxTargetBoxAdb: MAX_QUANTITY_BOX_ADB,
     ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
     ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
     ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),

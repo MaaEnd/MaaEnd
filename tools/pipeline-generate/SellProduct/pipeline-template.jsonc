@@ -341,8 +341,8 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
-                "Box": "${MaxQuantityBox}"
+            "MaxTarget": {
+                "Box": "${MaxTargetBox}"
             },
             "Quantity": {
                 "Box": "${QuantityBox}"
@@ -368,8 +368,8 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
-                "Box": "${MaxQuantityBox}"
+            "MaxTarget": {
+                "Box": "${MaxTargetBox}"
             },
             "Quantity": {
                 "Box": "${QuantityBox}"
@@ -395,8 +395,8 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
-                "Box": "${MaxQuantityBox}"
+            "MaxTarget": {
+                "Box": "${MaxTargetBox}"
             },
             "Quantity": {
                 "Box": "${QuantityBox}"
@@ -422,11 +422,13 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
-                "Box": "${MaxQuantityBox}"
+            "MaxTarget": {
+                "Box": "${MaxTargetBox}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBox}"
+                "Box": "${QuantityBox}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",

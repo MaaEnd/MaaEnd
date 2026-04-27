@@ -4,21 +4,23 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
+            "MaxTarget": {
                 "Box": [
-                    973,
-                    206,
-                    199,
-                    69
-                ]
+                    1041,
+                    239,
+                    131,
+                    32
+                ],
+                "OnlyRec": true
             },
             "Quantity": {
                 "Box": [
-                    1049,
+                    1065,
                     499,
-                    138,
+                    78,
                     36
-                ]
+                ],
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -31,19 +33,19 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
+            "MaxTarget": {
                 "Box": [
-                    973,
-                    206,
-                    199,
-                    69
+                    1041,
+                    239,
+                    131,
+                    32
                 ]
             },
             "Quantity": {
                 "Box": [
-                    1049,
+                    1065,
                     499,
-                    138,
+                    78,
                     36
                 ]
             },
@@ -58,19 +60,19 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
+            "MaxTarget": {
                 "Box": [
-                    973,
-                    206,
-                    199,
-                    69
+                    1041,
+                    239,
+                    131,
+                    32
                 ]
             },
             "Quantity": {
                 "Box": [
-                    1049,
+                    1065,
                     499,
-                    138,
+                    78,
                     36
                 ]
             },
@@ -85,19 +87,19 @@
             "GreenMask": true,
             "Target": 999999,
             "ClampTargetToMax": true,
-            "MaxQuantity": {
+            "MaxTarget": {
                 "Box": [
-                    973,
-                    206,
-                    199,
-                    69
+                    1041,
+                    239,
+                    131,
+                    32
                 ]
             },
             "Quantity": {
                 "Box": [
-                    1049,
+                    1065,
                     499,
-                    138,
+                    78,
                     36
                 ]
             },
