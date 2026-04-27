@@ -60,7 +60,6 @@ type quantityFilterParam struct {
 // Parameter fields:
 //   - Target: target quantity (overridden by attach.Target when present)
 //   - Quantity.Box: OCR ROI [x,y,w,h] for reading the current slider quantity.
-//     Also used by BetterSlidingGetMaxQuantity to read the slider endpoint value after swiping to max.
 //   - MaxTarget.Box: OCR ROI [x,y,w,h] for reading the max available quantity of the item.
 //     When provided, BetterSlidingGetMaxTarget runs after SwipeToMax and its OCR result is used for
 //     resolveTarget (TargetReverse / TargetType calculation).

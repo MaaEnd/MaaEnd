@@ -87,21 +87,6 @@ func buildMainInitializationOverride(
 		},
 	}
 
-	{
-		maxQuantityParam := map[string]any{
-			"roi":      append([]int(nil), quantityBox...),
-			"only_rec": quantityOnlyRec,
-		}
-		if quantityFilter != nil {
-			maxQuantityParam["color_filter"] = nodeBetterSlidingQuantityFilter
-		}
-		override[nodeBetterSlidingGetMaxQuantity] = map[string]any{
-			"recognition": map[string]any{
-				"param": maxQuantityParam,
-			},
-		}
-	}
-
 	if maxTargetExplicit {
 		maxTargetParam := map[string]any{
 			"roi":      append([]int(nil), maxTargetBox...),
