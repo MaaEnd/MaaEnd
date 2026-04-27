@@ -2,18 +2,47 @@
     "AutoStockStapleGoodsCountValidate": {
         "desc": "物品数量验证",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCountValidateColor",
+                    "AutoStockStapleGoodsCountValidateText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "AutoStockStapleGoodsCountValidateText": {
+        "desc": "物品数量验证文本",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    1068,
-                    185,
-                    20,
-                    14
-                ],
+                "roi": "AutoStockStapleGoodsCountValidateColor",
                 "expected": [
                     "\\d+"
                 ],
                 "only_rec": true
+            }
+        }
+    },
+    "AutoStockStapleGoodsCountValidateColor": {
+        "desc": "物品数量验证颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1036,
+                    183,
+                    53,
+                    18
+                ],
+                "method": 6,
+                "lower": [
+                    210
+                ],
+                "upper": [
+                    255
+                ]
             }
         }
     },
