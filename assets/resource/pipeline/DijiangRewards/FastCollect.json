@@ -60,11 +60,9 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "DijiangRewardsFastCollectProductionTarget",
                     "CloseRewardsButton",
                     "CloseRewardsButtonText"
-                ],
-                "box_index": 1
+                ]
             }
         },
         "pre_wait_freezes": 150,
@@ -156,11 +154,9 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "DijiangRewardsFastCollectCluesTarget",
                     "CloseRewardsButton",
                     "CloseRewardsButtonText"
-                ],
-                "box_index": 1
+                ]
             }
         },
         "pre_wait_freezes": 150,
