@@ -342,10 +342,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBox}"
+                "Box": "${MaxTargetBox}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBox}"
+                "Box": "${QuantityBox}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -369,10 +371,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBox}"
+                "Box": "${MaxTargetBox}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBox}"
+                "Box": "${QuantityBox}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -396,10 +400,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBox}"
+                "Box": "${MaxTargetBox}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBox}"
+                "Box": "${QuantityBox}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",

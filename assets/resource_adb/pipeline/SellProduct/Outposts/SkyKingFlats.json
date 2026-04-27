@@ -39,7 +39,8 @@
                     239,
                     131,
                     32
-                ]
+                ],
+                "OnlyRec": true
             },
             "Quantity": {
                 "Box": [
@@ -47,7 +48,8 @@
                     499,
                     78,
                     36
-                ]
+                ],
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -66,7 +68,8 @@
                     239,
                     131,
                     32
-                ]
+                ],
+                "OnlyRec": true
             },
             "Quantity": {
                 "Box": [
@@ -74,7 +77,8 @@
                     499,
                     78,
                     36
-                ]
+                ],
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -93,7 +97,8 @@
                     239,
                     131,
                     32
-                ]
+                ],
+                "OnlyRec": true
             },
             "Quantity": {
                 "Box": [
@@ -101,7 +106,8 @@
                     499,
                     78,
                     36
-                ]
+                ],
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",

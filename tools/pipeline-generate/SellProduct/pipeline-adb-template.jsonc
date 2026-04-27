@@ -24,10 +24,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBoxAdb}"
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBoxAdb}"
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -41,10 +43,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBoxAdb}"
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBoxAdb}"
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
@@ -58,10 +62,12 @@
             "Target": 999999,
             "ClampTargetToMax": true,
             "MaxTarget": {
-                "Box": "${MaxTargetBoxAdb}"
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
             },
             "Quantity": {
-                "Box": "${QuantityBoxAdb}"
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",

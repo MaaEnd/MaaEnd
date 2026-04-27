@@ -272,7 +272,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
 
 // ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
 // 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
-const QUANTITY_BOX = [1114, 535, 74, 29];
+const QUANTITY_BOX = [1107, 535, 74, 29];
 const QUANTITY_BOX_ADB = [1065, 499, 78, 36];
 const MAX_QUANTITY_BOX = [1073, 327, 119, 25];
 const MAX_QUANTITY_BOX_ADB = [1041, 239, 131, 32];
