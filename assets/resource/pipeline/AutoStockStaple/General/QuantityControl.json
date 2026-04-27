@@ -67,7 +67,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter",
             "AutoStockStapleQuantityControlValleyEngravingPermitBuy",
             "AutoStockStapleQuantityControlValleyEngravingPermitExclude"
         ]
@@ -139,6 +138,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -156,7 +157,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlKunstTubeRemoveFilter",
             "AutoStockStapleQuantityControlKunstTubeBuy",
             "AutoStockStapleQuantityControlKunstTubeExclude"
         ]
@@ -228,6 +228,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKunstTubeRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -245,7 +247,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
             "AutoStockStapleQuantityControlJakubsLegacyBuy",
             "AutoStockStapleQuantityControlJakubsLegacyExclude"
         ]
@@ -317,6 +318,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -334,7 +337,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
             "AutoStockStapleQuantityControlPulledSlugMeatBuy",
             "AutoStockStapleQuantityControlPulledSlugMeatExclude"
         ]
@@ -406,6 +408,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -423,7 +427,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
             "AutoStockStapleQuantityControlHazefyreBlossomBuy",
             "AutoStockStapleQuantityControlHazefyreBlossomExclude"
         ]
@@ -495,6 +498,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -512,7 +517,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
             "AutoStockStapleQuantityControlCartilageCookieBuy",
             "AutoStockStapleQuantityControlCartilageCookieExclude"
         ]
@@ -584,6 +588,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -601,7 +607,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
             "AutoStockStapleQuantityControlCosmoMeltoJellyBuy",
             "AutoStockStapleQuantityControlCosmoMeltoJellyExclude"
         ]
@@ -673,6 +678,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -690,7 +697,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
             "AutoStockStapleQuantityControlKeenValleyDetectorBuy",
             "AutoStockStapleQuantityControlKeenValleyDetectorExclude"
         ]
@@ -762,6 +768,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -779,7 +787,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
             "AutoStockStapleQuantityControlKeenValleyCompassBuy",
             "AutoStockStapleQuantityControlKeenValleyCompassExclude"
         ]
@@ -851,6 +858,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -868,7 +877,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
             "AutoStockStapleQuantityControlBreezeOfKjerschBuy",
             "AutoStockStapleQuantityControlBreezeOfKjerschExclude"
         ]
@@ -940,6 +948,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -957,7 +967,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
             "AutoStockStapleQuantityControlTidestoneSpecimenBuy",
             "AutoStockStapleQuantityControlTidestoneSpecimenExclude"
         ]
@@ -1029,6 +1038,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1046,7 +1057,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
             "AutoStockStapleQuantityControlSimonchShawlBuy",
             "AutoStockStapleQuantityControlSimonchShawlExclude"
         ]
@@ -1118,6 +1128,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1135,7 +1147,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
             "AutoStockStapleQuantityControlFrontiersWatchBuy",
             "AutoStockStapleQuantityControlFrontiersWatchExclude"
         ]
@@ -1207,6 +1218,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1224,7 +1237,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
             "AutoStockStapleQuantityControlAuryleneCameraBuy",
             "AutoStockStapleQuantityControlAuryleneCameraExclude"
         ]
@@ -1296,6 +1308,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1313,7 +1327,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
             "AutoStockStapleQuantityControlCosmicGatePuzzleBuy",
             "AutoStockStapleQuantityControlCosmicGatePuzzleExclude"
         ]
@@ -1385,6 +1398,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1402,7 +1417,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
             "AutoStockStapleQuantityControlSurfingFestivalTicketBuy",
             "AutoStockStapleQuantityControlSurfingFestivalTicketExclude"
         ]
@@ -1474,6 +1488,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1491,7 +1507,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
             "AutoStockStapleQuantityControlWulingEngravingPermitBuy",
             "AutoStockStapleQuantityControlWulingEngravingPermitExclude"
         ]
@@ -1563,6 +1578,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1580,7 +1597,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
             "AutoStockStapleQuantityControlFortifyingInfusionBuy",
             "AutoStockStapleQuantityControlFortifyingInfusionExclude"
         ]
@@ -1652,6 +1668,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1669,7 +1687,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
             "AutoStockStapleQuantityControlGardenFriedRiceBuy",
             "AutoStockStapleQuantityControlGardenFriedRiceExclude"
         ]
@@ -1741,6 +1758,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1758,7 +1777,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
             "AutoStockStapleQuantityControlMasterPansEggPuddingBuy",
             "AutoStockStapleQuantityControlMasterPansEggPuddingExclude"
         ]
@@ -1830,6 +1848,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1847,7 +1867,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
             "AutoStockStapleQuantityControlEchoingRemedyBuy",
             "AutoStockStapleQuantityControlEchoingRemedyExclude"
         ]
@@ -1919,6 +1938,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -1936,7 +1957,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
             "AutoStockStapleQuantityControlWulingArtificingCatalystBuy",
             "AutoStockStapleQuantityControlWulingArtificingCatalystExclude"
         ]
@@ -2008,6 +2028,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2025,7 +2047,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
             "AutoStockStapleQuantityControlKeenWulingDetectorBuy",
             "AutoStockStapleQuantityControlKeenWulingDetectorExclude"
         ]
@@ -2097,6 +2118,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2114,7 +2137,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
             "AutoStockStapleQuantityControlKeenWulingCompassBuy",
             "AutoStockStapleQuantityControlKeenWulingCompassExclude"
         ]
@@ -2186,6 +2208,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2203,7 +2227,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
             "AutoStockStapleQuantityControlEurekaTeaboxBuy",
             "AutoStockStapleQuantityControlEurekaTeaboxExclude"
         ]
@@ -2275,6 +2298,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2292,7 +2317,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
             "AutoStockStapleQuantityControlYinglungDumbbellsBuy",
             "AutoStockStapleQuantityControlYinglungDumbbellsExclude"
         ]
@@ -2364,6 +2388,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2381,7 +2407,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
             "AutoStockStapleQuantityControlWovenAggelosBuy",
             "AutoStockStapleQuantityControlWovenAggelosExclude"
         ]
@@ -2453,6 +2478,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2470,7 +2497,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
             "AutoStockStapleQuantityControlScrimshawOfThePackBuy",
             "AutoStockStapleQuantityControlScrimshawOfThePackExclude"
         ]
@@ -2542,6 +2568,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
@@ -2559,7 +2587,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaBuy",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude"
         ]
@@ -2631,6 +2658,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
+            "AutoStockStapleQuantityControlResetRecognitionParams",
             "AutoStockStapleQuantityControlCloseBuyWindow"
         ]
     },
