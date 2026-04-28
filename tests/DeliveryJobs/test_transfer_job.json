@@ -10,7 +10,7 @@
     "cases": [
         {
             "image": "四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱.png",
-            "hits": ["DeliveryJobsEnterDeliveryJob"]
+            "hits": ["DeliveryJobsEnterOriginLodespringDeliveryJob"]
         },
         {
             "image": "四号谷地_地区建设_仓储节点_送货任务_转交运送委托.png",

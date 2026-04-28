@@ -1,30 +1,6 @@
 {
     // 转交任务的流程
     // 进入送货任务 -> 点击转交任务 -> 确认转交任务 -> 回到本地仓储界面
-    "DeliveryJobsEnterDeliveryJob": {
-        "desc": "进入送货任务",
-        "recognition": "OCR",
-        "roi": [
-            79,
-            550,
-            985,
-            89
-        ],
-        "expected": [
-            "查看任务",
-            "查看任務",
-            "(?i)Check\\s*Mission",
-            "任務確認",
-            "임무 확인"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsClickTransferJob"
-        ]
-    },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",
         "recognition": "OCR",
