@@ -16,12 +16,128 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginLodespringDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterPowerPlateauDeliveryJob",
             "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
             "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
             "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
             "DeliveryJobsLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "DeliveryJobsCheckOriginiumScienceParkDeliveryJob": {
+        "desc": "检查源石研究园的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckOriginLodespringDeliveryJob": {
+        "desc": "检查矿脉源区的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckPowerPlateauDeliveryJob": {
+        "desc": "检查供能高地的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+        "desc": "源石研究园：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+        "desc": "矿脉源区：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
+            "DeliveryJobsCheckOriginLodespringDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+        "desc": "供能高地：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
         ]
     },
     "DeliveryJobsInValleyIVLocalDepotNode": {
