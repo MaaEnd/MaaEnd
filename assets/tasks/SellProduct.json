@@ -207,8 +207,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -229,8 +229,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -251,8 +251,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -273,8 +273,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -295,8 +295,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -317,8 +317,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -339,8 +339,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量谷地電池",
                                     "低容谷地电池",
+                                    "低容量谷地電池",
                                     "小容量谷地バッテリー",
                                     "LC Valley Battery"
                                 ]
@@ -361,8 +361,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -383,8 +383,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鐵製零件",
                                     "铁制零件",
+                                    "鐵製零件",
                                     "鉄製部品",
                                     "Ferrium Part"
                                 ]
@@ -425,8 +425,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -447,8 +447,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -469,8 +469,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -491,8 +491,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -513,8 +513,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -535,8 +535,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -557,8 +557,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量谷地電池",
                                     "低容谷地电池",
+                                    "低容量谷地電池",
                                     "小容量谷地バッテリー",
                                     "LC Valley Battery"
                                 ]
@@ -579,8 +579,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -601,8 +601,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鐵製零件",
                                     "铁制零件",
+                                    "鐵製零件",
                                     "鉄製部品",
                                     "Ferrium Part"
                                 ]
@@ -643,8 +643,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -665,8 +665,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -687,8 +687,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -709,8 +709,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -731,8 +731,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -753,8 +753,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -775,8 +775,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量谷地電池",
                                     "低容谷地电池",
+                                    "低容量谷地電池",
                                     "小容量谷地バッテリー",
                                     "LC Valley Battery"
                                 ]
@@ -797,8 +797,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -819,8 +819,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鐵製零件",
                                     "铁制零件",
+                                    "鐵製零件",
                                     "鉄製部品",
                                     "Ferrium Part"
                                 ]
@@ -861,8 +861,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -883,8 +883,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -905,8 +905,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -927,8 +927,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -949,8 +949,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -971,8 +971,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -993,8 +993,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量谷地電池",
                                     "低容谷地电池",
+                                    "低容量谷地電池",
                                     "小容量谷地バッテリー",
                                     "LC Valley Battery"
                                 ]
@@ -1015,8 +1015,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -1037,8 +1037,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鐵製零件",
                                     "铁制零件",
+                                    "鐵製零件",
                                     "鉄製部品",
                                     "Ferrium Part"
                                 ]
@@ -1385,8 +1385,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -1407,8 +1407,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -1429,8 +1429,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -1451,8 +1451,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -1473,8 +1473,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -1495,8 +1495,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -1517,8 +1517,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -1539,8 +1539,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鋼製零件",
                                     "钢制零件",
+                                    "鋼製零件",
                                     "鋼製部品",
                                     "Steel Part"
                                 ]
@@ -1581,8 +1581,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -1603,8 +1603,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -1625,8 +1625,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -1647,8 +1647,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -1669,8 +1669,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -1691,8 +1691,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -1713,8 +1713,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -1735,8 +1735,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鋼製零件",
                                     "钢制零件",
+                                    "鋼製零件",
                                     "鋼製部品",
                                     "Steel Part"
                                 ]
@@ -1777,8 +1777,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -1799,8 +1799,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -1821,8 +1821,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -1843,8 +1843,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -1865,8 +1865,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -1887,8 +1887,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -1909,8 +1909,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -1931,8 +1931,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鋼製零件",
                                     "钢制零件",
+                                    "鋼製零件",
                                     "鋼製部品",
                                     "Steel Part"
                                 ]
@@ -1973,8 +1973,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -1995,8 +1995,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -2017,8 +2017,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -2039,8 +2039,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -2061,8 +2061,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -2083,8 +2083,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -2105,8 +2105,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -2127,8 +2127,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "鋼製零件",
                                     "钢制零件",
+                                    "鋼製零件",
                                     "鋼製部品",
                                     "Steel Part"
                                 ]
@@ -2475,8 +2475,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -2497,8 +2497,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -2519,8 +2519,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -2541,8 +2541,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -2563,8 +2563,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -2585,8 +2585,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -2607,8 +2607,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "蕎癒膠囊",
                                     "荞愈胶囊",
+                                    "蕎癒膠囊",
                                     "蕎花カプセルⅠ",
                                     "Buck Capsule C"
                                 ]
@@ -2629,8 +2629,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -2651,8 +2651,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶質瓶",
                                     "紫晶质瓶",
+                                    "紫晶質瓶",
                                     "紫晶製ボトル",
                                     "Amethyst Bottle"
                                 ]
@@ -2673,8 +2673,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "晶體外殼",
                                     "晶体外壳",
+                                    "晶體外殼",
                                     "結晶外殻",
                                     "Origocrust"
                                 ]
@@ -2737,8 +2737,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -2759,8 +2759,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -2781,8 +2781,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -2803,8 +2803,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -2825,8 +2825,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -2847,8 +2847,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -2869,8 +2869,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "蕎癒膠囊",
                                     "荞愈胶囊",
+                                    "蕎癒膠囊",
                                     "蕎花カプセルⅠ",
                                     "Buck Capsule C"
                                 ]
@@ -2891,8 +2891,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -2913,8 +2913,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶質瓶",
                                     "紫晶质瓶",
+                                    "紫晶質瓶",
                                     "紫晶製ボトル",
                                     "Amethyst Bottle"
                                 ]
@@ -2935,8 +2935,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "晶體外殼",
                                     "晶体外壳",
+                                    "晶體外殼",
                                     "結晶外殻",
                                     "Origocrust"
                                 ]
@@ -2999,8 +2999,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -3021,8 +3021,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -3043,8 +3043,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -3065,8 +3065,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -3087,8 +3087,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -3109,8 +3109,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -3131,8 +3131,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "蕎癒膠囊",
                                     "荞愈胶囊",
+                                    "蕎癒膠囊",
                                     "蕎花カプセルⅠ",
                                     "Buck Capsule C"
                                 ]
@@ -3153,8 +3153,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -3175,8 +3175,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶質瓶",
                                     "紫晶质瓶",
+                                    "紫晶質瓶",
                                     "紫晶製ボトル",
                                     "Amethyst Bottle"
                                 ]
@@ -3197,8 +3197,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "晶體外殼",
                                     "晶体外壳",
+                                    "晶體外殼",
                                     "結晶外殻",
                                     "Origocrust"
                                 ]
@@ -3261,8 +3261,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選蕎癒膠囊",
                                     "精选荞愈胶囊",
+                                    "精選蕎癒膠囊",
                                     "蕎花カプセルⅢ",
                                     "Buck Capsule A"
                                 ]
@@ -3283,8 +3283,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "高容量谷地電池",
                                     "高容谷地电池",
+                                    "高容量谷地電池",
                                     "大容量谷地バッテリー",
                                     "HC Valley Battery"
                                 ]
@@ -3305,8 +3305,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "精選柑實罐頭",
                                     "精选柑实罐头",
+                                    "精選柑實罐頭",
                                     "シトロームの缶詰Ⅲ",
                                     "Canned Citrome A"
                                 ]
@@ -3327,8 +3327,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量谷地電池",
                                     "中容谷地电池",
+                                    "中容量谷地電池",
                                     "中容量谷地バッテリー",
                                     "SC Valley Battery"
                                 ]
@@ -3349,8 +3349,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質蕎癒膠囊",
                                     "优质荞愈胶囊",
+                                    "優質蕎癒膠囊",
                                     "蕎花カプセルⅡ",
                                     "Buck Capsule B"
                                 ]
@@ -3371,8 +3371,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質柑實罐頭",
                                     "优质柑实罐头",
+                                    "優質柑實罐頭",
                                     "シトロームの缶詰Ⅱ",
                                     "Canned Citrome B"
                                 ]
@@ -3393,8 +3393,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "蕎癒膠囊",
                                     "荞愈胶囊",
+                                    "蕎癒膠囊",
                                     "蕎花カプセルⅠ",
                                     "Buck Capsule C"
                                 ]
@@ -3415,8 +3415,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "柑實罐頭",
                                     "柑实罐头",
+                                    "柑實罐頭",
                                     "シトロームの缶詰Ⅰ",
                                     "Canned Citrome C"
                                 ]
@@ -3437,8 +3437,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶質瓶",
                                     "紫晶质瓶",
+                                    "紫晶質瓶",
                                     "紫晶製ボトル",
                                     "Amethyst Bottle"
                                 ]
@@ -3459,8 +3459,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "晶體外殼",
                                     "晶体外壳",
+                                    "晶體外殼",
                                     "結晶外殻",
                                     "Origocrust"
                                 ]
@@ -3857,8 +3857,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -3879,8 +3879,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -3901,8 +3901,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -3923,8 +3923,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -3945,8 +3945,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質錦草飲料",
                                     "优质锦草软饮",
+                                    "優質錦草飲料",
                                     "錦草ソーダⅡ",
                                     "Jincao Tea"
                                 ]
@@ -3967,8 +3967,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -4053,8 +4053,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -4075,8 +4075,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -4097,8 +4097,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -4119,8 +4119,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -4141,8 +4141,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質錦草飲料",
                                     "优质锦草软饮",
+                                    "優質錦草飲料",
                                     "錦草ソーダⅡ",
                                     "Jincao Tea"
                                 ]
@@ -4163,8 +4163,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -4249,8 +4249,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -4271,8 +4271,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -4293,8 +4293,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -4315,8 +4315,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -4337,8 +4337,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質錦草飲料",
                                     "优质锦草软饮",
+                                    "優質錦草飲料",
                                     "錦草ソーダⅡ",
                                     "Jincao Tea"
                                 ]
@@ -4359,8 +4359,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -4445,8 +4445,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -4467,8 +4467,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -4489,8 +4489,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -4511,8 +4511,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -4533,8 +4533,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質錦草飲料",
                                     "优质锦草软饮",
+                                    "優質錦草飲料",
                                     "錦草ソーダⅡ",
                                     "Jincao Tea"
                                 ]
@@ -4555,8 +4555,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -4947,8 +4947,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -4969,8 +4969,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -4991,8 +4991,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赫銅零件",
                                     "赫铜零件",
+                                    "赫銅零件",
                                     "緋銅部品",
                                     "Hetonite Part"
                                 ]
@@ -5013,8 +5013,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -5035,8 +5035,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -5057,8 +5057,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -5079,8 +5079,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "芽針針劑",
                                     "芽针针剂",
+                                    "芽針針劑",
                                     "芽針注射剤Ⅰ",
                                     "Yazhen Syringe C"
                                 ]
@@ -5101,8 +5101,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "錦草飲料",
                                     "锦草软饮",
+                                    "錦草飲料",
                                     "錦草ソーダⅠ",
                                     "Jincao Drink"
                                 ]
@@ -5123,8 +5123,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赤銅零件",
                                     "赤铜零件",
+                                    "赤銅零件",
                                     "赤銅部品",
                                     "Cuprium Part"
                                 ]
@@ -5187,8 +5187,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -5209,8 +5209,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -5231,8 +5231,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赫銅零件",
                                     "赫铜零件",
+                                    "赫銅零件",
                                     "緋銅部品",
                                     "Hetonite Part"
                                 ]
@@ -5253,8 +5253,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -5275,8 +5275,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -5297,8 +5297,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -5319,8 +5319,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "芽針針劑",
                                     "芽针针剂",
+                                    "芽針針劑",
                                     "芽針注射剤Ⅰ",
                                     "Yazhen Syringe C"
                                 ]
@@ -5341,8 +5341,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "錦草飲料",
                                     "锦草软饮",
+                                    "錦草飲料",
                                     "錦草ソーダⅠ",
                                     "Jincao Drink"
                                 ]
@@ -5363,8 +5363,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赤銅零件",
                                     "赤铜零件",
+                                    "赤銅零件",
                                     "赤銅部品",
                                     "Cuprium Part"
                                 ]
@@ -5427,8 +5427,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -5449,8 +5449,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -5471,8 +5471,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赫銅零件",
                                     "赫铜零件",
+                                    "赫銅零件",
                                     "緋銅部品",
                                     "Hetonite Part"
                                 ]
@@ -5493,8 +5493,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -5515,8 +5515,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -5537,8 +5537,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -5559,8 +5559,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "芽針針劑",
                                     "芽针针剂",
+                                    "芽針針劑",
                                     "芽針注射剤Ⅰ",
                                     "Yazhen Syringe C"
                                 ]
@@ -5581,8 +5581,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "錦草飲料",
                                     "锦草软饮",
+                                    "錦草飲料",
                                     "錦草ソーダⅠ",
                                     "Jincao Drink"
                                 ]
@@ -5603,8 +5603,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赤銅零件",
                                     "赤铜零件",
+                                    "赤銅零件",
                                     "赤銅部品",
                                     "Cuprium Part"
                                 ]
@@ -5667,8 +5667,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤玉葫蘆",
                                     "息壤玉葫芦",
+                                    "息壤玉葫蘆",
                                     "息壌玉ひょうたん",
                                     "Xiranite Jade Gourd"
                                 ]
@@ -5689,8 +5689,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "中容量武陵電池",
                                     "中容武陵电池",
+                                    "中容量武陵電池",
                                     "中容量武陵バッテリー",
                                     "SC Wuling Battery"
                                 ]
@@ -5711,8 +5711,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赫銅零件",
                                     "赫铜零件",
+                                    "赫銅零件",
                                     "緋銅部品",
                                     "Hetonite Part"
                                 ]
@@ -5733,8 +5733,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤葫蘆",
                                     "息壤葫芦",
+                                    "息壤葫蘆",
                                     "息壌ひょうたん",
                                     "Xiranite Gourd"
                                 ]
@@ -5755,8 +5755,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "低容量武陵電池",
                                     "低容武陵电池",
+                                    "低容量武陵電池",
                                     "小容量武陵バッテリー",
                                     "LC Wuling Battery"
                                 ]
@@ -5777,8 +5777,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "優質芽針針劑",
                                     "优质芽针针剂",
+                                    "優質芽針針劑",
                                     "芽針注射剤Ⅱ",
                                     "Yazhen Syringe A"
                                 ]
@@ -5799,8 +5799,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "芽針針劑",
                                     "芽针针剂",
+                                    "芽針針劑",
                                     "芽針注射剤Ⅰ",
                                     "Yazhen Syringe C"
                                 ]
@@ -5821,8 +5821,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "錦草飲料",
                                     "锦草软饮",
+                                    "錦草飲料",
                                     "錦草ソーダⅠ",
                                     "Jincao Drink"
                                 ]
@@ -5843,8 +5843,8 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "赤銅零件",
                                     "赤铜零件",
+                                    "赤銅零件",
                                     "赤銅部品",
                                     "Cuprium Part"
                                 ]

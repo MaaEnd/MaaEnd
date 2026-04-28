@@ -92,8 +92,8 @@ for (const settlement of Object.values(settlementData.settlements)) {
                 name: item.name.CN,
                 label: meta.label,
                 candidates: [
-                    item.name.TC,
                     item.name.CN,
+                    item.name.TC,
                     item.name.JP,
                     enName || null,
                 ].filter(Boolean),

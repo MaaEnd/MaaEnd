@@ -216,3 +216,30 @@ func TestParseParams(t *testing.T) {
 		t.Error("expected error for invalid json")
 	}
 }
+
+// 候选与 OCR 在 Tier B 都被 strip 成空字符串时不应命中（保护 candB == "" 的分支）。
+func TestFindBestMatch_TierBEmptyDoesNotMatch(t *testing.T) {
+	candidates := []string{"Canned Citrome C"}
+	ocr := []ocrItem{{text: "Canned Citrome D", box: maa.Rect{0, 0, 10, 10}}}
+	if got := findBestMatch(ocr, candidates); got != nil {
+		t.Fatalf("expected no Tier B match when both sides strip to empty, got %+v", got)
+	}
+}
+
+// 同一 OCR 文本出现在多个位置时，应选最靠上 / 靠左的 box；
+// 这是 collectOCRResults 不再按文本去重后必须保留的语义。
+func TestFindBestMatch_DuplicateTextPicksTopLeftBox(t *testing.T) {
+	candidates := []string{"紫晶质瓶"}
+	ocr := []ocrItem{
+		{text: "紫晶质瓶", box: maa.Rect{300, 300, 10, 10}},
+		{text: "紫晶质瓶", box: maa.Rect{100, 100, 10, 10}},
+		{text: "紫晶质瓶", box: maa.Rect{500, 100, 10, 10}},
+	}
+	got := findBestMatch(ocr, candidates)
+	if got == nil {
+		t.Fatal("expected a match")
+	}
+	if got.box.Y() != 100 || got.box.X() != 100 {
+		t.Errorf("expected top-left box (100,100), got (%d,%d)", got.box.X(), got.box.Y())
+	}
+}

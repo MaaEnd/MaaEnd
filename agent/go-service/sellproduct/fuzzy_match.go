@@ -142,15 +142,16 @@ type ocrItem struct {
 	box  maa.Rect
 }
 
+// collectOCRResults 优先使用 Filtered 结果（OCR expected 过滤后的结果）；
+// 若为空则退回 All。不按文本去重：findBestMatch 会按 Y/X 排序选最靠上 / 靠左的
+// box，去重会丢失同一文本在多个位置的候选 box。
 func collectOCRResults(detail *maa.RecognitionDetail) []ocrItem {
 	if detail == nil || detail.Results == nil {
 		return nil
 	}
 
-	seen := make(map[string]bool)
-	var items []ocrItem
-
 	for _, group := range [][]*maa.RecognitionResult{detail.Results.Filtered, detail.Results.All} {
+		var items []ocrItem
 		for _, r := range group {
 			if r == nil {
 				continue
@@ -160,17 +161,16 @@ func collectOCRResults(detail *maa.RecognitionDetail) []ocrItem {
 				continue
 			}
 			text := strings.TrimSpace(ocr.Text)
-			if text == "" || seen[text] {
+			if text == "" {
 				continue
 			}
-			seen[text] = true
 			items = append(items, ocrItem{text: text, box: ocr.Box})
 		}
 		if len(items) > 0 {
 			return items
 		}
 	}
-	return items
+	return nil
 }
 
 type matchResult struct {
