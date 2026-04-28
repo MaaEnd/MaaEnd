@@ -75,7 +75,7 @@ const ITEM_META = [...collectTradeItems().entries()]
     }, {});
 
 // ===== 从 settlement 数据提取全局物品字典 =====
-// candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductFuzzyItemMatch
+// candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductNormalizedItemMatch
 // 自定义识别做抗噪声匹配。不再带 `^...$` 锚定符，噪声剥离和严格相等由
 // Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
 // 这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」

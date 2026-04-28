@@ -229,7 +229,7 @@
         "desc": "基建前站售卖优先物品1",
         "enabled": false,
         "recognition": "Custom",
-        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition": "SellProductNormalizedItemMatch",
         "custom_recognition_param": {
             "candidates": []
         },
@@ -255,7 +255,7 @@
         "desc": "基建前站售卖优先物品2",
         "enabled": false,
         "recognition": "Custom",
-        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition": "SellProductNormalizedItemMatch",
         "custom_recognition_param": {
             "candidates": []
         },
@@ -281,7 +281,7 @@
         "desc": "基建前站售卖优先物品3",
         "enabled": false,
         "recognition": "Custom",
-        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition": "SellProductNormalizedItemMatch",
         "custom_recognition_param": {
             "candidates": []
         },
@@ -307,7 +307,7 @@
         "desc": "基建前站售卖优先物品4",
         "enabled": false,
         "recognition": "Custom",
-        "custom_recognition": "SellProductFuzzyItemMatch",
+        "custom_recognition": "SellProductNormalizedItemMatch",
         "custom_recognition_param": {
             "candidates": []
         },

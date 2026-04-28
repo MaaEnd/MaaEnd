@@ -1,6 +1,6 @@
 // Package sellproduct 为「🛒售卖产品」任务提供 Go 自定义识别。
 //
-// 核心识别：SellProductFuzzyItemMatch —— 在指定 ROI 内跑一次 OCR，
+// 核心识别：SellProductNormalizedItemMatch —— 在指定 ROI 内跑一次 OCR，
 // 对每条 OCR 文本与 candidates 做抗噪声匹配，命中后返回该文本的 box。
 //
 // 引入原因：见 MaaEnd issue #2344。原实现用锚定正则 `^紫晶质瓶$` 去
@@ -38,17 +38,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const componentName = "SellProductFuzzyItemMatch"
+const componentName = "SellProductNormalizedItemMatch"
 
 type params struct {
 	Candidates []string `json:"candidates"`
 }
 
-type FuzzyMatchRecognition struct{}
+type NormalizedMatchRecognition struct{}
 
-var _ maa.CustomRecognitionRunner = (*FuzzyMatchRecognition)(nil)
+var _ maa.CustomRecognitionRunner = (*NormalizedMatchRecognition)(nil)
 
-func (r *FuzzyMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil {
 		log.Warn().Str("component", componentName).Msg("arg or image is nil")
 		return nil, false
@@ -111,7 +111,7 @@ func (r *FuzzyMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Str("matched_candidate", best.candidate).
 		Str("match_tier", best.tier).
 		Interface("box", best.box).
-		Msg("fuzzy match hit")
+		Msg("normalized match hit")
 
 	detailJSON, _ := json.Marshal(map[string]any{
 		"ocr_text":          best.ocrText,
