@@ -1,17 +1,13 @@
 //这块代码的目的是通过追踪标记来识别农田，并点击追踪标记
 //节点从Start进入，开始前必须要在农田附近
-//节点从Exit离开，这里关联下一个阶段的节点
+//要使用subtask调用入口"_AutoEcoFarmFindFarmlandStart""，
+// 或者next里写上["识别子任务完成的节点",[JumpBack]_AutoEcoFarmFindFarmlandStart"]
 {
-    //通用出入口
+    //通用入口
     "_AutoEcoFarmFindFarmlandStart": {
         "desc": "在地图上查找农田标记并追踪标记",
         "next": [
             "_AutoEcoFarmFindFarmlandOpenMap"
-        ]
-    },
-    "_AutoEcoFarmFindFarmlandExit": {
-        "next": [
-            "_AutoEcoFarmReturnToWorld"
         ]
     },
     //内部节点
@@ -356,7 +352,7 @@
             "_AutoEcoFarmFarmlandStillVisibleRetry",
             "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            "_AutoEcoFarmFindFarmlandExit"
+            "SceneAnyEnterWorld"
         ]
     },
     "_AutoEcoFarmFarmlandStillVisibleRetry": {
@@ -433,7 +429,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmlandExit"
+            "SceneAnyEnterWorld"
         ]
     },
     "_AutoEcoFarmSetTarget": {
@@ -461,7 +457,7 @@
             "type": "Click"
         },
         "next": [
-            "_AutoEcoFarmFindFarmlandExit"
+            "SceneAnyEnterWorld"
         ]
     },
     "_AutoEcoFarmMutiSelection": {
@@ -490,14 +486,5 @@
         "action": {
             "type": "Click"
         }
-    },
-    "_AutoEcoFarmReturnToWorld": {
-        "desc": "返回大世界",
-        "recognition": "And",
-        "all_of": ["_AutoEcoFarmInWorld"],
-        "inverse": true,
-        "next": [
-            "SceneAnyEnterWorld"
-        ]
     }
 }
