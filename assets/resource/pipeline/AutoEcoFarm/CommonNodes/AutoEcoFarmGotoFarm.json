@@ -12,13 +12,18 @@
         ]
     },
     "_AutoEcoFarmGotoEcoFarmExit": {
+        "desc": "结束去农场任务，接下一个任务",
+        "pre_delay": 0,
         "action": "Custom",
-
         "custom_action": "SubTask",
-        "custom_action_param": {"sub": [
+        "custom_action_param": {
+            "sub": [
                 "_AutoEcoFarmFindFarmlandStart",
                 "_AutoEcoFarmSwipeToTargetInitFarmLand"
-            ]},
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "_AutoEcoFarmMoveAndWorkStart"
         ]

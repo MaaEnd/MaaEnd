@@ -379,8 +379,18 @@
     "_AutoEcoFarmBlindWalkStartValleyIV": {
         "desc": "[ValleyIV版]关闭工业设备朝标记盲走一段距离，默认关闭",
         "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "_AutoEcoFarmFindFarmlandStart",
+                "_AutoEcoFarmSwipeToTargetInitFarmLand"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[JumpBack]_AutoEcoFarmSwipeToTargetInitFarmLand",
             "_AutoEcoFarmBlindWalkPhotoMode"
         ]
     }
