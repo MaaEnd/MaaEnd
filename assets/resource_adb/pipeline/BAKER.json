@@ -183,6 +183,28 @@
             "BakerTalkWithHint"
         ]
     },
+    "BakerTalkOver": {
+        "desc": "通用聊天点击流程: 用于检测当前会话是否结束",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            328,
+            737,
+            338
+        ],
+        "expected": [
+            "暂无新话题",
+            "尚無新話題",
+            "(?i)No\\s*New\\s*Topics",
+            "新しいトピックはありません",
+            "话题结束",
+            "話題結束"
+        ],
+        "next": [
+            "BakerTalkWith",
+            "BakerRefreshFilter"
+        ]
+    },
     "BakerTalkOver2": {
         "desc": "通用聊天点击流程: 用于检测当前会话是否结束 (匹配方式2)",
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
