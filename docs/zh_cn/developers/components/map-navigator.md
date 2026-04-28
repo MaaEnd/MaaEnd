@@ -86,6 +86,8 @@ MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”
 - `TRANSFER`: 到点后停住，等待外力把角色移动到下一段路径，再从后续点继续导航。
 - `PORTAL`: 跨区过渡点，命中后进入盲走等待区域切换。
 - `HEADING`: 调整镜头到指定朝向，然后按一下 `W`。
+- `COLLECT`: 采集点，精确抵达后同步触发 AutoCollect OCR + 点击，不退出 NaviController。见[采集语义](#采集语义-collect--dig)。
+- `DIG`: 挖掘点，同 `COLLECT`，但触发挖掘子任务。见[采集语义](#采集语义-collect--dig)。
 
 ##### **3. 严格到达点**
 
@@ -337,7 +339,7 @@ uv run main.py
 - `严格`：把当前点标记为严格到达点。
 - `🗑`：删除当前选中点。
 
-当前动作下拉框面向的是坐标点动作，常规会编辑到 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER`。  
+当前动作下拉框面向的是坐标点动作，常规会编辑到 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。  
 `HEADING` 这类无坐标控制节点不在这一套 GUI 动作链里。
 
 **撤销重做：**
@@ -404,3 +406,76 @@ uv run main.py
 3. 特殊动作点宁可少而准，也不要沿路乱塞。尤其是 `INTERACT`、`TRANSFER`、`PORTAL`、`HEADING` 这类点，应该只放在真正需要触发的位置。`HEADING` 还要注意它是控制节点，通常在 GUI 导出后再手工维护更稳。
 4. 跨区路线一定要检查过图点。自动补 `PORTAL` 只是帮助补充语义，不代表所有跨区边界都天然合理。
 5. Pipeline 外层仍要做好入口校验和失败兜底。导航不是业务流本身，不要把所有异常处理都压给一个 `MapNavigateAction`。
+
+---
+
+## 采集语义 COLLECT / DIG
+
+### 概念
+
+`COLLECT` 和 `DIG` 是 MapNavigator 的**原生采集/挖掘语义点**。路径作者只需要在 `path` 数组里把采集坐标写成 `[x, y, "COLLECT"]` 或 `[x, y, "DIG"]`，导航器精确抵达后会自动停车、同步触发对应 pipeline 子任务完成采集/挖掘，然后继续走下一段路径，**全程不退出 NaviController**。
+
+这与旧的 `anchor` 链写法相比的改进在于：
+
+- 不会每次采集都重新建连、重新 Bootstrap、重置疾跑起步宽限
+- 临近采集点的整段路程自动禁止疾跑，不会冲过目标
+- 多个采集点合并在同一个 Pipeline 节点里，不需要拆成多个 `GotoFindN` 节点
+
+### 写法
+
+在 `custom_action_param.path` 里，把需要采集/挖掘的目标坐标的第三位改为对应动作字符串：
+
+```json
+"path": [
+    { "action": "ZONE", "zone_id": "Wuling_Base" },
+    [707, 838],
+    [720, 832],
+    [741, 802, "COLLECT"],
+    [744, 800, "COLLECT"],
+    [739, 792, "COLLECT"]
+]
+```
+
+- `[x, y, "COLLECT"]`：到达该点后触发 OCR 识别 + 自动点击采集（`AutoCollectClickStart`）
+- `[x, y, "DIG"]`：到达该点后触发无条件点击挖掘（`AutoCollectDigStart`）
+- 同一个 `MapNavigateAction` 节点里可以混写任意数量的 `COLLECT` 和 `DIG` 点
+- **不需要**在节点上写 `anchor` 或把 `next` 指向 `AutoCollectClickStart`
+
+### 路径作者需要关心的文件
+
+| 文件 | 职责 | 何时需要改 |
+|---|---|---|
+| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | 路径定义，包含 `MapNavigateAction` 节点和采集坐标 | 新增路线、调整坐标、增减采集点 |
+| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | `COLLECT` 触发的 OCR 与点击子任务，入口为 `AutoCollectClickStart` | 新增或删除 OCR 识别的采集物名称 |
+| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | `DIG` 触发的挖掘子任务，入口为 `AutoCollectDigStart` | 挖掘交互逻辑发生变更时 |
+
+**绝大多数情况下，路径作者只需要改 `AutoCollectRoute*.json`。**
+
+### 路径作者不需要碰的部分
+
+以下文件由 cpp-algo 维护者负责，路径作者无需改动：
+
+- `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`：`ActionType` 枚举，`COLLECT`/`DIG` 在此声明
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务入口名、`pipeline_override`、采集后等待时间等常量
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到达采集点后的执行逻辑
+
+### 边界说明
+
+**旧写法已取代**
+
+旧的 `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` 拆链写法已废弃，不应再出现在新路线中。
+
+**`AutoCollectClickEnd` 的 next 不能改**
+
+`AutoCollectClick.json` 里的 `AutoCollectClickEnd` 的 `next` 指向 `[Anchor]AutoCollectClickAfter`，是为了保持对旧有 anchor 链调用的兼容性。当从 `MaaContextRunTask` 子任务调用时，cpp-algo 层通过 `pipeline_override` 将该 `next` 临时置空，使子任务干净退出。路径作者**不应改动**这个字段，否则会影响仍在使用旧写法的其他路线。
+
+**疾跑由运行时控制**
+
+所有 `COLLECT`、`DIG` 及 strict 到达点前的整段路程，自动疾跑由 cpp-algo 在 `NavigationStateMachine` 层面硬禁，路径作者无法也无需在 path JSON 里控制这一行为。
+
+### 新增一条采集路线的完整步骤
+
+1. 在 `assets/resource/pipeline/AutoCollect/` 下新建 `AutoCollectRouteN.json`，参考现有路线写 `Start` → `AssertLocation` → `Goto` → `End` 四个节点的基本骨架
+2. 用 MapNavigator 工具录制路径，在 GUI 里把采集目标点的动作改为 `Collect` 或 `Dig`，复制 `path` 粘贴到 `Goto` 节点的 `custom_action_param.path`
+3. 在 `interface.json` / 任务入口 JSON 里注册新路线入口
+4. 不需要改 `AutoCollectClick.json`、`AutoCollectDig.json`，不需要改任何 cpp-algo 源文件

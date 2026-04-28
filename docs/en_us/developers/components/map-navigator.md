@@ -86,6 +86,8 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 - `TRANSFER`: Stop at the point and wait for an external mechanism to move the character to the next segment, then continue from following waypoints.
 - `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
 - `HEADING`: Turn the camera to the specified heading, then tap `W` once.
+- `COLLECT`: A gathering point. Upon precise arrival, stops the character and synchronously triggers the AutoCollect OCR + click subtask without exiting NaviController. See [Gathering Semantics](#gathering-semantics-collect--dig).
+- `DIG`: A digging point. Same as `COLLECT` but triggers the digging subtask instead. See [Gathering Semantics](#gathering-semantics-collect--dig).
 
 ##### **3. Strict-arrival point**
 
@@ -334,7 +336,7 @@ At this point, you can handle the remaining details directly in the GUI.
 - `Strict`: mark the current point as a strict-arrival point.
 - `🗑`: delete the currently selected point.
 
-The action dropdown currently targets coordinate-point actions, which in practice means `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER`.  
+The action dropdown currently targets coordinate-point actions, which in practice means `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`.  
 Control nodes such as `HEADING` are outside this GUI action-chain model.
 
 **Undo / Redo:**
@@ -399,3 +401,76 @@ This mode does not modify the current path data. It simply reuses the same map r
 3. Use special action points sparingly and precisely. Especially for `INTERACT`, `TRANSFER`, `PORTAL`, and `HEADING`, only place them where they are truly needed. Also remember that `HEADING` is a control node, so it is usually safest to maintain it manually after GUI export.
 4. Always inspect zone-transition routes carefully. Automatically adding `PORTAL` only helps supplement semantics; it does not mean every cross-zone boundary is naturally valid.
 5. The outer Pipeline still needs proper entry checks and failure fallback. Navigation is not your business flow itself, so do not push all exception handling into a single `MapNavigateAction`.
+
+---
+
+## Gathering Semantics: COLLECT / DIG
+
+### Concept
+
+`COLLECT` and `DIG` are **native gathering/digging semantic waypoints** in MapNavigator. A route author only needs to write gathering coordinates as `[x, y, "COLLECT"]` or `[x, y, "DIG"]` in the `path` array. Once the character arrives precisely, MapNavigator stops the character, synchronously runs the corresponding pipeline subtask to complete the gathering or digging, and then continues with the remaining path — **without exiting NaviController at any point**.
+
+Compared to the old `anchor`-chain approach, this offers:
+
+- No per-collection reconnection, re-Bootstrap, or sprint startup-grace reset
+- Auto-sprint is suppressed for the entire segment leading up to a gathering point; the character will not overshoot
+- Multiple gathering points fit in a single Pipeline node; no need to split into many `GotoFindN` nodes
+
+### Syntax
+
+In `custom_action_param.path`, set the third element of a target coordinate to the corresponding action string:
+
+```json
+"path": [
+    { "action": "ZONE", "zone_id": "Wuling_Base" },
+    [707, 838],
+    [720, 832],
+    [741, 802, "COLLECT"],
+    [744, 800, "COLLECT"],
+    [739, 792, "COLLECT"]
+]
+```
+
+- `[x, y, "COLLECT"]`: upon arrival, triggers OCR recognition + auto-click gathering (`AutoCollectClickStart`)
+- `[x, y, "DIG"]`: upon arrival, triggers unconditional two-click digging (`AutoCollectDigStart`)
+- Any number of `COLLECT` and `DIG` points can be mixed in the same `MapNavigateAction` node
+- **No** `anchor` or `next: ["AutoCollectClickStart"]` is needed on the Pipeline node
+
+### Files the Route Author Should Care About
+
+| File | Purpose | When to Edit |
+|---|---|---|
+| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Route definitions with `MapNavigateAction` nodes and gathering coordinates | Adding routes, adjusting coordinates, adding or removing gathering points |
+| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | `COLLECT` OCR + click subtask, entry: `AutoCollectClickStart` | Adding or removing OCR-recognized material names |
+| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | `DIG` digging subtask, entry: `AutoCollectDigStart` | When digging interaction logic changes |
+
+**In the vast majority of cases, a route author only needs to touch `AutoCollectRoute*.json`.**
+
+### Files the Route Author Should Not Touch
+
+The following files are maintained by the cpp-algo maintainer and do not need to be changed by route authors:
+
+- `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`: `ActionType` enum; `COLLECT`/`DIG` are declared here
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask entry names, `pipeline_override` JSON, post-collection sleep duration
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the execution logic upon arrival at a gathering point
+
+### Boundary Notes
+
+**Old anchor-chain style is deprecated**
+
+The old `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` split-node style is deprecated and should not appear in new routes.
+
+**Do not change `AutoCollectClickEnd`'s `next`**
+
+`AutoCollectClickEnd` in `AutoCollectClick.json` has `next: ["[Anchor]AutoCollectClickAfter"]` to maintain backward compatibility with the old anchor-chain calling convention. When the subtask is called via `MaaContextRunTask`, the cpp-algo layer temporarily overrides that `next` to empty via `pipeline_override`, so the subtask exits cleanly. Route authors **must not change** this field, as doing so would break any routes still using the old calling style.
+
+**Sprint suppression is controlled by the runtime**
+
+Auto-sprint suppression for the entire segment leading up to any `COLLECT`, `DIG`, or strict-arrival point is enforced at the `NavigationStateMachine` level in cpp-algo. Route authors cannot and do not need to control this from the path JSON.
+
+### Full Steps to Add a New Gathering Route
+
+1. Create `AutoCollectRouteN.json` in `assets/resource/pipeline/AutoCollect/`. Use an existing route as a reference; the skeleton is `Start` → `AssertLocation` → `Goto` → `End`.
+2. Record the path with the MapNavigator tool. In the GUI, set gathering target points to the `Collect` or `Dig` action. Copy the `path` and paste it into the `Goto` node's `custom_action_param.path`.
+3. Register the new route entry in `interface.json` or the relevant task entry JSON.
+4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source file.
