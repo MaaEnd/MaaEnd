@@ -27,11 +27,11 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute6GotoFind1"
+            "AutoCollectRoute6Goto"
         ]
     },
-    "AutoCollectRoute6GotoFind1": {
-        "desc": "前往采集点1",
+    "AutoCollectRoute6Goto": {
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
@@ -213,31 +213,8 @@
                         [
                             585,
                             723,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute6GotoFind2": {
-        "desc": "前往采集点2",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             586,
                             723
@@ -277,31 +254,8 @@
                         [
                             579,
                             734,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute6GotoFind3": {
-        "desc": "前往采集点3",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             580,
                             733
@@ -317,31 +271,8 @@
                         [
                             578,
                             734,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute6GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectRoute6GotoFind4": {
-        "desc": "前往采集点4",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
+                            "COLLECT"
+                        ],
                         [
                             577,
                             734
@@ -352,22 +283,15 @@
                         ],
                         [
                             574,
-                            735
-                        ],
-                        [
-                            574,
                             735,
-                            true
+                            "COLLECT"
                         ]
                     ]
                 }
             }
         },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute6End"
-        },
         "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute6End"
         ]
     }
 }
