@@ -461,7 +461,7 @@ uv run main.py
 
 ### 边界说明
 
-**旧写法已取代**
+**旧写法已废弃**
 
 旧的 `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` 拆链写法已废弃，不应再出现在新路线中。
 
