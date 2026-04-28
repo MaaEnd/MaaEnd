@@ -50,14 +50,14 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "DailyEventUnreadExplorationEventPickAll",
-            "DailyEventUnreadExplorationEventFinish"
+            "DailyEventUnreadSpaceExplorationEventPickAll",
+            "DailyEventUnreadSpaceExplorationEventFinish"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入联动活动"
         }
     },
-    "DailyEventUnreadExplorationEventPickAll": {
+    "DailyEventUnreadSpaceExplorationEventPickAll": {
         "desc": "联动活动内一键领取",
         "recognition": "OCR",
         "roi": [
@@ -80,7 +80,7 @@
             "SceneNoticeRewardsConfirm"
         ]
     },
-    "DailyEventUnreadExplorationEventFinish": {
+    "DailyEventUnreadSpaceExplorationEventFinish": {
         "desc": "领取完了联动活动奖励",
         "pre_delay": 0,
         "post_delay": 0
