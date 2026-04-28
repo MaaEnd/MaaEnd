@@ -1,6 +1,7 @@
 {
     // 转交任务的流程
-    // 进入送货任务 -> 点击转交任务 -> 确认转交任务 -> 回到本地仓储界面
+    // “进入送货任务”步骤已拆分到各地区 pipeline 的 DeliveryJobsEnter*DeliveryJob 节点中
+    // 本文件仅负责：点击转交任务 -> 确认转交任务 -> 回到本地仓储界面
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",
         "recognition": "OCR",

@@ -319,8 +319,17 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        // 确保不会转交任务
-                        "DeliveryJobsConfirmTaskTransfer": {
+                        // 确保不会进入送货任务，从而避免点击转交按钮
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
                             "enabled": false
                         },
                         // 回到大世界后直接停止任务，不继续后续流程
@@ -345,7 +354,17 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DeliveryJobsConfirmTaskTransfer": {
+                        // 确保不会进入送货任务，从而避免点击转交按钮
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
                             "enabled": false
                         },
                         "DeliveryJobsInCargoRedistributionBid": {
