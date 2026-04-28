@@ -475,14 +475,25 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         StopMotionAndCommitment(ctx);
 
         if (ctx.maa_context == nullptr) {
-            LogError << "Action: " << tag << " triggered but maa_context is null, skipping subtask.";
+            LogError << "Action: " << tag << " triggered but maa_context is null." << VAR(actual_distance);
+            result.request_failure = true;
+            result.failure_reason = is_dig ? "dig_context_missing" : "collect_context_missing";
+            result.failure_log_message = "MaaContext is null when dispatching collect/dig subtask.";
+            return result;
         }
-        else {
-            LogInfo << "Action: " << tag << " triggered, dispatching subtask." << VAR(entry) << VAR(actual_distance);
-            const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, entry, override_json);
-            LogInfo << "Action: " << tag << " subtask returned." << VAR(sub_id);
-            utils::SleepFor(post_sleep_ms);
+
+        LogInfo << "Action: " << tag << " triggered, dispatching subtask." << VAR(entry) << VAR(actual_distance);
+        const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, entry, override_json);
+        if (sub_id == MaaInvalidId) {
+            LogError << "Action: " << tag << " subtask failed to dispatch." << VAR(entry) << VAR(actual_distance);
+            result.request_failure = true;
+            result.failure_reason = is_dig ? "dig_dispatch_failed" : "collect_dispatch_failed";
+            result.failure_log_message = "MaaContextRunTask returned MaaInvalidId for collect/dig subtask.";
+            return result;
         }
+
+        LogInfo << "Action: " << tag << " subtask returned." << VAR(sub_id);
+        utils::SleepFor(post_sleep_ms);
 
         ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, completed_reason);
         ctx.session->AdvanceToNextWaypoint(waypoint.action, completed_reason);
