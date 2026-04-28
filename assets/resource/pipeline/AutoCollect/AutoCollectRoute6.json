@@ -37,7 +37,6 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
                         {
                             "action": "ZONE",
@@ -234,7 +233,6 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
                         {
                             "action": "ZONE",
@@ -299,7 +297,6 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
                         {
                             "action": "ZONE",
@@ -340,7 +337,6 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
                         {
                             "action": "ZONE",
