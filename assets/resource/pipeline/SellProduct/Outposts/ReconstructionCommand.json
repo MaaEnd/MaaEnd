@@ -345,7 +345,7 @@
         ]
     },
     "SellProductReconstructionCommandBetterSliding1": {
-        "desc": "重建指挥部第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "重建指挥部第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -384,7 +384,7 @@
         ]
     },
     "SellProductReconstructionCommandBetterSliding2": {
-        "desc": "重建指挥部第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "重建指挥部第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -423,7 +423,7 @@
         ]
     },
     "SellProductReconstructionCommandBetterSliding3": {
-        "desc": "重建指挥部第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "重建指挥部第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -462,7 +462,7 @@
         ]
     },
     "SellProductReconstructionCommandBetterSliding4": {
-        "desc": "重建指挥部第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "重建指挥部第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",

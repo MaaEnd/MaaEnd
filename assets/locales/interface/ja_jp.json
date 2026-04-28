@@ -392,7 +392,7 @@
     "task.SellProduct.Reserve2": "保留数（販売試行 2）",
     "task.SellProduct.Reserve3": "保留数（販売試行 3）",
     "task.SellProduct.Reserve4": "保留数（販売試行 4）",
-    "task.SellProduct.ReserveDescription": "この販売試行で倉庫に最低限残す数量です。\"指定数を保留\"を選ぶと、設定した数量（>=1）を残して残りをすべて販売します。設定値が在庫数を超える場合、この販売試行は失敗して次の試行へ進みます。",
+    "task.SellProduct.ReserveDescription": "この販売試行で倉庫に最低限残す数量です。\"指定数を保留\"を選ぶと、設定した数量（>=1）を残して残りをすべて販売します。設定値が現在の在庫数以上の場合、この販売試行をスキップして次の試行へ進みます。",
     "task.SellProduct.ReserveValueInput": "保留数の設定",
     "task.SellProduct.ReserveValue": "保留数（>=1）",
     "task.SellProduct.TaskEnd": "販売タスクが完了しました",

@@ -558,7 +558,7 @@
     "task.SellProduct.Reserve2": "Reserved Quantity (Sell Attempt 2)",
     "task.SellProduct.Reserve3": "Reserved Quantity (Sell Attempt 3)",
     "task.SellProduct.Reserve4": "Reserved Quantity (Sell Attempt 4)",
-    "task.SellProduct.ReserveDescription": "Minimum quantity to keep in inventory for this sale attempt. If \"Reserve specified quantity\" is selected, the task keeps the configured amount (>=1) and sells the rest. If the reserved amount exceeds current stock, this sale attempt fails and proceeds to the next attempt.",
+    "task.SellProduct.ReserveDescription": "Minimum quantity to keep in inventory for this sale attempt. If \"Reserve specified quantity\" is selected, the task keeps the configured amount (>=1) and sells the rest. If the reserved amount is greater than or equal to current stock, this sale attempt is skipped and the task proceeds to the next attempt.",
     "task.SellProduct.ReserveValueInput": "Reserved Quantity Setting",
     "task.SellProduct.ReserveValue": "Reserved Quantity (>=1)",
     "task.VisitFriends.label": "🤝 Visit Friends",

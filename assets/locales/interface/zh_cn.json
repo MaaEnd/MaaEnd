@@ -517,7 +517,7 @@
     "task.SellProduct.Reserve2": "保留份数（第 2 次售卖）",
     "task.SellProduct.Reserve3": "保留份数（第 3 次售卖）",
     "task.SellProduct.Reserve4": "保留份数（第 4 次售卖）",
-    "task.SellProduct.ReserveDescription": "本次售卖在仓库中至少保留的份数。选择「保留指定份数」后，将按设定的数量保留库存（>=1），其余全部售出；若设定值大于库存，本次售卖将失败并跳到下一次尝试。",
+    "task.SellProduct.ReserveDescription": "本次售卖在仓库中至少保留的份数。选择「保留指定份数」后，将按设定的数量保留库存（>=1），其余全部售出；若设定值大于等于库存，将跳过本次售卖尝试并进入下一次尝试。",
     "task.SellProduct.ReserveValueInput": "保留份数设置",
     "task.SellProduct.ReserveValue": "保留份数（>=1）",
     "task.VisitFriends.label": "🤝拜访好友",

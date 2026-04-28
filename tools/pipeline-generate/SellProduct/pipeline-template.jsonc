@@ -333,7 +333,7 @@
         ]
     },
     "SellProduct${LocationId}BetterSliding1": {
-        "desc": "${LocationDesc}第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "${LocationDesc}第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -362,7 +362,7 @@
         ]
     },
     "SellProduct${LocationId}BetterSliding2": {
-        "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -391,7 +391,7 @@
         ]
     },
     "SellProduct${LocationId}BetterSliding3": {
-        "desc": "${LocationDesc}第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "${LocationDesc}第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -420,7 +420,7 @@
         ]
     },
     "SellProduct${LocationId}BetterSliding4": {
-        "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",

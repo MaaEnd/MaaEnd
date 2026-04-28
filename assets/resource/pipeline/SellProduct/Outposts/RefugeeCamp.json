@@ -343,7 +343,7 @@
         ]
     },
     "SellProductRefugeeCampBetterSliding1": {
-        "desc": "难民暂居处第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "难民暂居处第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -382,7 +382,7 @@
         ]
     },
     "SellProductRefugeeCampBetterSliding2": {
-        "desc": "难民暂居处第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "难民暂居处第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -421,7 +421,7 @@
         ]
     },
     "SellProductRefugeeCampBetterSliding3": {
-        "desc": "难民暂居处第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "难民暂居处第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -460,7 +460,7 @@
         ]
     },
     "SellProductRefugeeCampBetterSliding4": {
-        "desc": "难民暂居处第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "难民暂居处第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",

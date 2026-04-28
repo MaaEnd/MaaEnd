@@ -341,7 +341,7 @@
         ]
     },
     "SellProductInfrastructureOutpostBetterSliding1": {
-        "desc": "基建前站第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "基建前站第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -380,7 +380,7 @@
         ]
     },
     "SellProductInfrastructureOutpostBetterSliding2": {
-        "desc": "基建前站第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "基建前站第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -419,7 +419,7 @@
         ]
     },
     "SellProductInfrastructureOutpostBetterSliding3": {
-        "desc": "基建前站第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "基建前站第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -458,7 +458,7 @@
         ]
     },
     "SellProductInfrastructureOutpostBetterSliding4": {
-        "desc": "基建前站第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "基建前站第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",

@@ -84,7 +84,7 @@
         },
         {
             "title": "更好的滑动",
-            "purpose": "文档化 bettersliding 子包（agent/go-service/bettersliding/）的实现：归一化处理、OCR 识别、节点逻辑、覆盖机制。引用 docs/zh_cn/developers/quantized-sliding.md。",
+            "purpose": "文档化 bettersliding 子包（agent/go-service/bettersliding/）的实现：归一化处理、OCR 识别、节点逻辑、覆盖机制。引用 docs/zh_cn/developers/components/better-sliding.md。",
             "parent": "Go Service 扩展"
         },
         {

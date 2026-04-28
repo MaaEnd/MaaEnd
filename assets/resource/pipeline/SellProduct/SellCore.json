@@ -292,7 +292,7 @@
         }
     },
     "SellProductSkipToNextSellLoop": {
-        "desc": "保留数量大于当前库存，跳过本次交易尝试",
+        "desc": "保留数量大于等于当前库存，跳过本次交易尝试",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -301,7 +301,7 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Action.Starting": "保留数量大于当前库存，跳过本次交易尝试"
+            "Node.Recognition.Succeeded": "保留数量大于等于当前库存，跳过本次交易尝试"
         }
     },
     "SellProductSellLoopEnd": {

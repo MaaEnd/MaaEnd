@@ -345,7 +345,7 @@
         ]
     },
     "SellProductSkyKingFlatsBetterSliding1": {
-        "desc": "天王坪援建点第1次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "天王坪援建点第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -384,7 +384,7 @@
         ]
     },
     "SellProductSkyKingFlatsBetterSliding2": {
-        "desc": "天王坪援建点第2次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "天王坪援建点第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -423,7 +423,7 @@
         ]
     },
     "SellProductSkyKingFlatsBetterSliding3": {
-        "desc": "天王坪援建点第3次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "天王坪援建点第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -462,7 +462,7 @@
         ]
     },
     "SellProductSkyKingFlatsBetterSliding4": {
-        "desc": "天王坪援建点第4次尝试-使用 BetterSliding 将进度条拖到最大",
+        "desc": "天王坪援建点第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
