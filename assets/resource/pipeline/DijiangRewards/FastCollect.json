@@ -62,8 +62,8 @@
             }
         },
         "next": [
-            "InDijiangControlNexus",
-            "CloseFastCollectProductionRewards"
+            "CloseFastCollectProductionRewards",
+            "InDijiangControlNexus"
         ]
     },
     "CloseFastCollectProductionRewards": {
@@ -144,8 +144,8 @@
             }
         },
         "next": [
-            "InDijiangControlNexus",
-            "CloseFastCollectCluesRewards"
+            "CloseFastCollectCluesRewards",
+            "InDijiangControlNexus"
         ]
     },
     "CloseFastCollectCluesRewards": {
