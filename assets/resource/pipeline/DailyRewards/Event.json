@@ -48,10 +48,10 @@
         "desc": "切换未处理的活动列表",
         "recognition": "OCR",
         "roi": [
-            0,
-            0,
-            300,
-            720
+            36,
+            110,
+            166,
+            40
         ],
         "expected": [
             ".{3,}" // 匹配三个及以上字符
@@ -65,17 +65,58 @@
             0,
             0
         ],
-        "post_wait_freezes": 400,
+        "next": [
+            "DailyEventUnreadItemSwitchSuccess"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "切换活动"
+        }
+    },
+    "DailyEventUnreadItemSwitchSuccess": {
+        "desc": "切换活动成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": "DailyEventUnreadItemSwitch",
+                "roi_offset": [
+                    -30,
+                    -30,
+                    20,
+                    50
+                ],
+                "template": "DailyRewards/Event/EventSwitchSuccess.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "活动说明",
+                    "活動說明",
+                    "Event Details",
+                    "イベント概要",
+                    "이벤트 설명"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEventUnreadLimitedTimeSignin",
             "DailyEventUnreadWeeklyRoutine",
             "DailyEventUnreadGuideEvent",
             "DailyEventUnreadChallengeEvent",
+            "DailyEventUnreadSpaceExplorationEvent",
             "DailyEventUnreadUnknown"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "切换活动"
-        }
+        ]
     },
     "DailyEventUnreadUnknown": {
         "desc": "跳过未支持的活动",
