@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <string_view>
 #include <thread>
@@ -39,8 +40,8 @@ struct LocateOutput
     int status = 0;
     std::string message;
     std::string mapName;
-    int x = 0;
-    int y = 0;
+    double x = 0.0;
+    double y = 0.0;
     double rot = 0.0;
     double locConf = 0.0;
     int latencyMs = 0;
@@ -66,8 +67,8 @@ struct MapLocateAssertLocationOutput
     bool inTarget = false;
     std::string message;
     std::string zoneId;
-    int x = 0;
-    int y = 0;
+    double x = 0.0;
+    double y = 0.0;
     double rot = 0.0;
     double locConf = 0.0;
     int latencyMs = 0;
@@ -156,8 +157,8 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
 
     const auto& pos = result.position.value();
     output.mapName = pos.zoneId;
-    output.x = static_cast<int>(pos.x);
-    output.y = static_cast<int>(pos.y);
+    output.x = pos.x;
+    output.y = pos.y;
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
@@ -181,8 +182,8 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(
     }
 
     const auto& pos = result.position.value();
-    output.x = static_cast<int>(pos.x);
-    output.y = static_cast<int>(pos.y);
+    output.x = pos.x;
+    output.y = pos.y;
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
@@ -192,8 +193,8 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(
 MaaRect MakePointBox(const MapPosition& position)
 {
     return {
-        static_cast<int>(position.x),
-        static_cast<int>(position.y),
+        static_cast<int>(std::lround(position.x)),
+        static_cast<int>(std::lround(position.y)),
         1,
         1,
     };

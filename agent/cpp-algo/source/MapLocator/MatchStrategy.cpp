@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include <filesystem>
 
 #include <MaaUtils/Logger.h>
@@ -57,6 +59,32 @@ static cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src)
     // 适度高斯模糊，为 NCC 优化器提供平滑的梯度下降盆地
     cv::GaussianBlur(feature, feature, cv::Size(5, 5), 0);
     return feature;
+}
+
+double RefinePeakOffset(float prev, float center, float next)
+{
+    const double denom = static_cast<double>(prev) - 2.0 * static_cast<double>(center) + static_cast<double>(next);
+    if (std::abs(denom) < 1e-12) {
+        return 0.0;
+    }
+
+    const double offset = 0.5 * (static_cast<double>(prev) - static_cast<double>(next)) / denom;
+    return std::clamp(offset, -0.5, 0.5);
+}
+
+cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
+{
+    cv::Point2d refined(static_cast<double>(maxLoc.x), static_cast<double>(maxLoc.y));
+    const float center = result.at<float>(maxLoc.y, maxLoc.x);
+
+    if (maxLoc.x > 0 && maxLoc.x + 1 < result.cols) {
+        refined.x += RefinePeakOffset(result.at<float>(maxLoc.y, maxLoc.x - 1), center, result.at<float>(maxLoc.y, maxLoc.x + 1));
+    }
+    if (maxLoc.y > 0 && maxLoc.y + 1 < result.rows) {
+        refined.y += RefinePeakOffset(result.at<float>(maxLoc.y - 1, maxLoc.x), center, result.at<float>(maxLoc.y + 1, maxLoc.x));
+    }
+
+    return refined;
 }
 
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize)
@@ -150,7 +178,7 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
 
     MatchResultRaw out;
     out.score = maxVal;
-    out.loc = maxLoc;
+    out.loc = RefinePeakSubpixel(result, maxLoc);
     out.secondScore = secondVal;
     out.delta = maxVal - secondVal;
     out.psr = psr;
