@@ -12,7 +12,10 @@ namespace fs = std::filesystem;
 namespace maplocator
 {
 
-static cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src)
+namespace
+{
+
+cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src)
 {
     cv::Mat bgr, alpha;
     if (src.channels() == 4) {
@@ -74,6 +77,9 @@ double RefinePeakOffset(float prev, float center, float next)
 
 cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
 {
+    CV_Assert(result.type() == CV_32F);
+    CV_Assert(maxLoc.x >= 0 && maxLoc.x < result.cols && maxLoc.y >= 0 && maxLoc.y < result.rows);
+
     cv::Point2d refined(static_cast<double>(maxLoc.x), static_cast<double>(maxLoc.y));
     const float center = result.at<float>(maxLoc.y, maxLoc.x);
 
@@ -86,6 +92,8 @@ cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
 
     return refined;
 }
+
+} // namespace
 
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize)
 {

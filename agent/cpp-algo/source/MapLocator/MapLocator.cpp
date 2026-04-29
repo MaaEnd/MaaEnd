@@ -300,7 +300,13 @@ MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
     }
 
     const double dist = std::hypot(raw.x - stablePosition->x, raw.y - stablePosition->y);
-    if (raw.score >= kStableMinScore && (dist <= kStableDeadband || dist < kStableReleaseDist)) {
+    if (raw.score >= kStableMinScore && dist <= kStableDeadband) {
+        MapPosition out = raw;
+        out.x = stablePosition->x;
+        out.y = stablePosition->y;
+        return out;
+    }
+    if (raw.score >= kStableMinScore && dist < kStableReleaseDist) {
         MapPosition out = raw;
         out.x = stablePosition->x;
         out.y = stablePosition->y;
