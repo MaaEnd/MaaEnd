@@ -1,50 +1,61 @@
 ---
 name: autocollect-add-route
-description: 新增或改写 MaaEnd 的 AutoCollect 自动采集路线。默认包含路线文件创建、AutoCollect 主入口接线、任务选项注册和多语言文案补充。适用于“参考现有 AutoCollect 路线新建一条采集线”“给定传送点与路径点位生成 AutoCollectRouteX.json 并注册到任务中”等场景。注意：新路线建立仅适用于 MapNavigator 寻路，也就是 `MapNavigateAction` 风格；不适用于 `MapTrackerMove` 路线。定位节点必须使用 `MapLocateAssertLocation`，写法参考当前 `AutoCollectRoute6.json`。需要用户提供任务名，形式类似“路线6：四号谷地-轻红柱状菌”，并从其中的“路线6”解析路线编号、文件命名和注册键名。若缺少必要参数，先提醒并向用户询问。
-argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻红柱状菌”）、第一传送点（如 `SceneEnterWorldValleyIVTheHub2`）、后续路径点列表，以及“点击采集”或“挖掘类路线”。若缺少这些必要参数，先提醒并向用户询问。
+description: 新增或改写 MaaEnd 的 AutoCollect 自动采集路线说明。默认包含路线文件创建、AutoCollect 主入口接线、任务选项注册和多语言文案补充。适用于“参考现有 AutoCollect 路线新建一条采集线”“给定传送点与路径点位生成 AutoCollectRouteX.json 并注册到任务中”“用户已经写好路线文件，只需要补注册接口”等场景。注意：本 skill 仅适用于参考 `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 的单段 `MapNavigateAction` 路线，不适用于 `MapTrackerMove` 路线，也不再处理多段 `GotoFindN` 路线；定位节点必须使用 `MapLocateAssertLocation`。
+argument-hint: 如果是新建路线，推荐直接提供任务名（如“路线6：四号谷地-轻红柱状菌”）、第一个传送点（如 `SceneEnterWorldValleyIVTheHub2`）、断言点和完整 path 点列，以及“点击采集”或“挖掘类路线”。如果用户已经有路线文件、只需要注册接口，则只提供任务名即可。
 ---
 
 # AutoCollect 新增路线
 
 ## 目的
 
-在 MaaEnd 现有的 AutoCollect 体系中，新增一条完整可用的采集路线，并默认同步完成以下修改：
+在 MaaEnd 现有的 AutoCollect 体系中，支持两类常见工作：
+
+- 新建一条完整可用的自动采集路线，并同步完成相关注册
+- 在已有 `AutoCollectRouteX.json` 的前提下，只补齐注册接口和多语言文案
+
+默认涉及的文件包括：
 
 - `assets/resource/pipeline/AutoCollect/AutoCollectRouteX.json`
 - `assets/resource/pipeline/AutoCollect.json`
 - `assets/tasks/AutoCollect.json`
 - `assets/locales/interface/*.json`
 
-这里的“新路线建立”仅指 `MapNavigator` 风格路线，也就是使用 `MapNavigateAction` 的 AutoCollect 路线；定位节点固定使用 `MapLocateAssertLocation`，字段组织与参数写法参考当前 `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 里的 `AutoCollectRoute6AssertLocation`。
+这里的“新路线建立”仅指参考 `AutoCollectRoute6.json` 的单段路线，也就是：
+
+- 定位节点使用 `MapLocateAssertLocation`
+- 导航节点固定为单个 `AutoCollectRouteXGoto`
+- `MapNavigateAction` 的采集点通过同一条 `path` 中的动作点控制
+- 最终 `next` 直接指向 `AutoCollectRouteXEnd`
 
 ## 适用范围
 
-只要需求属于以下任一类型，就使用本 skill：
+以下场景使用本 skill：
 
-- 参考现有 AutoCollect 路线新增一条 `AutoCollectRouteX.json`
-- 用户提供一串地图点位，希望生成并注册一条 AutoCollect 路线
-- 用户要求补齐 AutoCollect 路线的任务注册与多语言文案
+- 参考现有 AutoCollect 单段路线新增一条 `AutoCollectRouteX.json`
+- 用户提供传送点和路径点位，要求生成并注册一条单段 AutoCollect 路线
+- 用户已经写好 `AutoCollectRouteX.json`，只要求补齐 `AutoCollect.json`、`assets/tasks/AutoCollect.json` 和 locale 注册
+- 用户要求补齐 AutoCollect 路线的任务注册、多语言文案和主入口接线
 
-本 skill 不适用于：
+以下场景不适用本 skill：
 
 - `EnvironmentMonitoring` 路线
 - `AutoEssence` 路线
 - `AutoEcoFarm` 路线
-- Go Service 算法逻辑扩展
-- `MapTrackerMove` 风格的 AutoCollect 新路线建立
+- Go Service 算法扩展
+- 使用 `MapTrackerMove` 的 AutoCollect 路线
+- 任何多段 `GotoFind1/2/3...` 结构的 AutoCollect 路线
 
-## 先做什么
+## 开始前先读什么
 
-开始实现前，优先读取并对照以下文件：
+优先阅读并对照以下文件：
 
-1. `assets/resource/pipeline/AutoCollect/AutoCollectRoute1.json`
-2. `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json`
-3. `assets/resource/pipeline/AutoCollect/AutoCollectRoute5.json`
-4. `assets/resource/pipeline/AutoCollect.json`
-5. `assets/tasks/AutoCollect.json`
-6. `assets/locales/interface/zh_cn.json`
+1. `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json`
+2. `docs/zh_cn/developers/components/map-navigator.md`
+3. `assets/resource/pipeline/AutoCollect.json`
+4. `assets/tasks/AutoCollect.json`
+5. `assets/locales/interface/zh_cn.json`
 
-必要时再补读：
+必要时补充阅读：
 
 - `assets/locales/interface/zh_tw.json`
 - `assets/locales/interface/en_us.json`
@@ -53,137 +64,246 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 - `assets/resource/pipeline/Interface/SceneValleyIV.json`
 - 其他 `SceneManager` / `Interface` 相关文件
 
+## 先判断任务类型
+
+动手前，先判断当前需求属于哪一种：
+
+### 1. 新建路线文件
+
+适用于：用户还没有 `AutoCollectRouteX.json`，希望你生成路线文件并完成注册。
+
+这一类需要完整参数：
+
+- 任务名
+- 第一个传送点
+- 断言点
+- 完整路径点列
+- 采集类型
+
+### 2. 仅注册接口
+
+适用于：用户已经有现成的 `AutoCollectRouteX.json`，只希望把它接入任务入口和选项。
+
+这一类默认只需要：
+
+- 任务名
+
+然后直接完成以下注册：
+
+- `assets/resource/pipeline/AutoCollect.json`
+- `assets/tasks/AutoCollect.json`
+- `assets/locales/interface/*.json`
+
+不需要再追问传送点、断言点、path 或采集类型。
+
 ## 必要参数
 
-默认流程下，以下 4 类参数视为必要参数：
+### 场景 A：新建路线文件
+
+默认流程下，以下 5 类信息是必需的：
 
 1. 任务名
-    - 例如：`路线6：四号谷地-轻红柱状菌`
-    - 必须从任务名里解析出路线编号
-    - `路线6` 决定：
-        - 文件名：`AutoCollectRoute6.json`
-        - 节点前缀：`AutoCollectRoute6...`
-        - 子入口：`AutoCollectRoute6Sub`
-        - 任务 case：`Route6`
-        - locale 键：`option.AutoCollectRoute6.label`
-2. 第一传送点
-    - 例如：`SceneEnterWorldValleyIVTheHub2`
-    - 它决定 `Start.next` 中的 `[JumpBack]SceneEnterWorldXxx`
-3. 后续路径
-    - 至少要能提供断言点和后续导航点
-    - 如果用户给的是完整路径点列，要进一步判断第一个点是否只用于定位，以及 `true` 断点如何切段
+2. 第一个传送点
+3. 断言点与完整路径点列
 4. 采集类型
-    - 点击采集路线：`AutoCollectClickStart` + `AutoCollectClickAfter`
-    - 挖掘类路线：`AutoCollectDigStart` + `AutoCollectDigAfter`
 
-如果这些参数中任一缺失，不要自行拍脑袋补全，必须及时提醒并向用户询问。
+### 场景 B：仅注册接口
 
-## 缺失参数时的处理
+默认只需要 1 项：
 
-遇到以下情况时，必须先向用户追问，而不是直接生成路线：
+1. 任务名
+
+### 1. 任务名
+
+- 示例：`路线6：四号谷地-轻红柱状菌`
+- 必须能从任务名里解析出路线编号
+- `路线6` 将决定：
+  - 文件名：`AutoCollectRoute6.json`
+  - 节点前缀：`AutoCollectRoute6...`
+  - 子入口：`AutoCollectRoute6Sub`
+  - 任务 case：`Route6`
+  - locale 键：`option.AutoCollectRoute6.label`
+
+### 2. 第一个传送点
+
+- 示例：`SceneEnterWorldValleyIVTheHub2`
+- 它决定 `Start.next` 中的 `[JumpBack]SceneEnterWorldXxx`
+- 仅在“新建路线文件”场景需要
+
+### 3. 断言点与完整路径点列
+
+- 断言点用于生成 `MapLocateAssertLocation.target`
+- 完整路径点列用于生成单个 `AutoCollectRouteXGoto.action.param.custom_action_param.path`
+- 用户通常会把采集点标记成 `[x, y, true]`
+- 本 skill 需要在写入前把这些 `true` 转换成具体动作字符串
+- 仅在“新建路线文件”场景需要
+
+### 4. 采集类型
+
+- 点击采集路线：将 `[x, y, true]` 转换为 `[x, y, "COLLECT"]`
+- 挖掘类路线：将 `[x, y, true]` 转换为 `[x, y, "DIG"]`
+- 仅在“新建路线文件”场景需要
+
+### 5. 是否需要一并注册接口
+
+- 如果用户明确说“只写路线文件，不注册”，那就只生成路线文件
+- 如果用户没有特别说明，默认同时完成注册
+
+## 缺少参数时的处理
+
+### 新建路线文件时
+
+遇到以下情况时，先向用户确认，不要直接生成路线：
 
 - 没有任务名，无法确定路线编号和文件命名
-- 任务名不符合“路线X：xxx”形式，无法安全解析编号
-- 没有第一传送点，无法确定 `SceneEnterWorldXxx`
-- 没有后续路径，无法生成 `path`
-- 没有说明是点击采集还是挖掘类路线，无法确定 `next` 和 `anchor`
+- 任务名不符合“路线X：xxx”格式，无法安全解析编号
+- 没有第一个传送点，无法确定 `[JumpBack]SceneEnterWorldXxx`
+- 没有断言点，无法生成 `MapLocateAssertLocation.target`
+- 没有完整路径点列，无法生成 `path`
+- 没有采集类型，无法把 `true` 转换成 `COLLECT` 或 `DIG`
 
 推荐追问方式尽量简短，例如：
 
 - “还缺任务名，请给我类似 `路线6：四号谷地-轻红柱状菌` 的名称。”
-- “还缺第一传送点，请给我类似 `SceneEnterWorldValleyIVTheHub2` 的入口名。”
-- “还缺后续路径点位，请把断言点和导航点列表发我。”
-- “还缺采集类型，请确认这条是点击采集还是挖掘类路线。”
+- “还缺第一个传送点，请给我类似 `SceneEnterWorldValleyIVTheHub2` 的入口名。”
+- “还缺断言点，请给我传送后用于定位的坐标。”
+- “还缺完整 path 点列，请把整条单段路线的点位发我。”
+- “还缺采集类型，请确认是点击采集还是挖掘路线。”
+
+### 仅注册接口时
+
+遇到以下情况时，先向用户确认，不要直接注册：
+
+- 没有任务名，无法确定路线编号和注册键名
+- 任务名不符合“路线X：xxx”格式，无法安全解析编号
+
+只要任务名齐全，就直接执行注册，不需要追问其它路线参数。
 
 ## 核心判断规则
 
-### 1. 先判断是否属于本 skill 的 MapNavigator 范围
+### 1. 先判断是“新建路线”还是“只注册”
 
 优先观察用户给出的关键信息：
 
-- 如果用户明确说“参考路线3”，优先沿用 `Route3` 的组织方式
-- 如果路径使用 `MapNavigateAction`，通常应参考 `Route1/2/3`
-- 如果路径使用 `MapTrackerMove`，说明这不属于本 skill 的主流程，应先向用户澄清
-- 如果用户要求 `next` 为 `AutoCollectClickStart`，说明是点击采集路线
-- 如果用户要求 `next` 为 `AutoCollectDigStart`，说明是挖掘类路线
+- 如果用户明确说“已经有路线文件，只注册接口”，则直接走注册流程
+- 如果用户给出 `AutoCollectRouteX.json` 文件路径并要求接入任务，也按“只注册”处理
+- 如果用户要求生成 `path`、断言点或整条路线文件，则走“新建路线”流程
 
-本 skill 的新路线建立只允许使用：
+### 2. 只处理 `Route6` 风格单段路线
 
-- `MapNavigateAction + AutoCollectClickStart`
-- `MapNavigateAction + AutoCollectDigStart`
+优先观察用户给出的关键信息：
 
-不要在本 skill 内为新路线建立使用：
+- 如果用户明确说“参考 Route6”，通常就是本 skill 的目标场景
+- 如果路线使用 `MapNavigateAction + MapLocateAssertLocation + AutoCollectRouteXGoto`，说明符合本 skill 范围
+- 如果用户要求拆成 `GotoFind1/2/3...`，说明这不属于本 skill 的范围，应先澄清
+- 如果路线使用 `MapTrackerMove`，说明这不属于本 skill 的主流程，应先澄清
 
-- `MapTrackerMove + AutoCollectClickStart`
-- `MapTrackerMove + AutoCollectDigStart`
+本 skill 仅处理以下结构：
 
-### 2. 传送入口与判断点不要混淆
+- `AutoCollectRouteXAssertLocation`
+- `AutoCollectRouteXGoto`
+- `AutoCollectRouteXEnd`
+
+不要在本 skill 中生成以下结构：
+
+- `AutoCollectRouteXGotoFind1`
+- `AutoCollectRouteXGotoFind2`
+- 任意 `anchor` 串联的多段节点
+- `MapTrackerMove`
+
+### 3. 传送入口与断言点不要混淆
 
 用户可能会说“传送点参考某条路线”，这通常只表示：
 
 - 复用该路线的 `SceneEnterWorldXxx`
-- 复用同区域 `map_name`
+- 复用同一区域的大地图入口
 
-不一定表示复用该路线原本的断言坐标。
+这不一定表示复用旧路线的断言坐标。
 
-如果用户另外提供了“第一个点为传送判断点”或显式给出判断坐标：
+如果用户另外提供了“第一个点用于传送后定位”或显式给出了定位坐标，则：
 
 - `AutoCollectRouteXAssertLocation` 必须使用用户新给的坐标
-- 不要继续沿用参考路线的旧 `target`
+- 不要继续沿用参考路线原本的 `target`
 
-### 3. 首个判断点与实际导航路径要分离
+### 4. 首个断言点与导航路径要分离
 
-如果用户明确说：
+如果用户明确说明：
 
-- “第一个点为传送判断点”
+- “第一个点只是定位点”
 - “使用 `MapLocateAssertLocation` 进行判断”
 
 则：
 
-- 第一个坐标先视为断言点 `[x, y]`，再换算成 `target: [x-10, y-10, 20, 20]`
-- 不要把这个点再塞回第一段 `path`
-- 不要写成 `MapTrackerAssertLocation` 那种 `expected -> map_name / target` 结构；这里应直接写 `zone_id` 和 `target`
+- 首个坐标先视为断言点 `[x, y]`，再换算为 `target: [x-10, y-10, 20, 20]`
+- 不要把这个点再塞回 `path` 里
+- 不要写成 `MapTrackerAssertLocation.expected` 结构；这里应直接写 `zone_id` 和 `target`
 
-### 4. 带 `true` 的点必须切段
+### 5. 把用户输入的 `true` 转换成动作字符串
 
-如果用户给出的路径点中包含形如 `[x, y, true]` 的终点：
+根据 `map-navigator.md`，MapNavigator 采集语义使用动作字符串，而不是布尔值：
 
-- 每个带 `true` 的点都必须作为一个独立采集段的结束点
-- 下一段从该点后面的下一个坐标重新开始
-- 每一段都要有独立节点：`AutoCollectRouteXGotoFind1/2/3...`
-- 每一段都要通过 `anchor` 串到下一段
+- `COLLECT`: 采集点
+- `DIG`: 挖掘点
 
-不要把多个 `true` 点保留在一个 `GotoFind` 节点里。
+因此当用户给出 `[x, y, true]` 时，本 skill 应按采集类型做归一化：
 
-## 需要收集或推断的信息
+- 点击采集路线：`[x, y, true]` -> `[x, y, "COLLECT"]`
+- 挖掘类路线：`[x, y, true]` -> `[x, y, "DIG"]`
 
-在动手前，尽量把以下信息整理齐：
+如果用户已经直接给出 `[x, y, "COLLECT"]` 或 `[x, y, "DIG"]`，则沿用原值，不要重复改写。
 
-| 字段             | 说明                                                                                                              |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `TaskLabel`      | 任务名，例如 `路线6：四号谷地-轻红柱状菌`                                                                         |
-| `RouteId`        | 从 `TaskLabel` 解析出的编号，例如 `6`                                                                             |
-| `RouteFile`      | 目标文件名，例如 `AutoCollectRoute6.json`                                                                         |
-| `TemplateRoute`  | 参考路线，例如 `Route3`                                                                                           |
-| `EnterWorldNode` | 第一传送点，例如 `SceneEnterWorldValleyIVTheHub2`                                                                 |
-| `MapName`        | 导航使用的地图名，例如 `map01_lv001`                                                                              |
-| `AssertTarget`   | 断言框坐标；如果断言点为 `[x, y]`，则换算为 `[x-10, y-10, 20, 20]`，例如点 `[530, 697]` 对应 `[520, 687, 20, 20]` |
-| `ZoneId`         | 不单独向用户索取；默认从 `path` 第一项 `{"action":"ZONE","zone_id":"..."}` 推导，例如 `ValleyIV_Base`             |
-| `ActionType`     | 固定为 `MapNavigateAction`                                                                                        |
-| `CollectNext`    | `AutoCollectClickStart` 或 `AutoCollectDigStart`                                                                  |
-| `CollectAnchor`  | `AutoCollectClickAfter` 或 `AutoCollectDigAfter`                                                                  |
-| `PathSegments`   | 拆分后的多段路径                                                                                                  |
+### 6. 动作点保留在单段 `path` 中
 
-其中以下 4 项必须优先确认：
+如果用户给出的路径中包含采集点标记，则应：
+
+- 保留在同一个 `path` 数组中
+- 保持单个 `AutoCollectRouteXGoto` 节点
+- 不要因为出现多个采集点就拆成 `GotoFindN`
+- 不要再使用旧的 `anchor + AutoCollectClickStart` / `AutoCollectDigStart` 链式写法
+
+## 需要整理出的信息
+
+### 新建路线文件时
+
+动手前，尽量整理齐以下字段：
+
+| 字段 | 说明 |
+| --- | --- |
+| `TaskLabel` | 任务名，例如 `路线6：四号谷地-轻红柱状菌` |
+| `RouteId` | 从 `TaskLabel` 解析出的编号，例如 `6` |
+| `RouteFile` | 目标文件名，例如 `AutoCollectRoute6.json` |
+| `TemplateRoute` | 参考路线，例如 `Route6` |
+| `EnterWorldNode` | 第一个传送点，例如 `SceneEnterWorldValleyIVTheHub2` |
+| `AssertTarget` | 断言框坐标；若断言点为 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]` |
+| `ZoneId` | 通常来自 `path` 第一项 `{"action":"ZONE","zone_id":"..."}` |
+| `ActionType` | 固定为 `MapNavigateAction` |
+| `CollectType` | `Click` 或 `Dig`，决定 `true` 转成 `COLLECT` 还是 `DIG` |
+| `GotoNode` | 固定为 `AutoCollectRouteXGoto` |
+| `Path` | 完整单段路径；采集动作通过 `"COLLECT"` / `"DIG"` 标记表达 |
+
+其中以下 4 项应优先确认：
 
 - `TaskLabel`
 - `EnterWorldNode`
-- 原始路径点列
-- `CollectNext` / `CollectAnchor`
+- `AssertTarget`
+- 原始完整路径点列
 
-## 标准实现步骤
+### 仅注册接口时
 
-### 第一步：从任务名解析路线编号
+动手前至少确认：
+
+- `TaskLabel`
+- `RouteId`
+- `RouteFile`
+- `RouteSub`
+- `RouteCase`
+- `LocaleKey`
+
+## 标准实施步骤
+
+### 场景 A：新建路线文件
+
+#### 第一步：从任务名解析路线编号
 
 任务名必须形如：
 
@@ -195,66 +315,72 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 1. 从任务名开头提取 `路线X`
 2. 得到 `RouteId = X`
 3. 用 `RouteId` 推导以下命名：
-    - `AutoCollectRouteX.json`
-    - `AutoCollectRouteXStart`
-    - `AutoCollectRouteXEnd`
-    - `AutoCollectRouteXAssertLocation`
-    - `AutoCollectRouteXGotoFind1`
-    - `AutoCollectRouteXSub`
-    - `RouteX`
-    - `option.AutoCollectRouteX.label`
+   - `AutoCollectRouteX.json`
+   - `AutoCollectRouteXStart`
+   - `AutoCollectRouteXEnd`
+   - `AutoCollectRouteXAssertLocation`
+   - `AutoCollectRouteXGoto`
+   - `AutoCollectRouteXSub`
+   - `RouteX`
+   - `option.AutoCollectRouteX.label`
 
-如果任务名不满足上述格式，先让用户补一个合规任务名，再继续。
+如果任务名不满足上述格式，先让用户补一个合规名称，再继续。
 
-### 第二步：生成 `AutoCollectRouteX.json`
+#### 第二步：归一化用户给出的路径点
 
-文件骨架应保持和现有路线一致：
+在生成 JSON 前，先按以下规则整理原始 path：
+
+- 保留首个 `ZONE` 节点不变
+- 保留普通坐标点 `[x, y]` 不变
+- 如果用户给的是 `[x, y, true]`：
+  - 点击采集路线改成 `[x, y, "COLLECT"]`
+  - 挖掘类路线改成 `[x, y, "DIG"]`
+- 如果用户给的是 `[x, y, "COLLECT"]` 或 `[x, y, "DIG"]`，直接保留
+- 不要把 `true` 原样写进最终 `path`
+
+#### 第三步：生成 `AutoCollectRouteX.json`
+
+文件骨架固定如下：
 
 ```json
 {
     "AutoCollectRouteXStart": { ... },
     "AutoCollectRouteXEnd": { ... },
     "AutoCollectRouteXAssertLocation": { ... },
-    "AutoCollectRouteXGotoFind1": { ... }
+    "AutoCollectRouteXGoto": { ... }
 }
 ```
 
-#### `Start` 节点规则
+不要生成任何 `GotoFindN` 节点。
+
+##### `Start` 节点规则
 
 - `next` 第一个目标是 `AutoCollectRouteXAssertLocation`
 - `next` 第二个目标是对应的 `[JumpBack]SceneEnterWorldXxx`
-- `focus.Node.Recognition.Succeeded` 使用中文，例如：`开始路线6`
+- `focus.Node.Recognition.Succeeded` 使用中文，例如：`开始路线X`
 
-#### `End` 节点规则
+##### `End` 节点规则
 
-- 保持：
+保持：
 
 ```json
 "pre_delay": 0,
 "post_delay": 0
 ```
 
-#### `AssertLocation` 节点规则
+##### `AssertLocation` 节点规则
 
 - 必须使用 `MapLocateAssertLocation`
-- `desc` 必须写中文：`传送到采集点`
+- `desc` 使用中文，例如：`传送到采集点`
 - `recognition` 固定写成字符串：`"Custom"`
 - `custom_recognition` 固定写成：`"MapLocateAssertLocation"`
-- `zone_id` 不作为独立输入参数向用户单独询问
-- 直接从第一段 `path` 的首个 `ZONE` 声明中取值
-- 如果用户给的是一个断言点 `[x, y]`，则 `target` 需要换算为 `[x-10, y-10, 20, 20]`
-- 只有在用户明确给了别的容差矩形时，才不要使用上述默认换算
-- `action` 固定写成：`"DoNothing"`
+- `zone_id` 不作为独立入参单独向用户追问，优先从 `path` 的第一个 `ZONE` 推导
+- 如果用户给的是断言点 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]`
+- 仅当用户明确给出其它容差矩形时，才不要使用上述默认换算
+- `action` 固定为 `"DoNothing"`
 - 不要写 `expected` 数组
 - 不要写 `map_name`
-
-`MapLocateAssertLocation` 在本 skill 中的固定理解如下：
-
-- 作用：传送完成后，在大地图中校验当前位置是否落在用户提供的断言点附近
-- `zone_id` 来源：第一段导航 `path` 的首个 `ZONE.zone_id`
-- `target` 来源：用户给的断言点 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]`
-- 写法特征：扁平结构，直接写 `custom_recognition_param.zone_id` 与 `custom_recognition_param.target`
-- 参考实现：`assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 的 `AutoCollectRoute6AssertLocation`
+- `next` 固定指向 `AutoCollectRouteXGoto`
 
 标准结构参考当前 `Route6`：
 
@@ -275,23 +401,19 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRouteXGotoFind1"
+            "AutoCollectRouteXGoto"
         ]
     }
 }
 ```
 
-- 其中 `zone_id` 必须与第一段 `path` 的首个 `ZONE` 保持同值
-- 注意：这里是“从 path 推导并复制同值”，不是在 JSON 运行时动态引用；`MapLocateAssertLocation` 仍然需要显式写出 `zone_id`
+##### `Goto` 节点规则
 
-#### `GotoFindN` 节点规则
+本 skill 新建路线固定使用 `MapNavigateAction`：
 
-本 skill 中新路线建立固定使用 `MapNavigateAction`：
-
-- `action.type` = `Custom`
-- `custom_action` = `MapNavigateAction`
-- `custom_action_param.map_name` = 推断出的 `map_name`
-- `path` 第一项必须是：
+- `action.type = "Custom"`
+- `action.param.custom_action = "MapNavigateAction"`
+- `action.param.custom_action_param.path` 第一项必须是：
 
 ```json
 {
@@ -300,122 +422,53 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 }
 ```
 
-每个 `GotoFindN` 还必须满足：
+节点内容规则：
 
-- `desc` 用中文并按顺序编号：
-    - `前往采集点1`
-    - `前往采集点2`
-    - `前往采集点3`
-    - ...
-- `next` 统一指向采集开始节点：
-    - 点击采集：`AutoCollectClickStart`
-    - 挖掘类路线：`AutoCollectDigStart`
-- `anchor` 对应串联到下一段：
-    - 点击采集：`AutoCollectClickAfter`
-    - 挖掘类路线：`AutoCollectDigAfter`
+- 节点名固定为 `AutoCollectRouteXGoto`
+- `desc` 使用中文，例如：`前往采集点`
+- `path` 为完整单段路线
+- 路径内的采集点应使用 `"COLLECT"` 或 `"DIG"`
+- `next` 直接指向 `AutoCollectRouteXEnd`
+- 不要写 `anchor`
+- 不要拆分为多个导航节点
+- 不要把 `[x, y, true]` 直接保留到最终 JSON 中
 
-最后一段的 `anchor` 指向 `AutoCollectRouteXEnd`。
+#### 第四步：按需注册接口
 
-### 第三步：按 `true` 切分路径
+如果用户未明确要求“只生成路线文件”，则默认继续完成注册：
 
-如果原始点列形如：
+- `assets/resource/pipeline/AutoCollect.json`
+- `assets/tasks/AutoCollect.json`
+- `assets/locales/interface/*.json`
 
-```json
-[
-    {"action": "ZONE", "zone_id": "ValleyIV_Base"},
-    [
-        532,
-        697
-    ],
-    [
-        585,
-        723,
-        true
-    ],
-    [
-        586,
-        723
-    ],
-    [
-        579,
-        734,
-        true
-    ]
-]
-```
+### 场景 B：仅注册接口
 
-则必须拆成：
+#### 第一步：从任务名解析注册命名
 
-- `GotoFind1`: `[532,697] -> [585,723,true]`
-- `GotoFind2`: `[586,723] -> [579,734,true]`
+从任务名推导：
 
-拆分原则：
+- `RouteFile`: `AutoCollectRouteX.json`
+- `RouteSub`: `AutoCollectRouteXSub`
+- `RouteCase`: `RouteX`
+- `LocaleKey`: `option.AutoCollectRouteX.label`
 
-1. 第一段从第一个实际导航点开始
-2. 每遇到一个 `true` 就结束当前段
-3. 下一段从 `true` 后面的下一个普通点开始
-4. 如果用户说“第一个点只做判断”，那第一段不能再包含这个点
-
-### 第四步：注册到 `assets/resource/pipeline/AutoCollect.json`
+#### 第二步：注册到 `assets/resource/pipeline/AutoCollect.json`
 
 必须同步修改两处：
 
-#### `AutoCollectStart.next`
+- 在 `AutoCollectStart.next` 中加入 `"[JumpBack]AutoCollectRouteXSub"`
+- 新增 `AutoCollectRouteXSub` 节点并指向 `AutoCollectRouteXStart`
 
-把：
-
-```json
-"[JumpBack]AutoCollectRouteXSub"
-```
-
-加入主链路，通常放在已有最后一条路线之后、`AutoCollectEnd` 之前。
-
-#### 新增 `AutoCollectRouteXSub`
-
-结构对齐现有子入口：
-
-```json
-"AutoCollectRouteXSub": {
-    "enabled": false,
-    "max_hit": 1,
-    "pre_delay": 0,
-    "post_delay": 0,
-    "next": [
-        "AutoCollectRouteXStart"
-    ],
-    "focus": {
-        "Node.Recognition.Succeeded": "$option.AutoCollectRouteX.label"
-    }
-}
-```
-
-### 第五步：注册到 `assets/tasks/AutoCollect.json`
+#### 第三步：注册到 `assets/tasks/AutoCollect.json`
 
 必须同步修改两处：
 
-#### `default_case`
+- 如项目默认勾选所有路线，则把 `RouteX` 追加到 `default_case`
+- 在 `cases` 中新增 `RouteX` 对应项
 
-如果项目当前默认全开已有路线，就把 `RouteX` 一并加入末尾。
+#### 第四步：补充 `assets/locales/interface/*.json`
 
-#### `cases`
-
-新增：
-
-```json
-{
-    "name": "RouteX",
-    "label": "$option.AutoCollectRouteX.label",
-    "pipeline_override": {
-        "AutoCollectRouteXSub": {
-            "enabled": true
-        }
-    }
-}
-```
-
-### 第六步：补充 `assets/locales/interface/*.json`
-
-至少要新增：
+至少新增以下语言：
 
 - `zh_cn`
 - `zh_tw`
@@ -429,30 +482,22 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 "option.AutoCollectRouteX.label": "..."
 ```
 
-处理原则：
-
-- `zh_cn` 按用户提供的任务名原文精确填写
-- 其他语言优先复用仓库中已有地区名和物品名译法
-- 保持与 `Route1~5` 相同的句式风格
-
 ## 文案规范
 
-路线文件里的内部提示文案必须遵守以下规则：
+路线文件内的提示文案应遵守以下规则：
 
 - `focus.Node.Recognition.Succeeded` 用中文
 - `desc` 用中文
-- `GotoFind` 文案必须按顺序编号
 - `AssertLocation` 必须使用 `MapLocateAssertLocation`
+- `Goto` 使用单段命名和单段文案
 
 推荐写法：
 
 - `Start.focus`: `开始路线X`
 - `AssertLocation.desc`: `传送到采集点`
-- `GotoFind1.desc`: `前往采集点1`
-- `GotoFind2.desc`: `前往采集点2`
-- `GotoFind3.desc`: `前往采集点3`
+- `Goto.desc`: `前往采集点`
 
-不要写英文：
+不要写英文内部提示，例如：
 
 - `Start Route X`
 - `Arrive at collection point`
@@ -460,70 +505,77 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 
 ## 检查清单
 
-提交前必须检查：
+提交前检查：
 
-- [ ] 任务名满足“路线X：xxx”形式
-- [ ] `RouteId` 是从任务名里解析出来的，而不是手填错位
-- [ ] 新路线文件名、节点名、选项名、文案编号一致
+### 新建路线文件时
+
+- [ ] 任务名满足“路线X：xxx”格式
+- [ ] `RouteId` 是从任务名解析得到的
+- [ ] 新路线文件名、节点名、选项名、文案键一致
 - [ ] `Start` 使用了正确的 `[JumpBack]SceneEnterWorldXxx`
-- [ ] 这条新路线建立使用的是 `MapNavigateAction`，而不是 `MapTrackerMove`
-- [ ] `AssertLocation` 使用了新的断言点，而不是误复用旧坐标
-- [ ] `AssertLocation` 使用的是 `MapLocateAssertLocation` 扁平结构，而不是 `MapTrackerAssertLocation` 的 `expected` 结构
-- [ ] 用户声明为“判断点”的第一个坐标没有混进导航路径
-- [ ] 每个带 `true` 的点都拆成了独立采集段
-- [ ] 每一段的 `anchor` 都正确串到下一段或 `End`
-- [ ] `next` 使用了正确的采集节点：`AutoCollectClickStart` 或 `AutoCollectDigStart`
-- [ ] 主入口 `AutoCollect.json` 已接入 `AutoCollectRouteXSub`
-- [ ] 任务选项 `assets/tasks/AutoCollect.json` 已注册 `RouteX`
+- [ ] 新路线使用的是 `MapNavigateAction`，而不是 `MapTrackerMove`
+- [ ] `AssertLocation` 使用了新的断言点，没有误复用旧坐标
+- [ ] `AssertLocation` 使用的是 `MapLocateAssertLocation` 的扁平结构，而不是 `MapTrackerAssertLocation.expected`
+- [ ] 若首个点仅用于断言，则没有混入 `path`
+- [ ] 路线只有一个 `AutoCollectRouteXGoto`
+- [ ] 用户给出的 `[x, y, true]` 已按采集类型转换成 `"COLLECT"` 或 `"DIG"`
+- [ ] 最终 `path` 中不再残留布尔 `true` 作为采集标记
+- [ ] 没有出现 `GotoFindN` 或 `anchor`
+
+### 需要注册接口时
+
+- [ ] `AutoCollect.json` 已接入 `AutoCollectRouteXSub`
+- [ ] `assets/tasks/AutoCollect.json` 已注册 `RouteX`
 - [ ] 5 份 locale 已新增 `option.AutoCollectRouteX.label`
 - [ ] `focus` / `desc` 使用中文
-- [ ] `GotoFind` 文案编号连续
+- [ ] 文档和文件均为 UTF-8，无乱码
 
 ## 验证建议
 
+### 新建路线文件时
+
 至少做以下验证：
 
-1. 检查路线执行顺序是否为：
-    - 传送
-    - 位置断言
-    - 第 1 段导航并采集
-    - 第 2 段导航并采集
-    - ...
-    - 结束
-2. 检查每个 `true` 点确实形成单独采集段
-3. 检查最后一段 `anchor` 是否能正常结束，而不是回环或断链
-4. 检查新增路线是否能在 `AutoCollectRoutes` 中显示
-5. 检查勾选 `RouteX` 后是否能启用 `AutoCollectRouteXSub`
+1. 检查路线执行顺序是否为：传送 -> 位置断言 -> 单段导航/采集 -> 结束
+2. 检查 `path` 中的采集点都已从 `true` 正确转换为 `"COLLECT"` 或 `"DIG"`
+3. 检查最终结束链路是否正确
 
-如需做静态验证，优先确认以下文件能被 JSON 正常解析：
+### 只注册接口时
 
-- `assets/resource/pipeline/AutoCollect/AutoCollectRouteX.json`
+至少做以下验证：
+
+1. 检查新增路线是否能在 `AutoCollectRoutes` 中显示
+2. 检查勾选 `RouteX` 后是否能启用 `AutoCollectRouteXSub`
+
+静态验证时，优先确认以下文件能被正常解析：
+
 - `assets/resource/pipeline/AutoCollect.json`
 - `assets/tasks/AutoCollect.json`
+- `assets/locales/interface/*.json`
+
+如果同时新建路线文件，再额外确认：
+
+- `assets/resource/pipeline/AutoCollect/AutoCollectRouteX.json`
 
 ## 输出模板
 
-完成后，优先按下面结构汇报：
+完成后，优先按以下结构汇报：
 
 ```markdown
 ## 已完成
-
-- 新增路线文件：`AutoCollectRouteX.json`
+- 新增或复用路线文件：`AutoCollectRouteX.json`
 - 已接入 `assets/resource/pipeline/AutoCollect.json`
 - 已接入 `assets/tasks/AutoCollect.json`
 - 已补充 `assets/locales/interface/*.json`
 
 ## 关键实现
-
-- 从任务名 `路线X：...` 解析出路线编号并推导文件命名
-- 复用了 `SceneEnterWorld...` 作为传送入口
-- 使用 `MapLocateAssertLocation` 校验由断言点换算得到的 `[x-10, y-10, 20, 20]`
-- `MapLocateAssertLocation` 的 `zone_id` 来自首段 `path` 的第一个 `ZONE`
-- 按 `true` 断点拆成 N 段采集
-- 每段通过 `AutoCollectClickAfter` / `AutoCollectDigAfter` 串联
+- 从任务名 `路线X：...` 解析出路线编号并推导命名
+- 如果需要新建路线：复用 `SceneEnterWorld...` 作为传送入口
+- 如果需要新建路线：使用 `MapLocateAssertLocation` 校验断言点换算得到的 `[x-10, y-10, 20, 20]`
+- 如果需要新建路线：将用户输入的 `[x, y, true]` 按采集类型转换为 `"COLLECT"` 或 `"DIG"`
+- 已完成 `AutoCollect.json` / `assets/tasks/AutoCollect.json` / locale 注册
 
 ## 校验
-
 - 核心 JSON 解析通过 / 未通过
 - 已确认 `RouteX` 注册链路存在
 ```
@@ -531,11 +583,12 @@ argument-hint: 推荐直接提供：任务名（如“路线6：四号谷地-轻
 ## 约束
 
 - 不要对现有 `RouteX` 做无关重构
-- 不要为了“更通用”去抽象自动生成器，除非用户明确要求
+- 不要为了“更通用”而提前抽象自动生成器，除非用户明确要求
 - 不要把点击采集路线改成挖掘路线，或反过来
 - 不要把本 skill 的新路线建立流程扩展到 `MapTrackerMove`
-- 不要把定位节点写回 `MapLocateAssertLocation`
-- 不要省略默认的任务注册与多语言注册，除非用户明确要求不要注册
+- 不要把定位节点写回 `MapTrackerAssertLocation`
+- 不要省略任务注册与多语言注册，除非用户明确说不需要
 - 不要把内部提示文案写成英文
-- 不要漏掉 `desc` 的顺序编号
-- 不要在未确认的情况下擅自修改已有路线编号或显示名称
+- 不要生成任何多段 `GotoFindN` 结构
+- 不要把用户输入的 `[x, y, true]` 原样写入最终 `path`
+- 如果用户已经有路线文件且只要求注册接口，不要继续追问传送点、断言点、path 或采集类型
