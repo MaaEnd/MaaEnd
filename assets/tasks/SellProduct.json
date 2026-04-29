@@ -2696,7 +2696,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "紫晶零件",
-                                    "紫晶零件",
                                     "紫晶部品",
                                     "Amethyst Part"
                                 ]
@@ -2957,7 +2956,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶零件",
                                     "紫晶零件",
                                     "紫晶部品",
                                     "Amethyst Part"
@@ -3220,7 +3218,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "紫晶零件",
-                                    "紫晶零件",
                                     "紫晶部品",
                                     "Amethyst Part"
                                 ]
@@ -3481,7 +3478,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "紫晶零件",
                                     "紫晶零件",
                                     "紫晶部品",
                                     "Amethyst Part"
@@ -3990,7 +3986,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "重息壤",
-                                    "重息壤",
                                     "重息壌",
                                     "Heavy Xiranite"
                                 ]
@@ -4011,7 +4006,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
@@ -4186,7 +4180,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "重息壤",
-                                    "重息壤",
                                     "重息壌",
                                     "Heavy Xiranite"
                                 ]
@@ -4207,7 +4200,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
@@ -4382,7 +4374,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "重息壤",
-                                    "重息壤",
                                     "重息壌",
                                     "Heavy Xiranite"
                                 ]
@@ -4403,7 +4394,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
@@ -4578,7 +4568,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "重息壤",
-                                    "重息壤",
                                     "重息壌",
                                     "Heavy Xiranite"
                                 ]
@@ -4599,7 +4588,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
@@ -5146,7 +5134,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "息壤",
-                                    "息壤",
                                     "息壌",
                                     "Xiranite"
                                 ]
@@ -5385,7 +5372,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
@@ -5626,7 +5612,6 @@
                             "custom_recognition_param": {
                                 "candidates": [
                                     "息壤",
-                                    "息壤",
                                     "息壌",
                                     "Xiranite"
                                 ]
@@ -5865,7 +5850,6 @@
                             "enabled": true,
                             "custom_recognition_param": {
                                 "candidates": [
-                                    "息壤",
                                     "息壤",
                                     "息壌",
                                     "Xiranite"
