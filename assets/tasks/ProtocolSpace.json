@@ -340,7 +340,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "RewardsSetOperatorEXPOption"
                     ]
                 },
                 {
@@ -355,7 +355,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "RewardsSetPromotionsOption"
                     ]
                 },
                 {
@@ -379,7 +379,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "RewardsSetSkillUpOption"
                     ]
                 }
             ]
@@ -409,7 +409,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "RewardsSetWeaponTuneOption"
                     ]
                 }
             ]
@@ -465,13 +465,13 @@
                 }
             ]
         },
-        "RewardsSetOption": {
+        "RewardsSetOperatorEXPOption": {
             "type": "select",
             "label": "$option.RewardsSetOption.label",
             "cases": [
                 {
                     "name": "RewardsSetA",
-                    "label": "A",
+                    "label": "$option.OperatorProgression.OperatorEXP.OptionA.label",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -482,7 +482,91 @@
                 },
                 {
                     "name": "RewardsSetB",
-                    "label": "B",
+                    "label": "$option.OperatorProgression.OperatorEXP.OptionB.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "RewardsSetPromotionsOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "RewardsSetA",
+                    "label": "$option.OperatorProgression.Promotions.OptionA.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RewardsSetB",
+                    "label": "$option.OperatorProgression.Promotions.OptionB.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "RewardsSetSkillUpOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "RewardsSetA",
+                    "label": "$option.OperatorProgression.SkillUp.OptionA.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RewardsSetB",
+                    "label": "$option.OperatorProgression.SkillUp.OptionB.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "RewardsSetWeaponTuneOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "RewardsSetA",
+                    "label": "$option.WeaponProgression.WeaponTune.OptionA.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RewardsSetB",
+                    "label": "$option.WeaponProgression.WeaponTune.OptionB.label",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
