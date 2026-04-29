@@ -97,7 +97,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		for _, it := range ocrItems {
 			ocrTexts = append(ocrTexts, it.text)
 		}
-		log.Info().
+		log.Debug().
 			Str("component", componentName).
 			Strs("ocr_texts", ocrTexts).
 			Strs("candidates", p.Candidates).
@@ -105,7 +105,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	log.Info().
+	log.Debug().
 		Str("component", componentName).
 		Str("ocr_text", best.ocrText).
 		Str("matched_candidate", best.candidate).

@@ -96,7 +96,9 @@ for (const settlement of Object.values(settlementData.settlements)) {
                     item.name.TC,
                     item.name.JP,
                     enName || null,
-                ].filter(Boolean),
+                ]
+                    .map((s) => (typeof s === "string" ? s.trim() : s))
+                    .filter(Boolean),
             };
         }
     }
