@@ -177,13 +177,10 @@ function buildRow(mission, usedIds) {
     const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
-    // 判断任务是否已适配路线：ROUTE_CONFIG 中无条目或使用了占位值的视为未适配
-    const isAdapted =
-        override != null &&
-        EnterMap !== ROUTE_DEFAULTS.EnterMap &&
-        MapName !== ROUTE_DEFAULTS.MapName &&
-        JSON.stringify(MapTarget) !== JSON.stringify(ROUTE_DEFAULTS.MapTarget) &&
-        JSON.stringify(MapPath) !== JSON.stringify(ROUTE_DEFAULTS.MapPath);
+    // 判断任务是否已适配路线：ROUTE_CONFIG 中无条目或缺少必填字段的视为未适配。
+    // 直接看 override 是否显式提供字段，而不是和 ROUTE_DEFAULTS 字面量比较——
+    // 后者在数组顺序/格式上稍有差异就会判错。
+    const isAdapted = override != null && missingFields.length === 0;
 
     if (!isAdapted) {
         console.warn(
