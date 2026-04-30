@@ -5,7 +5,7 @@
 // 它会读取这里的 ROUTE_CONFIG / ROUTE_DEFAULTS 装配出最终行数据。
 // 字段说明见 README.md。
 
-import { createRequire } from "module";
+import {createRequire} from "module";
 
 const require = createRequire(import.meta.url);
 
@@ -14,8 +14,18 @@ export const ROUTE_CONFIG = require("./routes.json");
 export const ROUTE_DEFAULTS = {
     EnterMap: "SceneAnyEnterWorld",
     MapName: "^map\\d+_lv\\d+$",
-    MapTarget: [0, 0, 1, 1],
-    MapPath: [[0, 0]],
+    MapTarget: [
+        0,
+        0,
+        1,
+        1,
+    ],
+    MapPath: [
+        [
+            0,
+            0,
+        ],
+    ],
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     CameraMaxHit: 2,
 };

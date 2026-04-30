@@ -1,5 +1,5 @@
-import { createRequire } from "module";
-import rows, { MONITORING_TERMINAL_IDS } from "./data.mjs";
+import {createRequire} from "module";
+import rows, {MONITORING_TERMINAL_IDS} from "./data.mjs";
 
 const require = createRequire(import.meta.url);
 const kiteStationData = require("./kite_station.json");

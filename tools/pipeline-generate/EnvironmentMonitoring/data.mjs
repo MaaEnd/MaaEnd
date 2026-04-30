@@ -1,5 +1,5 @@
-import { createRequire } from "module";
-import { ROUTE_CONFIG, ROUTE_DEFAULTS } from "./routes.mjs";
+import {createRequire} from "module";
+import {ROUTE_CONFIG, ROUTE_DEFAULTS} from "./routes.mjs";
 
 const require = createRequire(import.meta.url);
 const kiteStationData = require("./kite_station.json");
@@ -13,12 +13,15 @@ const kiteStationData = require("./kite_station.json");
 //   - 如有新文本识别节点（EnvironmentMonitoringCheck{Station}MonitoringTerminalText 等），手写补齐
 // 上述节点缺失时，生成出来的 Pipeline 会引用未定义任务，MaaFramework 会在运行时报错——这是正确的失败模式。
 export const MONITORING_TERMINAL_IDS = Object.keys(kiteStationData)
-    .filter(
-        (terminalId) =>
-            Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0,
-    )
+    .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
     .sort();
-const LOCALES = ["zh-CN", "zh-TW", "en-US", "ja-JP", "ko-KR"];
+const LOCALES = [
+    "zh-CN",
+    "zh-TW",
+    "en-US",
+    "ja-JP",
+    "ko-KR",
+];
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -122,7 +125,10 @@ function collectMonitoringMissions() {
 }
 
 const ROUTE_OVERRIDE_BY_NAME = new Map(
-    ROUTE_CONFIG.map((item) => [normalizeMissionName(item.Name), item]),
+    ROUTE_CONFIG.map((item) => [
+        normalizeMissionName(item.Name),
+        item,
+    ]),
 );
 
 function buildStationName(terminalId) {
@@ -149,8 +155,7 @@ function buildRow(mission, usedIds) {
     if (!override?.MapTarget) missingFields.push("MapTarget");
     const MapPath = override?.MapPath ?? ROUTE_DEFAULTS.MapPath;
     if (!override?.MapPath) missingFields.push("MapPath");
-    const CameraSwipeDirection =
-        override?.CameraSwipeDirection ?? ROUTE_DEFAULTS.CameraSwipeDirection;
+    const CameraSwipeDirection = override?.CameraSwipeDirection ?? ROUTE_DEFAULTS.CameraSwipeDirection;
     if (!override?.CameraSwipeDirection) missingFields.push("CameraSwipeDirection");
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
 
@@ -181,7 +186,10 @@ function buildRow(mission, usedIds) {
 
     // 先确认任务处于“开始追踪”或“已在追踪”状态，再决定后续是否前往。
     // 游戏内未追踪时无法完成任务，因此已适配点也不能直接跳过追踪确认。
-    const TrackOrGoToNext = [`Track${Id}`, `AlreadyTracked${Id}`];
+    const TrackOrGoToNext = [
+        `Track${Id}`,
+        `AlreadyTracked${Id}`,
+    ];
     const TrackNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
     const AlreadyTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 

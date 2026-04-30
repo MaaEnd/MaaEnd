@@ -11,8 +11,11 @@ tests/MaaEndTestset
 tools/schema/
 
 # pipeline-generate 数据文件含大量坐标嵌套数组，跳过自动格式化以保留可读性
-tools/pipeline-generate/*
-!tools/pipeline-generate/BatchUseDetector/
+tools/pipeline-generate/EnvironmentMonitoring/routes.json
+tools/pipeline-generate/EnvironmentMonitoring/kite_station.json
+tools/pipeline-generate/SellProduct/settlement_trade.json
+# pipeline-generate 模板 jsonc 不能被 prettier 加 trailing comma：模板会被原样渲染到 assets/resource/pipeline/ 下，加了逗号生成产物就不是 strict JSON
+tools/pipeline-generate/**/*.jsonc
 
 # 锁文件
 pnpm-lock.yaml

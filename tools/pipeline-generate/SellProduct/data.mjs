@@ -1,6 +1,6 @@
 // SellProduct 数据源
 
-import { createRequire } from "module";
+import {createRequire} from "module";
 const require = createRequire(import.meta.url);
 const settlementData = require("./settlement_trade.json");
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
@@ -23,9 +23,7 @@ function uniqueArray(items) {
 
 function toFlexibleEnglishRegex(text) {
     const escaped = escapeRegex(text.trim());
-    return `(?i)^${escaped
-        .replace(/\s+/g, "\\s*")
-        .replace(/-/g, "\\s*-\\s*")}$`;
+    return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
 function collectTradeItems() {
@@ -44,7 +42,10 @@ function collectTradeItems() {
 
 function buildItemLocaleKeyByCNName() {
     const map = new Map();
-    for (const [localeKey, localeValue] of Object.entries(zhCNLocale)) {
+    for (const [
+        localeKey,
+        localeValue,
+    ] of Object.entries(zhCNLocale)) {
         if (!localeKey.startsWith("item.")) continue;
         const itemKey = localeKey.slice("item.".length);
         map.set(localeValue, itemKey);
@@ -60,19 +61,25 @@ const ITEM_META_OVERRIDE = {};
 // ===== 从 settlement 数据生成 itemId → 内部 key / label 映射 =====
 const ITEM_META = [...collectTradeItems().entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .reduce((acc, [itemId, itemData]) => {
-        const override = ITEM_META_OVERRIDE[itemId];
-        const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(itemData.name.CN);
-        const key =
-            override?.key ??
-            localeKey ??
-            toPascalCase(itemId.replace(/^item_/, ""));
-        acc[itemId] = {
-            key,
-            label: override?.label ?? (localeKey ? `$item.${localeKey}` : null),
-        };
-        return acc;
-    }, {});
+    .reduce(
+        (
+            acc,
+            [
+                itemId,
+                itemData,
+            ],
+        ) => {
+            const override = ITEM_META_OVERRIDE[itemId];
+            const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(itemData.name.CN);
+            const key = override?.key ?? localeKey ?? toPascalCase(itemId.replace(/^item_/, ""));
+            acc[itemId] = {
+                key,
+                label: override?.label ?? (localeKey ? `$item.${localeKey}` : null),
+            };
+            return acc;
+        },
+        {},
+    );
 
 // ===== 从 settlement 数据提取全局物品字典 =====
 // candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductNormalizedItemMatch
@@ -117,7 +124,11 @@ const SETTLEMENT_OVERRIDE = {
     },
     stm_tundra_2: {
         LocationId: "InfrastructureOutpost",
-        TextExpected: ["基建前站", "(?i)Infra\\s*-\\s*Station", "建設基地"],
+        TextExpected: [
+            "基建前站",
+            "(?i)Infra\\s*-\\s*Station",
+            "建設基地",
+        ],
     },
     stm_tundra_3: {
         LocationId: "ReconstructionCommand",
@@ -131,7 +142,13 @@ const SETTLEMENT_OVERRIDE = {
     },
     stm_hongs_1: {
         LocationId: "SkyKingFlats",
-        TextExpected: ["天王坪", "天王坪援助", "天王坪援建", "Sky King", "天王原"],
+        TextExpected: [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+        ],
     },
 };
 
@@ -163,9 +180,7 @@ function buildSettlementTextExpected(settlementId, settlement) {
         settlement.settlementName.CN,
         settlement.settlementName.TC,
         settlement.settlementName.JP,
-        settlement.settlementName.EN
-            ? toFlexibleEnglishRegex(settlement.settlementName.EN)
-            : null,
+        settlement.settlementName.EN ? toFlexibleEnglishRegex(settlement.settlementName.EN) : null,
     ]);
 }
 
@@ -174,73 +189,95 @@ function buildSettlementTextExpected(settlementId, settlement) {
 // 同 domain 内再按 settlementId 字典序。直接按 settlementId 排序会让武陵（stm_hongs_*）
 // 排在四号谷地（stm_tundra_*）前面，与游戏内区域解锁顺序和 UI 习惯不符。
 const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
-    .sort(([aId, aData], [bId, bData]) => {
-        const aDomain = aData.domainId || "";
-        const bDomain = bData.domainId || "";
-        if (aDomain !== bDomain) return aDomain.localeCompare(bDomain);
-        return aId.localeCompare(bId);
-    })
-    .reduce((acc, [settlementId, settlement]) => {
-        const override = SETTLEMENT_OVERRIDE[settlementId] || {};
-        const regionPrefix =
-            override.RegionPrefix ||
-            DOMAIN_REGION_PREFIX[settlement.domainId] ||
-            toPascalCase(settlement.domainId);
-        const locationId =
-            override.LocationId ||
-            toPascalCase(settlement.settlementName.EN || settlementId);
-        acc[settlementId] = {
-            RegionPrefix: regionPrefix,
-            LocationId: locationId,
-            TextExpected: buildSettlementTextExpected(settlementId, settlement),
-        };
-        return acc;
-    }, {});
+    .sort(
+        (
+            [
+                aId,
+                aData,
+            ],
+            [
+                bId,
+                bData,
+            ],
+        ) => {
+            const aDomain = aData.domainId || "";
+            const bDomain = bData.domainId || "";
+            if (aDomain !== bDomain) return aDomain.localeCompare(bDomain);
+            return aId.localeCompare(bId);
+        },
+    )
+    .reduce(
+        (
+            acc,
+            [
+                settlementId,
+                settlement,
+            ],
+        ) => {
+            const override = SETTLEMENT_OVERRIDE[settlementId] || {};
+            const regionPrefix =
+                override.RegionPrefix || DOMAIN_REGION_PREFIX[settlement.domainId] || toPascalCase(settlement.domainId);
+            const locationId = override.LocationId || toPascalCase(settlement.settlementName.EN || settlementId);
+            acc[settlementId] = {
+                RegionPrefix: regionPrefix,
+                LocationId: locationId,
+                TextExpected: buildSettlementTextExpected(settlementId, settlement),
+            };
+            return acc;
+        },
+        {},
+    );
 
-const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce((acc, [, config]) => {
-    acc[config.RegionPrefix] = acc[config.RegionPrefix] || [];
-    acc[config.RegionPrefix].push(`${config.RegionPrefix}${config.LocationId}`);
-    return acc;
-}, {});
+const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
+    (
+        acc,
+        [
+            ,
+            config,
+        ],
+    ) => {
+        acc[config.RegionPrefix] = acc[config.RegionPrefix] || [];
+        acc[config.RegionPrefix].push(`${config.RegionPrefix}${config.LocationId}`);
+        return acc;
+    },
+    {},
+);
 
 // ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
 const LOCATIONS = Object.entries(SETTLEMENT_MAP)
-    .map(([settlementId, config]) => {
-        const settlement = settlementData.settlements[settlementId];
-        // 取所有 level 的 tradeItems 并集（按 itemId 去重），记录 rarity 和最高 unitPrice
-        const itemMap = new Map();
-        for (const level of Object.values(settlement.byProsperityLevel)) {
-            for (const item of level.tradeItems) {
-                const meta = ITEM_META[item.itemId];
-                if (!meta) continue;
-                const prev = itemMap.get(meta.key);
-                if (!prev || item.unitPrice > prev.unitPrice) {
-                    itemMap.set(meta.key, {
-                        rarity: item.rarity,
-                        unitPrice: item.unitPrice,
-                    });
+    .map(
+        ([
+            settlementId,
+            config,
+        ]) => {
+            const settlement = settlementData.settlements[settlementId];
+            // 取所有 level 的 tradeItems 并集（按 itemId 去重），记录 rarity 和最高 unitPrice
+            const itemMap = new Map();
+            for (const level of Object.values(settlement.byProsperityLevel)) {
+                for (const item of level.tradeItems) {
+                    const meta = ITEM_META[item.itemId];
+                    if (!meta) continue;
+                    const prev = itemMap.get(meta.key);
+                    if (!prev || item.unitPrice > prev.unitPrice) {
+                        itemMap.set(meta.key, {
+                            rarity: item.rarity,
+                            unitPrice: item.unitPrice,
+                        });
+                    }
                 }
             }
-        }
-        // 按 rarity 降序 → unitPrice 降序 排列
-        const items = [...itemMap.entries()]
-            .sort(
-                (a, b) =>
-                    b[1].rarity - a[1].rarity ||
-                    b[1].unitPrice - a[1].unitPrice,
-            )
-            .map(([key]) => key);
-        return {
-            ...config,
-            LocationDesc: settlement.settlementName.CN,
-            items,
-        };
-    })
-    .sort(
-        (a, b) =>
-            compareRegionPrefix(a.RegionPrefix, b.RegionPrefix) ||
-            a.LocationId.localeCompare(b.LocationId),
-    );
+            // 按 rarity 降序 → unitPrice 降序 排列
+            const items = [...itemMap.entries()]
+                .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
+                .map(([key]) => key);
+            return {
+                ...config,
+                LocationDesc: settlement.settlementName.CN,
+                items,
+            };
+        },
+    )
+    .sort((a, b) => compareRegionPrefix(a.RegionPrefix, b.RegionPrefix) || a.LocationId.localeCompare(b.LocationId));
 
 // ===== 构建 cases 数组 =====
 function buildItemCases(nodePrefix, itemNum, itemIds) {
@@ -250,7 +287,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
         {
             name: "无",
             pipeline_override: {
-                [selectKey]: { enabled: false },
+                [selectKey]: {enabled: false},
                 [missHandlerKey]: {
                     anchor: {
                         SellProductPriorityGoodMissHandler: "",
@@ -272,8 +309,7 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
                 },
                 [missHandlerKey]: {
                     anchor: {
-                        SellProductPriorityGoodMissHandler:
-                            "SellProductPriorityGoodMissWarning",
+                        SellProductPriorityGoodMissHandler: "SellProductPriorityGoodMissWarning",
                     },
                 },
             },
@@ -288,10 +324,30 @@ function buildItemCases(nodePrefix, itemNum, itemIds) {
 
 // ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
 // 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
-const QUANTITY_BOX = [1107, 535, 74, 29];
-const QUANTITY_BOX_ADB = [1065, 499, 78, 36];
-const MAX_QUANTITY_BOX = [1073, 327, 119, 25];
-const MAX_QUANTITY_BOX_ADB = [1041, 239, 131, 32];
+const QUANTITY_BOX = [
+    1107,
+    535,
+    74,
+    29,
+];
+const QUANTITY_BOX_ADB = [
+    1065,
+    499,
+    78,
+    36,
+];
+const MAX_QUANTITY_BOX = [
+    1073,
+    327,
+    119,
+    25,
+];
+const MAX_QUANTITY_BOX_ADB = [
+    1041,
+    239,
+    131,
+    32,
+];
 
 export const settlementFlatRows = LOCATIONS.map((loc) => ({
     RegionPrefix: loc.RegionPrefix,
