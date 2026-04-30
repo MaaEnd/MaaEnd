@@ -15,6 +15,8 @@ const kiteStationData = require("./kite_station.json");
 export const MONITORING_TERMINAL_IDS = Object.keys(kiteStationData)
     .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
     .sort();
+// 与 kite_station.json 中 name/shotTargetName 提供的 locale 列表保持一致。
+// 上游若新增语言（例如未来加入法语/俄语），需要同步在这里补上，否则该语种文本不会进入 ExpectedText。
 const LOCALES = [
     "zh-CN",
     "zh-TW",
