@@ -172,6 +172,21 @@ const REQUIRED_ROUTE_FIELDS = [
     "CameraSwipeDirection",
 ];
 
+function isFieldMissing(value) {
+    // null / undefined / 空字符串 / 空数组都视为缺失，避免 routes.json 里写成 null 时
+    // 既不进 missingFields、又被 ?? 回退到默认占位值的「看似已适配」陷阱。
+    if (value === undefined || value === null) {
+        return true;
+    }
+    if (typeof value === "string" && value.trim() === "") {
+        return true;
+    }
+    if (Array.isArray(value) && value.length === 0) {
+        return true;
+    }
+    return false;
+}
+
 function buildRow(mission, usedIds) {
     const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
     const override = ROUTE_OVERRIDE_BY_NAME.get(normalizeMissionName(missionName));
@@ -179,17 +194,21 @@ function buildRow(mission, usedIds) {
     const resolved = {};
     const missingFields = [];
     for (const key of REQUIRED_ROUTE_FIELDS) {
-        resolved[key] = override?.[key] ?? ROUTE_DEFAULTS[key];
-        if (override?.[key] === undefined) {
+        const overrideValue = override?.[key];
+        if (isFieldMissing(overrideValue)) {
             missingFields.push(key);
+            resolved[key] = ROUTE_DEFAULTS[key];
+        } else {
+            resolved[key] = overrideValue;
         }
     }
     const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
 
-    if (missingFields.length > 0) {
+    // 仅当条目存在但字段不全时提示「补全」；否则只在下面 isAdapted 分支统一提示「尚未适配」。
+    if (override != null && missingFields.length > 0) {
         console.warn(
-            `[EnvironmentMonitoring] 任务 ${sanitizeDisplayName(missionName)} (${mission.missionId}) 缺少路线配置字段: ${missingFields.join(", ")}。已使用默认值，请补全 ROUTE_CONFIG。`,
+            `[EnvironmentMonitoring] 任务 ${sanitizeDisplayName(missionName)} (${mission.missionId}) 路线条目缺失字段: ${missingFields.join(", ")}。已使用默认值，请补全 routes.json。`,
         );
     }
 
@@ -198,9 +217,7 @@ function buildRow(mission, usedIds) {
     const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
-    // 判断任务是否已适配路线：ROUTE_CONFIG 中无条目或缺少必填字段的视为未适配。
-    // 直接看 override 是否显式提供字段，而不是和 ROUTE_DEFAULTS 字面量比较——
-    // 后者在数组顺序/格式上稍有差异就会判错。
+    // 判断任务是否已适配路线：routes.json 中无条目、或条目存在但必填字段缺失（含 null/空），均视为未适配。
     const isAdapted = override != null && missingFields.length === 0;
 
     if (!isAdapted) {

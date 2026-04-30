@@ -31,8 +31,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
         // 匹配失败时 data.mjs 会 console.warn，并按未适配处理。
     "EnterMap": "SceneEnterWorldWulingXxx",
         // 传送节点名，必须已在 assets/resource/pipeline/SceneManager/ 中存在。
-        // "SceneAnyEnterWorld" 是未适配占位值；填它会只接取并追踪，不会进入寻路/拍照。
-        // 暂无合适传送点时，建议先不加 routes.json 条目，等传送节点补齐后再完整适配。
+        // 暂无合适传送点时，建议先不加 routes.json 条目（生成器会按未适配处理，仅接取并追踪）；
+        // 不要写 "SceneAnyEnterWorld" 这类占位值——当前 isAdapted 只看字段是否缺失，
+        // 占位值会被当作"已适配"，进入 GoTo/寻路流程并失败。
     "MapName": "map02_lv001",
         // MapTracker 小地图标识，支持正则（如 "^map\\d+_lv\\d+$"）。
     "MapTarget": [x, y, w, h],

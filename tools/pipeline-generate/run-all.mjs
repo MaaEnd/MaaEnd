@@ -43,15 +43,25 @@ if (!existsSync(bin)) {
     process.exit(1);
 }
 
+function isInside(parent, child) {
+    const rel = resolve(child).slice(resolve(parent).length);
+    return rel === "" || rel.startsWith("/") || rel.startsWith("\\");
+}
+
 for (const config of configs) {
     console.log(`\n[run-all] ${subdir}/${config}`);
-    // task 模式（merged 单文件）默认是「读旧文件 + 合并」，老 key 不会自动清理。
+    // task / merged 模式默认都是「读旧文件 + 合并」，老 key 不会自动清理。
     // 生成前先把目标文件删掉，确保产物只反映当前数据源。
     // 仅删 outputFile 指向的单文件，避免把整个 outputDir 里其他人维护的文件误清。
     try {
         const cfg = JSON.parse(readFileSync(resolve(targetDir, config), "utf8"));
-        if (cfg.task && cfg.outputFile) {
+        if ((cfg.task || cfg.merged) && cfg.outputFile) {
             const outFile = resolve(targetDir, cfg.outputDir || ".", cfg.outputFile);
+            // 防御性校验：outputFile 误写绝对路径或过多 ".." 时，可能解析到仓库外。
+            if (!isInside(repoRoot, outFile)) {
+                console.error(`[run-all] outputFile escapes repo root: ${outFile} (config: ${config})`);
+                process.exit(1);
+            }
             if (existsSync(outFile)) {
                 rmSync(outFile);
                 console.log(`[run-all] removed stale ${outFile}`);
@@ -62,12 +72,12 @@ for (const config of configs) {
         process.exit(1);
     }
 
-    // 在 Windows 下 .CMD 必须经由 shell 启动；为避免 Node DEP0190（shell:true + args 拼接）
-    // 把命令拼成单个字符串，args 留空。config 取自 readdir，由我们自己控制，无注入风险。
-    const result = spawnSync(`"${bin}" --config ${config}`, [], {
+    // 在 Windows 下 .CMD 必须经由 shell 启动，因此仍需启用 shell；但通过 args 数组传参，
+    // 避免把 config 直接拼到命令字符串里（防空格/特殊字符 + 可能的 shell 元字符注入）。
+    const result = spawnSync(bin, ["--config", config], {
         cwd: targetDir,
         stdio: "inherit",
-        shell: true,
+        shell: process.platform === "win32",
     });
     if (result.status !== 0) {
         console.error(`[run-all] failed on ${config} (exit ${result.status})`);

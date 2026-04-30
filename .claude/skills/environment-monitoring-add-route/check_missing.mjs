@@ -1,7 +1,7 @@
 /**
  * 检测 kite_station.json 中尚未在 routes.json ROUTE_CONFIG 中配置的观察点。
  * 运行方式（在 tools/pipeline-generate/EnvironmentMonitoring/ 目录下）：
- *   node .claude/skills/em-add-route/check_missing.mjs
+ *   node .claude/skills/environment-monitoring-add-route/check_missing.mjs
  * 或直接复制到该目录后运行：
  *   node check_missing.mjs
  */

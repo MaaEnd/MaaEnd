@@ -20,7 +20,7 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 | 字段                   | 必填 | 说明                                                                                                                                            |
 | ---------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `EnterMap`             | ✓    | 传送节点名（`SceneEnterWorldXxx`），必须已存在于 `assets/resource/pipeline/SceneManager/`；若无合适传送点填 `SceneAnyEnterWorld` 并加 `// TODO` |
+| `EnterMap`             | ✓    | 传送节点名（`SceneEnterWorldXxx`），必须已存在于 `assets/resource/pipeline/SceneManager/`；若无合适传送点，**不要**写占位值，跳过该条目即可     |
 | `MapName`              | ✓    | MapTracker 小地图标识（如 `map02_lv001`），支持正则                                                                                             |
 | `MapTarget`            | ✓    | 目标矩形 `[x, y, w, h]`，720p 小地图坐标                                                                                                        |
 | `MapPath`              | ✓    | 寻路路径 `[[x1, y1], ...]`，用 `tools/MapNavigator/` 录制                                                                                       |
@@ -52,7 +52,11 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 ### 第三步：验证 EnterMap
 
-使用 `file_search` 在 `assets/resource/pipeline/SceneManager/` 中确认传送点文件是否存在。若不存在，自动将值替换为 `SceneAnyEnterWorld` 并在条目上方加 `// TODO: 缺少 XXX 传送点` 注释，并提示用户。
+使用 `file_search` 在 `assets/resource/pipeline/SceneManager/` 中确认传送点文件是否存在。**若不存在**：
+
+- **不要**把 `EnterMap` 替换成占位值后写入条目（当前 `data.mjs` 的 `isAdapted` 只看字段是否缺失，不再识别占位值；写占位值会让该观察点被当作"已适配"，进入 GoTo/寻路流程并失败）。
+- 直接跳过该条目（不写入 `routes.json`），让生成器走未适配分支（仅接取并追踪）。
+- 在交付消息 / PR 描述中以 TODO 形式记录"等 XXX 传送点补齐后再适配 YYY 观察点"。
 
 ### 第四步：写入文件
 
@@ -61,7 +65,7 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 - 严格 JSON 语法（双引号、不允许尾随逗号、不允许 `// TODO` 等注释）
 - 4 空格缩进，`MapPath` 每个坐标对单独一行
 - `CameraMaxHit` 仅当值非默认（≠ 2）时才写入
-- 若数据暂缺需要提示，请在交付消息里说明（不要写进 JSON）
+- 数据暂缺时整个条目都不要写入（参见第三步）；TODO 留在交付消息里
 
 ### 第五步：提示后续操作
 
@@ -77,5 +81,5 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 ## 注意事项
 
 - 坐标必须基于 720p 小地图（`MapTarget`、`MapPath`）。
-- 若数据暂缺，可暂时填 `ROUTE_DEFAULTS` 同款占位值（`"SceneAnyEnterWorld"` 等），但生成的 Pipeline **无法真正运行**；由于 `routes.json` 不能写注释，TODO 必须留在 PR 描述或提交信息里。
+- 若数据暂缺，**不要**填占位值后再加 TODO——`isAdapted` 不再识别占位值，会把该条目当成已适配并产生失败的寻路流程。正确做法是不加该条目，把 TODO 放进 PR 描述/提交信息。
 - `Name` 匹配是去符号小写比较，中文引号、空格等均会被忽略。

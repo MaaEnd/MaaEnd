@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://github.com/MaaEnd/MaaEnd/tools/pipeline-generate/EnvironmentMonitoring/routes.schema.json",
+    "$id": "https://github.com/MaaEnd/MaaEnd/blob/v2/tools/schema/environment_monitoring_routes.schema.json",
     "title": "EnvironmentMonitoring routes.json",
     "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/data.mjs 读取并装配为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
     "type": "array",
@@ -25,7 +25,7 @@
             "EnterMap": {
                 "type": "string",
                 "pattern": "^Scene[A-Za-z0-9]+$",
-                "description": "传送节点名（SceneEnterWorld* / SceneAnyEnterWorld 等），必须已存在于 assets/resource/pipeline/SceneManager/。'SceneAnyEnterWorld' 是未适配占位值，填它会让该观察点只接取并追踪。",
+                "description": "传送节点名（SceneEnterWorld* 等），必须已存在于 assets/resource/pipeline/SceneManager/。当前 isAdapted 仅按字段是否缺失判定（不再识别占位值），数据暂缺时请直接不要在 routes.json 中加该条目，让生成器走未适配分支。",
                 "examples": [
                     "SceneEnterWorldWulingJingyuValley7",
                     "SceneEnterWorldWulingMarkerStone3"

@@ -230,8 +230,12 @@ Replace `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json` with t
 
 Compare `entrustTasks` in `kite_station.json` against entries in `routes.json` and confirm each observation point's status. Matching is done by normalized Chinese `Name`, not by `Id`:
 
-- **Not adapted**: the observation point has no entry in `routes.json`, or still uses `ROUTE_DEFAULTS` placeholder fields → after generation, it only accepts and tracks.
+- **Not adapted**: the observation point has no entry in `routes.json`, or the entry is missing any required field (including `null` / empty string / empty array) → after generation, it only accepts and tracks.
 - **Ready to adapt**: the observation point should automatically travel and take the photo → proceed to step 3 and fill real route data.
+
+> [!IMPORTANT]
+>
+> The current `isAdapted` check in `data.mjs` only looks at whether required fields are missing — it no longer treats `ROUTE_DEFAULTS` placeholder values as "not adapted". If you don't intend to adapt a point, simply omit its entry from `routes.json`; do not write placeholder values like `"SceneAnyEnterWorld"` / `[0,0,1,1]`, otherwise the generator will treat it as adapted and produce a failing path/photo flow.
 
 ### 3. Add or complete an entry in `routes.json`
 
