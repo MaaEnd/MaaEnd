@@ -142,21 +142,28 @@ function buildGoToMonitoringTerminal(station) {
     return `EnvironmentMonitoringGoTo${station}`;
 }
 
+// 需要校验是否在 ROUTE_CONFIG 中显式配置的字段。CameraMaxHit 有合理默认值，未配置不视为缺失。
+const REQUIRED_ROUTE_FIELDS = [
+    "EnterMap",
+    "MapName",
+    "MapTarget",
+    "MapPath",
+    "CameraSwipeDirection",
+];
+
 function buildRow(mission, usedIds) {
     const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
     const override = ROUTE_OVERRIDE_BY_NAME.get(normalizeMissionName(missionName));
 
+    const resolved = {};
     const missingFields = [];
-    const EnterMap = override?.EnterMap ?? ROUTE_DEFAULTS.EnterMap;
-    if (!override?.EnterMap) missingFields.push("EnterMap");
-    const MapName = override?.MapName ?? ROUTE_DEFAULTS.MapName;
-    if (!override?.MapName) missingFields.push("MapName");
-    const MapTarget = override?.MapTarget ?? ROUTE_DEFAULTS.MapTarget;
-    if (!override?.MapTarget) missingFields.push("MapTarget");
-    const MapPath = override?.MapPath ?? ROUTE_DEFAULTS.MapPath;
-    if (!override?.MapPath) missingFields.push("MapPath");
-    const CameraSwipeDirection = override?.CameraSwipeDirection ?? ROUTE_DEFAULTS.CameraSwipeDirection;
-    if (!override?.CameraSwipeDirection) missingFields.push("CameraSwipeDirection");
+    for (const key of REQUIRED_ROUTE_FIELDS) {
+        resolved[key] = override?.[key] ?? ROUTE_DEFAULTS[key];
+        if (override?.[key] === undefined) {
+            missingFields.push(key);
+        }
+    }
+    const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
 
     if (missingFields.length > 0) {
