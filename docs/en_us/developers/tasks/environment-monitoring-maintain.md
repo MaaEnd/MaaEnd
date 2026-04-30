@@ -157,7 +157,7 @@ When a new Station appears, **the generator side (`routes.json` + `routes.mjs` +
 | `CameraMaxHit`                                         | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe           |
 | `ExpectedText`                                         | Expanded automatically from `mission.name` multi-language map in `kite_station.json` (5 languages, English converted to a flexible regex)                 |
 | `InExpectedText`                                       | Expanded from `mission.shotTargetName` in `kite_station.json`                                                                                             |
-| `TrackOrGoToNext` / `TrackNext` / `AlreadyTrackedNext` | Decided automatically by `data.mjs`: it first confirms the mission is tracked, then either continues to photo-taking or degrades to accept-and-track-only |
+| `TrackOrGoToNext` / `AfterTrackedNext`                 | Decided automatically by `data.mjs`: `TrackOrGoToNext` fans out to `Track${Id}` / `AlreadyTracked${Id}`; `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` otherwise |
 
 ### Terminal groups: `terminals-config.json`
 
@@ -191,7 +191,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!NOTE]
 >
-> If an observation point has no `ROUTE_CONFIG`, or if its route fields still equal `ROUTE_DEFAULTS` (`SceneAnyEnterWorld` + placeholder coordinates), `data.mjs` emits a `console.warn` and treats the point as **not adapted**. The point still gets a generated Pipeline, but at runtime it only accepts and tracks the mission, then stops at `${Id}NotAdapted`; placeholder teleport/pathfinding is not executed.
+> If an observation point has no entry in `routes.json`, or if any required field is missing (`null` / empty string / empty array), `data.mjs` emits a `console.warn` and treats the point as **not adapted**. The point still gets a generated Pipeline (missing fields are filled into the template from `ROUTE_DEFAULTS` placeholders), but at runtime it only accepts and tracks the mission, then stops at `${Id}NotAdapted`; placeholder teleport/pathfinding is not executed.
 
 ## Key dependencies
 
@@ -208,7 +208,7 @@ For detailed parameters and coordinate recording, see [map-tracker.md](../compon
 
 The `EnterMap` field must be an existing teleport node name in SceneManager, e.g. `SceneEnterWorldWulingJingyuValley7`. If a new observation point is in a yet-unsupported teleport location, the corresponding `SceneEnterWorld*` and scene-recognition nodes must first be added under `assets/resource/pipeline/SceneManager/` and `assets/resource/pipeline/Interface/` (see [scene-manager.md](../scene-manager.md)).
 
-`SceneAnyEnterWorld` is currently only the unadapted placeholder value. `data.mjs` treats any point with `EnterMap === ROUTE_DEFAULTS.EnterMap` as not adapted, so even if `MapTarget` / `MapPath` are filled in, the route and photo flow will not run. To fully automate a point, `EnterMap` must be a real `SceneEnterWorld*` teleport node. If no usable teleport exists yet, leave the point without a `ROUTE_CONFIG` entry and let it use the degraded "accept and track only" flow for now.
+`SceneAnyEnterWorld` is only the placeholder value (`ROUTE_DEFAULTS.EnterMap`) that gets rendered into the template for not-adapted points; it is never executed at runtime — `data.mjs` decides whether to enter the path/photo flow by checking whether the `routes.json` entry has all required fields, and not-adapted points always go to the `${Id}NotAdapted` branch. To fully automate a point, fill in all five required fields in `routes.json`: `EnterMap` (a real `SceneEnterWorld*` node), `MapName`, `MapTarget`, `MapPath`, and `CameraSwipeDirection`. If no usable teleport exists yet, leave the point without an entry and let it use the degraded "accept and track only" flow for now.
 
 ### Main menu entry
 
@@ -235,7 +235,7 @@ Compare `entrustTasks` in `kite_station.json` against entries in `routes.json` a
 
 > [!IMPORTANT]
 >
-> The current `isAdapted` check in `data.mjs` only looks at whether required fields are missing — it no longer treats `ROUTE_DEFAULTS` placeholder values as "not adapted". If you don't intend to adapt a point, simply omit its entry from `routes.json`; do not write placeholder values like `"SceneAnyEnterWorld"` / `[0,0,1,1]`, otherwise the generator will treat it as adapted and produce a failing path/photo flow.
+> If you don't intend to adapt a point, simply omit its entry from `routes.json`; do not write placeholder values like `"SceneAnyEnterWorld"` / `[0,0,1,1]`.
 
 ### 3. Add or complete an entry in `routes.json`
 
@@ -322,4 +322,4 @@ Before committing, at minimum verify:
 - **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.
 - **`anchor` key name consistency**: The `anchor` key `EnvironmentMonitoringBackToTerminal` in `template.jsonc` must stay exactly consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; a mismatch silently disables the anchor mechanism.
-- **"Generated successfully ≠ fully adapted"**: points without route config, or points still using `ROUTE_DEFAULTS`, are generated as a degraded flow. They only accept and track; they do not travel or take the photo. Full automation requires real `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values.
+- **"Generated successfully ≠ fully adapted"**: points without a `routes.json` entry, or entries missing any required field, are generated as a degraded flow. They only accept and track; they do not travel or take the photo. Full automation requires real `EnterMap`, `MapName`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values.

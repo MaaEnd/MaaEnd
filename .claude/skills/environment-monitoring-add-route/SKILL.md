@@ -54,8 +54,7 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 使用 `file_search` 在 `assets/resource/pipeline/SceneManager/` 中确认传送点文件是否存在。**若不存在**：
 
-- **不要**把 `EnterMap` 替换成占位值后写入条目（当前 `data.mjs` 的 `isAdapted` 只看字段是否缺失，不再识别占位值；写占位值会让该观察点被当作"已适配"，进入 GoTo/寻路流程并失败）。
-- 直接跳过该条目（不写入 `routes.json`），让生成器走未适配分支（仅接取并追踪）。
+- **不要**把 `EnterMap` 替换成占位值后写入条目。直接跳过该条目（不写入 `routes.json`），让生成器走未适配分支（仅接取并追踪）。
 - 在交付消息 / PR 描述中以 TODO 形式记录"等 XXX 传送点补齐后再适配 YYY 观察点"。
 
 ### 第四步：写入文件
@@ -81,5 +80,5 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 ## 注意事项
 
 - 坐标必须基于 720p 小地图（`MapTarget`、`MapPath`）。
-- 若数据暂缺，**不要**填占位值后再加 TODO——`isAdapted` 不再识别占位值，会把该条目当成已适配并产生失败的寻路流程。正确做法是不加该条目，把 TODO 放进 PR 描述/提交信息。
+- 若数据暂缺，**不要**填占位值后再加 TODO，直接不加该条目，把 TODO 放进 PR 描述/提交信息。
 - `Name` 匹配是去符号小写比较，中文引号、空格等均会被忽略。

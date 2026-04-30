@@ -157,7 +157,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `CameraMaxHit`                                         | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `ExpectedText`                                         | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                       |
 | `InExpectedText`                                       | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                                                                  |
-| `TrackOrGoToNext` / `TrackNext` / `AlreadyTrackedNext` | 由 `data.mjs` 根据路线是否完整自动决定：先确认任务已追踪，再决定是继续前往拍照还是仅接取并追踪                               |
+| `TrackOrGoToNext` / `AfterTrackedNext`                 | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted` |
 
 ### 终端分组：`terminals-config.json`
 
@@ -191,7 +191,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!NOTE]
 >
-> `data.mjs` 在渲染时如果某观察点没有 `ROUTE_CONFIG`，或路线字段仍等于 `ROUTE_DEFAULTS`（`SceneAnyEnterWorld` + 占位坐标），会 `console.warn` 并把该观察点视为 **未适配**。未适配观察点仍会生成 Pipeline，但运行时只会接取并追踪任务，然后在 `${Id}NotAdapted` 提示后结束，不会执行占位传送或占位寻路。
+> `data.mjs` 在渲染时如果某观察点没有 `routes.json` 条目，或条目存在但任一必填字段缺失（`null` / 空字符串 / 空数组），会 `console.warn` 并把该观察点视为 **未适配**。未适配观察点仍会生成 Pipeline（缺失字段会用 `ROUTE_DEFAULTS` 占位填进模板），但运行时只会接取并追踪任务，在 `${Id}NotAdapted` 提示后结束，不会执行占位传送或占位寻路。
 
 ## 关键依赖
 
@@ -208,7 +208,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 `EnterMap` 字段必须填写 SceneManager 中已存在的传送节点名，例如 `SceneEnterWorldWulingJingyuValley7`。如果新增观察点位于尚未支持的传送点，需要先在 `assets/resource/pipeline/SceneManager/` 与 `assets/resource/pipeline/Interface/` 下补齐对应的 `SceneEnterWorld*` 与场景识别节点（参见 [scene-manager.md](../scene-manager.md)）。
 
-`SceneAnyEnterWorld` 目前只作为未适配占位值使用。`data.mjs` 会把 `EnterMap === ROUTE_DEFAULTS.EnterMap` 的观察点判定为未适配，因此即使同时填写了 `MapTarget` / `MapPath`，也不会进入寻路和拍照流程。要让观察点完整自动化，`EnterMap` 必须改成真实的 `SceneEnterWorld*` 传送节点；暂时没有可用传送点时，可以先不加 `ROUTE_CONFIG` 条目，让它按“仅接取并追踪”的降级流程运行。
+`SceneAnyEnterWorld` 仅作为未适配观察点在生成 Pipeline 时填进模板的占位值（`ROUTE_DEFAULTS.EnterMap`），运行时不会执行——`data.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。要让观察点完整自动化，必须在 `routes.json` 里给齐 `EnterMap`（真实的 `SceneEnterWorld*` 节点）/ `MapName` / `MapTarget` / `MapPath` / `CameraSwipeDirection` 五项必填字段；暂时没有可用传送点时，可以先不加该条目，让它按"仅接取并追踪"的降级流程运行。
 
 ### 主菜单入口
 
@@ -235,7 +235,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!IMPORTANT]
 >
-> 当前 `data.mjs` 的 `isAdapted` 只看字段是否缺失，**不再**根据占位值判定未适配。如果你不打算适配某个观察点，请直接不要在 `routes.json` 加该条目；不要写 `"SceneAnyEnterWorld"` / `[0,0,1,1]` 这类占位值，否则生成器会把它当成已适配并产生失败的寻路流程。
+> 不打算适配某个观察点时，直接不要在 `routes.json` 加该条目；不要写 `"SceneAnyEnterWorld"` / `[0,0,1,1]` 这类占位值。
 
 ### 3. 在 `routes.json` 中新增/补全条目
 
@@ -322,4 +322,4 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.jsonc` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
-- **「生成成功 ≠ 已完整适配」**：没有路线配置或仍使用 `ROUTE_DEFAULTS` 的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补真实的 `EnterMap`、`MapTarget`、`MapPath` 和 `CameraSwipeDirection`。
+- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补齐真实的 `EnterMap`、`MapName`、`MapTarget`、`MapPath` 和 `CameraSwipeDirection`。

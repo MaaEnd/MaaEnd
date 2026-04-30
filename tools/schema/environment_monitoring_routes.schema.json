@@ -25,7 +25,7 @@
             "EnterMap": {
                 "type": "string",
                 "pattern": "^Scene[A-Za-z0-9]+$",
-                "description": "传送节点名（SceneEnterWorld* 等），必须已存在于 assets/resource/pipeline/SceneManager/。当前 isAdapted 仅按字段是否缺失判定（不再识别占位值），数据暂缺时请直接不要在 routes.json 中加该条目，让生成器走未适配分支。",
+                "description": "传送节点名（SceneEnterWorld* 等），必须已存在于 assets/resource/pipeline/SceneManager/。暂无合适传送点时，直接不要在 routes.json 中加该条目，让生成器走未适配分支。",
                 "examples": [
                     "SceneEnterWorldWulingJingyuValley7",
                     "SceneEnterWorldWulingMarkerStone3"
