@@ -337,8 +337,8 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         ctx.runtime_state->OnWaypointAdvance();
         consumed = true;
 
-        if (!ctx.session->HasCurrentWaypoint() && !ctx.session->HasCanonicalFinalGoal()) {
-            ctx.session->NoteHeadingRouteConsumed(*ctx.position, "heading_route_consumed");
+        if (!ctx.session->HasCurrentWaypoint()) {
+            ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
         }
     }
 
