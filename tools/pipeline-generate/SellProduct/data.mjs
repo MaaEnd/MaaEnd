@@ -142,27 +142,14 @@ const SETTLEMENT_OVERRIDE = {
 
 // domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，
 // 加一行即可；不在表中的 domain 会回退到 toPascalCase(domainId)。
+// 维护提醒：domainId 字典序当前与游戏内区域解锁顺序一致（domain_1=四号谷地 在前，
+// domain_2=武陵 在后），SETTLEMENT_MAP 直接用 domainId 排序就能给到正确的 UI 顺序，
+// 无需额外的 region 优先级表。若未来出现「domainId 字典序 ≠ 解锁顺序」的新区域，
+// 需要在 SETTLEMENT_MAP 排序时引入显式权重。
 const DOMAIN_REGION_PREFIX = {
     domain_1: "ValleyIV",
     domain_2: "Wuling",
 };
-
-// RegionPrefix 在 UI / 列表里的展示顺序权重（越小越靠前）。需要与游戏内区域解锁顺序
-// 保持一致：四号谷地（ValleyIV）先于武陵（Wuling）。新增 RegionPrefix 时记得补一行，
-// 否则会被 compareRegionPrefix 兜底为 MAX_SAFE_INTEGER 落到末尾。
-const REGION_PRIORITY = {
-    ValleyIV: 0,
-    Wuling: 1,
-};
-
-function compareRegionPrefix(a, b) {
-    const aOrder = REGION_PRIORITY[a] ?? Number.MAX_SAFE_INTEGER;
-    const bOrder = REGION_PRIORITY[b] ?? Number.MAX_SAFE_INTEGER;
-    if (aOrder !== bOrder) {
-        return aOrder - bOrder;
-    }
-    return a.localeCompare(b);
-}
 
 function buildSettlementTextExpected(settlementId, settlement) {
     const override = SETTLEMENT_OVERRIDE[settlementId]?.TextExpected;
@@ -240,31 +227,24 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
 
 // LOCATIONS：模板的最终消费形态，每个元素 = {RegionPrefix, LocationId, TextExpected,
 // LocationDesc, items}，其中 items 是该 settlement 内可售物品的 ITEMS key 列表，
-// 按 rarity 降序、unitPrice 降序排好。
-//
-// 末尾 sort 为 SETTLEMENT_OVERRIDE.RegionPrefix 改写场景兜底：当前 SETTLEMENT_MAP 已按
-// domainId 排好，且 DOMAIN_REGION_PREFIX 与 REGION_PRIORITY 一致，所以默认数据下这次 sort 是
-// 稳定 no-op；但若未来某个 settlement 通过 override 把 RegionPrefix 改成跨 domain 的值，
-// 必须在这里重新按 REGION_PRIORITY 落位，否则 UI 顺序会乱。
-const LOCATIONS = Object.entries(SETTLEMENT_MAP)
-    .map(
-        ([
-            settlementId,
-            config,
-        ]) => {
-            const settlement = settlementData.settlements[settlementId];
-            // 按 rarity 降序 → unitPrice 降序 排列
-            const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
-                .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
-                .map(([key]) => key);
-            return {
-                ...config,
-                LocationDesc: settlement.settlementName.CN,
-                items,
-            };
-        },
-    )
-    .sort((a, b) => compareRegionPrefix(a.RegionPrefix, b.RegionPrefix) || a.LocationId.localeCompare(b.LocationId));
+// 按 rarity 降序、unitPrice 降序排好。顺序直接继承 SETTLEMENT_MAP（按 domainId 排）。
+const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
+    ([
+        settlementId,
+        config,
+    ]) => {
+        const settlement = settlementData.settlements[settlementId];
+        // 按 rarity 降序 → unitPrice 降序 排列
+        const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
+            .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
+            .map(([key]) => key);
+        return {
+            ...config,
+            LocationDesc: settlement.settlementName.CN,
+            items,
+        };
+    },
+);
 
 // ===== 构建 cases 数组 =====
 // 同一 location 的 4 个 itemNum 对应 cases 物品列表完全一致，仅 selectKey / missHandlerKey
