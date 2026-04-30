@@ -85,15 +85,24 @@
             }
         },
         "action": {
-            "type": "Scroll",
+            "type": "Swipe",
             "param": {
-                "target_offset": [
-                    0,
-                    140,
-                    0,
-                    0
+                "begin": [
+                    240,
+                    500
                 ],
-                "dx": 120
+                "end": [
+                    [
+                        240,
+                        400
+                    ],
+                    [
+                        360,
+                        400
+                    ]
+                ],
+                "end_hold": 200,
+                "duration": 100
             }
         },
         "post_wait_freezes": {
