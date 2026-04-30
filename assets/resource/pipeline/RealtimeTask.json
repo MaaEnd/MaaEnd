@@ -1,27 +1,32 @@
 {
     "RealTimeTaskMain": {
         "desc": "实时任务主入口",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]RealTimeAutoPat",
-            "[JumpBack]AutoPickFalls",
-            "[JumpBack]AutoPickInteractive",
-            "[JumpBack]RealTimeAutoZipline",
-            "[JumpBack]HandleTutorialGuide_RightUp",
-            "[JumpBack]HandleTutorialGuide_LeftUp",
-            "[JumpBack]CheckAnywhere",
-            "[JumpBack]HandleTutorialPaging",
-            "[JumpBack]HandleTutorialConfirm",
-            "[JumpBack]CheckSpecialInfoPanel",
-            "[JumpBack]RealTimeQuickTeleportList",
-            "[JumpBack]RealTimeQuickTeleportDirect",
-            "[JumpBack]PuzzleSolverOnScenePrepare",
-            "[JumpBack]PuzzleSolverOnSceneMain",
-            "[JumpBack]RealTimeAutoSkip",
-            "[JumpBack]AutoFight",
-            "[JumpBack]RealTimeSleep"
-        ]
+        "action": "Custom",
+        "custom_action": "RealTimeTaskAction",
+        "custom_action_param": {
+            "nodes": [
+                "RealTimeAutoPat",
+                "AutoPickFalls",
+                "AutoPickInteractive",
+                "RealTimeAutoZipline",
+                "HandleTutorialGuide_RightUp",
+                "HandleTutorialGuide_LeftUp",
+                "CheckAnywhere",
+                "HandleTutorialPaging",
+                "HandleTutorialConfirm",
+                "CheckSpecialInfoPanel",
+                "RealTimeQuickTeleportList",
+                "RealTimeQuickTeleportDirect",
+                "PuzzleSolverOnScenePrepare",
+                "PuzzleSolverOnSceneMain",
+                "RealTimeAutoSkip",
+                "AutoFight",
+                "RealTimeSleep"
+            ]
+        },
+        "attach": {
+            "enable_skland_map": true
+        }
     },
     "RealTimeSleep": {
         "pre_delay": 0,
