@@ -196,6 +196,9 @@ function buildRow(mission, usedIds) {
     }
     const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
+    // Heading 是可选朝向（角度），未配置时不调整角色朝向，AdjustHeading 节点退化为透传。
+    const HeadingRaw = override?.Heading;
+    const HasHeading = typeof HeadingRaw === "number" && Number.isFinite(HeadingRaw);
 
     if (override != null && missingFields.length > 0) {
         console.warn(
@@ -224,6 +227,35 @@ function buildRow(mission, usedIds) {
     ];
     const AfterTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
+    // 朝向节点：配置了 Heading 时调用 MapNavigateAction 的 HEADING 旋转角色，
+    // 否则退化为透传节点（仅承担 next 桥接）。模板里以 "${AdjustHeadingNodeBody}" 整体注入。
+    const AdjustHeadingNodeBody = HasHeading
+        ? {
+              desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
+              action: "Custom",
+              custom_action: "MapNavigateAction",
+              custom_action_param: {
+                  map_name: MapName,
+                  path: [
+                      {
+                          action: "HEADING",
+                          angle: HeadingRaw,
+                      },
+                  ],
+              },
+              pre_delay: 0,
+              post_delay: 0,
+              rate_limit: 0,
+              next: ["EnvironmentMonitoringTakePhoto"],
+          }
+        : {
+              desc: `${sanitizeDisplayName(missionName)}任务无需调整角色朝向`,
+              pre_delay: 0,
+              post_delay: 0,
+              rate_limit: 0,
+              next: ["EnvironmentMonitoringTakePhoto"],
+          };
+
     return {
         Station,
         Id,
@@ -239,6 +271,7 @@ function buildRow(mission, usedIds) {
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
         TrackOrGoToNext,
         AfterTrackedNext,
+        AdjustHeadingNodeBody,
     };
 }
 

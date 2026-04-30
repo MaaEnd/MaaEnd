@@ -83,6 +83,12 @@
                 "description": "调整摄像头时的最大滑屏命中次数。可选；默认值见 routes.mjs 的 ROUTE_DEFAULTS（当前为 2）。拍照目标较难对准时可适当调大。",
                 "minimum": 1
             },
+            "Heading": {
+                "type": "number",
+                "description": "可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整角色朝向。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
+                "minimum": 0,
+                "exclusiveMaximum": 360
+            },
             "Id": {
                 "type": "string",
                 "pattern": "^[A-Za-z][A-Za-z0-9]*$",

@@ -372,6 +372,15 @@
             "EnvironmentMonitoringAdjustCamera": "MysteriousCryptidGraffitiAdjustCamera"
         },
         "next": [
+            "MysteriousCryptidGraffitiAdjustHeading"
+        ]
+    },
+    "MysteriousCryptidGraffitiAdjustHeading": {
+        "desc": "谜之生物的涂鸦任务无需调整角色朝向",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
