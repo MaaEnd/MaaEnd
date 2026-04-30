@@ -121,7 +121,7 @@
                     "name": "ProtocolSpaceSuccessCount1",
                     "label": "1",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 0
                         }
                     }
@@ -130,7 +130,7 @@
                     "name": "ProtocolSpaceSuccessCount2",
                     "label": "2",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 1
                         }
                     }
@@ -139,7 +139,7 @@
                     "name": "ProtocolSpaceSuccessCount3",
                     "label": "3",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 2
                         }
                     }
@@ -148,7 +148,7 @@
                     "name": "ProtocolSpaceSuccessCount4",
                     "label": "4",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 3
                         }
                     }
@@ -157,7 +157,7 @@
                     "name": "ProtocolSpaceSuccessCount5",
                     "label": "5",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 4
                         }
                     }
@@ -177,7 +177,7 @@
                     "name": "ProtocolSpaceFailedCount1",
                     "label": "1",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                        "ProtocolSpaceOperationFailedContinue": {
                             "max_hit": 0
                         }
                     }
@@ -186,7 +186,7 @@
                     "name": "ProtocolSpaceFailedCount2",
                     "label": "2",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                        "ProtocolSpaceOperationFailedContinue": {
                             "max_hit": 1
                         }
                     }
@@ -195,7 +195,7 @@
                     "name": "ProtocolSpaceFailedCount3",
                     "label": "3",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                        "ProtocolSpaceOperationFailedContinue": {
                             "max_hit": 2
                         }
                     }
@@ -204,7 +204,7 @@
                     "name": "ProtocolSpaceFailedCount4",
                     "label": "4",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                        "ProtocolSpaceOperationFailedContinue": {
                             "max_hit": 3
                         }
                     }
@@ -213,7 +213,7 @@
                     "name": "ProtocolSpaceFailedCount5",
                     "label": "5",
                     "pipeline_override": {
-                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                        "ProtocolSpaceOperationFailedContinue": {
                             "max_hit": 4
                         }
                     }

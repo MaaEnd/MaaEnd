@@ -529,35 +529,28 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceRewardExit"
+            "ProtocolSpaceRewardClaimSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": "确认领取奖励"
         }
     },
-    "ProtocolSpaceRewardExit": {
-        "desc": "协议空间奖励界面退出",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    520,
-                    0,
-                    240,
-                    180
-                ],
-                "expected": [
-                    "获得奖励",
-                    "獲得獎勵",
-                    "Rewards Acquired",
-                    "報酬一覧",
-                    "보상 획득"
-                ]
-            },
-            "CancelButton"
+    "ProtocolSpaceRewardClaimSuccess": {
+        "desc": "协议空间奖励界面",
+        "recognition": "OCR",
+        "roi": [
+            520,
+            0,
+            240,
+            180
         ],
-        "box_index": 1,
+        "expected": [
+            "获得奖励",
+            "獲得獎勵",
+            "Rewards Acquired",
+            "報酬一覧",
+            "보상 획득"
+        ],
         "pre_wait_freezes": {
             "target": [
                 300,
@@ -567,37 +560,39 @@
             ],
             "time": 200
         },
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessContinue",
+            "ProtocolSpaceRewardClaimSuccessFinish"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessContinue": {
+        "desc": "协议空间奖励界面，继续下一轮",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationSuccessExitToWorld",
+            "[JumpBack]SceneWaitLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "继续行动"
+        }
+    },
+    "ProtocolSpaceRewardClaimSuccessFinish": {
+        "desc": "协议空间奖励界面，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "退出协议空间"
-        }
-    },
-    "ProtocolSpaceOperationSuccessExitToWorld": {
-        "desc": "行动成功，返回大世界回血，完成一轮战斗",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceOperationSuccessExitToWorldContinue",
-            "ProtocolSpaceOperationStopTask"
-        ]
-    },
-    "ProtocolSpaceOperationSuccessExitToWorldContinue": {
-        "desc": "行动成功设置节点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "继续行动"
+            "Node.Action.Succeeded": "行动成功次数已满，结束任务"
         }
     },
     "ProtocolSpaceOperationStopTask": {
@@ -607,58 +602,66 @@
     },
     "ProtocolSpaceOperationFailed": {
         "desc": "行动失败",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    520,
-                    0,
-                    240,
-                    180
-                ],
-                "expected": [
-                    "行动失败",
-                    "行動失敗",
-                    "Operation Failed",
-                    "작전 실패"
-                ]
-            },
-            "CancelButton"
+        "recognition": "OCR",
+        "roi": [
+            520,
+            0,
+            240,
+            180
         ],
-        "box_index": 1,
+        "expected": [
+            "行动失败",
+            "行動失敗",
+            "Operation Failed",
+            "작전 실패"
+        ],
         "pre_wait_freezes": 200,
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationFailedExitToWorld",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ProtocolSpaceOperationFailedContinue",
+            "ProtocolSpaceOperationFailedFinish"
         ],
         "focus": {
             "Node.Action.Succeeded": "行动失败"
         }
     },
-    "ProtocolSpaceOperationFailedExitToWorld": {
-        "desc": "行动失败，返回大世界回血，完成一轮战斗",
+    "ProtocolSpaceOperationFailedContinue": {
+        "desc": "协议空间行动失败界面，继续下一轮",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "继续行动"
+        }
+    },
+    "ProtocolSpaceOperationFailedFinish": {
+        "desc": "协议空间行动失败界面，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "行动失败次数已满，结束任务"
+        }
+    },
+    "ProtocolSpaceOperationExitToWorld": {
+        "desc": "行动结束，回到大世界",
         "recognition": "And",
         "all_of": [
             "InWorld"
         ],
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceOperationFailedExitToWorldContinue",
-            "ProtocolSpaceOperationStopTask"
-        ]
-    },
-    "ProtocolSpaceOperationFailedExitToWorldContinue": {
-        "desc": "行动失败设置节点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "重试行动"
-        }
+        "post_delay": 0
     }
 }
