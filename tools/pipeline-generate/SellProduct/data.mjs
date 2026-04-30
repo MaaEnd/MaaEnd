@@ -39,6 +39,8 @@ function buildItemLocaleKeyByCNName() {
     return map;
 }
 
+// 中文物品名 → locales/interface/zh_cn.json 中 `item.*` 的后缀 key。
+// 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
 
 // ===== 单次遍历 settlements，同时构建：
@@ -48,7 +50,11 @@ const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
 //     Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
 //     这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」
 //     （见 MaaEnd issue #2344、PR #1790 / issue #1793）。
-//   - SETTLEMENT_ITEM_STATS：每个 settlement 内 key → {rarity, unitPrice}（取 level 最高 unitPrice）
+//   - ITEM_KEY_BY_ID：itemId → ITEMS 内部 key 的反查表。同一物品在多个 settlement
+//     出现时，靠它确保只插入一次 ITEMS。
+//   - SETTLEMENT_ITEM_STATS：settlementId → (key → {rarity, unitPrice})。
+//     同一 key 在多个 prosperityLevel 出现时取 unitPrice 最高的那条，供 LOCATIONS
+//     做 rarity/价格排序。
 const ITEMS = {};
 const ITEM_KEY_BY_ID = new Map();
 const SETTLEMENT_ITEM_STATS = new Map();
@@ -90,6 +96,10 @@ for (const [
 }
 
 // ===== settlementId 覆盖（命名 + TextExpected 特殊处理） =====
+// 当原始数据里的 EN 名称生成的 LocationId 不符合习惯（如音译/缩写），或者 OCR
+// 经常误识为某些固定文本（如 "Reconstruction Hc"），需要在这里手动指定。
+// LocationId    覆盖 toPascalCase(EN) 默认值，决定生成出的 pipeline 节点前缀。
+// TextExpected  完全替换默认的 CN/TC/JP/EN 候选，需要自行覆盖所有语言变体 + OCR 噪声。
 const SETTLEMENT_OVERRIDE = {
     stm_tundra_1: {
         LocationId: "RefugeeCamp",
@@ -130,11 +140,16 @@ const SETTLEMENT_OVERRIDE = {
     },
 };
 
+// domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，
+// 加一行即可；不在表中的 domain 会回退到 toPascalCase(domainId)。
 const DOMAIN_REGION_PREFIX = {
     domain_1: "ValleyIV",
     domain_2: "Wuling",
 };
 
+// RegionPrefix 在 UI / 列表里的展示顺序权重（越小越靠前）。需要与游戏内区域解锁顺序
+// 保持一致：四号谷地（ValleyIV）先于武陵（Wuling）。新增 RegionPrefix 时记得补一行，
+// 否则会被 compareRegionPrefix 兜底为 MAX_SAFE_INTEGER 落到末尾。
 const REGION_PRIORITY = {
     ValleyIV: 0,
     Wuling: 1,
@@ -162,7 +177,7 @@ function buildSettlementTextExpected(settlementId, settlement) {
     ]);
 }
 
-// ===== 从 settlement 数据生成 settlementId → 售卖点配置映射 =====
+// settlementId → {RegionPrefix, LocationId, TextExpected}
 // 排序策略：先按 domainId（domain_1=ValleyIV=四号谷地 在前，domain_2=Wuling=武陵 在后），
 // 同 domain 内再按 settlementId 字典序。直接按 settlementId 排序会让武陵（stm_hongs_*）
 // 排在四号谷地（stm_tundra_*）前面，与游戏内区域解锁顺序和 UI 习惯不符。
@@ -206,6 +221,8 @@ const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
         {},
     );
 
+// RegionPrefix → 该区域下所有 `${RegionPrefix}${LocationId}` 的列表，
+// 模板里 SellOptions 字段直接消费，让任意一个售卖点能枚举出同区域的全部目标。
 const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
     (
         acc,
@@ -221,8 +238,10 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
     {},
 );
 
-// ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
-// SETTLEMENT_ITEM_STATS 已在单遍遍历中按 settlement 聚合好 {rarity, unitPrice}（取最高 unitPrice）。
+// LOCATIONS：模板的最终消费形态，每个元素 = {RegionPrefix, LocationId, TextExpected,
+// LocationDesc, items}，其中 items 是该 settlement 内可售物品的 ITEMS key 列表，
+// 按 rarity 降序、unitPrice 降序排好。
+//
 // 末尾 sort 为 SETTLEMENT_OVERRIDE.RegionPrefix 改写场景兜底：当前 SETTLEMENT_MAP 已按
 // domainId 排好，且 DOMAIN_REGION_PREFIX 与 REGION_PRIORITY 一致，所以默认数据下这次 sort 是
 // 稳定 no-op；但若未来某个 settlement 通过 override 把 RegionPrefix 改成跨 domain 的值，
