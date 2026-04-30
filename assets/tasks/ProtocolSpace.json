@@ -340,7 +340,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "OperatorEXPRewardsSetOption"
                     ]
                 },
                 {
@@ -355,7 +355,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "PromotionsRewardsSetOption"
                     ]
                 },
                 {
@@ -379,7 +379,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "SkillUpRewardsSetOption"
                     ]
                 }
             ]
@@ -409,7 +409,7 @@
                         }
                     },
                     "option": [
-                        "RewardsSetOption"
+                        "WeaponTuneRewardsSetOption"
                     ]
                 }
             ]
@@ -465,13 +465,13 @@
                 }
             ]
         },
-        "RewardsSetOption": {
+        "OperatorEXPRewardsSetOption": {
             "type": "select",
             "label": "$option.RewardsSetOption.label",
             "cases": [
                 {
-                    "name": "RewardsSetA",
-                    "label": "A",
+                    "name": "AdvancedCombatRecord",
+                    "label": "$option.OperatorEXPRewardsSetOption.cases.AdvancedCombatRecord.label",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -481,8 +481,92 @@
                     }
                 },
                 {
-                    "name": "RewardsSetB",
-                    "label": "B",
+                    "name": "CognitiveCarriers",
+                    "label": "$option.OperatorEXPRewardsSetOption.cases.CognitiveCarriers.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "PromotionsRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "Protodisk",
+                    "label": "$option.PromotionsRewardsSetOption.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.PromotionsRewardsSetOption.cases.Protoset.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SkillUpRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "Protoprism",
+                    "label": "$option.SkillUpRewardsSetOption.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.SkillUpRewardsSetOption.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WeaponTuneRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "CastDie",
+                    "label": "$option.WeaponTuneRewardsSetOption.cases.CastDie.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.WeaponTuneRewardsSetOption.cases.HeavyCastDie.label",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
