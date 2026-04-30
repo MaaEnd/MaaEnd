@@ -232,10 +232,10 @@ function buildRow(mission, usedIds) {
     const AdjustHeadingNodeBody = HasHeading
         ? {
               desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
+              pre_delay: 0,
               action: "Custom",
               custom_action: "MapNavigateAction",
               custom_action_param: {
-                  map_name: MapName,
                   path: [
                       {
                           action: "HEADING",
@@ -243,7 +243,6 @@ function buildRow(mission, usedIds) {
                       },
                   ],
               },
-              pre_delay: 0,
               post_delay: 0,
               rate_limit: 0,
               next: ["EnvironmentMonitoringTakePhoto"],
