@@ -304,3 +304,25 @@ pnpm check
 - 是否包含了足够的负例，能拦住常见误识别。
 
 这样写出来的节点测试，才真正能在后续重构、调阈值、换模板时帮你兜底。
+
+## Q&A
+
+### 测试截图用什么分辨率
+
+1280×720。所有模板和坐标都以 720p 为基准，MaaFramework 运行时会自动缩放。
+
+### `box` 矩阵里 `default` 和 `*` 有什么区别
+
+`default` 是未匹配到任何 controller/resource 键时的兜底值。`*` 是通配符，匹配任意 controller 或 resource。优先级上 `default` 和 `*` 都最低，实际用 `default` 就够了。
+
+### 截图从哪来
+
+用 VS Code 的 Maa Pipeline Support 插件（`Ctrl+Shift+P` → `Maa: Screenshot`）截取，放到 `tests/MaaEndTestset/<controller>/<resource>/` 下。
+
+### 测试跑失败了怎么看
+
+先看终端输出定位失败用例，再打开 `tests/maatools/error_details.json` 看具体原因（节点没命中、box 不匹配等）。
+
+### 改完模板要不要重跑测试
+
+要。凡是动了模板图、ROI、阈值，都应该 `pnpm test` 跑一遍，确认不会误伤已有用例。

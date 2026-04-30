@@ -178,3 +178,17 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 被引用节点当前应能返回可解析的 OCR 数值结果，否则表达式求值失败。
 - 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
+
+## 小结
+
+写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
+
+| 场景 | 用什么 |
+| --- | --- |
+| 按顺序跑一组子任务 | `SubTask` |
+| 清零某节点的命中计数 | `ClearHitCount` |
+| 运行时改节点参数 | `PipelineOverride` |
+| 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
+| 计算 OCR 数值表达式 | `ExpressionRecognition` |
+
+所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

@@ -10,6 +10,18 @@
 - pnpm 10+
 - Go 1.25.6+
 
+检查本地环境
+
+```bash
+git --version
+python3 --version   # 或 python --version（注意区分 Python 2）
+node --version
+pnpm --version
+go version
+```
+
+### 项目拉取与部署
+
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
@@ -64,7 +76,7 @@ pnpm install
 这通常是因为你刚拉取了最新代码或切换了分支，主仓库记录的子模块版本指针已经更新，但你**本地的子模块文件还没有同步**，导致 Git 认为你「修改」了它。
 
 也可能在拉取主分支更新或切换分支后，出现莫名其妙的修改，或代码报找不到模型——同样多因**主仓库的指针更新了，但你本地的子模块文件还没有同步**。
-
+> 主仓库不存子模块的文件内容，只存一个"指针"——指向子模块仓库的某个 commit SHA。
 **💡 解决办法：**
 遇到这种「幽灵修改」，或每次执行 `git pull` 拉取最新代码后，在仓库根目录执行：
 
@@ -115,7 +127,9 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 - 推荐 **Maa Pipeline Support**（VS Code 插件）——可以直接截图、框选 ROI、取色。
 - 也可以使用 [MaaPipelineEditor](https://mpe.codax.site/docs) 可视化构建 Pipeline。
 - 所有图片和坐标以 **1280×720** 为基准，下图中我们使用 **Maa Pipeline Support**，无需自己切换游戏分辨率，framework 会自动改变图片尺寸。
-  截图时请注意，不要开启 HDR、黑夜模式，以及 Nvidia 或游戏++等滤镜，否则颜色会干扰识别。
+
+> [!NOTE]
+> 截图时请注意，不要开启 HDR、黑夜模式，以及 Nvidia 或游戏++等滤镜，否则颜色会干扰识别，可以使用取色工具查看是否为标准色号。
 
 ![screenshot](https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8)
 

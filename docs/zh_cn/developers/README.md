@@ -6,7 +6,8 @@
 
 ```mermaid
 flowchart TD
-    Start["我想参与 MaaEnd 开发"] --> Tutorial["getting-started.md\nMVP 快速上手"]
+    Start["我想参与 MaaEnd 开发"] --> Basic["super-basic-introduction.md\n超基础入门（零基础必读）"]
+    Basic --> Tutorial["getting-started.md\nMVP 快速上手"]
     Tutorial --> Components["components-guide.md\n项目架构与组件"]
     Tutorial --> Tools["tools-and-debug.md\n工具与调试"]
     Tutorial --> Standards["coding-standards.md\n编码规范"]
@@ -20,20 +21,22 @@ flowchart TD
 
 建议按以下顺序阅读：
 
-1. 搭环境、跑起来、改一个东西 → `getting-started.md`
-2. 了解项目架构和可复用节点 → `components-guide.md`
-3. 掌握开发工具和调试流程 → `tools-and-debug.md`
-4. 查阅编码规范 → `coding-standards.md`
-5. 需要写测试集时 → `node-testing.md`
-6. 用到某个高级组件时 → 查 `components/` 下的对应文档
-7. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
+1. 完全零基础，看到 `git clone`、`pnpm install` 就懵了 → `super-basic-introduction.md`
+2. 搭环境、跑起来、改一个东西 → `getting-started.md`
+3. 了解项目架构和可复用节点 → `components-guide.md`
+4. 掌握开发工具和调试流程 → `tools-and-debug.md`
+5. 查阅编码规范 → `coding-standards.md`
+6. 需要写测试集时 → `node-testing.md`
+7. 用到某个高级组件时 → 查 `components/` 下的对应文档
+8. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
 ## 文档索引
 
 ### Tier 1 — 快速上手
 
-| 文档                             | 说明                                        |
-| -------------------------------- | ------------------------------------------- |
+| 文档 | 说明 |
+| --- | --- |
+| [超基础入门](./super-basic-introduction.md) | 给完全零基础：Git、终端、VS Code、JSON 是什么，怎么用 |
 | [快速开始](./getting-started.md) | 10 分钟内搭环境、跑程序、完成第一次改动和PR |
 
 ### Tier 2 — 参考手册
@@ -89,13 +92,14 @@ flowchart TD
 
 ## 快速跳转
 
-| 我想做什么           | 该看哪里                                                                                                                                                        |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 第一次参与，从零开始 | [getting-started.md](./getting-started.md)                                                                                                                      |
-| 了解项目架构         | [components-guide.md](./components-guide.md)                                                                                                                    |
-| 改 Pipeline 节点     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
-| 写或调 Go Service    | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                                                         |
-| 查阅编码规范         | [coding-standards.md](./coding-standards.md)                                                                                                                    |
+| 我想做什么 | 该看哪里 |
+| --- | --- |
+| 完全零基础，术语都看不懂 | [super-basic-introduction.md](./super-basic-introduction.md) |
+| 第一次参与，从零开始 | [getting-started.md](./getting-started.md) |
+| 了解项目架构 | [components-guide.md](./components-guide.md) |
+| 改 Pipeline 节点 | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
+| 写或调 Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) |
+| 查阅编码规范 | [coding-standards.md](./coding-standards.md) |
 
 ## 交流
 
