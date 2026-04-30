@@ -17,9 +17,9 @@ type blacklistEntry struct {
 
 // Keywords matched against process names via exact (case-sensitive) equality.
 var blacklist = []blacklistEntry{
-	{"RTSSHooksLoader64.exe", "RTSSHooksLoader64(小飞机)"},
-	{"RTSSHooksLoader.exe", "RTSSHooksLoader(小飞机)"},
-	{"GamePP.exe", "GamePP(游戏加加)"},
+	{"RTSSHooksLoader64.exe", "RTSSHooksLoader64.exe"},
+	{"RTSSHooksLoader.exe", "RTSSHooksLoader.exe"},
+	{"GamePP.exe", "GamePP.exe"},
 }
 
 // ProcessChecker detects blacklisted processes before task execution
