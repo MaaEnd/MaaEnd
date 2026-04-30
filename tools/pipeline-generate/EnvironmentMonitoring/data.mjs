@@ -190,8 +190,7 @@ function buildRow(mission, usedIds) {
         `Track${Id}`,
         `AlreadyTracked${Id}`,
     ];
-    const TrackNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
-    const AlreadyTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const AfterTrackedNext = isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
     return {
         Station,
@@ -207,8 +206,7 @@ function buildRow(mission, usedIds) {
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
         TrackOrGoToNext,
-        TrackNext,
-        AlreadyTrackedNext,
+        AfterTrackedNext,
     };
 }
 

@@ -154,7 +154,7 @@
             "In${Id}Mission"
         ],
         "action": "Click",
-        "next": "${TrackNext}"
+        "next": "${AfterTrackedNext}"
     },
     "AlreadyTracked${Id}": {
         "desc": "${Name}任务已经在追踪中",
@@ -163,7 +163,7 @@
             "AlreadyTrackedMissionButton",
             "In${Id}Mission"
         ],
-        "next": "${AlreadyTrackedNext}"
+        "next": "${AfterTrackedNext}"
     },
     "${Id}NotAdapted": {
         "desc": "${Name}任务尚未适配，仅接取并追踪",
