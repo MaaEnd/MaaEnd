@@ -26,20 +26,6 @@ function toFlexibleEnglishRegex(text) {
     return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
-function collectTradeItems() {
-    const items = new Map();
-    for (const settlement of Object.values(settlementData.settlements)) {
-        for (const level of Object.values(settlement.byProsperityLevel)) {
-            for (const item of level.tradeItems) {
-                if (!items.has(item.itemId)) {
-                    items.set(item.itemId, item);
-                }
-            }
-        }
-    }
-    return items;
-}
-
 function buildItemLocaleKeyByCNName() {
     const map = new Map();
     for (const [
@@ -55,60 +41,52 @@ function buildItemLocaleKeyByCNName() {
 
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
 
-// ===== itemId 覆盖（可用于修正 locale 无法反查时的特殊键） =====
-const ITEM_META_OVERRIDE = {};
-
-// ===== 从 settlement 数据生成 itemId → 内部 key / label 映射 =====
-const ITEM_META = [...collectTradeItems().entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .reduce(
-        (
-            acc,
-            [
-                itemId,
-                itemData,
-            ],
-        ) => {
-            const override = ITEM_META_OVERRIDE[itemId];
-            const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(itemData.name.CN);
-            const key = override?.key ?? localeKey ?? toPascalCase(itemId.replace(/^item_/, ""));
-            acc[itemId] = {
-                key,
-                label: override?.label ?? (localeKey ? `$item.${localeKey}` : null),
-            };
-            return acc;
-        },
-        {},
-    );
-
-// ===== 从 settlement 数据提取全局物品字典 =====
-// candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductNormalizedItemMatch
-// 自定义识别做抗噪声匹配。不再带 `^...$` 锚定符，噪声剥离和严格相等由
-// Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
-// 这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」
-// （见 MaaEnd issue #2344、PR #1790 / issue #1793）。
+// ===== 单次遍历 settlements，同时构建：
+//   - ITEMS：全局物品字典（key → {name, label, candidates}）
+//     candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductNormalizedItemMatch
+//     自定义识别做抗噪声匹配。不再带 `^...$` 锚定符，噪声剥离和严格相等由
+//     Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
+//     这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」
+//     （见 MaaEnd issue #2344、PR #1790 / issue #1793）。
+//   - SETTLEMENT_ITEM_STATS：每个 settlement 内 key → {rarity, unitPrice}（取 level 最高 unitPrice）
 const ITEMS = {};
-for (const settlement of Object.values(settlementData.settlements)) {
+const ITEM_KEY_BY_ID = new Map();
+const SETTLEMENT_ITEM_STATS = new Map();
+for (const [
+    settlementId,
+    settlement,
+] of Object.entries(settlementData.settlements)) {
+    const stats = new Map();
     for (const level of Object.values(settlement.byProsperityLevel)) {
         for (const item of level.tradeItems) {
-            const meta = ITEM_META[item.itemId];
-            if (!meta) continue;
-            if (ITEMS[meta.key]) continue; // 已收集过
-            const enName = item.name.EN?.replace(/[\[\]|]+/g, "").trim() || "";
-            ITEMS[meta.key] = {
-                name: item.name.CN,
-                label: meta.label,
-                candidates: [
-                    item.name.CN,
-                    item.name.TC,
-                    item.name.JP,
-                    enName || null,
-                ]
-                    .map((s) => (typeof s === "string" ? s.trim() : s))
-                    .filter(Boolean),
-            };
+            let key = ITEM_KEY_BY_ID.get(item.itemId);
+            if (!key) {
+                const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(item.name.CN);
+                key = localeKey ?? toPascalCase(item.itemId.replace(/^item_/, ""));
+                ITEM_KEY_BY_ID.set(item.itemId, key);
+                if (!ITEMS[key]) {
+                    const enName = item.name.EN?.replace(/[\[\]|]+/g, "").trim() || "";
+                    ITEMS[key] = {
+                        name: item.name.CN,
+                        label: localeKey ? `$item.${localeKey}` : null,
+                        candidates: [
+                            item.name.CN,
+                            item.name.TC,
+                            item.name.JP,
+                            enName || null,
+                        ]
+                            .map((s) => (typeof s === "string" ? s.trim() : s))
+                            .filter(Boolean),
+                    };
+                }
+            }
+            const prev = stats.get(key);
+            if (!prev || item.unitPrice > prev.unitPrice) {
+                stats.set(key, {rarity: item.rarity, unitPrice: item.unitPrice});
+            }
         }
     }
+    SETTLEMENT_ITEM_STATS.set(settlementId, stats);
 }
 
 // ===== settlementId 覆盖（命名 + TextExpected 特殊处理） =====
@@ -244,6 +222,7 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
 );
 
 // ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
+// SETTLEMENT_ITEM_STATS 已在单遍遍历中按 settlement 聚合好 {rarity, unitPrice}（取最高 unitPrice）。
 const LOCATIONS = Object.entries(SETTLEMENT_MAP)
     .map(
         ([
@@ -251,23 +230,8 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP)
             config,
         ]) => {
             const settlement = settlementData.settlements[settlementId];
-            // 取所有 level 的 tradeItems 并集（按 itemId 去重），记录 rarity 和最高 unitPrice
-            const itemMap = new Map();
-            for (const level of Object.values(settlement.byProsperityLevel)) {
-                for (const item of level.tradeItems) {
-                    const meta = ITEM_META[item.itemId];
-                    if (!meta) continue;
-                    const prev = itemMap.get(meta.key);
-                    if (!prev || item.unitPrice > prev.unitPrice) {
-                        itemMap.set(meta.key, {
-                            rarity: item.rarity,
-                            unitPrice: item.unitPrice,
-                        });
-                    }
-                }
-            }
             // 按 rarity 降序 → unitPrice 降序 排列
-            const items = [...itemMap.entries()]
+            const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
                 .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
                 .map(([key]) => key);
             return {
