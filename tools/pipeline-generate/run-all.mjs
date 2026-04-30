@@ -4,7 +4,7 @@
 // 例： node tools/pipeline-generate/run-all.mjs SellProduct
 
 import {spawnSync} from "node:child_process";
-import {existsSync, readdirSync, statSync} from "node:fs";
+import {existsSync, readdirSync, readFileSync, rmSync, statSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -45,6 +45,23 @@ if (!existsSync(bin)) {
 
 for (const config of configs) {
     console.log(`\n[run-all] ${subdir}/${config}`);
+    // task 模式（merged 单文件）默认是「读旧文件 + 合并」，老 key 不会自动清理。
+    // 生成前先把目标文件删掉，确保产物只反映当前数据源。
+    // 仅删 outputFile 指向的单文件，避免把整个 outputDir 里其他人维护的文件误清。
+    try {
+        const cfg = JSON.parse(readFileSync(resolve(targetDir, config), "utf8"));
+        if (cfg.task && cfg.outputFile) {
+            const outFile = resolve(targetDir, cfg.outputDir || ".", cfg.outputFile);
+            if (existsSync(outFile)) {
+                rmSync(outFile);
+                console.log(`[run-all] removed stale ${outFile}`);
+            }
+        }
+    } catch (err) {
+        console.error(`[run-all] failed to inspect ${config}: ${err.message}`);
+        process.exit(1);
+    }
+
     // 在 Windows 下 .CMD 必须经由 shell 启动；为避免 Node DEP0190（shell:true + args 拼接）
     // 把命令拼成单个字符串，args 留空。config 取自 readdir，由我们自己控制，无注入风险。
     const result = spawnSync(`"${bin}" --config ${config}`, [], {
