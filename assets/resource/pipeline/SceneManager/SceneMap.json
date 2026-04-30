@@ -521,9 +521,9 @@
                     330
                 ],
                 "template": [
-                    "SceneManager/TaskIcon.png"
-                ],
-                "green_mask": true
+                    "SceneManager/TaskIcon.png",
+                    "SceneManager/TaskIcon2.png"
+                ]
             }
         ],
         "box_index": 1,
