@@ -5,8 +5,8 @@
             "type": "Or",
             "param": {
                 "any_of": [
-                    "__TrackButton",
-                    "__TrackButtonHover"
+                    "__MapTrackButton",
+                    "__MapTrackButtonHover"
                 ]
             }
         },
@@ -24,7 +24,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__TrackButton": {
+    "__MapTrackButton": {
         "desc": "地图上追踪按钮常态模板，按短路优先顺序先于悬停态匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -36,7 +36,7 @@
                     80
                 ],
                 "template": [
-                    "Common/Button/TrackButton.png"
+                    "Common/Button/MapTrackButton.png"
                 ],
                 "threshold": 0.9
             }
@@ -45,7 +45,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__TrackButtonHover": {
+    "__MapTrackButtonHover": {
         "desc": "地图上追踪按钮悬停态模板，仅在常态未命中时作为短路回退匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -57,7 +57,7 @@
                     80
                 ],
                 "template": [
-                    "Common/Button/TrackButtonHover.png"
+                    "Common/Button/MapTrackButtonHover.png"
                 ],
                 "threshold": 0.9
             }
