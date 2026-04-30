@@ -16,6 +16,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentTargetOutpostManagementLocked",
             "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetOutpostManagement",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
         ]
@@ -26,6 +27,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentStockRedistributionLocked",
             "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetStockRedistribution",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
         ]
@@ -36,7 +38,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetDepotNode",
+            "__ScenePrivateMenuRegionalDevelopmentDepotNodeLocked",
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterDepotNode",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
         ]
     },
@@ -57,6 +60,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentTargetOutpostManagementLocked",
             "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetOutpostManagement",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
@@ -67,6 +71,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentStockRedistributionLocked",
             "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetStockRedistribution",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
@@ -77,7 +82,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetDepotNode",
+            "__ScenePrivateMenuRegionalDevelopmentDepotNodeLocked",
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterDepotNode",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
     },
@@ -87,6 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentEnvironmentMonitoringLocked",
             "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetEnvironmentMonitoring",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]

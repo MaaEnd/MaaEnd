@@ -1,4 +1,128 @@
 {
+    "__ScenePrivateMenuRegionalDevelopmentTargetOutpostManagementLocked": {
+        "desc": "据点管理菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    720,
+                    150,
+                    230,
+                    100
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "据点管理菜单未解锁"
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentStockRedistributionLocked": {
+        "desc": "物资调度菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    730,
+                    300,
+                    230,
+                    100
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "物资调度菜单未解锁"
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentDepotNodeLocked": {
+        "desc": "仓储节点菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    950,
+                    301,
+                    230,
+                    100
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "仓储节点菜单未解锁"
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentEnvironmentMonitoringLocked": {
+        "desc": "环境监测菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    730,
+                    400,
+                    230,
+                    100
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "环境监测菜单未解锁"
+        }
+    },
     "__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment": {
         "desc": "从地区建设二级菜单退出到地区建设菜单",
         "recognition": "And",
@@ -327,7 +451,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetDepotNode": {
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterDepotNode": {
         "desc": "在四号谷地地区建设界面，进入仓储节点界面",
         "recognition": "And",
         "all_of": [
@@ -363,7 +487,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetDepotNode": {
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterDepotNode": {
         "desc": "在武陵地区建设界面，进入仓储节点界面",
         "recognition": "And",
         "all_of": [
