@@ -147,6 +147,13 @@ const ROUTE_OVERRIDE_BY_NAME = new Map(
 
 function buildStationName(terminalId) {
     const stationEnglishName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
+    if (!stationEnglishName) {
+        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 kite_station.json 主键脱节，
+        // 直接 PascalCase terminalId 容易得到中文/纯数字串这种诡异结果。打个 warn 让维护者尽早发现。
+        console.warn(
+            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 kite_station.json 是否同步。`,
+        );
+    }
     return toPascalCase(stationEnglishName || terminalId) || terminalId;
 }
 
