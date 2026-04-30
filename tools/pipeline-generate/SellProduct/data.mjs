@@ -244,46 +244,44 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP)
     .sort((a, b) => compareRegionPrefix(a.RegionPrefix, b.RegionPrefix) || a.LocationId.localeCompare(b.LocationId));
 
 // ===== 构建 cases 数组 =====
-function buildItemCases(nodePrefix, itemNum, itemIds) {
-    const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
-    const missHandlerKey = `SellProduct${nodePrefix}SellAttempt${itemNum}SetMissHandler`;
-    const cases = [
-        {
-            name: "无",
-            pipeline_override: {
-                [selectKey]: {enabled: false},
-                [missHandlerKey]: {
-                    anchor: {
-                        SellProductPriorityGoodMissHandler: "",
-                    },
-                },
-            },
-        },
-    ];
+// 同一 location 的 4 个 itemNum 对应 cases 物品列表完全一致，仅 selectKey / missHandlerKey
+// 后缀编号不同。先用 buildItemCaseEntries 抽出与 itemNum 无关的「物品 + 是否启用 + label」基础
+// 数据，再由 buildItemCases 拼上 itemNum 相关的两个 key 名，避免重复构造 4×(N+1) 个相同物品对象。
+function buildItemCaseEntries(itemIds) {
+    const entries = [{name: "无", enabled: false}];
     for (const id of itemIds) {
         const item = ITEMS[id];
-        const newCase = {
+        const entry = {
             name: item.name,
+            enabled: true,
+            candidates: item.candidates,
+        };
+        if (item.label) entry.label = item.label;
+        entries.push(entry);
+    }
+    return entries;
+}
+
+function buildItemCases(nodePrefix, itemNum, entries) {
+    const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
+    const missHandlerKey = `SellProduct${nodePrefix}SellAttempt${itemNum}SetMissHandler`;
+    return entries.map((entry) => {
+        const newCase = {
+            name: entry.name,
             pipeline_override: {
-                [selectKey]: {
-                    enabled: true,
-                    custom_recognition_param: {
-                        candidates: item.candidates,
-                    },
-                },
+                [selectKey]: entry.enabled
+                    ? {enabled: true, custom_recognition_param: {candidates: entry.candidates}}
+                    : {enabled: false},
                 [missHandlerKey]: {
                     anchor: {
-                        SellProductPriorityGoodMissHandler: "SellProductPriorityGoodMissWarning",
+                        SellProductPriorityGoodMissHandler: entry.enabled ? "SellProductPriorityGoodMissWarning" : "",
                     },
                 },
             },
         };
-        if (item.label) {
-            newCase.label = item.label;
-        }
-        cases.push(newCase);
-    }
-    return cases;
+        if (entry.label) newCase.label = entry.label;
+        return newCase;
+    });
 }
 
 // ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
@@ -313,20 +311,23 @@ const MAX_QUANTITY_BOX_ADB = [
     32,
 ];
 
-export const settlementFlatRows = LOCATIONS.map((loc) => ({
-    RegionPrefix: loc.RegionPrefix,
-    SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
-    LocationId: loc.LocationId,
-    LocationDesc: loc.LocationDesc,
-    TextExpected: loc.TextExpected,
-    QuantityBox: QUANTITY_BOX,
-    QuantityBoxAdb: QUANTITY_BOX_ADB,
-    MaxTargetBox: MAX_QUANTITY_BOX,
-    MaxTargetBoxAdb: MAX_QUANTITY_BOX_ADB,
-    ItemCases1: buildItemCases(loc.LocationId, 1, loc.items),
-    ItemCases2: buildItemCases(loc.LocationId, 2, loc.items),
-    ItemCases3: buildItemCases(loc.LocationId, 3, loc.items),
-    ItemCases4: buildItemCases(loc.LocationId, 4, loc.items),
-}));
+export const settlementFlatRows = LOCATIONS.map((loc) => {
+    const entries = buildItemCaseEntries(loc.items);
+    return {
+        RegionPrefix: loc.RegionPrefix,
+        SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
+        LocationId: loc.LocationId,
+        LocationDesc: loc.LocationDesc,
+        TextExpected: loc.TextExpected,
+        QuantityBox: QUANTITY_BOX,
+        QuantityBoxAdb: QUANTITY_BOX_ADB,
+        MaxTargetBox: MAX_QUANTITY_BOX,
+        MaxTargetBoxAdb: MAX_QUANTITY_BOX_ADB,
+        ItemCases1: buildItemCases(loc.LocationId, 1, entries),
+        ItemCases2: buildItemCases(loc.LocationId, 2, entries),
+        ItemCases3: buildItemCases(loc.LocationId, 3, entries),
+        ItemCases4: buildItemCases(loc.LocationId, 4, entries),
+    };
+});
 
 export default settlementFlatRows;
