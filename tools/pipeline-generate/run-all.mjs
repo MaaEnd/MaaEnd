@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+// 扫描指定子目录下的所有 *config.json，依次调用 maa-pipeline-generate --config <file>。
+// 用法：node tools/pipeline-generate/run-all.mjs <subdir>
+// 例： node tools/pipeline-generate/run-all.mjs SellProduct
+
+import {spawnSync} from "node:child_process";
+import {existsSync, readdirSync, statSync} from "node:fs";
+import {dirname, resolve} from "node:path";
+import {fileURLToPath} from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// 仓库根目录：tools/pipeline-generate/ → ../../
+const repoRoot = resolve(__dirname, "..", "..");
+
+const subdir = process.argv[2];
+if (!subdir) {
+    console.error("Usage: node tools/pipeline-generate/run-all.mjs <subdir>");
+    process.exit(1);
+}
+
+const targetDir = resolve(__dirname, subdir);
+try {
+    if (!statSync(targetDir).isDirectory()) throw new Error("not a directory");
+} catch {
+    console.error(`[run-all] target is not a directory: ${targetDir}`);
+    process.exit(1);
+}
+
+const configs = readdirSync(targetDir)
+    .filter((f) => /config\.json$/i.test(f))
+    .sort();
+
+if (configs.length === 0) {
+    console.error(`[run-all] no *config.json found in ${targetDir}`);
+    process.exit(1);
+}
+
+// 显式定位本地 bin，避免裸 `node tools/...` 调用时（无 pnpm/npm 注入 PATH）找不到命令。
+const binBase = resolve(repoRoot, "node_modules", ".bin", "maa-pipeline-generate");
+const bin = process.platform === "win32" ? `${binBase}.CMD` : binBase;
+if (!existsSync(bin)) {
+    console.error(`[run-all] maa-pipeline-generate not found at ${bin}; run pnpm install first`);
+    process.exit(1);
+}
+
+for (const config of configs) {
+    console.log(`\n[run-all] ${subdir}/${config}`);
+    // 在 Windows 下 .CMD 必须经由 shell 启动；为避免 Node DEP0190（shell:true + args 拼接）
+    // 把命令拼成单个字符串，args 留空。config 取自 readdir，由我们自己控制，无注入风险。
+    const result = spawnSync(`"${bin}" --config ${config}`, [], {
+        cwd: targetDir,
+        stdio: "inherit",
+        shell: true,
+    });
+    if (result.status !== 0) {
+        console.error(`[run-all] failed on ${config} (exit ${result.status})`);
+        process.exit(result.status ?? 1);
+    }
+}

@@ -31,6 +31,26 @@
             "problemMatcher": []
         },
         {
+            "label": "Generate: AutoStockStaple",
+            "type": "shell",
+            "command": "pnpm generate:AutoStockStaple",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Generate: BatchUseDetector",
+            "type": "shell",
+            "command": "pnpm generate:BatchUseDetector",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "Generate: EnvironmentMonitoring",
             "type": "shell",
             "command": "pnpm generate:EnvironmentMonitoring",
