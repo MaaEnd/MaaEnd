@@ -83,12 +83,24 @@ function buildDefaultId(mission) {
 }
 
 function ensureUniqueId(baseId, usedIds, missionId) {
-    let nextId = baseId;
+    // 优先用 missionId 作为冲突后缀，保证 ID 在不同任务间稳定可读；
+    // 若仍然撞名（极少见，例如 missionId 也重复），再退化到自增序号兜底。
+    if (!usedIds.has(baseId)) {
+        usedIds.add(baseId);
+        return baseId;
+    }
+    if (missionId) {
+        const withMissionId = `${baseId}_${missionId}`;
+        if (!usedIds.has(withMissionId)) {
+            usedIds.add(withMissionId);
+            return withMissionId;
+        }
+    }
     let seq = 2;
+    let nextId = `${baseId}_${seq}`;
     while (usedIds.has(nextId)) {
-        const suffix = missionId ? `_${missionId}` : `_${seq}`;
-        nextId = `${baseId}${suffix}`;
         seq += 1;
+        nextId = `${baseId}_${seq}`;
     }
     usedIds.add(nextId);
     return nextId;
