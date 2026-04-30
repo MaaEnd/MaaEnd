@@ -35,6 +35,7 @@ struct NavigationSession
     bool HasReachedCanonicalFinalGoal(const NaviPosition& position) const;
     bool HasSatisfiedFinalSuccess(const NaviPosition& position, const char* reason);
     void NoteCanonicalFinalGoalConsumed(size_t consumed_absolute_index, const NaviPosition& position, const char* reason);
+    void NoteHeadingRouteConsumed(const NaviPosition& position, const char* reason);
     void NoteRouteTailConsumed(const NaviPosition& position, const char* reason);
 
     bool success() const;
