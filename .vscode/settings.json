@@ -41,6 +41,12 @@
                 "/tests/**/*.jsonc"
             ],
             "url": "/tools/schema/test.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tools/pipeline-generate/EnvironmentMonitoring/routes.json"
+            ],
+            "url": "/tools/schema/environment_monitoring_routes.schema.json"
         }
     ],
     "files.associations": {

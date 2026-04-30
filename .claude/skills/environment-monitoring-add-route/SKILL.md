@@ -1,6 +1,6 @@
 ---
 name: environment-monitoring-add-route
-description: "向 routes.mjs 添加环境监测（EnvironmentMonitoring）新观察点条目。使用时：新增 kite_station 观察点路线配置、适配新版本的环境监测任务、补全缺失的 MapPath / EnterMap 数据。会自动检测缺失任务，逐字段询问路线数据后写入 ROUTE_CONFIG。"
+description: "向 routes.json 添加环境监测（EnvironmentMonitoring）新观察点条目。使用时：新增 kite_station 观察点路线配置、适配新版本的环境监测任务、补全缺失的 MapPath / EnterMap 数据。会自动检测缺失任务，逐字段询问路线数据后写入 ROUTE_CONFIG。"
 argument-hint: "可选：直接说明要适配哪个观察点名称，否则自动列出所有缺失条目"
 ---
 
@@ -8,7 +8,7 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 ## 目的
 
-在 `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs` 的 `ROUTE_CONFIG` 数组末尾追加新的观察点条目，以便后续运行 `npx @joebao/maa-pipeline-generate` 生成 Pipeline 文件。
+在 `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 末尾追加新的观察点条目，以便后续运行 `npx @joebao/maa-pipeline-generate` 生成 Pipeline 文件。
 
 ## 字段说明
 
@@ -34,7 +34,7 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 - 若用户已指定（如"我想适配 XX 任务"），直接跳到第二步。
 - 否则：运行 [check_missing.mjs](./check_missing.mjs) 自动检测缺失条目。检测逻辑：
     - 从 `kite_station.json` 提取所有 mission 的 `name["zh-CN"]`（作为 Name）
-    - 与 `routes.mjs` 中 `ROUTE_CONFIG` 已有的 `Name` 做对比（去符号小写）
+    - 与 `routes.json` 中已有的 `Name` 做对比（去符号小写）
     - 列出真正缺失的条目供用户选择
 
 ### 第二步：逐字段问路线数据
@@ -56,11 +56,12 @@ argument-hint: "可选：直接说明要适配哪个观察点名称，否则自�
 
 ### 第四步：写入文件
 
-按现有条目格式拼写 JS 对象，追加到 `ROUTE_CONFIG` 数组末尾（`];` 之前）：
+按现有条目格式追加到 `routes.json` 末尾（数组 `]` 之前）：
 
-- 保持 4 空格缩进
-- `MapPath` 每个坐标对单独一行
+- 严格 JSON 语法（双引号、不允许尾随逗号、不允许 `// TODO` 等注释）
+- 4 空格缩进，`MapPath` 每个坐标对单独一行
 - `CameraMaxHit` 仅当值非默认（≠ 2）时才写入
+- 若数据暂缺需要提示，请在交付消息里说明（不要写进 JSON）
 
 ### 第五步：提示后续操作
 
@@ -71,10 +72,10 @@ npx @joebao/maa-pipeline-generate
 npx @joebao/maa-pipeline-generate --config terminals-config.json
 ```
 
-并将 `routes.mjs` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下的变更一并提交。
+并将 `routes.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下的变更一并提交。
 
 ## 注意事项
 
 - 坐标必须基于 720p 小地图（`MapTarget`、`MapPath`）。
-- 若数据暂缺，可用 `ROUTE_DEFAULTS` 兜底，但生成的 Pipeline **无法真正运行**，需附 `// TODO` 标记。
+- 若数据暂缺，可暂时填 `ROUTE_DEFAULTS` 同款占位值（`"SceneAnyEnterWorld"` 等），但生成的 Pipeline **无法真正运行**；由于 `routes.json` 不能写注释，TODO 必须留在 PR 描述或提交信息里。
 - `Name` 匹配是去符号小写比较，中文引号、空格等均会被忽略。

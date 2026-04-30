@@ -1,0 +1,93 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/MaaEnd/MaaEnd/tools/pipeline-generate/EnvironmentMonitoring/routes.schema.json",
+    "title": "EnvironmentMonitoring routes.json",
+    "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/data.mjs 读取并装配为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "title": "ObservationPointRoute",
+        "additionalProperties": false,
+        "required": [
+            "Name",
+            "EnterMap",
+            "MapName",
+            "MapTarget",
+            "MapPath",
+            "CameraSwipeDirection"
+        ],
+        "properties": {
+            "Name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "观察点中文名，用于在 data.mjs 中匹配 kite_station.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
+            },
+            "EnterMap": {
+                "type": "string",
+                "pattern": "^Scene[A-Za-z0-9]+$",
+                "description": "传送节点名（SceneEnterWorld* / SceneAnyEnterWorld 等），必须已存在于 assets/resource/pipeline/SceneManager/。'SceneAnyEnterWorld' 是未适配占位值，填它会让该观察点只接取并追踪。",
+                "examples": [
+                    "SceneEnterWorldWulingJingyuValley7",
+                    "SceneEnterWorldWulingMarkerStone3"
+                ]
+            },
+            "MapName": {
+                "type": "string",
+                "minLength": 1,
+                "description": "MapTracker 小地图标识，支持正则。",
+                "examples": [
+                    "map02_lv001",
+                    "map02_lv002",
+                    "map02_lv003",
+                    "map02_lv004",
+                    "map02_lv001_tier_277",
+                    "map02_lv004_tier_328",
+                    "^map\\d+_lv\\d+$"
+                ]
+            },
+            "MapTarget": {
+                "type": "array",
+                "description": "目标矩形 [x, y, w, h]（小地图坐标），用于 MapTrackerAssertLocation 判断是否已就位。",
+                "items": {
+                    "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+            },
+            "MapPath": {
+                "type": "array",
+                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "description": "路径点 [x, y]（小地图坐标）。",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                }
+            },
+            "CameraSwipeDirection": {
+                "type": "string",
+                "description": "拍照时调整摄像头朝向的滑屏方向。",
+                "enum": [
+                    "EnvironmentMonitoringSwipeScreenUp",
+                    "EnvironmentMonitoringSwipeScreenDown",
+                    "EnvironmentMonitoringSwipeScreenLeft",
+                    "EnvironmentMonitoringSwipeScreenRight"
+                ]
+            },
+            "CameraMaxHit": {
+                "type": "integer",
+                "description": "调整摄像头时的最大滑屏命中次数。可选；默认值见 routes.mjs 的 ROUTE_DEFAULTS（当前为 2）。拍照目标较难对准时可适当调大。",
+                "minimum": 1
+            },
+            "Id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+                "description": "可选；默认从 kite_station.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
+            }
+        }
+    }
+}

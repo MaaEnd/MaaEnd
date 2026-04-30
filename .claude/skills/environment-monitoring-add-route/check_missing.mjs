@@ -1,5 +1,5 @@
 /**
- * 检测 kite_station.json 中尚未在 routes.mjs ROUTE_CONFIG 中配置的观察点。
+ * 检测 kite_station.json 中尚未在 routes.json ROUTE_CONFIG 中配置的观察点。
  * 运行方式（在 tools/pipeline-generate/EnvironmentMonitoring/ 目录下）：
  *   node .claude/skills/em-add-route/check_missing.mjs
  * 或直接复制到该目录后运行：
@@ -13,12 +13,10 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const emDir = resolve(__dir, "../../../tools/pipeline-generate/EnvironmentMonitoring");
 
 const kite = JSON.parse(readFileSync(resolve(emDir, "kite_station.json"), "utf8"));
-const routes = readFileSync(resolve(emDir, "routes.mjs"), "utf8");
+const routes = JSON.parse(readFileSync(resolve(emDir, "routes.json"), "utf8"));
 
-const existingNames = Array.from(routes.matchAll(/Name:\s*"([^"]+)"/g)).map((m) =>
-    m[1].replace(/[^\p{L}\p{N}]/gu, "").toLowerCase(),
-);
 const normalize = (s) => s.replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+const existingNames = routes.map((entry) => normalize(entry.Name ?? ""));
 
 const missing = [];
 for (const [
