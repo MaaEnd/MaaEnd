@@ -223,6 +223,10 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
 
 // ===== 从 settlement 数据构建 LOCATIONS（取所有繁荣度等级的物品并集） =====
 // SETTLEMENT_ITEM_STATS 已在单遍遍历中按 settlement 聚合好 {rarity, unitPrice}（取最高 unitPrice）。
+// 末尾 sort 为 SETTLEMENT_OVERRIDE.RegionPrefix 改写场景兜底：当前 SETTLEMENT_MAP 已按
+// domainId 排好，且 DOMAIN_REGION_PREFIX 与 REGION_PRIORITY 一致，所以默认数据下这次 sort 是
+// 稳定 no-op；但若未来某个 settlement 通过 override 把 RegionPrefix 改成跨 domain 的值，
+// 必须在这里重新按 REGION_PRIORITY 落位，否则 UI 顺序会乱。
 const LOCATIONS = Object.entries(SETTLEMENT_MAP)
     .map(
         ([
