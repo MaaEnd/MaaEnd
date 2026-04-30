@@ -5,18 +5,12 @@ const require = createRequire(import.meta.url);
 const kiteStationData = require("./kite_station.json");
 
 // 监测终端 ID 列表直接从 kite_station.json 派生：凡是带有 entrustTasks 的条目都算。
-// 上游游戏数据若新增监测终端会自动包含。新终端要真正可用，仍需手动补 Pipeline 侧的联动节点：
-//   - assets/resource/pipeline/EnvironmentMonitoring/Locations.json：
-//     新增 EnvironmentMonitoringGoTo{Station}MonitoringTerminal 与 EnvironmentMonitoringSelect{Station}MonitoringTerminal 节点
-//   - assets/resource/pipeline/EnvironmentMonitoring.json 的 EnvironmentMonitoringLoop.next：
-//     加入 [JumpBack]{Station}MonitoringTerminal
-//   - 如有新文本识别节点（EnvironmentMonitoringCheck{Station}MonitoringTerminalText 等），手写补齐
-// 上述节点缺失时，生成出来的 Pipeline 会引用未定义任务，MaaFramework 会在运行时报错——这是正确的失败模式。
+// 上游游戏数据若新增监测终端会自动包含；新终端要真正可用还需手动补 Pipeline 侧的联动节点
+// （Locations.json / EnvironmentMonitoringLoop.next 等），详见 docs 维护手册。
 export const MONITORING_TERMINAL_IDS = Object.keys(kiteStationData)
     .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
     .sort();
-// 与 kite_station.json 中 name/shotTargetName 提供的 locale 列表保持一致。
-// 上游若新增语言（例如未来加入法语/俄语），需要同步在这里补上，否则该语种文本不会进入 ExpectedText。
+// 与 kite_station.json 中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
 const LOCALES = [
     "zh-CN",
     "zh-TW",
@@ -158,8 +152,7 @@ function buildStationName(terminalId) {
 }
 
 function buildGoToMonitoringTerminal(station) {
-    // Locations.json 中节点统一遵循 EnvironmentMonitoringGoTo{Station} 命名，
-    // 所以这里直接拼，不维护硬编码白名单。新终端节点需要在 Locations.json 手写补齐。
+    // Locations.json 中节点统一遵循 EnvironmentMonitoringGoTo{Station} 命名，新终端在 Locations.json 手写补齐。
     return `EnvironmentMonitoringGoTo${station}`;
 }
 
@@ -173,8 +166,7 @@ const REQUIRED_ROUTE_FIELDS = [
 ];
 
 function isFieldMissing(value) {
-    // null / undefined / 空字符串 / 空数组都视为缺失，避免 routes.json 里写成 null 时
-    // 既不进 missingFields、又被 ?? 回退到默认占位值的「看似已适配」陷阱。
+    // null / undefined / 空字符串 / 空数组均视为缺失。
     if (value === undefined || value === null) {
         return true;
     }
@@ -205,7 +197,6 @@ function buildRow(mission, usedIds) {
     const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
 
-    // 仅当条目存在但字段不全时提示「补全」；否则只在下面 isAdapted 分支统一提示「尚未适配」。
     if (override != null && missingFields.length > 0) {
         console.warn(
             `[EnvironmentMonitoring] 任务 ${sanitizeDisplayName(missionName)} (${mission.missionId}) 路线条目缺失字段: ${missingFields.join(", ")}。已使用默认值，请补全 routes.json。`,
@@ -217,7 +208,7 @@ function buildRow(mission, usedIds) {
     const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
-    // 判断任务是否已适配路线：routes.json 中无条目、或条目存在但必填字段缺失（含 null/空），均视为未适配。
+    // routes.json 中无条目、或条目缺失任一必填字段，均视为未适配。
     const isAdapted = override != null && missingFields.length === 0;
 
     if (!isAdapted) {
@@ -226,8 +217,7 @@ function buildRow(mission, usedIds) {
         );
     }
 
-    // 先确认任务处于“开始追踪”或“已在追踪”状态，再决定后续是否前往。
-    // 游戏内未追踪时无法完成任务，因此已适配点也不能直接跳过追踪确认。
+    // 游戏内未追踪时无法完成任务，已适配点也要先走追踪确认。
     const TrackOrGoToNext = [
         `Track${Id}`,
         `AlreadyTracked${Id}`,

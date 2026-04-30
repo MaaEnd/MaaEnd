@@ -1,30 +1,23 @@
 // Package sellproduct 为「🛒售卖产品」任务提供 Go 自定义识别。
 //
-// 核心识别：SellProductNormalizedItemMatch —— 在指定 ROI 内跑一次 OCR，
-// 对每条 OCR 文本与 candidates 做抗噪声匹配，命中后返回该文本的 box。
+// 核心识别：SellProductNormalizedItemMatch —— 在指定 ROI 内跑一次 OCR，对每条 OCR 文本
+// 与 candidates 做抗噪声匹配，命中后返回该文本的 box。
 //
-// 引入原因：见 MaaEnd issue #2344。原实现用锚定正则 `^紫晶质瓶$` 去
-// 匹配 OCR 结果，遇到噪声前缀（如 "I紫晶质瓶"）就直接 miss，回退卖
-// 默认货品。
+// 引入原因：见 MaaEnd issue #2344。原实现用锚定正则 `^紫晶质瓶$` 去匹配 OCR 结果，遇到噪声
+// 前缀（如 "I紫晶质瓶"）就直接 miss，回退卖默认货品。
 //
-// 关键约束：不得回退 PR #1790（issue #1793）修复的子串混淆问题，即
-// 设置「柑实罐头」为优先货品时不应误匹配「优质柑实罐头」「精选柑实
-// 罐头」「精选优质柑实罐头」。为此，匹配采用精确层级策略，完全不使
-// 用通用编辑距离：
+// 关键约束：不得回退 PR #1790（issue #1793）修复的子串混淆问题——设置「柑实罐头」为优先货
+// 品时不应误匹配「优质柑实罐头」「精选柑实罐头」「精选优质柑实罐头」。为此匹配采用精确层级
+// 策略，完全不使用通用编辑距离：
 //
-//  1. 分隔符归一化（Tier A）：剥除空白、方括号、竖线、连字符、点号、
-//     顿号等常见分隔符并统一大小写后要求严格相等。用于 EN 名在 OCR
-//     里多出 `[` `]` `|` 的情况，如 "Canned Citrome [C]"。
-//  2. CJK 纯核归一化（Tier B）：在 Tier A 基础上，再从 OCR 文本里
-//     剔除 ASCII 字母 / 数字（这些是 CJK 名称里的噪声）；候选做相同
-//     处理。要求严格相等。用于 "I紫晶质瓶" → "紫晶质瓶"；而
-//     "优质柑实罐头" 的 CJK 核心是 "优质柑实罐头"，与候选 "柑实罐头"
-//     的 CJK 核心不相等，天然不会被误匹配。
+//  1. 分隔符归一化（Tier A）：剥除空白、方括号、竖线、连字符、点号、顿号等常见分隔符并统
+//     一大小写后要求严格相等。用于 EN 名在 OCR 里多出 `[` `]` `|` 的情况。
+//  2. CJK 纯核归一化（Tier B）：在 Tier A 基础上再剔除 ASCII 字母 / 数字（这些是 CJK 名称
+//     里的噪声）；候选做相同处理后要求严格相等。用于 "I紫晶质瓶" → "紫晶质瓶"；而「优质柑
+//     实罐头」的 CJK 核心与「柑实罐头」不相等，天然不会被误匹配。
 //
-// 以上两层都是 *严格相等* 比较，没有相似度阈值可调。候选 EN 名里自
-// 带 ASCII 字母（如 "Canned Citrome C"）时 Tier B 会同时把候选和
-// OCR 的字母都剥掉，此时 Tier B 对 EN 名退化为 Tier A 的等价形式，
-// 不会引入新的风险。
+// 两层均为严格相等比较，无相似度阈值。候选 EN 名自带 ASCII 字母时 Tier B 会同时剥掉两侧的
+// 字母，对 EN 名退化为 Tier A 的等价形式，不会引入新风险。
 package sellproduct
 
 import (
@@ -181,13 +174,7 @@ type matchResult struct {
 }
 
 // findBestMatch 按 Tier A → Tier B 的顺序匹配，任一层命中即返回。
-// OCR 结果按屏幕顺序排序，优先命中靠上 / 靠左的文本。
-//
-// Tier A 优先级最高：若某条 OCR 文本经 stripSeparators 后严格等于某
-// 候选，直接返回。这保证完全正确的 OCR 结果不会被 Tier B 覆盖。
-//
-// Tier B 仅在 Tier A 无命中时启用，用于消化 "I紫晶质瓶" 这种 ASCII
-// 字母 / 数字噪声。CJK 文本的 CJK 纯核不会改变；候选也做相同处理。
+// OCR 结果按屏幕顺序排序，优先命中靠上 / 靠左的文本。Tier 划分见 package doc。
 func findBestMatch(ocrItems []ocrItem, candidates []string) *matchResult {
 	tierACandidates := make([]string, len(candidates))
 	tierBCandidates := make([]string, len(candidates))
@@ -245,8 +232,7 @@ func findBestMatch(ocrItems []ocrItem, candidates []string) *matchResult {
 	return nil
 }
 
-// stripSeparators 剥除 OCR / 候选里允许存在差异的分隔字符，并统一
-// ASCII 大小写。保留字母、数字、CJK 等 "有效字符"。
+// stripSeparators 剥除允许差异的分隔字符并统一 ASCII 大小写，保留字母 / 数字 / CJK。
 func stripSeparators(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -268,10 +254,7 @@ func stripSeparators(s string) string {
 	return b.String()
 }
 
-// stripASCIIAlnum 从已去分隔符的字符串里再剥除 ASCII 字母与数字。
-// 用于 Tier B：让 "I紫晶质瓶" 的纯 CJK 内核等于 "紫晶质瓶"。
-// 对 EN 候选（如 "Canned Citrome C"）和 EN OCR 同时应用时，两侧
-// 都会被剥成空串或剥到共同非字母字符，不会造成 false positive。
+// stripASCIIAlnum 在 stripSeparators 基础上再剥除 ASCII 字母与数字，用于 Tier B。
 func stripASCIIAlnum(s string) string {
 	if s == "" {
 		return ""

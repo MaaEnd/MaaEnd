@@ -43,18 +43,12 @@ function buildItemLocaleKeyByCNName() {
 // 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
 
-// ===== 单次遍历 settlements，同时构建：
-//   - ITEMS：全局物品字典（key → {name, label, candidates}）
-//     candidates 候选名称列表（CN/TC/JP/EN），供 Go 侧 SellProductNormalizedItemMatch
-//     自定义识别做抗噪声匹配。不再带 `^...$` 锚定符，噪声剥离和严格相等由
-//     Go 侧 stripSeparators / stripASCIIAlnum 两层保证，既能消化 "I紫晶质瓶"
-//     这种 ASCII 前缀噪声，又不会把「柑实罐头」误匹配到「优质柑实罐头」
-//     （见 MaaEnd issue #2344、PR #1790 / issue #1793）。
-//   - ITEM_KEY_BY_ID：itemId → ITEMS 内部 key 的反查表。同一物品在多个 settlement
-//     出现时，靠它确保只插入一次 ITEMS。
-//   - SETTLEMENT_ITEM_STATS：settlementId → (key → {rarity, unitPrice})。
-//     同一 key 在多个 prosperityLevel 出现时取 unitPrice 最高的那条，供 LOCATIONS
-//     做 rarity/价格排序。
+// 单次遍历 settlements，同时构建：
+//   - ITEMS：物品字典（key → {name, label, candidates}）。candidates 是 CN/TC/JP/EN 候选名，
+//     由 Go 侧 SellProductNormalizedItemMatch 做抗噪声匹配（不含 `^...$` 锚定符）。
+//   - ITEM_KEY_BY_ID：itemId → ITEMS key 反查表，去重。
+//   - SETTLEMENT_ITEM_STATS：settlementId → (key → {rarity, unitPrice})，
+//     同 key 在多个 prosperityLevel 出现时取 unitPrice 最高的一条，供 LOCATIONS 排序。
 const ITEMS = {};
 const ITEM_KEY_BY_ID = new Map();
 const SETTLEMENT_ITEM_STATS = new Map();
@@ -140,12 +134,8 @@ const SETTLEMENT_OVERRIDE = {
     },
 };
 
-// domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，
-// 加一行即可；不在表中的 domain 会回退到 toPascalCase(domainId)。
-// 维护提醒：domainId 字典序当前与游戏内区域解锁顺序一致（domain_1=四号谷地 在前，
-// domain_2=武陵 在后），SETTLEMENT_MAP 直接用 domainId 排序就能给到正确的 UI 顺序，
-// 无需额外的 region 优先级表。若未来出现「domainId 字典序 ≠ 解锁顺序」的新区域，
-// 需要在 SETTLEMENT_MAP 排序时引入显式权重。
+// domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，加一行即可；
+// 不在表中的 domain 会回退到 toPascalCase(domainId)。
 const DOMAIN_REGION_PREFIX = {
     domain_1: "ValleyIV",
     domain_2: "Wuling",
@@ -165,9 +155,8 @@ function buildSettlementTextExpected(settlementId, settlement) {
 }
 
 // settlementId → {RegionPrefix, LocationId, TextExpected}
-// 排序策略：先按 domainId（domain_1=ValleyIV=四号谷地 在前，domain_2=Wuling=武陵 在后），
-// 同 domain 内再按 settlementId 字典序。直接按 settlementId 排序会让武陵（stm_hongs_*）
-// 排在四号谷地（stm_tundra_*）前面，与游戏内区域解锁顺序和 UI 习惯不符。
+// 排序：先按 domainId（与游戏内解锁顺序一致：domain_1=ValleyIV 在前，domain_2=Wuling 在后），
+// 同 domain 内再按 settlementId 字典序。
 const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
     .sort(
         (
@@ -225,16 +214,13 @@ const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
     {},
 );
 
-// LOCATIONS：模板的最终消费形态，每个元素 = {RegionPrefix, LocationId, TextExpected,
-// LocationDesc, items}，其中 items 是该 settlement 内可售物品的 ITEMS key 列表，
-// 按 rarity 降序、unitPrice 降序排好。顺序直接继承 SETTLEMENT_MAP（按 domainId 排）。
+// LOCATIONS：模板最终消费形态，items 按 rarity → unitPrice 降序排列。顺序继承 SETTLEMENT_MAP。
 const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
     ([
         settlementId,
         config,
     ]) => {
         const settlement = settlementData.settlements[settlementId];
-        // 按 rarity 降序 → unitPrice 降序 排列
         const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
             .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
             .map(([key]) => key);
@@ -246,10 +232,8 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
     },
 );
 
-// ===== 构建 cases 数组 =====
-// 同一 location 的 4 个 itemNum 对应 cases 物品列表完全一致，仅 selectKey / missHandlerKey
-// 后缀编号不同。先用 buildItemCaseEntries 抽出与 itemNum 无关的「物品 + 是否启用 + label」基础
-// 数据，再由 buildItemCases 拼上 itemNum 相关的两个 key 名，避免重复构造 4×(N+1) 个相同物品对象。
+// 同一 location 的 4 个 itemNum 的物品列表完全一致，仅 selectKey/missHandlerKey 后缀编号不同。
+// 先抽出与 itemNum 无关的基础数据（buildItemCaseEntries），再由 buildItemCases 拼上 itemNum 相关的 key。
 function buildItemCaseEntries(itemIds) {
     const entries = [{name: "无", enabled: false}];
     for (const id of itemIds) {
