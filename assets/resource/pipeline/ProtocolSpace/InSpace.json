@@ -561,6 +561,7 @@
             "time": 200
         },
         "next": [
+            "ProtocolSpaceRewardClaimSuccessSanityLow",
             "ProtocolSpaceRewardClaimSuccessContinue",
             "ProtocolSpaceRewardClaimSuccessFinish"
         ]
@@ -578,6 +579,38 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "继续行动"
+        }
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLow": {
+        "desc": "使用理智消耗许可时理智不足",
+        "recognition": "OCR",
+        "roi": [
+            330,
+            -180,
+            300,
+            180
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+        "desc": "协议空间奖励界面，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "理智不足，结束任务"
         }
     },
     "ProtocolSpaceRewardClaimSuccessFinish": {
