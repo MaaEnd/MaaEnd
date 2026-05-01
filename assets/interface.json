@@ -110,70 +110,90 @@
     ],
     "group": [
         {
-            "name": "daily",
-            "label": "$group.daily.label",
-            "description": "$group.daily.description",
+            "name": "regional_development",
+            "label": "$group.regional_development.label",
             "default_expand": true
         },
         {
-            "name": "foreground",
-            "label": "$group.foreground.label",
-            "description": "$group.foreground.description",
+            "name": "valuables_vault",
+            "label": "$group.valuables_vault.label",
+            "default_expand": true
+        },
+        {
+            "name": "open_world",
+            "label": "$group.open_world.label",
+            "default_expand": true
+        },
+        {
+            "name": "sanity_sink",
+            "label": "$group.sanity_sink.label",
+            "default_expand": true
+        },
+        {
+            "name": "dijiang_ship",
+            "label": "$group.dijiang_ship.label",
+            "default_expand": true
+        },
+        {
+            "name": "backpack",
+            "label": "$group.backpack.label",
+            "default_expand": true
+        },
+        {
+            "name": "other_menu",
+            "label": "$group.other_menu.label",
             "default_expand": true
         },
         {
             "name": "realtime",
             "label": "$group.realtime.label",
-            "description": "$group.realtime.description",
-            "default_expand": true
-        },
-        {
-            "name": "utility",
-            "label": "$group.utility.label",
-            "description": "$group.utility.description",
             "default_expand": true
         }
     ],
     "task": [],
     "import": [
-        // group: daily
-        "tasks/DijiangRewards.json",
-        "tasks/DailyRewards.json",
-        "tasks/ClaimSimulationRewards.json",
-        "tasks/VisitFriends.json",
-        "tasks/CreditShopping.json",
+        // group: regional_development
+        "tasks/SellProduct.json",
         "tasks/SeizeEntrustTask.json",
         "tasks/DeliveryJobs.json",
-        "tasks/SellProduct.json",
         "tasks/AutoStockpile.json",
         "tasks/AutoStockStaple.json",
-        "tasks/ResourceRecycleStation.json",
-        "tasks/Crafting.json",
+        "tasks/AutoSell.json",
+        "tasks/EnvironmentMonitoring.json",
+        // group: valuables_vault
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
-        // group: foreground
-        "tasks/AutoEssence.json",
-        "tasks/EnvironmentMonitoring.json",
-        "tasks/ProtocolSpace.json",
-        "tasks/GiftOperator.json",
-        "tasks/AutoEcoFarm.json",
-        "tasks/AutoCollect.json",
-        "tasks/AutoSell.json",
-        // group: realtime
-        "tasks/RealTimeTask.json",
-        // group: utility
-        "tasks/PuzzleSolver.json",
-        "tasks/EssenceFilter.json",
-        "tasks/ImportBluePrints.json",
-        "tasks/AutoUseSpMedication.json",
-        "tasks/ItemTransfer.json",
-        "tasks/BatchAddFriends.json",
         "tasks/BatchUseDetector.json",
-        "tasks/SimpleProductionBatchStart.json",
-        "tasks/ReceiveProdManual.json",
+        "tasks/AutoUseSpMedication.json",
+        "tasks/EssenceFilter.json",
+        // group: open_world
+        "tasks/ResourceRecycleStation.json",
+        "tasks/AutoCollect.json",
+        "tasks/AutoEcoFarm.json",
+        "tasks/PuzzleSolver.json",
+        "tasks/ImportBluePrints.json",
+        // group: sanity_sink
+        "tasks/AutoEssence.json",
+        "tasks/ProtocolSpace.json",
+        // group: dijiang_ship
+        "tasks/DijiangRewards.json",
+        "tasks/VisitFriends.json",
+        "tasks/GiftOperator.json",
+        "tasks/BatchAddFriends.json",
+        // group: other_menu
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
+        "tasks/DailyRewards.json",
+        "tasks/ClaimSimulationRewards.json",
+        "tasks/CreditShopping.json",
         "tasks/AndroidOpenGame.json",
+        // group: realtime
+        "tasks/RealTimeTask.json",
+        // group: backpack
+        "tasks/ItemTransfer.json",
+        "tasks/Crafting.json",
+        "tasks/SimpleProductionBatchStart.json",
+        "tasks/ReceiveProdManual.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
