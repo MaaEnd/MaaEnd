@@ -1,6 +1,8 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="Do not discuss MAA on Skland" src="docs/img/NoSkland.png" width="280" />
+  <object data="assets/locales/interface/DESCRIPTION/img/NoSkland.png" type="image/png" width="280">
+    <img alt="Do not discuss MAA on Skland" src="locales/interface/DESCRIPTION/img/NoSkland.png" width="280" />
+  </object>
 </p>
 
 <h1 align="center">Do not discuss MAA on Skland</h1>
