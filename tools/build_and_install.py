@@ -591,11 +591,11 @@ def main():
             if link_or_copy_file(item, dst):
                 print(f"  {Console.ok('->')} {dst}")
 
-    docs_dir = root_dir / "docs"
-    if docs_dir.is_dir():
-        docs_dst = install_dir / "docs"
-        if link_or_copy_dir(docs_dir, docs_dst):
-            print(f"  {Console.ok('->')} {docs_dst}")
+    docs_img_dir = root_dir / "docs" / "img"
+    if docs_img_dir.is_dir():
+        docs_img_dst = install_dir / "docs" / "img"
+        if link_or_copy_dir(docs_img_dir, docs_img_dst):
+            print(f"  {Console.ok('->')} {docs_img_dst}")
         else:
             print(f"  {Console.warn(t('warning'))} {t('docs_copy_failed')}")
 
