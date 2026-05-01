@@ -20,6 +20,7 @@
         ],
         "next": [
             "[JumpBack]BeaconDamagedInTheBlightTideJob",
+            "[JumpBack]VigorousCisternOriginiumSlugJob",
             "[JumpBack]CisternOriginiumSlugsJob",
             "[JumpBack]RainbowFinJob",
             "[JumpBack]IndoorCropsJob",
@@ -27,7 +28,6 @@
             "[JumpBack]CollapsedTianshiPillarJob",
             "[JumpBack]EternalSunsetJob",
             "[JumpBack]CleansingJadeJob",
-            "[JumpBack]VigorousCisternOriginiumSlugJob",
             "[JumpBack]InflatedAndGlowingBugspittingLankybeastJob",
             "[JumpBack]ObservantSableChestedFowlbeastJob",
             "[JumpBack]EcologyNearTheFieldLogisticsDepotJob",
