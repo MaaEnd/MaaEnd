@@ -595,7 +595,10 @@
                     281.3
                 ]
             ]
-        }
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5"
+        ],
     },
     "AutoCollectRoute7AssertLocation5": {
         "desc": "武陵石门口定位",
