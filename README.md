@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD033 MD041 -->
-<p align="center">
+<!-- <p align="center">
   <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.png" width="280" />
-</p>
+</p> -->
 
 <p align="center"><strong>不要去森空岛讨论MAA!!!!!</strong></p>
 
