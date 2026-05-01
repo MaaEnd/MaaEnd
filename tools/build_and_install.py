@@ -580,7 +580,7 @@ def main():
     link_or_copy_dir = copy_directory if use_copy else create_directory_link
     link_or_copy_file = copy_file if use_copy else create_file_link
 
-    # 1. 链接/复制 assets 目录内容
+    # 1. 链接/复制 assets 目录内容 和 docs 目录
     print(Console.step(t("step_process_assets")))
     for item in assets_dir.iterdir():
         dst = install_dir / item.name
@@ -590,6 +590,14 @@ def main():
         elif item.is_file():
             if link_or_copy_file(item, dst):
                 print(f"  {Console.ok('->')} {dst}")
+
+    docs_dir = root_dir / "docs"
+    if docs_dir.is_dir():
+        docs_dst = install_dir / "docs"
+        if link_or_copy_dir(docs_dir, docs_dst):
+            print(f"  {Console.ok('->')} {docs_dst}")
+        else:
+            print(f"  {Console.warn(t('warning'))} {t('docs_copy_failed')}")
 
     # 2. 构建 Go Agent
     print(Console.step(t("step_build_go")))
