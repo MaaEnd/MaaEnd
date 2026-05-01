@@ -659,8 +659,8 @@
                     "pipeline_override": {
                         "IsDiscountPriority1": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -668,8 +668,8 @@
                         },
                         "IsDiscountPriority1_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -683,16 +683,16 @@
                     "pipeline_override": {
                         "IsDiscountPriority1": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
@@ -705,15 +705,15 @@
                     "pipeline_override": {
                         "IsDiscountPriority1": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         }
@@ -725,14 +725,14 @@
                     "pipeline_override": {
                         "IsDiscountPriority1": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         },
                         "IsDiscountPriority1_CanNotAfford": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         }
                     }
@@ -1326,8 +1326,8 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -1335,8 +1335,8 @@
                         },
                         "IsDiscountPriority2_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -1350,16 +1350,16 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
@@ -1372,15 +1372,15 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         }
@@ -1392,14 +1392,14 @@
                     "pipeline_override": {
                         "IsDiscountPriority2": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         },
                         "IsDiscountPriority2_CanNotAfford": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         }
                     }
@@ -1981,8 +1981,8 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -1990,8 +1990,8 @@
                         },
                         "IsDiscountPriority3_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50",
                                 "25"
@@ -2005,16 +2005,16 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75",
                                 "50"
                             ]
@@ -2027,15 +2027,15 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
                             "expected": [
-                                "95",
                                 "99",
+                                "95",
                                 "75"
                             ]
                         }
@@ -2047,14 +2047,14 @@
                     "pipeline_override": {
                         "IsDiscountPriority3": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         },
                         "IsDiscountPriority3_CanNotAfford": {
                             "expected": [
-                                "95",
-                                "99"
+                                "99",
+                                "95"
                             ]
                         }
                     }
