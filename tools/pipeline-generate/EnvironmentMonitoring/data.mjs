@@ -198,7 +198,15 @@ function buildRow(mission, usedIds) {
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
     // Heading 是可选朝向（角度），未配置时不调整角色朝向，AdjustHeading 节点退化为透传。
     const HeadingRaw = override?.Heading;
-    const HasHeading = typeof HeadingRaw === "number" && Number.isFinite(HeadingRaw);
+    const isHeadingNumber = typeof HeadingRaw === "number" && Number.isFinite(HeadingRaw);
+    const isHeadingInRange = isHeadingNumber && HeadingRaw >= 0 && HeadingRaw < 360;
+    if (isHeadingNumber && !isHeadingInRange) {
+        console.warn(
+            `[EnvironmentMonitoring] 任务 ${sanitizeDisplayName(missionName)} (${mission.missionId}) Heading 值 ${HeadingRaw} 超出合法范围 [0, 360)，已自动归一化为 ${((HeadingRaw % 360) + 360) % 360}。`,
+        );
+    }
+    const HasHeading = isHeadingNumber;
+    const Heading = HasHeading ? ((HeadingRaw % 360) + 360) % 360 : undefined;
 
     if (override != null && missingFields.length > 0) {
         console.warn(
@@ -239,7 +247,7 @@ function buildRow(mission, usedIds) {
                   path: [
                       {
                           action: "HEADING",
-                          angle: HeadingRaw,
+                          angle: Heading,
                       },
                   ],
               },
