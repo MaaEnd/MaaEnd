@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
   <object data="assets/locales/interface/DESCRIPTION/img/NoSkland.png" type="image/png" width="280">
-    <img alt="不要去森空岛讨论MAA" src="locales/interface/DESCRIPTION/img/NoSkland.png" width="280" />
+    <img alt="不要去森空岛讨论MAA" src="./locales/interface/DESCRIPTION/img/NoSkland.png" width="280" />
   </object>
 </p>
 
