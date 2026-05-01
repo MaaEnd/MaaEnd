@@ -27,7 +27,8 @@
                 "Route3",
                 "Route4",
                 "Route5",
-                "Route6"
+                "Route6",
+                "Route7"
             ],
             "cases": [
                 {
@@ -80,6 +81,15 @@
                     "label": "$option.AutoCollectRoute6.label",
                     "pipeline_override": {
                         "AutoCollectRoute6Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route7",
+                    "label": "$option.AutoCollectRoute7.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute7Sub": {
                             "enabled": true
                         }
                     }
