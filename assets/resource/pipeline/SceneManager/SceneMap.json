@@ -516,9 +516,9 @@
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,
-                    0,
-                    432,
-                    330
+                    100,
+                    100,
+                    100
                 ],
                 "template": [
                     "SceneManager/TaskIcon.png",
