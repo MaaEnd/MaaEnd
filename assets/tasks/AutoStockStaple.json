@@ -739,7 +739,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
-            "default_case": "70",
+            "default_case": "50",
             "cases": [
                 {
                     "name": "Any",
@@ -876,6 +876,31 @@
                                         "80",
                                         "75",
                                         "70"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "50",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.50.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "95",
+                                        "99",
+                                        "90",
+                                        "85",
+                                        "80",
+                                        "75",
+                                        "70",
+                                        "65",
+                                        "60",
+                                        "55",
+                                        "50"
                                     ]
                                 }
                             }
@@ -1519,7 +1544,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
-            "default_case": "70",
+            "default_case": "50",
             "cases": [
                 {
                     "name": "Any",
@@ -1658,6 +1683,31 @@
                                         "80",
                                         "75",
                                         "70"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "50",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.50.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "95",
+                                        "99",
+                                        "90",
+                                        "85",
+                                        "80",
+                                        "75",
+                                        "70",
+                                        "65",
+                                        "60",
+                                        "55",
+                                        "50"
                                     ]
                                 }
                             }
