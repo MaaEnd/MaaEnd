@@ -1,5 +1,6 @@
 {
     "AutoCollectRoute7Start": {
+        "desc": "本线路包含两个收集点，血菌和武陵石",
         "next": [
             "AutoCollectRoute7AssertLocation1",
             "[JumpBack]SceneEnterWorldWulingWulingCity1"
@@ -38,7 +39,7 @@
         ]
     },
     "AutoCollectRoute1GotoFindLine1": {
-        "desc": "前往收集地7",
+        "desc": "寻路到升降梯门口",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -151,7 +152,7 @@
         ]
     },
     "AutoCollectRoute7AssertLocation2": {
-        "desc": "前往收集地7",
+        "desc": "升降梯门口定位",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -172,6 +173,7 @@
         ]
     },
     "AutoCollectRoute7GotoFindLine2": {
+        "desc": "过升降机",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -200,6 +202,7 @@
         ]        
     },
     "AutoCollectRoute7GotoFindLine3": {
+        "desc": "寻路至血菌",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -236,6 +239,7 @@
         ]
     },
     "AutoCollectRoute7AssertLocation3": {
+        "desc": "血菌定位",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -502,16 +506,17 @@
         "desc": "点击使用按钮",
         "pre_wait_freezes": 300,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    803,
-                    350,
-                    263,
-                    219
+                    850,
+                    455,
+                    144,
+                    54
                 ],
-                "template": [
-                    "AutoCollect/using.png"
+                "expected": [
+                    "使用",
+                    "Interact"
                 ]
             }
         },
