@@ -580,7 +580,7 @@ def main():
     link_or_copy_dir = copy_directory if use_copy else create_directory_link
     link_or_copy_file = copy_file if use_copy else create_file_link
 
-    # 1. 链接/复制 assets 目录内容 和 docs 目录
+    # 1. 链接/复制 assets 目录内容 和 docs/img 目录
     print(Console.step(t("step_process_assets")))
     for item in assets_dir.iterdir():
         dst = install_dir / item.name
