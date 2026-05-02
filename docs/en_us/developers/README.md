@@ -59,7 +59,7 @@ Reusable nodes used most often in daily development—Pipeline authors should sk
 | Document                                    | Description                                                                  |
 | ------------------------------------------- | ---------------------------------------------------------------------------- |
 | [Common buttons](./common-buttons.md)       | White/yellow confirm, cancel, close, teleport, etc.                          |
-| [SceneIn](./in-scene.md)                    | Universal scene recognition — identify which screen is currently shown       |
+| [InScene](./in-scene.md)                    | Universal scene recognition — identify which screen is currently shown       |
 | [SceneManager](./scene-manager.md)          | Universal navigation from any screen to a target scene/UI                    |
 | [Custom actions & recognition](./custom.md) | SubTask, ClearHitCount, ExpressionRecognition, and other shared Custom nodes |
 

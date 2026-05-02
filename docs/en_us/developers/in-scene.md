@@ -1,8 +1,8 @@
-# Development Guide - SceneIn Reference
+# Development Guide - InScene Reference
 
 ## 1. Universal Scene Recognition Overview
 
-**SceneIn** is the scene recognition module in MaaEnd. It provides functionality for identifying whether the current screen matches certain scenes.
+**InScene** is the scene recognition module in MaaEnd. It provides functionality for identifying whether the current screen matches certain scenes.
 
 ### Core Concept
 
@@ -10,7 +10,7 @@
 
 ### How It Works
 
-Place recognition nodes inside `SceneIn` that identify specific game screens. By using MaaFramework's `And` and `Or` algorithm types to reference nodes from `SceneIn`, you can maintain screen recognition logic centrally across multiple tasks and invoke it when needed.
+Place recognition nodes inside `InScene` that identify specific game screens. By using MaaFramework's `And` and `Or` algorithm types to reference nodes from `InScene`, you can maintain screen recognition logic centrally across multiple tasks and invoke it when needed.
 
 ### How to Use
 

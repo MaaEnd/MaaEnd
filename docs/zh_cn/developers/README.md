@@ -59,7 +59,7 @@ flowchart TD
 | 文档                                        | 说明                                                             |
 | ------------------------------------------- | ---------------------------------------------------------------- |
 | [通用按钮](./common-buttons.md)             | 白色/黄色确认、取消、关闭、传送等通用按钮节点                    |
-| [SceneIn 场景识别](./in-scene.md)           | 万能场景识别，判断当前画面所在场景                               |
+| [InScene 场景识别](./in-scene.md)           | 万能场景识别，判断当前画面所在场景                               |
 | [SceneManager 场景跳转](./scene-manager.md) | 万能跳转机制，从任意界面自动导航/传送到目标场景/UI               |
 | [Custom 动作与识别](./custom.md)            | SubTask、ClearHitCount、ExpressionRecognition 等公共 Custom 节点 |
 
