@@ -1,0 +1,213 @@
+{
+    "WLSerenityGardenMoveToTriggerPointAuto": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLSerenityGardenMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLSerenityGardenWalkAround1"
+        },
+        "next": [
+            "[JumpBack]WLSerenityGardenMaybeTeleport",
+            "WLSerenityGardenMoveToTriggerPoint"
+        ]
+    },
+    "WLSerenityGardenLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv004",
+                            "target": [
+                                312.7,
+                                393.6,
+                                21.3,
+                                20.6
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLSerenityGardenMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLSerenityGardenWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>安思园</strong></p>"
+        }
+    },
+    "WLSerenityGardenMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近坐标范围
+                            "map_name": "map02_lv004",
+                            "target": [
+                                402.4,
+                                313.4,
+                                20.8,
+                                17.4
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv004",
+                            "target": [
+                                312.7,
+                                393.6,
+                                21.3,
+                                20.6
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingMarkerStone2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "WLSerenityGardenMoveToTriggerPoint": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv004",
+                    "path": [
+                        [
+                            418.8,
+                            322.3
+                        ],
+                        [
+                            418.8,
+                            328.5
+                        ],
+                        [
+                            415.0,
+                            328.5
+                        ],
+                        [
+                            415.0,
+                            322.2
+                        ],
+                        [
+                            323.8,
+                            322.2
+                        ],
+                        [
+                            325.0,
+                            378.6
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLSerenityGardenMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "WLSerenityGardenMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv004",
+                    "path": [
+                        [
+                            325.0,
+                            378.6
+                        ],
+                        [
+                            324.9,
+                            404.7
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "WLSerenityGardenWalkAround1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv004",
+                    "path": [
+                        [
+                            332.6,
+                            413.5
+                        ],
+                        [
+                            313.7,
+                            394.5
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLSerenityGardenWalkAround2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLSerenityGardenWalkAround2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv004",
+                    "path": [
+                        [
+                            313.7,
+                            394.5
+                        ],
+                        [
+                            332.6,
+                            413.5
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLSerenityGardenWalkAround1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    }
+}

@@ -95,6 +95,17 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "WLSerenityGarden",
+                    "label": "$global.region.SerenityGarden",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLSerenityGardenMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
                 }
             ]
         },
