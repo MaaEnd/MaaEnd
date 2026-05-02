@@ -60,9 +60,9 @@
             "param": {
                 "roi": [
                     1056,
-                    92,
-                    105,
-                    71
+                    57,
+                    165,
+                    106
                 ],
                 "template": [
                     "Common/Button/CloseButtonType2.png"
