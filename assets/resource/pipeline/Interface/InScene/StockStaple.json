@@ -1,0 +1,65 @@
+{
+    "InValleyIVText": {
+        "desc": "识别当前处于四号谷地界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    247,
+                    122
+                ],
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "(?i)Valley\\s*IV",
+                    "4번 협곡",
+                    "Valley"
+                ]
+            }
+        }
+    },
+    "InWulingText": {
+        "desc": "识别当前处于武陵界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    247,
+                    122
+                ],
+                "expected": [
+                    "武陵",
+                    "(?i)Wuling",
+                    "무릉"
+                ]
+            }
+        }
+    },
+    "InStapleColor": {
+        "desc": "识别当前处于囤货界面",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    62,
+                    67,
+                    286,
+                    57
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    240
+                ],
+                "connected": true,
+                "count": 1000
+            }
+        }
+    }
+}

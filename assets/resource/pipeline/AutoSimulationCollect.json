@@ -10,24 +10,10 @@
     },
     "SimSpaceOperationalManualIn": {
         "desc": "当前在行动手册界面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    215,
-                    60
-                ],
-                "expected": [
-                    "行动手册",
-                    "行動手冊",
-                    "(?i)Operational\\s*Manual",
-                    "案内所",
-                    "작전 매뉴얼"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

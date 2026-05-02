@@ -668,26 +668,10 @@
     },
     "VisitFriendsEnterFriendsListSuccess": {
         "desc": "进入好友列表成功的标志",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            150,
-            120
-        ],
-        "template": "VisitFriends/OnFriendList.png",
-        "threshold": 0.8,
-        "pre_wait_freezes": {
-            "time": 1000,
-            "target": [
-                -300,
-                -300,
-                300,
-                300
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0
+        "recognition": "And",
+        "all_of": [
+            "InFriendsList"
+        ]
     },
     "VisitFriendsMenuClickAction": {
         "desc": "点击助力",

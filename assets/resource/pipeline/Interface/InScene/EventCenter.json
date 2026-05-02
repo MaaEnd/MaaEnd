@@ -1,0 +1,25 @@
+{
+    "InEventCenter": {
+        "desc": "在活动中心界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "活动中心",
+                    "活動中心",
+                    "(?i)Event\\s*Center",
+                    "イベント",
+                    "이벤트 센터"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

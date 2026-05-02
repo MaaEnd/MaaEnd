@@ -158,22 +158,11 @@
             "Node.Action.Succeeded": "确认进入协议空间"
         }
     },
-    "ProtocolSpaceIn": {
-        "desc": "判断在协议空间内",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            150,
-            150
-        ],
-        "template": "ProtocolSpace/RetreatSpace.png"
-    },
     "ProtocolSpaceEnterSpaceSuccess": {
         "desc": "进入协议空间成功",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "post_wait_freezes": 200,
@@ -189,7 +178,7 @@
         "desc": "尝试第一次冲刺（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -210,7 +199,7 @@
         "desc": "尝试第二次冲刺",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -231,7 +220,7 @@
         "desc": "尝试第三次冲刺",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -253,7 +242,7 @@
         "desc": "向目标移动",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn",
+            "InProtocolSpace",
             {
                 "recognition": "NeuralNetworkDetect",
                 "roi": [
@@ -282,7 +271,7 @@
         "desc": "光点未找到，向右旋转",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -299,7 +288,7 @@
         "desc": "判断出现触碰提示，开始触碰",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn",
+            "InProtocolSpace",
             {
                 "recognition": "OCR",
                 "roi": [
@@ -335,7 +324,7 @@
         "desc": "向目标移动",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn",
+            "InProtocolSpace",
             {
                 "recognition": "NeuralNetworkDetect",
                 "roi": [
@@ -364,7 +353,7 @@
         "desc": "退出未找到，向右旋转",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn"
+            "InProtocolSpace"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -381,7 +370,7 @@
         "desc": "判断出现触碰提示，开始触碰",
         "recognition": "And",
         "all_of": [
-            "ProtocolSpaceIn",
+            "InProtocolSpace",
             {
                 "recognition": "OCR",
                 "roi": [
