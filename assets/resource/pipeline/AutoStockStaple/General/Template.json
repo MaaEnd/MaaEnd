@@ -63,6 +63,9 @@
         }
     },
     "SoldOut": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "desc": "识别到已售罄区域,需要退出",
         "recognition": {
             "type": "OCR",

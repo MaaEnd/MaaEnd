@@ -11,6 +11,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockTargetCanNotBuyValleyIV",
             "[JumpBack]AutoStockBuyItemValleyIVTask",
@@ -31,6 +34,9 @@
         }
     },
     "AutoStockTargetCanNotBuyValleyIV": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "desc": "识别目标调度券是否不可购买",
         "recognition": {
             "type": "And",
@@ -56,6 +62,9 @@
                 "box_index": 2
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {

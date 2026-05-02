@@ -11,6 +11,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockTargetCanNotBuyWuling",
             "[JumpBack]AutoStockBuyItemWulingTask",
@@ -56,6 +59,9 @@
                 "box_index": 2
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
