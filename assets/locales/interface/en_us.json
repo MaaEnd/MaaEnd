@@ -23,7 +23,7 @@
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.SklandMap.label": "Skland Map",
     "option.SklandMap.description": "Real-time location sync is available after you log in.",
-    "option.VideoBrowser.label": "Video follow-along",
+    "option.VideoBrowser.label": "Video playback",
     "option.VideoBrowser.description": "After opening the video, choose web full screen.",
     "option.VideoBrowserURL.label": "Video URL",
     "option.WindowOpacity.label": "Window opacity",

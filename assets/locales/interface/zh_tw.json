@@ -23,7 +23,7 @@
     "task.RealTimeTask.description": "該任務會一直執行，即時監控識別遊戲畫面，自動按下需要的按鍵",
     "option.SklandMap.label": "森空島地圖",
     "option.SklandMap.description": "登入後可開啟即時位置同步",
-    "option.VideoBrowser.label": "影片跟跑",
+    "option.VideoBrowser.label": "影片播放",
     "option.VideoBrowser.description": "開啟影片後選擇網頁全螢幕即可",
     "option.VideoBrowserURL.label": "影片網址",
     "option.WindowOpacity.label": "視窗透明度",
