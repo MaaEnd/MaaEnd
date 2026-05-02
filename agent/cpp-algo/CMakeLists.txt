@@ -23,7 +23,8 @@ find_package(MaaFramework REQUIRED)
 set(MaaAgentServer_DIR ${DEPS_DIR}/share/cmake/MaaAgentServer)
 find_package(MaaAgentServer REQUIRED)
 
-# WebView2 SDK (Windows-only, no-op when WEBVIEW2_SDK_DIR is not set)
+# WebView2 SDK configuration (Windows-only; on Windows this include may fail
+# configuration if the SDK is unavailable or WEBVIEW2_SDK_DIR is not set correctly)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/WebView2.cmake)
 
 add_subdirectory(source)
