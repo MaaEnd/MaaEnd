@@ -32,7 +32,7 @@ For example, the `next` of `SceneEnterMenuProtocolPass` (enter the Protocol Pass
 ### Basic Usage
 
 In a Pipeline task, put the "target scene interface" as a `[JumpBack]` node in `next`.  
-When a business node fails to recognize the expected screen, the framework will first perform a scene jump to reach the target scene, then return to the business logic and continue execution.
+When a business node fails to recognize the expected screen, the framework will first perform a scene jump to reach the target scene, then return to the business logic and continue execution. Use `SceneIn` nodes in `next` to verify that the target scene has been reached before entering business logic, preventing infinite loops caused by repeatedly entering the universal jump.
 
 ### Examples
 

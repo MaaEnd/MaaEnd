@@ -212,7 +212,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ### 主菜单入口
 
-环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/SceneInMenu.json`，新增地区监测终端时需要确认主菜单入口已能进入对应界面。
+环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/InScene/Region.json`，新增地区监测终端时需要确认主菜单入口已能进入对应界面。
 
 ## 添加新观察点
 

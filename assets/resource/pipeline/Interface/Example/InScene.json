@@ -1,0 +1,13 @@
+{
+    "ExampleNormalTaskInXXX": {
+        "desc": "普通接口使用示例",
+        "recognition": "And",
+        "all_of": [
+            "InWorld" //识别在大世界界面
+        ],
+        "action": "DoNothing", //识别到后执行的动作
+        "next": [
+            //识别到界面后，继续执行的节点
+        ]
+    }
+}
