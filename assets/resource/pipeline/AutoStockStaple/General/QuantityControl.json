@@ -2824,6 +2824,16 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                339,
+                231,
+                602,
+                239
+            ]
+        },
         "action": {
             "type": "Click"
         },
@@ -2884,7 +2894,15 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                339,
+                231,
+                602,
+                239
+            ]
+        },
         "post_delay": 0
     }
 }
