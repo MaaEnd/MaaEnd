@@ -143,6 +143,9 @@
                 "threshold": 0.8
             }
         },
+        "anchor": {
+            "UseAllExpireSoonSpMedication": "AutoUseSpMedicationAdd"
+        },
         "next": [
             "AutoUseSpMedicationUseEmergencySpBooster"
         ]
@@ -219,7 +222,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "next": [
-            "AutoUseSpMedicationAdd",
+            "[Anchor]UseAllExpireSoonSpMedication",
             "AutoUseSpMedicationQuickUse",
             "AutoUseSpMedicationQuickUseCancel"
         ]
