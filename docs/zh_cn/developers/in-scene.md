@@ -18,7 +18,7 @@
 
 ### 示例
 
-具体用法示例请参考 `assets/resource/pipeline/Interface/Example/InScene.json`，包含具体的调用方式
+具体用法示例请参考 `assets/resource/pipeline/Interface/Example/InScene.json`，包含具体的调用方式。
 
 ### 接口概述
 
