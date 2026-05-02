@@ -10,6 +10,7 @@
             "[JumpBack]AutoEssenceBackToWorld",
             "AutoEssenceTryRechallengeFromBattleResult",
             "AutoEssenceClickEssenceStartButton",
+            "[JumpBack]AutoEssenceCheckObtain",
             "[JumpBack]AutoEssenceLocationSetupMaybeAutoMove",
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
@@ -58,6 +59,7 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
             "WLQingboStockadeLocationAssertion",
+            "WLSerenityGardenLocationAssertion",
             // 如果上述所有地区都没有命中，则无事发生
             "AutoEssenceLocationSetupFailed"
         ],
@@ -84,6 +86,7 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
             "WLQingboStockadeLocationAssertion",
+            "WLSerenityGardenLocationAssertion",
             // 如果上述所有地区都没有命中，则自动导航到指定的某个淤积点
             "AutoEssenceSpecifiedLocation"
         ],
@@ -370,6 +373,39 @@
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
             "Node.Action.Starting": "👌识别到挑战结束"
+        }
+    },
+    "AutoEssenceCheckObtain": {
+        "desc": "确认是否刷完领取奖励状态",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceClickObtainButton",
+                    "AutoEssenceCheckObtainText"
+                ]
+            }
+        },
+        "next": [
+            "AutoEssenceClickObtainButtonPre"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已经是刷完状态"
+        }
+    },
+    "AutoEssenceCheckObtainText": {
+        "desc": "确认有无领取奖励的文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    451,
+                    134,
+                    94
+                ],
+                "expected": ["领取奖励"]
+            }
         }
     },
     "AutoEssenceClickObtainButtonPre": {
