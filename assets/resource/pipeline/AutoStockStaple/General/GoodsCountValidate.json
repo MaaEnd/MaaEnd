@@ -18,6 +18,12 @@
             "type": "OCR",
             "param": {
                 "roi": "AutoStockStapleGoodsCountValidateColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
                 "expected": [
                     "\\d+"
                 ],
