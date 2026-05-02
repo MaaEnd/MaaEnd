@@ -42,9 +42,13 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
         // 用 tools/MapNavigator/ 的 GUI 工具录制。
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         // 摄像头朝向调整方向，四选一：Up / Down / Left / Right。
-    "CameraMaxHit": 2
+    "CameraMaxHit": 2,
         // 可选；调整摄像头时的最大滑屏命中次数，默认值见 routes.mjs 的 ROUTE_DEFAULTS。
         // 拍照目标较难对准时可适当调大。
+    "Heading": 90
+        // 可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把
+        // 角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整。
+        // 仅影响角色朝向（决定进入拍照模式时的初始视角），与摄像头滑屏（CameraSwipeDirection）相互独立。
     // "Id": "ExistingObservationPoint"
     //     可选；默认从 kite_station.json 的 name["en-US"] 自动转换。
     //     只有需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时才显式指定，新增观察点通常不要加。

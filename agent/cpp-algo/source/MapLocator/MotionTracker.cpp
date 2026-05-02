@@ -1,5 +1,6 @@
 #include "MotionTracker.h"
 #include <algorithm>
+#include <cmath>
 
 namespace maplocator
 {
@@ -17,10 +18,16 @@ void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock:
     if (lastKnownPos.has_value() && lostTrackingCount == 0) {
         std::chrono::duration<double> dt = now - lastTime;
         double dtSec = dt.count();
+        const double dx = newPos.x - lastKnownPos->x;
+        const double dy = newPos.y - lastKnownPos->y;
+        if (std::hypot(dx, dy) < kVelocityDeadband) {
+            velocityX = 0.0;
+            velocityY = 0.0;
+        }
         // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
-        if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= kVelocityUpdateMinScore) {
-            double rawVx = (newPos.x - lastKnownPos->x) / dtSec;
-            double rawVy = (newPos.y - lastKnownPos->y) / dtSec;
+        else if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= kVelocityUpdateMinScore) {
+            double rawVx = dx / dtSec;
+            double rawVy = dy / dtSec;
             double alpha = trackingCfg.velocitySmoothingAlpha;
             velocityX = velocityX * (1.0 - alpha) + rawVx * alpha;
             velocityY = velocityY * (1.0 - alpha) + rawVy * alpha;

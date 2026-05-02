@@ -1,0 +1,69 @@
+{
+    "MapTrackButton": {
+        "desc": "地图上的追踪按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__MapTrackButton",
+                    "__MapTrackButtonHover"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__MapTrackButton": {
+        "desc": "地图上追踪按钮常态模板，按短路优先顺序先于悬停态匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    620,
+                    350,
+                    80
+                ],
+                "template": [
+                    "Common/Button/MapTrackButton.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__MapTrackButtonHover": {
+        "desc": "地图上追踪按钮悬停态模板，仅在常态未命中时作为短路回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    620,
+                    350,
+                    80
+                ],
+                "template": [
+                    "Common/Button/MapTrackButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

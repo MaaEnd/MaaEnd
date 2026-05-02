@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <exception>
 #include <filesystem>
 #include <format>
@@ -92,6 +93,18 @@ bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
     });
 }
 
+double QuantizeToHundredth(double value)
+{
+    return std::round(value * 100.0) / 100.0;
+}
+
+MapPosition QuantizePosition(MapPosition position)
+{
+    position.x = QuantizeToHundredth(position.x);
+    position.y = QuantizeToHundredth(position.y);
+    return position;
+}
+
 } // namespace
 
 class MapLocator::Impl
@@ -149,6 +162,8 @@ private:
         const YoloCoarseResult& coarse) const;
     std::optional<MapPosition>
         tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint);
+    MapPosition stabilizePosition(const MapPosition& raw);
+    MapPosition acceptPosition(const MapPosition& raw, TimePoint now);
     void drainBackgroundGlobalSearchTasks();
 
     void loadAvailableZones(const std::string& root);
@@ -167,6 +182,7 @@ private:
     std::chrono::steady_clock::time_point lastYoloCheckTime;
 
     std::vector<MapPosition> coldStartBuffer;
+    std::optional<MapPosition> stablePosition;
 
     TrackingConfig trackingCfg;
     MatchConfig matchCfg;
@@ -272,6 +288,42 @@ void MapLocator::Impl::drainBackgroundGlobalSearchTasks()
     backgroundGlobalSearchTasks.clear();
 }
 
+MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
+{
+    if (raw.zoneId == "None") {
+        return raw;
+    }
+
+    if (!stablePosition.has_value() || stablePosition->zoneId != raw.zoneId) {
+        stablePosition = QuantizePosition(raw);
+        return *stablePosition;
+    }
+
+    const double dist = std::hypot(raw.x - stablePosition->x, raw.y - stablePosition->y);
+    if (raw.score >= kStableMinScore && dist <= kStableDeadband) {
+        MapPosition out = raw;
+        out.x = stablePosition->x;
+        out.y = stablePosition->y;
+        return out;
+    }
+    if (raw.score >= kStableMinScore && dist < kStableReleaseDist) {
+        MapPosition out = raw;
+        out.x = stablePosition->x;
+        out.y = stablePosition->y;
+        return out;
+    }
+
+    stablePosition = QuantizePosition(raw);
+    return *stablePosition;
+}
+
+MapPosition MapLocator::Impl::acceptPosition(const MapPosition& raw, TimePoint now)
+{
+    MapPosition stable = stabilizePosition(raw);
+    motionTracker->update(stable, now);
+    return stable;
+}
+
 std::optional<MapPosition> MapLocator::Impl::tryTracking(
     const MatchFeature& tmplFeat,
     IMatchStrategy* strategy,
@@ -357,9 +409,21 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         if (delta == 0.0) {
             baseScore = cand->score;
         }
+        bool scaleChangeAllowed = baseScore < 0.0 || delta == 0.0;
+        if (!scaleChangeAllowed) {
+            scaleChangeAllowed = cand->score >= baseScore + kScaleHysteresisDelta;
+            if (scaleChangeAllowed) {
+                if (auto last = motionTracker->getLastPos()) {
+                    const double candAbsX = static_cast<double>(searchRect.x) + cand->loc.x + templ.cols / 2.0;
+                    const double candAbsY = static_cast<double>(searchRect.y) + cand->loc.y + templ.rows / 2.0;
+                    scaleChangeAllowed =
+                        std::hypot(candAbsX - last->x, candAbsY - last->y) < kScaleChangeMaxPositionDelta;
+                }
+            }
+        }
+
         const bool isBetter = !trackResult || cand->score > trackResult->score;
-        const bool overHysteresis = baseScore < 0.0 || delta == 0.0 || (cand->score - baseScore) >= kScaleHysteresisDelta;
-        if (isBetter && overHysteresis) {
+        if (isBetter && scaleChangeAllowed) {
             trackResult = cand;
             scaledTempl = std::move(templ);
             scaledWeightMask = std::move(mask);
@@ -410,7 +474,11 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         cv::Canny(templGray, templEdge, 100, 200);
         cv::bitwise_and(templEdge, scaledWeightMask, templEdge);
 
-        cv::Rect matchedRect(trackResult->loc.x, trackResult->loc.y, bgrTempl.cols, bgrTempl.rows);
+        cv::Rect matchedRect(
+            static_cast<int>(std::lround(trackResult->loc.x)),
+            static_cast<int>(std::lround(trackResult->loc.y)),
+            bgrTempl.cols,
+            bgrTempl.rows);
         matchedRect &= cv::Rect(0, 0, searchRoiWithPad.cols, searchRoiWithPad.rows);
 
         cv::Mat patchGray;
@@ -485,8 +553,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.score = trackResult->score;
         pos.scale = trackScale;
         pos.isHeld = false;
-        motionTracker->update(pos, now);
-        return pos;
+        return acceptPosition(pos, now);
     }
 
     return std::nullopt;
@@ -735,7 +802,18 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(const SearchE
         return std::nullopt;
     }
 
-    std::sort(cands.begin(), cands.end(), [](auto& a, auto& b) { return a.score > b.score; });
+    std::stable_sort(cands.begin(), cands.end(), [](const auto& a, const auto& b) {
+        if (a.score != b.score) {
+            return a.score > b.score;
+        }
+        if (a.s != b.s) {
+            return a.s < b.s;
+        }
+        if (a.loc.y != b.loc.y) {
+            return a.loc.y < b.loc.y;
+        }
+        return a.loc.x < b.loc.x;
+    });
     if ((int)cands.size() > topK) {
         cands.resize(topK);
     }
@@ -912,6 +990,7 @@ void MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, TimePoint n
             && predicted.zone_id != currentZoneId) {
             LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predicted.zone_id;
             motionTracker->forceLost();
+            stablePosition.reset();
         }
     }
 
@@ -981,7 +1060,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 
             MapPosition verifiedPos = rawPrimaryPos;
             verifiedPos.score = std::max(rawPrimaryPos.score, rawFallbackPos.score);
-            motionTracker->update(verifiedPos, now);
+            verifiedPos = acceptPosition(verifiedPos, now);
 
             return LocateResult {
                 .status = LocateStatus::Success,
@@ -1225,6 +1304,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         motionTracker->markLost();
         if (motionTracker->getLostCount() > maxAllowedLost) {
             motionTracker->forceLost();
+            stablePosition.reset();
         }
         return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
     }
@@ -1242,6 +1322,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (motionTracker->getLostCount() > maxAllowedLost) {
             motionTracker->forceLost();
             coldStartBuffer.clear();
+            stablePosition.reset();
         }
         return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." };
     }
@@ -1261,6 +1342,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     coldStartBuffer.clear();
 
     if (farJump || zoneChanged) {
+        stablePosition.reset();
         motionTracker->clearVelocity();
         if (farJump) {
             LogInfo << "Global Search: high-conf reseed." << VAR(jumpDist) << VAR(globalResult->score);
@@ -1269,8 +1351,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     currentZoneId = globalResult->zoneId;
     globalResult->angle = inferredAngle;
-    motionTracker->update(*globalResult, now);
-    return LocateResult { .status = LocateStatus::Success, .position = globalResult, .debugMessage = "Global Search Success" };
+    MapPosition accepted = acceptPosition(*globalResult, now);
+    return LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" };
 }
 
 void MapLocator::Impl::resetTrackingState()
@@ -1281,6 +1363,7 @@ void MapLocator::Impl::resetTrackingState()
     }
     currentZoneId = "";
     coldStartBuffer.clear();
+    stablePosition.reset();
 }
 
 std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const

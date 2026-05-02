@@ -67,6 +67,21 @@ bool AcceptHeldZoneCandidate(const Context& ctx, const std::string& zone_id)
     return ctx.runtime_state->semantic.held_zone_hits >= kZoneConfirmStableFrames;
 }
 
+bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
+{
+    if (std::abs(heading_delta) <= 1.0) {
+        return true;
+    }
+
+    int units = static_cast<int>(std::lround(heading_delta * ctx.action_wrapper->DefaultTurnUnitsPerDegree()));
+    if (units == 0) {
+        units = heading_delta > 0.0 ? 1 : -1;
+    }
+
+    LogInfo << "Heading-only node turn." << VAR(heading_delta) << VAR(units);
+    return ctx.action_wrapper->SendViewDeltaSync(units, 0);
+}
+
 void ConsumeMatchedZoneNodes(const Context& ctx)
 {
     while (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsZoneDeclaration()) {
@@ -298,58 +313,32 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         }
 
         const double start_heading = NaviMath::NormalizeAngle(ctx.position->angle);
-        double virtual_heading = start_heading;
-        const double initial_error = NaviMath::NormalizeAngle(target_heading - virtual_heading);
-
-        if (std::abs(initial_error) <= 1.0) {
-            LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
-            ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
-            ctx.session->ResetProgress();
-            ctx.runtime_state->OnWaypointAdvance();
-            consumed = true;
-            if (ctx.session->HasCurrentWaypoint()) {
-                ctx.motion_controller->SetForwardState(true);
-            }
-            continue;
-        }
+        const double heading_delta = NaviMath::NormalizeAngle(target_heading - start_heading);
 
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
 
-        constexpr int kMaxTurnSteps = 8;
-        bool aborted = false;
-        for (int step = 0; step < kMaxTurnSteps; ++step) {
-            const double residual = NaviMath::NormalizeAngle(target_heading - virtual_heading);
-            if (std::abs(residual) <= 1.0) {
-                break;
-            }
-            const TurnCommandResult turn_result = ctx.motion_controller->ApplySteering(residual);
-            LogInfo << "Heading-only node turn step." << VAR(step) << VAR(target_heading) << VAR(virtual_heading) << VAR(residual)
-                    << VAR(turn_result.issued) << VAR(turn_result.issued_delta_degrees);
-            if (!turn_result.issued) {
-                aborted = true;
-                break;
-            }
-            virtual_heading = NaviMath::NormalizeAngle(virtual_heading + turn_result.issued_delta_degrees);
-            utils::SleepFor(60);
+        if (std::abs(heading_delta) <= 1.0) {
+            LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
         }
-
-        if (aborted) {
-            result.consumed = consumed;
-            result.stay_in_current_tick = consumed;
+        else if (!TurnToHeadingOnce(ctx, heading_delta)) {
+            result.request_failure = true;
+            result.failure_reason = "heading_turn_failed";
+            result.failure_log_message = "HEADING node failed to issue view turn.";
             return result;
         }
 
         ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
+        ctx.motion_controller->SetForwardState(false);
 
-        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(virtual_heading);
+        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->ResetProgress();
         ctx.runtime_state->OnWaypointAdvance();
         consumed = true;
 
-        if (ctx.session->HasCurrentWaypoint()) {
-            ctx.motion_controller->SetForwardState(true);
+        if (!ctx.session->HasCurrentWaypoint()) {
+            ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
         }
     }
 

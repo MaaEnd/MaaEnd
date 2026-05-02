@@ -14,6 +14,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
@@ -50,6 +51,7 @@ func registerAll() {
 	attachregex.Register()
 	autoaltclick.Register()
 	charactercontroller.Register()
+	falseaction.Register()
 
 	// Business Custom
 	autosell.Register()

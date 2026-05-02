@@ -421,7 +421,8 @@
         "MapTarget": [514, 666, 15, 15],
         "MapPath": [[520.3, 672.8]],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
-        "CameraMaxHit": 1
+        "CameraMaxHit": 1,
+        "Heading": 90
     },
     {
         "Name": "净水温控装置",

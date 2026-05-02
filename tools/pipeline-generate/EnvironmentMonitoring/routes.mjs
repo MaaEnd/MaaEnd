@@ -26,4 +26,5 @@ export const ROUTE_DEFAULTS = {
     ],
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     CameraMaxHit: 2,
+    Heading: null,
 };

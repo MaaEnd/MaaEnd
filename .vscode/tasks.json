@@ -31,6 +31,15 @@
             "problemMatcher": []
         },
         {
+            "label": "Build --cpp-algo",
+            "type": "shell",
+            "command": "python tools/build_and_install.py --cpp-algo",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Generate: AutoStockStaple",
             "type": "shell",
             "command": "pnpm generate:AutoStockStaple",

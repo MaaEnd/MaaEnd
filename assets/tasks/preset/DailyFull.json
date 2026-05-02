@@ -68,6 +68,18 @@
                     "name": "SellProduct"
                 },
                 {
+                    "name": "AutoStockpile"
+                },
+                {
+                    "name": "AutoStockStaple"
+                },
+                {
+                    "name": "AutoSell"
+                },
+                {
+                    "name": "EnvironmentMonitoring"
+                },
+                {
                     "name": "DailyRewards",
                     "option": {
                         "DailyEmailRewards": "Yes",

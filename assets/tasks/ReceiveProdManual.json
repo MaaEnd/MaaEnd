@@ -5,7 +5,7 @@
             "label": "$task.ReceiveProdManual.label",
             "entry": "ProdManualStart",
             "description": "$task.ReceiveProdManual.description",
-            "group": ["utility"]
+            "group": ["backpack"]
         }
     ],
     "option": {}

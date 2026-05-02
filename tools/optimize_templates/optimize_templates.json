@@ -694,5 +694,8 @@
     "resource/image/AutoEssence/SpDialogCloseButton": "0a73f8c8c4ea9ad224143dc5379c4d3e57eb8bfe8dd6869c2f29470f44e5a841",
     "resource/image/DailyRewards/Event/EventSwitchSuccess": "c821d04969c4b2d7bcf01e37a318fad49eb463bc3a9d454072a16c4f312ac0b6",
     "resource/image/SellProduct/DecreaseButton": "37253478e0d499226eddc0570d02afa2afa6666977dbacdc21bba1f39247c730",
-    "resource/image/SellProduct/IncreaseButton": "e95df53bfc58f063f10bd75a550773b627bf240374911e702c88cf821ec95368"
+    "resource/image/SellProduct/IncreaseButton": "e95df53bfc58f063f10bd75a550773b627bf240374911e702c88cf821ec95368",
+    "resource/image/SceneManager/TaskIcon2": "076b8f58cb9a7357cbc5c7f1472f4a33ca01d835af1c3301a18d06b99f47518b",
+    "resource/image/Common/Button/MapTrackButtonHover": "60551605225d7d8cc5501d6968b67f35eeefb72425144de97b4feb159c278e13",
+    "resource/image/Common/Button/MapTrackButton": "f8a9b93847feee57039b63590ff3dc113055c2172a00f2cb1dc12ee2b2b43617"
 }

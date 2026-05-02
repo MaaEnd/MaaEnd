@@ -163,11 +163,16 @@ constexpr double kTrackingScaleSteps[] = { 0.0, -0.04, -0.02, 0.02, 0.04 };
 // baseScale 的单次匹配达到此分时直接接受，无需再尝试其他尺度
 constexpr double kFastTrackingPassScore = 0.75;
 // 非 baseScale 的候选须比 baseScale 高出此值才会替换，抑制小幅波动引起的尺度频繁切换
-constexpr double kScaleHysteresisDelta = 0.015;
+constexpr double kScaleHysteresisDelta = 0.03;
+constexpr double kScaleChangeMaxPositionDelta = 2.0;
+constexpr double kStableDeadband = 0.15;
+constexpr double kStableReleaseDist = 0.40;
+constexpr double kStableMinScore = 0.80;
 // tracking 接受结果的分数下限；低于此值无论 psr/delta 如何均判为 ambiguous，走 hold 路径
 constexpr double kTrackingHardScoreFloor = 0.60;
 // 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
 constexpr double kVelocityUpdateMinScore = 0.70;
+constexpr double kVelocityDeadband = 0.25;
 // tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 kTrackingOutlierMinScore 时 hold 上一帧
 constexpr double kTrackingOutlierDistance = 25.0;
 constexpr double kTrackingOutlierMinScore = 0.78;

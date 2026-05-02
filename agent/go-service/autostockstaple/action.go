@@ -274,18 +274,18 @@ func runCountRecognition(ctx *maa.Context, img image.Image, nodeName string) (in
 	if err != nil {
 		return 0, err
 	}
-	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
+	if detail == nil {
 		return 0, fmt.Errorf("recognition detail is empty")
 	}
 
-	ocrResult, ok := detail.Results.Best.AsOCR()
+	text, ok := findFirstOCRText(detail)
 	if !ok {
-		return 0, fmt.Errorf("best recognition result is not OCR")
+		return 0, fmt.Errorf("recognition does not contain OCR result")
 	}
 
-	match := firstIntegerPattern.FindString(ocrResult.Text)
+	match := firstIntegerPattern.FindString(text)
 	if match == "" {
-		return 0, fmt.Errorf("ocr text %q does not contain integer", ocrResult.Text)
+		return 0, fmt.Errorf("ocr text %q does not contain integer", text)
 	}
 
 	value, err := strconv.Atoi(match)
@@ -293,6 +293,63 @@ func runCountRecognition(ctx *maa.Context, img image.Image, nodeName string) (in
 		return 0, err
 	}
 	return value, nil
+}
+
+func findFirstOCRText(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil {
+		return "", false
+	}
+
+	// Prefer standard results buckets (Best -> Filtered -> All),
+	// consistent with common custom recognition consumers.
+	ocrTextFromResults := func(results *maa.RecognitionResults) (string, bool) {
+		if results == nil {
+			return "", false
+		}
+		for _, bucket := range [][]*maa.RecognitionResult{
+			{results.Best},
+			results.Filtered,
+			results.All,
+		} {
+			for _, r := range bucket {
+				if r == nil {
+					continue
+				}
+				ocr, ok := r.AsOCR()
+				if !ok || ocr == nil {
+					continue
+				}
+				if ocr.Text != "" {
+					return ocr.Text, true
+				}
+			}
+		}
+		return "", false
+	}
+
+	// Non-combined recognition (direct OCR etc.).
+	if text, ok := ocrTextFromResults(detail.Results); ok {
+		return text, true
+	}
+
+	// Combined recognition (And/Or): Results is nil by design, use CombinedResult.
+	// Use the final box (already determined by box_index in pipeline) to select the child.
+	if len(detail.CombinedResult) == 0 {
+		return "", false
+	}
+
+	for _, child := range detail.CombinedResult {
+		if child == nil {
+			continue
+		}
+		if child.Box == detail.Box {
+			if text, ok := ocrTextFromResults(child.Results); ok {
+				return text, true
+			}
+		}
+	}
+
+	return "", false
 }
 
 func captureCurrentImage(ctx *maa.Context) (image.Image, error) {

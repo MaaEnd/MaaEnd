@@ -157,6 +157,10 @@ void NavigationSession::NoteCanonicalFinalGoalConsumed(size_t consumed_absolute_
 void NavigationSession::NoteRouteTailConsumed(const NaviPosition& position, const char* reason)
 {
     route_tail_consumed_ = true;
+    if (!HasCanonicalFinalGoal()) {
+        CommitSuccessfulCompletion(position, reason);
+        return;
+    }
     if (HasReachedCanonicalFinalGoal(position)) {
         RecordFinalArrivalEvidence(position, true, canonical_final_goal_index_, "route_tail_consumed_in_final_goal_band");
     }

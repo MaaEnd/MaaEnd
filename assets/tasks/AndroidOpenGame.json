@@ -8,7 +8,7 @@
             "controller": [
                 "ADB"
             ],
-            "group": ["utility"]
+            "group": ["other_menu"]
         }
     ],
     "option": {}

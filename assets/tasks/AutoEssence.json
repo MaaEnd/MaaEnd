@@ -19,7 +19,7 @@
                 "AutoEssenceRepeatCount"
             ],
             "group": [
-                "foreground"
+                "sanity_sink"
             ]
         }
     ],

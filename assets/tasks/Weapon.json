@@ -6,7 +6,7 @@
             "entry": "WeaponUpgradeStart",
             "description": "$task.WeaponUpgrade.description",
             "group": [
-                "daily"
+                "valuables_vault"
             ]
         }
     ]

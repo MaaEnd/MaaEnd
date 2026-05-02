@@ -12,7 +12,7 @@
                 "Wlroots"
             ],
             "group": [
-                "daily"
+                "regional_development"
             ],
             "option": [
                 "AutoStockStapleValleyIV",
@@ -739,7 +739,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
-            "default_case": "70",
+            "default_case": "50",
             "cases": [
                 {
                     "name": "Any",
@@ -779,8 +779,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
-                                        "99"
+                                        "99",
+                                        "95"
                                     ]
                                 }
                             }
@@ -795,8 +795,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90"
                                     ]
                                 }
@@ -812,8 +812,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85"
                                     ]
@@ -830,8 +830,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80"
@@ -849,8 +849,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80",
@@ -869,13 +869,38 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80",
                                         "75",
                                         "70"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "50",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.50.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "99",
+                                        "95",
+                                        "90",
+                                        "85",
+                                        "80",
+                                        "75",
+                                        "70",
+                                        "65",
+                                        "60",
+                                        "55",
+                                        "50"
                                     ]
                                 }
                             }
@@ -1519,7 +1544,7 @@
             "type": "select",
             "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
-            "default_case": "70",
+            "default_case": "50",
             "cases": [
                 {
                     "name": "Any",
@@ -1561,8 +1586,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
-                                        "99"
+                                        "99",
+                                        "95"
                                     ]
                                 }
                             }
@@ -1577,8 +1602,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90"
                                     ]
                                 }
@@ -1594,8 +1619,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85"
                                     ]
@@ -1612,8 +1637,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80"
@@ -1631,8 +1656,8 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80",
@@ -1651,13 +1676,38 @@
                             "recognition": {
                                 "param": {
                                     "expected": [
-                                        "95",
                                         "99",
+                                        "95",
                                         "90",
                                         "85",
                                         "80",
                                         "75",
                                         "70"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "50",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.50.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "99",
+                                        "95",
+                                        "90",
+                                        "85",
+                                        "80",
+                                        "75",
+                                        "70",
+                                        "65",
+                                        "60",
+                                        "55",
+                                        "50"
                                     ]
                                 }
                             }

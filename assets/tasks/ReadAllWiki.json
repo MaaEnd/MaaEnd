@@ -5,7 +5,7 @@
             "label": "$task.ReadAllWiki.label",
             "entry": "WikiReadAll",
             "description": "$task.ReadAllWiki.description",
-            "group": ["utility"]
+            "group": ["other_menu"]
         }
     ],
     "option": {}

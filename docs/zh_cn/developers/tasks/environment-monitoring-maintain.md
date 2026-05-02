@@ -25,8 +25,8 @@
 | 观察点模板         | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`           | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照）                                                                          |
 | 终端模板           | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc` | 终端分组节点模板                                                                                                                         |
 | 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/routes.json`              | `ROUTE_CONFIG` 数据本体：按观察点中文 `Name` 匹配的路线覆盖（传送点、地图、路径、摄像头滑动方向）                                        |
-| 路线 JSON Schema   | `tools/schema/environment_monitoring_routes.schema.json`                 | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验                  |
-| 路线默认值与导出   | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | 从 `routes.json` 读取 `ROUTE_CONFIG`，并导出 `ROUTE_DEFAULTS`（未适配占位值）                                                             |
+| 路线 JSON Schema   | `tools/schema/environment_monitoring_routes.schema.json`                 | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验                   |
+| 路线默认值与导出   | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | 从 `routes.json` 读取 `ROUTE_CONFIG`，并导出 `ROUTE_DEFAULTS`（未适配占位值）                                                            |
 | 终端列表数据       | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`       | 从 `data.mjs` 的行数据和自动派生的终端列表生成各终端 `next`                                                                              |
 | 游戏数据快照       | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`        | 由 `zmdmap` 提供的官方监测终端/委托数据（多语言名称、`shotTargetName`）                                                                  |
 | 生成器配置         | `tools/pipeline-generate/EnvironmentMonitoring/config.json`              | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"`                                                                               |
@@ -145,19 +145,19 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 `data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.jsonc` 中 `${Xxx}` 占位符对应）。它从 `routes.mjs` 读取维护者手动维护的 `ROUTE_CONFIG`（实际数据存放在同目录 `routes.json`）/ `ROUTE_DEFAULTS`，再结合 `kite_station.json` 装配出最终行：
 
-| 字段                                                   | 来源                                                                                                                         |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `Station`                                              | `kite_station.json` 的英文站名（PascalCase）                                                                                 |
-| `Id`                                                   | 默认由官方英文名 PascalCase 自动生成；仅当 `ROUTE_CONFIG[*].Id` 显式提供时覆盖                                               |
-| `Name`                                                 | `kite_station.json` 的 `name["zh-CN"]`，去掉特殊符号；`ROUTE_CONFIG` 也按这个中文名归并匹配                                  |
-| `GoToMonitoringTerminal`                               | 由 `Station` 决定                                                                                                            |
-| `EnterMap`                                             | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                                                           |
-| `MapName` / `MapTarget` / `MapPath`                    | `ROUTE_CONFIG[*]`，对应 `MapTrackerMove` / `MapTrackerAssertLocation` 参数                                                   |
-| `CameraSwipeDirection`                                 | `ROUTE_CONFIG[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                        |
-| `CameraMaxHit`                                         | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
-| `ExpectedText`                                         | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                       |
-| `InExpectedText`                                       | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                                                                  |
-| `TrackOrGoToNext` / `AfterTrackedNext`                 | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted` |
+| 字段                                   | 来源                                                                                                                                                                             |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Station`                              | `kite_station.json` 的英文站名（PascalCase）                                                                                                                                     |
+| `Id`                                   | 默认由官方英文名 PascalCase 自动生成；仅当 `ROUTE_CONFIG[*].Id` 显式提供时覆盖                                                                                                   |
+| `Name`                                 | `kite_station.json` 的 `name["zh-CN"]`，去掉特殊符号；`ROUTE_CONFIG` 也按这个中文名归并匹配                                                                                      |
+| `GoToMonitoringTerminal`               | 由 `Station` 决定                                                                                                                                                                |
+| `EnterMap`                             | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                                                                                                               |
+| `MapName` / `MapTarget` / `MapPath`    | `ROUTE_CONFIG[*]`，对应 `MapTrackerMove` / `MapTrackerAssertLocation` 参数                                                                                                       |
+| `CameraSwipeDirection`                 | `ROUTE_CONFIG[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                            |
+| `CameraMaxHit`                         | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                     |
+| `ExpectedText`                         | 由 `kite_station.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                           |
+| `InExpectedText`                       | 由 `kite_station.json` 的 `mission.shotTargetName` 自动展开                                                                                                                      |
+| `TrackOrGoToNext` / `AfterTrackedNext` | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted` |
 
 ### 终端分组：`terminals-config.json`
 

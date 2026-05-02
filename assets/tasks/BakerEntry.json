@@ -5,7 +5,7 @@
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
             "description": "$task.BakerEntry.description",
-            "group": ["utility"]
+            "group": ["other_menu"]
         }
     ],
     "option": {}

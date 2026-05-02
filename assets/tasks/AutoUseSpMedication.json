@@ -6,7 +6,7 @@
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
             "group": [
-                "utility"
+                "valuables_vault"
             ],
             "option": [
                 "UseRegularSpMedication",

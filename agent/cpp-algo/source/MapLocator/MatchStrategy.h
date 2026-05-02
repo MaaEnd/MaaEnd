@@ -19,7 +19,7 @@ struct MatchFeature
 struct MatchResultRaw
 {
     double score = -1.0;
-    cv::Point loc { 0, 0 };
+    cv::Point2d loc { 0.0, 0.0 };
 
     // 置信度指标
     double secondScore = -1.0;
