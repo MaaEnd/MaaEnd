@@ -431,4 +431,78 @@ LRESULT FramelessWindow::onPaint()
     return 0;
 }
 
+#else // !_WIN32
+
+#include <algorithm>
+
+#include <MaaUtils/Logger.h>
+
+FramelessWindow::FramelessWindow() = default;
+
+FramelessWindow::~FramelessWindow()
+{
+    Close();
+}
+
+bool FramelessWindow::Open()
+{
+    if (opened_.exchange(true, std::memory_order_acq_rel)) {
+        return create_ok_;
+    }
+    create_ok_ = true;
+    return true;
+}
+
+void FramelessWindow::Close() {}
+
+void FramelessWindow::SetTopMost(bool top_most)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetTopMost: ignored, must be called before Open()" << VAR(top_most);
+        return;
+    }
+    top_most_ = top_most;
+}
+
+void FramelessWindow::SetSize(int width, int height)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetSize: ignored, must be called before Open()" << VAR(width) << VAR(height);
+        return;
+    }
+    if (width <= 0 || height <= 0) {
+        LogWarn << "FramelessWindow::SetSize: ignored, non-positive size" << VAR(width) << VAR(height);
+        return;
+    }
+    initial_width_ = width;
+    initial_height_ = height;
+}
+
+void FramelessWindow::SetShowInTaskbar(bool show)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetShowInTaskbar: ignored, must be called before Open()" << VAR(show);
+        return;
+    }
+    show_in_taskbar_ = show;
+}
+
+void FramelessWindow::SetOpacity(double opacity)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetOpacity: ignored, must be called before Open()" << VAR(opacity);
+        return;
+    }
+    opacity_ = std::clamp(opacity, 0.0, 1.0);
+}
+
+void FramelessWindow::SetExcludeFromCapture(bool exclude)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetExcludeFromCapture: ignored, must be called before Open()" << VAR(exclude);
+        return;
+    }
+    exclude_from_capture_ = exclude;
+}
+
 #endif // _WIN32

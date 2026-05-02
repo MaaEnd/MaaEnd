@@ -137,5 +137,49 @@ private:
     int initial_height_ = kDefaultHeightPx;
 };
 
+#else // !_WIN32
+
+#include <atomic>
+
+// 非 Windows 空实现：不提供原生无边框窗口，仅保证编译与调用方生命周期安全。
+// Open() 恒为「成功」以便上层业务流程（如实时代办轮询）在非 Win 平台仍可继续；
+// 不会出现真实窗口或 WebView。
+class FramelessWindow
+{
+public:
+    FramelessWindow();
+    virtual ~FramelessWindow();
+
+    FramelessWindow(const FramelessWindow&) = delete;
+    FramelessWindow& operator=(const FramelessWindow&) = delete;
+    FramelessWindow(FramelessWindow&&) = delete;
+    FramelessWindow& operator=(FramelessWindow&&) = delete;
+
+    virtual bool Open();
+    void Close();
+
+    void SetTopMost(bool top_most);
+    void SetSize(int width, int height);
+    void SetShowInTaskbar(bool show);
+    void SetOpacity(double opacity);
+    void SetExcludeFromCapture(bool exclude);
+
+protected:
+    bool isOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
+
+    virtual void onUiThreadInit() {}
+    virtual void onUiThreadShutdown() {}
+
+private:
+    std::atomic<bool> opened_ { false };
+    bool create_ok_ = false;
+
+    bool top_most_ = false;
+    bool show_in_taskbar_ = true;
+    bool exclude_from_capture_ = false;
+    double opacity_ = 1.0;
+    int initial_width_ = 960;
+    int initial_height_ = 640;
+};
 
 #endif // _WIN32

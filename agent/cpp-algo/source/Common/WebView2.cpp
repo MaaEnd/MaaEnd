@@ -339,5 +339,44 @@ void WebView2::resizeToClientRect()
     controller_->put_Bounds(rc);
 }
 
+#else // !_WIN32
+
+#include <MaaUtils/Logger.h>
+
+WebView2::WebView2() = default;
+
+WebView2::~WebView2()
+{
+    Close();
+}
+
+bool WebView2::Open()
+{
+    return FramelessWindow::Open();
+}
+
+void WebView2::SetURL(std::string url)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetURL: ignored, must be called before Open()" << VAR(url);
+        return;
+    }
+}
+
+void WebView2::SetTouchEmulation(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetTouchEmulation: ignored, must be called before Open()" << VAR(enabled);
+        return;
+    }
+}
+
+void WebView2::SetContextMenuEnabled(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetContextMenuEnabled: ignored, must be called before Open()" << VAR(enabled);
+        return;
+    }
+}
 
 #endif // _WIN32

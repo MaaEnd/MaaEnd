@@ -99,4 +99,28 @@ private:
     bool webview_init_ok_ = false;
 };
 
+#else // !_WIN32
+
+#include "FramelessWindow.h"
+
+#include <string>
+
+// 非 Windows 空实现：无 WebView2 运行时与内嵌浏览器；Open() 与基类一致（恒真），
+// 便于任务主流程在非 Win 平台继续执行。
+class WebView2 : public FramelessWindow
+{
+public:
+    WebView2();
+    ~WebView2() override;
+
+    WebView2(const WebView2&) = delete;
+    WebView2& operator=(const WebView2&) = delete;
+
+    bool Open() override;
+
+    void SetURL(std::string url);
+    void SetTouchEmulation(bool enabled);
+    void SetContextMenuEnabled(bool enabled);
+};
+
 #endif // _WIN32
