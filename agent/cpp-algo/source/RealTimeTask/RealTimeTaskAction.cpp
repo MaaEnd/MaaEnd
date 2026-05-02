@@ -22,9 +22,9 @@ constexpr const char* kHolderNodeName = "__RealTimeTaskAction_Holder";
 
 struct AttachConfig
 {
-    bool skland_map_enable = true;
+    bool skland_map_enable = false;
     int skland_map_opacity = 100;
-    bool video_browser_enable = true;
+    bool video_browser_enable = false;
     int video_browser_opacity = 100;
     std::string video_browser_url = "https://www.bilibili.com";
 };
