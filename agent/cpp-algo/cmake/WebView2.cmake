@@ -57,7 +57,7 @@ if(NOT WEBVIEW2_SDK_DIR)
         "WebView2 SDK is required for the Windows build but cannot be located.\n"
         "Choose one of the following:\n"
         "  - Run `python tools/setup_workspace.py` (downloads SDK to 3rdparty/webview2/)\n"
-        "  - Run `python tools/setup_workspace.py --webview2-only` to only fetch the SDK\n"
+        "  - Run `python tools/3rdparty_download.py --webview2` to only fetch the SDK\n"
         "  - Pass -DWEBVIEW2_SDK_DIR=<extracted NuGet root> to cmake configure\n"
         "  - Set WEBVIEW2_SDK_DIR environment variable to point at an extracted SDK")
 endif()
