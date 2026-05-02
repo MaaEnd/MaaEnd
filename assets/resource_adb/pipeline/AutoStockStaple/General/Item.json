@@ -30,5 +30,29 @@
             32,
             13
         ]
+    },
+    "AutoStockStapleBetterSliding": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "ClampTargetToMax": true,
+                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "Direction": "right",
+                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "GreenMask": true,
+                    "Quantity": {
+                        "Box": [
+                            304,
+                            540,
+                            54,
+                            39
+                        ],
+                        "OnlyRec": true
+                    }
+                }
+            }
+        }
     }
 }
