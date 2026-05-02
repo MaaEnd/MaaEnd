@@ -174,6 +174,18 @@ def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
     return run_command([sys.executable, str(script_path)])
 
 
+def bootstrap_3rdparty(update: bool = False) -> bool:
+    """委托给 tools/3rdparty_download.py，统一拉取 3rdparty 二进制 SDK（目前仅 WebView2）。
+
+    具体下载逻辑、缓存策略、平台判断都在 3rdparty_download.py 内部，本函数仅做编排。
+    """
+    script_path = PROJECT_BASE / "tools" / "3rdparty_download.py"
+    cmd = [sys.executable, str(script_path), "--all"]
+    if update:
+        cmd.append("--update")
+    return run_command(cmd)
+
+
 def run_build_script() -> bool:
     print(Console.hdr(t("inf_run_build_script")))
     script_path = PROJECT_BASE / "tools" / "build_and_install.py"
@@ -982,6 +994,10 @@ def main() -> None:
     print(Console.hdr(t("header_bootstrap_maadeps")))
     if not bootstrap_maadeps(skip_if_exist=True):   # 这玩意太慢了，也不常更新，没必要每次下载
         print(Console.err(t("fatal_maadeps_failed")))
+        sys.exit(1)
+    print(Console.hdr(t("header_bootstrap_3rdparty")))
+    if not bootstrap_3rdparty(update=args.update):
+        print(Console.err(t("fatal_3rdparty_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_build_go")))
     if not run_build_script():

@@ -84,6 +84,8 @@
     "inf_maadeps_exist": "[INF] MaaDeps 依赖已存在",
     "inf_bootstrap_maadeps": "[INF] 正在下载 MaaDeps 预编译依赖...",
     "fatal_maadeps_failed": "[FATAL] MaaDeps 下载失败，退出",
+    "header_bootstrap_3rdparty": "\n========== 准备 3rdparty 二进制依赖 ==========",
+    "fatal_3rdparty_failed": "[FATAL] 3rdparty 依赖准备失败，退出",
     "header_build_go": "\n========== 构建 Go Agent ==========",
     "fatal_build_failed": "[FATAL] 构建脚本执行失败，退出",
     "header_download_deps": "\n========== 下载依赖项 ==========",

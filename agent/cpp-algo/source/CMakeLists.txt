@@ -13,6 +13,20 @@ if(LINUX)
     target_link_libraries(cpp-algo PRIVATE pthread dl)
 endif()
 
+if(WIN32)
+    target_link_libraries(cpp-algo PRIVATE WebView2::WebView2)
+    target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBVIEW2)
+
+    add_custom_command(TARGET cpp-algo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:WebView2::WebView2>"
+            "$<TARGET_FILE_DIR:cpp-algo>"
+        VERBATIM)
+
+    install(IMPORTED_RUNTIME_ARTIFACTS WebView2::WebView2
+        RUNTIME DESTINATION agent)
+endif()
+
 add_dependencies(cpp-algo MaaUtils)
 
 # Set RPATH to find shared libraries in ../maafw relative to the executable

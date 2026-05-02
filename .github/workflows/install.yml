@@ -135,6 +135,12 @@ jobs:
         run: |
           python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
+      - name: Setup WebView2 SDK
+        if: matrix.os == 'win'
+        shell: bash
+        run: |
+          python tools/3rdparty_download.py --webview2
+
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:

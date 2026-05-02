@@ -7,6 +7,7 @@
 #include "MapNavigator/MapNavigator.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "my_reco_1/my_reco_1.h"
+#include "Test/test.h"
 #include "utils.h"
 
 int main(int argc, char** argv)
@@ -22,6 +23,8 @@ int main(int argc, char** argv)
         std::cerr << "socket_id is provided by AgentIdentifier." << std::endl;
         return -1;
     }
+
+    Test();
 
     // std::cout << "Hello, cpp-algo!" << std::endl;
 

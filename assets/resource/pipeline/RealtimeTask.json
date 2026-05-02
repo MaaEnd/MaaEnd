@@ -25,7 +25,11 @@
             ]
         },
         "attach": {
-            "enable_skland_map": true
+            "skland_map_enable": false,
+            "skland_map_opacity": 100,
+            "video_browser_enable": false,
+            "video_browser_opacity": 100,
+            "video_browser_url": "https://www.bilibili.com"
         }
     },
     "RealTimeSleep": {

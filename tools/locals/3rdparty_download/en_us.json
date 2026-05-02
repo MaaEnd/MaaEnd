@@ -1,0 +1,18 @@
+{
+    "error_load_locale": "[ERROR] Failed to load locale file. Please ensure you have cloned the repository completely. File path: {path}",
+    "description": "MaaEnd 3rdparty binary dependency downloader; installs everything under 3rdparty/",
+    "arg_webview2": "Download the WebView2 SDK (Windows only; no-op on other platforms)",
+    "arg_all": "Download all supported 3rdparty dependencies",
+    "arg_update": "Force redownload even if already present (default skips existing version)",
+    "inf_webview2_skip_non_windows": "[INF] Non-Windows target, skipping WebView2 SDK preparation",
+    "inf_webview2_already_installed": "[INF] WebView2 SDK already installed and version matches ({version}), skipping",
+    "inf_webview2_version_mismatch": "[INF] WebView2 SDK version mismatch (installed {installed}, expected {expected}), redownloading",
+    "inf_webview2_downloading": "[INF] Downloading WebView2 SDK ({version})",
+    "inf_webview2_extracting": "[INF] Extracting WebView2 SDK to {dest}",
+    "inf_webview2_install_complete": "[INF] WebView2 SDK ready at: {path}",
+    "err_download_failed": "[ERR] Download failed: {url}\n  Error: {error}",
+    "err_webview2_cleanup_failed": "[ERR] Failed to clean up old WebView2 SDK directory: {error}",
+    "err_webview2_extract_failed": "[ERR] WebView2 SDK extraction failed: {error}",
+    "err_webview2_invalid": "[ERR] WebView2 SDK extracted but required file missing: {path}",
+    "wrn_webview2_version_write_failed": "[WRN] Failed to write WebView2 version file: {error}"
+}

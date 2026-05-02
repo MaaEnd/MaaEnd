@@ -6,6 +6,8 @@
             "entry": "RealTimeTaskMain",
             "description": "$task.RealTimeTask.description",
             "option": [
+                "SklandMap",
+                "VideoBrowser",
                 "AutoSkip",
                 "AutoCloseInteraction",
                 "AutoFight",
@@ -27,6 +29,130 @@
         }
     ],
     "option": {
+        "SklandMap": {
+            "type": "switch",
+            "label": "$option.SklandMap.label",
+            "description": "$option.SklandMap.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SklandMapOpacity"
+                    ],
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "skland_map_enable": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "skland_map_enable": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SklandMapOpacity": {
+            "type": "input",
+            "label": "$option.WindowOpacity.label",
+            "inputs": [
+                {
+                    "name": "SklandMapOpacityInt",
+                    "label": "$option.WindowOpacity.label",
+                    "description": "$option.WindowOpacity.description",
+                    "pipeline_type": "int",
+                    "default": "100",
+                    "verify": "^(100|[1-9]?\\d)$"
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskMain": {
+                    "attach": {
+                        "skland_map_opacity": "{SklandMapOpacityInt}"
+                    }
+                }
+            }
+        },
+        "VideoBrowser": {
+            "type": "switch",
+            "label": "$option.VideoBrowser.label",
+            "description": "$option.VideoBrowser.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "VideoBrowserOpacity",
+                        "VideoBrowserURL"
+                    ],
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "video_browser_enable": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "video_browser_enable": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "VideoBrowserURL": {
+            "type": "input",
+            "label": "$option.VideoBrowserURL.label",
+            "inputs": [
+                {
+                    "name": "VideoBrowserURLString",
+                    "label": "$option.VideoBrowserURL.label",
+                    "pipeline_type": "string",
+                    "default": "https://www.bilibili.com"
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskMain": {
+                    "attach": {
+                        "video_browser_url": "{VideoBrowserURLString}"
+                    }
+                }
+            }
+        },
+        "VideoBrowserOpacity": {
+            "type": "input",
+            "label": "$option.WindowOpacity.label",
+            "inputs": [
+                {
+                    "name": "VideoBrowserOpacityInt",
+                    "label": "$option.WindowOpacity.label",
+                    "description": "$option.WindowOpacity.description",
+                    "pipeline_type": "int",
+                    "default": "100",
+                    "verify": "^(100|[1-9]?\\d)$"
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskMain": {
+                    "attach": {
+                        "video_browser_opacity": "{VideoBrowserOpacityInt}"
+                    }
+                }
+            }
+        },
         "AutoSkip": {
             "type": "switch",
             "label": "$option.AutoSkip.label",

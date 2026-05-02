@@ -84,6 +84,8 @@
     "inf_maadeps_exist": "[INF] MaaDeps dependencies already exist",
     "inf_bootstrap_maadeps": "[INF] Downloading MaaDeps prebuilt dependencies...",
     "fatal_maadeps_failed": "[FATAL] MaaDeps download failed, exiting",
+    "header_bootstrap_3rdparty": "\n========== Preparing 3rdparty Binary Dependencies ==========",
+    "fatal_3rdparty_failed": "[FATAL] 3rdparty dependency preparation failed, exiting",
     "header_build_go": "\n========== Building Go Agent ==========",
     "fatal_build_failed": "[FATAL] Build script execution failed, exiting",
     "header_download_deps": "\n========== Downloading Dependencies ==========",

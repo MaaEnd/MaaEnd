@@ -456,6 +456,7 @@ install/
 maafw/*
 mxu*
 deps
+3rdparty
 
 config
 debug
