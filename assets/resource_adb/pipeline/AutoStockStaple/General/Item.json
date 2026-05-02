@@ -1,0 +1,34 @@
+{
+    "AutoStockInStapleItemName": {
+        "roi_offset": [
+            -5,
+            201,
+            110,
+            30
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWuling": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsValleyIV": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockTargetStockBillColor": {
+        "roi_offset": [
+            23,
+            -55,
+            32,
+            13
+        ]
+    }
+}

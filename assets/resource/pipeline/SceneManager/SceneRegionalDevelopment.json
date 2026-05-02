@@ -436,8 +436,8 @@
         "roi": [
             340,
             55,
-            60,
-            70
+            151,
+            80
         ],
         "template": [
             "AutoStockpile/ElasticGoodsButton.png",
