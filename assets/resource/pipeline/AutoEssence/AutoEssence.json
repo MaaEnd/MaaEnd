@@ -2,21 +2,24 @@
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
         "pre_delay": 0,
-        "anchor": {
-            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
-        },
         "post_delay": 0,
         "next": [
             "[JumpBack]AutoEssenceBackToWorld",
+            "AutoEssenceAtTriggerState"
+        ],
+        "focus": {
+            "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceAtTriggerState": {
+        "desc": "状态识别并根据当前状态决定下一步做什么",
+        "next": [
             "AutoEssenceTryRechallengeFromBattleResult",
             "AutoEssenceClickEssenceStartButton",
             "[JumpBack]AutoEssenceCheckObtain",
             "[JumpBack]AutoEssenceLocationSetupMaybeAutoMove",
             "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
-        "focus": {
-            "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
-        }
+        ]
     },
     "AutoEssenceBackToWorld": {
         "desc": "开始任务前万能跳转回大世界",

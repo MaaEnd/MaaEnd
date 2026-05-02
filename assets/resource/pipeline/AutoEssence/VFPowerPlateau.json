@@ -251,7 +251,7 @@
             }
         },
         "next": [
-            "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+            "AutoEssenceAtTriggerState"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
