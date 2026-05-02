@@ -697,5 +697,8 @@
     "resource/image/SellProduct/IncreaseButton": "e95df53bfc58f063f10bd75a550773b627bf240374911e702c88cf821ec95368",
     "resource/image/SceneManager/TaskIcon2": "076b8f58cb9a7357cbc5c7f1472f4a33ca01d835af1c3301a18d06b99f47518b",
     "resource/image/Common/Button/MapTrackButtonHover": "60551605225d7d8cc5501d6968b67f35eeefb72425144de97b4feb159c278e13",
-    "resource/image/Common/Button/MapTrackButton": "f8a9b93847feee57039b63590ff3dc113055c2172a00f2cb1dc12ee2b2b43617"
+    "resource/image/Common/Button/MapTrackButton": "f8a9b93847feee57039b63590ff3dc113055c2172a00f2cb1dc12ee2b2b43617",
+    "resource/image/InScene/NoticeRewardsIcon2": "485a262b36a49b06d153fa5eaddfc70c93ec1033aa9f734f4e5e5d1785e130ca",
+    "resource/image/InScene/NoticeRewardsIcon3": "994abde3377303188ddc42dea28ef7921ab634915b75edb44843a5825eba1a55",
+    "resource/image/InScene/NoticeRewardsIcon": "9272147a68beaf091d1356e6cab5fb45bbed18e755866a06ee6b8c88ffb98b51"
 }

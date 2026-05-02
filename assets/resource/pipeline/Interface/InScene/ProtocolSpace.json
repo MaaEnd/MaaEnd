@@ -1,0 +1,13 @@
+{
+    "InProtocolSpace": {
+        "desc": "在协议空间内",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            150,
+            150
+        ],
+        "template": "ProtocolSpace/RetreatSpace.png"
+    }
+}

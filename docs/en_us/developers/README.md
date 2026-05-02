@@ -11,6 +11,7 @@ flowchart TD
     Tutorial --> Tools["tools-and-debug.md\nTools & debugging"]
     Tutorial --> Standards["coding-standards.md\nCoding standards"]
     Components --> CB["common-buttons.md"]
+    Components --> SI["in-scene.md"]
     Components --> SM["scene-manager.md"]
     Components --> CU["custom.md"]
     Components --> Comps["components/*.md"]
@@ -58,6 +59,7 @@ Reusable nodes used most often in daily development—Pipeline authors should sk
 | Document                                    | Description                                                                  |
 | ------------------------------------------- | ---------------------------------------------------------------------------- |
 | [Common buttons](./common-buttons.md)       | White/yellow confirm, cancel, close, teleport, etc.                          |
+| [InScene](./in-scene.md)                    | Universal scene recognition — identify which screen is currently shown       |
 | [SceneManager](./scene-manager.md)          | Universal navigation from any screen to a target scene/UI                    |
 | [Custom actions & recognition](./custom.md) | SubTask, ClearHitCount, ExpressionRecognition, and other shared Custom nodes |
 
@@ -87,13 +89,13 @@ Only when you maintain the matching task.
 
 ## Quick lookup
 
-| I want to…                | Read this                                                                                                                        |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Start from zero           | [getting-started.md](./getting-started.md)                                                                                       |
-| Understand architecture   | [components-guide.md](./components-guide.md)                                                                                     |
-| Change Pipeline nodes     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [scene-manager.md](./scene-manager.md) |
-| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                          |
-| Coding standards          | [coding-standards.md](./coding-standards.md)                                                                                     |
+| I want to…                | Read this                                                                                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start from zero           | [getting-started.md](./getting-started.md)                                                                                                                      |
+| Understand architecture   | [components-guide.md](./components-guide.md)                                                                                                                    |
+| Change Pipeline nodes     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
+| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                                                         |
+| Coding standards          | [coding-standards.md](./coding-standards.md)                                                                                                                    |
 
 ## Community
 

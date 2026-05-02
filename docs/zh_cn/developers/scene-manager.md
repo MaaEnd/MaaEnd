@@ -30,11 +30,11 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 基本用法
 
-在 Pipeline 任务中，将「目标场景接口」作为 `[JumpBack]` 节点放在 `next` 中。当业务节点识别失败时，框架会先执行场景跳转，到达目标场景后，再回到业务逻辑继续执行。
+在 Pipeline 任务中，将「目标场景接口」作为 `[JumpBack]` 节点放在 `next` 中。当业务节点识别失败时，框架会先执行场景跳转，到达目标场景后，再回到业务逻辑继续执行，`next` 中需要有引用 `InScene` 万能场景识别的节点判断是否为目标场景，再进入后续业务逻辑，防止反复进入万能跳转造成死循环。
 
 ### 示例
 
-具体用法示例请参考 `assets/resource/pipeline/Interface/Example/Scene.json`，其中包含普通场景接口与传送接口的完整示例节点。
+具体用法示例请参考 `assets/resource/pipeline/Interface/Example/Scene.json` 和 `assets/resource/pipeline/Interface/Example/InScene.json`，其中包含普通场景接口与传送接口的完整示例节点。
 
 ## 3. 万能跳转接口约定
 

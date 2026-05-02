@@ -22,16 +22,9 @@
     },
     "BakerCheckHome": {
         "desc": "检测左上角是否是 Baker 页面, 后续根据次级目录执行不同的点击操作",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            263,
-            117
-        ],
-        "expected": [
-            // @i18n-skip
-            "BAKER"
+        "recognition": "And",
+        "all_of": [
+            "InBakerHome"
         ],
         "next": [
             "BakerCheckMsg", // Baker 会话信息

@@ -1,0 +1,16 @@
+{
+    "InBakerHome": {
+        "desc": "在 Baker 页面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            263,
+            117
+        ],
+        "expected": [
+            "BAKER"
+            // @i18n-skip
+        ]
+    }
+}

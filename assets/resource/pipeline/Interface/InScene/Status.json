@@ -1,0 +1,107 @@
+{
+    "InLoading": {
+        "desc": "在加载界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    128,
+                                    127,
+                                    0
+                                ],
+                                "upper": [
+                                    128,
+                                    127,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    0,
+                                    127,
+                                    127
+                                ],
+                                "upper": [
+                                    0,
+                                    127,
+                                    127
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    128,
+                                    0,
+                                    127
+                                ],
+                                "upper": [
+                                    128,
+                                    0,
+                                    127
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InESCMenu": {
+        "desc": "在Esc菜单内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    228,
+                    440,
+                    265,
+                    205
+                ],
+                "expected": [
+                    "探索等级",
+                    "探索等級",
+                    "(?i)Exploration\\s*Level",
+                    "探索レベル"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

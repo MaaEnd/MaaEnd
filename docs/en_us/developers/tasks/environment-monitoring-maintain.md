@@ -212,7 +212,7 @@ The `EnterMap` field must be an existing teleport node name in SceneManager, e.g
 
 ### Main menu entry
 
-The main entry node `EnvironmentMonitoringMain` enters the terminal selection screen via `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`. That node is maintained in `assets/resource/pipeline/Interface/SceneInMenu.json`. When adding a new regional monitoring terminal, confirm that the main menu entry can navigate into the corresponding screen.
+The main entry node `EnvironmentMonitoringMain` enters the terminal selection screen via `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`. That node is maintained in `assets/resource/pipeline/Interface/InScene/Region.json`. When adding a new regional monitoring terminal, confirm that the main menu entry can navigate into the corresponding screen.
 
 ## Adding a new observation point
 

@@ -1,0 +1,22 @@
+{
+    "ExampleNormalTaskInXXX": {
+        "desc": "普通接口使用示例",
+        "recognition": "And",
+        "all_of": [
+            "InWorld" //识别在大世界界面
+        ],
+        "action": "DoNothing", //识别到后执行的动作
+        "next": [
+            //识别到界面后，继续执行的节点（业务逻辑）
+        ]
+    },
+    //结合万能跳转使用的示例
+    "ExampleNormalTaskMain": {
+        "desc": "任务入口节点（需要在大世界界面的任务）",
+        "action": "DoNothing",
+        "next": [
+            "ExampleNormalTaskInXXX", //识别到界面后进入业务流程
+            "[JumpBack]SceneAnyEnterWorld" //万能跳转，应当使用进入对应界面的节点，预期界面与ExampleNormalTaskInXXX的预期界面一致
+        ]
+    }
+}

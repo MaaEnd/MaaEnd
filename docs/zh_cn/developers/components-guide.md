@@ -35,6 +35,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | 节点         | 说明                                   | 文档                                     |
 | ------------ | -------------------------------------- | ---------------------------------------- |
 | 通用按钮     | 白色/黄色确认、取消、关闭、传送等      | [common-buttons.md](./common-buttons.md) |
+| InScene      | 万能场景识别：判断当前画面所在场景      | [in-scene.md](./in-scene.md)             |
 | SceneManager | 万能跳转：从任意界面自动导航到目标场景 | [scene-manager.md](./scene-manager.md)   |
 
 ## Custom 可复用节点

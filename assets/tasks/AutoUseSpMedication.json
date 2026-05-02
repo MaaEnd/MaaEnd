@@ -62,9 +62,6 @@
                             "next": [
                                 "AutoUseSpMedicationIfExpireSoon"
                             ]
-                        },
-                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
-                            "enabled": false
                         }
                     }
                 },

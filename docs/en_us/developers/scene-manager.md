@@ -32,11 +32,11 @@ For example, the `next` of `SceneEnterMenuProtocolPass` (enter the Protocol Pass
 ### Basic Usage
 
 In a Pipeline task, put the "target scene interface" as a `[JumpBack]` node in `next`.  
-When a business node fails to recognize the expected screen, the framework will first perform a scene jump to reach the target scene, then return to the business logic and continue execution.
+When a business node fails to recognize the expected screen, the framework will first perform a scene jump to reach the target scene, then return to the business logic and continue execution. Use a node referencing `InScene` universal scene recognition in `next` to verify that the target scene has been reached before entering business logic, preventing infinite loops caused by repeatedly entering the universal jump.
 
 ### Examples
 
-For concrete usage examples, see `assets/resource/pipeline/Interface/Example/Scene.json`, which contains complete example nodes for both normal scene interfaces and teleport interfaces.
+For concrete usage examples, see `assets/resource/pipeline/Interface/Example/Scene.json` and `assets/resource/pipeline/Interface/Example/InScene.json`, which contain complete example nodes for both normal scene interfaces and teleport interfaces.
 
 ## 3. Conventions for Universal Jump Interfaces
 

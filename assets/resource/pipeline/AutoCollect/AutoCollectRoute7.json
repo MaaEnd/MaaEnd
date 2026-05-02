@@ -1,0 +1,792 @@
+{
+    "AutoCollectRoute7Start": {
+        "desc": "本路线包含两个收集点，血菌和武陵石",
+        "next": [
+            "AutoCollectRoute7AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingWulingCity1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线7"
+        }
+    },
+    "AutoCollectRoute7End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute7AssertLocation1": {
+        "desc": "传送到收集地界石坪",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv002",
+                            "target": [
+                                204.9,
+                                510.5,
+                                15.0,
+                                11.6
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute1GotoFindLine1"
+        ]
+    },
+    "AutoCollectRoute1GotoFindLine1": {
+        "desc": "寻路到升降梯门口",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    217.2,
+                    515.1
+                ],
+                [
+                    215.8,
+                    512.0
+                ],
+                [
+                    210.3,
+                    511.3
+                ],
+                [
+                    209.1,
+                    508.8
+                ],
+                [
+                    208.8,
+                    504.8
+                ],
+                [
+                    207.2,
+                    500.9
+                ],
+                [
+                    202.3,
+                    499.9
+                ],
+                [
+                    197.6,
+                    496.4
+                ],
+                [
+                    195.2,
+                    495.0
+                ],
+                [
+                    193.9,
+                    492.6
+                ],
+                [
+                    194.1,
+                    486.2
+                ],
+                [
+                    193.5,
+                    477.5
+                ],
+                [
+                    194.0,
+                    468.9
+                ],
+                [
+                    194.9,
+                    467.7
+                ],
+                [
+                    208.9,
+                    467.4
+                ],
+                [
+                    211.1,
+                    465.2
+                ],
+                [
+                    210.9,
+                    457.4
+                ],
+                [
+                    209.8,
+                    428.2
+                ],
+                [
+                    209.4,
+                    406.5
+                ],
+                [
+                    211.6,
+                    394.7
+                ],
+                [
+                    211.6,
+                    383.3
+                ],
+                [
+                    208.5,
+                    378.4
+                ],
+                [
+                    208.2,
+                    373.4
+                ],
+                [
+                    225.0,
+                    372.9
+                ],
+                [
+                    227.4,
+                    383.7
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute7AssertLocation2": {
+        "desc": "升降梯门口定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        217.8,
+                        379.0,
+                        11.2,
+                        9.7
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFindLine2"
+        ]
+    },
+    "AutoCollectRoute7GotoFindLine2": {
+        "desc": "过升降机",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    226.4,
+                    383.5
+                ],
+                [
+                    235.5,
+                    383.6
+                ],
+                [
+                    243.5,
+                    383.6
+                ],
+                [
+                    250.6,
+                    383.6
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFindLine3"
+        ]        
+    },
+    "AutoCollectRoute7GotoFindLine3": {
+        "desc": "寻路至血菌",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    250.1,
+                    383.9
+                ],
+                [
+                    276.3,
+                    383.7
+                ],
+                [
+                    277.6,
+                    383.6
+                ],
+                [
+                    278.7,
+                    382.4
+                ],
+                [
+                    278.8,
+                    355.0
+                ],
+                [
+                    270.0,
+                    353.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation3"
+        ]
+    },
+    "AutoCollectRoute7AssertLocation3": {
+        "desc": "血菌定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        263.4,
+                        349.0,
+                        15.1,
+                        12.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFind1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "血菌收集点定位"
+        }
+    },
+    "AutoCollectRoute7GotoFind1": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    265.1,
+                    346.2
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind2": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    262.6,
+                    348.8
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind3": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    262.6,
+                    348.8
+                ],
+                [
+                    260.0,
+                    348.8
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind4": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    262.4,
+                    345.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind5"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind5": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    257.6,
+                    346.2
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind6"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind6": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    260.1,
+                    343.7
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind7"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind7": {
+        "desc": "前往收集地7",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    261.3,
+                    341.3
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind8"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7GotoFind8": {
+        "desc": "前往收集地8",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    267.4,
+                    341.3
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7AssertLocation4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute7AssertLocation4": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        265.8,
+                        335.5,
+                        11.3,
+                        22.5
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFindLine4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "血菌收集完成再定位"
+        }
+    },
+    "AutoCollectRoute7GotoFindLine4": {
+        "desc": "从血菌出发前往武陵石采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    267.4,
+                    341.3
+                ],
+                [
+                    265.1,
+                    345.0
+                ],
+                [
+                    266.3,
+                    348.8
+                ],
+                [
+                    272.6,
+                    353.8
+                ],
+                [
+                    279.9,
+                    351.3
+                ],
+                [
+                    280.0,
+                    316.2
+                ],
+                [
+                    273.6,
+                    307.5
+                ],
+                [
+                    273.6,
+                    301.3
+                ],
+                [
+                    277.5,
+                    301.3
+                ],
+                [
+                    282.5,
+                    303.7
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7FindButtonUsing"
+        ]
+    },
+    "AutoCollectRoute7FindButtonUsing": {
+        "desc": "点击使用按钮",
+        "pre_wait_freezes": 300,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    850,
+                    455,
+                    144,
+                    54
+                ],
+                "expected": [
+                    "使用",
+                    "Interact"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "next": [
+            "AutoCollectRoute7GotoFindLine5"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "使用升降索"
+        }
+    },
+    "AutoCollectRoute7GotoFindLine5": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    283.7,
+                    303.8
+                ],
+                [
+                    288.8,
+                    303.8
+                ],
+                [
+                    290.1,
+                    304.9
+                ],
+                [
+                    296.2,
+                    305.1
+                ],
+                [
+                    297.5,
+                    306.2
+                ],
+                [
+                    301.2,
+                    306.2
+                ],
+                [
+                    304.2,
+                    304.8
+                ],
+                [
+                    304.9,
+                    293.7
+                ],
+               [
+                    303.7,
+                    290.0
+                ],
+                [
+                    303.7,
+                    288.8
+                ],
+                [
+                    301.2,
+                    286.3
+                ],
+                [
+                    298.8,
+                    287.4
+                ],
+                [
+                    293.7,
+                    287.4
+                ],
+                [
+                    292.4,
+                    286.3
+                ],
+                [
+                    289.9,
+                    286.2
+                ],
+                [
+                    286.2,
+                    283.8
+                ],
+                [
+                    282.4,
+                    282.5
+                ],
+                [
+                    277.4,
+                    281.1
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5"
+        ]
+    },
+    "AutoCollectRoute7AssertLocation5": {
+        "desc": "武陵石门口定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        271.9,
+                        277.4,
+                        12.8,
+                        8.7
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFind11"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "到达武陵石收集点"
+        }
+    },
+    "AutoCollectRoute7GotoFind11": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    277.4,
+                    281.3
+                ],
+                [
+                    273.7,
+                    285.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind12"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind12": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    273.6,
+                    283.7
+                ],
+                [
+                    272.4,
+                    286.4
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind13"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind13": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    272.4,
+                    286.4
+                ],
+                [
+                    269.9,
+                    290.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind14"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind14": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    269.9,
+                    290.0
+                ],
+                [
+                    267.4,
+                    291.2
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind15"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind15": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    267.4,
+                    291.2
+                ],
+                [
+                    263.8,
+                    288.7
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind16"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    },
+    "AutoCollectRoute7GotoFind16": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    263.9,
+                    288.7
+                ],
+                [
+                    262.5,
+                    283.7
+                ],
+                [
+                    265.1,
+                    277.5
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7End"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]        
+    }
+}

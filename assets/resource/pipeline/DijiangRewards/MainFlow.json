@@ -2,20 +2,10 @@
     "ControlNexus": {
         "desc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
         "max_hit": 1,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    15,
-                    437,
-                    225,
-                    153
-                ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InControlNexus"
+        ],
         "next": [
             "[JumpBack]DijiangRewardsFastCollectProduction",
             "[JumpBack]DijiangRewardsFastCollectClues",
@@ -30,20 +20,10 @@
         }
     },
     "FinishDijiangRewards": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    15,
-                    437,
-                    225,
-                    153
-                ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
-                ]
-            }
-        }
+        "recognition": "And",
+        "all_of": [
+            "InControlNexus"
+        ]
     },
     "InMainWindow": {
         "desc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",

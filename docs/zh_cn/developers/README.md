@@ -11,6 +11,7 @@ flowchart TD
     Tutorial --> Tools["tools-and-debug.md\n工具与调试"]
     Tutorial --> Standards["coding-standards.md\n编码规范"]
     Components --> CB["common-buttons.md"]
+    Components --> SI["in-scene.md"]
     Components --> SM["scene-manager.md"]
     Components --> CU["custom.md"]
     Components --> Comps["components/*.md"]
@@ -58,6 +59,7 @@ flowchart TD
 | 文档                                        | 说明                                                             |
 | ------------------------------------------- | ---------------------------------------------------------------- |
 | [通用按钮](./common-buttons.md)             | 白色/黄色确认、取消、关闭、传送等通用按钮节点                    |
+| [InScene 场景识别](./in-scene.md)           | 万能场景识别，判断当前画面所在场景                               |
 | [SceneManager 场景跳转](./scene-manager.md) | 万能跳转机制，从任意界面自动导航/传送到目标场景/UI               |
 | [Custom 动作与识别](./custom.md)            | SubTask、ClearHitCount、ExpressionRecognition 等公共 Custom 节点 |
 
@@ -87,13 +89,13 @@ flowchart TD
 
 ## 快速跳转
 
-| 我想做什么           | 该看哪里                                                                                                                         |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| 第一次参与，从零开始 | [getting-started.md](./getting-started.md)                                                                                       |
-| 了解项目架构         | [components-guide.md](./components-guide.md)                                                                                     |
-| 改 Pipeline 节点     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [scene-manager.md](./scene-manager.md) |
-| 写或调 Go Service    | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                          |
-| 查阅编码规范         | [coding-standards.md](./coding-standards.md)                                                                                     |
+| 我想做什么           | 该看哪里                                                                                                                                                        |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 第一次参与，从零开始 | [getting-started.md](./getting-started.md)                                                                                                                      |
+| 了解项目架构         | [components-guide.md](./components-guide.md)                                                                                                                    |
+| 改 Pipeline 节点     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
+| 写或调 Go Service    | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                                                         |
+| 查阅编码规范         | [coding-standards.md](./coding-standards.md)                                                                                                                    |
 
 ## 交流
 

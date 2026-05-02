@@ -35,6 +35,7 @@ These can be called directly from Pipeline; every Pipeline author should know th
 | Node           | Description                                            | Doc                                      |
 | -------------- | ------------------------------------------------------ | ---------------------------------------- |
 | Common buttons | White/yellow confirm, cancel, close, teleport, etc.    | [common-buttons.md](./common-buttons.md) |
+| InScene        | Scene recognition: determine which screen is shown     | [in-scene.md](./in-scene.md)             |
 | SceneManager   | Universal navigation from any screen to a target scene | [scene-manager.md](./scene-manager.md)   |
 
 ## Reusable Custom nodes
