@@ -365,9 +365,6 @@
         },
         "inverse": true,
         "pre_delay": 0,
-        "anchor": {
-            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickObtainButtonPre"
-        },
         "post_delay": 0,
         "next": [
             "[JumpBack]AutoEssenceLocationSetup",
