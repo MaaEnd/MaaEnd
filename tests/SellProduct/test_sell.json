@@ -10,6 +10,14 @@
         {
             "image": "武陵_地区建设_据点交易超出上限.png",
             "hits": ["SellProductAidQuotaExceededStop"]
+        },
+        {
+            "image": "武陵_地区建设_据点交易超出上限.png",
+            "hits": ["SellProductAidQuotaExceededConfirm"]
+        },
+        {
+            "image": "武陵_地区建设_据点交易超出上限.png",
+            "hits": ["SellProductAidQuotaExceededConfirmThenLoop"]
         }
     ]
 }
