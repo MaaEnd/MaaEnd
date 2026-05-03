@@ -10,7 +10,8 @@ Node names use PascalCase and are prefixed by task or module name inside the sam
 
 Use `pre_delay`, `post_delay`, `timeout`, and `on_error` sparingly. Prefer extra recognition nodes instead of blind sleeps.
 
-When waiting for the screen to settle, prefer `pre_wait_freezes` / `post_wait_freezes`.
+Only use `pre_wait_freezes` / `post_wait_freezes` when the screen must settle; avoid delays otherwise.  
+**Don't use delays to work around instability — add intermediate recognition nodes instead. A delay hides the real problem and will still fail on slower devices.**
 
 > [!NOTE]
 >
@@ -18,7 +19,8 @@ When waiting for the screen to settle, prefer `pre_wait_freezes` / `post_wait_fr
 
 ### Hit the right node on the first screenshot pass
 
-Expand `next` so every plausible game screen maps to an expected node—aim for one capture to land on the right state.
+Expand `next` so every plausible game screen maps to an expected node—aim for one capture to land on the right state.  
+**The project generally rejects any form of retry mechanism. Tasks must complete in a single pass. If a problem seems unsolvable without retries, it must be discussed in the dev group.**
 
 ### Recognize → act → recognize again
 
