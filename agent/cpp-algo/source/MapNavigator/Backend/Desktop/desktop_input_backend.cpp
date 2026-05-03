@@ -22,13 +22,6 @@ constexpr int32_t kDesktopHoverTouchContactId = 0;
 constexpr int32_t kDesktopPrimaryTouchContactId = 1;
 constexpr int32_t kDesktopDefaultTouchPressure = 0;
 
-constexpr MaaWin32InputMethod kMessageInputMethodMask =
-    MaaWin32InputMethod_SendMessage | MaaWin32InputMethod_PostMessage | MaaWin32InputMethod_SendMessageWithCursorPos
-    | MaaWin32InputMethod_PostMessageWithCursorPos | MaaWin32InputMethod_SendMessageWithWindowPos
-    | MaaWin32InputMethod_PostMessageWithWindowPos;
-
-bool IsMessageInputMethod(MaaWin32InputMethod method) { return (method & kMessageInputMethodMask) != 0; }
-
 bool IsMouseLockFollowSupported(MaaController* ctrl)
 {
     MaaWin32InputMethod method = MaaWin32InputMethod_None;
