@@ -63,10 +63,19 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "post_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                1008,
+                474,
+                84,
+                38
+            ]
+        },
+        "pre_delay": 0,
         "next": [
             "GiftOperatorReceiveDialog",
             "GiftOperatorBagFull"
