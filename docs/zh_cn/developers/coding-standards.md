@@ -10,7 +10,7 @@
 
 尽可能少使用 `pre_delay`、`post_delay`、`timeout`、`on_error`。通过增加中间识别节点避免盲目 sleep。
 
-只用在必须的等画面稳定时使用 `pre_wait_freezes` / `post_wait_freezes`，其他时候应该尽量避免延迟。  
+只在必须等待画面稳定时使用 `pre_wait_freezes` / `post_wait_freezes`，其他时候应尽量避免延迟。  
 **不要为了执行稳定而使用延迟，而是通过增加中间节点判断，因为延迟实际上是在掩盖问题，在用户设备存在高延迟时仍然不会稳定。**
 
 > [!NOTE]
