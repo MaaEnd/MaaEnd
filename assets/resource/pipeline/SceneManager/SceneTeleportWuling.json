@@ -18,25 +18,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    100,
-                    0,
-                    0,
-                    0
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            0,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            0,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
@@ -73,25 +100,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    -100,
-                    0,
-                    0,
-                    0
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            -100,
+                            0,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            -100,
+                            0,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
@@ -128,25 +182,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    0,
-                    -100,
-                    0,
-                    0
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            0,
+                            -100,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            0,
+                            -100,
+                            0,
+                            0
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
@@ -1166,25 +1247,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    100,
-                    0,
-                    120,
-                    140
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            0,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            0,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
@@ -1221,25 +1329,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    100,
-                    -140,
-                    120,
-                    140
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            -140,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            100,
+                            -140,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
@@ -1276,25 +1411,52 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "ColorMatch",
-                "roi": "TargetLeft",
-                "roi_offset": [
-                    0,
-                    100,
-                    120,
-                    140
-                ],
-                "lower": [
-                    235,
-                    220,
-                    140
-                ],
-                "upper": [
-                    255,
-                    255,
-                    170
-                ],
-                "count": 20
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            0,
+                            100,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            235,
+                            220,
+                            140
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            170
+                        ],
+                        "count": 20
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "TargetLeft",
+                        "roi_offset": [
+                            0,
+                            100,
+                            120,
+                            140
+                        ],
+                        "lower": [
+                            245,
+                            243,
+                            243
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "connected": true,
+                        "count": 50
+                    }
+                ]
             }
         ],
         "box_index": 1,
