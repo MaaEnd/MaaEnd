@@ -5,7 +5,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../../controller_info_utils.h"
+#include "MapNavigator/controller_info_utils.h"
 #include "../../navi_config.h"
 #include "desktop_input_backend.h"
 
@@ -24,8 +24,13 @@ constexpr int32_t kDesktopDefaultTouchPressure = 0;
 
 bool IsMouseLockFollowSupported(MaaController* ctrl)
 {
+#ifdef _WIN32
     MaaWin32InputMethod method = MaaWin32InputMethod_None;
     return TryGetWin32MouseInputMethod(ctrl, &method) && IsMessageInputMethod(method);
+#else
+    (void)ctrl;
+    return false;
+#endif
 }
 
 bool TrySetMouseLockFollow(MaaController* ctrl, bool enabled)

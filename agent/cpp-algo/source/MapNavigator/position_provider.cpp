@@ -1,7 +1,7 @@
 #include <chrono>
 
 #include "../utils.h"
-#include "controller_info_utils.h"
+#include "MapNavigator/controller_info_utils.h"
 #include "controller_type_utils.h"
 #include "navi_math.h"
 #include "position_provider.h"
