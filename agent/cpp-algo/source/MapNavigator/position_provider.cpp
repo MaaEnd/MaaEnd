@@ -1,9 +1,7 @@
 #include <chrono>
 
-#include <MaaFramework/Utility/MaaBuffer.h>
-#include <meojson/json.hpp>
-
 #include "../utils.h"
+#include "controller_info_utils.h"
 #include "controller_type_utils.h"
 #include "navi_math.h"
 #include "position_provider.h"
@@ -62,32 +60,6 @@ public:
 private:
     MaaImageBuffer* buffer_;
 };
-
-std::string DetectControllerType(MaaController* controller)
-{
-    if (controller == nullptr) {
-        return {};
-    }
-
-    MaaStringBuffer* buffer = MaaStringBufferCreate();
-    if (buffer == nullptr) {
-        return {};
-    }
-
-    std::string controller_type;
-    if (MaaControllerGetInfo(controller, buffer) && !MaaStringBufferIsEmpty(buffer)) {
-        const char* raw = MaaStringBufferGet(buffer);
-        if (raw != nullptr && raw[0] != '\0') {
-            const auto info = json::parse(raw).value_or(json::object {});
-            if (info.contains("type") && info.at("type").is_string()) {
-                controller_type = info.at("type").as_string();
-            }
-        }
-    }
-
-    MaaStringBufferDestroy(buffer);
-    return controller_type;
-}
 
 } // namespace
 
