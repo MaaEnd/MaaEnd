@@ -148,22 +148,6 @@
             "GiftOperatorBagFull"
         ]
     },
-    "GiftOperatorChatAltDown": {
-        "desc": "按下 ALT 激活光标，准备点击干员对话",
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "GiftOperatorWaitChat",
-            "[JumpBack]GiftOperatorMoveAhead"
-        ],
-        "on_error": [
-            "GiftOperatorRetryCleanupAlt"
-        ]
-    },
     "GiftOperatorMoveAhead": {
         "desc": "向前移动一小段尝试接触到干员",
         "max_hit": 5,
@@ -190,22 +174,6 @@
                 "key": 87
             }
         }
-    },
-    "GiftOperatorChatAltUp": {
-        "desc": "松开 ALT",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 18
-            }
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "GiftOperatorSkipDialog"
-        ],
-        "on_error": [
-            "GiftOperatorRetryCleanupAlt"
-        ]
     },
     "GiftOperatorCheckContact": {
         "desc": "确认已进入干员联络界面",
@@ -292,7 +260,7 @@
         ]
     },
     "GiftOperatorClickContact": {
-        "desc": "按住 ALT 点击干员联络台",
+        "desc": "点击干员联络台",
         "max_hit": 3,
         "recognition": {
             "type": "TemplateMatch",
@@ -312,11 +280,13 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
         "next": [
-            "GiftOperatorContactAltUp"
+            "GiftOperatorCheckContact"
         ],
         "on_error": [
             "GiftOperatorRetryCleanupAlt"
@@ -385,37 +355,11 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorChatAltDown"
+            "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead"
         ],
         "on_error": [
             "GiftOperatorRetryCleanupAlt"
-        ]
-    },
-    "GiftOperatorContactAltDown": {
-        "desc": "按下 ALT 激活鼠标光标，准备点击联络台",
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "GiftOperatorClickContact"
-        ],
-        "on_error": [
-            "GiftOperatorRetryCleanupAlt"
-        ]
-    },
-    "GiftOperatorContactAltUp": {
-        "desc": "松开 ALT",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "GiftOperatorCheckContact"
         ]
     },
     "GiftOperatorGiftDialog": {
@@ -570,7 +514,7 @@
             }
         },
         "next": [
-            "GiftOperatorContactAltDown"
+            "GiftOperatorClickContact"
         ],
         "on_error": [
             "GiftOperatorRetryCleanupAlt"
@@ -612,7 +556,7 @@
             }
         },
         "next": [
-            "GiftOperatorContactAltDown"
+            "GiftOperatorClickContact"
         ]
     },
     "GiftOperatorMoveRecordedLongPressW1": {
@@ -753,8 +697,8 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorChatAltDown",
             "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead",
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
             "GiftOperatorBranchMaxAffinity",
@@ -930,11 +874,14 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
+        "post_wait_freezes": 200,
         "next": [
-            "GiftOperatorChatAltUp"
+            "GiftOperatorSkipDialog"
         ],
         "on_error": [
             "GiftOperatorRetryCleanupAlt"
