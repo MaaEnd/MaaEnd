@@ -274,6 +274,8 @@
     "option.DailyTaskAssemble.label": "Assemble Gear",
     "option.DailyTaskCreation.label": "Simple Crafting",
     "option.DailyTaskCreation.desc": "Automatically perform simple crafting once to earn activity points.",
+    "option.DailyTaskLevelUpOperator.label": "Level Up Operator",
+    "option.DailyTaskLevelUpOperator.desc": "Level up an operator once (+20 activity points)",
     "task.AutoSell.label": "💰Sell elastic supplies",
     "option.AutoSellPriceType.label": "Selling strategy",
     "option.AutoSellPriceTypeGlobal.label": "Uniform price",
