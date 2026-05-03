@@ -60,12 +60,12 @@ jobs:
           echo is_release=$is_release | tee -a $GITHUB_OUTPUT
           echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
 
-      - id: maafw-latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: MaaXYZ/MaaFramework
-          excludes: "draft"
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - id: maafw-latest-release
+      #   uses: pozetroninc/github-action-get-latest-release@master
+      #   with:
+      #     repository: MaaXYZ/MaaFramework
+      #     excludes: "draft"
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
       - id: mxu-latest-release
         uses: pozetroninc/github-action-get-latest-release@master
@@ -78,7 +78,7 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
-      maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
+      maafw_version: "v5.10.2"
       mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
 
   build_and_install:
