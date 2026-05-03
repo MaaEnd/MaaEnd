@@ -508,6 +508,7 @@
     "task.SellProduct.description": "使用产品在各个据点兑换对应调度券\n您可以在任务选项中启用或停用特定地区的销售功能。",
     "task.SellProduct.regionToggleDescription": "启用或停用该地区的售卖任务",
     "task.SellProduct.TaskEnd": "售卖任务已完成",
+    "task.SellProduct.aid_quota_exceeded": "援助物品超出该据点可兑换调度券上限，部分物品仅能兑换援助成果券。请在游戏内调整交易或确认后重试。",
     "task.SellProduct.ValleyIVRefugeeCamp": "难民暂居处",
     "task.SellProduct.ValleyIVInfrastructureOutpost": "基建前站",
     "task.SellProduct.ValleyIVReconstructionCommand": "重建指挥部",

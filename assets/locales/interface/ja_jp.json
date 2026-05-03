@@ -405,6 +405,7 @@
     "task.SellProduct.ReserveValueInput": "保留数の設定",
     "task.SellProduct.ReserveValue": "保留数（>=1）",
     "task.SellProduct.TaskEnd": "販売タスクが完了しました",
+    "task.SellProduct.aid_quota_exceeded": "援護物資が拠点の調達券交換上限を超えています。一部は援護成果券のみ交換可能です。ゲーム内で取引内容を調整または確認してから再実行してください。",
     "task.VisitFriends.label": "🤝 フレンド訪問",
     "task.VisitFriends.description": "フレンドを訪問し、支援と情報交換を実行します。",
     "task.ReceiveProdManual.label": "🌾 簡易製作手帳報酬受取",

@@ -384,6 +384,7 @@
     "task.SellProduct.description": "각 거점에서 제품을 사용하여 해당 조달권을 교환합니다.\n작업 옵션에서 특정 지역에 대한 판매 기능을 활성화 또는 비활성화할 수 있습니다.",
     "task.SellProduct.regionToggleDescription": "이 지역의 판매 작업을 활성화 또는 비활성화합니다.",
     "task.SellProduct.TaskEnd": "판매 작업이 완료되었습니다",
+    "task.SellProduct.aid_quota_exceeded": "지원 물자가 거점의 조달권 교환 한도를 초과했으며, 일부는 원조 성과권으로만 교환됩니다. 게임 내에서 거래를 조정하거나 확인한 뒤 다시 시도하세요.",
     "task.SellProduct.ValleyIVRefugeeCamp": "유랑자 임시 거주지",
     "task.SellProduct.ValleyIVInfrastructureOutpost": "기초 건설 주둔지",
     "task.SellProduct.ValleyIVReconstructionCommand": "재건 지휘부",

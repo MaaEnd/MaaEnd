@@ -384,6 +384,7 @@
     "task.SellProduct.description": "使用產品在各個據點兌換對應調度券\n您可以在任務選項中啟用或停用特定地區的銷售功能。",
     "task.SellProduct.regionToggleDescription": "啟用或停用此地區的販售任務",
     "task.SellProduct.TaskEnd": "售賣任務已完成",
+    "task.SellProduct.aid_quota_exceeded": "援贈物資超出該據點可兌換調度券上限，部分物資僅能兌換援助成果券。請在遊戲內調整交易或確認後重試。",
     "task.SellProduct.ValleyIVRefugeeCamp": "難民暫居處",
     "task.SellProduct.ValleyIVInfrastructureOutpost": "基建前站",
     "task.SellProduct.ValleyIVReconstructionCommand": "重建指揮部",

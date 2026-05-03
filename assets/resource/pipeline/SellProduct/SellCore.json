@@ -199,8 +199,40 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductAidQuotaExceededStop",
             "SellProductSellCheck"
         ]
+    },
+    "SellProductAidQuotaExceededStop": {
+        "desc": "援助提交量超出据点可兑换调度券上限的确认弹窗，终止任务",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            130,
+            1200,
+            434
+        ],
+        "expected": [
+            "当前提交给据点的援助物品超出据点可兑换调度券上限，部分物品仅能兑换援助成果券，是否确认交易？",
+            "目前提交給據點的援助物品超出據點可兌換調度券上限，部分物品僅能兌換援助成果券，是否確定要交易？",
+            "Amount of support goods to be traded has exceeded the stock bill reserves of the outpost. Some of the goods are only exchangeable for Fruits of Altruism Certs. Trade them anyway?",
+            "拠点へ提出予定の支援物資は交換可能な取引券の上限を超えているため、一部のアイテムは支援成果券にのみ交換可能です。続行しますか？",
+            "当前提交给据点的援助物品超出据点可兑换调度券上限",
+            "超出据点可兑换调度券上限",
+            "目前提交給據點的援助物品超出據點可兌換調度券上限",
+            "超出據點可兌換調度券上限",
+            "(?i)stock bill reserves",
+            "(?i)Fruits of Altruism Certs",
+            "取引券の上限を超えている",
+            "支援成果券にのみ交換可能"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SellProduct.aid_quota_exceeded"
+        }
     },
     "SellProductSellCheck": {
         "desc": "交易后确认",
@@ -263,6 +295,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductAidQuotaExceededStop",
             "SellProductSellCheckThenLoop"
         ]
     },

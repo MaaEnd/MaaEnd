@@ -557,6 +557,7 @@
     "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers.\nTask options allow you to enable or disable sales features in specific regions.",
     "task.SellProduct.regionToggleDescription": "Enable or disable selling tasks in this region.",
     "task.SellProduct.TaskEnd": "Sell task completed",
+    "task.SellProduct.aid_quota_exceeded": "Aid supplies exceed this outpost's exchangeable procurement voucher limit; some items can only be exchanged for aid result vouchers. Please adjust or confirm the trade in-game, then retry.",
     "task.SellProduct.ValleyIVRefugeeCamp": "Refugee Camp",
     "task.SellProduct.ValleyIVInfrastructureOutpost": "Infra-Station",
     "task.SellProduct.ValleyIVReconstructionCommand": "Reconstruction HQ",
