@@ -46,8 +46,7 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorLeave",
-            "GiftOperatorBagFullDialog"
+            "GiftOperatorLeave"
         ]
     },
     "GiftOperatorBagFullLeave": {
