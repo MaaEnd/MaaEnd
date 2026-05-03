@@ -1,0 +1,248 @@
+{
+    "GiftOperatorBranchGift": {
+        "desc": "分支1：可以赠送礼物",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    929,
+                    393,
+                    239,
+                    220
+                ],
+                "template": [
+                    "GiftOperator/GiftGiving.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorGiftUI"
+        ]
+    },
+    "GiftOperatorBranchMaxAffinity": {
+        "desc": "分支3：好感度已满",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    951,
+                    410,
+                    236,
+                    195
+                ],
+                "template": [
+                    "GiftOperator/LikeAbility.png"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "⚠️ 干员好感度已满"
+        }
+    },
+    "GiftOperatorBranchReceive": {
+        "desc": "分支2：干员给你送礼，点击领取",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    948,
+                    462,
+                    193,
+                    133
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipTip.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "GiftOperatorReceiveDialog",
+            "GiftOperatorBagFull"
+        ]
+    },
+    "GiftOperatorClickGift": {
+        "desc": "选择礼物",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    80,
+                    550,
+                    16,
+                    16
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorGiftSelected"
+        ]
+    },
+    "GiftOperatorConfirmGift": {
+        "desc": "点击赠送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1201,
+                    629,
+                    48,
+                    62
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ],
+                "threshold": [
+                    0.46
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
+        "next": [
+            "GiftOperatorGiftDialog"
+        ]
+    },
+    "GiftOperatorGiftDialog": {
+        "desc": "赠送后跳过对话。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorLeave",
+            "GiftOperatorGiftDialog"
+        ]
+    },
+    "GiftOperatorGiftSelected": {
+        "desc": "确认礼物已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    69,
+                    504,
+                    63,
+                    53
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect1.png"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorConfirmGift"
+        ]
+    },
+    "GiftOperatorGiftUI": {
+        "desc": "进入送礼界面，确认已加载",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    20,
+                    634,
+                    92,
+                    56
+                ],
+                "expected": [
+                    "默认",
+                    "預設",
+                    "(?i)Default",
+                    "デフォルト"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorClickGift"
+        ]
+    },
+    "GiftOperatorReceiveDialog": {
+        "desc": "领取成功后跳过对话，回到对话流程。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead",
+            "GiftOperatorSkipDialog",
+            "GiftOperatorBranchGift",
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorLeave",
+            "GiftOperatorReceiveDialog"
+        ]
+    },
+    "GiftOperatorSkipDialog": {
+        "desc": "跳过对话，然后判断三种分支。next 含自身以便未跳转时重试一次点击",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorBranchGift",
+            "GiftOperatorBranchReceive",
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorSkipDialog"
+        ]
+    }
+}

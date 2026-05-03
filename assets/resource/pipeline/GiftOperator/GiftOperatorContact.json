@@ -1,0 +1,213 @@
+{
+    "GiftOperatorCheckContact": {
+        "desc": "确认已进入干员联络界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    144,
+                    105,
+                    163,
+                    75
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "(?i)Operator\\s*Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorSelectOp1"
+        ]
+    },
+    "GiftOperatorCheckSelected1": {
+        "desc": "确认第一个干员已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect1.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "next": [
+            "GiftOperatorSelectOp2"
+        ]
+    },
+    "GiftOperatorCheckSelected2": {
+        "desc": "确认第二个干员已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect2.png"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorSelectOp3"
+        ]
+    },
+    "GiftOperatorCheckSelected3": {
+        "desc": "确认第三个干员已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect3.png"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorClickContact": {
+        "desc": "点击干员联络台",
+        "max_hit": 3,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    722,
+                    312,
+                    481,
+                    362
+                ],
+                "template": [
+                    "GiftOperator/OperatorContact.png"
+                ],
+                "threshold": [
+                    0.7
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "next": [
+            "GiftOperatorCheckContact"
+        ]
+    },
+    "GiftOperatorConfirmSelect": {
+        "desc": "点击确认按钮呼唤干员",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead"
+        ]
+    },
+    "GiftOperatorSelectOp1": {
+        "desc": "选择第一个干员",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    589,
+                    242,
+                    5,
+                    3
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorCheckSelected1"
+        ]
+    },
+    "GiftOperatorSelectOp2": {
+        "desc": "选择第二个干员",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    683,
+                    242,
+                    2,
+                    2
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorCheckSelected2"
+        ]
+    },
+    "GiftOperatorSelectOp3": {
+        "desc": "选择第三个干员",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    773,
+                    239,
+                    3,
+                    5
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorCheckSelected3"
+        ]
+    },
+    "GiftOperatorWaitChat": {
+        "desc": "等待干员出现并点击对话",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    750,
+                    377,
+                    427,
+                    312
+                ],
+                "template": [
+                    "GiftOperator/OperatorChat.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "GiftOperatorSkipDialog"
+        ]
+    }
+}

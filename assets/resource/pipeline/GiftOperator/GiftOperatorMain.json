@@ -1,0 +1,56 @@
+{
+    "GiftOperatorMain": {
+        "desc": "赠送干员礼物 - 入口节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GiftOperatorInDijiang0",
+            "[JumpBack]SceneEnterWorldDijiang0"
+        ]
+    },
+    "GiftOperatorInDijiang0": {
+        "desc": "确认已在帝江号舰桥大世界",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "GiftOperator/Check_Dijiang.png"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "anchor": {
+            "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
+        },
+        "next": [
+            "[Anchor]GiftOperatorMoveModeAnchor"
+        ]
+    },
+    "GiftOperatorLeave": {
+        "desc": "点击离开",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    945,
+                    404,
+                    228,
+                    249
+                ],
+                "template": [
+                    "GiftOperator/Leave.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    }
+}

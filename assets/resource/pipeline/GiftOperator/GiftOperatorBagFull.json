@@ -1,0 +1,78 @@
+{
+    "GiftOperatorBagFull": {
+        "desc": "背包已满，无法领取礼物",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    528,
+                    107,
+                    219,
+                    34
+                ],
+                "expected": [
+                    "礼物",
+                    "禮物",
+                    "(?i)Gift",
+                    "プレゼント"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorBagFullLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "⚠️ 背包已满，无法领取干员礼物，请手动清理背包"
+        }
+    },
+    "GiftOperatorBagFullDialog": {
+        "desc": "背包满离开后跳过对话。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorLeave",
+            "GiftOperatorBagFullDialog"
+        ]
+    },
+    "GiftOperatorBagFullLeave": {
+        "desc": "背包满时点击离开",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    945,
+                    404,
+                    228,
+                    249
+                ],
+                "template": [
+                    "GiftOperator/Leave.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "GiftOperatorBagFullDialog"
+        ]
+    }
+}
