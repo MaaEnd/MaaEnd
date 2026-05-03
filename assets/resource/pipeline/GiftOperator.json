@@ -362,7 +362,10 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
         "next": [
             "GiftOperatorGiftDialog"
         ]
