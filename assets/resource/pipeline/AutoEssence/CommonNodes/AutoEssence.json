@@ -117,6 +117,7 @@
             }
         },
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
             "[Anchor]AutoEssenceAfterAltKeyUp"
         ]
     },
@@ -381,8 +382,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoEssenceClickObtainButton",
-                    "AutoEssenceCheckObtainText"
+                    "AutoEssenceClickObtainButton"
+                    //"AutoEssenceCheckObtainText"ocr先放着，看看后面需不需要
                 ]
             }
         },
