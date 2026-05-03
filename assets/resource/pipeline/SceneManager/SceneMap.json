@@ -518,12 +518,13 @@
                     0,
                     100,
                     100,
-                    100
+                    120
                 ],
                 "template": [
                     "SceneManager/TaskIcon.png",
                     "SceneManager/TaskIcon2.png"
-                ]
+                ],
+                "green_mask": true
             }
         ],
         "box_index": 1,
