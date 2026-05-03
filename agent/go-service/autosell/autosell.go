@@ -43,7 +43,7 @@ func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition not hit")
 		return nil, false
 	}
-	if len(detail.CombinedResult) < 4 {
+	if len(detail.CombinedResult) < 6 {
 		log.Warn().Str("component", "autosell").Str("step", "scan_item").Msg("recognition miss")
 		return nil, false
 	}
@@ -55,7 +55,7 @@ func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		} `json:"filtered"`
 	}
 	// Results.Best是空，暂时只能这样获取
-	if err := json.Unmarshal([]byte(detail.CombinedResult[3].DetailJson), &detailJson); err != nil {
+	if err := json.Unmarshal([]byte(detail.CombinedResult[5].DetailJson), &detailJson); err != nil {
 		log.Error().Err(err).Str("component", "autosell").Str("step", "scan_item").Msg("parse detail json")
 		return nil, false
 	}
@@ -130,6 +130,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 				Str("item_name", name).
 				Msg("unknown item, default price")
 			maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", name))
+			continue
 		}
 
 		override := map[string]any{

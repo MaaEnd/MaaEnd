@@ -200,6 +200,7 @@
         "all_of": [
             "AutoSellStockRedistributionItemTicketRecognition",
             "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
             "AutoSellStockRedistributionItemFindTextRecognition"
         ],
@@ -225,6 +226,7 @@
         "all_of": [
             "AutoSellStockRedistributionItemTicketRecognition",
             "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
             "AutoSellStockRedistributionItemFindTextRecognition"
         ],

@@ -17,12 +17,12 @@
     "AutoSellStockRedistributionItemNameAreaRecognition": {
         "desc": "识别物资调度界面中的item",
         "recognition": "ColorMatch",
-        "roi": "AutoSellStockRedistributionItemOwnedRecognition",
+        "roi": "AutoSellStockRedistributionItemGreenLineRecognition",
         "roi_offset": [
-            -5,
-            60,
-            95,
-            10
+            0,
+            0,
+            0,
+            30
         ],
         "lower": [
             61,
@@ -37,22 +37,65 @@
         "count": 100
     },
     "AutoSellStockRedistributionItemOwnedRecognition": {
-        "desc": "识别物资调度界面中的拥有二字，区分是售卖还是购买物品",
-        "recognition": "OCR",
+        "desc": "识别物资调度界面中的拥有所在黑色背景，区分是售卖还是购买物品",
+        "recognition": "ColorMatch",
         "roi": "AutoSellStockRedistributionItemTicketRecognition",
         "roi_offset": [
             -60,
             -30,
-            60,
+            50,
             10
         ],
-        "expected": [
-            "拥有",
-            "持有",
-            "Owned",
-            "総在庫",
-            "보유"
-        ]
+        "lower": [
+            61,
+            60,
+            60
+        ],
+        "upper": [
+            81,
+            80,
+            80
+        ],
+        "count": 20
+    },
+    "AutoSellStockRedistributionItemGreenLineRecognition": {
+        "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemOwnedRecognition",
+        "roi_offset": [
+            -20,
+            40,
+            140,
+            10
+        ],
+        "lower": [
+            150,
+            180,
+            40
+        ],
+        "upper": [
+            190,
+            220,
+            80
+        ],
+        "connected": true,
+        "count": 400
+    },
+    "AutoSellStockRedistributionItemNameRecRecognition": {
+        "desc": "识别物资调度界面中文字所在roi，方便only_rec识别",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+        "lower": [
+            120,
+            120,
+            120
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 200
     },
     "AutoSellStockRedistributionItemText": {
         "desc": "识别物资调度界面中所有的item",
@@ -60,10 +103,12 @@
         "all_of": [
             "AutoSellStockRedistributionItemTicketRecognition",
             "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
             {
                 "recognition": "OCR",
-                "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+                "roi": "AutoSellStockRedistributionItemNameRecRecognition",
                 "only_rec": true, // 不加的话复杂字符可能导致ocr结果不在一句话里
                 "order_by": "Vertical"
             }
