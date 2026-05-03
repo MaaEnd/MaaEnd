@@ -157,11 +157,39 @@
             }
         },
         "next": [
-            "GiftOperatorWaitChat"
+            "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead"
         ],
         "on_error": [
             "GiftOperatorRetryCleanupAlt"
         ]
+    },
+    "GiftOperatorMoveAhead": {
+        "desc": "向前移动一小段尝试接触到干员",
+        "max_hit": 5,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    722,
+                    312,
+                    481,
+                    362
+                ],
+                "template": [
+                    "GiftOperator/OperatorContact.png"
+                ],
+                "threshold": [
+                    0.7
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 87
+            }
+        }
     },
     "GiftOperatorChatAltUp": {
         "desc": "松开 ALT",
