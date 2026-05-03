@@ -96,6 +96,40 @@
             "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
         }
     },
+    "AutoEssencePathfindingRetryCounter": {
+        "desc": "前往激发点时寻路失败后的累计重试计数；未超过最大重试次数时强制传送到最近锚点并重新寻路",
+        "max_hit": 3,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "VFTheHubForceTeleportToTriggerPoint",
+                        "VFOriginiumScienceParkForceTeleportToTriggerPoint",
+                        "VFOriginLodespringForceTeleportToTriggerPoint",
+                        "VFPowerPlateauForceTeleportToTriggerPoint",
+                        "WLWulingCityForceTeleportToTriggerPoint",
+                        "WLQingboStockadeForceTeleportToTriggerPoint"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "[JumpBack][Anchor]AutoEssenceForceTeleportToTriggerPoint",
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Starting": "⚠️寻路卡住，正在强制传送并重试"
+        }
+    },
+    "AutoEssencePathfindingFailedStopTask": {
+        "desc": "寻路失败重试次数耗尽后停止任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "❌**寻路多次失败，任务结束**\n请检查角色是否被地形或设施卡住。"
+        }
+    },
     "__AutoEssenceAltKeyUp": {
         "desc": "释放键盘 Alt 键（通过覆写 AutoEssenceAfterAltKeyUp 锚点即可设置该节点执行完毕后的下一个节点）",
         "action": {
@@ -109,7 +143,7 @@
         ]
     },
     "AutoEssenceClickTriggerButtonPre": {
-        "desc": "准备点击激发的大世界按钮，先按下 Alt 键",
+        "desc": "准备点击激发的大世界按钮，先按下 Alt 键，并优先处理上轮未重置的奖励",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -118,26 +152,97 @@
         },
         "timeout": 1000,
         "next": [
+            "AutoEssenceClickPendingRewardBeforeTrigger",
             "AutoEssenceClickTriggerButton"
         ],
         "on_error": [
             "AutoEssenceClickTriggerButtonFailedPre"
         ]
     },
+    "AutoEssenceClickPendingRewardBeforeTrigger": {
+        "desc": "点击激发前，识别并处理上轮未重置的奖励待处理状态",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    690,
+                    300,
+                    470,
+                    360
+                ],
+                "expected": [
+                    "领取奖励",
+                    "領取獎勵",
+                    "(?i)Claim\\s*Rewards",
+                    "報酬受取",
+                    "보상 획득"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScalingPre"
+        },
+        "next": [
+            "__AutoEssenceAltKeyUp"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆检测到上轮奖励待处理，点击领取奖励按钮"
+        }
+    },
+    "AutoEssenceClickPendingRewardDiscardBeforeTrigger": {
+        "desc": "点击激发前，识别并放弃上轮未重置的奖励待处理状态",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    690,
+                    300,
+                    470,
+                    360
+                ],
+                "expected": [
+                    "放弃奖励并重置",
+                    "放棄獎勵並重置",
+                    "(?i)Abandon\\s*Rewards\\s*and\\s*Reset",
+                    "受取せずにリセット",
+                    "보상 포기 및 초기화"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"
+        },
+        "next": [
+            "__AutoEssenceAltKeyUp"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆检测到上轮奖励待处理，点击放弃奖励按钮"
+        }
+    },
     "AutoEssenceClickTriggerButton": {
         "desc": "正式识别并点击激发的大世界按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    800,
-                    450,
-                    100,
-                    180
+                    730,
+                    420,
+                    330,
+                    230
                 ],
-                "template": "AutoEssence/EssenceTrigger.png",
-                "green_mask": true,
-                "order_by": "Score"
+                "expected": [
+                    "激发",
+                    "激發",
+                    "(?i)Activate",
+                    "解放",
+                    "활성화"
+                ]
             }
         },
         "action": {
@@ -324,6 +429,18 @@
             "Node.Recognition.Starting": "🚶正在使用走路方式挑战"
         }
     },
+    "AutoEssenceWalkAroundFailedRetry": {
+        "desc": "走路模式散步失败后不终止任务，继续散步循环",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "focus": {
+            "Node.Action.Starting": "⚠️散步寻路失败，继续挑战等待结束"
+        }
+    },
     "AutoEssenceClickEssenceChallengeUsingAutoFight": {
         "desc": "使用自动战斗方式挑战",
         "pre_delay": 0,
@@ -385,30 +502,25 @@
     "AutoEssenceClickObtainButton": {
         "desc": "正式识别并点击领取奖励的大世界按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    780,
-                    340,
-                    170,
-                    310
+                    690,
+                    300,
+                    470,
+                    360
                 ],
-                "template": "AutoEssence/EssenceObtain.png",
-                "green_mask": true,
-                "threshold": 0.45,
-                "order_by": "Score"
+                "expected": [
+                    "领取奖励",
+                    "領取獎勵",
+                    "(?i)Claim\\s*Rewards",
+                    "報酬受取",
+                    "보상 획득"
+                ]
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -10,
-                    15,
-                    -10,
-                    -60
-                ]
-            }
+            "type": "Click"
         },
         "anchor": {
             "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScalingPre"
@@ -445,30 +557,25 @@
     "AutoEssenceClickDiscardButton": {
         "desc": "正式识别并点击放弃奖励的大世界按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    780,
-                    340,
-                    170,
-                    310
+                    690,
+                    300,
+                    470,
+                    360
                 ],
-                "template": "AutoEssence/EssenceObtain.png",
-                "green_mask": true,
-                "threshold": 0.45,
-                "order_by": "Score"
+                "expected": [
+                    "放弃奖励并重置",
+                    "放棄獎勵並重置",
+                    "(?i)Abandon\\s*Rewards\\s*and\\s*Reset",
+                    "受取せずにリセット",
+                    "보상 포기 및 초기화"
+                ]
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -10,
-                    60,
-                    -10,
-                    -60
-                ]
-            }
+            "type": "Click"
         },
         "anchor": {
             "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"

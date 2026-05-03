@@ -2,6 +2,7 @@
     "VFOriginiumScienceParkMoveToTriggerPointAuto": {
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "VFOriginiumScienceParkForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
         "next": [
@@ -32,6 +33,7 @@
         },
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "VFOriginiumScienceParkForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
         "focus": {
@@ -66,6 +68,13 @@
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "VFOriginiumScienceParkForceTeleportToTriggerPoint": {
+        "desc": "寻路失败后强制传送到最近锚点（本轮仅执行一次，避免 JumpBack 重复传送）",
+        "max_hit": 1,
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark1"
+        ]
     },
     "VFOriginiumScienceParkMoveToTriggerPoint": {
         "action": {
@@ -107,6 +116,10 @@
         "next": [
             "VFOriginiumScienceParkMoveToTriggerPointExact"
         ],
+        "on_error": [
+            "AutoEssencePathfindingRetryCounter",
+            "AutoEssencePathfindingFailedStopTask"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往预备位置"
         }
@@ -133,6 +146,10 @@
         },
         "next": [
             "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ],
+        "on_error": [
+            "AutoEssencePathfindingRetryCounter",
+            "AutoEssencePathfindingFailedStopTask"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
@@ -161,6 +178,9 @@
             "AutoEssenceCheckOngoing",
             "VFOriginiumScienceParkWalkAround2"
         ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
         }
@@ -187,6 +207,9 @@
         "next": [
             "AutoEssenceCheckOngoing",
             "VFOriginiumScienceParkWalkAround1"
+        ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"

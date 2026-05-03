@@ -16,7 +16,8 @@
                 "AutoEssenceObtainMode",
                 "AutoEssenceDoOverride",
                 "EssenceFilterAfterBattle",
-                "AutoEssenceRepeatCount"
+                "AutoEssenceRepeatCount",
+                "AutoEssencePathfindingRetryCount"
             ],
             "group": [
                 "sanity_sink"
@@ -147,6 +148,12 @@
                             "next": [
                                 "AutoEssenceClickDiscardButton"
                             ]
+                        },
+                        "AutoEssenceClickTriggerButtonPre": {
+                            "next": [
+                                "AutoEssenceClickPendingRewardDiscardBeforeTrigger",
+                                "AutoEssenceClickTriggerButton"
+                            ]
                         }
                     }
                 },
@@ -220,6 +227,26 @@
                         "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
                         "AutoEssenceOnComplete"
                     ]
+                }
+            }
+        },
+        "AutoEssencePathfindingRetryCount": {
+            "type": "input",
+            "label": "$option.AutoEssencePathfindingRetryCount.label",
+            "description": "$option.AutoEssencePathfindingRetryCount.description",
+            "inputs": [
+                {
+                    "name": "AutoEssencePathfindingRetryCountValue",
+                    "label": "$option.AutoEssencePathfindingRetryCount.inputs.AutoEssencePathfindingRetryCountValue.label",
+                    "description": "$option.AutoEssencePathfindingRetryCount.inputs.AutoEssencePathfindingRetryCountValue.description",
+                    "pipeline_type": "int",
+                    "verify": "^([0-9]|[1-9][0-9])$",
+                    "default": "3"
+                }
+            ],
+            "pipeline_override": {
+                "AutoEssencePathfindingRetryCounter": {
+                    "max_hit": "{AutoEssencePathfindingRetryCountValue}"
                 }
             }
         },

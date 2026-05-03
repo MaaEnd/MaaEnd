@@ -2,6 +2,7 @@
     "WLQingboStockadeMoveToTriggerPointAuto": {
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "WLQingboStockadeForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "WLQingboStockadeWalkAround1"
         },
         "next": [
@@ -32,6 +33,7 @@
         },
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "WLQingboStockadeForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "WLQingboStockadeWalkAround1"
         },
         "focus": {
@@ -67,6 +69,13 @@
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
+    "WLQingboStockadeForceTeleportToTriggerPoint": {
+        "desc": "寻路失败后强制传送到最近锚点（本轮仅执行一次，避免 JumpBack 重复传送）",
+        "max_hit": 1,
+        "next": [
+            "SceneEnterWorldWulingQingboStockade2"
+        ]
+    },
     "WLQingboStockadeMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
@@ -87,12 +96,18 @@
                             391.5,
                             571.0
                         ]
-                    ]
+                    ],
+                    "arrival_threshold": 6.0,
+                    "sprint_threshold": 999.0
                 }
             }
         },
         "next": [
             "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ],
+        "on_error": [
+            "AutoEssencePathfindingRetryCounter",
+            "AutoEssencePathfindingFailedStopTask"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
@@ -121,6 +136,9 @@
             "AutoEssenceCheckOngoing",
             "WLQingboStockadeWalkAround2"
         ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
         }
@@ -147,6 +165,9 @@
         "next": [
             "AutoEssenceCheckOngoing",
             "WLQingboStockadeWalkAround1"
+        ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"

@@ -17,6 +17,76 @@
         "action": "DoNothing",
         "post_delay": 0
     },
+    "AutoEssenceClickPendingRewardBeforeTrigger": {
+        "desc": "点击激发前，识别并处理上轮未重置的奖励待处理状态（ADB，保留模板识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    20,
+                    -10,
+                    -75
+                ]
+            }
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScalingPre"
+        },
+        "next": [
+            "__AutoEssenceAltKeyUp"
+        ]
+    },
+    "AutoEssenceClickPendingRewardDiscardBeforeTrigger": {
+        "desc": "点击激发前，识别并放弃上轮未重置的奖励待处理状态（ADB，保留模板识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    65,
+                    -10,
+                    -75
+                ]
+            }
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"
+        },
+        "next": [
+            "__AutoEssenceAltKeyUp"
+        ]
+    },
     "AutoEssenceClickObtainButtonPre": {
         "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，先按下 Alt 键（ADB 无需此操作）",
         "pre_delay": 0,
@@ -95,6 +165,35 @@
                 "target_offset": [
                     -10,
                     20,
+                    -10,
+                    -75
+                ]
+            }
+        }
+    },
+    "AutoEssenceClickDiscardButton": {
+        "desc": "正式识别并点击放弃奖励的大世界按钮（ADB，保留模板识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    65,
                     -10,
                     -75
                 ]

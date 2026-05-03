@@ -2,6 +2,7 @@
     "WLWulingCityMoveToTriggerPointAuto": {
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "WLWulingCityForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "WLWulingCityWalkAround1"
         },
         "next": [
@@ -32,6 +33,7 @@
         },
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint",
+            "AutoEssenceForceTeleportToTriggerPoint": "WLWulingCityForceTeleportToTriggerPoint",
             "AutoEssenceWalkAround": "WLWulingCityWalkAround1"
         },
         "focus": {
@@ -76,6 +78,13 @@
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLWulingCityForceTeleportToTriggerPoint": {
+        "desc": "寻路失败后强制传送到最近锚点（本轮仅执行一次，避免 JumpBack 重复传送）",
+        "max_hit": 1,
+        "next": [
+            "SceneEnterWorldWulingWulingCity0"
+        ]
     },
     "WLWulingCityMoveToTriggerPoint": {
         "action": {
@@ -173,6 +182,10 @@
         "next": [
             "WLWulingCityMoveToTriggerPointExact"
         ],
+        "on_error": [
+            "AutoEssencePathfindingRetryCounter",
+            "AutoEssencePathfindingFailedStopTask"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
@@ -195,6 +208,10 @@
         },
         "next": [
             "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ],
+        "on_error": [
+            "AutoEssencePathfindingRetryCounter",
+            "AutoEssencePathfindingFailedStopTask"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
@@ -223,6 +240,9 @@
             "AutoEssenceCheckOngoing",
             "WLWulingCityWalkAround2"
         ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
         }
@@ -249,6 +269,9 @@
         "next": [
             "AutoEssenceCheckOngoing",
             "WLWulingCityWalkAround1"
+        ],
+        "on_error": [
+            "AutoEssenceWalkAroundFailedRetry"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
