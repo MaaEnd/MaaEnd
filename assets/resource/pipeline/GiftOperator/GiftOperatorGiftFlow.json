@@ -150,8 +150,7 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorLeave",
-            "GiftOperatorGiftDialog"
+            "GiftOperatorLeave"
         ]
     },
     "GiftOperatorGiftSelected": {
@@ -223,8 +222,7 @@
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
             "GiftOperatorBranchMaxAffinity",
-            "GiftOperatorLeave",
-            "GiftOperatorReceiveDialog"
+            "GiftOperatorLeave"
         ]
     },
     "GiftOperatorSkipDialog": {
@@ -250,8 +248,7 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity",
-            "GiftOperatorSkipDialog"
+            "GiftOperatorBranchMaxAffinity"
         ]
     }
 }
