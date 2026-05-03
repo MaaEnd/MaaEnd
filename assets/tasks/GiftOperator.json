@@ -22,7 +22,7 @@
             "type": "select",
             "label": "$option.GiftOperatorMoveMode.label",
             "description": "$option.GiftOperatorMoveMode.description",
-            "default_case": "Recorded",
+            "default_case": "MapTracker",
             "cases": [
                 {
                     "name": "Recorded",
