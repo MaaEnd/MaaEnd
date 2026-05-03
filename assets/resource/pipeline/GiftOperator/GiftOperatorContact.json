@@ -19,8 +19,75 @@
             }
         },
         "next": [
+            "[JumpBack]GiftOperatorContacSortOrder",
+            "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1"
         ]
+    },
+    "GiftOperatorContacSortOrder": {
+        "max_hit": 1,
+        "desc": "选择排序方式",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    798,
+                    481,
+                    107,
+                    78
+                ],
+                "expected": [
+                    "默认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorContacChooseSortOrder"
+        ]
+    },
+    "GiftOperatorContacChooseSortOrder": {
+        "desc": "选择信赖度排序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    802,
+                    427,
+                    131,
+                    88
+                ],
+                "expected": [
+                    "信赖度"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "GiftOperatorContacSortBy": {
+        "max_hit": 1,
+        "desc": "选择升序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    955,
+                    486,
+                    82,
+                    72
+                ],
+                "expected": [
+                    "降序"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "GiftOperatorCheckSelected1": {
         "desc": "确认第一个干员已选中",
