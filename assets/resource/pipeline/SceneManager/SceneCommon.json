@@ -24,6 +24,15 @@
     },
     "__ScenePrivateEndVisit": {
         "desc": "识别处于好友飞船大世界",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                903,
+                498,
+                296,
+                156
+            ]
+        },
         "recognition": {
             "type": "OCR",
             "param": {
