@@ -22,7 +22,7 @@
             "GiftOperatorBagFullLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "⚠️ 背包已满，无法领取干员礼物，请手动清理背包"
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
         }
     },
     "GiftOperatorBagFullDialog": {

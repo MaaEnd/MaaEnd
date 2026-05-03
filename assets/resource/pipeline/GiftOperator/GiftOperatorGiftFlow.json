@@ -43,7 +43,7 @@
             "GiftOperatorLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "⚠️ 干员好感度已满"
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.max_affinity"
         }
     },
     "GiftOperatorBranchReceive": {

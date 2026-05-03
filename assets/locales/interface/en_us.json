@@ -707,6 +707,8 @@
     "option.GiftOperatorMoveMode.description": "Choose whether to reach the operator contact console using a prerecorded key sequence or recognition-based navigation. Prerecorded movement is recommended; MapTracker may still be unstable.",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)",
+    "task.GiftOperator.focus.bag_full": "⚠️ Bag is full, unable to collect operator gift. Please clear bag manually",
+    "task.GiftOperator.focus.max_affinity": "⚠️ Operator affinity is already maxed",
     "task.AutoStockStaple.label": "🏪 Buy Staple Goods",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "Purchase page did not open properly",

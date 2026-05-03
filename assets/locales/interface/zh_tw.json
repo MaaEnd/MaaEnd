@@ -707,6 +707,8 @@
     "option.GiftOperatorMoveMode.description": "可選擇使用預先錄製好的按鍵操作，或使用識別尋路前往幹員聯絡台。建議優先使用預錄製；識別尋路（MapTracker）目前仍可能不穩定。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "錄製操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）",
+    "task.GiftOperator.focus.bag_full": "⚠️ 背包已滿，無法領取幹員禮物，請手動清理背包",
+    "task.GiftOperator.focus.max_affinity": "⚠️ 幹員好感度已滿",
     "task.AutoStockStaple.label": "🏪購買穩定物資",
     "task.AutoStockStaple.description": "購買穩定需求物資，僅購買每週刷新的物品。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "購買頁面未正常開啟",

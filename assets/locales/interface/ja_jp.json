@@ -707,6 +707,8 @@
     "option.GiftOperatorMoveMode.description": "事前に記録したキー操作、または認識ベースの移動で干員連絡台へ向かう方法を選択します。記録済み操作の利用を推奨します。MapTracker はまだ不安定な場合があります。",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）",
+    "task.GiftOperator.focus.bag_full": "⚠️ バッグが満杯です。オペレーターのプレゼントを受け取れません。手動でバッグを整理してください",
+    "task.GiftOperator.focus.max_affinity": "⚠️ オペレーターの好感度が最大です",
     "task.AutoStockStaple.label": "🏪 購入定価商品",
     "task.AutoStockStaple.description": "安定需要物資を購入し、毎週更新される物資のみ購入します。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "購入画面が正常に開きませんでした",

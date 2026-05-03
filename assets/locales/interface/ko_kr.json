@@ -707,6 +707,8 @@
     "option.GiftOperatorMoveMode.description": "미리 녹화한 키 입력 또는 인식 기반 이동으로 오퍼레이터 연락대까지 이동하는 방식을 선택합니다. 녹화된 입력 사용을 권장하며, MapTracker 는 아직 불안정할 수 있습니다.",
     "option.GiftOperatorMoveMode.cases.Recorded.label": "녹화된 입력",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "인식 이동 (MapTracker)",
+    "task.GiftOperator.focus.bag_full": "⚠️ 가방이 가득 차서 오퍼레이터 선물을 받을 수 없습니다. 수동으로 가방을 비워주세요",
+    "task.GiftOperator.focus.max_affinity": "⚠️ 오퍼레이터 호감도가 이미 최대입니다",
     "task.AutoStockStaple.label": "🏪 안정 수요 물자 구매",
     "task.AutoStockStaple.description": "안정 수요 물자를 구매하며, 매주 갱신되는 물자만 구매합니다.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "구매 화면이 정상적으로 열리지 않았습니다",
