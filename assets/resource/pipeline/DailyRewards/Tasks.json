@@ -218,6 +218,7 @@
             "DailyTaskUpgradeWeapon",
             "DailyTaskCreation",
             "DailyTaskAssemble",
+            "DailyTaskLevelUpOperator",
             "DailyTaskScrollFinished",
             "[JumpBack]DailyTaskScrollDown"
         ]
@@ -308,6 +309,34 @@
             "DailyTaskActivityLimitNotReached"
         ]
     },
+    "DailyTaskLevelUpOperator": {
+        "desc": "检测是否有干员升级任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ],
+                "expected": [
+                    "干员等级",
+                    "幹員等級",
+                    "(?i)Level",
+                    "レベル"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskLevelUpOperatorIsValid",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
     "DailyTaskCreationIsValid": {
         "desc": "检测简易制作任务是否可以执行",
         "recognition": {
@@ -395,6 +424,37 @@
         "custom_action_param": {
             "sub": [
                 "WeaponUpgradeStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskLevelUpOperatorIsValid": {
+        "desc": "检测干员升级任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyTaskLevelUpOperator",
+                "roi_offset": [
+                    429,
+                    -10,
+                    110,
+                    60
+                ],
+                "expected": [
+                    "前往",
+                    "Go"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "OperatorLevelUpStart"
             ]
         },
         "post_delay": 0,

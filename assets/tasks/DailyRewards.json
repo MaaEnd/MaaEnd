@@ -88,7 +88,8 @@
                     "option": [
                         "DailyTaskUpgradeWeapon",
                         "DailyTaskCreation",
-                        "DailyTaskAssemble"
+                        "DailyTaskAssemble",
+                        "DailyTaskLevelUpOperator"
                     ]
                 },
                 {
@@ -208,6 +209,33 @@
                     "name": "No",
                     "pipeline_override": {
                         "DailyTaskAssemble": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskLevelUpOperator": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$option.DailyTaskLevelUpOperator.label",
+            "description": "$option.DailyTaskLevelUpOperator.desc",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskLevelUpOperator": {
+                            "enabled": true
+                        },
+                        "DailyTaskCheckActivityStatus": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskLevelUpOperator": {
                             "enabled": false
                         }
                     }
