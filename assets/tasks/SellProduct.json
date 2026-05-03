@@ -6,6 +6,7 @@
             "entry": "SellProductMain",
             "description": "$task.SellProduct.description",
             "option": [
+                "SellBeyondAidQuota",
                 "ValleyIVSell",
                 "WulingSell"
             ],
@@ -15,6 +16,42 @@
         }
     ],
     "option": {
+        "SellBeyondAidQuota": {
+            "type": "switch",
+            "label": "$task.SellProduct.option.SellBeyondAidQuota.label",
+            "description": "$task.SellProduct.option.SellBeyondAidQuota.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductAidQuotaExceededStop": {
+                            "enabled": false
+                        },
+                        "SellProductAidQuotaExceededConfirm": {
+                            "enabled": true
+                        },
+                        "SellProductAidQuotaExceededConfirmThenLoop": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductAidQuotaExceededStop": {
+                            "enabled": true
+                        },
+                        "SellProductAidQuotaExceededConfirm": {
+                            "enabled": false
+                        },
+                        "SellProductAidQuotaExceededConfirmThenLoop": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "ValleyIVSell": {
             "type": "switch",
             "label": "$global.region.ValleyIV",

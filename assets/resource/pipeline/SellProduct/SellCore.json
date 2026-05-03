@@ -200,11 +200,12 @@
         "rate_limit": 0,
         "next": [
             "SellProductAidQuotaExceededStop",
+            "SellProductAidQuotaExceededConfirm",
             "SellProductSellCheck"
         ]
     },
-    "SellProductAidQuotaExceededStop": {
-        "desc": "援助提交量超出据点可兑换调度券上限的确认弹窗，终止任务",
+    "SellProductCheckAidQuotaExceededDialogText": {
+        "desc": "检查援助超出调度券上限确认弹窗文案（供 Stop / Confirm 共用）",
         "recognition": "OCR",
         "roi": [
             40,
@@ -227,11 +228,88 @@
             "支援成果券にのみ交換可能"
         ],
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductAidQuotaExceededStop": {
+        "desc": "援助提交量超出据点可兑换调度券上限的确认弹窗，终止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckAidQuotaExceededDialogText"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SellProduct.aid_quota_exceeded"
+        }
+    },
+    "SellProductAidQuotaExceededConfirm": {
+        "desc": "选项开启时：超出调度券上限弹窗上单击黄色确认，继续交易后校验",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckAidQuotaExceededDialogText",
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellCheck"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.SellProduct.aid_quota_confirm_tapped"
+        }
+    },
+    "SellProductAidQuotaExceededConfirmThenLoop": {
+        "desc": "选项开启时：超出调度券上限弹窗上单击黄色确认（售卖循环路径）",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckAidQuotaExceededDialogText",
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellCheckThenLoop"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.SellProduct.aid_quota_confirm_tapped"
         }
     },
     "SellProductSellCheck": {
@@ -296,6 +374,7 @@
         "rate_limit": 0,
         "next": [
             "SellProductAidQuotaExceededStop",
+            "SellProductAidQuotaExceededConfirmThenLoop",
             "SellProductSellCheckThenLoop"
         ]
     },
