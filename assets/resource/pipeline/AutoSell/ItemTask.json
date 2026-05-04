@@ -202,9 +202,10 @@
             "AutoSellStockRedistributionItemOwnedRecognition",
             "AutoSellStockRedistributionItemGreenLineRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
             "AutoSellStockRedistributionItemFindTextRecognition"
         ],
-        "box_index": 3,
+        "box_index": 5,
         "pre_delay": 0,
         "action": "Click",
         // item左右20个像素无法点击
@@ -228,9 +229,10 @@
             "AutoSellStockRedistributionItemOwnedRecognition",
             "AutoSellStockRedistributionItemGreenLineRecognition",
             "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
             "AutoSellStockRedistributionItemFindTextRecognition"
         ],
-        "box_index": 3,
+        "box_index": 5,
         "pre_delay": 0,
         "action": "Click",
         // item左右20个像素无法点击
@@ -561,13 +563,7 @@
     "AutoSellStockRedistributionItemFindTextRecognition": {
         "desc": "识别目标item的文本区域",
         "recognition": "OCR",
-        "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
-        "roi_offset": [
-            -10,
-            -10,
-            10,
-            20
-        ],
+        "roi": "AutoSellStockRedistributionItemNameRecRecognition",
         "expected": "锚点",
         "only_rec": true
     }
