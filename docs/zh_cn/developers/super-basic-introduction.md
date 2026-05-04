@@ -141,7 +141,7 @@ corepack enable pnpm
 
 #### A.2 Clone——下载到本地
 
-1. 打开 GitHub Desktop，菜单栏 **File → Clone  a repository**
+1. 打开 GitHub Desktop，菜单栏 **File → Clone a repository**
 2. 选 **GitHub.com** 标签页，找到 `你的用户名/MaaEnd` 仓库，点它
 3. 选一个本地存放路径，点 **Clone**
 4. 等它下载完，仓库就在你电脑上了
@@ -597,11 +597,14 @@ Push（上传）
 | 3 | [tools-and-debug.md](./tools-and-debug.md) | 调试工具、Maa Pipeline Support 用法 |
 | 4 | [coding-standards.md](./coding-standards.md) | 编码规范，提交前必读 |
 
-其他资源：
+> [!NOTE]
+> **外部资源**
+>
+> 以下链接指向 MaaEnd 以外的独立项目或第三方服务，供拓展参考。
 
 - [MaaFramework 官网](https://maafw.com/)——MaaEnd 底层框架
 - [MaaFramework Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/)——所有节点的详细语法
-- [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd)——带 AI 在线文档速览
+- [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd)——AI 驱动的第三方在线文档浏览器
 
 需要帮助？
 

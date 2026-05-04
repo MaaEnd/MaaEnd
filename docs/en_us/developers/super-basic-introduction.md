@@ -78,7 +78,7 @@ That's enough.
 
 - Download: [code.visualstudio.com](https://code.visualstudio.com/)
 - During installation, check "Add to PATH" and "Add Code to context menu"
-- Install VS Code itself first, add extensions later after you've cloned and opened the project folder — `@recommended` workspace recommendations only work when a project is open. See [B.2 Clone — Download to Local](#b2-clone下载到本地) above
+- Install VS Code itself first, add extensions later after you've cloned and opened the project folder — `@recommended` workspace recommendations only work when a project is open. See [B.2 Clone — Download to Your Computer](#b2-clone--download-to-your-computer) above
 - Most important extension: **Maa Pipeline Support** — screenshots and ROI selection all depend on it (you can install it from the extension marketplace first)
 
 ### 2.4 Node.js + pnpm
@@ -597,11 +597,14 @@ After finishing this introduction, continue in order:
 | 3 | [tools-and-debug.md](./tools-and-debug.md) | Debugging tools, Maa Pipeline Support usage |
 | 4 | [coding-standards.md](./coding-standards.md) | Coding conventions — must-read before submitting |
 
-Other resources:
+> [!NOTE]
+> **External resources**
+>
+> These links point to separate projects or third-party services outside of MaaEnd, provided for reference.
 
 - [MaaFramework Official Site](https://maafw.com/) — The underlying framework of MaaEnd
 - [MaaFramework Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) — Detailed syntax for all nodes
-- [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd) — AI-powered online doc browser
+- [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd) — AI-powered third-party online doc browser
 
 Need help?
 
@@ -611,7 +614,7 @@ When you hit something you don't understand, don't panic and don't rush to ask a
 2. **Read** — open the JSON files under `assets/resource/pipeline/` that others have written. Read one line, learn one line. Among MaaEnd's thousands of nodes, someone has probably already written what you need
 3. **Break It Down** — split the problem into smaller pieces. Don't ask "how do I write this task?" — ask "how do I recognize this button" and "after recognizing, how do I click it." Break it into the smallest pieces — each small question is much easier to search
 4. **Experiment** — change a number, remove a field, run it and see what happens. You can't break Pipeline — if it crashes, just change it back
-5. **Ask** — only after trying all of the above and still stuck, go ask in the community or open an Issue. When asking, include what you tried, what error you got, and a screenshot. Don't just drop "doesn't work"
+5. **Ask** — only after trying all of the above and still stuck, open a GitHub Issue (or ask in the developer QQ group: `1072587329`, primarily Chinese). When asking, include what you tried, what error you got, and a screenshot. Don't just drop "doesn't work"
 
 > Standing around waiting for someone to feed you answers vs. jumping in and figuring it out yourself — the gap is bigger than you think.
 

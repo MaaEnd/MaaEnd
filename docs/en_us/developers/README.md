@@ -6,7 +6,8 @@ This directory contains all developer documentation for the MaaEnd project.
 
 ```mermaid
 flowchart TD
-    Start["I want to contribute to MaaEnd"] --> Tutorial["getting-started.md\nQuick MVP onboarding"]
+    Start["I want to contribute to MaaEnd"] --> Basic["super-basic-introduction.md\nSuper basic (must-read for zero experience)"]
+    Basic --> Tutorial["getting-started.md\nQuick MVP onboarding"]
     Tutorial --> Components["components-guide.md\nArchitecture & components"]
     Tutorial --> Tools["tools-and-debug.md\nTools & debugging"]
     Tutorial --> Standards["coding-standards.md\nCoding standards"]
@@ -20,20 +21,22 @@ flowchart TD
 
 Suggested reading order:
 
-1. Set up the environment, run something, change one thing → `getting-started.md`
-2. Understand project architecture and reusable nodes → `components-guide.md`
-3. Master dev tools and debugging → `tools-and-debug.md`
-4. Coding standards → `coding-standards.md`
-5. When you need test sets → `node-testing.md`
-6. When using an advanced component → see the matching doc under `components/`
-7. When maintaining a specific task → see the matching doc under `tasks/`
+1. Starting from absolute zero, confused by `git clone` and `pnpm install` → `super-basic-introduction.md`
+2. Set up the environment, run something, change one thing → `getting-started.md`
+3. Understand project architecture and reusable nodes → `components-guide.md`
+4. Master dev tools and debugging → `tools-and-debug.md`
+5. Coding standards → `coding-standards.md`
+6. When you need test sets → `node-testing.md`
+7. When using an advanced component → see the matching doc under `components/`
+8. When maintaining a specific task → see the matching doc under `tasks/`
 
 ## Document index
 
 ### Tier 1 — Quick start
 
-| Document                                | Description                                                                    |
-| --------------------------------------- | ------------------------------------------------------------------------------ |
+| Document | Description |
+| --- | --- |
+| [Super basic introduction](./super-basic-introduction.md) | For absolute beginners: what Git, terminal, VS Code, and JSON are, and how to use them |
 | [Getting started](./getting-started.md) | Set up the environment, run the app, and ship a first change/PR in ~10 minutes |
 
 ### Tier 2 — Reference
@@ -89,13 +92,14 @@ Only when you maintain the matching task.
 
 ## Quick lookup
 
-| I want to…                | Read this                                                                                                                                                       |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Start from zero           | [getting-started.md](./getting-started.md)                                                                                                                      |
-| Understand architecture   | [components-guide.md](./components-guide.md)                                                                                                                    |
-| Change Pipeline nodes     | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
-| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                                                         |
-| Coding standards          | [coding-standards.md](./coding-standards.md)                                                                                                                    |
+| I want to… | Read this |
+| --- | --- |
+| Start from absolute zero, don't understand the jargon | [super-basic-introduction.md](./super-basic-introduction.md) |
+| Start from zero | [getting-started.md](./getting-started.md) |
+| Understand architecture | [components-guide.md](./components-guide.md) |
+| Change Pipeline nodes | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
+| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) |
+| Coding standards | [coding-standards.md](./coding-standards.md) |
 
 ## Community
 
