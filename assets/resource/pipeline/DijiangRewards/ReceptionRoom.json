@@ -287,29 +287,41 @@
     },
     "ReceptionRoomSendCluesClueCollectionFull": {
         "desc": "[会客室·赠送线索] 收集线索满了",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSendCluesClueCollectionFullColor",
+                    "ReceptionRoomSendCluesClueCollectionText"
+                ]
+            }
+        },
+        "next": [
+            "ReceptionRoomSendCluesClueCollectionFullClose"
+        ]
+    },
+    "ReceptionRoomSendCluesClueCollectionText": {
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    727,
-                    350,
-                    346,
-                    198
+                "roi": "ReceptionRoomSendCluesClueCollectionFullColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
                 "expected": [
                     "已达自有线索库容量上限",
                     "已達自有線索庫容量上限",
                     "Local clue library is full"
                 ],
-                "color_filter": "ReceptionRoomSendCluesClueCollectionFullColor"
+                "only_rec": true
             }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomSendCluesClueCollectionFullClose"
-        ]
+        }
     },
     "ReceptionRoomSendCluesClueCollectionFullColor": {
         "recognition": {
