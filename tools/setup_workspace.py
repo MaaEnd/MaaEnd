@@ -104,6 +104,9 @@ except KeyError as e:
 
 MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
 CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
+CPP_ALGO_COMPANION_FILES: tuple[str, ...] = (
+    ("WebView2Loader.dll",) if OS_KEYWORD == "win" else ()
+)
 ARCH_VARIANT_HINTS: dict[str, tuple[str, ...]] = {
     "x86_64": ("x86_64", "amd64", "x64"),
     "aarch64": ("aarch64", "arm64"),
@@ -836,6 +839,15 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
         pdb_target = agent_dir / f"{Path(CPP_ALGO_DIST_NAME).stem}.pdb"
         _replace_file_with_retry(pdb_src, pdb_target)
         print(Console.ok(t("inf_updated_file", name=pdb_target.name)))
+
+    for companion_name in CPP_ALGO_COMPANION_FILES:
+        companion_src = src_path.parent / companion_name
+        if not companion_src.exists():
+            print(Console.warn(t("wrn_cpp_algo_companion_missing", name=companion_name)))
+            continue
+        companion_target = agent_dir / companion_name
+        _replace_file_with_retry(companion_src, companion_target)
+        print(Console.ok(t("inf_updated_file", name=companion_target.name)))
 
 
 def install_cpp_algo(

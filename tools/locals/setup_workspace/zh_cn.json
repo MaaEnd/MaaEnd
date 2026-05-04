@@ -74,6 +74,7 @@
     "wrn_cpp_algo_dmg_detach_failed": "[WRN] 卸载 dmg 失败，请手动检查: {error}",
     "inf_cpp_algo_install_complete": "[INF] cpp-algo 安装完成",
     "err_cpp_algo_install_failed": "[ERR] cpp-algo 安装失败: {error}",
+    "wrn_cpp_algo_companion_missing": "[WRN] 未在 cpp-algo 发布包中找到运行时依赖 {name}，可能导致 cpp-algo 无法启动",
     "description": "MaaEnd 构建工具：初始化并安装依赖项",
     "arg_update": "当依赖项已存在时，是否进行更新操作",
     "arg_ci": "CI 模式：不生成本地版本文件",

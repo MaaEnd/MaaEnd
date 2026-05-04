@@ -74,6 +74,7 @@
     "wrn_cpp_algo_dmg_detach_failed": "[WRN] Failed to detach dmg, please check manually: {error}",
     "inf_cpp_algo_install_complete": "[INF] cpp-algo installation complete",
     "err_cpp_algo_install_failed": "[ERR] cpp-algo installation failed: {error}",
+    "wrn_cpp_algo_companion_missing": "[WRN] Runtime dependency {name} not found in cpp-algo release package, cpp-algo may fail to start",
     "description": "MaaEnd build tool: Initialize and install dependencies",
     "arg_update": "Update dependencies if they already exist",
     "arg_ci": "CI mode: Do not generate local version file",
