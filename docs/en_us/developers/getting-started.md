@@ -22,8 +22,6 @@ go version
 
 ### Clone and set up
 
-git clone --recursive <https://github.com/MaaEnd/MaaEnd.git>
-
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
