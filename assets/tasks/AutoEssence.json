@@ -3,7 +3,7 @@
         {
             "name": "AutoEssence",
             "label": "$task.AutoEssence.label",
-            "entry": "AutoEssenceMain",
+            "entry": "AutoEssenceEntry",
             "description": "$task.AutoEssence.description",
             "controller": [
                 "ADB",
@@ -12,6 +12,7 @@
             ],
             "option": [
                 "AutoEssenceSpecifiedLocation",
+                "AutoEssenceTeamChoose",
                 "AutoEssenceChallengeMode",
                 "AutoEssenceObtainMode",
                 "AutoEssenceDoOverride",
@@ -103,6 +104,92 @@
                         "AutoEssenceSpecifiedLocation": {
                             "next": [
                                 "WLMarkerStoneMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceTeamChoose": {
+            "type": "select",
+            "label": "$option.AutoEssenceTeamChoose.label",
+            "default_case": "AutoEssenceTeamChooseDefault",
+            "cases": [
+                {
+                    "name": "AutoEssenceTeamChooseDefault",
+                    "label": "$option.AutoEssenceTeamChoose.case.AutoEssenceTeamChooseDefault.label",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceTeamChoose01",
+                    "label": "01",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceTeamChooseTextRecognition": {
+                            "expected": [
+                                "01"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceTeamChoose02",
+                    "label": "02",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceTeamChooseTextRecognition": {
+                            "expected": [
+                                "02"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceTeamChoose03",
+                    "label": "03",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceTeamChooseTextRecognition": {
+                            "expected": [
+                                "03"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceTeamChoose04",
+                    "label": "04",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceTeamChooseTextRecognition": {
+                            "expected": [
+                                "04"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceTeamChoose05",
+                    "label": "05",
+                    "pipeline_override": {
+                        "AutoEssenceTeamChooseStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceTeamChooseTextRecognition": {
+                            "expected": [
+                                "05"
                             ]
                         }
                     }

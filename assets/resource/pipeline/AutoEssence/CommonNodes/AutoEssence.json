@@ -1,4 +1,212 @@
 {
+    "AutoEssenceEntry": {
+        "desc": "自动基质刷取的任务入口，先按需选择队伍，再进入刷取主流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoEssenceTeamChooseStart",
+            "AutoEssenceMain"
+        ]
+    },
+    "AutoEssenceTeamChooseStart": {
+        "desc": "基质刷取开始前选择队伍（默认关闭，由任务选项启用）",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceTeamChoose",
+            "[JumpBack]AutoEssenceOpenTeamMenu"
+        ]
+    },
+    "AutoEssenceOpenTeamMenu": {
+        "desc": "从任意界面回到大世界并打开主菜单，为选择队伍做准备",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneAnyEnterWorld",
+                        "SceneEnterMenuList"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceOpenTeamMenuClick"
+        ]
+    },
+    "AutoEssenceOpenTeamMenuClick": {
+        "desc": "从主菜单列表进入队伍界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    420,
+                                    -100,
+                                    450,
+                                    100
+                                ],
+                                "expected": [
+                                    "ENDFIELD"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                "expected": [
+                                    "编队",
+                                    "編隊",
+                                    "(?i)Team",
+                                    "編成",
+                                    "팀\\s*편성"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceInTeamMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "进入队伍界面"
+        }
+    },
+    "AutoEssenceInTeamMenu": {
+        "desc": "识别是否位于队伍界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": "AutoEcoFarm/autoecofarmTeamIcon.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEssenceTeamChooseTextRecognition": {
+        "desc": "识别基质刷取要选择的队伍编号",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -60,
+            500,
+            35
+        ],
+        "expected": [
+            "01"
+        ]
+    },
+    "AutoEssenceTeamChoose": {
+        "desc": "选择基质刷取队伍",
+        "max_hit": 2,
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceTeamChooseTextRecognition"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceTeamChooseConfirm"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "选择队伍"
+        }
+    },
+    "AutoEssenceTeamChooseConfirm": {
+        "desc": "确认基质刷取队伍选择",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1080,
+                    600,
+                    200,
+                    120
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png",
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceTeamChooseReturnWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "确认队伍选择"
+        }
+    },
+    "AutoEssenceTeamChooseReturnWorld": {
+        "desc": "确认基质刷取队伍后退出菜单并返回大世界",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneAnyEnterWorld"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
+    },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
         "pre_delay": 0,

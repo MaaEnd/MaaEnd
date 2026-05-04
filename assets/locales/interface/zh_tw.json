@@ -156,6 +156,8 @@
     "option.AutoEssenceDoOverride.description": "如需刻寫，請事先在淤積點開始界面選擇要刻寫的屬性，並確保刻寫券充足（數量不足則會進行非刻寫領取）",
     "option.AutoEssenceSpecifiedLocation.label": "地區",
     "option.AutoEssenceSpecifiedLocation.description": "當玩家不在淤積點附近時，將自動導航到該地區的淤積點",
+    "option.AutoEssenceTeamChoose.label": "選擇隊伍",
+    "option.AutoEssenceTeamChoose.case.AutoEssenceTeamChooseDefault.label": "預設",
     "option.AutoEssenceObtainMode.label": "領取方式",
     "option.AutoEssenceObtainMode.description": "每輪挑戰結束後的獎勵處理方式",
     "option.AutoEssenceObtainMode.cases.Discard.label": "不領取（僅刷素材）",
