@@ -482,6 +482,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
+	if !ctx.GetTasker().Stopping() {
+		// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
+		time.Sleep(3 * time.Second)
+	}
 	return result
 }
 
