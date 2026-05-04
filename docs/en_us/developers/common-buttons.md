@@ -171,3 +171,19 @@
 | `CloseRewardsButton`       | Checkmark close button in the lower middle of the reward interface                                       |
 | `CloseButtonType1`         | Upper right X that only closes the interface (freezes under ESC)                                         |
 | `CloseButtonType2`         | Universal upper right X for closing the interface or ESC (use this to avoid freezes when ESC may appear) |
+
+## Q&A
+
+### What are Normal and Hover states?
+
+**Normal state**: The default appearance of a button when untouched. **Hover state**: The highlighted appearance when the cursor/finger rests on the button. An action in the previous frame may leave the cursor on top of a button, so the next frame's screenshot captures the Hover state, which looks different from the Normal state.
+
+### Why do we need dual templates?
+
+Template matching compares a pre-captured button image against the screen. If only the Normal-state template is saved, the different appearance in Hover state will cause a match failure and stall the process. That's why MaaEnd button nodes include both Normal and Hover state templates — a hit on either one counts as a successful recognition.
+
+### What is ROI?
+
+ROI stands for "Region of Interest," using the format `[x, y, width, height]`. `x` and `y` are the coordinates of the region's top-left corner on screen (top-left of the screen is the origin); `width` and `height` are the region's dimensions. For example, `[882, 0, 398, 335]` means starting 882 pixels right and 0 pixels down from the top-left corner, define a 398×335 rectangular area — recognition only searches within this box.
+
+> See also: [Region of Interest on Wikipedia](https://en.wikipedia.org/wiki/Region_of_interest)

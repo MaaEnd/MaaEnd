@@ -78,7 +78,7 @@ That's enough.
 
 - Download: [code.visualstudio.com](https://code.visualstudio.com/)
 - During installation, check "Add to PATH" and "Add Code to context menu"
-- Install VS Code itself first, add extensions later after you've cloned and opened the project folder — `@recommended` workspace recommendations only work when a project is open. See [B.2 Clone — Download to Your Computer](#b2-clone--download-to-your-computer) above
+- Install VS Code itself first, add extensions later after you've cloned and opened the project folder — `@recommended` workspace recommendations only work when a project is open. See [B.2 Clone — Download to Your Computer](#b2-clone--download-to-your-computer) below
 - Most important extension: **Maa Pipeline Support** — screenshots and ROI selection all depend on it (you can install it from the extension marketplace first)
 
 ### 2.4 Node.js + pnpm

@@ -10,6 +10,20 @@ This guide walks through the full flow from idea to merge, using **auto-selling 
 - pnpm 10+
 - Go 1.25.6+
 
+### Check your local environment
+
+```bash
+git --version
+python3 --version   # or python --version (watch out for Python 2)
+node --version
+pnpm --version
+go version
+```
+
+### Clone and set up
+
+git clone --recursive <https://github.com/MaaEnd/MaaEnd.git>
+
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
