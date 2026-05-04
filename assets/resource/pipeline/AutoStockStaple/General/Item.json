@@ -58,14 +58,14 @@
                     22
                 ],
                 "lower": [
-                    68,
-                    67,
-                    67
+                    71,
+                    70,
+                    70
                 ],
                 "upper": [
-                    68,
-                    67,
-                    67
+                    71,
+                    70,
+                    70
                 ],
                 "connected": true,
                 "count": 10
@@ -85,7 +85,7 @@
                 ],
                 "upper": [
                     0,
-                    1,
+                    2,
                     255
                 ],
                 "count": 10
@@ -135,7 +135,8 @@
                         "石"
                     ]
                 ],
-                "order_by": "Vertical"
+                "order_by": "Vertical",
+                "only_rec": true
             }
         }
     },

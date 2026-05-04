@@ -315,7 +315,8 @@
             4
         ],
         "expected": "a^", //这里是具体执行参数
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "only_rec": true
     },
     "Priority2OCR_Expected": {
         "recognition": "And",
@@ -384,7 +385,8 @@
             4
         ],
         "expected": "a^", //这里是具体执行参数
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "only_rec": true
     },
     "Priority2OCR_CanNotAfford_Expected": {
         "recognition": "And",
@@ -493,7 +495,8 @@
             4
         ],
         "expected": "a^", //这里是具体执行参数
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "only_rec": false
     },
     "Priority3OCR_Expected": {
         "recognition": "And",
@@ -562,7 +565,8 @@
             4
         ],
         "expected": "a^", //这里是具体执行参数
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "only_rec": true
     },
     "Priority3OCR_CanNotAfford_Expected": {
         "recognition": "And",
@@ -671,7 +675,8 @@
             4
         ],
         "expected": "^(?!(协议棱柱组)$).*$", //这里是具体执行参数，匹配价格位置非空的商品
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "only_rec": false
     },
     "BlacklistOCR_Expected": {
         "recognition": "And",
