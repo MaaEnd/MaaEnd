@@ -304,3 +304,25 @@ After adding or editing node tests, check at least these items:
 - There are enough negative samples to catch common false positives.
 
 That is what makes node tests useful as a safety net during refactors, threshold tuning, and template updates.
+
+## Q&A
+
+### What resolution should test screenshots be?
+
+1280×720. All templates and coordinates are based on 720p; MaaFramework auto-scales at runtime.
+
+### What's the difference between `default` and `*` in a `box` matrix?
+
+`default` is the fallback when no specific controller/resource key matches. `*` is a wildcard that matches any controller or resource. In priority order, `default` ranks higher than `*` (`*` is the lowest priority). In most cases, `default` alone is sufficient — only use `*` if you specifically need its behavior.
+
+### Where do screenshots come from?
+
+Use the Maa Pipeline Support VS Code extension (`Ctrl+Shift+P` → `Maa: Screenshot`) to capture them, then place them under `tests/MaaEndTestset/<controller>/<resource>/`.
+
+### How to debug test failures?
+
+First check the terminal output to identify the failing case, then open `tests/maatools/error_details.json` for details (missed nodes, box mismatches, etc.).
+
+### Should I re-run tests after changing templates?
+
+Yes. Whenever you modify template images, ROIs, or thresholds, run `pnpm test` to make sure existing cases still pass.
