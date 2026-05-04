@@ -325,7 +325,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanNotAfford",
-            "BuyFirstOCR_CanNotAfford",
+            "BuyFirstOCR_CanNotAfford_Expected",
             "IsDiscountPriority1_CanNotAfford"
         ],
         "box_index": 4
@@ -336,7 +336,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanNotAfford",
-            "Priority2OCR_CanNotAfford",
+            "Priority2OCR_CanNotAfford_Expected",
             "IsDiscountPriority2_CanNotAfford"
         ],
         "box_index": 4
@@ -347,7 +347,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanNotAfford",
-            "Priority3OCR_CanNotAfford",
+            "Priority3OCR_CanNotAfford_Expected",
             "IsDiscountPriority3_CanNotAfford"
         ],
         "box_index": 4
@@ -359,7 +359,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "BuyFirstOCR",
+            "BuyFirstOCR_Expected",
             "IsDiscountPriority1",
             "CreditShoppingPriority1ReserveCreditGate"
         ],
@@ -384,7 +384,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "Priority2OCR",
+            "Priority2OCR_Expected",
             "IsDiscountPriority2",
             "CreditShoppingPriority2ReserveCreditGate"
         ],
@@ -408,7 +408,7 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "Priority3OCR",
+            "Priority3OCR_Expected",
             "IsDiscountPriority3",
             "CreditShoppingPriority3ReserveCreditGate"
         ],

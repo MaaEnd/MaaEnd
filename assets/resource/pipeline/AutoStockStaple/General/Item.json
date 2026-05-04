@@ -45,10 +45,10 @@
             }
         }
     },
-    "AutoStockInStapleItemName": {
-        "desc": "识别商品名称",
+    "AutoStockInStapleItemNameLabelColor": {
+        "desc": "稳定物资商品名称标签颜色（相对刷新时间锚点）",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": "AutoStockInStapleItem",
                 "roi_offset": [
@@ -56,6 +56,53 @@
                     163,
                     88,
                     22
+                ],
+                "lower": [
+                    68,
+                    67,
+                    67
+                ],
+                "upper": [
+                    68,
+                    67,
+                    67
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockInStapleItemNameTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItemNameLabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "AutoStockInStapleItemName": {
+        "desc": "识别商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
                 "expected": [],
                 "replace": [
@@ -89,6 +136,20 @@
                     ]
                 ],
                 "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemName_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemName"
+                ],
+                "box_index": 2
             }
         }
     },

@@ -55,7 +55,7 @@
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockInStapleItemName",
+                    "AutoStockInStapleItemName_Expected",
                     "AutoStockInStapleItemDiscountsValleyIV",
                     "AutoStockTargetCanBuy"
                 ],
