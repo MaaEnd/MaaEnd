@@ -327,6 +327,12 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "roi": [
+                    727,
+                    350,
+                    346,
+                    198
+                ],
                 "lower": [
                     245,
                     0,
