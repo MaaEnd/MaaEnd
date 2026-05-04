@@ -78,7 +78,7 @@ ls             # 看看当前文件夹里有什么
 
 - 下载：[code.visualstudio.com](https://code.visualstudio.com/)
 - 安装时建议勾上"添加到 PATH"和"将 Code 添加到右键菜单"
-- VS Code 本身装好就行，插件等后面 Clone 完、打开了项目文件夹再装——因为 `@recommended` 工作区推荐得先有项目开着才有东西。详见 [第六章第 2 步](#b2-clone下载到本地)
+- VS Code 本身装好就行，插件等后面 Clone 完、打开了项目文件夹再装——因为 `@recommended` 工作区推荐得先有项目开着才有东西。详见上文 [B.2 Clone——下载到本地](#b2-clone下载到本地)
 - 最重要的插件：**Maa Pipeline Support**——截图、框选识别区域全靠它（也可以先在扩展市场搜这个装上）
 
 ### 2.4 Node.js + pnpm

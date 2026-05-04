@@ -185,4 +185,5 @@
 ### ROI 是什么?
 
 ROI 即"感兴趣区域"（Region of Interest），格式为 `[x, y, 宽, 高]`。x、y 是区域左上角在屏幕上的坐标（屏幕左上角是原点），宽、高是区域的尺寸。比如 `[882, 0, 398, 335]` 表示从屏幕左上角往右 882 像素、往下 0 像素开始，框一个 398×335 的矩形区域，识别只在这个框内进行。
-> 详细见[维基百科_ROI](https://en.wikipedia.org/wiki/Region_of_interest)
+
+> 详细见[维基百科ROI](https://en.wikipedia.org/wiki/Region_of_interest)

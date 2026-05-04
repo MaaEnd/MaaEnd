@@ -313,7 +313,7 @@ pnpm check
 
 ### `box` 矩阵里 `default` 和 `*` 有什么区别
 
-`default` 是未匹配到任何 controller/resource 键时的兜底值。`*` 是通配符，匹配任意 controller 或 resource。优先级上 `default` 和 `*` 都最低，实际用 `default` 就够了。
+`default` 是未匹配到任何 controller/resource 键时的兜底值。`*` 是通配符，匹配任意 controller 或 resource。优先顺序上 `default` 高于 `*`（`*` 是最低优先级），一般只写 `default` 就够了，除非确实需要 `*` 的行为。
 
 ### 截图从哪来
 
