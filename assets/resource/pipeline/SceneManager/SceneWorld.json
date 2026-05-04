@@ -1,4 +1,67 @@
 {
+    "__ScenePrivateWorldSpaceExit": {
+        "desc": "从大世界协议空间、好友飞船退出",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": [
+            "SceneManager/WorldSpaceExit.png",
+            "SceneManager/WorldSpaceExit1.png"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldSpaceExitConfirm",
+            "__ScenePrivateEndVisit"
+        ]
+    },
+    "__ScenePrivateEndVisit": {
+        "desc": "识别结束拜访",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    -100,
+                    260,
+                    100
+                ],
+                "expected": [
+                    "结束拜访",
+                    "結束拜訪",
+                    "(?i)End\\s*Visit",
+                    "訪問終了",
+                    "방문 종료"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateWorldSpaceExitConfirm"
+        ]
+    },
+    "__ScenePrivateWorldSpaceExitConfirm": {
+        "desc": "从大世界协议空间、好友飞船退出的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0
+    },
     "__ScenePrivateAnyEnterWorldSuccess": {
         "desc": "从任意界面进入大世界成功",
         "recognition": {
