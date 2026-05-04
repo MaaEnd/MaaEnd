@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD033 MD041 -->
-<!-- <p align="center">
+<p align="center">
   <img alt="Do not discuss MAA on Skland" src="docs/img/NoSkland.png" width="280" />
-</p> -->
+</p>
 
 <h1 align="center">Do not discuss MAA on Skland</h1>
 
