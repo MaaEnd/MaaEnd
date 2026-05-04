@@ -124,7 +124,6 @@
         //         "key": 81
         //     }
         // },
-        "repeat": 3,
         "next": [
             "AutoCollectClickEnd"
         ],
