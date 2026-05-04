@@ -569,7 +569,8 @@
                     100
                 ],
                 "template": [
-                    "SceneManager/WorldMenuOperationalManual.png"
+                    "SceneManager/WorldMenuOperationalManual.png",
+                    "SceneManager/WorldMenuOperationalManual1.png"
                 ]
             }
         },
@@ -648,7 +649,8 @@
                     100
                 ],
                 "template": [
-                    "SceneManager/WorldMenuProtocolPass.png"
+                    "SceneManager/WorldMenuProtocolPass.png",
+                    "SceneManager/WorldMenuProtocolPass1.png"
                 ]
             }
         },
