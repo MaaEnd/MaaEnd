@@ -426,7 +426,15 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    8,
+                    8,
+                    -16,
+                    -16
+                ]
+            }
         },
         "next": [
             "GiftOperatorCheckSelected1"
@@ -446,7 +454,15 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    8,
+                    8,
+                    -16,
+                    -16
+                ]
+            }
         },
         "next": [
             "GiftOperatorCheckSelected2"
@@ -466,7 +482,15 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    8,
+                    8,
+                    -16,
+                    -16
+                ]
+            }
         },
         "next": [
             "GiftOperatorCheckSelected3"
