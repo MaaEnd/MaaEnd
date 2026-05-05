@@ -254,6 +254,15 @@
         "action": {
             "type": "DoNothing"
         },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                1046,
+                221,
+                177,
+                44
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -276,6 +285,7 @@
             }
         },
         "next": [
+            "LevelUpOperatorSearchFinished",
             "LevelUpOperatorSwitchToNextOperator"
         ],
         "focus": {
@@ -292,13 +302,35 @@
                     113,
                     72
                 ],
-                "expected": [
-                    "^\\d+"
-                ]
+                "color_filter": "CurrentLevelColorFilter"
             }
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "CurrentLevelColorFilter": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1001,
+                    147,
+                    113,
+                    72
+                ],
+                "method": 4,
+                "lower": [
+                    56,
+                    56,
+                    56
+                ],
+                "upper": [
+                    76,
+                    76,
+                    76
+                ]
+            }
+        }
     },
     "LevelUpOperatorEnterLevelUpMenu": {
         "desc": "打开升级界面",
