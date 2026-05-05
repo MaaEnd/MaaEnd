@@ -53,7 +53,6 @@
     "autofight.adjust_view": "調整視角",
     "autofight.turn_round": "長時間找不到敵人，轉身",
     "autofight.lock_target": "找不到敵人，嘗試鎖定目標",
-
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",
     "autoecofarm.crossed_center": "偵測到拉過頭，自動降低拉近比例",
@@ -126,7 +125,7 @@
     "tasker.aspect_ratio_warning.current_resolution": "目前解析度：",
     "tasker.aspect_ratio_warning.requirement_label": "目標要求：",
     "tasker.aspect_ratio_warning.requirement_exact": "精確 %dx%d；1920x1080 等其他 16:9 解析度也不通過",
-    "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比例；例如 3840x2160、2560x1440、1920x1080、1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比例；例如 3840x2160、2560x1440、1920x1080、1280x720\n全螢幕模式僅支援16:9顯示器；視窗化模式下可將解析度手動設為16:9。",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "尋路已中止。",
     "maptracker.emergency_stop.cause_header": "可能原因：",

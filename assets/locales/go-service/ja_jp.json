@@ -125,7 +125,7 @@
     "tasker.aspect_ratio_warning.current_resolution": "現在の解像度：",
     "tasker.aspect_ratio_warning.requirement_label": "必要条件：",
     "tasker.aspect_ratio_warning.requirement_exact": "正確に %dx%d。1920x1080 など他の 16:9 解像度でも通りません",
-    "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比率。例: 3840x2160、2560x1440、1920x1080、1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比率。例: 3840x2160、2560x1440、1920x1080、1280x720\nフルスクリーンモードは16:9モニターのみサポート。ウィンドウモードでは手動で解像度を16:9に設定できます。",
     "maptracker.emergency_stop.title": "🚨 緊急停止",
     "maptracker.emergency_stop.desc": "ナビゲーションを中止しました。",
     "maptracker.emergency_stop.cause_header": "考えられる原因：",
