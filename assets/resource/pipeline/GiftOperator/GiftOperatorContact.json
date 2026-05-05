@@ -21,7 +21,8 @@
         "next": [
             "[JumpBack]GiftOperatorContacSortOrder",
             "[JumpBack]GiftOperatorContacSortBy",
-            "GiftOperatorSelectOp1"
+            "GiftOperatorSelectOp1",
+            "GiftOperatorTrustFull"
         ]
     },
     "GiftOperatorContacSortOrder": {
@@ -286,6 +287,7 @@
         ]
     },
     "GiftOperatorTrustIcon": {
+        "desc": "干员信赖度图标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -302,6 +304,7 @@
         }
     },
     "GiftOperatorTrustValue": {
+        "desc": "干员信赖度数值",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -313,9 +316,43 @@
                     -2
                 ],
                 "expected": [
-                    "^(?:199|1[0-9]{2}|[1-9][0-9]?|0)$"
+                    "^(?:199|1[0-9]{2}|[1-9][0-9]?|0)"
                 ],
                 "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorTrustValueFull": {
+        "desc": "干员信赖已满",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    14,
+                    1,
+                    19,
+                    -2
+                ],
+                "expected": [
+                    "^200"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorTrustFull": {
+        "desc": "干员信赖已满",
+        "focus": {
+            "focus.Node.Recognition.Succeeded": "$task.GiftOperator.focus.all_full"
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorTrustValueFull"
+                ]
             }
         }
     },
