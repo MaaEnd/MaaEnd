@@ -88,6 +88,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                908,
+                309,
+                180,
+                173
+            ]
         }
     },
     "GiftOperatorCheckSelectedLabelColor": {
@@ -202,7 +211,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp2"
+            "GiftOperatorSelectOp2",
+            "GiftOperatorTrustFull"
         ]
     },
     "GiftOperatorCheckSelected2": {
@@ -218,7 +228,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp3"
+            "GiftOperatorSelectOp3",
+            "GiftOperatorTrustFull"
         ]
     },
     "GiftOperatorCheckSelected3": {
@@ -299,7 +310,8 @@
                 ],
                 "template": [
                     "GiftOperator/TrustIcon.png"
-                ]
+                ],
+                "order_by": "Vertical"
             }
         }
     },
@@ -318,7 +330,51 @@
                 "expected": [
                     "^(?:199|1[0-9]{2}|[1-9][0-9]?|0)"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorNotSelect": {
+        "desc": "干员未被选择",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    36,
+                    -85,
+                    4,
+                    5
+                ],
+                "upper": [
+                    [
+                        27,
+                        255,
+                        255
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        29,
+                        0,
+                        0
+                    ]
+                ],
+                "method": 40,
+                "connected": true,
+                "count": 100,
+                "order_by": "Vertical"
             }
         }
     },
@@ -363,9 +419,10 @@
             "param": {
                 "all_of": [
                     "GiftOperatorTrustIcon",
-                    "GiftOperatorTrustValue"
+                    "GiftOperatorTrustValue",
+                    "GiftOperatorNotSelect"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "action": {
@@ -382,9 +439,10 @@
             "param": {
                 "all_of": [
                     "GiftOperatorTrustIcon",
-                    "GiftOperatorTrustValue"
+                    "GiftOperatorTrustValue",
+                    "GiftOperatorNotSelect"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "action": {
@@ -401,9 +459,10 @@
             "param": {
                 "all_of": [
                     "GiftOperatorTrustIcon",
-                    "GiftOperatorTrustValue"
+                    "GiftOperatorTrustValue",
+                    "GiftOperatorNotSelect"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "action": {
