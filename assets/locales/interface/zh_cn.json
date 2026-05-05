@@ -709,6 +709,7 @@
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "识别寻路（MapTracker）",
     "task.GiftOperator.focus.bag_full": "⚠️ 背包已满，无法领取干员礼物，请手动清理背包",
     "task.GiftOperator.focus.max_affinity": "⚠️ 干员好感度已满",
+    "task.GiftOperator.focus.all_full": "所有干员信赖度已满,无法进行任务",
     "task.AutoStockStaple.label": "🏪购买稳定物资",
     "task.AutoStockStaple.description": "购买稳定需求物资，仅购买每周刷新的物品。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "购买页面未正常打开",
