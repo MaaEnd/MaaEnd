@@ -18,5 +18,11 @@
         "pre_delay": 200, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
         "action": "Click",
         "post_delay": 200
+    },
+    "__AutoAltLongPressMouseLongPressAction": {
+        "desc": "鼠标长按",
+        "pre_delay": 200, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
+        "action": "LongPress",
+        "post_delay": 200
     }
 }
