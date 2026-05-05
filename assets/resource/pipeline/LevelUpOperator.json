@@ -257,11 +257,45 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "LevelUpOperatorLevelThresholdCheck",
             "LevelUpOperatorEnterLevelUpMenu"
         ],
         "focus": {
             "Node.Action.Succeeded": "正在搜寻可升级的干员"
         }
+    },
+    "LevelUpOperatorLevelThresholdCheck": {
+        "desc": "检查是否超过80级",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{SelectedOperatorCurrentLevel}>=80"
+                }
+            }
+        },
+        "next": [
+            "LevelUpOperatorSwitchToNextOperator"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "大于等于等级门槛，切换到下一个干员"
+        }
+    },
+    "SelectedOperatorCurrentLevel": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    960,
+                    112,
+                    192,
+                    155
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "LevelUpOperatorEnterLevelUpMenu": {
         "desc": "打开升级界面",
@@ -298,14 +332,14 @@
         "post_delay": 0,
         "next": [
             "LevelUpOperatorLevelUpButton",
-            "LevelUpOperatorLevelUpButtonNotExist"
+            "LevelUpOperatorExitLevelUpMenu"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "打开升级界面"
         }
     },
-    "LevelUpOperatorLevelUpButtonNotExist": {
-        "desc": "按钮不存在，退出升级界面",
+    "LevelUpOperatorExitLevelUpMenu": {
+        "desc": "退出升级界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
