@@ -122,7 +122,6 @@ Required parameters:
 Optional parameters:
 
 - `on_find`: Action to perform after the target point is found. Default is `"Click"`. Available values:
-
     - `"Click"`: Click the target point (default).
     - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
     - `"DoNothing"`: Perform no action.
@@ -210,7 +209,6 @@ Required parameters: None
 Optional parameters:
 
 - `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
-
     - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
     - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).

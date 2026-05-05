@@ -19,7 +19,7 @@
         "@nekosu/maa-tools": "1.0.22",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",
-        "prettier": "3.5.3",
+        "prettier": "3.8.3",
         "prettier-plugin-multiline-arrays": "4.1.4"
     },
     "engines": {
