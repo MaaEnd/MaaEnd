@@ -80,7 +80,6 @@
     },
     "LevelUpOperatorSetFilter": {
         "desc": "设置筛选器",
-        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -322,8 +321,17 @@
             }
         },
         "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 50,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    8,
+                    7,
+                    -16,
+                    -16
+                ]
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
