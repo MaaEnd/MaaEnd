@@ -223,6 +223,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "LevelUpOperatorMaxLevelThreshold"
+                    ],
                     "pipeline_override": {
                         "DailyTaskLevelUpOperator": {
                             "enabled": true
@@ -241,6 +244,30 @@
                     }
                 }
             ]
+        },
+        "LevelUpOperatorMaxLevelThreshold": {
+            "type": "input",
+            "label": "$option.LevelUpOperatorMaxLevelThreshold.label",
+            "inputs": [
+                {
+                    "name": "MaxLevelThreshold",
+                    "label": "$option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label",
+                    "pipeline_type": "int",
+                    "verify": "(?<![-\\d])(?:0|[1-9]|[1-8][0-9]|90)(?!\\d)",
+                    "default": "80"
+                }
+            ],
+            "pipeline_override": {
+                "LevelUpOperatorLevelThresholdCheck": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{SelectedOperatorCurrentLevel}>={MaxLevelThreshold}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "DailyTaskCreation": {
             "type": "switch",
