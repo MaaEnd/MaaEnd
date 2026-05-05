@@ -168,70 +168,151 @@
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
-            "ProtocolSpaceEnterSpaceSprint1"
+            "ProtocolSpaceEnterSpaceMove1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入协议空间成功"
         }
     },
-    "ProtocolSpaceEnterSpaceSprint1": {
-        "desc": "尝试第一次冲刺（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
+    "ProtocolSpaceEnterSpaceMove1": {
+        "desc": "尝试第一次移动（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            600,
-            320,
-            80,
-            80
-        ],
-        "contact": 1,
-        "post_delay": 1000,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
         "next": [
             "ProtocolSpaceTouchStartTouch",
-            "ProtocolSpaceEnterSpaceSprint2"
+            "ProtocolSpaceEnterSpaceMove2"
         ]
     },
-    "ProtocolSpaceEnterSpaceSprint2": {
-        "desc": "尝试第二次冲刺",
+    "ProtocolSpaceEnterSpaceMove2": {
+        "desc": "尝试第二次移动",
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            600,
-            320,
-            80,
-            80
-        ],
-        "contact": 1,
-        "post_delay": 1000,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
         "next": [
             "ProtocolSpaceTouchStartTouch",
-            "ProtocolSpaceEnterSpaceSprint3"
+            "ProtocolSpaceEnterSpaceMove3"
         ]
     },
-    "ProtocolSpaceEnterSpaceSprint3": {
-        "desc": "尝试第三次冲刺",
+    "ProtocolSpaceEnterSpaceMove3": {
+        "desc": "尝试第三次移动",
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            600,
-            320,
-            80,
-            80
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceMove4"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceMove4": {
+        "desc": "尝试第四次移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
         ],
-        "contact": 1,
-        "post_delay": 1000,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceMove5"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceMove5": {
+        "desc": "尝试第五次移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceMove6"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceMove6": {
+        "desc": "尝试第六次移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceMove7"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceMove7": {
+        "desc": "尝试第七次移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
+        "next": [
+            "ProtocolSpaceTouchStartTouch",
+            "ProtocolSpaceEnterSpaceMove8"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceMove8": {
+        "desc": "尝试第八次移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800,
         "next": [
             "ProtocolSpaceTouchStartTouch",
             "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
