@@ -155,6 +155,12 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "roi": [
+                    28,
+                    500,
+                    1252,
+                    50
+                ],
                 "method": 40,
                 "lower": [
                     28,
@@ -180,12 +186,12 @@
                 "lower": [
                     72,
                     72,
-                    72
+                    66
                 ],
                 "upper": [
-                    72,
-                    72,
-                    72
+                    114,
+                    110,
+                    79
                 ],
                 "count": 10,
                 "connected": true
