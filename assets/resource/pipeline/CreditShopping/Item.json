@@ -314,7 +314,7 @@
             4,
             4
         ],
-        "expected": "协议棱柱组", //这里是具体执行参数
+        "expected": "a^", //这里是具体执行参数
         "only_rec": true,
         "order_by": "Vertical"
     },
