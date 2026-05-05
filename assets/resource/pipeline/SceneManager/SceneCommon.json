@@ -53,8 +53,7 @@
         ],
         "pre_wait_freezes": 200,
         "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
+        "action": "Click"
     },
     "__ScenePrivateCloseADBExit": {
         "desc": "关闭ADB控制器的退出游戏界面",
