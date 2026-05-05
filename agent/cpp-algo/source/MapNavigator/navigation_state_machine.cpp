@@ -364,7 +364,6 @@ bool NavigationStateMachine::TickNavigate()
 
         if (recovery_status == RecoveryStatus::RequestRejoin) {
             motion_controller_->SetForwardState(false);
-            runtime_state_.ResetNavigationAssistState();
             CaptureCurrentPosition(true);
 
             size_t best_idx = 0;
@@ -387,7 +386,10 @@ bool NavigationStateMachine::TickNavigate()
 
             session_->ApplyRejoinSlice(slice_start, *position_);
             session_->ResetProgress();
-            runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+            runtime_state_.route.Reset();
+            runtime_state_.semantic.ResetTransient();
+            runtime_state_.flow.navigate_started_at = std::chrono::steady_clock::now();
+            runtime_state_.flow.last_auto_sprint_time = {};
 
             utils::SleepFor(kStopWaitMs);
 
