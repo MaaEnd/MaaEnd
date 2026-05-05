@@ -275,6 +275,16 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                102,
+                103,
+                15,
+                15
+            ]
+        },
         "next": [
             "GiftOperatorWaitChat",
             "[JumpBack]GiftOperatorMoveAhead",
