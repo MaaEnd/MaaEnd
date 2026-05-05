@@ -35,10 +35,24 @@
             }
         },
         "next": [
-            "AutoCollectRoute1GotoFindLine1"
+            "AutoCollectRoute7GotoFindLine1Sub"
         ]
     },
-    "AutoCollectRoute1GotoFindLine1": {
+    "AutoCollectRoute7GotoFindLine1Sub": {
+        "desc": "寻路到升降梯门口",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine1"
+            ],
+            "continue": true
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute7GotoFindLine1": {
         "desc": "寻路到升降梯门口",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
@@ -146,10 +160,7 @@
                     383.7
                 ]
             ]
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation2"
-        ]
+        }
     },
     "AutoCollectRoute7AssertLocation2": {
         "desc": "升降梯门口定位",
@@ -169,9 +180,24 @@
             ]
         },
         "next": [
-            "AutoCollectRoute7GotoFindLine2"
+            "AutoCollectRoute7GotoFindLine2Sub"
         ]
     },
+    "AutoCollectRoute7GotoFindLine2Sub": {
+        "desc": "过升降机并前往血菌收集点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine2",
+                "AutoCollectRoute7GotoFindLine3"
+            ],
+            "continue": true
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation3"
+        ]
+    },    
     "AutoCollectRoute7GotoFindLine2": {
         "desc": "过升降机",
         "action": "Custom",
@@ -196,10 +222,7 @@
                     383.6
                 ]
             ]
-        },
-        "next": [
-            "AutoCollectRoute7GotoFindLine3"
-        ]
+        }       
     },
     "AutoCollectRoute7GotoFindLine3": {
         "desc": "寻路至血菌",
@@ -233,10 +256,7 @@
                     353.8
                 ]
             ]
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation3"
-        ]
+        }
     },
     "AutoCollectRoute7AssertLocation3": {
         "desc": "血菌定位",
@@ -443,12 +463,25 @@
             ]
         },
         "next": [
-            "AutoCollectRoute7GotoFindLine4"
+            "AutoCollectRoute7GotoFindLine4Sub"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "血菌收集完成再定位"
         }
     },
+    "AutoCollectRoute7GotoFindLine4Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine4"
+            ],
+            "continue": true
+        },
+        "next": [
+            "AutoCollectRoute7FindButtonUsing"
+        ]
+    },     
     "AutoCollectRoute7GotoFindLine4": {
         "desc": "从血菌出发前往武陵石采集点",
         "action": "Custom",
@@ -497,13 +530,11 @@
                     303.7
                 ]
             ]
-        },
-        "next": [
-            "AutoCollectRoute7FindButtonUsing"
-        ]
+        }
     },
     "AutoCollectRoute7FindButtonUsing": {
         "desc": "点击使用按钮",
+        "pre_wait_freezes": 300,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -519,7 +550,6 @@
                 ]
             }
         },
-        "pre_wait_freezes": 300,
         "action": {
             "type": "Custom",
             "param": {
@@ -527,12 +557,25 @@
             }
         },
         "next": [
-            "AutoCollectRoute7GotoFindLine5"
+            "AutoCollectRoute7GotoFindLine5Sub"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "使用升降索"
         }
     },
+    "AutoCollectRoute7GotoFindLine5Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine5"
+            ],
+            "continue": true
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5"
+        ]
+    }, 
     "AutoCollectRoute7GotoFindLine5": {
         "action": "Custom",
         "custom_action": "MapTrackerMove",
@@ -612,10 +655,7 @@
                     281.1
                 ]
             ]
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation5"
-        ]
+        }
     },
     "AutoCollectRoute7AssertLocation5": {
         "desc": "武陵石门口定位",
