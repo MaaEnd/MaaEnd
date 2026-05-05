@@ -1,0 +1,451 @@
+{
+    "OperatorLevelUpStart": {
+        "desc": "干员升级任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorEnterMenu",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "LevelUpOperatorEnterMenu": {
+        "desc": "进入干员升级界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    970,
+                    15,
+                    240,
+                    50
+                ],
+                "template": [
+                    "SceneManager/WorldOperatorMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                980,
+                146,
+                280,
+                132
+            ]
+        },
+        "next": [
+            "LevelUpOperatorOpenOperatorList"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "正在进入干员界面"
+        }
+    },
+    "LevelUpOperatorOpenOperatorList": {
+        "desc": "打开干员列表",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    600,
+                                    180,
+                                    90
+                                ],
+                                "template": [
+                                    "LevelUpOperator/Filter.png",
+                                    "LevelUpOperator/FilterHover.png"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]LevelUpOperatorSetFilter",
+            "LevelUpOperatorSearchAvailableOperator"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "正在进入干员列表"
+        }
+    },
+    "LevelUpOperatorSetFilter": {
+        "desc": "设置筛选器",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    10,
+                    100,
+                    40
+                ],
+                "expected": [
+                    "干员",
+                    "幹員",
+                    "(?i)Operator",
+                    "オペレーター",
+                    "작전인형"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorSwitchAscending"
+        ]
+    },
+    "LevelUpOperatorSwitchAscending": {
+        "desc": "识别到降序，切换排序方式为升序",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    315,
+                    645,
+                    75,
+                    30
+                ],
+                "template": [
+                    "LevelUpOperator/FilterDesc.png",
+                    "LevelUpOperator/FilterDescHover.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorInitialSelectOperatorPosition"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "排序方式已切换为升序"
+        }
+    },
+    "LevelUpOperatorInitialSelectOperatorPosition": {
+        "desc": "选择第一个干员以初始化干员列表位置",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorListScrollUpFinished",
+            "[JumpBack]OperatorListScrollUp"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "正在选择第一个干员"
+        }
+    },
+    "OperatorListScrollUpFinished": {
+        "desc": "干员列表滑到顶了,选择第一个干员",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    45,
+                    400,
+                    55
+                ],
+                "template": [
+                    "LevelUpOperator/TeamMemberIcon.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    56,
+                    106,
+                    32,
+                    32
+                ]
+            }
+        },
+        "post_wait_freezes": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "LevelUpOperatorExitOperatorList"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已选择第一个干员"
+        }
+    },
+    "LevelUpOperatorExitOperatorList": {
+        "desc": "退出干员列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    360,
+                    648,
+                    28,
+                    28
+                ],
+                "template": [
+                    "LevelUpOperator/FilterAsce.png",
+                    "LevelUpOperator/FilterAsceHover.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    528,
+                    92,
+                    178,
+                    182
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "已退出干员列表"
+        }
+    },
+    "OperatorListScrollUp": {
+        "desc": "干员列表向上滚动",
+        "max_hit": 50,
+        "action": "Swipe",
+        "begin": [
+            200,
+            238
+        ],
+        "end": [
+            200,
+            528
+        ],
+        "end_hold": 300,
+        "post_wait_freezes": 20
+    },
+    "LevelUpOperatorSearchAvailableOperator": {
+        "desc": "搜寻可升级的干员",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "LevelUpOperatorEnterLevelUpMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "正在搜寻可升级的干员"
+        }
+    },
+    "LevelUpOperatorEnterLevelUpMenu": {
+        "desc": "打开升级界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    240,
+                    88,
+                    30
+                ],
+                "expected": [
+                    "等级",
+                    "等級",
+                    "(?i)Level",
+                    "レベル",
+                    "레벨"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1025,
+                    225,
+                    70,
+                    32
+                ]
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorLevelUpButton",
+            "LevelUpOperatorLevelUpButtonNotExist"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "打开升级界面"
+        }
+    },
+    "LevelUpOperatorLevelUpButtonNotExist": {
+        "desc": "按钮不存在，退出升级界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1180,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "LevelUpOperator/ExitButton.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 50,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "LevelUpOperatorSearchFinished",
+            "LevelUpOperatorSwitchToNextOperator"
+        ]
+    },
+    "LevelUpOperatorSearchFinished": {
+        "desc": "搜索完成",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    920,
+                    0,
+                    90,
+                    70
+                ],
+                "template": ["LevelUpOperator/OperatorSelected.png"],
+                "green_mask": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "已搜索完所有干员，未发现可升级干员"
+        }
+    },
+    "LevelUpOperatorSwitchToNextOperator": {
+        "desc": "切换到下一个干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    69
+                ]
+            }
+        },
+        "next": [
+            "LevelUpOperatorSearchAvailableOperator"
+        ]
+    },
+    "LevelUpOperatorLevelUpButton": {
+        "desc": "点击升级按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1180,
+                    0,
+                    100,
+                    230
+                ],
+                "template": [
+                    "LevelUpOperator/AddLevelUpMaterialButton.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorConfirmLevelUp"
+        ]
+    },
+    "LevelUpOperatorConfirmLevelUp": {
+        "desc": "确认升级",
+        "recognition": "And",
+        "all_of": [
+            "LevelUpButton",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1110,
+                    92,
+                    20,
+                    40
+                ]
+            }
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                -280,
+                -140,
+                280,
+                140
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneNoticeRewardsConfirm",
+            "LevelUpOperatorFinished"
+        ]
+    },
+    "LevelUpOperatorFinished": {
+        "desc": "完成",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Starting": "已完成干员升级任务"
+        }
+    }
+}
