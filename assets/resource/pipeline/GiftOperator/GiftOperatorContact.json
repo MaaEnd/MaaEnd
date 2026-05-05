@@ -89,21 +89,115 @@
             "type": "Click"
         }
     },
+    "GiftOperatorCheckSelectedLabelColor": {
+        "desc": "选中角色标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    28,
+                    255,
+                    255
+                ],
+                "upper": [
+                    28,
+                    255,
+                    255
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedTextColor": {
+        "desc": "选中角色文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                "lower": [
+                    52,
+                    52,
+                    52
+                ],
+                "upper": [
+                    52,
+                    52,
+                    52
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText1": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "1"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText2": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "2"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText3": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "3"
+                ],
+                "only_rec": true
+            }
+        }
+    },
     "GiftOperatorCheckSelected1": {
         "desc": "确认第一个干员已选中",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    537,
-                    170,
-                    574,
-                    324
-                ],
-                "template": [
-                    "GiftOperator/YellowSelect1.png"
-                ],
-                "threshold": 0.8
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
             }
         },
         "next": [
@@ -113,16 +207,12 @@
     "GiftOperatorCheckSelected2": {
         "desc": "确认第二个干员已选中",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    537,
-                    170,
-                    574,
-                    324
-                ],
-                "template": [
-                    "GiftOperator/YellowSelect2.png"
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText2"
                 ]
             }
         },
@@ -133,16 +223,12 @@
     "GiftOperatorCheckSelected3": {
         "desc": "确认第三个干员已选中",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    537,
-                    170,
-                    574,
-                    324
-                ],
-                "template": [
-                    "GiftOperator/YellowSelect3.png"
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText3"
                 ]
             }
         },
@@ -199,18 +285,54 @@
             "[JumpBack]GiftOperatorMoveAhead"
         ]
     },
-    "GiftOperatorSelectOp1": {
-        "desc": "选择第一个干员",
-        "action": {
-            "type": "Click",
+    "GiftOperatorTrustIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
             "param": {
-                "target": [
-                    589,
-                    242,
-                    5,
-                    3
+                "roi": [
+                    547,
+                    179,
+                    546,
+                    310
+                ],
+                "template": [
+                    "GiftOperator/TrustIcon.png"
                 ]
             }
+        }
+    },
+    "GiftOperatorTrustValue": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    14,
+                    1,
+                    19,
+                    -2
+                ],
+                "expected": [
+                    "^(?:199|1[0-9]{2}|[1-9][0-9]?|0)$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorSelectOp1": {
+        "desc": "选择第一个干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected1"
@@ -218,16 +340,18 @@
     },
     "GiftOperatorSelectOp2": {
         "desc": "选择第二个干员",
-        "action": {
-            "type": "Click",
+        "recognition": {
+            "type": "And",
             "param": {
-                "target": [
-                    683,
-                    242,
-                    2,
-                    2
-                ]
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 1
             }
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected2"
@@ -235,16 +359,18 @@
     },
     "GiftOperatorSelectOp3": {
         "desc": "选择第三个干员",
-        "action": {
-            "type": "Click",
+        "recognition": {
+            "type": "And",
             "param": {
-                "target": [
-                    773,
-                    239,
-                    3,
-                    5
-                ]
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 1
             }
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected3"
