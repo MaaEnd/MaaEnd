@@ -242,6 +242,8 @@
     "task.AutoStockpile.option.AutoStockpileWuling.description": "武陵の物資購入設定",
     "task.AutoStockpile.option.AutoStockpileElasticValleyIV.label": "第4谷地",
     "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "武陵",
+    "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "データ報告を許可",
+    "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "弾性物資の価格変動の法則を研究するため、匿名でデータをアップロードします。関連動画: [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
     "task.CreditShopping.label": "🛍️ クレジットショッピング",
     "task.CreditShopping.description": "クレジット取引所でアイテムを購入します",
     "option.CreditShoppingPriority1.label": "購入アイテム設定1",

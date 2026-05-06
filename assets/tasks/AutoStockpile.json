@@ -16,6 +16,7 @@
             ],
             "option": [
                 "AutoStockpileServerTime",
+                "AutoStockpileAllowDataUpload",
                 "AutoStockpileElasticValleyIV",
                 "AutoStockpileElasticWuling"
             ]
@@ -104,6 +105,20 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileAllowDataUpload": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes"
                 },
                 {
                     "name": "No"

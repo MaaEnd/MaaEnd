@@ -283,6 +283,8 @@
     "task.AutoStockpile.option.AutoStockpileWuling.description": "Wuling stockpile purchase settings",
     "task.AutoStockpile.option.AutoStockpileElasticValleyIV.label": "Valley IV",
     "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "Wuling",
+    "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "Allow Data Upload",
+    "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "Anonymously upload data to study the patterns of elastic resource price fluctuations. Related video: [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
     "task.CreditShopping.label": "🛍️ Credit Shopping",
     "task.CreditShopping.description": "Purchase items from the Credit Exchange",
     "option.CreditShoppingPriority1.label": "Purchase Item Option 1",
