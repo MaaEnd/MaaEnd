@@ -13,6 +13,17 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "AutoCollectError": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": {
+            "type": "Screencap",
+            "param": {}
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "路线7失败，已截图"
+        }
+    },
     "AutoCollectRoute7AssertLocation1": {
         "desc": "传送到收集地界石坪",
         "recognition": {
@@ -46,7 +57,8 @@
             "sub": [
                 "AutoCollectRoute7GotoFindLine1"
             ],
-            "continue": true
+            "continue": true,
+            "strict": false
         },
         "next": [
             "AutoCollectRoute7AssertLocation2"
@@ -192,7 +204,8 @@
                 "AutoCollectRoute7GotoFindLine2",
                 "AutoCollectRoute7GotoFindLine3"
             ],
-            "continue": true
+            "continue": true,
+            "strict": false
         },
         "next": [
             "AutoCollectRoute7AssertLocation3"
@@ -476,7 +489,8 @@
             "sub": [
                 "AutoCollectRoute7GotoFindLine4"
             ],
-            "continue": true
+            "continue": true,
+            "strict": false
         },
         "next": [
             "AutoCollectRoute7FindButtonUsing"
@@ -532,8 +546,16 @@
             ]
         }
     },
+    "AutoCollectRoute7Wait": {
+        "pre_wait_freezes": 300,
+        "max_hit": 3,
+        "next": [
+            "AutoCollectRoute7FindButtonUsing"
+        ]
+    },
     "AutoCollectRoute7FindButtonUsing": {
         "desc": "点击使用按钮",
+        "pre_wait_freezes": 300,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -549,7 +571,6 @@
                 ]
             }
         },
-        "pre_wait_freezes": 300,
         "action": {
             "type": "Custom",
             "param": {
@@ -570,11 +591,114 @@
             "sub": [
                 "AutoCollectRoute7GotoFindLine5"
             ],
-            "continue": true
+            "continue": true,
+            "strict": false
         },
         "next": [
-            "AutoCollectRoute7AssertLocation5"
+            "AutoCollectRoute7AssertLocation5",
+            "AutoCollectRoute7AssertLocation6"
         ]
+    }, 
+    "AutoCollectRoute7GotoFindLine7Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine7"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation7"
+        ]
+    },
+    "AutoCollectRoute7AssertLocation5": {
+        "desc": "滑索后定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        289.7,
+                        301.3,
+                        10.2,
+                        10.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7GotoFindLine7"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "滑索后定位"
+        }
+    },
+    "AutoCollectRoute7AssertLocation6": {
+        "desc": "滑索前定位开始纠错",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        276.2,
+                        297.1,
+                        9.3,
+                        9.8
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute7ErrorSub"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始纠错"
+        }
+    },
+    "AutoCollectRoute7ErrorSub": {
+        "desc": "纠错路线,三次失败直接跳出",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7ErrorLine"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7Wait"
+        ],
+        "on_error": [
+            "AutoCollectError"
+        ]
+    },
+    "AutoCollectRoute7ErrorLine": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    281.4,
+                    301.6
+                ],
+                [
+                    276.3,
+                    300.0
+                ],
+                [
+                    282.4,
+                    302.6
+                ]
+            ]
+        }
     },
     "AutoCollectRoute7GotoFindLine5": {
         "action": "Custom",
@@ -587,12 +711,25 @@
                     303.8
                 ],
                 [
-                    288.8,
-                    303.8
+                    287.4,
+                    302.6
                 ],
                 [
-                    290.1,
-                    304.9
+                    293.8,
+                    305.1
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute7GotoFindLine7": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    293.8,
+                    305.1
                 ],
                 [
                     296.2,
@@ -657,7 +794,7 @@
             ]
         }
     },
-    "AutoCollectRoute7AssertLocation5": {
+    "AutoCollectRoute7AssertLocation7": {
         "desc": "武陵石门口定位",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
