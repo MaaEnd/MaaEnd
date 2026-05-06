@@ -1,4 +1,23 @@
 {
+    "AutoStockStapleSchedule": {
+        "desc": "稳定需求物资执行周期",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ScheduleAction",
+        "custom_action_param": {
+            "task": "AutoStockStapleMain"
+        },
+        "post_delay": 0,
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
     "AutoStockStapleMain": {
         "desc": "自动购买稳定需求物资入口",
         "pre_delay": 0,

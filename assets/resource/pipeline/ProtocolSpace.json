@@ -1,4 +1,23 @@
 {
+    "ProtocolSpaceSchedule": {
+        "desc": "协议空间计划任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ScheduleAction",
+        "custom_action_param": {
+            "task": "ProtocolSpaceEntry"
+        },
+        "post_delay": 0,
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
     "ProtocolSpaceEntry": {
         "desc": "协议空间任务入口",
         "pre_delay": 0,

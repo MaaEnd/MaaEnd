@@ -16,6 +16,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -52,6 +53,7 @@ func registerAll() {
 	autoaltclick.Register()
 	charactercontroller.Register()
 	falseaction.Register()
+	schedule.Register()
 
 	// Business Custom
 	autosell.Register()

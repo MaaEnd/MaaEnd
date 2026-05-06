@@ -141,5 +141,13 @@
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
     "maptracker.inference_failed.title": "Unknown location",
-    "maptracker.inference_failed.reason": "(Confidence too low)"
+    "maptracker.inference_failed.reason": "(Confidence too low)",
+    "schedule.skip_today": "Today is %s, skipping the task per execution cycle",
+    "schedule.weekday_monday": "Monday",
+    "schedule.weekday_tuesday": "Tuesday",
+    "schedule.weekday_wednesday": "Wednesday",
+    "schedule.weekday_thursday": "Thursday",
+    "schedule.weekday_friday": "Friday",
+    "schedule.weekday_saturday": "Saturday",
+    "schedule.weekday_sunday": "Sunday"
 }

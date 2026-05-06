@@ -3,18 +3,111 @@
         {
             "name": "AutoStockStaple",
             "label": "$task.AutoStockStaple.label",
-            "entry": "AutoStockStapleMain",
+            "entry": "AutoStockStapleSchedule",
             "description": "$task.AutoStockStaple.description",
             "group": [
                 "regional_development"
             ],
             "option": [
+                "AutoStockStapleSchedule",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling"
             ]
         }
     ],
     "option": {
+        "AutoStockStapleSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "AutoStockStapleScheduleMonday",
+                "AutoStockStapleScheduleTuesday",
+                "AutoStockStapleScheduleWednesday",
+                "AutoStockStapleScheduleThursday",
+                "AutoStockStapleScheduleFriday",
+                "AutoStockStapleScheduleSaturday",
+                "AutoStockStapleScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "AutoStockStapleScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleSchedule": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "AutoStockStapleValleyIV": {
             "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockStapleValleyIV.label",

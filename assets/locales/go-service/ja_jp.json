@@ -141,5 +141,13 @@
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
     "maptracker.inference_failed.title": "位置不明",
-    "maptracker.inference_failed.reason": "（信頼度が低すぎます）"
+    "maptracker.inference_failed.reason": "（信頼度が低すぎます）",
+    "schedule.skip_today": "今日は%s、実行周期に従いタスクをスキップします",
+    "schedule.weekday_monday": "月曜日",
+    "schedule.weekday_tuesday": "火曜日",
+    "schedule.weekday_wednesday": "水曜日",
+    "schedule.weekday_thursday": "木曜日",
+    "schedule.weekday_friday": "金曜日",
+    "schedule.weekday_saturday": "土曜日",
+    "schedule.weekday_sunday": "日曜日"
 }

@@ -3,9 +3,10 @@
         {
             "name": "ProtocolSpace",
             "label": "$task.ProtocolSpace.label",
-            "entry": "ProtocolSpaceEntry",
+            "entry": "ProtocolSpaceSchedule",
             "description": "$task.ProtocolSpace.description",
             "option": [
+                "ProtocolSpaceSchedule",
                 "AutoFightSetting",
                 "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceSuccessCount",
@@ -23,6 +24,98 @@
         }
     ],
     "option": {
+        "ProtocolSpaceSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "ProtocolSpaceScheduleMonday",
+                "ProtocolSpaceScheduleTuesday",
+                "ProtocolSpaceScheduleWednesday",
+                "ProtocolSpaceScheduleThursday",
+                "ProtocolSpaceScheduleFriday",
+                "ProtocolSpaceScheduleSaturday",
+                "ProtocolSpaceScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "ProtocolSpaceScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceSchedule": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "AutoFightSetting": {
             "type": "switch",
             "label": "$option.AutoFightSetting.label",

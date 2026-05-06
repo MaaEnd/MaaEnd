@@ -141,5 +141,13 @@
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
     "maptracker.inference_failed.title": "알 수 없는 위치",
-    "maptracker.inference_failed.reason": "(신뢰도가 너무 낮음)"
+    "maptracker.inference_failed.reason": "(신뢰도가 너무 낮음)",
+    "schedule.skip_today": "오늘은 %s, 실행 주기에 따라 작업을 건너뜁니다",
+    "schedule.weekday_monday": "월요일",
+    "schedule.weekday_tuesday": "화요일",
+    "schedule.weekday_wednesday": "수요일",
+    "schedule.weekday_thursday": "목요일",
+    "schedule.weekday_friday": "금요일",
+    "schedule.weekday_saturday": "토요일",
+    "schedule.weekday_sunday": "일요일"
 }

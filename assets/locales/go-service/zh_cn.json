@@ -141,5 +141,13 @@
     "maptracker.inference_finished.rot": "Rot: ",
     "maptracker.inference_finished.map": "Map: ",
     "maptracker.inference_failed.title": "未知位置",
-    "maptracker.inference_failed.reason": "（置信度过低）"
+    "maptracker.inference_failed.reason": "（置信度过低）",
+    "schedule.skip_today": "今天是%s，根据执行周期跳过任务",
+    "schedule.weekday_monday": "周一",
+    "schedule.weekday_tuesday": "周二",
+    "schedule.weekday_wednesday": "周三",
+    "schedule.weekday_thursday": "周四",
+    "schedule.weekday_friday": "周五",
+    "schedule.weekday_saturday": "周六",
+    "schedule.weekday_sunday": "周日"
 }
