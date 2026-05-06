@@ -23,14 +23,6 @@
             42
         ]
     },
-    "AutoStockTargetStockBillColor": {
-        "roi_offset": [
-            23,
-            -55,
-            32,
-            13
-        ]
-    },
     "AutoStockStapleBetterSliding": {
         "action": {
             "type": "Custom",
