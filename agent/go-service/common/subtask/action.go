@@ -62,12 +62,21 @@ func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			continue
 		}
 
-		if _, err := ctx.RunTask(taskName); err != nil {
+		detail, err := ctx.RunTask(taskName)
+
+		if err != nil || detail == nil {
 			log.Error().
 				Err(err).
 				Int("index", i).
 				Str("task", taskName).
 				Msg("SubTask failed to run sub task")
+			hasSubFailure = true
+			if !continueOnSubFailure {
+				break
+			}
+		}
+
+		if !detail.Status.Success() {
 			hasSubFailure = true
 			if !continueOnSubFailure {
 				break
