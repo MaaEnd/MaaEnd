@@ -56,10 +56,9 @@
                 "all_of": [
                     "AutoStockInStapleItem",
                     "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsValleyIV",
-                    "AutoStockTargetCanBuy"
+                    "AutoStockInStapleItemDiscountsValleyIV"
                 ],
-                "box_index": 3
+                "box_index": 2
             }
         },
         "pre_delay": 0,

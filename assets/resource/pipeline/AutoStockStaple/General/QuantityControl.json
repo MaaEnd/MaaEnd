@@ -71,7 +71,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlValleyEngravingPermitBuy",
-            "AutoStockStapleQuantityControlValleyEngravingPermitExclude"
+            "AutoStockStapleQuantityControlValleyEngravingPermitExclude",
+            "AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter": {
@@ -151,6 +152,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.valley_engraving_permit"
         }
     },
+    "AutoStockStapleGoodsValleyEngravingPermitStockBillInsufficientValidate": {
+        "desc": "谷地刻写券调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient": {
+        "desc": "谷地刻写券调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsValleyEngravingPermit",
+                    "AutoStockStapleGoodsValleyEngravingPermitStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.valley_engraving_permit"
+        }
+    },
     "AutoStockStapleQuantityControlKunstTube": {
         "desc": "附术铁瓶的数量控制",
         "recognition": {
@@ -166,7 +216,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlKunstTubeBuy",
-            "AutoStockStapleQuantityControlKunstTubeExclude"
+            "AutoStockStapleQuantityControlKunstTubeExclude",
+            "AutoStockStapleQuantityControlKunstTubeStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlKunstTubeRemoveFilter": {
@@ -246,6 +297,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.kunst_tube"
         }
     },
+    "AutoStockStapleGoodsKunstTubeStockBillInsufficientValidate": {
+        "desc": "附术铁瓶调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlKunstTubeStockBillInsufficient": {
+        "desc": "附术铁瓶调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKunstTube",
+                    "AutoStockStapleGoodsKunstTubeStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKunstTubeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.kunst_tube"
+        }
+    },
     "AutoStockStapleQuantityControlJakubsLegacy": {
         "desc": "雅各布的遗产的数量控制",
         "recognition": {
@@ -261,7 +361,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlJakubsLegacyBuy",
-            "AutoStockStapleQuantityControlJakubsLegacyExclude"
+            "AutoStockStapleQuantityControlJakubsLegacyExclude",
+            "AutoStockStapleQuantityControlJakubsLegacyStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlJakubsLegacyRemoveFilter": {
@@ -341,6 +442,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.jakubs_legacy"
         }
     },
+    "AutoStockStapleGoodsJakubsLegacyStockBillInsufficientValidate": {
+        "desc": "雅各布的遗产调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlJakubsLegacyStockBillInsufficient": {
+        "desc": "雅各布的遗产调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsJakubsLegacy",
+                    "AutoStockStapleGoodsJakubsLegacyStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlJakubsLegacyRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.jakubs_legacy"
+        }
+    },
     "AutoStockStapleQuantityControlPulledSlugMeat": {
         "desc": "手撕虫肉的数量控制",
         "recognition": {
@@ -356,7 +506,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlPulledSlugMeatBuy",
-            "AutoStockStapleQuantityControlPulledSlugMeatExclude"
+            "AutoStockStapleQuantityControlPulledSlugMeatExclude",
+            "AutoStockStapleQuantityControlPulledSlugMeatStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter": {
@@ -436,6 +587,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.pulled_slug_meat"
         }
     },
+    "AutoStockStapleGoodsPulledSlugMeatStockBillInsufficientValidate": {
+        "desc": "手撕虫肉调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlPulledSlugMeatStockBillInsufficient": {
+        "desc": "手撕虫肉调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsPulledSlugMeat",
+                    "AutoStockStapleGoodsPulledSlugMeatStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.pulled_slug_meat"
+        }
+    },
     "AutoStockStapleQuantityControlHazefyreBlossom": {
         "desc": "雾火之花的数量控制",
         "recognition": {
@@ -451,7 +651,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlHazefyreBlossomBuy",
-            "AutoStockStapleQuantityControlHazefyreBlossomExclude"
+            "AutoStockStapleQuantityControlHazefyreBlossomExclude",
+            "AutoStockStapleQuantityControlHazefyreBlossomStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter": {
@@ -531,6 +732,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.hazefyre_blossom"
         }
     },
+    "AutoStockStapleGoodsHazefyreBlossomStockBillInsufficientValidate": {
+        "desc": "雾火之花调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlHazefyreBlossomStockBillInsufficient": {
+        "desc": "雾火之花调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsHazefyreBlossom",
+                    "AutoStockStapleGoodsHazefyreBlossomStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.hazefyre_blossom"
+        }
+    },
     "AutoStockStapleQuantityControlCartilageCookie": {
         "desc": "软骨饼干的数量控制",
         "recognition": {
@@ -546,7 +796,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlCartilageCookieBuy",
-            "AutoStockStapleQuantityControlCartilageCookieExclude"
+            "AutoStockStapleQuantityControlCartilageCookieExclude",
+            "AutoStockStapleQuantityControlCartilageCookieStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlCartilageCookieRemoveFilter": {
@@ -626,6 +877,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cartilage_cookie"
         }
     },
+    "AutoStockStapleGoodsCartilageCookieStockBillInsufficientValidate": {
+        "desc": "软骨饼干调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlCartilageCookieStockBillInsufficient": {
+        "desc": "软骨饼干调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCartilageCookie",
+                    "AutoStockStapleGoodsCartilageCookieStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCartilageCookieRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.cartilage_cookie"
+        }
+    },
     "AutoStockStapleQuantityControlCosmoMeltoJelly": {
         "desc": "星融果冻的数量控制",
         "recognition": {
@@ -641,7 +941,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlCosmoMeltoJellyBuy",
-            "AutoStockStapleQuantityControlCosmoMeltoJellyExclude"
+            "AutoStockStapleQuantityControlCosmoMeltoJellyExclude",
+            "AutoStockStapleQuantityControlCosmoMeltoJellyStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter": {
@@ -721,6 +1022,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cosmo_melto_jelly"
         }
     },
+    "AutoStockStapleGoodsCosmoMeltoJellyStockBillInsufficientValidate": {
+        "desc": "星融果冻调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlCosmoMeltoJellyStockBillInsufficient": {
+        "desc": "星融果冻调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCosmoMeltoJelly",
+                    "AutoStockStapleGoodsCosmoMeltoJellyStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.cosmo_melto_jelly"
+        }
+    },
     "AutoStockStapleQuantityControlKeenValleyDetector": {
         "desc": "新锐谷地探物器的数量控制",
         "recognition": {
@@ -736,7 +1086,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlKeenValleyDetectorBuy",
-            "AutoStockStapleQuantityControlKeenValleyDetectorExclude"
+            "AutoStockStapleQuantityControlKeenValleyDetectorExclude",
+            "AutoStockStapleQuantityControlKeenValleyDetectorStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter": {
@@ -816,6 +1167,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_valley_detector"
         }
     },
+    "AutoStockStapleGoodsKeenValleyDetectorStockBillInsufficientValidate": {
+        "desc": "新锐谷地探物器调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlKeenValleyDetectorStockBillInsufficient": {
+        "desc": "新锐谷地探物器调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenValleyDetector",
+                    "AutoStockStapleGoodsKeenValleyDetectorStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.keen_valley_detector"
+        }
+    },
     "AutoStockStapleQuantityControlKeenValleyCompass": {
         "desc": "新锐谷地罗盘的数量控制",
         "recognition": {
@@ -831,7 +1231,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlKeenValleyCompassBuy",
-            "AutoStockStapleQuantityControlKeenValleyCompassExclude"
+            "AutoStockStapleQuantityControlKeenValleyCompassExclude",
+            "AutoStockStapleQuantityControlKeenValleyCompassStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter": {
@@ -911,6 +1312,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_valley_compass"
         }
     },
+    "AutoStockStapleGoodsKeenValleyCompassStockBillInsufficientValidate": {
+        "desc": "新锐谷地罗盘调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlKeenValleyCompassStockBillInsufficient": {
+        "desc": "新锐谷地罗盘调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenValleyCompass",
+                    "AutoStockStapleGoodsKeenValleyCompassStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.keen_valley_compass"
+        }
+    },
     "AutoStockStapleQuantityControlBreezeOfKjersch": {
         "desc": "耶尔什微风的数量控制",
         "recognition": {
@@ -926,7 +1376,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlBreezeOfKjerschBuy",
-            "AutoStockStapleQuantityControlBreezeOfKjerschExclude"
+            "AutoStockStapleQuantityControlBreezeOfKjerschExclude",
+            "AutoStockStapleQuantityControlBreezeOfKjerschStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter": {
@@ -1006,6 +1457,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.breeze_of_kjersch"
         }
     },
+    "AutoStockStapleGoodsBreezeOfKjerschStockBillInsufficientValidate": {
+        "desc": "耶尔什微风调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlBreezeOfKjerschStockBillInsufficient": {
+        "desc": "耶尔什微风调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBreezeOfKjersch",
+                    "AutoStockStapleGoodsBreezeOfKjerschStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.breeze_of_kjersch"
+        }
+    },
     "AutoStockStapleQuantityControlTidestoneSpecimen": {
         "desc": "浪潮海石的数量控制",
         "recognition": {
@@ -1021,7 +1521,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlTidestoneSpecimenBuy",
-            "AutoStockStapleQuantityControlTidestoneSpecimenExclude"
+            "AutoStockStapleQuantityControlTidestoneSpecimenExclude",
+            "AutoStockStapleQuantityControlTidestoneSpecimenStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter": {
@@ -1101,6 +1602,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.tidestone_specimen"
         }
     },
+    "AutoStockStapleGoodsTidestoneSpecimenStockBillInsufficientValidate": {
+        "desc": "浪潮海石调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlTidestoneSpecimenStockBillInsufficient": {
+        "desc": "浪潮海石调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsTidestoneSpecimen",
+                    "AutoStockStapleGoodsTidestoneSpecimenStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.tidestone_specimen"
+        }
+    },
     "AutoStockStapleQuantityControlSimonchShawl": {
         "desc": "塞梦珂披巾的数量控制",
         "recognition": {
@@ -1116,7 +1666,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlSimonchShawlBuy",
-            "AutoStockStapleQuantityControlSimonchShawlExclude"
+            "AutoStockStapleQuantityControlSimonchShawlExclude",
+            "AutoStockStapleQuantityControlSimonchShawlStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlSimonchShawlRemoveFilter": {
@@ -1196,6 +1747,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.simonch_shawl"
         }
     },
+    "AutoStockStapleGoodsSimonchShawlStockBillInsufficientValidate": {
+        "desc": "塞梦珂披巾调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlSimonchShawlStockBillInsufficient": {
+        "desc": "塞梦珂披巾调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSimonchShawl",
+                    "AutoStockStapleGoodsSimonchShawlStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSimonchShawlRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.simonch_shawl"
+        }
+    },
     "AutoStockStapleQuantityControlFrontiersWatch": {
         "desc": "《前沿瞭望》的数量控制",
         "recognition": {
@@ -1211,7 +1811,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlFrontiersWatchBuy",
-            "AutoStockStapleQuantityControlFrontiersWatchExclude"
+            "AutoStockStapleQuantityControlFrontiersWatchExclude",
+            "AutoStockStapleQuantityControlFrontiersWatchStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlFrontiersWatchRemoveFilter": {
@@ -1291,6 +1892,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.frontiers_watch"
         }
     },
+    "AutoStockStapleGoodsFrontiersWatchStockBillInsufficientValidate": {
+        "desc": "《前沿瞭望》调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlFrontiersWatchStockBillInsufficient": {
+        "desc": "《前沿瞭望》调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFrontiersWatch",
+                    "AutoStockStapleGoodsFrontiersWatchStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFrontiersWatchRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.frontiers_watch"
+        }
+    },
     "AutoStockStapleQuantityControlAuryleneCamera": {
         "desc": "醚质相机的数量控制",
         "recognition": {
@@ -1306,7 +1956,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlAuryleneCameraBuy",
-            "AutoStockStapleQuantityControlAuryleneCameraExclude"
+            "AutoStockStapleQuantityControlAuryleneCameraExclude",
+            "AutoStockStapleQuantityControlAuryleneCameraStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlAuryleneCameraRemoveFilter": {
@@ -1386,6 +2037,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.aurylene_camera"
         }
     },
+    "AutoStockStapleGoodsAuryleneCameraStockBillInsufficientValidate": {
+        "desc": "醚质相机调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlAuryleneCameraStockBillInsufficient": {
+        "desc": "醚质相机调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsAuryleneCamera",
+                    "AutoStockStapleGoodsAuryleneCameraStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlAuryleneCameraRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.aurylene_camera"
+        }
+    },
     "AutoStockStapleQuantityControlCosmicGatePuzzle": {
         "desc": "星门锁的数量控制",
         "recognition": {
@@ -1401,7 +2101,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlCosmicGatePuzzleBuy",
-            "AutoStockStapleQuantityControlCosmicGatePuzzleExclude"
+            "AutoStockStapleQuantityControlCosmicGatePuzzleExclude",
+            "AutoStockStapleQuantityControlCosmicGatePuzzleStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter": {
@@ -1481,6 +2182,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cosmic_gate_puzzle"
         }
     },
+    "AutoStockStapleGoodsCosmicGatePuzzleStockBillInsufficientValidate": {
+        "desc": "星门锁调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlCosmicGatePuzzleStockBillInsufficient": {
+        "desc": "星门锁调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsCosmicGatePuzzle",
+                    "AutoStockStapleGoodsCosmicGatePuzzleStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.cosmic_gate_puzzle"
+        }
+    },
     "AutoStockStapleQuantityControlSurfingFestivalTicket": {
         "desc": "冲浪大赛门票的数量控制",
         "recognition": {
@@ -1496,7 +2246,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlSurfingFestivalTicketBuy",
-            "AutoStockStapleQuantityControlSurfingFestivalTicketExclude"
+            "AutoStockStapleQuantityControlSurfingFestivalTicketExclude",
+            "AutoStockStapleQuantityControlSurfingFestivalTicketStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter": {
@@ -1576,6 +2327,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.surfing_festival_ticket"
         }
     },
+    "AutoStockStapleGoodsSurfingFestivalTicketStockBillInsufficientValidate": {
+        "desc": "冲浪大赛门票调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlSurfingFestivalTicketStockBillInsufficient": {
+        "desc": "冲浪大赛门票调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSurfingFestivalTicket",
+                    "AutoStockStapleGoodsSurfingFestivalTicketStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.surfing_festival_ticket"
+        }
+    },
     "AutoStockStapleQuantityControlWulingEngravingPermit": {
         "desc": "武陵刻写券的数量控制",
         "recognition": {
@@ -1591,7 +2391,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlWulingEngravingPermitBuy",
-            "AutoStockStapleQuantityControlWulingEngravingPermitExclude"
+            "AutoStockStapleQuantityControlWulingEngravingPermitExclude",
+            "AutoStockStapleQuantityControlWulingEngravingPermitStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter": {
@@ -1671,6 +2472,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.wuling_engraving_permit"
         }
     },
+    "AutoStockStapleGoodsWulingEngravingPermitStockBillInsufficientValidate": {
+        "desc": "武陵刻写券调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlWulingEngravingPermitStockBillInsufficient": {
+        "desc": "武陵刻写券调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWulingEngravingPermit",
+                    "AutoStockStapleGoodsWulingEngravingPermitStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_engraving_permit"
+        }
+    },
     "AutoStockStapleQuantityControlFortifyingInfusion": {
         "desc": "正本补元汤剂的数量控制",
         "recognition": {
@@ -1686,7 +2536,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlFortifyingInfusionBuy",
-            "AutoStockStapleQuantityControlFortifyingInfusionExclude"
+            "AutoStockStapleQuantityControlFortifyingInfusionExclude",
+            "AutoStockStapleQuantityControlFortifyingInfusionStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter": {
@@ -1766,6 +2617,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.fortifying_infusion"
         }
     },
+    "AutoStockStapleGoodsFortifyingInfusionStockBillInsufficientValidate": {
+        "desc": "正本补元汤剂调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlFortifyingInfusionStockBillInsufficient": {
+        "desc": "正本补元汤剂调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFortifyingInfusion",
+                    "AutoStockStapleGoodsFortifyingInfusionStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.fortifying_infusion"
+        }
+    },
     "AutoStockStapleQuantityControlGardenFriedRice": {
         "desc": "锦素炒饭的数量控制",
         "recognition": {
@@ -1781,7 +2681,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlGardenFriedRiceBuy",
-            "AutoStockStapleQuantityControlGardenFriedRiceExclude"
+            "AutoStockStapleQuantityControlGardenFriedRiceExclude",
+            "AutoStockStapleQuantityControlGardenFriedRiceStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter": {
@@ -1861,6 +2762,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.garden_fried_rice"
         }
     },
+    "AutoStockStapleGoodsGardenFriedRiceStockBillInsufficientValidate": {
+        "desc": "锦素炒饭调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlGardenFriedRiceStockBillInsufficient": {
+        "desc": "锦素炒饭调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsGardenFriedRice",
+                    "AutoStockStapleGoodsGardenFriedRiceStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.garden_fried_rice"
+        }
+    },
     "AutoStockStapleQuantityControlMasterPansEggPudding": {
         "desc": "潘师傅蛋羹的数量控制",
         "recognition": {
@@ -1876,7 +2826,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlMasterPansEggPuddingBuy",
-            "AutoStockStapleQuantityControlMasterPansEggPuddingExclude"
+            "AutoStockStapleQuantityControlMasterPansEggPuddingExclude",
+            "AutoStockStapleQuantityControlMasterPansEggPuddingStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter": {
@@ -1956,6 +2907,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.master_pans_egg_pudding"
         }
     },
+    "AutoStockStapleGoodsMasterPansEggPuddingStockBillInsufficientValidate": {
+        "desc": "潘师傅蛋羹调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlMasterPansEggPuddingStockBillInsufficient": {
+        "desc": "潘师傅蛋羹调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMasterPansEggPudding",
+                    "AutoStockStapleGoodsMasterPansEggPuddingStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.master_pans_egg_pudding"
+        }
+    },
     "AutoStockStapleQuantityControlEchoingRemedy": {
         "desc": "回响秘剂的数量控制",
         "recognition": {
@@ -1971,7 +2971,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlEchoingRemedyBuy",
-            "AutoStockStapleQuantityControlEchoingRemedyExclude"
+            "AutoStockStapleQuantityControlEchoingRemedyExclude",
+            "AutoStockStapleQuantityControlEchoingRemedyStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlEchoingRemedyRemoveFilter": {
@@ -2051,6 +3052,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.echoing_remedy"
         }
     },
+    "AutoStockStapleGoodsEchoingRemedyStockBillInsufficientValidate": {
+        "desc": "回响秘剂调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlEchoingRemedyStockBillInsufficient": {
+        "desc": "回响秘剂调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsEchoingRemedy",
+                    "AutoStockStapleGoodsEchoingRemedyStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEchoingRemedyRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.echoing_remedy"
+        }
+    },
     "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂的数量控制",
         "recognition": {
@@ -2066,7 +3116,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlWulingArtificingCatalystBuy",
-            "AutoStockStapleQuantityControlWulingArtificingCatalystExclude"
+            "AutoStockStapleQuantityControlWulingArtificingCatalystExclude",
+            "AutoStockStapleQuantityControlWulingArtificingCatalystStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter": {
@@ -2146,6 +3197,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.wuling_artificing_catalyst"
         }
     },
+    "AutoStockStapleGoodsWulingArtificingCatalystStockBillInsufficientValidate": {
+        "desc": "武陵精锻助剂调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlWulingArtificingCatalystStockBillInsufficient": {
+        "desc": "武陵精锻助剂调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWulingArtificingCatalyst",
+                    "AutoStockStapleGoodsWulingArtificingCatalystStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_artificing_catalyst"
+        }
+    },
     "AutoStockStapleQuantityControlKeenWulingDetector": {
         "desc": "新锐武陵探物器的数量控制",
         "recognition": {
@@ -2161,7 +3261,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlKeenWulingDetectorBuy",
-            "AutoStockStapleQuantityControlKeenWulingDetectorExclude"
+            "AutoStockStapleQuantityControlKeenWulingDetectorExclude",
+            "AutoStockStapleQuantityControlKeenWulingDetectorStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter": {
@@ -2241,6 +3342,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_wuling_detector"
         }
     },
+    "AutoStockStapleGoodsKeenWulingDetectorStockBillInsufficientValidate": {
+        "desc": "新锐武陵探物器调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlKeenWulingDetectorStockBillInsufficient": {
+        "desc": "新锐武陵探物器调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenWulingDetector",
+                    "AutoStockStapleGoodsKeenWulingDetectorStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.keen_wuling_detector"
+        }
+    },
     "AutoStockStapleQuantityControlKeenWulingCompass": {
         "desc": "新锐武陵罗盘的数量控制",
         "recognition": {
@@ -2256,7 +3406,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlKeenWulingCompassBuy",
-            "AutoStockStapleQuantityControlKeenWulingCompassExclude"
+            "AutoStockStapleQuantityControlKeenWulingCompassExclude",
+            "AutoStockStapleQuantityControlKeenWulingCompassStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter": {
@@ -2336,6 +3487,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_wuling_compass"
         }
     },
+    "AutoStockStapleGoodsKeenWulingCompassStockBillInsufficientValidate": {
+        "desc": "新锐武陵罗盘调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlKeenWulingCompassStockBillInsufficient": {
+        "desc": "新锐武陵罗盘调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsKeenWulingCompass",
+                    "AutoStockStapleGoodsKeenWulingCompassStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.keen_wuling_compass"
+        }
+    },
     "AutoStockStapleQuantityControlEurekaTeabox": {
         "desc": "岳研茶盒的数量控制",
         "recognition": {
@@ -2351,7 +3551,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlEurekaTeaboxBuy",
-            "AutoStockStapleQuantityControlEurekaTeaboxExclude"
+            "AutoStockStapleQuantityControlEurekaTeaboxExclude",
+            "AutoStockStapleQuantityControlEurekaTeaboxStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter": {
@@ -2431,6 +3632,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.eureka_teabox"
         }
     },
+    "AutoStockStapleGoodsEurekaTeaboxStockBillInsufficientValidate": {
+        "desc": "岳研茶盒调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlEurekaTeaboxStockBillInsufficient": {
+        "desc": "岳研茶盒调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsEurekaTeabox",
+                    "AutoStockStapleGoodsEurekaTeaboxStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.eureka_teabox"
+        }
+    },
     "AutoStockStapleQuantityControlYinglungDumbbells": {
         "desc": "应龙哑铃的数量控制",
         "recognition": {
@@ -2446,7 +3696,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlYinglungDumbbellsBuy",
-            "AutoStockStapleQuantityControlYinglungDumbbellsExclude"
+            "AutoStockStapleQuantityControlYinglungDumbbellsExclude",
+            "AutoStockStapleQuantityControlYinglungDumbbellsStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter": {
@@ -2526,6 +3777,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.yinglung_dumbbells"
         }
     },
+    "AutoStockStapleGoodsYinglungDumbbellsStockBillInsufficientValidate": {
+        "desc": "应龙哑铃调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlYinglungDumbbellsStockBillInsufficient": {
+        "desc": "应龙哑铃调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsYinglungDumbbells",
+                    "AutoStockStapleGoodsYinglungDumbbellsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.yinglung_dumbbells"
+        }
+    },
     "AutoStockStapleQuantityControlWovenAggelos": {
         "desc": "草编天使的数量控制",
         "recognition": {
@@ -2541,7 +3841,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlWovenAggelosBuy",
-            "AutoStockStapleQuantityControlWovenAggelosExclude"
+            "AutoStockStapleQuantityControlWovenAggelosExclude",
+            "AutoStockStapleQuantityControlWovenAggelosStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlWovenAggelosRemoveFilter": {
@@ -2621,6 +3922,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.woven_aggelos"
         }
     },
+    "AutoStockStapleGoodsWovenAggelosStockBillInsufficientValidate": {
+        "desc": "草编天使调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlWovenAggelosStockBillInsufficient": {
+        "desc": "草编天使调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsWovenAggelos",
+                    "AutoStockStapleGoodsWovenAggelosStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlWovenAggelosRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.woven_aggelos"
+        }
+    },
     "AutoStockStapleQuantityControlScrimshawOfThePack": {
         "desc": "狼群骨雕的数量控制",
         "recognition": {
@@ -2636,7 +3986,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlScrimshawOfThePackBuy",
-            "AutoStockStapleQuantityControlScrimshawOfThePackExclude"
+            "AutoStockStapleQuantityControlScrimshawOfThePackExclude",
+            "AutoStockStapleQuantityControlScrimshawOfThePackStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter": {
@@ -2716,6 +4067,55 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.scrimshaw_of_the_pack"
         }
     },
+    "AutoStockStapleGoodsScrimshawOfThePackStockBillInsufficientValidate": {
+        "desc": "狼群骨雕调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlScrimshawOfThePackStockBillInsufficient": {
+        "desc": "狼群骨雕调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsScrimshawOfThePack",
+                    "AutoStockStapleGoodsScrimshawOfThePackStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.scrimshaw_of_the_pack"
+        }
+    },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia": {
         "desc": "龙泡泡·方兴纪念的数量控制",
         "recognition": {
@@ -2731,7 +4131,8 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaBuy",
-            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude"
+            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude",
+            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaStockBillInsufficient"
         ]
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter": {
@@ -2809,6 +4210,55 @@
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.chubby_lung_fangxing_memorabilia"
+        }
+    },
+    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaStockBillInsufficientValidate": {
+        "desc": "龙泡泡·方兴纪念调度券不足的验证",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    454,
+                    924,
+                    133
+                ],
+                "method": 40,
+                "lower": [
+                    175,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaStockBillInsufficient": {
+        "desc": "龙泡泡·方兴纪念调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsChubbyLungFangxingMemorabilia",
+                    "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.chubby_lung_fangxing_memorabilia"
         }
     },
     "AutoStockStapleQuantityControlConfirmBuy": {

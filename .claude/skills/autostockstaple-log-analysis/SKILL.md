@@ -228,7 +228,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
     - `AutoStockInStapleItem`
     - `AutoStockInStapleItemDiscounts`
     - `AutoStockInStapleItemName`
-    - `AutoStockTargetCanBuy`
+
 - `box_index` 指向商品名 OCR 的结果
 - 识别成功之后立刻发生点击
 - 它们的 `next` 会进入 `AutoStockStapleQuantityControl`，因此这里只能确定“候选商品是谁”，不能单独作为“已购买”的最终证据
