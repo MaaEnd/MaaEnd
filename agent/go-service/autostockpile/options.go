@@ -9,7 +9,8 @@ import (
 )
 
 type serverTimeAttach struct {
-	ServerTime *int `json:"server_time"`
+	ServerTime      *int `json:"server_time"`
+	AllowDataUpload bool `json:"allow_data_upload"`
 }
 
 const (
@@ -28,28 +29,31 @@ func validateServerTimeOffset(offset *int) error {
 	return nil
 }
 
-func loadServerTimeOffsetFromAttach(ctx *maa.Context, nodeName string) (*int, error) {
+func loadAutoStockpileAttach(ctx *maa.Context, nodeName string) (serverTimeAttach, error) {
 	if ctx == nil {
-		return nil, fmt.Errorf("context is nil")
+		return serverTimeAttach{}, fmt.Errorf("context is nil")
 	}
 	if strings.TrimSpace(nodeName) == "" {
-		return nil, fmt.Errorf("node name is empty")
+		return serverTimeAttach{}, fmt.Errorf("node name is empty")
 	}
 
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
-		return nil, fmt.Errorf("get node %s json: %w", nodeName, err)
+		return serverTimeAttach{}, fmt.Errorf("get node %s json: %w", nodeName, err)
 	}
+	return parseAutoStockpileAttach(raw, nodeName)
+}
 
+func parseAutoStockpileAttach(raw string, nodeName string) (serverTimeAttach, error) {
 	var wrapper struct {
 		Attach serverTimeAttach `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		return nil, fmt.Errorf("unmarshal %s attach: %w", nodeName, err)
+		return serverTimeAttach{}, fmt.Errorf("unmarshal %s attach: %w", nodeName, err)
 	}
 	if err := validateServerTimeOffset(wrapper.Attach.ServerTime); err != nil {
-		return nil, fmt.Errorf("validate %s attach: %w", nodeName, err)
+		return serverTimeAttach{}, fmt.Errorf("validate %s attach: %w", nodeName, err)
 	}
 
-	return wrapper.Attach.ServerTime, nil
+	return wrapper.Attach, nil
 }

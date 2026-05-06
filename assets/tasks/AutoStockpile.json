@@ -118,10 +118,24 @@
             "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes"
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "allow_data_upload": true
+                            }
+                        }
+                    }
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "allow_data_upload": false
+                            }
+                        }
+                    }
                 }
             ]
         }

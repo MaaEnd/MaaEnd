@@ -76,21 +76,65 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 当前任务选项
 
-当前 `assets/tasks/AutoStockpile.json` 中，任务选项包含 1 个服务器时区选项和 2 个地区开关：
+当前 `assets/tasks/AutoStockpile.json` 中，任务选项包含 1 个服务器时区选项、1 个本地数据记录开关和 2 个地区开关：
 
 | 任务选项                       | 作用                                                                      |
 | ------------------------------ | ------------------------------------------------------------------------- |
 | `AutoStockpileServerTime`      | 通过 `pipeline_override` 向 `AutoStockpileAttach` 写入服务器 UTC 小时偏移 |
+| `AutoStockpileAllowDataUpload` | 通过 `pipeline_override` 向 `AutoStockpileAttach` 写入本地数据记录开关    |
 | `AutoStockpileElasticValleyIV` | 通过 `pipeline_override.enabled` 启用四号谷地节点                         |
 | `AutoStockpileElasticWuling`   | 通过 `pipeline_override.enabled` 启用武陵节点                             |
 
-地区开关不写入 `attach`。`AutoStockpileServerTime` 会通过 `pipeline_override` 将 `server_time` 写入 `AutoStockpileAttach.attach`，并由 Go Service 在运行时读取。当前内建行为如下：
+地区开关不写入 `attach`。`AutoStockpileServerTime` 会通过 `pipeline_override` 将 `server_time` 写入 `AutoStockpileAttach.attach`；`AutoStockpileAllowDataUpload` 会写入 `AutoStockpileAttach.attach.allow_data_upload`，`Yes` 为 `true`、`No` 为 `false`。这两个字段均由 Go Service 在运行时读取。当前内建行为如下：
 
 - **溢出时放宽阈值**：仅当识别结果中的 `Quota.Overflow > 0` 时，`selector.go` 才会自动放宽阈值；当前没有用户配置项，也没有 attach 覆盖入口。
 - **价格阈值**：默认值由 `strategy.go` 中的 `buildSelectionConfig()` 按 `region_base + tier_base + weekday_adjustment` 公式生成。默认服务器时区为 `UTC+8`，服务器日边界为 `04:00`。`AutoStockpileServerTime` 可通过写入 `AutoStockpileAttach.attach.server_time` 覆盖 weekday 计算；未设置时仍回退到 `UTC+8`。
+- **本地商品价格记录**：仅当 `AutoStockpileAttach.attach.allow_data_upload = true` 时启用。当前实现只写本地 JSON，不包含任何远程上传或网络行为。
 - **保留调度券**：当前未作为运行时决策输入实现。识别结果只传递配额与商品数据，下游决策流程也不会消费任何保留调度券状态。
 
-如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是扩展手动 `attach` 覆盖。当前 AutoStockpile 流程只读取基于 attach 的 `server_time` 覆盖，且该字段仅影响 weekday 计算；价格阈值、溢出开关和保留调度券配置仍不会从 attach 读取。
+如果需要调整价格策略，请直接修改 Go 代码中的默认值，而不是扩展手动 `attach` 覆盖。当前 AutoStockpile 流程只读取基于 attach 的 `server_time` 与 `allow_data_upload`；其中 `server_time` 仅影响 weekday 计算，`allow_data_upload` 仅影响本地记录是否写入。价格阈值、溢出开关和保留调度券配置仍不会从 attach 读取。
+
+## 本地每日商品价格记录
+
+启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功、地区与服务器日解析完成后，将当轮识别到的商品价格写入本地文件：
+
+```text
+data/AutoStockpile/daily_storage.json
+```
+
+写入目标按可写数据目录解析：优先使用环境变量 `MAAEND_DATA_DIR` 指定的数据目录，其次从当前工作目录及其父目录、可执行文件目录及其父目录中查找已存在的 `data/` 或 `assets/data/`，最后回退到当前工作目录下的 `data/` 并由 `MkdirAll` 创建。该路径只用于本地文件记录，不会触发远程上传。
+
+JSON schema 固定为：
+
+```json
+{
+    "schema_version": 1,
+    "records": [
+        {
+            "server_date": "2026-05-04",
+            "weekday": 1,
+            "utc_time": "2026-05-04T12:00:00Z",
+            "region": "Wuling",
+            "goods": [
+                {
+                    "id": "Wuling/WulingFrozenPears.Tier1",
+                    "name": "武陵冻梨",
+                    "tier": "Wuling.Tier1",
+                    "price": 1000
+                }
+            ]
+        }
+    ]
+}
+```
+
+维护约束：
+
+- `weekday` 使用服务器日，映射为周一 `1` 到周日 `7`；服务器日仍按现有 `04:00` 边界计算。
+- 同一个 `server_date + region` 会覆盖旧记录；同一服务器日的不同 `region` 会作为独立记录保留。
+- 最多保留 60 个不同的 `server_date`；被保留日期下的所有地区记录都会保留。
+- 记录只包含 `server_date`、`weekday`、`utc_time`、`region` 和 `goods`，不得加入 `quota` 或其他额外用户数据，也不得恢复旧字段 `captured_at_utc`。
+- 写入使用同目录临时文件和 rename 的原子写流程；写入失败只记录 warning 并继续 AutoStockpile，不会中止任务。
 
 ## 阈值解析机制
 

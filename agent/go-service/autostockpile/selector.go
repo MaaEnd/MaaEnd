@@ -3,6 +3,7 @@ package autostockpile
 import (
 	"encoding/json"
 	"sort"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -83,10 +84,11 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("region", region).
 		Msg("selector region resolved")
 
-	serverTimeOffset, err := loadServerTimeOffsetFromAttach(ctx, attachNodeName)
+	attach, err := loadAutoStockpileAttach(ctx, attachNodeName)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
 	}
+	serverTimeOffset := attach.ServerTime
 	applyWeekdayAdjustment := serverTimeOffset != nil
 	serverLocation := locationFromUTCOffset(serverTimeOffset)
 
@@ -94,7 +96,20 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("component", "autostockpile").
 		Str("region", region).
 		Str("server_location", serverLocation.String()).
+		Bool("allow_data_upload", attach.AllowDataUpload).
 		Msg("selector server time resolved")
+
+	serverNow := time.Now()
+	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
+	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, *data); err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("server_date", serverDate).
+			Int("weekday", serverWeekday).
+			Str("region", region).
+			Msg("failed to store daily goods prices")
+	}
 
 	cfg, err := buildSelectionConfig(region, serverLocation, applyWeekdayAdjustment)
 	if err != nil {

@@ -22,6 +22,10 @@ func locationFromUTCOffset(offset *int) *time.Location {
 }
 
 func resolveServerWeekday(now time.Time, loc *time.Location) time.Weekday {
+	return adjustedServerTime(now, loc).Weekday()
+}
+
+func adjustedServerTime(now time.Time, loc *time.Location) time.Time {
 	if loc == nil {
 		loc = defaultServerLocation
 	}
@@ -31,5 +35,5 @@ func resolveServerWeekday(now time.Time, loc *time.Location) time.Weekday {
 		serverTime = serverTime.AddDate(0, 0, -1)
 	}
 
-	return serverTime.Weekday()
+	return serverTime
 }

@@ -76,21 +76,65 @@ Current regions and tiers supported in the repository:
 
 ### Current Task Options
 
-The current `assets/tasks/AutoStockpile.json` exposes one server-time selector and two region toggles:
+The current `assets/tasks/AutoStockpile.json` exposes one server-time selector, one local data-recording toggle, and two region toggles:
 
 | Task option                    | Purpose                                                                                    |
 | ------------------------------ | ------------------------------------------------------------------------------------------ |
 | `AutoStockpileServerTime`      | Selects the server timezone by writing an integer UTC hour offset to `AutoStockpileAttach` |
+| `AutoStockpileAllowDataUpload` | Writes the local data-recording switch to `AutoStockpileAttach`                            |
 | `AutoStockpileElasticValleyIV` | Enables the Valley IV region node via `pipeline_override.enabled`                          |
 | `AutoStockpileElasticWuling`   | Enables the Wuling region node via `pipeline_override.enabled`                             |
 
-The region toggles do not write to `attach`. `AutoStockpileServerTime` writes `server_time` to `AutoStockpileAttach.attach` through `pipeline_override`, and the Go Service reads it at runtime. The current built-in behaviors are:
+The region toggles do not write to `attach`. `AutoStockpileServerTime` writes `server_time` to `AutoStockpileAttach.attach` through `pipeline_override`; `AutoStockpileAllowDataUpload` writes `AutoStockpileAttach.attach.allow_data_upload`, where `Yes` is `true` and `No` is `false`. The Go Service reads both fields at runtime. The current built-in behaviors are:
 
 - **Overflow threshold bypass**: `selector.go` enables threshold bypass automatically only when recognition reports overflow (`Quota.Overflow > 0`); there is no user-facing or attach-based switch.
 - **Price thresholds**: `buildSelectionConfig()` in `strategy.go` computes per-region defaults from the `region_base + tier_base + weekday_adjustment` formula. The default server timezone is `UTC+8`, and the server-day boundary is `04:00`. `AutoStockpileServerTime` can override the weekday calculation by writing an integer UTC hour offset to `AutoStockpileAttach.attach.server_time`. If unset, the runtime still falls back to `UTC+8`.
+- **Local goods-price records**: Enabled only when `AutoStockpileAttach.attach.allow_data_upload = true`. The current implementation writes local JSON only and does not include any remote upload or network behavior.
 - **Reserve stock bill**: Not implemented as a runtime decision input. The recognition payload only carries quota and goods data, and the downstream decision flow does not consume any reserve-stock-bill state.
 
-If you need different pricing behavior, update the Go defaults in code rather than expanding manual `attach` overrides. The current AutoStockpile flow only reads an attach-based override for `server_time`, which affects weekday calculation only; it still does not read attach-based price-limit, overflow-handling, or reserve-stock-bill settings.
+If you need different pricing behavior, update the Go defaults in code rather than expanding manual `attach` overrides. The current AutoStockpile flow only reads attach-based `server_time` and `allow_data_upload`; `server_time` affects weekday calculation only, and `allow_data_upload` only controls whether local records are written. It still does not read attach-based price-limit, overflow-handling, or reserve-stock-bill settings.
+
+## Local Daily Goods-Price Storage
+
+When `AutoStockpileAllowDataUpload` is enabled, the Go Service writes the recognized goods-price table after successful recognition and after region/server-day resolution. The local file is:
+
+```text
+data/AutoStockpile/daily_storage.json
+```
+
+The writable data directory is resolved deterministically: first the `MAAEND_DATA_DIR` environment variable, then existing `data/` or `assets/data/` directories found from the current working directory and its ancestors, then the executable directory and its ancestors, and finally CWD-relative `data/` with `MkdirAll` creating the missing directory. This path is for local records only and does not trigger remote uploads.
+
+The JSON schema is fixed as:
+
+```json
+{
+    "schema_version": 1,
+    "records": [
+        {
+            "server_date": "2026-05-04",
+            "weekday": 1,
+            "utc_time": "2026-05-04T12:00:00Z",
+            "region": "Wuling",
+            "goods": [
+                {
+                    "id": "Wuling/WulingFrozenPears.Tier1",
+                    "name": "Wuling Frozen Pears",
+                    "tier": "Wuling.Tier1",
+                    "price": 1000
+                }
+            ]
+        }
+    ]
+}
+```
+
+Maintenance constraints:
+
+- `weekday` uses the server day, mapped from Monday `1` through Sunday `7`; the server day still uses the existing `04:00` boundary.
+- The same `server_date + region` overwrites the previous record; different regions on the same server date are kept as separate records.
+- At most 60 distinct `server_date` values are retained; all region records under retained dates are preserved.
+- Records contain only `server_date`, `weekday`, `utc_time`, `region`, and `goods`. Do not add `quota` or other extra user data, and do not restore the old `captured_at_utc` field.
+- Writes use a same-directory temporary file followed by rename for atomic replacement. Write failures are warning-only and AutoStockpile continues running.
 
 ## Threshold Resolution Mechanism
 
