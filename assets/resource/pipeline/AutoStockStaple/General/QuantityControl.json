@@ -153,7 +153,7 @@
         }
     },
     "AutoStockStapleGoodsStockBillInsufficientValidate": {
-        "desc": "谷地刻写券调度券不足的验证",
+        "desc": "调度券不足的验证",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -297,7 +297,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.kunst_tube"
         }
     },
-
     "AutoStockStapleQuantityControlKunstTubeStockBillInsufficient": {
         "desc": "附术铁瓶调度券不足时退出",
         "recognition": {
@@ -416,7 +415,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.jakubs_legacy"
         }
     },
-
     "AutoStockStapleQuantityControlJakubsLegacyStockBillInsufficient": {
         "desc": "雅各布的遗产调度券不足时退出",
         "recognition": {
@@ -535,7 +533,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.pulled_slug_meat"
         }
     },
-
     "AutoStockStapleQuantityControlPulledSlugMeatStockBillInsufficient": {
         "desc": "手撕虫肉调度券不足时退出",
         "recognition": {
@@ -654,7 +651,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.hazefyre_blossom"
         }
     },
-
     "AutoStockStapleQuantityControlHazefyreBlossomStockBillInsufficient": {
         "desc": "雾火之花调度券不足时退出",
         "recognition": {
@@ -773,7 +769,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cartilage_cookie"
         }
     },
-
     "AutoStockStapleQuantityControlCartilageCookieStockBillInsufficient": {
         "desc": "软骨饼干调度券不足时退出",
         "recognition": {
@@ -892,7 +887,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cosmo_melto_jelly"
         }
     },
-
     "AutoStockStapleQuantityControlCosmoMeltoJellyStockBillInsufficient": {
         "desc": "星融果冻调度券不足时退出",
         "recognition": {
@@ -1011,7 +1005,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_valley_detector"
         }
     },
-
     "AutoStockStapleQuantityControlKeenValleyDetectorStockBillInsufficient": {
         "desc": "新锐谷地探物器调度券不足时退出",
         "recognition": {
@@ -1130,7 +1123,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_valley_compass"
         }
     },
-
     "AutoStockStapleQuantityControlKeenValleyCompassStockBillInsufficient": {
         "desc": "新锐谷地罗盘调度券不足时退出",
         "recognition": {
@@ -1249,7 +1241,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.breeze_of_kjersch"
         }
     },
-
     "AutoStockStapleQuantityControlBreezeOfKjerschStockBillInsufficient": {
         "desc": "耶尔什微风调度券不足时退出",
         "recognition": {
@@ -1368,7 +1359,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.tidestone_specimen"
         }
     },
-
     "AutoStockStapleQuantityControlTidestoneSpecimenStockBillInsufficient": {
         "desc": "浪潮海石调度券不足时退出",
         "recognition": {
@@ -1487,7 +1477,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.simonch_shawl"
         }
     },
-
     "AutoStockStapleQuantityControlSimonchShawlStockBillInsufficient": {
         "desc": "塞梦珂披巾调度券不足时退出",
         "recognition": {
@@ -1606,7 +1595,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.frontiers_watch"
         }
     },
-
     "AutoStockStapleQuantityControlFrontiersWatchStockBillInsufficient": {
         "desc": "《前沿瞭望》调度券不足时退出",
         "recognition": {
@@ -1725,7 +1713,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.aurylene_camera"
         }
     },
-
     "AutoStockStapleQuantityControlAuryleneCameraStockBillInsufficient": {
         "desc": "醚质相机调度券不足时退出",
         "recognition": {
@@ -1844,7 +1831,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.cosmic_gate_puzzle"
         }
     },
-
     "AutoStockStapleQuantityControlCosmicGatePuzzleStockBillInsufficient": {
         "desc": "星门锁调度券不足时退出",
         "recognition": {
@@ -1963,7 +1949,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.surfing_festival_ticket"
         }
     },
-
     "AutoStockStapleQuantityControlSurfingFestivalTicketStockBillInsufficient": {
         "desc": "冲浪大赛门票调度券不足时退出",
         "recognition": {
@@ -2082,7 +2067,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.wuling_engraving_permit"
         }
     },
-
     "AutoStockStapleQuantityControlWulingEngravingPermitStockBillInsufficient": {
         "desc": "武陵刻写券调度券不足时退出",
         "recognition": {
@@ -2201,7 +2185,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.fortifying_infusion"
         }
     },
-
     "AutoStockStapleQuantityControlFortifyingInfusionStockBillInsufficient": {
         "desc": "正本补元汤剂调度券不足时退出",
         "recognition": {
@@ -2320,7 +2303,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.garden_fried_rice"
         }
     },
-
     "AutoStockStapleQuantityControlGardenFriedRiceStockBillInsufficient": {
         "desc": "锦素炒饭调度券不足时退出",
         "recognition": {
@@ -2439,7 +2421,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.master_pans_egg_pudding"
         }
     },
-
     "AutoStockStapleQuantityControlMasterPansEggPuddingStockBillInsufficient": {
         "desc": "潘师傅蛋羹调度券不足时退出",
         "recognition": {
@@ -2558,7 +2539,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.echoing_remedy"
         }
     },
-
     "AutoStockStapleQuantityControlEchoingRemedyStockBillInsufficient": {
         "desc": "回响秘剂调度券不足时退出",
         "recognition": {
@@ -2677,7 +2657,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.wuling_artificing_catalyst"
         }
     },
-
     "AutoStockStapleQuantityControlWulingArtificingCatalystStockBillInsufficient": {
         "desc": "武陵精锻助剂调度券不足时退出",
         "recognition": {
@@ -2796,7 +2775,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_wuling_detector"
         }
     },
-
     "AutoStockStapleQuantityControlKeenWulingDetectorStockBillInsufficient": {
         "desc": "新锐武陵探物器调度券不足时退出",
         "recognition": {
@@ -2915,7 +2893,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.keen_wuling_compass"
         }
     },
-
     "AutoStockStapleQuantityControlKeenWulingCompassStockBillInsufficient": {
         "desc": "新锐武陵罗盘调度券不足时退出",
         "recognition": {
@@ -3034,7 +3011,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.eureka_teabox"
         }
     },
-
     "AutoStockStapleQuantityControlEurekaTeaboxStockBillInsufficient": {
         "desc": "岳研茶盒调度券不足时退出",
         "recognition": {
@@ -3153,7 +3129,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.yinglung_dumbbells"
         }
     },
-
     "AutoStockStapleQuantityControlYinglungDumbbellsStockBillInsufficient": {
         "desc": "应龙哑铃调度券不足时退出",
         "recognition": {
@@ -3272,7 +3247,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.woven_aggelos"
         }
     },
-
     "AutoStockStapleQuantityControlWovenAggelosStockBillInsufficient": {
         "desc": "草编天使调度券不足时退出",
         "recognition": {
@@ -3391,7 +3365,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.scrimshaw_of_the_pack"
         }
     },
-
     "AutoStockStapleQuantityControlScrimshawOfThePackStockBillInsufficient": {
         "desc": "狼群骨雕调度券不足时退出",
         "recognition": {
@@ -3510,7 +3483,6 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.chubby_lung_fangxing_memorabilia"
         }
     },
-
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaStockBillInsufficient": {
         "desc": "龙泡泡·方兴纪念调度券不足时退出",
         "recognition": {
