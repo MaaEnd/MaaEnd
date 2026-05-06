@@ -15,8 +15,7 @@
     },
     "AutoCollectError": {
         "pre_delay": 0,
-        "post_delay": 0
-        },
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "路线7失败，已截图"
         }
