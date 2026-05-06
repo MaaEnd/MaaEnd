@@ -864,5 +864,7 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
     "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
-    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region"
+    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
+    "option.PrankDetect.label": "Prank Detect",
+    "option.PrankDetect.description": "When enabled, detects wolf scene and triggers sound effect and camera shake"
 }

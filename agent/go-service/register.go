@@ -16,6 +16,8 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/playaudio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/shakecamera"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -52,6 +54,8 @@ func registerAll() {
 	autoaltclick.Register()
 	charactercontroller.Register()
 	falseaction.Register()
+	playaudio.Register()
+	shakecamera.Register()
 
 	// Business Custom
 	autosell.Register()

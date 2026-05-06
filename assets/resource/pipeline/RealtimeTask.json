@@ -21,6 +21,7 @@
                 "PuzzleSolverOnSceneMain",
                 "RealTimeAutoSkip",
                 "AutoFight",
+                "RealTimePrankWolfDetect",
                 "RealTimeSleep"
             ]
         },

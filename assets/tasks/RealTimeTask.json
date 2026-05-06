@@ -16,7 +16,8 @@
                 "AutoPuzzleSolving",
                 "AutoZipline",
                 "AutoPat",
-                "AutoTaskInterval"
+                "AutoTaskInterval",
+                "PrankDetect"
             ],
             "controller": [
                 "Win32-Window",
@@ -986,6 +987,30 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoPat": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "PrankDetect": {
+            "type": "switch",
+            "label": "$option.PrankDetect.label",
+            "description": "$option.PrankDetect.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimePrankWolfDetect": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimePrankWolfDetect": {
                             "enabled": false
                         }
                     }

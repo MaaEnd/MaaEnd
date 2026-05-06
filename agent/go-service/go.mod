@@ -5,6 +5,8 @@ go 1.25.6
 require (
 	github.com/MaaXYZ/maa-framework-go/v4 v4.0.0-beta.14
 	github.com/bytedance/sonic v1.15.0
+	github.com/ebitengine/oto/v3 v3.4.0
+	github.com/hajimehoshi/go-mp3 v0.3.4
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	golang.org/x/image v0.37.0

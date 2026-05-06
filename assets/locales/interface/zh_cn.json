@@ -864,5 +864,7 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站",
     "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看",
     "task.ResourceRecycleStation.focus.Found": "发现资源回收站",
-    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源"
+    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源",
+    "option.PrankDetect.label": "整活检测",
+    "option.PrankDetect.description": "开启后将检测小狼画面，触发音效和视角晃动"
 }
