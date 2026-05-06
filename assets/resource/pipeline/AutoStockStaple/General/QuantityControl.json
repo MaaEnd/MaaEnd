@@ -1,4 +1,4 @@
-{
+﻿{
     "AutoStockStapleQuantityControl": {
         "desc": "购买商品界面的数量控制",
         "recognition": {
@@ -70,9 +70,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient",
             "AutoStockStapleQuantityControlValleyEngravingPermitBuy",
-            "AutoStockStapleQuantityControlValleyEngravingPermitExclude",
-            "AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient"
+            "AutoStockStapleQuantityControlValleyEngravingPermitExclude"
         ]
     },
     "AutoStockStapleQuantityControlValleyEngravingPermitRemoveFilter": {
@@ -215,9 +215,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlKunstTubeStockBillInsufficient",
             "AutoStockStapleQuantityControlKunstTubeBuy",
-            "AutoStockStapleQuantityControlKunstTubeExclude",
-            "AutoStockStapleQuantityControlKunstTubeStockBillInsufficient"
+            "AutoStockStapleQuantityControlKunstTubeExclude"
         ]
     },
     "AutoStockStapleQuantityControlKunstTubeRemoveFilter": {
@@ -360,9 +360,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlJakubsLegacyStockBillInsufficient",
             "AutoStockStapleQuantityControlJakubsLegacyBuy",
-            "AutoStockStapleQuantityControlJakubsLegacyExclude",
-            "AutoStockStapleQuantityControlJakubsLegacyStockBillInsufficient"
+            "AutoStockStapleQuantityControlJakubsLegacyExclude"
         ]
     },
     "AutoStockStapleQuantityControlJakubsLegacyRemoveFilter": {
@@ -505,9 +505,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlPulledSlugMeatStockBillInsufficient",
             "AutoStockStapleQuantityControlPulledSlugMeatBuy",
-            "AutoStockStapleQuantityControlPulledSlugMeatExclude",
-            "AutoStockStapleQuantityControlPulledSlugMeatStockBillInsufficient"
+            "AutoStockStapleQuantityControlPulledSlugMeatExclude"
         ]
     },
     "AutoStockStapleQuantityControlPulledSlugMeatRemoveFilter": {
@@ -650,9 +650,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlHazefyreBlossomStockBillInsufficient",
             "AutoStockStapleQuantityControlHazefyreBlossomBuy",
-            "AutoStockStapleQuantityControlHazefyreBlossomExclude",
-            "AutoStockStapleQuantityControlHazefyreBlossomStockBillInsufficient"
+            "AutoStockStapleQuantityControlHazefyreBlossomExclude"
         ]
     },
     "AutoStockStapleQuantityControlHazefyreBlossomRemoveFilter": {
@@ -795,9 +795,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlCartilageCookieStockBillInsufficient",
             "AutoStockStapleQuantityControlCartilageCookieBuy",
-            "AutoStockStapleQuantityControlCartilageCookieExclude",
-            "AutoStockStapleQuantityControlCartilageCookieStockBillInsufficient"
+            "AutoStockStapleQuantityControlCartilageCookieExclude"
         ]
     },
     "AutoStockStapleQuantityControlCartilageCookieRemoveFilter": {
@@ -940,9 +940,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlCosmoMeltoJellyStockBillInsufficient",
             "AutoStockStapleQuantityControlCosmoMeltoJellyBuy",
-            "AutoStockStapleQuantityControlCosmoMeltoJellyExclude",
-            "AutoStockStapleQuantityControlCosmoMeltoJellyStockBillInsufficient"
+            "AutoStockStapleQuantityControlCosmoMeltoJellyExclude"
         ]
     },
     "AutoStockStapleQuantityControlCosmoMeltoJellyRemoveFilter": {
@@ -1085,9 +1085,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlKeenValleyDetectorStockBillInsufficient",
             "AutoStockStapleQuantityControlKeenValleyDetectorBuy",
-            "AutoStockStapleQuantityControlKeenValleyDetectorExclude",
-            "AutoStockStapleQuantityControlKeenValleyDetectorStockBillInsufficient"
+            "AutoStockStapleQuantityControlKeenValleyDetectorExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyDetectorRemoveFilter": {
@@ -1230,9 +1230,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlKeenValleyCompassStockBillInsufficient",
             "AutoStockStapleQuantityControlKeenValleyCompassBuy",
-            "AutoStockStapleQuantityControlKeenValleyCompassExclude",
-            "AutoStockStapleQuantityControlKeenValleyCompassStockBillInsufficient"
+            "AutoStockStapleQuantityControlKeenValleyCompassExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenValleyCompassRemoveFilter": {
@@ -1375,9 +1375,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlBreezeOfKjerschStockBillInsufficient",
             "AutoStockStapleQuantityControlBreezeOfKjerschBuy",
-            "AutoStockStapleQuantityControlBreezeOfKjerschExclude",
-            "AutoStockStapleQuantityControlBreezeOfKjerschStockBillInsufficient"
+            "AutoStockStapleQuantityControlBreezeOfKjerschExclude"
         ]
     },
     "AutoStockStapleQuantityControlBreezeOfKjerschRemoveFilter": {
@@ -1520,9 +1520,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlTidestoneSpecimenStockBillInsufficient",
             "AutoStockStapleQuantityControlTidestoneSpecimenBuy",
-            "AutoStockStapleQuantityControlTidestoneSpecimenExclude",
-            "AutoStockStapleQuantityControlTidestoneSpecimenStockBillInsufficient"
+            "AutoStockStapleQuantityControlTidestoneSpecimenExclude"
         ]
     },
     "AutoStockStapleQuantityControlTidestoneSpecimenRemoveFilter": {
@@ -1665,9 +1665,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlSimonchShawlStockBillInsufficient",
             "AutoStockStapleQuantityControlSimonchShawlBuy",
-            "AutoStockStapleQuantityControlSimonchShawlExclude",
-            "AutoStockStapleQuantityControlSimonchShawlStockBillInsufficient"
+            "AutoStockStapleQuantityControlSimonchShawlExclude"
         ]
     },
     "AutoStockStapleQuantityControlSimonchShawlRemoveFilter": {
@@ -1810,9 +1810,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlFrontiersWatchStockBillInsufficient",
             "AutoStockStapleQuantityControlFrontiersWatchBuy",
-            "AutoStockStapleQuantityControlFrontiersWatchExclude",
-            "AutoStockStapleQuantityControlFrontiersWatchStockBillInsufficient"
+            "AutoStockStapleQuantityControlFrontiersWatchExclude"
         ]
     },
     "AutoStockStapleQuantityControlFrontiersWatchRemoveFilter": {
@@ -1955,9 +1955,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlAuryleneCameraStockBillInsufficient",
             "AutoStockStapleQuantityControlAuryleneCameraBuy",
-            "AutoStockStapleQuantityControlAuryleneCameraExclude",
-            "AutoStockStapleQuantityControlAuryleneCameraStockBillInsufficient"
+            "AutoStockStapleQuantityControlAuryleneCameraExclude"
         ]
     },
     "AutoStockStapleQuantityControlAuryleneCameraRemoveFilter": {
@@ -2100,9 +2100,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlCosmicGatePuzzleStockBillInsufficient",
             "AutoStockStapleQuantityControlCosmicGatePuzzleBuy",
-            "AutoStockStapleQuantityControlCosmicGatePuzzleExclude",
-            "AutoStockStapleQuantityControlCosmicGatePuzzleStockBillInsufficient"
+            "AutoStockStapleQuantityControlCosmicGatePuzzleExclude"
         ]
     },
     "AutoStockStapleQuantityControlCosmicGatePuzzleRemoveFilter": {
@@ -2245,9 +2245,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlSurfingFestivalTicketStockBillInsufficient",
             "AutoStockStapleQuantityControlSurfingFestivalTicketBuy",
-            "AutoStockStapleQuantityControlSurfingFestivalTicketExclude",
-            "AutoStockStapleQuantityControlSurfingFestivalTicketStockBillInsufficient"
+            "AutoStockStapleQuantityControlSurfingFestivalTicketExclude"
         ]
     },
     "AutoStockStapleQuantityControlSurfingFestivalTicketRemoveFilter": {
@@ -2390,9 +2390,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlWulingEngravingPermitStockBillInsufficient",
             "AutoStockStapleQuantityControlWulingEngravingPermitBuy",
-            "AutoStockStapleQuantityControlWulingEngravingPermitExclude",
-            "AutoStockStapleQuantityControlWulingEngravingPermitStockBillInsufficient"
+            "AutoStockStapleQuantityControlWulingEngravingPermitExclude"
         ]
     },
     "AutoStockStapleQuantityControlWulingEngravingPermitRemoveFilter": {
@@ -2535,9 +2535,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlFortifyingInfusionStockBillInsufficient",
             "AutoStockStapleQuantityControlFortifyingInfusionBuy",
-            "AutoStockStapleQuantityControlFortifyingInfusionExclude",
-            "AutoStockStapleQuantityControlFortifyingInfusionStockBillInsufficient"
+            "AutoStockStapleQuantityControlFortifyingInfusionExclude"
         ]
     },
     "AutoStockStapleQuantityControlFortifyingInfusionRemoveFilter": {
@@ -2680,9 +2680,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlGardenFriedRiceStockBillInsufficient",
             "AutoStockStapleQuantityControlGardenFriedRiceBuy",
-            "AutoStockStapleQuantityControlGardenFriedRiceExclude",
-            "AutoStockStapleQuantityControlGardenFriedRiceStockBillInsufficient"
+            "AutoStockStapleQuantityControlGardenFriedRiceExclude"
         ]
     },
     "AutoStockStapleQuantityControlGardenFriedRiceRemoveFilter": {
@@ -2825,9 +2825,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlMasterPansEggPuddingStockBillInsufficient",
             "AutoStockStapleQuantityControlMasterPansEggPuddingBuy",
-            "AutoStockStapleQuantityControlMasterPansEggPuddingExclude",
-            "AutoStockStapleQuantityControlMasterPansEggPuddingStockBillInsufficient"
+            "AutoStockStapleQuantityControlMasterPansEggPuddingExclude"
         ]
     },
     "AutoStockStapleQuantityControlMasterPansEggPuddingRemoveFilter": {
@@ -2970,9 +2970,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlEchoingRemedyStockBillInsufficient",
             "AutoStockStapleQuantityControlEchoingRemedyBuy",
-            "AutoStockStapleQuantityControlEchoingRemedyExclude",
-            "AutoStockStapleQuantityControlEchoingRemedyStockBillInsufficient"
+            "AutoStockStapleQuantityControlEchoingRemedyExclude"
         ]
     },
     "AutoStockStapleQuantityControlEchoingRemedyRemoveFilter": {
@@ -3115,9 +3115,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlWulingArtificingCatalystStockBillInsufficient",
             "AutoStockStapleQuantityControlWulingArtificingCatalystBuy",
-            "AutoStockStapleQuantityControlWulingArtificingCatalystExclude",
-            "AutoStockStapleQuantityControlWulingArtificingCatalystStockBillInsufficient"
+            "AutoStockStapleQuantityControlWulingArtificingCatalystExclude"
         ]
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalystRemoveFilter": {
@@ -3260,9 +3260,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlKeenWulingDetectorStockBillInsufficient",
             "AutoStockStapleQuantityControlKeenWulingDetectorBuy",
-            "AutoStockStapleQuantityControlKeenWulingDetectorExclude",
-            "AutoStockStapleQuantityControlKeenWulingDetectorStockBillInsufficient"
+            "AutoStockStapleQuantityControlKeenWulingDetectorExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingDetectorRemoveFilter": {
@@ -3405,9 +3405,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlKeenWulingCompassStockBillInsufficient",
             "AutoStockStapleQuantityControlKeenWulingCompassBuy",
-            "AutoStockStapleQuantityControlKeenWulingCompassExclude",
-            "AutoStockStapleQuantityControlKeenWulingCompassStockBillInsufficient"
+            "AutoStockStapleQuantityControlKeenWulingCompassExclude"
         ]
     },
     "AutoStockStapleQuantityControlKeenWulingCompassRemoveFilter": {
@@ -3550,9 +3550,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlEurekaTeaboxStockBillInsufficient",
             "AutoStockStapleQuantityControlEurekaTeaboxBuy",
-            "AutoStockStapleQuantityControlEurekaTeaboxExclude",
-            "AutoStockStapleQuantityControlEurekaTeaboxStockBillInsufficient"
+            "AutoStockStapleQuantityControlEurekaTeaboxExclude"
         ]
     },
     "AutoStockStapleQuantityControlEurekaTeaboxRemoveFilter": {
@@ -3695,9 +3695,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlYinglungDumbbellsStockBillInsufficient",
             "AutoStockStapleQuantityControlYinglungDumbbellsBuy",
-            "AutoStockStapleQuantityControlYinglungDumbbellsExclude",
-            "AutoStockStapleQuantityControlYinglungDumbbellsStockBillInsufficient"
+            "AutoStockStapleQuantityControlYinglungDumbbellsExclude"
         ]
     },
     "AutoStockStapleQuantityControlYinglungDumbbellsRemoveFilter": {
@@ -3840,9 +3840,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlWovenAggelosStockBillInsufficient",
             "AutoStockStapleQuantityControlWovenAggelosBuy",
-            "AutoStockStapleQuantityControlWovenAggelosExclude",
-            "AutoStockStapleQuantityControlWovenAggelosStockBillInsufficient"
+            "AutoStockStapleQuantityControlWovenAggelosExclude"
         ]
     },
     "AutoStockStapleQuantityControlWovenAggelosRemoveFilter": {
@@ -3985,9 +3985,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlScrimshawOfThePackStockBillInsufficient",
             "AutoStockStapleQuantityControlScrimshawOfThePackBuy",
-            "AutoStockStapleQuantityControlScrimshawOfThePackExclude",
-            "AutoStockStapleQuantityControlScrimshawOfThePackStockBillInsufficient"
+            "AutoStockStapleQuantityControlScrimshawOfThePackExclude"
         ]
     },
     "AutoStockStapleQuantityControlScrimshawOfThePackRemoveFilter": {
@@ -4130,9 +4130,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaStockBillInsufficient",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaBuy",
-            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude",
-            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaStockBillInsufficient"
+            "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaExclude"
         ]
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabiliaRemoveFilter": {
