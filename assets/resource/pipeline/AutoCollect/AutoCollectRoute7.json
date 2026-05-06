@@ -296,6 +296,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -316,6 +317,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -336,6 +338,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -360,6 +363,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -380,6 +384,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -400,6 +405,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -420,6 +426,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -440,6 +447,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -700,6 +708,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -720,7 +729,8 @@
     "AutoCollectRoute7GotoFindLine7": {
         "action": "Custom",
         "custom_action": "MapTrackerMove",
-        "custom_action_param": {
+        "custom_action_param": {           
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -819,6 +829,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -843,6 +854,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -867,6 +879,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -891,6 +904,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -915,6 +929,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -939,6 +954,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
