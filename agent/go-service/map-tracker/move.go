@@ -40,6 +40,8 @@ type MapTrackerMoveParam struct {
 	PathTrim bool `json:"path_trim,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
+	// NoEnsureInitialMovementState controls whether to skip ensuring the movement state when starting the initial movement.
+	NoEnsureInitialMovementState bool `json:"no_ensure_initial_movement_state,omitempty"`
 	// NoEnsureFinalOrientation controls whether to skip the final camera orientation adjustment when reaching the final target.
 	NoEnsureFinalOrientation bool `json:"no_ensure_final_orientation,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
@@ -140,8 +142,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
-	// Reset player movement state
-	ca.AggressivelyResetPlayerMovement()
+	if !param.NoEnsureInitialMovementState {
+		// Reset player movement state
+		ca.AggressivelyResetPlayerMovement()
+	}
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := mt.ROTATION_DEFAULT_SPEED
