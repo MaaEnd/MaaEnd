@@ -585,7 +585,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                //"AutoCollectRoute7MoveLongPressA",
+                "AutoCollectRoute7MoveLongPressA",
                 "AutoCollectRoute7GotoFindLine5"
             ],
             "continue": true,
@@ -628,7 +628,7 @@
             ]
         },
         "next": [
-            "AutoCollectRoute7GotoFindLine7"
+            "AutoCollectRoute7GotoFindLine7Sub"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "滑索后定位"
