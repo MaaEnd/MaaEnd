@@ -62,7 +62,7 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
             "WLQingboStockadeLocationAssertion",
-            "WLSerenityGardenLocationAssertion",
+            "WLMarkerStoneLocationAssertion",
             // 如果上述所有地区都没有命中，则无事发生
             "AutoEssenceLocationSetupFailed"
         ],
@@ -89,7 +89,7 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
             "WLQingboStockadeLocationAssertion",
-            "WLSerenityGardenLocationAssertion",
+            "WLMarkerStoneLocationAssertion",
             // 如果上述所有地区都没有命中，则自动导航到指定的某个淤积点
             "AutoEssenceSpecifiedLocation"
         ],
@@ -711,9 +711,9 @@
             "param": {
                 "roi": [
                     400,
-                    220,
+                    210,
                     200,
-                    180
+                    210
                 ],
                 "template": "AutoEssence/SpDialog.png"
             }
@@ -726,9 +726,9 @@
             "param": {
                 "roi": [
                     1030,
-                    150,
-                    140,
-                    140
+                    90,
+                    245,
+                    200
                 ],
                 "template": "AutoEssence/SpDialogCloseButton.png"
             }

@@ -1,15 +1,15 @@
 {
-    "WLSerenityGardenMoveToTriggerPointAuto": {
+    "WLMarkerStoneMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLSerenityGardenMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLSerenityGardenWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
         },
         "next": [
-            "[JumpBack]WLSerenityGardenMaybeTeleport",
-            "WLSerenityGardenMoveToTriggerPoint"
+            "[JumpBack]WLMarkerStoneMaybeTeleport",
+            "WLMarkerStoneMoveToTriggerPoint"
         ]
     },
-    "WLSerenityGardenLocationAssertion": {
+    "WLMarkerStoneLocationAssertion": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -31,14 +31,14 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLSerenityGardenMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLSerenityGardenWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
         },
         "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>安思园</strong></p>"
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>首敦</strong></p>"
         }
     },
-    "WLSerenityGardenMaybeTeleport": {
+    "WLMarkerStoneMaybeTeleport": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -77,7 +77,7 @@
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "WLSerenityGardenMoveToTriggerPoint": {
+    "WLMarkerStoneMoveToTriggerPoint": {
         "action": {
             "type": "Custom",
             "param": {
@@ -115,13 +115,13 @@
             }
         },
         "next": [
-            "WLSerenityGardenMoveToTriggerPointExact"
+            "WLMarkerStoneMoveToTriggerPointExact"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "WLSerenityGardenMoveToTriggerPointExact": {
+    "WLMarkerStoneMoveToTriggerPointExact": {
         "action": {
             "type": "Custom",
             "param": {
@@ -148,7 +148,7 @@
             "Node.Action.Starting": "🚶正在前往激发点"
         }
     },
-    "WLSerenityGardenWalkAround1": {
+    "WLMarkerStoneWalkAround1": {
         "action": {
             "type": "Custom",
             "param": {
@@ -173,13 +173,13 @@
         },
         "next": [
             "AutoEssenceCheckOngoing",
-            "WLSerenityGardenWalkAround2"
+            "WLMarkerStoneWalkAround2"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
         }
     },
-    "WLSerenityGardenWalkAround2": {
+    "WLMarkerStoneWalkAround2": {
         "action": {
             "type": "Custom",
             "param": {
@@ -204,7 +204,7 @@
         },
         "next": [
             "AutoEssenceCheckOngoing",
-            "WLSerenityGardenWalkAround1"
+            "WLMarkerStoneWalkAround1"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在散步中"
