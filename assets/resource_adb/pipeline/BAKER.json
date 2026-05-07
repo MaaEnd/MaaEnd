@@ -151,38 +151,6 @@
             "BakerCheckChatPage"
         ]
     },
-    // "BakerTalkWithHint": {
-    //     "desc": "事务通讯的小红点",
-    //     "recognition": "TemplateMatch",
-    //     "roi": [
-    //         90,
-    //         61,
-    //         386,
-    //         587
-    //     ],
-    //     "template": [
-    //         "Baker/hint.png"
-    //     ],
-    //     "action": {
-    //         "type": "Click",
-    //         "param": {
-    //             "target_offset": [
-    //                 // 事务通讯的小红点，进行一点偏移就可以点到任务了
-    //                 -10,
-    //                 10,
-    //                 0,
-    //                 0
-    //             ]
-    //         }
-    //     },
-    //     "next": [
-    //         "BakerTalkOver",
-    //         "BakerTalkOver2",
-    //         "BakerTalkOver3",
-    //         "BakerCheckChatPage",
-    //         "BakerTalkWithHint"
-    //     ]
-    // },
     "BakerTalkWithHint": {
         "desc": "事务通讯的小竖条, 从匹配红点变成匹配小竖条",
         "recognition": "ColorMatch",
