@@ -78,7 +78,7 @@
             "SceneNoticeRewardsConfirm"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "领取引入活动奖励"
+            "Node.Recognition.Succeeded": "领取限时活动奖励"
         }
     },
     "DailyEventUnreadLimitedTimeEventFinish": {
