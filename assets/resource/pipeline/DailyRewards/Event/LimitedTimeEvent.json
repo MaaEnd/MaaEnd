@@ -54,7 +54,7 @@
             "DailyEventUnreadLimitedTimeEventFinish"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "进入引入活动"
+            "Node.Recognition.Succeeded": "进入限时活动"
         }
     },
     "DailyEventUnreadLimitedTimeEventClaim": {
