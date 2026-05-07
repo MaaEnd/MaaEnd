@@ -280,11 +280,12 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{SelectedOperatorCurrentLevel}>=80"
+                    "expression": "{SelectedOperatorCurrentLevel}>=10"
                 }
             }
         },
         "next": [
+            "[JumpBack]LevelUpOperatorSearchSwipeRight",
             "LevelUpOperatorSearchFinished",
             "LevelUpOperatorSwitchToNextOperator"
         ],
@@ -408,6 +409,40 @@
             "LevelUpOperatorSwitchToNextOperator"
         ]
     },
+    "LevelUpOperatorSearchSwipeRight": {
+        "desc": "向右滑",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    273,
+                    0,
+                    650,
+                    100
+                ],
+                "template": [
+                    "LevelUpOperator/OperatorSelected.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    940,
+                    30
+                ],
+                "end": [
+                    310,
+                    30
+                ],
+                "end_hold": 300
+            }
+        }
+    },
     "LevelUpOperatorSearchFinished": {
         "desc": "搜索完成",
         "recognition": {
@@ -437,17 +472,53 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InOperator"
-                ]
+                    "InOperator",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    273,
+                                    0,
+                                    650,
+                                    100
+                                ],
+                                "template": [
+                                    "LevelUpOperator/OperatorSelected.png"
+                                ],
+                                "green_mask": true,
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
             }
         },
         "action": {
-            "type": "ClickKey",
+            "type": "Click",
             "param": {
-                "key": [
-                    69
+                "target_offset": [
+                    100,
+                    20,
+                    -32,
+                    -32
                 ]
             }
+        },
+        "next": [
+            "LevelUpOperatorClearSwipeRightHitCount"
+        ]
+    },
+    "LevelUpOperatorClearSwipeRightHitCount": {
+        "desc": "清除右滑计数",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "LevelUpOperatorSearchSwipeRight"
+            ]
         },
         "next": [
             "LevelUpOperatorSearchAvailableOperator"
