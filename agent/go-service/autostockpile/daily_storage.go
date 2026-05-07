@@ -12,7 +12,7 @@ import (
 
 const (
 	dailyStorageFileName     = "daily_storage.json"
-	maxDailyStorageDateCount = 60
+	maxDailyStorageDateCount = 120
 	maaEndDataDirEnvVar      = "MAAEND_DATA_DIR"
 )
 

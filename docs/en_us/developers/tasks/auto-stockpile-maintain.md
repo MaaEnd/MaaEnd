@@ -132,7 +132,7 @@ Maintenance constraints:
 
 - `weekday` uses the server day, mapped from Monday `1` through Sunday `7`; the server day still uses the existing `04:00` boundary.
 - The same `server_date + region` overwrites the previous record; different regions on the same server date are kept as separate records.
-- At most 60 distinct `server_date` values are retained; all region records under retained dates are preserved.
+- At most 120 distinct `server_date` values are retained; all region records under retained dates are preserved.
 - Records contain only `server_date`, `weekday`, `utc_time`, `region`, and `goods`. Do not add `quota` or other extra user data, and do not restore the old `captured_at_utc` field.
 - Writes use a same-directory temporary file followed by rename for atomic replacement. Write failures are warning-only and AutoStockpile continues running.
 
