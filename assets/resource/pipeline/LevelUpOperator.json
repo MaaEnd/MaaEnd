@@ -280,7 +280,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{SelectedOperatorCurrentLevel}>=10"
+                    "expression": "{SelectedOperatorCurrentLevel}>=80"
                 }
             }
         },
