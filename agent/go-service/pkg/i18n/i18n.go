@@ -34,8 +34,6 @@ var htmlTemplates = map[string]string{
 	"maptracker.emergency_stop":         "HTML/emergency-stop.html",
 	"maptracker.navigation_moving":      "HTML/navigation-moving.html",
 	"maptracker.navigation_finished":    "HTML/navigation-finished.html",
-	"maptracker.inference_finished":     "HTML/inference-finished.html",
-	"maptracker.inference_failed":       "HTML/inference-failed.html",
 	"essencefilter.loot_summary":        "HTML/essencefilter-loot-summary.html",
 	"essencefilter.init_weapons":        "HTML/essencefilter-init-weapons.html",
 	"essencefilter.init_skills":         "HTML/essencefilter-init-skills.html",

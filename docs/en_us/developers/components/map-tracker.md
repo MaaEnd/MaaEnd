@@ -214,8 +214,6 @@ Optional parameters:
     - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).
     - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Fourth Valley).
 
-- `print`: Boolean value, default `false`. Whether to enable UI message printing of recognition results.
-
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 

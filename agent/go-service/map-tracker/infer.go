@@ -13,8 +13,6 @@ import (
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -38,8 +36,6 @@ type MapTrackerInferResult struct {
 type MapTrackerInferParam struct {
 	// MapNameRegex is a regex pattern to filter which maps to consider during inference.
 	MapNameRegex string `json:"map_name_regex,omitempty"`
-	// Print controls whether to print inference results to the GUI.
-	Print bool `json:"print,omitempty"`
 	// Precision controls the inference precision/speed tradeoff.
 	Precision float64 `json:"precision,omitempty"`
 	// Threshold controls the minimum confidence required to consider the inference successful.
@@ -270,9 +266,6 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	if !finalHit {
 		log.Info().Bool("finalLocHit", finalLoc != nil).Bool("finalRotHit", finalRot != nil).Msg("Map tracking inference did not hit")
-		if param.Print {
-			maafocus.PrintLargeContentTrimNewline(i18n.RenderHTML("maptracker.inference_failed", nil))
-		}
 
 		// Return as not hit
 		return &maa.CustomRecognitionResult{
@@ -310,16 +303,6 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("LocConf", result.LocConf).
 		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
-	if param.Print {
-		maafocus.PrintLargeContentTrimNewline(
-			i18n.RenderHTML("maptracker.inference_finished", map[string]any{
-				"X":       finalLoc.x,
-				"Y":       finalLoc.y,
-				"Rot":     result.Rot,
-				"MapName": finalLoc.mapName,
-			}),
-		)
-	}
 
 	// Return as hit
 	return &maa.CustomRecognitionResult{
