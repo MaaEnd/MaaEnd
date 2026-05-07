@@ -170,11 +170,7 @@
                 "expected": [
                     "存至共享蓝图",
                     "存至共享藍圖",
-                    "(?i)Save\\s*to\\s*Shared\\s*Blueprints",
-                    "保存",
-                    "儲存",
-                    "(?i)Save",
-                    "Save to Shared"
+                    "(?i)Save\\s*to\\s*Shared\\s*Blueprints"
                 ]
             }
         },
