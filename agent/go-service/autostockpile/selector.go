@@ -101,7 +101,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
-	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, *data); err != nil {
+	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, getCapturedUid(), *data); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", "autostockpile").

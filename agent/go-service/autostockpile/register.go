@@ -14,6 +14,7 @@ func Register() {
 			Msg("failed to init item map during registration, OCR name matching may be disabled")
 	}
 
+	maa.AgentServerRegisterCustomAction("AutoStockpile.CaptureUid", &CaptureUidAction{})
 	maa.AgentServerRegisterCustomAction(autoStockpileSelectItemActionName, &SelectItemAction{})
 	maa.AgentServerRegisterCustomAction(autoStockpileReconcileDecisionActionName, &ReconcileDecisionAction{})
 	maa.AgentServerRegisterCustomRecognition(autoStockpileRecognitionName, &ItemValueChangeRecognition{})
