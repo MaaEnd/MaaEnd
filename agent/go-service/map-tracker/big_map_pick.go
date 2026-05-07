@@ -103,6 +103,13 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	log.Info().Float64("panFactor", panFactor).Msg("Calculated big-map pan factor")
 
 	for attempt := 1; attempt <= mt.BIG_MAP_PICK_RETRY; attempt++ {
+		// Check stopping signal
+		if ctx.GetTasker().Stopping() {
+			log.Warn().Msg("Task is stopping, exiting picking loop")
+			return false
+		}
+
+		// Infer current big-map viewport
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
 		if err != nil {
 			log.Error().Err(err).Str("map", param.MapName).Int("attempt", attempt).Msg("Currently not in that map")
@@ -110,6 +117,8 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 
 		targetInViewX, targetInViewY := inferRes.ViewPort.GetScreenCoordOf(param.Target[0], param.Target[1])
+
+		// If the target is already in view
 		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
 			switch param.OnFind {
 			case ON_FIND_CLICK:
@@ -133,6 +142,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			return true
 		}
 
+		// Target is not in view, need to pan
 		centerX := (inferRes.ViewPort.Left + inferRes.ViewPort.Right) * 0.5
 		centerY := (inferRes.ViewPort.Top + inferRes.ViewPort.Bottom) * 0.5
 		deltaInViewX := targetInViewX - centerX
