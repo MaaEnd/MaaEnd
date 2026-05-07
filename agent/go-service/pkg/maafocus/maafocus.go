@@ -59,8 +59,6 @@ func PrintLargeContent(content string) {
 //
 // This function is useful when printing HTML content.
 func PrintLargeContentTrimNewline(content string) {
-	content = strings.ReplaceAll(content, "\r", " ")
-	content = strings.ReplaceAll(content, "\n", " ")
 	content = strings.Join(strings.Fields(content), " ")
 	fmt.Println(content)
 }
