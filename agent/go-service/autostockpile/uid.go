@@ -22,6 +22,20 @@ var (
 type CaptureUidAction struct{}
 
 func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if arg == nil {
+		log.Error().
+			Str("component", autoStockpileComponent).
+			Msg("custom action arg is nil")
+		return false
+	}
+
+	if arg.RecognitionDetail == nil {
+		log.Error().
+			Str("component", autoStockpileComponent).
+			Msg("recognition detail is nil")
+		return false
+	}
+
 	uid := extractAndHashUid(arg.RecognitionDetail)
 
 	capturedUidMu.Lock()
@@ -70,7 +84,6 @@ func extractAndHashUid(detail *maa.RecognitionDetail) string {
 
 	log.Debug().
 		Str("component", autoStockpileComponent).
-		Str("numeric_part", numericPart).
 		Str("uid", uid).
 		Msg("uid extracted and hashed")
 
