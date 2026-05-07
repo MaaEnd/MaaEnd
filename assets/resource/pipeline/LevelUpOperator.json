@@ -4,39 +4,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "LevelUpOperatorEnterMenu",
-            "[JumpBack]SceneAnyEnterWorld"
+            "LevelUpOperatorOpenOperatorList",
+            "[JumpBack]SceneEnterMenuOperator"
         ]
-    },
-    "LevelUpOperatorEnterMenu": {
-        "desc": "进入干员升级界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    970,
-                    15,
-                    240,
-                    50
-                ],
-                "template": [
-                    "SceneManager/WorldOperatorMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        "next": [
-            "LevelUpOperatorOpenOperatorList"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "正在进入干员界面"
-        }
     },
     "LevelUpOperatorOpenOperatorList": {
         "desc": "打开干员列表",
