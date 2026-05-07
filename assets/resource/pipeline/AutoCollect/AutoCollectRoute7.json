@@ -491,13 +491,14 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "AutoCollectRoute7GotoFindLine4"
+                "AutoCollectRoute7GotoFindLine4",
+                "AutoCollectRoute7FindButtonUsing"
             ],
             "continue": true,
             "strict": false
         },
         "next": [
-            "AutoCollectRoute7FindButtonUsing"
+            "AutoCollectRoute7GotoFindLine5Sub"
         ]
     },
     "AutoCollectRoute7GotoFindLine4": {
@@ -550,16 +551,10 @@
             ]
         }
     },
-    "AutoCollectRoute7Wait": {
-        "pre_wait_freezes": 300,
-        "max_hit": 3,
-        "next": [
-            "AutoCollectRoute7FindButtonUsing"
-        ]
-    },
     "AutoCollectRoute7FindButtonUsing": {
         "desc": "点击使用按钮",
         "pre_wait_freezes": 300,
+        "timeout": 3000,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -581,9 +576,6 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "next": [
-            "AutoCollectRoute7GotoFindLine5Sub"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "使用升降索"
         }
@@ -593,6 +585,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
+                //"AutoCollectRoute7MoveLongPressA",
                 "AutoCollectRoute7GotoFindLine5"
             ],
             "continue": true,
@@ -641,6 +634,30 @@
             "Node.Recognition.Succeeded": "滑索后定位"
         }
     },
+    "AutoCollectRoute7Wait": {
+        "pre_wait_freezes": 300,
+        "max_hit": 3,
+        "next": [
+            "AutoCollectRoute7ErrorGoto"
+        ]
+    },
+    "AutoCollectRoute7ErrorGoto": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7FindButtonUsing",
+                "AutoCollectRoute7MoveLongPressA",
+                "AutoCollectRoute7GotoFindLine5"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5",
+            "AutoCollectRoute7AssertLocation6"
+        ]
+    },
     "AutoCollectRoute7AssertLocation6": {
         "desc": "滑索前定位开始纠错",
         "recognition": "Custom",
@@ -683,10 +700,39 @@
             "AutoCollectError"
         ]
     },
+    "AutoCollectRoute7MoveLongPressA": {
+        "desc": "盲走按A",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 1000,
+                "key": 65
+            }
+        },
+        "next": [
+            "AutoCollectRoute7MoveLongPressW"
+        ]
+    },
+    "AutoCollectRoute7MoveLongPressW": {
+        "desc": "盲走按A",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 1000,
+                "key": 87
+            }
+        }
+    },
+    "AutoCollectRoute7MoveWait": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectRoute7ErrorLine": {
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
+            "no_ensure_final_orientation":true,
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -708,7 +754,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "fine_approach": "AllTargets",
+            "path_trim": true,
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -729,8 +775,7 @@
     "AutoCollectRoute7GotoFindLine7": {
         "action": "Custom",
         "custom_action": "MapTrackerMove",
-        "custom_action_param": {           
-            "fine_approach": "AllTargets",
+        "custom_action_param": {
             "map_name": "map02_lv002",
             "path": [
                 [
