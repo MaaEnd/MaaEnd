@@ -486,8 +486,8 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
 
         ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, completed_reason);
         ctx.session->AdvanceToNextWaypoint(waypoint.action, completed_reason);
-        ctx.session->ResetProgress();
-        ctx.runtime_state->route.ResetTracking();
+        ctx.runtime_state->OnWaypointAdvance();
+        ctx.runtime_state->route.Reset();
 
         if (!ctx.session->HasCurrentWaypoint()) {
             ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
