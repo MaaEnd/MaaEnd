@@ -62,7 +62,7 @@
     {
         "Name": "漱玉",
         "EnterMap": "SceneEnterWorldWulingJingyuValley4",
-        "MapName": "map02_lv001_tier_277",
+        "MapName": "map02_lv001",
         "MapTarget": [255, 395, 15, 15],
         "MapPath": [[246, 394]],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"

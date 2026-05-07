@@ -40,7 +40,7 @@
                     "map02_lv002",
                     "map02_lv003",
                     "map02_lv004",
-                    "map02_lv001_tier_277",
+                    "map02_lv001",
                     "map02_lv004_tier_328",
                     "^map\\d+_lv\\d+$"
                 ]

@@ -465,7 +465,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerBigMapPick",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "map02_lv001",
             "target": [
                 265.9,
                 401.9

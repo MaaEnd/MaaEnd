@@ -211,7 +211,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "map02_lv001",
                     "target": [
                         255,
                         395,
@@ -246,7 +246,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "map02_lv001",
                     "target": [
                         255,
                         395,
@@ -280,7 +280,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001_tier_277",
+                    "map_name": "map02_lv001",
                     "target": [
                         255,
                         395,
@@ -299,7 +299,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001_tier_277",
+            "map_name": "map02_lv001",
             "path": [
                 [
                     246,
