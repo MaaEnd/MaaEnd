@@ -48,6 +48,8 @@ Optional parameters:
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 
+- `no_ensure_initial_movement_state`: Boolean value, default `false`. Whether to skip the sprint-preparation step before starting the initial movement. When enabled, pathfinding starts immediately without actively resetting to a stable initial movement state.
+
 - `no_ensure_final_orientation`: Boolean value, default `false`. Whether to disable adjusting the player's orientation upon reaching the final target point to ensure the camera faces the last direction of the path.
 
 - `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
