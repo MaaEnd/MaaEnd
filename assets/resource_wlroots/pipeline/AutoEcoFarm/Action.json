@@ -64,7 +64,7 @@
             "_AutoEcoFarmJumpBack"
         ],
         "focus": {
-            "Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"
+            "Node.Recognition.Failed": "识别不到标记，拉低视角尝试解决问题"
         }
     },
     "_AutoEcoFarmTurnAround1": {
