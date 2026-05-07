@@ -97,12 +97,12 @@
                     }
                 },
                 {
-                    "name": "WLSerenityGarden",
-                    "label": "$global.region.SerenityGarden",
+                    "name": "WLMarkerStone",
+                    "label": "$global.region.MarkerStone",
                     "pipeline_override": {
                         "AutoEssenceSpecifiedLocation": {
                             "next": [
-                                "WLSerenityGardenMoveToTriggerPointAuto"
+                                "WLMarkerStoneMoveToTriggerPointAuto"
                             ]
                         }
                     }
