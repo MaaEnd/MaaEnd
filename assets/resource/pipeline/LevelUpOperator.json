@@ -424,7 +424,9 @@
                     90,
                     70
                 ],
-                "template": ["LevelUpOperator/OperatorSelected.png"],
+                "template": [
+                    "LevelUpOperator/OperatorSelected.png"
+                ],
                 "green_mask": true,
                 "threshold": 0.9
             }

@@ -24,7 +24,9 @@
     "AutoEssenceBackToWorld": {
         "desc": "开始任务前万能跳转回大世界",
         "max_hit": 1,
-        "next": ["SceneAnyEnterWorld"]
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
     },
     "AutoEssenceTryRechallengeFromBattleResult": {
         "desc": "再来一次",
@@ -405,7 +407,9 @@
                     134,
                     94
                 ],
-                "expected": ["领取奖励"]
+                "expected": [
+                    "领取奖励"
+                ]
             }
         }
     },
