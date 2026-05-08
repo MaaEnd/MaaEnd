@@ -12,7 +12,7 @@ import (
 
 const (
 	dailyStorageFileName     = "daily_storage.json"
-	maxDailyStorageDateCount = 60
+	maxDailyStorageDateCount = 120
 	maaEndDataDirEnvVar      = "MAAEND_DATA_DIR"
 )
 
@@ -28,6 +28,7 @@ type dailyStorageRecord struct {
 	Weekday    int         `json:"weekday"`
 	UTCTime    string      `json:"utc_time"`
 	Region     string      `json:"region"`
+	UID        string      `json:"uid"`
 	Goods      []GoodsItem `json:"goods"`
 }
 
@@ -43,9 +44,13 @@ func maaWeekday(weekday time.Weekday) int {
 	return int(weekday)
 }
 
-func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, region string, data RecognitionData) error {
+func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, region string, uid string, data RecognitionData) error {
 	if !enabled {
 		return nil
+	}
+
+	if uid == "" {
+		uid = "unknown"
 	}
 
 	serverDate, weekday := serverDateInfo(now, loc)
@@ -54,6 +59,7 @@ func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, regi
 		Weekday:    weekday,
 		UTCTime:    now.UTC().Format(time.RFC3339),
 		Region:     region,
+		UID:        uid,
 		Goods:      cloneGoodsItems(data.Goods),
 	}
 
@@ -116,7 +122,7 @@ func upsertDailyStorageRecord(path string, record dailyStorageRecord) error {
 
 	replaced := false
 	for i := range storage.Records {
-		if storage.Records[i].ServerDate == record.ServerDate && storage.Records[i].Region == record.Region {
+		if storage.Records[i].ServerDate == record.ServerDate && storage.Records[i].Region == record.Region && storage.Records[i].UID == record.UID {
 			storage.Records[i] = record
 			replaced = true
 			break
@@ -127,7 +133,7 @@ func upsertDailyStorageRecord(path string, record dailyStorageRecord) error {
 	}
 
 	storage.Records = retainRecentDailyStorageDates(storage.Records, maxDailyStorageDateCount)
-	storage.SchemaVersion = 1
+	storage.SchemaVersion = 2
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return fmt.Errorf("create daily storage dir: %w", err)
 	}
@@ -197,6 +203,16 @@ func readDailyStorageFile(path string) (dailyStorageFile, error) {
 	if err := json.Unmarshal(content, &storage); err != nil {
 		return dailyStorageFile{}, fmt.Errorf("parse daily storage: %w", err)
 	}
+
+	// Migrate old records: if schema_version < 2, normalize empty UID to "unknown".
+	if storage.SchemaVersion < 2 {
+		for i := range storage.Records {
+			if storage.Records[i].UID == "" {
+				storage.Records[i].UID = "unknown"
+			}
+		}
+	}
+
 	return storage, nil
 }
 

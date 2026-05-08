@@ -139,8 +139,7 @@
             [653.1, 931.8],
             [666.8, 907.8],
             [664.6, 897.7],
-            [659.9, 896.1],
-            [651.9, 894.2],
+            [661.4, 892.6],
             [627.7, 898.2],
             [617.8, 901.6]
         ],
@@ -419,9 +418,11 @@
         "EnterMap": "SceneEnterWorldWulingMarkerStone4",
         "MapName": "map02_lv004_tier_328",
         "MapTarget": [514, 666, 15, 15],
-        "MapPath": [[520.3, 672.8]],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
-        "CameraMaxHit": 1,
+        "MapPath": [
+            [520.3, 672.8],
+            [524.7, 665.8]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 90
     },
     {
@@ -445,7 +446,8 @@
             [358.8, 239.7],
             [343.8, 239.7]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true
     },
     {
         "Name": "安思园的天师桩",
@@ -462,6 +464,7 @@
             [324.9, 404.7],
             [295.1, 404.7]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true
     }
 ]

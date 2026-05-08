@@ -92,6 +92,10 @@
                 "type": "string",
                 "pattern": "^[A-Za-z][A-Za-z0-9]*$",
                 "description": "可选；默认从 kite_station.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
+            },
+            "NoEnsureInitialMovementState": {
+                "type": "boolean",
+                "description": "可选，默认 false。对应 MapTrackerMove 的 no_ensure_initial_movement_state 参数。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，用于跳过开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。"
             }
         }
     }

@@ -1,0 +1,89 @@
+{
+    "DailyEventUnreadLimitedTimeEvent": {
+        "desc": "处理限时活动",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "color",
+                "recognition": "ColorMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "connected": true,
+                "count": 200
+            },
+            {
+                "recognition": "OCR",
+                "roi": "color",
+                "expected": [
+                    "限时活动",
+                    "限時活動",
+                    "Limited-Time Event",
+                    "期間限定",
+                    "기간 한정 이벤트"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadLimitedTimeEventClaim",
+            "DailyEventUnreadLimitedTimeEventFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入限时活动"
+        }
+    },
+    "DailyEventUnreadLimitedTimeEventClaim": {
+        "desc": "领取奖励",
+        "recognition": "OCR",
+        "roi": [
+            -160,
+            -440,
+            160,
+            440
+        ],
+        "expected": [
+            "领取",
+            "領取",
+            "(?i)Claim",
+            "受取",
+            "획득"
+        ],
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "领取限时活动奖励"
+        }
+    },
+    "DailyEventUnreadLimitedTimeEventFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

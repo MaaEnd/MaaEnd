@@ -708,5 +708,17 @@
     "resource/image/SceneManager/WorldMenuOperationalManual1": "9ed18c8e09a758839fcc779ccece74f4b7e7f8d62c0b2b0f8dde03daba06fc5e",
     "resource/image/SceneManager/WorldSpaceExit": "4c4bb533f29382bc591b20a90ad41bae4679b385998734e0f3c2b9d18f4b815d",
     "resource/image/SceneManager/WorldSpaceExit1": "be3f071c1aab409f0c516fec64aad757ef201145af746aa387bede79fdc554fd",
-    "resource/image/GiftOperator/TrustIcon": "fd765567f638c748541d0d1943bdf8a446b27e333d79e5197a299ea405068f09"
+    "resource/image/GiftOperator/TrustIcon": "fd765567f638c748541d0d1943bdf8a446b27e333d79e5197a299ea405068f09",
+    "resource/image/SceneManager/MenuInOperator": "cd82a7921ece2b68e2a1d37fbe4607111fe10bb3c99f7e6fde9b0f16727c3587",
+    "resource/image/SceneManager/WorldOperatorMenu": "69f517402ff4d7ec401adcf08ef84e1250dd6295c015a3edd5bffa2c482c69e1",
+    "resource/image/LevelUpOperator/Filter": "c0b3fd211c8066607355569689150237ab3009cf87a854d10e650e0a947214dc",
+    "resource/image/LevelUpOperator/FilterAsce": "6df75f1dc697887e0e607e9bfeb22957a33993e68bc9c55beb4d49802eba1c66",
+    "resource/image/LevelUpOperator/FilterHover": "ca94eefb0cfce4e9662fb93150a8b1b02c6306f6a72718bba80d26697ef1664a",
+    "resource/image/LevelUpOperator/ExitButton": "6e64ace337337feb492b2250c06b341cffcfc052344e3dd2bbae6be44a4c73e8",
+    "resource/image/LevelUpOperator/OperatorSelected": "9009f703d00f18d6aea7bc73cddba8f0e0a2a507bcc5418e290ed7093691cf98",
+    "resource/image/LevelUpOperator/FilterAsceHover": "5109e9771484de71de929017b68443cc787b88af18191b1c3d291730fc3260fd",
+    "resource/image/LevelUpOperator/FilterDescHover": "8a5a950cafd5d17d089a69abf1a1ee90857e80873522904bddfe9d7380905a67",
+    "resource/image/LevelUpOperator/FilterDesc": "d6f041670d2c656f402bd287ce57889c5a087295326e17235c8359556344044d",
+    "resource/image/LevelUpOperator/TeamMemberIcon": "643015fe7ec8017fc24e2b3d52f03e4e510d6a925856b0fbb61f1d1bc96594a3",
+    "resource/image/LevelUpOperator/AddLevelUpMaterialButton": "cc7e08ec63bc5c006b3bb123db7b4b24408e38cabcc2928cecf4ad141cbce3b4"
 }

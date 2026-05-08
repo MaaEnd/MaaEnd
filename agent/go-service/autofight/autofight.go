@@ -307,7 +307,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			len(comboFull) == 0 {
 			log.Info().Str("component", "AutoFight").Msg("exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-			saveExitImage(img, "character_level")
+			// saveExitImage(img, "character_level")
 			result = true
 			break
 		}
@@ -317,7 +317,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			if getCharactorLevelShow(ctx, img) {
 				log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-				saveExitImage(img, "character_level_show")
+				// saveExitImage(img, "character_level_show")
 				result = true
 				break
 			}

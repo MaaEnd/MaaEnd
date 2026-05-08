@@ -32,11 +32,14 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 }
 
 type characterControllerRelativeMoveParam struct {
-	Dx int `json:"dx"`
-	Dy int `json:"dy"`
+	Dx    int   `json:"dx"`
+	Dy    int   `json:"dy"`
+	Begin []int `json:"begin"`
 }
 
-// dx/dy are compensated by control.WlrootsRelativeMoveScale
+// on wlroots, dx/dy are compensated by control.WlrootsRelativeMoveScale.
+// When "begin" is specified, dx/dy are computed from begin to arg.Box
+// (resolved from pipeline "target") instead of the explicit dx/dy fields.
 type CharacterControllerRelativeMoveAction struct{}
 
 func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -50,8 +53,27 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 		return false
 	}
 
-	scaledDX := int32(math.Round(float64(params.Dx) * control.WlrootsRelativeMoveScale))
-	scaledDY := int32(math.Round(float64(params.Dy) * control.WlrootsRelativeMoveScale))
+	dx := params.Dx
+	dy := params.Dy
+
+	if len(params.Begin) >= 2 {
+		if arg.RecognitionDetail == nil || !arg.RecognitionDetail.Hit {
+			log.Debug().
+				Str("component", "CharacterController").
+				Str("action", "CharacterControllerRelativeMove").
+				Msg("target recognition not hit, skipping relative move")
+			return true
+		}
+		dx = arg.Box.X() - params.Begin[0]
+		dy = arg.Box.Y() - params.Begin[1]
+	}
+
+	scaledDX := int32(dx)
+	scaledDY := int32(dy)
+	if control.CachedControlType == control.CONTROL_TYPE_WLROOTS {
+		scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
+		scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))
+	}
 	ctx.GetTasker().GetController().PostRelativeMove(scaledDX, scaledDY).Wait()
 	return true
 }

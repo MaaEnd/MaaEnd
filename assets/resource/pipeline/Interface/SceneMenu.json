@@ -9,6 +9,16 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMenuOperator": {
+        "desc": "从任意界面进入干员菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperator",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterMenuRegionalDevelopment": {
         "desc": "从任意界面进入地区建设菜单",
         "pre_delay": 0,

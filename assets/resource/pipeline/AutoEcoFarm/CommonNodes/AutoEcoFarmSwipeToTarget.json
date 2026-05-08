@@ -154,10 +154,12 @@
         "desc": "判断是否在大世界",
         "recognition": {
             "type": "Or",
-            "param": {"any_of": [
+            "param": {
+                "any_of": [
                     "_AutoEcoFarmInWorldFactory",
                     "_AutoEcoFarmInWorldExplore"
-                ]}
+                ]
+            }
         },
         "next": [
             "_AutoEcoFarmJumpBack"

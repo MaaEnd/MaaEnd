@@ -108,13 +108,14 @@ JSON schema 固定为：
 
 ```json
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "records": [
         {
             "server_date": "2026-05-04",
             "weekday": 1,
             "utc_time": "2026-05-04T12:00:00Z",
             "region": "Wuling",
+            "uid": "abc123def4567890",
             "goods": [
                 {
                     "id": "Wuling/WulingFrozenPears.Tier1",
@@ -131,9 +132,9 @@ JSON schema 固定为：
 维护约束：
 
 - `weekday` 使用服务器日，映射为周一 `1` 到周日 `7`；服务器日仍按现有 `04:00` 边界计算。
-- 同一个 `server_date + region` 会覆盖旧记录；同一服务器日的不同 `region` 会作为独立记录保留。
-- 最多保留 60 个不同的 `server_date`；被保留日期下的所有地区记录都会保留。
-- 记录只包含 `server_date`、`weekday`、`utc_time`、`region` 和 `goods`，不得加入 `quota` 或其他额外用户数据，也不得恢复旧字段 `captured_at_utc`。
+- 同一个 `server_date + region + uid` 会覆盖旧记录；同一服务器日同一地区的不同 `uid` 会作为独立记录保留。
+- 最多保留 120 个不同的 `server_date`；被保留日期下的所有地区记录都会保留。
+- 记录只包含 `server_date`、`weekday`、`utc_time`、`region`、`uid` 和 `goods`，不得加入 `quota` 或其他额外用户数据，也不得恢复旧字段 `captured_at_utc`。
 - 写入使用同目录临时文件和 rename 的原子写流程；写入失败只记录 warning 并继续 AutoStockpile，不会中止任务。
 
 ## 阈值解析机制

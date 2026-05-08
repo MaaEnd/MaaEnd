@@ -1,5 +1,5 @@
 {
-    "template": "template.jsonc",
+    "template": "template.json",
     "data": "data.mjs",
     "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
     "outputPattern": "${Station}/${Id}.json",

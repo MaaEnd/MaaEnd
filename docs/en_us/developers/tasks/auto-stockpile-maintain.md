@@ -108,13 +108,14 @@ The JSON schema is fixed as:
 
 ```json
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "records": [
         {
             "server_date": "2026-05-04",
             "weekday": 1,
             "utc_time": "2026-05-04T12:00:00Z",
             "region": "Wuling",
+            "uid": "abc123def4567890",
             "goods": [
                 {
                     "id": "Wuling/WulingFrozenPears.Tier1",
@@ -131,9 +132,9 @@ The JSON schema is fixed as:
 Maintenance constraints:
 
 - `weekday` uses the server day, mapped from Monday `1` through Sunday `7`; the server day still uses the existing `04:00` boundary.
-- The same `server_date + region` overwrites the previous record; different regions on the same server date are kept as separate records.
-- At most 60 distinct `server_date` values are retained; all region records under retained dates are preserved.
-- Records contain only `server_date`, `weekday`, `utc_time`, `region`, and `goods`. Do not add `quota` or other extra user data, and do not restore the old `captured_at_utc` field.
+- The same `server_date + region + uid` overwrites the previous record; different UIDs on the same server date are kept as separate records.
+- At most 120 distinct `server_date` values are retained; all region records under retained dates are preserved.
+- Records contain only `server_date`, `weekday`, `utc_time`, `region`, `uid`, and `goods`. Do not add `quota` or other extra user data, and do not restore the old `captured_at_utc` field.
 - Writes use a same-directory temporary file followed by rename for atomic replacement. Write failures are warning-only and AutoStockpile continues running.
 
 ## Threshold Resolution Mechanism

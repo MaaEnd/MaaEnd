@@ -66,10 +66,10 @@
                 "recognition": "TemplateMatch",
                 "roi": "DailyEventUnreadItemSwitch",
                 "roi_offset": [
-                    -30,
+                    -20,
                     -30,
                     20,
-                    50
+                    40
                 ],
                 "template": "DailyRewards/Event/EventSwitchSuccess.png",
                 "threshold": 0.9
@@ -101,6 +101,7 @@
             "DailyEventUnreadGuideEvent",
             "DailyEventUnreadChallengeEvent",
             "DailyEventUnreadSpaceExplorationEvent",
+            "DailyEventUnreadLimitedTimeEvent",
             "DailyEventUnreadUnknown"
         ]
     },

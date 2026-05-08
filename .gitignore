@@ -485,3 +485,6 @@ tests/maatools
 
 # oh-my-opencode
 .sisyphus/
+
+# AutoStockpile local data
+assets/data/AutoStockpile/daily_storage.json

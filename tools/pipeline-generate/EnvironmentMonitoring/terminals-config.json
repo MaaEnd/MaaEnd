@@ -1,5 +1,5 @@
 {
-    "template": "terminals-template.jsonc",
+    "template": "terminals-template.json",
     "data": "terminals-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
     "outputFile": "Terminals.json",

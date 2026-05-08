@@ -237,6 +237,14 @@ function buildRow(mission, usedIds) {
 
     // 朝向节点：配置了 Heading 时调用 MapNavigateAction 的 HEADING 旋转角色，
     // 否则退化为透传节点（仅承担 next 桥接）。模板里以 "${AdjustHeadingNodeBody}" 整体注入。
+
+    // MapTrackerMove 参数：按需构建，仅在非默认时注入可选字段。
+    const NoEnsureInitialMovementState = override?.NoEnsureInitialMovementState ?? false;
+    const MapTrackerMoveParam = {
+        map_name: MapName,
+        path: MapPath,
+        ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+    };
     const AdjustHeadingNodeBody = HasHeading
         ? {
               desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
@@ -279,6 +287,7 @@ function buildRow(mission, usedIds) {
         TrackOrGoToNext,
         AfterTrackedNext,
         AdjustHeadingNodeBody,
+        MapTrackerMoveParam,
     };
 }
 
