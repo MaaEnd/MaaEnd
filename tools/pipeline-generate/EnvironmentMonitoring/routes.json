@@ -444,7 +444,8 @@
             [358.8, 239.7],
             [343.8, 239.7]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true
     },
     {
         "Name": "安思园的天师桩",
@@ -461,6 +462,7 @@
             [324.9, 404.7],
             [295.1, 404.7]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true
     }
 ]

@@ -357,7 +357,8 @@
                     343.8,
                     239.7
                 ]
-            ]
+            ],
+            "no_ensure_initial_movement_state": true
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",

@@ -45,6 +45,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
     "CameraMaxHit": 2,
         // 可选；调整摄像头时的最大滑屏命中次数，默认值见 routes.mjs 的 ROUTE_DEFAULTS。
         // 拍照目标较难对准时可适当调大。
+    "NoEnsureInitialMovementState": true,
+        // 可选；默认 false。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，
+        // 用于跳过 MapTrackerMove 开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。
     "Heading": 90
         // 可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把
         // 角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整。

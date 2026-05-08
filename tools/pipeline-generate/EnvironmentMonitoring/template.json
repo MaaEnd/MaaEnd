@@ -264,10 +264,7 @@
         "desc": "前往${Name}",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "${MapName}",
-            "path": "${MapPath}"
-        },
+        "custom_action_param": "${MapTrackerMoveParam}",
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"

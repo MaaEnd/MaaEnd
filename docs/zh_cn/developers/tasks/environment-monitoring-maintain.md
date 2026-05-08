@@ -22,8 +22,8 @@
 | 摄像头滑动         | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`          | `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四向调整朝向                                                                      |
 | 公共按钮           | `assets/resource/pipeline/EnvironmentMonitoring/Button.json`             | `TrackMissionButton` 等环境监测专用通用按钮                                                                                              |
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`     | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `data.mjs` 自动生成，通常不用手写                                               |
-| 观察点模板         | `tools/pipeline-generate/EnvironmentMonitoring/template.jsonc`           | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照）                                                                          |
-| 终端模板           | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.jsonc` | 终端分组节点模板                                                                                                                         |
+| 观察点模板         | `tools/pipeline-generate/EnvironmentMonitoring/template.json`           | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照）                                                                          |
+| 终端模板           | `tools/pipeline-generate/EnvironmentMonitoring/terminals-template.json` | 终端分组节点模板                                                                                                                         |
 | 路线/坐标数据      | `tools/pipeline-generate/EnvironmentMonitoring/routes.json`              | `ROUTE_CONFIG` 数据本体：按观察点中文 `Name` 匹配的路线覆盖（传送点、地图、路径、摄像头滑动方向）                                        |
 | 路线 JSON Schema   | `tools/schema/environment_monitoring_routes.schema.json`                 | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验                   |
 | 路线默认值与导出   | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`               | 从 `routes.json` 读取 `ROUTE_CONFIG`，并导出 `ROUTE_DEFAULTS`（未适配占位值）                                                            |
@@ -53,7 +53,7 @@ EnvironmentMonitoringMain
        └─ EnvironmentMonitoringFinish
 ```
 
-每个观察点 `{Id}Job` 内部的链路（由 `template.jsonc` 渲染）：
+每个观察点 `{Id}Job` 内部的链路（由 `template.json` 渲染）：
 
 ```text
 {Id}Job                              （识别该观察点列表项）
@@ -134,7 +134,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 ```json
 {
-    "template": "template.jsonc",
+    "template": "template.json",
     "data": "data.mjs",
     "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
     "outputPattern": "${Station}/${Id}.json",
@@ -143,7 +143,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.jsonc` 中 `${Xxx}` 占位符对应）。它从 `routes.mjs` 读取维护者手动维护的 `ROUTE_CONFIG`（实际数据存放在同目录 `routes.json`）/ `ROUTE_DEFAULTS`，再结合 `kite_station.json` 装配出最终行：
+`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。它从 `routes.mjs` 读取维护者手动维护的 `ROUTE_CONFIG`（实际数据存放在同目录 `routes.json`）/ `ROUTE_DEFAULTS`，再结合 `kite_station.json` 装配出最终行：
 
 | 字段                                   | 来源                                                                                                                                                                             |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -163,7 +163,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 ```json
 {
-    "template": "terminals-template.jsonc",
+    "template": "terminals-template.json",
     "data": "terminals-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/EnvironmentMonitoring",
     "outputFile": "Terminals.json",
@@ -309,7 +309,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
 5. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
 6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
-7. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.jsonc` / `terminals-template.jsonc` 中扩展）。
+7. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。
 8. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
 
 ## 常见坑
@@ -321,5 +321,5 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **`EnterMap` 写了不存在的 Scene 节点**：生成器不校验，运行时会卡在 `GoTo{Id}NotAtStartPos` 死循环。
 - **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
-- **`anchor` 占位符名一致性**：`template.jsonc` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
+- **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
 - **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补齐真实的 `EnterMap`、`MapName`、`MapTarget`、`MapPath` 和 `CameraSwipeDirection`。
