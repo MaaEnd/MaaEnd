@@ -396,7 +396,15 @@
         "threshold": [
             0.8
         ],
-        "pre_wait_freezes": 80,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -300,
+                300,
+                300
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
@@ -446,7 +454,15 @@
         "threshold": [
             0.8
         ],
-        "pre_wait_freezes": 80,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                -300,
+                0,
+                300,
+                300
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
