@@ -1,16 +1,24 @@
 {
     "AutoCollectStart": {
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute1Sub",
+                "AutoCollectRoute2Sub",
+                "AutoCollectRoute3Sub",
+                "AutoCollectRoute4Sub",
+                "AutoCollectRoute5Sub",
+                "AutoCollectRoute6Sub",
+                "AutoCollectRoute7Sub",
+                "AutoCollectRoute8Sub"
+            ],
+            "continue": true,
+            "strict": true
+        },
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoCollectRoute1Sub",
-            "[JumpBack]AutoCollectRoute2Sub",
-            "[JumpBack]AutoCollectRoute3Sub",
-            "[JumpBack]AutoCollectRoute4Sub",
-            "[JumpBack]AutoCollectRoute5Sub",
-            "[JumpBack]AutoCollectRoute6Sub",
-            "[JumpBack]AutoCollectRoute7Sub",
-            "[JumpBack]AutoCollectRoute8Sub",
             "AutoCollectEnd"
         ]
     },
