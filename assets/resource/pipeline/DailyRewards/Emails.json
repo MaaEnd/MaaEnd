@@ -22,8 +22,9 @@
             }
         },
         "next": [
-            "DailyEmailExistTSA",
-            "DailyEmailReceiveEmail"
+            "[JumpBack]DailyEmailExistTSA",
+            "[JumpBack]DailyEmailReceiveEmail",
+            "DailyEmailFinish"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已进入邮件界面"
@@ -156,9 +157,6 @@
             "type": "Click",
             "param": {}
         },
-        "next": [
-            "DailyEmailCheckEmailEnd"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "获取邮件奖励"
         }
@@ -185,10 +183,7 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "next": [
-            "DailyEmailReceiveEmail"
-        ]
+        }
     },
     "DailyEmailExistTSA": {
         "recognition": {
@@ -226,14 +221,12 @@
                 ]
             }
         },
-        "next": [
-            "DailyEmailCheckEmailEnd"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "暂无邮件奖励"
         }
     },
     "DailyEmailReceiveEmail": {
+        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -285,5 +278,6 @@
         "next": [
             "DailyEmailConfirmTSA"
         ]
-    }
+    },
+    "DailyEmailFinish": {}
 }
