@@ -304,6 +304,10 @@
                 [
                     520.3,
                     672.8
+                ],
+                [
+                    524.7,
+                    665.8
                 ]
             ]
         },
@@ -336,9 +340,9 @@
     },
     "PeachTreeAtBabblesSHomeAdjustCamera": {
         "desc": "念念家的桃树任务中调整朝向",
-        "max_hit": 1,
+        "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenRight"
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }
