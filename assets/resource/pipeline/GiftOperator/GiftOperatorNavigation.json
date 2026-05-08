@@ -18,6 +18,20 @@
                 ]
             }
         },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 45
+                        }
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "pre_delay": 0,
         "rate_limit": 0,
@@ -25,32 +39,6 @@
             "GiftOperatorMoveAheadW",
             "GiftOperatorMoveAheadD"
         ]
-    },
-    "GiftOperatorMoveAheadW": {
-        "desc": "向前（W）尝试接触到干员",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
-        "max_hit": 5,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 87
-            }
-        }
-    },
-    "GiftOperatorMoveAheadD": {
-        "desc": "向右（D）尝试接触到干员",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
-        "max_hit": 5,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 68
-            }
-        }
     },
     "GiftOperatorMoveMapTracker": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
