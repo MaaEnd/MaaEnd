@@ -646,6 +646,8 @@
     "option.AutoCollectRoute6.label": "採集ルート6：四号谷地-軽紅柱状菌",
     "option.AutoCollectRoute7.label": "採集ルート7：武陵城内-血潮茸武陵石",
     "option.AutoCollectRoute8.label": "採集ルート8：武陵城内-星門茸",
+    "option.AutoCollectRoute9.label": "採集ルート9：武陵城内-燎石",
+    "option.AutoCollectRoute10.label": "採集ルート10：武陵-深紅茸",
     "group.regional_development.label": "地域建設",
     "group.valuables_vault.label": "貴重品庫",
     "group.open_world.label": "オープンワールド",

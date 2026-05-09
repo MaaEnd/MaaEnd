@@ -12,7 +12,9 @@
                 "AutoCollectRoute5Sub",
                 "AutoCollectRoute6Sub",
                 "AutoCollectRoute7Sub",
-                "AutoCollectRoute8Sub"
+                "AutoCollectRoute8Sub",
+                "AutoCollectRoute9Sub",
+                "AutoCollectRoute10Sub"
             ],
             "continue": true,
             "strict": true
@@ -120,6 +122,30 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"
+        }
+    },
+    "AutoCollectRoute9Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute9Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
+        }
+    },
+    "AutoCollectRoute10Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute10Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
         }
     }
 }
