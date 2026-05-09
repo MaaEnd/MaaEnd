@@ -635,6 +635,8 @@
     "option.UseAllExpireSoonMedication.description": "활성화하면 만료까지 3일 미만인 응급 이성 강화제를 모두 사용합니다(시간 표시가 빨갛게 변함, 최대 15개).",
     "option.UseRegularSpMedication.label": "일반 응급 이성 강화제 사용",
     "option.UseRegularSpMedication.description": "기본 활성화. 일반 응급 이성 강화제를 발견하면 1개 사용합니다. 비활성화하면 일반 강화제는 건너뜁니다.",
+    "task.AutoArtificing.description": "미착용·미정련 장비를 자동으로 선택해 정련을 진행하며, 정련이 끝나거나 해당 장비가 부족해질 때까지 반복합니다. 시작하기 전에 정련할 장비 속성을 선택하세요.",
+    "task.AutoArtificing.label": "⚒️자동 정련",
     "task.AutoCollect.description": "야외 자원을 자동 수집합니다(게임을 계속 전면에 유지하고 마우스를 움직이지 마세요).\n참고: 작물이 완전히 자라기 전에 랜덤 성장으로 인해 수집이 누락될 수 있습니다.\n인식 정확도의 한계로 인해 완전히 자라도 일부는 수집되지 않을 수 있습니다.",
     "task.AutoCollect.label": "🧺자동 수집",
     "option.AutoCollectRoutes.label": "채집 경로",

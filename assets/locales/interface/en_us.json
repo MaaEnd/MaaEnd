@@ -635,6 +635,8 @@
     "option.UseAllExpireSoonMedication.description": "When enabled, uses all emergency sanity boosters expiring within 3 days (timer turns red, up to 15). ",
     "option.UseRegularSpMedication.label": "Use regular emergency sanity booster",
     "option.UseRegularSpMedication.description": "Enabled by default. Uses one regular emergency sanity booster when found. Disable to skip regular boosters.",
+    "task.AutoArtificing.description": "Automatically selects unworn gear that has not been refined and runs refining until it finishes or you run out of eligible gear. Pick the stat line to refine before starting the task.",
+    "task.AutoArtificing.label": "⚒️ Auto Refining",
     "task.AutoCollect.description": "Automatically collect wild resources (the game must stay in the foreground; do not move the mouse).\nNote: if crops have not fully grown, they may grow randomly, which can lead to incomplete collection.\nDue to recognition accuracy limits, even when fully grown some may not be collected.",
     "task.AutoCollect.label": "🧺 Auto Collect",
     "option.AutoCollectRoutes.label": "Collect Routes",
