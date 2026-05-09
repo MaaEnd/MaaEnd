@@ -563,35 +563,62 @@ class MapImageLayer(Layer):
     def __init__(self, view: ViewportManager, img: np.ndarray):
         super().__init__(view)
         self._img = img
-        self._scaled_img: np.ndarray | None = None
-        self._scaled_zoom: float | None = None
+        self._cache_key: tuple | None = None
+        self._cache_scaled: np.ndarray | None = None
 
     def render(self, drawer: Drawer) -> None:
         zoom = self.view.zoom
-        if self._scaled_img is None or self._scaled_zoom != zoom:
-            scaled_w = max(1, int(self._img.shape[1] * zoom))
-            scaled_h = max(1, int(self._img.shape[0] * zoom))
-            self._scaled_img = cv2.resize(
-                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
-            )
-            self._scaled_zoom = zoom
+        img_h, img_w = self._img.shape[:2]
 
-        scaled_img = self._scaled_img
-        if scaled_img is None:
+        # Viewport bounds in source image coordinates
+        src_x1_f = self.view._vx
+        src_y1_f = self.view._vy
+        src_x2_f = src_x1_f + drawer.w / zoom
+        src_y2_f = src_y1_f + drawer.h / zoom
+
+        src_x1 = max(0, int(math.floor(src_x1_f)))
+        src_y1 = max(0, int(math.floor(src_y1_f)))
+        src_x2 = min(img_w, int(math.ceil(src_x2_f)))
+        src_y2 = min(img_h, int(math.ceil(src_y2_f)))
+
+        if src_x2 <= src_x1 or src_y2 <= src_y1:
             return
 
-        scaled_h, scaled_w = scaled_img.shape[:2]
-        src_x1 = int(round(self.view._vx * zoom))
-        src_y1 = int(round(self.view._vy * zoom))
-        dst_x = max(0, -src_x1)
-        dst_y = max(0, -src_y1)
-        src_x1 = max(0, src_x1)
-        src_y1 = max(0, src_y1)
-        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
-        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
-        copy_w = src_x2 - src_x1
-        copy_h = src_y2 - src_y1
-        if copy_w > 0 and copy_h > 0:
-            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
-                scaled_img[src_y1:src_y2, src_x1:src_x2]
+        # Cache check
+        _p = 0.001
+        cache_key = (
+            round(src_x1_f / _p),
+            round(src_y1_f / _p),
+            round(src_x2_f / _p),
+            round(src_y2_f / _p),
+            zoom,
+        )
+        if self._cache_key != cache_key:
+            region = self._img[src_y1:src_y2, src_x1:src_x2]
+            region_h, region_w = region.shape[:2]
+            scaled_w = max(1, int(round(region_w * zoom)))
+            scaled_h = max(1, int(round(region_h * zoom)))
+            self._cache_scaled = cv2.resize(
+                region, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
             )
+            self._cache_key = cache_key
+
+        scaled = self._cache_scaled
+        if scaled is None:
+            return
+
+        # Sub-pixel offset
+        scaled_h, scaled_w = scaled.shape[:2]
+        dst_x = int(round((src_x1 - src_x1_f) * zoom))
+        dst_y = int(round((src_y1 - src_y1_f) * zoom))
+        sub_x = max(0, -dst_x)
+        sub_y = max(0, -dst_y)
+        dst_x = max(0, dst_x)
+        dst_y = max(0, dst_y)
+        copy_w = min(scaled_w - sub_x, drawer.w - dst_x)
+        copy_h = min(scaled_h - sub_y, drawer.h - dst_y)
+
+        if copy_w > 0 and copy_h > 0:
+            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = scaled[
+                sub_y : sub_y + copy_h, sub_x : sub_x + copy_w
+            ]
