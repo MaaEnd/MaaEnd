@@ -346,7 +346,7 @@
         }
     },
     "AutoArtificingInExit": {
-        "desc": "精锻已完成，自动退回上一层",
+        "desc": "精锻已完成，结束任务",
         "recognition": "TemplateMatch",
         "roi": [
             0,
