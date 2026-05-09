@@ -90,6 +90,14 @@ flowchart TD
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md)             | 购买优先级、补信用联动、刷新策略与商品扩展                 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
 
+### 第三方协议文档（`protocol/`）
+
+定义 MaaEnd 写入文件的格式规范，供外部工具（数据分析面板、Web 前端等）可靠读取。
+
+| 文档                                                                              | 说明                                              |
+| --------------------------------------------------------------------------------- | ------------------------------------------------- |
+| [AutoStockpile 每日价格记录](../protocol/autostockpile-daily-storage/protocol.md) | `daily_storage.json` 文件格式、路径解析与写入规则 |
+
 ## 快速跳转
 
 | 我想做什么               | 该看哪里                                                                                                                                                        |

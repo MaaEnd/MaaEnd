@@ -96,46 +96,7 @@ If you need different pricing behavior, update the Go defaults in code rather th
 
 ## Local Daily Goods-Price Storage
 
-When `AutoStockpileAllowDataUpload` is enabled, the Go Service writes the recognized goods-price table after successful recognition and after region/server-day resolution. The local file is:
-
-```text
-data/AutoStockpile/daily_storage.json
-```
-
-The writable data directory is resolved deterministically: first the `MAAEND_DATA_DIR` environment variable, then existing `data/` or `assets/data/` directories found from the current working directory and its ancestors, then the executable directory and its ancestors, and finally CWD-relative `data/` with `MkdirAll` creating the missing directory. This path is for local records only and does not trigger remote uploads.
-
-The JSON schema is fixed as:
-
-```json
-{
-    "schema_version": 2,
-    "records": [
-        {
-            "server_date": "2026-05-04",
-            "weekday": 1,
-            "utc_time": "2026-05-04T12:00:00Z",
-            "region": "Wuling",
-            "uid": "abc123def4567890",
-            "goods": [
-                {
-                    "id": "Wuling/WulingFrozenPears.Tier1",
-                    "name": "Wuling Frozen Pears",
-                    "tier": "Wuling.Tier1",
-                    "price": 1000
-                }
-            ]
-        }
-    ]
-}
-```
-
-Maintenance constraints:
-
-- `weekday` uses the server day, mapped from Monday `1` through Sunday `7`; the server day still uses the existing `04:00` boundary.
-- The same `server_date + region + uid` overwrites the previous record; different UIDs on the same server date are kept as separate records.
-- At most 120 distinct `server_date` values are retained; all region records under retained dates are preserved.
-- Records contain only `server_date`, `weekday`, `utc_time`, `region`, `uid`, and `goods`. Do not add `quota` or other extra user data, and do not restore the old `captured_at_utc` field.
-- Writes use a same-directory temporary file followed by rename for atomic replacement. Write failures are warning-only and AutoStockpile continues running.
+When `AutoStockpileAllowDataUpload` is enabled, the Go Service writes the recognized goods prices to `data/AutoStockpile/daily_storage.json` after successful recognition. For file format and path resolution rules, see [AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol](../../protocol/autostockpile-daily-storage/protocol.md).
 
 ## Threshold Resolution Mechanism
 
@@ -273,6 +234,12 @@ File: `agent/go-service/autostockpile/strategy.go`
 
 - Add labels and descriptions for all new options in `assets/locales/interface/`.
 
+### 7. Update Storage Schema
+
+File: `docs/en_us/protocol/autostockpile-daily-storage/daily_storage.schema.json`
+
+- Add the new region identifier (e.g., `"NewRegion"`) to the `region` field's `enum` list so third-party tools can validate data from the new region against the Schema.
+
 ## Self-Checklist
 
 Ensure the following after any changes:
@@ -281,6 +248,7 @@ Ensure the following after any changes:
 2. Template images are placed in `assets/resource/image/AutoStockpile/Goods/{Region}/`.
 3. When adding a tier, `tierBases` in `strategy.go` is updated with the new tier's base value.
 4. When adding a region, `Main.json`, `DecisionLoop.json` (especially `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`), `assets/tasks/AutoStockpile.json`, `item_map.json`, `strategy.go`, and `locales/*.json` are all updated.
+5. When adding a region, the `region` field's `enum` list in `docs/en_us/protocol/autostockpile-daily-storage/daily_storage.schema.json` is updated.
 
 ## Common Pitfalls
 
