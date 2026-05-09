@@ -134,7 +134,7 @@
                     104
                 ],
                 "connected": true,
-                "count": 80
+                "count": 50
             },
             {
                 "recognition": "ColorMatch",
@@ -164,6 +164,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoArtificingNoArtificingCatalyst",
             "AutoArtificingConfirm"
         ],
         "focus": {
@@ -229,7 +230,7 @@
                     104
                 ],
                 "connected": true,
-                "count": 80
+                "count": 50
             },
             {
                 "recognition": "ColorMatch",
@@ -259,10 +260,39 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoArtificingNoArtificingCatalyst",
             "AutoArtificingConfirm"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "选择较好适配装备"
+        }
+    },
+    "AutoArtificingNoArtificingCatalyst": {
+        "desc": "没有精锻助剂",
+        "recognition": "ColorMatch",
+        "roi": [
+            943,
+            645,
+            88,
+            32
+        ],
+        "lower": [
+            224,
+            28,
+            47
+        ],
+        "upper": [
+            244,
+            48,
+            67
+        ],
+        "count": 20,
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "没有精锻助剂"
         }
     },
     "AutoArtificingConfirm": {
