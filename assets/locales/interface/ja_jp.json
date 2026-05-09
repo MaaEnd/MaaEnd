@@ -721,6 +721,7 @@
     "task.GiftOperator.focus.bag_full": "⚠️ バッグが満杯です。オペレーターのプレゼントを受け取れません。手動でバッグを整理してください",
     "task.GiftOperator.focus.max_affinity": "⚠️ オペレーターの好感度が最大です",
     "task.GiftOperator.focus.all_full": "全オペレーターの信頼度が最大です。タスクを実行できません",
+    "task.GiftOperator.focus.move_fail": "⚠️ オペレーターの認識に失敗しました",
     "task.AutoStockStaple.label": "🏪 購入定価商品",
     "task.AutoStockStaple.description": "安定需要物資を購入し、毎週更新される物資のみ購入します。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "購入画面が正常に開きませんでした",

@@ -721,6 +721,7 @@
     "task.GiftOperator.focus.bag_full": "⚠️ Bag is full, unable to collect operator gift. Please clear bag manually",
     "task.GiftOperator.focus.max_affinity": "⚠️ Operator affinity is already maxed",
     "task.GiftOperator.focus.all_full": "All operators' trust is already maxed out, unable to proceed with the task",
+    "task.GiftOperator.focus.move_fail": "⚠️ Failed to locate operator",
     "task.AutoStockStaple.label": "🏪 Buy Staple Goods",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "Purchase page did not open properly",
