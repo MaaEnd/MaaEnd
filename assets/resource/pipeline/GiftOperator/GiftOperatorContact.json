@@ -22,7 +22,87 @@
             "[JumpBack]GiftOperatorContacSortOrder",
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
-            "GiftOperatorTrustFull"
+            "GiftOperatorSelectSpecifiedOp",
+            "GiftOperatorTrustFull",
+            "GiftOperatorSwipe"
+        ]
+    },
+    "GiftOperatorSwipe": {
+        "desc": "滑动尝试找到干员",
+        "max_hit": 2,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    130,
+                    92,
+                    180,
+                    94
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    400
+                ],
+                "end": [
+                    [
+                        600,
+                        300
+                    ],
+                    [
+                        300,
+                        300
+                    ]
+                ]
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedOp": {
+        "desc": "选择指定干员",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "template": []
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelectSpecifiedOpSuccess": {
+        "desc": "选择指定干员成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorConfirmSelect"
         ]
     },
     "GiftOperatorContacSortOrder": {
