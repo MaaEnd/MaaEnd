@@ -5,9 +5,6 @@
             "label": "$task.GiftOperator.label",
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
-            "option": [
-                "GiftOperatorMoveMode"
-            ],
             "controller": [
                 "Win32-Front",
                 "Wlroots"
@@ -16,37 +13,5 @@
                 "dijiang_ship"
             ]
         }
-    ],
-    "option": {
-        "GiftOperatorMoveMode": {
-            "type": "select",
-            "label": "$option.GiftOperatorMoveMode.label",
-            "description": "$option.GiftOperatorMoveMode.description",
-            "default_case": "MapTracker",
-            "cases": [
-                {
-                    "name": "Recorded",
-                    "label": "$option.GiftOperatorMoveMode.cases.Recorded.label",
-                    "pipeline_override": {
-                        "GiftOperatorInDijiang0": {
-                            "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "MapTracker",
-                    "label": "$option.GiftOperatorMoveMode.cases.MapTracker.label",
-                    "pipeline_override": {
-                        "GiftOperatorInDijiang0": {
-                            "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunMapTracker"
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    }
+    ]
 }

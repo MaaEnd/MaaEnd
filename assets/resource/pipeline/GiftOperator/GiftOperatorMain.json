@@ -11,25 +11,26 @@
     "GiftOperatorInDijiang0": {
         "desc": "确认已在帝江号舰桥大世界",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Custom",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "GiftOperator/Check_Dijiang.png"
-                ],
-                "threshold": 0.7
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "base01_lv003",
+                            "target": [
+                                158.3,
+                                189.9,
+                                10.3,
+                                9.2
+                            ]
+                        }
+                    ]
+                }
             }
         },
-        "anchor": {
-            "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunMapTracker"
-        },
         "next": [
-            "[Anchor]GiftOperatorMoveModeAnchor"
+            "GiftOperatorShiftToRunMapTracker"
         ]
     },
     "GiftOperatorLeave": {
