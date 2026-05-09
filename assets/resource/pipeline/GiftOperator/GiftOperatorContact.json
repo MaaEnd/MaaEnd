@@ -74,10 +74,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    0,
-                    0
+                    546,
+                    181,
+                    550,
+                    309
                 ],
                 "template": []
             }
