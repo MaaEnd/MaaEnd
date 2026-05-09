@@ -251,6 +251,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 2. 模板图是否放在 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下。
 3. 新增档位时，`agent/go-service/autostockpile/strategy.go` 的 `tierBases` 是否补充了对应基础值。
 4. 新增地区时，`Main.json`、`DecisionLoop.json`（尤其是 `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`）、`assets/tasks/AutoStockpile.json`、`item_map.json`、`strategy.go`、`assets/locales/interface/*.json` 是否同步修改。
+5. 新增地区时，`docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json` 中 `region` 字段的 `enum` 列表是否加入了新地区标识。
 
 ## 常见坑
 

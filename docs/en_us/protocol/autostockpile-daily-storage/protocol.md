@@ -23,7 +23,7 @@ The top-level file structure is fixed as:
             "goods": [
                 {
                     "id": "Wuling/WulingFrozenPears.Tier1",
-                    "name": "Wuling Frozen Pears",
+                    "name": "武陵冻梨",
                     "tier": "Wuling.Tier1",
                     "price": 1000
                 }
