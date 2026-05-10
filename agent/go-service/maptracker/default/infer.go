@@ -28,7 +28,7 @@ type MapTrackerInferResult struct {
 	RotConf     float64 `json:"rotConf"`     // Rotation confidence
 	LocTimeMs   int64   `json:"locTimeMs"`   // Location inference time in ms
 	RotTimeMs   int64   `json:"rotTimeMs"`   // Rotation inference time in ms
-	InferMode   string  `json:"inferMode"`   // Inference mode ("FullSearchHit", "FastSearchHit", "VirtualHit")
+	InferMode   string  `json:"inferMode"`   // Inference mode ("FullSearchHit", "FastSearchHit")
 	InferTimeMs int64   `json:"inferTimeMs"` // Total inference time in ms
 }
 
@@ -76,7 +76,6 @@ type InferLocationHitMode string
 const (
 	FULL_SEARCH_HIT InferLocationHitMode = "FullSearchHit"
 	FAST_SEARCH_HIT InferLocationHitMode = "FastSearchHit"
-	VIRTUAL_HIT     InferLocationHitMode = "VirtualHit"
 )
 
 // Time-series empirical optimization configuration
@@ -230,26 +229,6 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 				globalInferState.pending = emptyLocationRawResult
 				globalInferState.pendingHitCount = 0
 				finalLoc = &globalInferState.convinced
-			}
-		}
-	}
-
-	if finalLoc == nil {
-		if globalInferState.convinced.mapName != "" && nowMs-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS {
-			// This is a temporary miss, but we can generate a virtual result
-			dt := nowMs - globalInferState.convincedLastHitTime
-			sx := globalInferState.convincedMoveSpeed * math.Cos(globalInferState.convincedMoveDirection)
-			sy := globalInferState.convincedMoveSpeed * math.Sin(globalInferState.convincedMoveDirection)
-			vx := roundTo1Decimal(globalInferState.convinced.x + sx*float64(dt))
-			vy := roundTo1Decimal(globalInferState.convinced.y + sy*float64(dt))
-
-			finalLoc = &InferLocationRawResult{
-				mapName:       globalInferState.convinced.mapName,
-				x:             vx,
-				y:             vy,
-				conf:          0,
-				source:        VIRTUAL_HIT,
-				elapsedTimeMs: 0,
 			}
 		}
 	}
