@@ -22,8 +22,11 @@
         },
         "next": [
             "GiftOperatorMoveLocation3",
+            "GiftOperatorMoveLocation3Move",
             "GiftOperatorMoveLocation2",
+            "GiftOperatorMoveLocation2Move",
             "GiftOperatorMoveLocation1",
+            "GiftOperatorMoveLocation1Move",
             "GiftOperatorMoveFail"
         ]
     },
@@ -51,10 +54,7 @@
                     ]
                 }
             }
-        },
-        "next": [
-            "GiftOperatorMoveLocation1Move"
-        ]
+        }
     },
     "GiftOperatorMoveLocation1Move": {
         "desc": "移动尝试接触到干员(预设位置1)",
@@ -102,10 +102,7 @@
                     ]
                 }
             }
-        },
-        "next": [
-            "GiftOperatorMoveLocation2Move"
-        ]
+        }
     },
     "GiftOperatorMoveLocation2Move": {
         "desc": "移动尝试接触到干员(预设位置2)",
@@ -153,10 +150,7 @@
                     ]
                 }
             }
-        },
-        "next": [
-            "GiftOperatorMoveLocation3Move"
-        ]
+        }
     },
     "GiftOperatorMoveLocation3Move": {
         "desc": "移动尝试接触到干员(预设位置3)",

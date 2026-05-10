@@ -292,8 +292,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp2",
-            "GiftOperatorTrustFull"
+            "GiftOperatorSelectOp2"
+            //"GiftOperatorTrustFull"
         ]
     },
     "GiftOperatorCheckSelected2": {
@@ -309,8 +309,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp3",
-            "GiftOperatorTrustFull"
+            "GiftOperatorSelectOp3"
+            //"GiftOperatorTrustFull"
         ]
     },
     "GiftOperatorCheckSelected3": {
