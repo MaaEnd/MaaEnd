@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerdefault
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -52,7 +52,7 @@ var mapTrackerInferDefaultParam = MapTrackerInferParam{
 type MapTrackerInfer struct {
 	// Cache for scaled maps (recomputed per request scale)
 	scaledMapsMu sync.Mutex
-	scaledMaps   []mt.MapCache
+	scaledMaps   []internal.MapCache
 	scaledScale  float64
 }
 
@@ -106,7 +106,7 @@ type InferRotationRawResult struct {
 	elapsedTimeMs int64
 }
 
-var mapTrackerInferRunner maa.CustomRecognitionRunner = &MapTrackerInfer{}
+var MapTrackerInferRunner maa.CustomRecognitionRunner = &MapTrackerInfer{}
 
 // Run implements maa.CustomRecognitionRunner
 func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -132,9 +132,9 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
 
 	// Initialize map resources
-	mt.Resource.InitRawMaps(ctx)
-	if mt.Resource.RawMapsErr != nil {
-		log.Error().Err(mt.Resource.RawMapsErr).Msg("Failed to initialize maps")
+	internal.Resource.InitRawMaps(ctx)
+	if internal.Resource.RawMapsErr != nil {
+		log.Error().Err(internal.Resource.RawMapsErr).Msg("Failed to initialize maps")
 		return nil, false
 	}
 
@@ -481,7 +481,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	triedCount := 0
 
 	// Special case: if there's only one map to check, run it directly to avoid goroutine overhead
-	var singleMapToTry *mt.MapCache
+	var singleMapToTry *internal.MapCache
 	for i := range scaledMaps {
 		if mapNameRegex.MatchString(scaledMaps[i].Name) {
 			triedCount++
@@ -511,7 +511,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 			}
 
 			wg.Add(1)
-			go func(m *mt.MapCache) {
+			go func(m *internal.MapCache) {
 				defer wg.Done()
 				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.GetIntegralArray(), miniMap, miniStats)
 				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
@@ -563,7 +563,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 func (i *MapTrackerInfer) inferRotation(ctrlType string, screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
 	t0 := time.Now()
 
-	pointerTemplate, err := mt.Resource.PointerTemplateLoader.Get()
+	pointerTemplate, err := internal.Resource.PointerTemplateLoader.Get()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to load pointer template image")
 		return nil
@@ -639,7 +639,7 @@ func roundTo1Decimal(value float64) float64 {
 }
 
 // getScaledMaps recomputes scaled map cache for the requested scale.
-func (i *MapTrackerInfer) getScaledMaps(scale float64) []mt.MapCache {
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []internal.MapCache {
 	i.scaledMapsMu.Lock()
 	defer i.scaledMapsMu.Unlock()
 
@@ -647,10 +647,10 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []mt.MapCache {
 		return i.scaledMaps
 	}
 
-	newScaled := make([]mt.MapCache, 0, len(mt.Resource.RawMaps))
-	for _, m := range mt.Resource.RawMaps {
+	newScaled := make([]internal.MapCache, 0, len(internal.Resource.RawMaps))
+	for _, m := range internal.Resource.RawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, mt.MapCache{
+		newScaled = append(newScaled, internal.MapCache{
 			Name:    m.Name,
 			Img:     sImg,
 			OffsetX: m.OffsetX,

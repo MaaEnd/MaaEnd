@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerdefault
 
 import (
 	"encoding/json"
@@ -80,7 +80,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		return nil, false
 	}
 
-	resultWrapper, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := MapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerInfer",

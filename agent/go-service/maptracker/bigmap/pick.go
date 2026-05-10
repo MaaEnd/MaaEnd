@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerbigmap
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
@@ -87,7 +87,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	ca, err := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	ca, err := control.NewControlAdaptor(ctx, ctrl, WORK_W, WORK_H)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create control adaptor")
 		return false
@@ -99,10 +99,10 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 	}
 
-	panFactor := mt.BIG_MAP_PAN_FACTOR_NUMERATOR / control.GetScreenDiagonalSize(ctrl)
+	panFactor := BIG_MAP_PAN_FACTOR_NUMERATOR / control.GetScreenDiagonalSize(ctrl)
 	log.Info().Float64("panFactor", panFactor).Msg("Calculated big-map pan factor")
 
-	for attempt := 1; attempt <= mt.BIG_MAP_PICK_RETRY; attempt++ {
+	for attempt := 1; attempt <= BIG_MAP_PICK_RETRY; attempt++ {
 		// Check stopping signal
 		if ctx.GetTasker().Stopping() {
 			log.Warn().Msg("Task is stopping, exiting picking loop")
@@ -197,7 +197,7 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool, error) {
 	a.externalOnce.Do(func() {
 		a.externalData = map[string]mapExternalDataItem{}
-		err := resource.ReadJsonResource(mt.MAP_EXTERNAL_DATA_PATH, &a.externalData)
+		err := resource.ReadJsonResource(internal.MAP_EXTERNAL_DATA_PATH, &a.externalData)
 		if err != nil {
 			a.externalErr = fmt.Errorf("failed to load map external data: %w", err)
 			return
@@ -238,12 +238,12 @@ func runBigMapTeleportNode(ctx *maa.Context, ca control.ControlAdaptor, targetIn
 }
 
 func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, ca control.ControlAdaptor) error {
-	zoomInTemplate, err := mt.Resource.ZoomInTemplate.Get()
+	zoomInTemplate, err := internal.Resource.ZoomInTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-in template: %w", err)
 	}
 
-	zoomOutTemplate, err := mt.Resource.ZoomOutTemplate.Get()
+	zoomOutTemplate, err := internal.Resource.ZoomOutTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-out template: %w", err)
 	}
@@ -259,10 +259,10 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 
 	screen := minicv.ImageConvertRGBA(img)
 	searchArea := [4]int{
-		int(math.Round(mt.ZOOM_BUTTON_AREA_X)),
-		int(math.Round(mt.ZOOM_BUTTON_AREA_Y)),
-		int(math.Round(mt.ZOOM_BUTTON_AREA_W)),
-		int(math.Round(mt.ZOOM_BUTTON_AREA_H)),
+		int(math.Round(ZOOM_BUTTON_AREA_X)),
+		int(math.Round(ZOOM_BUTTON_AREA_Y)),
+		int(math.Round(ZOOM_BUTTON_AREA_W)),
+		int(math.Round(ZOOM_BUTTON_AREA_H)),
 	}
 	screenIntegral := minicv.GetIntegralArray(screen)
 
@@ -281,8 +281,8 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 		searchArea,
 	)
 
-	outMatched := outVal >= mt.ZOOM_BUTTON_THRESHOLD
-	inMatched := inVal >= mt.ZOOM_BUTTON_THRESHOLD
+	outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
+	inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
 
 	if outMatched && inMatched {
 		cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
@@ -326,7 +326,6 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 
 	inferConfig := map[string]any{
 		"map_name_regex": "^" + regexp.QuoteMeta(mapName) + "$",
-		"threshold":      mapTrackerBigMapInferDefaultParam.Threshold,
 	}
 	inferConfigBytes, err := json.Marshal(inferConfig)
 	if err != nil {
@@ -338,7 +337,7 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 		return nil, fmt.Errorf("failed to get task detail: %w", err)
 	}
 
-	resultWrapper, hit := mapTrackerBigMapInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := MapTrackerBigMapInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerBigMapInfer",
@@ -367,7 +366,7 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	return &result, nil
 }
 
-func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY, panFactor float64, segments int) bool {
+func doDragViewport(ca control.ControlAdaptor, viewport *BigMapViewport, deltaInViewX, deltaInViewY, panFactor float64, segments int) bool {
 	rawDragDx := -deltaInViewX * panFactor
 	rawDragDy := -deltaInViewY * panFactor
 
