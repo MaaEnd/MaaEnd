@@ -41,7 +41,8 @@
             "sub": [
                 "AutoCollectRoute8GotoFindLine1"
             ],
-            "continue": true
+            "continue": true,
+            "strict": false
         },
         "next": [
             "AutoCollectRoute8AssertLocation2"
@@ -65,7 +66,7 @@
             ]
         },
         "next": [
-            "AutoCollectRoute8GotoFind1"
+            "AutoCollectRoute8GotoFind1Sub"
         ]
     },
     "AutoCollectRoute8GotoFindLine1": {
@@ -110,11 +111,29 @@
             ]
         }
     },
+    "AutoCollectRoute8GotoFind1Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind1"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind2Sub"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
     "AutoCollectRoute8GotoFind1": {
         "desc": "前往收集地1",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -126,9 +145,20 @@
                     805.1
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind2Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind2"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind2"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind3Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -139,6 +169,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -154,9 +185,20 @@
                     803.9
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind3Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind3"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind3"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind4Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -167,6 +209,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -182,9 +225,20 @@
                     797.6
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind4Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind4"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind4"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind5Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -195,6 +249,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -210,9 +265,20 @@
                     800.0
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind5Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind5"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind5"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind6Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -223,6 +289,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -238,9 +305,20 @@
                     797.5
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind6Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind6"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind6"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind7Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -251,6 +329,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -266,9 +345,20 @@
                     795.0
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind7Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind7"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind7"
+            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind8Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -279,6 +369,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -290,9 +381,20 @@
                     800.1
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute8GotoFind8Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute8GotoFind8"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind8"
+            "AutoCollectClickAfter": "AutoCollectRoute8End"
         },
         "next": [
             "AutoCollectClickStart"
@@ -303,6 +405,7 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "fine_approach": "AllTargets",
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -314,12 +417,6 @@
                     803.8
                 ]
             ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
+        }
     }
 }

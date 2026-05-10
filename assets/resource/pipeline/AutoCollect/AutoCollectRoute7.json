@@ -13,6 +13,17 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "AutoCollectRoute7Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectRoute7End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    },
     "AutoCollectError": {
         "pre_delay": 0,
         "post_delay": 0,
@@ -285,11 +296,28 @@
             ]
         },
         "next": [
-            "AutoCollectRoute7GotoFind1"
+            "AutoCollectRoute7GotoFind1Sub"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "血菌收集点定位"
         }
+    },
+    "AutoCollectRoute7GotoFind1Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind1"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind2Sub"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
     },
     "AutoCollectRoute7GotoFind1": {
         "desc": "前往收集地1",
@@ -304,9 +332,20 @@
                     346.2
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind2Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind2"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind2"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind3Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -325,9 +364,20 @@
                     348.8
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind3Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind3"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind3"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind4Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -350,9 +400,20 @@
                     348.8
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind4Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind4"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind4"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind5Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -371,9 +432,20 @@
                     345.0
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind5Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind5"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind5"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind6Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -392,9 +464,20 @@
                     346.2
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind6Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind6"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind6"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind7Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -413,9 +496,20 @@
                     343.7
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind7Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind7"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind7"
+            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind8Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -434,9 +528,20 @@
                     341.3
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind8Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind8"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7GotoFind8"
+            "AutoCollectClickAfter": "AutoCollectRoute7AssertLocation4"
         },
         "next": [
             "AutoCollectClickStart"
@@ -455,13 +560,7 @@
                     341.3
                 ]
             ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute7AssertLocation4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
+        }
     },
     "AutoCollectRoute7AssertLocation4": {
         "recognition": "Custom",
@@ -553,6 +652,8 @@
     },
     "AutoCollectRoute7FindButtonUsing": {
         "desc": "点击使用按钮",
+        "pre_wait_freezes": 300,
+        "timeout": 3000,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -568,14 +669,12 @@
                 ]
             }
         },
-        "pre_wait_freezes": 300,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "timeout": 3000,
         "focus": {
             "Node.Recognition.Succeeded": "使用升降索"
         }
@@ -635,8 +734,8 @@
         }
     },
     "AutoCollectRoute7Wait": {
-        "max_hit": 3,
         "pre_wait_freezes": 300,
+        "max_hit": 3,
         "next": [
             "AutoCollectRoute7ErrorGoto"
         ]
@@ -732,7 +831,7 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "fine_approach": "AllTargets",
-            "no_ensure_final_orientation": true,
+            "no_ensure_final_orientation":true,
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -755,6 +854,7 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "path_trim": true,
+            "no_ensure_initial_movement_state": true,
             "map_name": "map02_lv002",
             "path": [
                 [
@@ -869,6 +969,23 @@
             "Node.Recognition.Succeeded": "到达武陵石收集点"
         }
     },
+    "AutoCollectRoute7GotoFind11Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind11"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind12Sub"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
     "AutoCollectRoute7GotoFind11": {
         "desc": "前往收集地1",
         "action": "Custom",
@@ -886,9 +1003,20 @@
                     285.0
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind12Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind12"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind12"
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind13Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -911,9 +1039,20 @@
                     286.4
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind13Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind13"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind13"
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind14Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -936,9 +1075,20 @@
                     290.0
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind14Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind14"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind14"
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind15Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -961,9 +1111,20 @@
                     291.2
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind15Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind15"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind15"
+            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind16Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -986,9 +1147,20 @@
                     288.7
                 ]
             ]
+        }
+    },
+    "AutoCollectRoute7GotoFind16Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFind16"
+            ],
+            "continue": true,
+            "strict": false
         },
         "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7GotoFind16"
+            "AutoCollectDigAfter": "AutoCollectRoute7Wait10sec"
         },
         "next": [
             "AutoCollectDigStart"
@@ -1015,12 +1187,6 @@
                     277.5
                 ]
             ]
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute7End"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ]
+        }
     }
 }
