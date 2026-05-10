@@ -28,9 +28,13 @@
         ],
         "pre_wait_freezes": 120,
         "pre_delay": 0,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "[JumpBack]__SceneCheckOSD",
             "[JumpBack]__SceneImageCheckAICPlanColor",
             "__SceneImageCheckFinishSave"
