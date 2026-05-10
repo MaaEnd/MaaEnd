@@ -20,11 +20,43 @@
     "option": {
         "SelectOperator": {
             "type": "select",
+            "label": "$option.SelectOperator.label",
+            "default_case": "Any",
+            "description": "$option.SelectOperator.description",
             "cases": [
+                {
+                    "name": "Any",
+                    "label": "$task.GiftOperator.select.any_three",
+                    "pipeline_override": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": true
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": true
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
+                        }
+                    }
+                },
                 {
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -49,6 +81,12 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -73,6 +111,12 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -97,6 +141,12 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -121,6 +171,12 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -145,6 +201,12 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -169,6 +231,12 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -193,6 +261,12 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -217,6 +291,12 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -241,6 +321,12 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -265,6 +351,12 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -289,6 +381,12 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -313,6 +411,12 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -337,6 +441,12 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -361,6 +471,12 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -385,6 +501,12 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -409,6 +531,12 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -433,6 +561,12 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -457,6 +591,12 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -481,6 +621,12 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -505,6 +651,12 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -529,6 +681,12 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -553,6 +711,12 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -577,6 +741,12 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
@@ -601,6 +771,12 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },

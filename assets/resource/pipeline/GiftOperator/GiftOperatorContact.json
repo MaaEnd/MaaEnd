@@ -23,7 +23,7 @@
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
-            "GiftOperatorSwipe"
+            "[JumpBack]GiftOperatorSwipe"
         ]
     },
     "GiftOperatorSwipe": {
@@ -78,7 +78,9 @@
                     550,
                     309
                 ],
-                "template": []
+                "template": [
+                    "GiftOperator/Operators/Perlica.png"
+                ]
             }
         },
         "action": {
