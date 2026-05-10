@@ -105,16 +105,20 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "AutoCollectRoute10GotoFind1"
+                "AutoCollectRoute10GotoFind1",
+                "AutoCollectRoute10GotoFind2",
+                "AutoCollectRoute10GotoFind3",
+                "AutoCollectRoute10GotoFind4",
+                "AutoCollectRoute10GotoFind5",
+                "AutoCollectRoute10GotoFind6",
+                "AutoCollectRoute10GotoFind7",
+                "AutoCollectRoute10GotoFind8"
             ],
             "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind2Sub"
+            "strict": true
         },
         "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute10GotoFindLine2Sub"
         ]
     },
     "AutoCollectRoute10GotoFind1": {
@@ -133,20 +137,6 @@
                     221.2
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind2Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind2"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind3Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -168,20 +158,6 @@
                     222.5
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind3Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind3"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind4Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -203,20 +179,6 @@
                     225.0
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind4Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind4"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind5Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -234,20 +196,6 @@
                     223.8
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind5Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind5"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind6Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -265,20 +213,6 @@
                     217.5
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind6Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind6"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind7Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -300,20 +234,6 @@
                     215.0
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind7Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind7"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind8Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -335,20 +255,6 @@
                     216.2
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind8Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind8"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFindLine2Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -370,7 +276,10 @@
                     213.8
                 ]
             ]
-        }
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
     },
     "AutoCollectRoute10GotoFindLine2Sub": {
         "desc": "寻路重红柱状菌",
@@ -455,16 +364,20 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "AutoCollectRoute10GotoFind11"
+                "AutoCollectRoute10GotoFind11",
+                "AutoCollectRoute10GotoFind12",
+                "AutoCollectRoute10GotoFind13",
+                "AutoCollectRoute10GotoFind14",
+                "AutoCollectRoute10GotoFind15",
+                "AutoCollectRoute10GotoFind16",
+                "AutoCollectRoute10GotoFind17",
+                "AutoCollectRoute10GotoFind18"
             ],
             "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind12Sub"
+            "strict": true
         },
         "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute10End"
         ]
     },
     "AutoCollectRoute10GotoFind11": {
@@ -483,20 +396,6 @@
                     225.0
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind12Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind12"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind13Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -518,20 +417,6 @@
                     230.0
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind13Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind13"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind14Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -553,20 +438,6 @@
                     226.3
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind14Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind14"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind15Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -588,20 +459,6 @@
                     228.7
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind15Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind15"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind16Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -623,20 +480,6 @@
                     223.8
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind16Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind16"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind17Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -658,20 +501,6 @@
                     215.0
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind17Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind17"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10GotoFind18Sub"
         },
         "next": [
             "AutoCollectClickStart"
@@ -693,20 +522,6 @@
                     226.2
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute10GotoFind18Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute10GotoFind18"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute10End"
         },
         "next": [
             "AutoCollectClickStart"
@@ -728,6 +543,9 @@
                     214.9
                 ]
             ]
-        }
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
     }
 }

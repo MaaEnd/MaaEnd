@@ -144,16 +144,20 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "AutoCollectRoute9GotoFind1"
+                "AutoCollectRoute9GotoFind1",
+                "AutoCollectRoute9GotoFind2",
+                "AutoCollectRoute9GotoFind3",
+                "AutoCollectRoute9GotoFind4",
+                "AutoCollectRoute9GotoFind5",
+                "AutoCollectRoute9GotoFind6",
+                "AutoCollectRoute9GotoFind7",
+                "AutoCollectRoute9GotoFind8"
             ],
             "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind2Sub"
+            "strict": true
         },
         "next": [
-            "AutoCollectDigStart"
+            "AutoCollectRoute9Wait10sec"
         ]
     },
     "AutoCollectRoute9GotoFind1": {
@@ -172,20 +176,6 @@
                     908.8
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind2Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind2"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind3Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -207,20 +197,6 @@
                     907.4
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind3Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind3"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind4Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -242,20 +218,6 @@
                     908.8
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind4Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind4"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind5Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -277,20 +239,6 @@
                     911.2
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind5Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind5"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind6Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -312,20 +260,6 @@
                     911.3
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind6Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind6"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind7Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -347,20 +281,6 @@
                     912.5
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind7Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind7"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind8Sub"
         },
         "next": [
             "AutoCollectDigStart"
@@ -382,20 +302,6 @@
                     914.9
                 ]
             ]
-        }
-    },
-    "AutoCollectRoute9GotoFind8Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind8"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute9Wait10sec"
         },
         "next": [
             "AutoCollectDigStart"
@@ -417,6 +323,9 @@
                     915.0
                 ]
             ]
-        }
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
     }
 }
