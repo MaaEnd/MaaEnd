@@ -1,6 +1,6 @@
 ---
 name: credit-shopping-log-analysis
-description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用购物任务中实际购买了什么商品、每件商品的折扣力度、是否触发过刷新（或刷新次数已用尽）、稳健刷新是否触发、以及信用点的消耗状况。货架槽位必须以日志中的 `CreditIcon`（TemplateMatch）为锚，有无 `BuyFirstOCR`/`Priority2OCR` 不影响槽位级货架的还原与呈现。适用于用户询问信用点交易、信用购物买了什么、折扣情况、刷新配置、`CreditShoppingMain` 任务行为等场景。
+description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用购物任务中实际购买了什么商品、每件商品的折扣力度、是否触发过刷新（或刷新次数已用尽）、稳健刷新是否触发、以及信用点的消耗状况。货架槽位必须以日志中的 `CreditIcon`（TemplateMatcher）为锚，有无 `BuyFirstOCR`/`Priority2OCR` 不影响槽位级货架的还原与呈现。适用于用户询问信用点交易、信用购物买了什么、折扣情况、刷新配置、`CreditShoppingMain` 任务行为等场景。
 ---
 
 # CreditShoppingMain 日志分析
