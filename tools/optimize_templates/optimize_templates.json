@@ -720,5 +720,8 @@
     "resource/image/LevelUpOperator/FilterDescHover": "8a5a950cafd5d17d089a69abf1a1ee90857e80873522904bddfe9d7380905a67",
     "resource/image/LevelUpOperator/FilterDesc": "d6f041670d2c656f402bd287ce57889c5a087295326e17235c8359556344044d",
     "resource/image/LevelUpOperator/TeamMemberIcon": "643015fe7ec8017fc24e2b3d52f03e4e510d6a925856b0fbb61f1d1bc96594a3",
-    "resource/image/LevelUpOperator/AddLevelUpMaterialButton": "cc7e08ec63bc5c006b3bb123db7b4b24408e38cabcc2928cecf4ad141cbce3b4"
+    "resource/image/LevelUpOperator/AddLevelUpMaterialButton": "cc7e08ec63bc5c006b3bb123db7b4b24408e38cabcc2928cecf4ad141cbce3b4",
+    "resource/image/AutoArtificing/ArtificingTab": "0177309d9e886f850b6773e9577682d1650caa08e062965bf83b68860aaaa363",
+    "resource/image/AutoArtificing/GearTipIcon": "b6271dc432d38583b5ecf7374488ff130f8a2494a3b868fe469df1a660ffe334",
+    "resource/image/AutoArtificing/GearLevel0": "e2dd369f21e4ea6ce7ae240d6337f9abbe2c0053760b7b84400be44e11a8d056"
 }

@@ -1,0 +1,366 @@
+{
+    "AutoArtificing": {
+        "desc": "任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingInViewMain",
+            "AutoArtificingInViewStats",
+            "AutoArtificingInViewUnknown"
+        ]
+    },
+    "AutoArtificingInViewMain": {
+        "desc": "当前在精锻主页面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            750,
+            80
+        ],
+        "template": "AutoArtificing/ArtificingTab.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "请选择精锻属性后重新开始任务"
+        }
+    },
+    "AutoArtificingInViewStats": {
+        "desc": "当前在精锻属性页面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            250,
+            50
+        ],
+        "expected": [
+            "选择精锻",
+            "選擇精鍛",
+            "Select Artificing",
+            "加工項目",
+            "정밀 단조"
+        ],
+        "pre_wait_freezes": {
+            "time": 120,
+            "target": [
+                0,
+                -300,
+                450,
+                300
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingFindGearStandardMatch",
+            "AutoArtificingFindGearGoodMatch",
+            "AutoArtificingFindFinish"
+        ]
+    },
+    "AutoArtificingInViewUnknown": {
+        "desc": "当前在未知界面",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "当前不在精锻页面，请进入精锻页面选择属性后重新开始任务"
+        }
+    },
+    "AutoArtificingFindGearStandardMatch": {
+        "desc": "查找标准适配装备",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    450,
+                    720
+                ],
+                "template": "AutoArtificing/GearTipIcon.png"
+            },
+            {
+                "sub_name": "no_wear",
+                "recognition": "ColorMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    -120,
+                    -40,
+                    -5,
+                    -5
+                ],
+                "lower": [
+                    16,
+                    16,
+                    16
+                ],
+                "upper": [
+                    36,
+                    36,
+                    36
+                ],
+                "connected": true,
+                "count": 200
+            },
+            {
+                "sub_name": "level0",
+                "recognition": "ColorMatch",
+                "roi": "no_wear",
+                "roi_offset": [
+                    -50,
+                    0,
+                    5,
+                    5
+                ],
+                "lower": [
+                    86,
+                    84,
+                    84
+                ],
+                "upper": [
+                    106,
+                    104,
+                    104
+                ],
+                "connected": true,
+                "count": 50
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "level0",
+                "roi_offset": [
+                    60,
+                    30,
+                    80,
+                    20
+                ],
+                "lower": [
+                    231,
+                    231,
+                    231
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 50
+            }
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingNoArtificingCatalyst",
+            "AutoArtificingConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "选择标准适配装备"
+        }
+    },
+    "AutoArtificingFindGearGoodMatch": {
+        "desc": "查找较好适配装备",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    450,
+                    720
+                ],
+                "template": "AutoArtificing/GearTipIcon.png"
+            },
+            {
+                "sub_name": "no_wear",
+                "recognition": "ColorMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    -120,
+                    -40,
+                    -5,
+                    -5
+                ],
+                "lower": [
+                    16,
+                    16,
+                    16
+                ],
+                "upper": [
+                    36,
+                    36,
+                    36
+                ],
+                "connected": true,
+                "count": 200
+            },
+            {
+                "sub_name": "level0",
+                "recognition": "ColorMatch",
+                "roi": "no_wear",
+                "roi_offset": [
+                    -50,
+                    0,
+                    5,
+                    5
+                ],
+                "lower": [
+                    86,
+                    84,
+                    84
+                ],
+                "upper": [
+                    106,
+                    104,
+                    104
+                ],
+                "connected": true,
+                "count": 50
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "level0",
+                "roi_offset": [
+                    60,
+                    30,
+                    80,
+                    20
+                ],
+                "lower": [
+                    227,
+                    214,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    25
+                ],
+                "count": 50
+            }
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingNoArtificingCatalyst",
+            "AutoArtificingConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "选择较好适配装备"
+        }
+    },
+    "AutoArtificingNoArtificingCatalyst": {
+        "desc": "没有精锻助剂",
+        "recognition": "ColorMatch",
+        "roi": [
+            943,
+            645,
+            88,
+            32
+        ],
+        "lower": [
+            224,
+            28,
+            47
+        ],
+        "upper": [
+            244,
+            48,
+            67
+        ],
+        "count": 20,
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "没有精锻助剂"
+        }
+    },
+    "AutoArtificingConfirm": {
+        "desc": "确认精锻",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingConfirmReward"
+        ]
+    },
+    "AutoArtificingConfirmReward": {
+        "desc": "点击下一步",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            -150,
+            300,
+            150
+        ],
+        "expected": [
+            "继续",
+            "繼續",
+            "continue",
+            "続行",
+            "계속하기"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoArtificingInViewStats",
+            "AutoArtificingInExit"
+        ]
+    },
+    "AutoArtificingFindFinish": {
+        "desc": "没有装备可精锻",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "没有剩余装备可精锻"
+        }
+    },
+    "AutoArtificingInExit": {
+        "desc": "精锻已完成，结束任务",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            750,
+            80
+        ],
+        "template": "AutoArtificing/ArtificingTab.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "精锻完成"
+        }
+    }
+}

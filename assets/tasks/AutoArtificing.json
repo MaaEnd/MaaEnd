@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "AutoArtificing",
+            "label": "$task.AutoArtificing.label",
+            "entry": "AutoArtificing",
+            "description": "$task.AutoArtificing.description",
+            "controller": [
+                "Win32-Window",
+                "Win32-Window-Background",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "valuables_vault"
+            ]
+        }
+    ]
+}
