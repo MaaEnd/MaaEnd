@@ -1,0 +1,141 @@
+// Copyright (c) 2026 Harry Huang
+package maptrackerdefault
+
+import (
+	"math"
+	"sync"
+)
+
+// InferLocationHitMode represents the mode of location inference hit
+type InferLocationHitMode string
+
+const (
+	FULL_SEARCH_HIT InferLocationHitMode = "FullSearchHit"
+	FAST_SEARCH_HIT InferLocationHitMode = "FastSearchHit"
+)
+
+// Time-series empirical optimization configuration
+const (
+	PENDING_TAKEOVER_TIME_MS         = 1000
+	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
+	CONVINCED_DISTANCE_THRESHOLD     = 20
+	CONVINCED_VALID_TIME_MS          = 2000
+)
+
+var emptyLocationRawResult = InferLocationRawResult{}
+
+// InferState manages the state for map tracking inference
+type InferState struct {
+	convinced              InferLocationRawResult
+	convincedLastHitTime   int64
+	convincedMoveDirection float64
+	convincedMoveSpeed     float64
+
+	pending             InferLocationRawResult
+	pendingFirstHitTime int64
+	pendingHitCount     int
+
+	mu sync.Mutex
+}
+
+var globalInferState InferState
+
+// Lock acquires the state mutex
+func (s *InferState) Lock() {
+	s.mu.Lock()
+}
+
+// Unlock releases the state mutex
+func (s *InferState) Unlock() {
+	s.mu.Unlock()
+}
+
+// SetConvinced sets the convinced state and updates last hit time
+func (s *InferState) SetConvinced(loc InferLocationRawResult, nowMs int64) {
+	s.convinced = loc
+	s.convincedLastHitTime = nowMs
+}
+
+// UpdateConvincedFromHit updates convinced state from a location hit
+func (s *InferState) UpdateConvincedFromHit(loc *InferLocationRawResult, nowMs int64) {
+	dt := nowMs - s.convincedLastHitTime
+	if dt > 0 {
+		dx := loc.X - s.convinced.X
+		dy := loc.Y - s.convinced.Y
+		dist := math.Hypot(dx, dy)
+		s.convincedMoveSpeed = dist / float64(dt)
+		s.convincedMoveDirection = math.Atan2(dy, dx)
+	}
+	s.convinced = *loc
+	s.convincedLastHitTime = nowMs
+}
+
+// SetPending sets the pending state and initializes hit count
+func (s *InferState) SetPending(loc InferLocationRawResult, nowMs int64) {
+	s.pending = loc
+	s.pendingFirstHitTime = nowMs
+	s.pendingHitCount = 1
+}
+
+// UpdatePending updates the pending location and increments hit count
+func (s *InferState) UpdatePending(x, y float64) {
+	s.pending.X = x
+	s.pending.Y = y
+	s.pendingHitCount++
+}
+
+// TakeoverPending promotes pending to convinced state
+func (s *InferState) TakeoverPending(nowMs int64) {
+	s.convinced = s.pending
+	s.convincedLastHitTime = nowMs
+	s.convincedMoveSpeed = 0
+	s.convincedMoveDirection = 0
+	s.pending = emptyLocationRawResult
+	s.pendingHitCount = 0
+}
+
+// ResetPending clears the pending state
+func (s *InferState) ResetPending() {
+	s.pending = emptyLocationRawResult
+	s.pendingFirstHitTime = 0
+	s.pendingHitCount = 0
+}
+
+// IsConvincedValid checks if convinced state is still valid based on time
+func (s *InferState) IsConvincedValid(nowMs int64) bool {
+	return s.convinced.MapName != "" &&
+		(nowMs-s.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
+		s.pendingHitCount == 0
+}
+
+// IsCloseToConvinced checks if a location is close to the convinced location
+func (s *InferState) IsCloseToConvinced(loc *InferLocationRawResult) bool {
+	if !isMapNameCoreMatch(s.convinced.MapName, loc.MapName) {
+		return false
+	}
+	dx := s.convinced.X - loc.X
+	dy := s.convinced.Y - loc.Y
+	return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+}
+
+// IsCloseToPending checks if a location is close to the pending location
+func (s *InferState) IsCloseToPending(loc *InferLocationRawResult) bool {
+	if !isMapNameCoreMatch(s.pending.MapName, loc.MapName) {
+		return false
+	}
+	dx := s.pending.X - loc.X
+	dy := s.pending.Y - loc.Y
+	return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+}
+
+// ShouldTakeoverPending checks if pending should be promoted to convinced
+func (s *InferState) ShouldTakeoverPending(nowMs int64) bool {
+	return s.convinced.MapName == "" ||
+		nowMs-s.pendingFirstHitTime >= PENDING_TAKEOVER_TIME_MS ||
+		s.pendingHitCount >= PENDING_TAKEOVER_COUNT_THRESHOLD
+}
+
+// IsImmediateTrackLoss checks if this is an immediate track loss
+func (s *InferState) IsImmediateTrackLoss(nowMs int64) bool {
+	return nowMs-s.convincedLastHitTime < CONVINCED_VALID_TIME_MS
+}
