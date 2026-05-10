@@ -37,7 +37,7 @@ const (
 	RAW_MAP_BBOX_EXPAND_PX = 40 // 2x minimap radius
 )
 
-// MapTrackerResource stores globally shared map resources for map-tracker.
+// MapTrackerResource stores globally shared map resources for maptracker.
 type MapTrackerResource struct {
 	RawMapsOnce sync.Once
 	RawMaps     []MapCache

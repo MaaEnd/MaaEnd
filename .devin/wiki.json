@@ -17,7 +17,7 @@
             "author": "maintainer"
         },
         {
-            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、map-tracker/、bettersliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、maptracker/、bettersliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
             "author": "maintainer"
         },
         {
@@ -74,7 +74,7 @@
         },
         {
             "title": "地图追踪与导航",
-            "purpose": "文档化 map-tracker 子包（agent/go-service/map-tracker/）的实现：大地图推理、视口计算、移动控制。以及 Pipeline 层的 MapLocator、MapTracker 模块。引用 docs/zh_cn/developers/map-tracker.md 和 docs/zh_cn/developers/map-navigator.md 和 docs/zh_cn/developers/map-locator.md。",
+            "purpose": "文档化 maptracker 子包（agent/go-service/maptracker/）的实现：大地图推理、视口计算、移动控制。以及 Pipeline 层的 MapLocator、MapTracker 模块。引用 docs/zh_cn/developers/map-tracker.md 和 docs/zh_cn/developers/map-navigator.md 和 docs/zh_cn/developers/map-locator.md。",
             "parent": "Go Service 扩展"
         },
         {
