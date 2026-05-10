@@ -21,9 +21,6 @@ func (r *ImageCheckNotPassedRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	}
 
 	if imageCheckPass {
-		log.Debug().
-			Str("component", "ImageCheckNotPassedRecognition").
-			Msg("image check already passed")
 		return nil, false
 	}
 
