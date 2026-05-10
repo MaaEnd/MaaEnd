@@ -25,6 +25,7 @@
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
         "next": [
+            "__SceneImageCheck",
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },
@@ -207,6 +208,68 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateWorldEnterMenuAICPlan": {
+        "desc": "从大世界进入工业计划菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuAICPlanClick",
+            "[JumpBack]__ScenePrivateWorldMenuLeftExpand"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuAICPlanClick": {
+        "desc": "从大世界点击进入工业计划菜单",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            300,
+            100
+        ],
+        "template": [
+            "SceneManager/MenuAICPlan.png",
+            "SceneManager/MenuAICPlan2.png"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuAICPlanSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuAICPlanSuccess": {
+        "desc": "成功进入工业计划菜单",
+        "recognition": "And",
+        "all_of": [
+            "InAICPlan"
+        ],
         "pre_wait_freezes": {
             "time": 100,
             "target": [

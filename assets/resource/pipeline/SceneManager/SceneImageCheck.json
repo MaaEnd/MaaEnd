@@ -1,0 +1,124 @@
+{
+    "__SceneImageCheck": {
+        "desc": "场景图像检查，检查完毕后回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "ImageCheckNotPassedRecognition"
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckAICPlanIn",
+            "[JumpBack]__ScenePrivateWorldEnterMenuAICPlan"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在检查画面"
+        }
+    },
+    "__SceneImageCheckAICPlanIn": {
+        "desc": "在工业计划界面",
+        "recognition": "And",
+        "all_of": [
+            "InAICPlan"
+        ],
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__SceneCheckOSD",
+            "[JumpBack]__SceneImageCheckAICPlanColor",
+            "__SceneImageCheckFinishSave"
+        ]
+    },
+    "__SceneImageCheckFinishSave": {
+        "desc": "场景图像检查完成保存状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ImageCheckSetResultAction",
+        "custom_action_param": {
+            "result": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckFinishExit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "画面检查通过"
+        }
+    },
+    "__SceneImageCheckFinishExit": {
+        "desc": "场景图像检查完成退出到大世界",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
+    "__SceneImageCheckAICPlanColor": {
+        "desc": "检查颜色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckAICPlanColorSuccess",
+            "__SceneImageCheckAICPlanColorFailedScreenShot"
+        ]
+    },
+    "__SceneImageCheckAICPlanColorSuccess": {
+        "desc": "检查颜色成功",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "lower": [
+            75,
+            74,
+            74
+        ],
+        "upper": [
+            77,
+            76,
+            76
+        ],
+        "connected": true,
+        "count": 1500
+    },
+    "__SceneImageCheckAICPlanColorFailedScreenShot": {
+        "desc": "检查颜色失败并截图",
+        "pre_delay": 0,
+        "action": "Screencap",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckAICPlanColorFailedFinish"
+        ]
+    },
+    "__SceneImageCheckAICPlanColorFailedFinish": {
+        "desc": "检查颜色失败",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.SceneManager.focus.color_match_failed_prefix"
+        }
+    }
+}

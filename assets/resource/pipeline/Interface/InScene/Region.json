@@ -352,6 +352,26 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "InAICPlan": {
+        "desc": "在工业计划界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "expected": [
+            "工业计划",
+            "工業計劃",
+            "AIC Plan",
+            "工業計画",
+            "공업 계획"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "InRegionalDevelopment": {
         "desc": "在地区建设界面",
         "recognition": "And",
