@@ -62,7 +62,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Perlica.png"
                             ]
                         },
@@ -92,7 +92,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Yvonne.png"
                             ]
                         },
@@ -122,7 +122,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Ardelia.png"
                             ]
                         },
@@ -152,7 +152,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Gilberta.png"
                             ]
                         },
@@ -182,7 +182,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/ChenQianyu.png"
                             ]
                         },
@@ -212,7 +212,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Wulfgard.png"
                             ]
                         },
@@ -242,7 +242,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Antal.png"
                             ]
                         },
@@ -272,7 +272,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Xaihi.png"
                             ]
                         },
@@ -302,7 +302,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Lifeng.png"
                             ]
                         },
@@ -332,7 +332,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Catcher.png"
                             ]
                         },
@@ -362,7 +362,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Arclight.png"
                             ]
                         },
@@ -392,7 +392,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Avywenna.png"
                             ]
                         },
@@ -422,7 +422,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Laevatain.png"
                             ]
                         },
@@ -452,7 +452,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Alesh.png"
                             ]
                         },
@@ -482,7 +482,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Pogranichnik.png"
                             ]
                         },
@@ -512,7 +512,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/LastRite.png"
                             ]
                         },
@@ -542,7 +542,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Ember.png"
                             ]
                         },
@@ -572,7 +572,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Snowshine.png"
                             ]
                         },
@@ -602,7 +602,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/DaPan.png"
                             ]
                         },
@@ -632,7 +632,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Fluorite.png"
                             ]
                         },
@@ -662,7 +662,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Akekuri.png"
                             ]
                         },
@@ -692,7 +692,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Estella.png"
                             ]
                         },
@@ -722,7 +722,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Rossi.png"
                             ]
                         },
@@ -752,7 +752,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/Tangtang.png"
                             ]
                         },
@@ -782,7 +782,7 @@
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
-                            "Template": [
+                            "template": [
                                 "GiftOperator/Operators/ZhuangFangyi.png"
                             ]
                         },
