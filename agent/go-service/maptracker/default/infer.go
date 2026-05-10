@@ -133,7 +133,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	if internalLocHit {
 		if globalInferState.IsCloseToConvinced(loc) {
 			// This hit is close to the currently convinced location
-			globalInferState.UpdateConvincedFromHit(loc)
+			globalInferState.SetConvinced(*loc)
 			finalLoc = loc
 
 		} else if globalInferState.IsCloseToPending(loc) {

@@ -27,10 +27,8 @@ var emptyLocationRawResult = InferLocationRawResult{}
 
 // InferState manages the state for map tracking inference
 type InferState struct {
-	convinced              InferLocationRawResult
-	convincedLastHitTime   int64
-	convincedMoveDirection float64
-	convincedMoveSpeed     float64
+	convinced            InferLocationRawResult
+	convincedLastHitTime int64
 
 	pending             InferLocationRawResult
 	pendingFirstHitTime int64
@@ -69,22 +67,7 @@ func (s *InferState) SetConvinced(loc InferLocationRawResult) {
 	s.convincedLastHitTime = nowMs
 }
 
-// UpdateConvincedFromHit updates convinced state from a location hit
-func (s *InferState) UpdateConvincedFromHit(loc *InferLocationRawResult) {
-	nowMs := s.getLockTime()
-	dt := nowMs - s.convincedLastHitTime
-	if dt > 0 {
-		dx := loc.X - s.convinced.X
-		dy := loc.Y - s.convinced.Y
-		dist := math.Hypot(dx, dy)
-		s.convincedMoveSpeed = dist / float64(dt)
-		s.convincedMoveDirection = math.Atan2(dy, dx)
-	}
-	s.convinced = *loc
-	s.convincedLastHitTime = nowMs
-}
-
-// SetPending sets the pending state and initializes hit count
+// SetPending sets the pending state and initializes hit count to 1
 func (s *InferState) SetPending(loc InferLocationRawResult) {
 	nowMs := s.getLockTime()
 	s.pending = loc
@@ -104,8 +87,6 @@ func (s *InferState) TakeoverPending() {
 	nowMs := s.getLockTime()
 	s.convinced = s.pending
 	s.convincedLastHitTime = nowMs
-	s.convincedMoveSpeed = 0
-	s.convincedMoveDirection = 0
 	s.pending = emptyLocationRawResult
 	s.pendingHitCount = 0
 }
