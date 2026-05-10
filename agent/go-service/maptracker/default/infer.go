@@ -128,32 +128,31 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	var finalRot *InferRotationRawResult
 
 	globalInferState.Lock()
-	nowMs := time.Now().UnixMilli()
 
 	// Process internal location hit
 	if internalLocHit {
 		if globalInferState.IsCloseToConvinced(loc) {
 			// This hit is close to the currently convinced location
-			globalInferState.UpdateConvincedFromHit(loc, nowMs)
+			globalInferState.UpdateConvincedFromHit(loc)
 			finalLoc = loc
 
 		} else if globalInferState.IsCloseToPending(loc) {
 			// This hit is close to the pending location
 			globalInferState.UpdatePending(loc.X, loc.Y)
 
-			if globalInferState.ShouldTakeoverPending(nowMs) {
+			if globalInferState.ShouldTakeoverPending() {
 				// Do takeover (replace convinced with pending)
-				globalInferState.TakeoverPending(nowMs)
+				globalInferState.TakeoverPending()
 				finalLoc = loc
 			}
 		} else {
 			// This hit is far from both convinced and pending locations
-			if globalInferState.IsImmediateTrackLoss(nowMs) {
+			if globalInferState.IsImmediateTrackLoss() {
 				// It's an immediate track loss, start a new pending
-				globalInferState.SetPending(*loc, nowMs)
+				globalInferState.SetPending(*loc)
 			} else {
 				// It's a stale track loss, directly replace convinced with this new hit
-				globalInferState.SetConvinced(*loc, nowMs)
+				globalInferState.SetConvinced(*loc)
 				globalInferState.ResetPending()
 				finalLoc = loc
 			}
@@ -302,7 +301,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	stableConvincedMapName := globalInferState.convinced.MapName
 	stableLocX := globalInferState.convinced.X
 	stableLocY := globalInferState.convinced.Y
-	isInTime := globalInferState.IsConvincedValid(time.Now().UnixMilli())
+	isInTime := globalInferState.IsConvincedValid()
 
 	globalInferState.Unlock()
 

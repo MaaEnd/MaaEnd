@@ -4,6 +4,7 @@ package maptrackerdefault
 import (
 	"math"
 	"sync"
+	"time"
 )
 
 // InferLocationHitMode represents the mode of location inference hit
@@ -35,29 +36,42 @@ type InferState struct {
 	pendingFirstHitTime int64
 	pendingHitCount     int
 
-	mu sync.Mutex
+	mu       sync.Mutex
+	lockTime int64
 }
 
 var globalInferState InferState
 
-// Lock acquires the state mutex
+// Lock acquires the state mutex and records the current time
 func (s *InferState) Lock() {
 	s.mu.Lock()
+	s.lockTime = time.Now().UnixMilli()
 }
 
-// Unlock releases the state mutex
+// Unlock releases the state mutex and clears the lock time
 func (s *InferState) Unlock() {
+	s.lockTime = 0
 	s.mu.Unlock()
 }
 
+// getLockTime returns the lock time, panics if not locked
+func (s *InferState) getLockTime() int64 {
+	if s.lockTime == 0 {
+		panic("InferState method called without holding Lock")
+	}
+	return s.lockTime
+}
+
 // SetConvinced sets the convinced state and updates last hit time
-func (s *InferState) SetConvinced(loc InferLocationRawResult, nowMs int64) {
+func (s *InferState) SetConvinced(loc InferLocationRawResult) {
+	nowMs := s.getLockTime()
 	s.convinced = loc
 	s.convincedLastHitTime = nowMs
 }
 
 // UpdateConvincedFromHit updates convinced state from a location hit
-func (s *InferState) UpdateConvincedFromHit(loc *InferLocationRawResult, nowMs int64) {
+func (s *InferState) UpdateConvincedFromHit(loc *InferLocationRawResult) {
+	nowMs := s.getLockTime()
 	dt := nowMs - s.convincedLastHitTime
 	if dt > 0 {
 		dx := loc.X - s.convinced.X
@@ -71,7 +85,8 @@ func (s *InferState) UpdateConvincedFromHit(loc *InferLocationRawResult, nowMs i
 }
 
 // SetPending sets the pending state and initializes hit count
-func (s *InferState) SetPending(loc InferLocationRawResult, nowMs int64) {
+func (s *InferState) SetPending(loc InferLocationRawResult) {
+	nowMs := s.getLockTime()
 	s.pending = loc
 	s.pendingFirstHitTime = nowMs
 	s.pendingHitCount = 1
@@ -85,7 +100,8 @@ func (s *InferState) UpdatePending(x, y float64) {
 }
 
 // TakeoverPending promotes pending to convinced state
-func (s *InferState) TakeoverPending(nowMs int64) {
+func (s *InferState) TakeoverPending() {
+	nowMs := s.getLockTime()
 	s.convinced = s.pending
 	s.convincedLastHitTime = nowMs
 	s.convincedMoveSpeed = 0
@@ -102,7 +118,8 @@ func (s *InferState) ResetPending() {
 }
 
 // IsConvincedValid checks if convinced state is still valid based on time
-func (s *InferState) IsConvincedValid(nowMs int64) bool {
+func (s *InferState) IsConvincedValid() bool {
+	nowMs := s.getLockTime()
 	return s.convinced.MapName != "" &&
 		(nowMs-s.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
 		s.pendingHitCount == 0
@@ -129,13 +146,15 @@ func (s *InferState) IsCloseToPending(loc *InferLocationRawResult) bool {
 }
 
 // ShouldTakeoverPending checks if pending should be promoted to convinced
-func (s *InferState) ShouldTakeoverPending(nowMs int64) bool {
+func (s *InferState) ShouldTakeoverPending() bool {
+	nowMs := s.getLockTime()
 	return s.convinced.MapName == "" ||
 		nowMs-s.pendingFirstHitTime >= PENDING_TAKEOVER_TIME_MS ||
 		s.pendingHitCount >= PENDING_TAKEOVER_COUNT_THRESHOLD
 }
 
 // IsImmediateTrackLoss checks if this is an immediate track loss
-func (s *InferState) IsImmediateTrackLoss(nowMs int64) bool {
+func (s *InferState) IsImmediateTrackLoss() bool {
+	nowMs := s.getLockTime()
 	return nowMs-s.convincedLastHitTime < CONVINCED_VALID_TIME_MS
 }
