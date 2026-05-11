@@ -1,0 +1,110 @@
+{
+    "$defs": {
+        "goods_item": {
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "description": "商品内部 ID，格式 {Region}/{BaseName}.Tier{N}。",
+                    "pattern": "^[A-Z][a-zA-Z0-9]+/[^./]+\\.Tier[0-9]+$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "商品中文名称。",
+                    "type": "string"
+                },
+                "price": {
+                    "description": "商品当轮识别到的价格（弹性需求物资单价）。",
+                    "minimum": 0,
+                    "type": "integer"
+                },
+                "tier": {
+                    "description": "价值变动幅度标识，格式 {Region}.Tier{N}。",
+                    "pattern": "^[A-Z][a-zA-Z0-9]+\\.Tier[0-9]+$",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "tier",
+                "price"
+            ],
+            "type": "object"
+        },
+        "record": {
+            "additionalProperties": false,
+            "properties": {
+                "goods": {
+                    "description": "本轮识别到的商品数组。",
+                    "items": {
+                        "$ref": "#/$defs/goods_item"
+                    },
+                    "type": "array"
+                },
+                "region": {
+                    "description": "地区标识。",
+                    "enum": [
+                        "Wuling",
+                        "ValleyIV"
+                    ],
+                    "type": "string"
+                },
+                "server_date": {
+                    "description": "服务器日期，格式 YYYY-MM-DD。按目标时区 04:00 边界计算（04:00 ~ 次日 03:59 属同一服务器日）。",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "玩家标识。由游戏内 UID 数字部分经 SHA256 加盐哈希后取前 16 位十六进制。不可逆。",
+                    "maxLength": 16,
+                    "minLength": 7,
+                    "type": "string"
+                },
+                "utc_time": {
+                    "description": "记录写入时的 UTC 时间，RFC 3339 格式。",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "weekday": {
+                    "description": "服务器日对应的星期，1=周一 ~ 7=周日。",
+                    "maximum": 7,
+                    "minimum": 1,
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "server_date",
+                "weekday",
+                "utc_time",
+                "region",
+                "uid",
+                "goods"
+            ],
+            "type": "object"
+        }
+    },
+    "$id": "https://raw.githubusercontent.com/MaaEnd/MaaEnd/main/docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "AutoStockpile 任务写入的 daily_storage.json 文件格式定义。",
+    "properties": {
+        "records": {
+            "description": "价格记录数组。",
+            "items": {
+                "$ref": "#/$defs/record"
+            },
+            "type": "array"
+        },
+        "schema_version": {
+            "const": 2,
+            "description": "Schema 版本号，当前固定为 2。协议升级时递增，只加字段不删不改旧字段。",
+            "type": "integer"
+        }
+    },
+    "required": [
+        "schema_version",
+        "records"
+    ],
+    "title": "AutoStockpile 本地每日商品价格记录",
+    "type": "object"
+}

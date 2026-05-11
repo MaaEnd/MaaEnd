@@ -239,6 +239,8 @@
             "(?i)\\bload\\b|负载|負載"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {

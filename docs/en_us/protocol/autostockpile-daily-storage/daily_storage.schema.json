@@ -1,0 +1,110 @@
+{
+    "$defs": {
+        "goods_item": {
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "description": "Internal goods ID, format {Region}/{BaseName}.Tier{N}.",
+                    "pattern": "^[A-Z][a-zA-Z0-9]+/[^./]+\\.Tier[0-9]+$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Chinese item name.",
+                    "type": "string"
+                },
+                "price": {
+                    "description": "Recognized price for this good in the current round (elastic goods unit price).",
+                    "minimum": 0,
+                    "type": "integer"
+                },
+                "tier": {
+                    "description": "Value tier identifier, format {Region}.Tier{N}.",
+                    "pattern": "^[A-Z][a-zA-Z0-9]+\\.Tier[0-9]+$",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "tier",
+                "price"
+            ],
+            "type": "object"
+        },
+        "record": {
+            "additionalProperties": false,
+            "properties": {
+                "goods": {
+                    "description": "Array of goods recognized in this round.",
+                    "items": {
+                        "$ref": "#/$defs/goods_item"
+                    },
+                    "type": "array"
+                },
+                "region": {
+                    "description": "Region identifier.",
+                    "enum": [
+                        "Wuling",
+                        "ValleyIV"
+                    ],
+                    "type": "string"
+                },
+                "server_date": {
+                    "description": "Server date in YYYY-MM-DD format. Calculated using the target timezone's 04:00 boundary (04:00 ~ next 03:59 belongs to the same server day).",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "Player identifier. Derived from in-game UID digits via SHA256 salted hash, first 16 hex characters. Irreversible.",
+                    "maxLength": 16,
+                    "minLength": 7,
+                    "type": "string"
+                },
+                "utc_time": {
+                    "description": "UTC time when the record was written, RFC 3339 format.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "weekday": {
+                    "description": "Weekday of the server date, 1=Monday through 7=Sunday.",
+                    "maximum": 7,
+                    "minimum": 1,
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "server_date",
+                "weekday",
+                "utc_time",
+                "region",
+                "uid",
+                "goods"
+            ],
+            "type": "object"
+        }
+    },
+    "$id": "https://raw.githubusercontent.com/MaaEnd/MaaEnd/main/docs/en_us/protocol/autostockpile-daily-storage/daily_storage.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "Format definition for the daily_storage.json file written by the AutoStockpile task.",
+    "properties": {
+        "records": {
+            "description": "Array of price records.",
+            "items": {
+                "$ref": "#/$defs/record"
+            },
+            "type": "array"
+        },
+        "schema_version": {
+            "const": 2,
+            "description": "Schema version number, currently fixed at 2. Increments on protocol upgrades; only new fields are added, never removed or changed.",
+            "type": "integer"
+        }
+    },
+    "required": [
+        "schema_version",
+        "records"
+    ],
+    "title": "AutoStockpile Local Daily Goods-Price Records",
+    "type": "object"
+}

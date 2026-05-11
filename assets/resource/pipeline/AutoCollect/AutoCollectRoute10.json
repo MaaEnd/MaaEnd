@@ -1,0 +1,551 @@
+{
+    "AutoCollectRoute10Start": {
+        "desc": "共两个重红柱状菌采集点",
+        "next": [
+            "AutoCollectRoute10AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线10"
+        }
+    },
+    "AutoCollectRoute10End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute10AssertLocation1": {
+        "desc": "传送点定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        497.0,
+                        183.6,
+                        11.4,
+                        10.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute10GotoFindLine1Sub"
+        ]
+    },
+    "AutoCollectRoute10GotoFindLine1Sub": {
+        "desc": "寻路重红柱状菌",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute10GotoFindLine1"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute10AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute10AssertLocation2": {
+        "desc": "重红柱状菌定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        468.8,
+                        214.7,
+                        10.5,
+                        11.5
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute10GotoFind1Sub"
+        ]
+    },
+    "AutoCollectRoute10GotoFindLine1": {
+        "desc": "前往重红柱状菌采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    503.7,
+                    187.5
+                ],
+                [
+                    510.0,
+                    193.8
+                ],
+                [
+                    497.5,
+                    213.7
+                ],
+                [
+                    486.2,
+                    217.5
+                ],
+                [
+                    476.3,
+                    221.3
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute10GotoFind1Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute10GotoFind1",
+                "AutoCollectRoute10GotoFind2",
+                "AutoCollectRoute10GotoFind3",
+                "AutoCollectRoute10GotoFind4",
+                "AutoCollectRoute10GotoFind5",
+                "AutoCollectRoute10GotoFind6",
+                "AutoCollectRoute10GotoFind7",
+                "AutoCollectRoute10GotoFind8"
+            ],
+            "continue": true,
+            "strict": true
+        },
+        "next": [
+            "AutoCollectRoute10GotoFindLine2Sub"
+        ]
+    },
+    "AutoCollectRoute10GotoFind1": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    470.0,
+                    216.3
+                ],
+                [
+                    475.0,
+                    221.2
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind2": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    473.7,
+                    225.0
+                ],
+                [
+                    477.5,
+                    222.5
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind3": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    477.5,
+                    222.5
+                ],
+                [
+                    471.2,
+                    225.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind4": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    466.3,
+                    223.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind5": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    465.0,
+                    217.5
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind6": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    465.0,
+                    217.5
+                ],
+                [
+                    471.2,
+                    215.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind7": {
+        "desc": "前往收集地7",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    471.2,
+                    215.0
+                ],
+                [
+                    475.0,
+                    216.2
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind8": {
+        "desc": "前往收集地8",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    475.0,
+                    216.2
+                ],
+                [
+                    471.2,
+                    213.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFindLine2Sub": {
+        "desc": "寻路重红柱状菌",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute10GotoFindLine2"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute10AssertLocation3"
+        ]
+    },
+    "AutoCollectRoute10AssertLocation3": {
+        "desc": "第二个采集点重红柱状菌定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        404.5,
+                        219.0,
+                        11.5,
+                        11.8
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute10GotoFind11Sub"
+        ]
+    },
+    "AutoCollectRoute10GotoFindLine2": {
+        "desc": "前往重红柱状菌采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    471.2,
+                    213.8
+                ],
+                [
+                    461.3,
+                    215.0
+                ],
+                [
+                    458.7,
+                    188.7
+                ],
+                [
+                    436.3,
+                    182.5
+                ],
+                [
+                    407.5,
+                    187.5
+                ],
+                [
+                    382.5,
+                    206.2
+                ],
+                [
+                    396.2,
+                    230.0
+                ],
+                [
+                    408.7,
+                    226.3
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute10GotoFind11Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute10GotoFind11",
+                "AutoCollectRoute10GotoFind12",
+                "AutoCollectRoute10GotoFind13",
+                "AutoCollectRoute10GotoFind14",
+                "AutoCollectRoute10GotoFind15",
+                "AutoCollectRoute10GotoFind16",
+                "AutoCollectRoute10GotoFind17",
+                "AutoCollectRoute10GotoFind18"
+            ],
+            "continue": true,
+            "strict": true
+        },
+        "next": [
+            "AutoCollectRoute10End"
+        ]
+    },
+    "AutoCollectRoute10GotoFind11": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    406.2,
+                    226.2
+                ],
+                [
+                    414.9,
+                    225.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind12": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    414.9,
+                    225.0
+                ],
+                [
+                    412.5,
+                    230.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind13": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    412.5,
+                    230.0
+                ],
+                [
+                    410.0,
+                    226.3
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind14": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    406.2,
+                    226.2
+                ],
+                [
+                    413.7,
+                    228.7
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind15": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    413.7,
+                    228.7
+                ],
+                [
+                    416.2,
+                    223.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind16": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    416.2,
+                    223.8
+                ],
+                [
+                    416.2,
+                    215.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind17": {
+        "desc": "前往收集地7",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    407.5,
+                    220.1
+                ],
+                [
+                    412.4,
+                    226.2
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute10GotoFind18": {
+        "desc": "前往收集地8",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    407.5,
+                    220.1
+                ],
+                [
+                    413.7,
+                    214.9
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}

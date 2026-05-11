@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerdefault
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -112,13 +112,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	ca, err := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	ca, err := control.NewControlAdaptor(ctx, ctrl, WORK_W, WORK_H)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create control adaptor")
 		return false
 	}
 
-	loopInterval := time.Duration(mt.INFER_INTERVAL_MS) * time.Millisecond
+	loopInterval := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
 
 	if param.PathTrim && len(param.Path) > 1 {
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
@@ -148,7 +148,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// Adaptive rotation sensitivity local state
-	rotationSpeed := mt.ROTATION_DEFAULT_SPEED
+	rotationSpeed := ROTATION_DEFAULT_SPEED
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
@@ -252,7 +252,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			dist := math.Hypot(curX-targetX, curY-targetY)
 			if fineApproachOngoing {
-				if loopStartTime.After(fineApproachExpectedEndTime) || dist < mt.FINE_APPROACH_COMPLETE_THRESHOLD {
+				if loopStartTime.After(fineApproachExpectedEndTime) || dist < FINE_APPROACH_COMPLETE_THRESHOLD {
 					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
 					finishCurrentTarget(curX, curY, rot)
 					break
@@ -312,7 +312,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
 						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
-							if idealRotSpeed >= mt.ROTATION_MIN_SPEED && idealRotSpeed <= mt.ROTATION_MAX_SPEED {
+							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
 								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
 								rotAdjStateCache = rotAdjState
 								log.Debug().
@@ -536,7 +536,7 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		return nil, err
 	}
 
-	resultWrapper, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := MapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerInfer",
@@ -738,7 +738,7 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 }
 
 func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
-	mapPath := resource.FindResource(filepath.ToSlash(filepath.Join(mt.MAP_DIR, mapName+".png")))
+	mapPath := resource.FindResource(filepath.ToSlash(filepath.Join(internal.MAP_DIR, mapName+".png")))
 	if mapPath == "" {
 		return nil, fmt.Errorf("map image not found")
 	}

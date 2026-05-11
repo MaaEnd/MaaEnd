@@ -96,46 +96,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ## 本地每日商品价格记录
 
-启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功、地区与服务器日解析完成后，将当轮识别到的商品价格写入本地文件：
-
-```text
-data/AutoStockpile/daily_storage.json
-```
-
-写入目标按可写数据目录解析：优先使用环境变量 `MAAEND_DATA_DIR` 指定的数据目录，其次从当前工作目录及其父目录、可执行文件目录及其父目录中查找已存在的 `data/` 或 `assets/data/`，最后回退到当前工作目录下的 `data/` 并由 `MkdirAll` 创建。该路径只用于本地文件记录，不会触发远程上传。
-
-JSON schema 固定为：
-
-```json
-{
-    "schema_version": 2,
-    "records": [
-        {
-            "server_date": "2026-05-04",
-            "weekday": 1,
-            "utc_time": "2026-05-04T12:00:00Z",
-            "region": "Wuling",
-            "uid": "abc123def4567890",
-            "goods": [
-                {
-                    "id": "Wuling/WulingFrozenPears.Tier1",
-                    "name": "武陵冻梨",
-                    "tier": "Wuling.Tier1",
-                    "price": 1000
-                }
-            ]
-        }
-    ]
-}
-```
-
-维护约束：
-
-- `weekday` 使用服务器日，映射为周一 `1` 到周日 `7`；服务器日仍按现有 `04:00` 边界计算。
-- 同一个 `server_date + region + uid` 会覆盖旧记录；同一服务器日同一地区的不同 `uid` 会作为独立记录保留。
-- 最多保留 120 个不同的 `server_date`；被保留日期下的所有地区记录都会保留。
-- 记录只包含 `server_date`、`weekday`、`utc_time`、`region`、`uid` 和 `goods`，不得加入 `quota` 或其他额外用户数据，也不得恢复旧字段 `captured_at_utc`。
-- 写入使用同目录临时文件和 rename 的原子写流程；写入失败只记录 warning 并继续 AutoStockpile，不会中止任务。
+启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功后将商品价格写入 `data/AutoStockpile/daily_storage.json`。文件格式与路径解析规则见 [AutoStockpile 本地每日商品价格记录 — 第三方读取协议](../../protocol/autostockpile-daily-storage/protocol.md)。
 
 ## 阈值解析机制
 
@@ -276,6 +237,12 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 - 在 `assets/locales/interface/` 下补齐所有新增选项的 label 和 description。
 
+### 7. 更新价格记录 Schema
+
+文件：`docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json`
+
+- 在 `region` 字段的 `enum` 列表中加入新地区标识（如 `"NewRegion"`），确保第三方工具能通过 Schema 校验新增地区的数据。
+
 ## 自检清单
 
 改完后至少检查以下几项：
@@ -284,6 +251,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 2. 模板图是否放在 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下。
 3. 新增档位时，`agent/go-service/autostockpile/strategy.go` 的 `tierBases` 是否补充了对应基础值。
 4. 新增地区时，`Main.json`、`DecisionLoop.json`（尤其是 `AutoStockpileDecision{Region}.action.param.custom_action_param.Region`）、`assets/tasks/AutoStockpile.json`、`item_map.json`、`strategy.go`、`assets/locales/interface/*.json` 是否同步修改。
+5. 新增地区时，`docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json` 中 `region` 字段的 `enum` 列表是否加入了新地区标识。
 
 ## 常见坑
 

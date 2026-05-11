@@ -4,8 +4,14 @@
 <br/><span style="color: #faad14; font-size: 1.4em; font-weight: bold;">{{t "desc"}}</span>
 <br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "controller_label"}} {{.ControllerType}}</span>
 <br/><span style="font-size: 1.25em; color: #ffd666; font-weight: bold;">{{t "current_resolution"}} {{.CurrentResolution}}</span>
-<br/><span style="font-size: 1.25em; color: #00bfff; font-weight: bold;">{{t "requirement_label"}} {{.Requirement}}</span>
-<br/><span style="font-size: 1.1em; color: #00bfff;">{{t "requirement_ratio_note"}}</span>
+{{if .FollowUpLines}}
+<br/><span style="font-size: 1.25em; color: #00bfff; font-weight: bold;">{{t "requirement_label"}}</span>
+{{range .FollowUpLines}}
+<br/><span style="font-size: 1.15em; color: #00bfff;">{{escapeHTML .}}</span>
+{{end}}
+{{else}}
+<br/><span style="font-size: 1.25em; color: #00bfff; font-weight: bold;">{{t "requirement_label"}} -</span>
+{{end}}
 {{else}}
 <span style="color: #ff0000; font-size: 1.8em; font-weight: 900;">{{t "title"}}</span>
 <br/><span style="color: #ff4500; font-size: 1.6em; font-weight: 800;">{{t "stopped"}}</span>

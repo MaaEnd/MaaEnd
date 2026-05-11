@@ -8,6 +8,7 @@
         "next": [
             "__ScenePrivateCloseADBExit",
             "__ScenePrivateMenuListEnterWorld",
+            "__SceneImageCheck",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
@@ -168,10 +169,10 @@
             }
         },
         "next": [
-            "[JumpBack]__SceneCheckOSD",
-            "[JumpBack]__SceneCheckYellowColor",
-            "[JumpBack]__SceneCheckTealColor",
-            "[JumpBack]__SceneCheckPurpleColor",
+            // "[JumpBack]__SceneCheckOSD",
+            // "[JumpBack]__SceneCheckYellowColor",
+            // "[JumpBack]__SceneCheckTealColor",
+            // "[JumpBack]__SceneCheckPurpleColor",
             "SceneWaitLoadingExit",
             "__ScenePrivateNextTrue"
         ]

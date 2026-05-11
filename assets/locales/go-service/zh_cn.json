@@ -126,7 +126,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "目标要求：",
     "tasker.aspect_ratio_warning.requirement_exact": "精确 %dx%d；1920x1080 等 16:9 分辨率也不通过",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比例；例如 3840x2160、2560x1440、1920x1080、1280x720",
-    "tasker.aspect_ratio_warning.requirement_ratio_note": "全屏模式仅支持16:9显示器；窗口化模式下可将分辨率手动设为16:9。",
+    "tasker.aspect_ratio_warning.full_screen_illegal": "窗口模式；全屏模式需使用物理分辨率16:9的显示器，当前显示器不符合",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "寻路已中止。",
     "maptracker.emergency_stop.cause_header": "可能原因：",

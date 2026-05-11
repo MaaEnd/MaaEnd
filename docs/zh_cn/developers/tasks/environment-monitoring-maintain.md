@@ -32,7 +32,7 @@
 | 生成器配置         | `tools/pipeline-generate/EnvironmentMonitoring/config.json`             | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"`                                                                               |
 | 终端生成器配置     | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`   | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"`                                                                               |
 | 多语言文案         | `assets/locales/interface/*.json`                                       | `task.EnvironmentMonitoring.*` 的 label / description（任务级；观察点名走 OCR）                                                          |
-| 通用组件依赖       | `agent/go-service/map-tracker/`                                         | `MapTrackerMove`、`MapTrackerAssertLocation`（详见 [map-tracker.md](../components/map-tracker.md)）                                      |
+| 通用组件依赖       | `agent/go-service/maptracker/`                                          | `MapTrackerMove`、`MapTrackerAssertLocation`（详见 [map-tracker.md](../components/map-tracker.md)）                                      |
 | 场景跳转依赖       | `assets/resource/pipeline/SceneManager/`、`Interface/`                  | `SceneEnterWorldWuling*`、`SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`（详见 [scene-manager.md](../scene-manager.md)） |
 
 ## 主流程
@@ -197,7 +197,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ### MapTracker
 
-观察点的「传送 → 复核 → 寻路」三段都依赖 `agent/go-service/map-tracker/`：
+观察点的「传送 → 复核 → 寻路」三段都依赖 `agent/go-service/maptracker/`：
 
 - `MapTrackerAssertLocation`（识别）：根据当前小地图判断是否在 `MapTarget` 矩形内。
 - `MapTrackerMove`（动作）：沿 `MapPath` 路径走到目标点，过程中支持 anchor 机制改写 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`。

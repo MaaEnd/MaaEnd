@@ -29,7 +29,9 @@
                 "Route5",
                 "Route6",
                 "Route7",
-                "Route8"
+                "Route8",
+                "Route9",
+                "Route10"
             ],
             "cases": [
                 {
@@ -100,6 +102,24 @@
                     "label": "$option.AutoCollectRoute8.label",
                     "pipeline_override": {
                         "AutoCollectRoute8Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route9",
+                    "label": "$option.AutoCollectRoute9.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute9Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route10",
+                    "label": "$option.AutoCollectRoute10.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute10Sub": {
                             "enabled": true
                         }
                     }

@@ -90,6 +90,14 @@ Only when you maintain the matching task.
 | [CreditShopping](./tasks/credit-shopping-maintain.md)               | Purchase priority, credit top-up linkage, refresh strategy, item extensions                  |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation-point route data, `pipeline-generate` auto-generation, and onboarding new points |
 
+### Third-party protocol docs (`protocol/`)
+
+Defines format specifications for files written by MaaEnd, for reliable consumption by external tools (data dashboards, web frontends, etc.).
+
+| Document                                                                                 | Description                                                   |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| [AutoStockpile Daily Price Records](../protocol/autostockpile-daily-storage/protocol.md) | `daily_storage.json` format, path resolution, and write rules |
+
 ## Quick lookup
 
 | I want to…                                            | Read this                                                                                                                                                       |

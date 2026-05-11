@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerbigmap
 
 import (
 	"encoding/json"
@@ -11,19 +11,17 @@ import (
 	"sync"
 	"time"
 
-	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-type BigMapViewport = mt.BigMapViewport
-
 // MapTrackerBigMapInferResult represents the output of big map inference.
 type MapTrackerBigMapInferResult struct {
-	MapName     string            `json:"mapName"`
-	ViewPort    mt.BigMapViewport `json:"viewPort"`
-	InferTimeMs int64             `json:"inferTimeMs"`
+	MapName     string         `json:"mapName"`
+	ViewPort    BigMapViewport `json:"viewPort"`
+	InferTimeMs int64          `json:"inferTimeMs"`
 }
 
 // MapTrackerBigMapInferParam represents the custom_recognition_param for MapTrackerBigMapInfer.
@@ -43,12 +41,12 @@ type MapTrackerBigMapInfer struct {
 	mapsErr  error
 
 	scaledMapsMu sync.Mutex
-	scaledMaps   []mt.MapCache
+	scaledMaps   []internal.MapCache
 	scaledScale  float64
 }
 
 var _ maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
-var mapTrackerBigMapInferRunner maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
+var MapTrackerBigMapInferRunner maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
 
 // Run implements maa.CustomRecognitionRunner.
 func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -85,7 +83,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	fastTpl := minicv.ImageScale(sampleTemplate, mt.WIRE_MATCH_PRECISION)
+	fastTpl := minicv.ImageScale(sampleTemplate, WIRE_MATCH_PRECISION)
 	fastTplStats := minicv.GetImageStats(fastTpl)
 	if fastTplStats.Std < 1e-6 {
 		log.Warn().Msg("Big-map template standard deviation is too small")
@@ -94,15 +92,15 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	coarseBestScore := -1.0
 	coarseBestTplScale := 0.0
-	var coarseBestMap *mt.MapCache
+	var coarseBestMap *internal.MapCache
 	hasCoarseBestMap := false
 	triedMaps := 0
 	coarseMatchingSteps := []int{12}
-	coarseTplScaleMin := 1.0 / mt.GAME_MAP_SCALE_MAX
-	coarseTplScaleMax := 1.0 / mt.GAME_MAP_SCALE_MIN
+	coarseTplScaleMin := 1.0 / GAME_MAP_SCALE_MAX
+	coarseTplScaleMax := 1.0 / GAME_MAP_SCALE_MIN
 
-	scaledMaps := r.getScaledMaps(mt.WIRE_MATCH_PRECISION)
-	candidateMaps := make([]*mt.MapCache, 0, len(scaledMaps))
+	scaledMaps := r.getScaledMaps(WIRE_MATCH_PRECISION)
+	candidateMaps := make([]*internal.MapCache, 0, len(scaledMaps))
 	for idx := range scaledMaps {
 		m := &scaledMaps[idx]
 		if mapNameRegex.MatchString(m.Name) {
@@ -114,7 +112,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	type coarseResult struct {
 		score    float64
 		tplScale float64
-		m        *mt.MapCache
+		m        *internal.MapCache
 	}
 
 	if triedMaps == 1 {
@@ -137,7 +135,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 		for _, mapData := range candidateMaps {
 			wg.Add(1)
-			go func(m *mt.MapCache) {
+			go func(m *internal.MapCache) {
 				defer wg.Done()
 				_, _, score, tplScale := minicv.MatchTemplateAnyScale(
 					m.Img,
@@ -202,15 +200,15 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}
 
 	viewScale := 1.0 / fineTplScale
-	viewScale = min(mt.GAME_MAP_SCALE_MAX, max(mt.GAME_MAP_SCALE_MIN, viewScale))
-	sampleOriginMapX := matchX/float64(mt.WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX)
-	sampleOriginMapY := matchY/float64(mt.WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY)
+	viewScale = min(GAME_MAP_SCALE_MAX, max(GAME_MAP_SCALE_MIN, viewScale))
+	sampleOriginMapX := matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX)
+	sampleOriginMapY := matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY)
 	viewOriginMapX := roundTo1Decimal(sampleOriginMapX - float64(sampleOffsetX)/viewScale)
 	viewOriginMapY := roundTo1Decimal(sampleOriginMapY - float64(sampleOffsetY)/viewScale)
 
 	result := MapTrackerBigMapInferResult{
 		MapName: coarseBestMap.Name,
-		ViewPort: *mt.NewBigMapViewport(
+		ViewPort: *NewBigMapViewport(
 			viewOriginMapX,
 			viewOriginMapY,
 			viewScale,
@@ -266,17 +264,17 @@ func (r *MapTrackerBigMapInfer) parseParam(paramStr string) (*MapTrackerBigMapIn
 // initMaps initializes map cache for big-map inference only.
 func (r *MapTrackerBigMapInfer) initMaps(ctx *maa.Context) {
 	r.mapsOnce.Do(func() {
-		mt.Resource.InitRawMaps(ctx)
-		if mt.Resource.RawMapsErr != nil {
-			r.mapsErr = mt.Resource.RawMapsErr
+		internal.Resource.InitRawMaps(ctx)
+		if internal.Resource.RawMapsErr != nil {
+			r.mapsErr = internal.Resource.RawMapsErr
 			return
 		}
-		log.Info().Int("mapsCount", len(mt.Resource.RawMaps)).Msg("Big-map maps cache initialized")
+		log.Info().Int("mapsCount", len(internal.Resource.RawMaps)).Msg("Big-map maps cache initialized")
 	})
 }
 
 // getScaledMaps recomputes scaled map cache for the requested scale.
-func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []mt.MapCache {
+func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []internal.MapCache {
 	r.scaledMapsMu.Lock()
 	defer r.scaledMapsMu.Unlock()
 
@@ -284,10 +282,10 @@ func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []mt.MapCache {
 		return r.scaledMaps
 	}
 
-	newScaled := make([]mt.MapCache, 0, len(mt.Resource.RawMaps))
-	for _, m := range mt.Resource.RawMaps {
+	newScaled := make([]internal.MapCache, 0, len(internal.Resource.RawMaps))
+	for _, m := range internal.Resource.RawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, mt.MapCache{
+		newScaled = append(newScaled, internal.MapCache{
 			Name:    m.Name,
 			Img:     sImg,
 			OffsetX: m.OffsetX,
@@ -302,8 +300,8 @@ func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []mt.MapCache {
 
 func cropBigMapTemplate(screen *image.RGBA) (*image.RGBA, int, int, bool) {
 	w, h := screen.Rect.Dx(), screen.Rect.Dy()
-	padLR := int(math.Round(mt.PADDING_LR))
-	padTB := int(math.Round(mt.PADDING_TB))
+	padLR := int(math.Round(PADDING_LR))
+	padTB := int(math.Round(PADDING_TB))
 
 	left := max(0, min(w, padLR))
 	right := max(0, min(w, w-padLR))
@@ -322,8 +320,8 @@ func cropBigMapTemplate(screen *image.RGBA) (*image.RGBA, int, int, bool) {
 }
 
 func cropBigMapSample(fullTemplate *image.RGBA, fullLeft, fullTop, screenW, screenH int) (*image.RGBA, int, int, bool) {
-	sampleLeftAbs := int(math.Round(mt.SAMPLE_PADDING_LR))
-	sampleTopAbs := int(math.Round(mt.SAMPLE_PADDING_TB))
+	sampleLeftAbs := int(math.Round(SAMPLE_PADDING_LR))
+	sampleTopAbs := int(math.Round(SAMPLE_PADDING_TB))
 	sampleRightAbs := screenW - sampleLeftAbs
 	sampleBottomAbs := screenH - sampleTopAbs
 
@@ -349,4 +347,8 @@ func cropBigMapSample(fullTemplate *image.RGBA, fullLeft, fullTop, screenW, scre
 	draw.Draw(dst, dst.Bounds(), fullTemplate, region.Min, draw.Src)
 
 	return dst, leftRel, topRel, true
+}
+
+func roundTo1Decimal(value float64) float64 {
+	return math.Round(value*10.0) / 10.0
 }

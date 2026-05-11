@@ -28,3 +28,5 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/arch v0.25.0 // indirect
 )
+
+replace github.com/ebitengine/purego => github.com/ebitengine/purego v0.9.1 // indirect; pinned for maa-framework-go compatibility

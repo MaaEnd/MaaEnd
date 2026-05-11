@@ -126,7 +126,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "Required:",
     "tasker.aspect_ratio_warning.requirement_exact": "Exact %dx%d; other 16:9 resolutions such as 1920x1080 are not accepted",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 aspect ratio; for example 3840x2160, 2560x1440, 1920x1080, 1280x720",
-    "tasker.aspect_ratio_warning.requirement_ratio_note": "Fullscreen mode only supports 16:9 monitors; in windowed mode, you can manually set the resolution to 16:9.",
+    "tasker.aspect_ratio_warning.full_screen_illegal": "Windowed mode; fullscreen requires a physical 16:9 monitor, which your current display does not meet.",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "Navigation aborted.",
     "maptracker.emergency_stop.cause_header": " Possible causes:",

@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Harry Huang
-package maptracker
+package maptrackerinternal
 
 import (
 	"fmt"
@@ -33,9 +33,11 @@ const (
 	MAP_BBOX_DATA_PATH     = "data/MapTracker/map_bbox_data.json"
 	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
 	MAP_DIR                = "resource/image/MapTracker/map"
+
+	RAW_MAP_BBOX_EXPAND_PX = 40 // 2x minimap radius
 )
 
-// MapTrackerResource stores globally shared map resources for map-tracker.
+// MapTrackerResource stores globally shared map resources for maptracker.
 type MapTrackerResource struct {
 	RawMapsOnce sync.Once
 	RawMaps     []MapCache

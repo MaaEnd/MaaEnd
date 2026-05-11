@@ -6,7 +6,7 @@
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
             "option": [
-                "GiftOperatorMoveMode"
+                "SelectOperator"
             ],
             "controller": [
                 "Win32-Front",
@@ -18,31 +18,782 @@
         }
     ],
     "option": {
-        "GiftOperatorMoveMode": {
+        "SelectOperator": {
             "type": "select",
-            "label": "$option.GiftOperatorMoveMode.label",
-            "description": "$option.GiftOperatorMoveMode.description",
-            "default_case": "MapTracker",
+            "label": "$option.SelectOperator.label",
+            "default_case": "Any",
+            "description": "$option.SelectOperator.description",
             "cases": [
                 {
-                    "name": "Recorded",
-                    "label": "$option.GiftOperatorMoveMode.cases.Recorded.label",
+                    "name": "Any",
+                    "label": "$task.GiftOperator.select.any_three",
                     "pipeline_override": {
-                        "GiftOperatorInDijiang0": {
-                            "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
-                            }
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": true
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": true
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "MapTracker",
-                    "label": "$option.GiftOperatorMoveMode.cases.MapTracker.label",
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "GiftOperatorInDijiang0": {
-                            "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunMapTracker"
-                            }
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Perlica.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Yvonne.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Ardelia.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Gilberta.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/ChenQianyu.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Wulfgard.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Antal.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Xaihi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Lifeng.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Catcher.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Arclight.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弧光",
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Avywenna.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Laevatain.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Alesh.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "阿列什",
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Pogranichnik.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/LastRite.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Ember.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Snowshine.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/DaPan.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "大潘",
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Fluorite.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Akekuri.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "秋栗",
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Estella.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "埃特拉",
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Rossi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Tangtang.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/ZhuangFangyi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
                         }
                     }
                 }

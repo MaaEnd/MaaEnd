@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
@@ -113,7 +114,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	}
 
 	if isADBController {
-		requirement := exactResolutionRequirement()
+		requirement := i18n.T("tasker.aspect_ratio_warning.requirement_exact", targetWidth, targetHeight)
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
@@ -161,14 +162,12 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
-	requirement := aspectRatioRequirement()
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
 		Str("controller_name", pienv.ControllerName()).
 		Str("controller_type", controlType).
 		Str("requirement", "aspect_ratio").
-		Str("target_resolution", requirement).
 		Str("mode", "aspect_ratio_only").
 		Int32("width", width).
 		Int32("height", height).
@@ -183,7 +182,6 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Str("controller_name", pienv.ControllerName()).
 			Str("controller_type", controlType).
 			Str("requirement", "aspect_ratio").
-			Str("target_resolution", requirement).
 			Bool("stop_task", true).
 			Int32("width", width).
 			Int32("height", height).
@@ -191,7 +189,12 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Float64("target_ratio", targetRatio).
 			Str("mode", "aspect_ratio_only").
 			Msg("resolution check failed")
-		c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), requirement)
+		fullScreen, _ := gamesetting.GetVideoFullScreen()
+		if fullScreen == 1 {
+			c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.full_screen_illegal"))
+		} else {
+			c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.requirement_ratio"))
+		}
 		return
 	}
 
@@ -201,16 +204,15 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Str("controller_name", pienv.ControllerName()).
 		Str("controller_type", controlType).
 		Str("requirement", "aspect_ratio").
-		Str("target_resolution", requirement).
 		Int32("width", width).
 		Int32("height", height).
 		Str("mode", "aspect_ratio_only").
 		Msg("resolution check passed")
 }
 
-func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, requirement string) {
+func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, followUpLines ...string) {
 	maafocus.PrintLargeContentTrimNewline(
-		i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controllerDisplay, width, height, requirement)),
+		i18n.RenderHTML("tasker.aspect_ratio_warning", buildWarningData(controllerDisplay, width, height, followUpLines...)),
 	)
 	tasker.PostStop()
 }
@@ -260,11 +262,17 @@ func calculateAspectRatio(width, height int) float64 {
 	return h / w
 }
 
-func buildWarningData(controllerDisplay string, width, height int, requirement string) map[string]any {
+func buildWarningData(controllerDisplay string, width, height int, followUpLines ...string) map[string]any {
+	lines := make([]string, 0, len(followUpLines))
+	for _, line := range followUpLines {
+		if strings.TrimSpace(line) != "" {
+			lines = append(lines, line)
+		}
+	}
 	return map[string]any{
 		"ControllerType":    controllerDisplay,
 		"CurrentResolution": fmt.Sprintf("%dx%d", width, height),
-		"Requirement":       requirement,
+		"FollowUpLines":     lines,
 	}
 }
 
@@ -306,12 +314,4 @@ func normalizeControllerType(controllerType string) string {
 	default:
 		return ""
 	}
-}
-
-func exactResolutionRequirement() string {
-	return i18n.T("tasker.aspect_ratio_warning.requirement_exact", targetWidth, targetHeight)
-}
-
-func aspectRatioRequirement() string {
-	return i18n.T("tasker.aspect_ratio_warning.requirement_ratio")
 }

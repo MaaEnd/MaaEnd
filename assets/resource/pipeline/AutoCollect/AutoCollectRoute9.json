@@ -1,0 +1,331 @@
+{
+    "AutoCollectRoute9Start": {
+        "desc": "燎石",
+        "next": [
+            "AutoCollectRoute9AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingWulingCity7"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线9"
+        }
+    },
+    "AutoCollectRoute9End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute9Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectRoute9End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    },
+    "AutoCollectRoute9AssertLocation1": {
+        "desc": "传送点定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        421.2,
+                        845.8,
+                        9.2,
+                        10.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute9GotoFindLine1Sub"
+        ]
+    },
+    "AutoCollectRoute9GotoFindLine1Sub": {
+        "desc": "寻路燎石",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute9GotoFindLine1"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute9AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute9AssertLocation2": {
+        "desc": "燎石定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        550.2,
+                        895.6,
+                        12.3,
+                        11.3
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute9GotoFind1Sub"
+        ]
+    },
+    "AutoCollectRoute9GotoFindLine1": {
+        "desc": "前往燎石采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    425.0,
+                    851.3
+                ],
+                [
+                    428.8,
+                    853.7
+                ],
+                [
+                    439.2,
+                    853.4
+                ],
+                [
+                    452.1,
+                    854.9
+                ],
+                [
+                    465.0,
+                    858.7
+                ],
+                [
+                    479.0,
+                    866.5
+                ],
+                [
+                    488.4,
+                    886.4
+                ],
+                [
+                    502.4,
+                    896.0
+                ],
+                [
+                    517.5,
+                    897.5
+                ],
+                [
+                    524.6,
+                    889.7
+                ],
+                [
+                    531.3,
+                    896.2
+                ],
+                [
+                    557.5,
+                    901.3
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute9GotoFind1Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute9GotoFind1",
+                "AutoCollectRoute9GotoFind2",
+                "AutoCollectRoute9GotoFind3",
+                "AutoCollectRoute9GotoFind4",
+                "AutoCollectRoute9GotoFind5",
+                "AutoCollectRoute9GotoFind6",
+                "AutoCollectRoute9GotoFind7",
+                "AutoCollectRoute9GotoFind8"
+            ],
+            "continue": true,
+            "strict": true
+        },
+        "next": [
+            "AutoCollectRoute9Wait10sec"
+        ]
+    },
+    "AutoCollectRoute9GotoFind1": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    558.8,
+                    905.0
+                ],
+                [
+                    556.3,
+                    908.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind2": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    558.8,
+                    905.0
+                ],
+                [
+                    555.0,
+                    907.4
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind3": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    558.8,
+                    905.0
+                ],
+                [
+                    552.5,
+                    908.8
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind4": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    558.8,
+                    905.0
+                ],
+                [
+                    560.0,
+                    911.2
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind5": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    558.8,
+                    905.0
+                ],
+                [
+                    562.5,
+                    911.3
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind6": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    562.5,
+                    907.5
+                ],
+                [
+                    561.2,
+                    912.5
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind7": {
+        "desc": "前往收集地7",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    562.5,
+                    907.5
+                ],
+                [
+                    562.5,
+                    914.9
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute9GotoFind8": {
+        "desc": "前往收集地8",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    562.5,
+                    907.5
+                ],
+                [
+                    560.0,
+                    915.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    }
+}

@@ -32,7 +32,7 @@ The core maintenance points for environment monitoring are:
 | Generator config        | `tools/pipeline-generate/EnvironmentMonitoring/config.json`             | Per-point output config: `outputPattern: "${Station}/${Id}.json"`                                                                                |
 | Terminal gen. config    | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`   | Merged terminal output config: `outputFile: "Terminals.json"`                                                                                    |
 | Locale strings          | `assets/locales/interface/*.json`                                       | `task.EnvironmentMonitoring.*` label / description (task level; observation-point names use OCR)                                                 |
-| MapTracker dependency   | `agent/go-service/map-tracker/`                                         | `MapTrackerMove`, `MapTrackerAssertLocation` (see [map-tracker.md](../components/map-tracker.md))                                                |
+| MapTracker dependency   | `agent/go-service/maptracker/`                                          | `MapTrackerMove`, `MapTrackerAssertLocation` (see [map-tracker.md](../components/map-tracker.md))                                                |
 | SceneManager dependency | `assets/resource/pipeline/SceneManager/`, `Interface/`                  | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see [scene-manager.md](../scene-manager.md))           |
 
 ## Main flow
@@ -197,7 +197,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ### MapTracker
 
-The three phases "teleport → recheck → pathfind" for each observation point all depend on `agent/go-service/map-tracker/`:
+The three phases "teleport → recheck → pathfind" for each observation point all depend on `agent/go-service/maptracker/`:
 
 - `MapTrackerAssertLocation` (recognizer): determines whether the current minimap position is within the `MapTarget` rectangle.
 - `MapTrackerMove` (action): walks along `MapPath` to the target, with anchor-rewrite support for `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`.

@@ -131,8 +131,6 @@
         "action": {
             "type": "Click"
         },
-        // 场景一：传送有loading
-        // 场景二：原地传送无loading
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "__ScenePrivateMapTeleportSuccess"
@@ -163,8 +161,6 @@
             "__ScenePrivateMapSwipeToStep1Anchor": "",
             "__ScenePrivateMapSwipeToStepFinishAnchor": ""
         },
-        // 场景一：传送有loading
-        // 场景二：原地传送无loading
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "__ScenePrivateMapTeleportSuccess"
