@@ -28,13 +28,9 @@
         ],
         "pre_wait_freezes": 120,
         "pre_delay": 0,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "[JumpBack]__SceneCheckOSD",
             "[JumpBack]__SceneImageCheckAICPlanColor",
             "__SceneImageCheckFinishSave"
@@ -86,20 +82,20 @@
         "desc": "检查颜色成功",
         "recognition": "ColorMatch",
         "roi": [
+            -300,
             0,
-            0,
-            200,
+            300,
             60
         ],
         "lower": [
-            75,
-            74,
-            74
+            56,
+            56,
+            56
         ],
         "upper": [
-            77,
-            76,
-            76
+            58,
+            58,
+            58
         ],
         "connected": true,
         "count": 1500
