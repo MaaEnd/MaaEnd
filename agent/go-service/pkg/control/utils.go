@@ -26,6 +26,7 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 
 	type maaControllerInfo struct {
 		Type string `json:"type"`
+		HWnd uint64 `json:"hwnd"`
 	}
 
 	var info maaControllerInfo
@@ -51,6 +52,7 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 
 	if info.Type == CONTROL_TYPE_WIN32 {
 		CachedControlType = CONTROL_TYPE_WIN32
+		CachedWin32HWnd = uintptr(info.HWnd)
 		return CONTROL_TYPE_WIN32, nil
 	}
 	if info.Type == CONTROL_TYPE_WLROOTS {
@@ -71,6 +73,48 @@ const (
 )
 
 var CachedControlType string = ""
+
+// CachedWin32HWnd is the HWND of the Win32 controller, populated as a side
+// effect of GetControlType when the controller is a Win32 controller. Held in
+// process memory to avoid repeated GetInfo reverse-RPCs (each round-trip from
+// agent-server back to client costs latency and can deadlock when invoked
+// recursively from an event callback).
+var CachedWin32HWnd uintptr = 0
+
+// GetWin32HWnd returns the HWND that a Win32 controller is attached to.
+// Prefers the cached value populated by GetControlType; otherwise parses
+// ctrl.GetInfo() directly. See MaaFramework's Win32ControlUnitMgr::get_info,
+// which serializes `{"type":"win32","hwnd":<uint64>,...}`.
+func GetWin32HWnd(ctrl *maa.Controller) (uintptr, error) {
+	if CachedWin32HWnd != 0 {
+		return CachedWin32HWnd, nil
+	}
+	if ctrl == nil {
+		return 0, fmt.Errorf("nil controller")
+	}
+	infoStr, err := ctrl.GetInfo()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get controller info: %w", err)
+	}
+	if infoStr == "" {
+		return 0, fmt.Errorf("empty controller info")
+	}
+	var info struct {
+		Type string `json:"type"`
+		HWnd uint64 `json:"hwnd"`
+	}
+	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
+		return 0, fmt.Errorf("failed to parse controller info: %w", err)
+	}
+	if info.Type != CONTROL_TYPE_WIN32 {
+		return 0, fmt.Errorf("controller type is %q, not win32", info.Type)
+	}
+	if info.HWnd == 0 {
+		return 0, fmt.Errorf("controller info has no hwnd field or hwnd is zero")
+	}
+	CachedWin32HWnd = uintptr(info.HWnd)
+	return CachedWin32HWnd, nil
+}
 
 /* ******** Screen Diagonal Size ******** */
 
