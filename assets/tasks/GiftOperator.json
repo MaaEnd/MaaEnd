@@ -822,7 +822,7 @@
                             "template": [
                                 "GiftOperator/Gift.png"
                             ],
-                            "target": [
+                            "target_offset": [
                                 40,
                                 0,
                                 0,
