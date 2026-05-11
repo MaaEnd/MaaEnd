@@ -59,7 +59,7 @@ type MapTrackerMoveParam struct {
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
 	// StuckMitigators controls the sequential actions to take when a stuck condition is detected.
-	// Actions are cycled in order on each stuck event. Valid actions: "Jump".
+	// Actions are cycled in order on each stuck event. Valid actions: "Jump", "MoveOrDeleteDevice".
 	StuckMitigators []string `json:"stuck_mitigators,omitempty"`
 	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
 	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
@@ -79,9 +79,9 @@ var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
 	RotationLowerThreshold: 7.5,
 	RotationUpperThreshold: 60.0,
 	SprintThreshold:        10.0,
-	StuckThreshold:         2500,
+	StuckThreshold:         2000,
 	StuckTimeout:           10000,
-	StuckMitigators:        []string{"Jump"},
+	StuckMitigators:        []string{"MoveOrDeleteDevice", "Jump"},
 }
 
 var mapTrackerInferParamForMove = MapTrackerInferParam{
@@ -300,7 +300,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if len(param.StuckMitigators) > 0 {
 						action := param.StuckMitigators[stuckMitigatorIdx%len(param.StuckMitigators)]
 						stuckMitigatorIdx++
-						executeStuckMitigator(ca, action)
+						executeStuckMitigator(ctx, ca, action)
 					} else {
 						log.Debug().Msg("Stuck but no mitigators configured, skipping mitigation")
 					}
@@ -577,12 +577,16 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	return &result, nil
 }
 
-func executeStuckMitigator(ca control.ControlAdaptor, action string) {
+func executeStuckMitigator(ctx *maa.Context, ca control.ControlAdaptor, action string) {
 	log.Info().Str("mitigator", action).Msg("Executing stuck mitigator action")
 	switch action {
 	case "Jump":
 		ca.SetPlayerMovement(ca.GetPlayerMovement(), control.PolicyActive)
 		ca.PlayerJump()
+	case "MoveOrDeleteDevice":
+		if _, err := ctx.RunTask("MapTrackerStuckMitigator_MoveOrDeleteDevice"); err != nil {
+			log.Warn().Err(err).Msg("Stuck mitigator MoveOrDeleteDevice failed")
+		}
 	default:
 		log.Warn().Str("action", action).Msg("Unknown stuck mitigator action")
 	}

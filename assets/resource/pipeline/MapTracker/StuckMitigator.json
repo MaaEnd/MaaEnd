@@ -1,0 +1,184 @@
+{
+    "MapTrackerStuckMitigator_MoveOrDeleteDevice": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/StuckMitigator/InteractButton.png"
+                ],
+                "roi": [
+                    760,
+                    330,
+                    170,
+                    310
+                ],
+                "order_by": "Score"
+            }
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_Interact"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_Interact": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco"
+            }
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPost"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPost": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__MapTrackerInternal_IsInFactoryDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/StuckMitigator/FactoryDeviceDialog.png"
+                ],
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsDeleteSharedDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/StuckMitigator/DeleteSharedDeviceButton.png"
+                ],
+                "roi": [
+                    770,
+                    130,
+                    130,
+                    130
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsMoveDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/StuckMitigator/MoveDeviceButton.png"
+                ],
+                "roi": [
+                    730,
+                    130,
+                    130,
+                    130
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice": {
+        "recognition": {
+            "type":"And",
+            "param": {
+                "all_of": [
+                    "__MapTrackerInternal_IsInFactoryDeviceDialog",
+                    "__MapTrackerInternal_IsDeleteSharedDeviceButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ],
+                "roi": [
+                    750,
+                    390,
+                    170,
+                    160
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": "Click"
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice": {
+        "recognition": {
+            "type":"And",
+            "param": {
+                "all_of": [
+                    "__MapTrackerInternal_IsInFactoryDeviceDialog",
+                    "__MapTrackerInternal_IsMoveDeviceButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDeviceCancel"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDeviceCancel": {
+        "pre_delay": 250,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // Esc
+            }
+        }
+    }
+}
