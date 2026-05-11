@@ -835,10 +835,7 @@
                             ]
                         },
                         "GiftOperatorReceiveDialog": {
-                            "next": [
-                                "GiftOperatorSkipDialog",
-                                "GiftOperatorLeave"
-                            ]
+                            "next": []
                         },
                         "GiftOperatorSkipDialog": {
                             "next": [
