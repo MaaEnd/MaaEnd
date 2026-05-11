@@ -99,23 +99,16 @@ func MatchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id strin
 		return "", "", false
 	}
 
-	// 对候选名称排序，确保距离相同时的 tie-break 是确定性的。
-	names := make([]string, 0, len(itemMap.NameToID))
-	for n := range itemMap.NameToID {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-
 	bestDistance := maxDistance + 1
 	bestName := ""
 	bestID := ""
 
-	for _, candidateName := range names {
+	for candidateName, candidateID := range itemMap.NameToID {
 		dist := levenshtein.Distance(ocrText, candidateName)
-		if dist <= maxDistance && dist < bestDistance {
+		if dist <= maxDistance && (dist < bestDistance || dist == bestDistance && candidateName < bestName) {
 			bestDistance = dist
 			bestName = candidateName
-			bestID = itemMap.NameToID[candidateName]
+			bestID = candidateID
 		}
 	}
 
