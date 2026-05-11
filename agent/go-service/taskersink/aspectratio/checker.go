@@ -34,14 +34,6 @@ const (
 	// between fullscreen and windowed mode. Most engines need a few hundred ms
 	// to recreate the swap chain.
 	fullscreenToggleSettleDelay = 1500 * time.Millisecond
-
-	// idleRestoreDelay is how long we wait after a top-level task ends with no
-	// new task starting before treating the run as finished and restoring the
-	// window. MaaFramework only emits the synthetic `MaaTaskerPostStop` entry
-	// on explicit `Tasker::post_stop()`, so natural queue exhaustion needs
-	// this debounce timer to be detected. 15s comfortably covers the typical
-	// sub-second gap between sequentially queued client tasks.
-	idleRestoreDelay = 15 * time.Second
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution.
@@ -59,7 +51,6 @@ type AspectRatioChecker struct {
 	originalY         int32
 	originalWidth     int32
 	originalHeight    int32
-	restoreTimer      *time.Timer
 }
 
 // OnTaskerTask handles tasker task events
@@ -67,27 +58,18 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	// PostStop entry is a synthetic task posted by Tasker::post_stop() (see
 	// MaaFramework/source/MaaFramework/Tasker/Tasker.cpp). It fires only on
 	// explicit `PostStop()` calls — manual stop from the client, or
-	// programmatic stop via `stopWithWarning`. Natural queue exhaustion does
-	// NOT emit this entry, so we also use a debounce timer on
-	// Succeeded/Failed events (see below) to catch that case.
+	// programmatic stop via `stopWithWarning`.
 	if detail.Entry == entryPostStop {
-		c.cancelRestoreTimer()
 		c.handlePostStop(detail)
 		return
 	}
 
 	switch event {
-	case maa.EventStatusSucceeded, maa.EventStatusFailed:
-		// A top-level task just finished. Schedule a delayed restore — if
-		// another task starts within idleRestoreDelay, Starting below cancels
-		// the timer; otherwise the timer fires and runs handlePostStop.
-		c.scheduleRestore(detail)
-		return
 	case maa.EventStatusStarting:
-		// A new top-level task is starting. Cancel any pending idle restore
-		// so we don't restore mid-run, then proceed with the aspect-ratio
-		// check below.
-		c.cancelRestoreTimer()
+		// Restoration only happens on explicit PostStop or process-shutdown
+		// Cleanup(), so successful task completion does not trigger restore.
+	case maa.EventStatusSucceeded, maa.EventStatusFailed:
+		return
 	default:
 		return
 	}
@@ -190,44 +172,6 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	c.warnAndStop(tasker, controllerDisplay, controlType, detail, int(width), int(height))
 }
 
-// scheduleRestore (re)arms the idle restore timer. Called whenever a
-// top-level task ends; the timer fires handlePostStop after idleRestoreDelay
-// unless cancelRestoreTimer is called first (i.e. a new task started).
-//
-// Always replaces any existing pending timer, so back-to-back Succeeded events
-// just push the deadline out.
-func (c *AspectRatioChecker) scheduleRestore(detail maa.TaskerTaskDetail) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.restoreTimer != nil {
-		c.restoreTimer.Stop()
-	}
-	if !c.resized && !c.fullscreenToggled {
-		c.restoreTimer = nil
-		return
-	}
-	d := detail
-	c.restoreTimer = time.AfterFunc(idleRestoreDelay, func() {
-		log.Debug().
-			Uint64("task_id", d.TaskID).
-			Dur("idle_delay", idleRestoreDelay).
-			Msg("Idle restore timer fired; treating run as finished")
-		c.handlePostStop(d)
-	})
-}
-
-// cancelRestoreTimer stops any pending idle restore. Called when a new
-// top-level task begins so the in-progress run isn't interrupted by a stale
-// restore.
-func (c *AspectRatioChecker) cancelRestoreTimer() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.restoreTimer != nil {
-		c.restoreTimer.Stop()
-		c.restoreTimer = nil
-	}
-}
-
 // handlePostStop restores the original window rect after all tasks finish.
 // If we earlier toggled the game out of fullscreen via Alt+Enter, send Alt+Enter
 // again after restoring the rect so the user lands back in fullscreen.
@@ -282,10 +226,6 @@ func (c *AspectRatioChecker) handlePostStop(detail maa.TaskerTaskDetail) {
 	c.originalY = 0
 	c.originalWidth = 0
 	c.originalHeight = 0
-	if c.restoreTimer != nil {
-		c.restoreTimer.Stop()
-		c.restoreTimer = nil
-	}
 }
 
 // handleADB handles the ADB-controller exact-resolution check (original behavior).
