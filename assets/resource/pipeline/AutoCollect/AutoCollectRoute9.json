@@ -78,7 +78,7 @@
             ]
         },
         "next": [
-            "AutoCollectRoute9GotoFind1Sub"
+            "AutoCollectRoute9GotoFind1"
         ]
     },
     "AutoCollectRoute9GotoFindLine1": {
@@ -139,27 +139,6 @@
             ]
         }
     },
-    "AutoCollectRoute9GotoFind1Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind1",
-                "AutoCollectRoute9GotoFind2",
-                "AutoCollectRoute9GotoFind3",
-                "AutoCollectRoute9GotoFind4",
-                "AutoCollectRoute9GotoFind5",
-                "AutoCollectRoute9GotoFind6",
-                "AutoCollectRoute9GotoFind7",
-                "AutoCollectRoute9GotoFind8"
-            ],
-            "continue": true,
-            "strict": true
-        },
-        "next": [
-            "AutoCollectRoute9Wait10sec"
-        ]
-    },
     "AutoCollectRoute9GotoFind1": {
         "desc": "前往收集地1",
         "action": "Custom",
@@ -176,6 +155,9 @@
                     908.8
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind2"
         },
         "next": [
             "AutoCollectDigStart"
@@ -198,6 +180,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind3"
+        },
         "next": [
             "AutoCollectDigStart"
         ]
@@ -218,6 +203,9 @@
                     908.8
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind4"
         },
         "next": [
             "AutoCollectDigStart"
@@ -240,6 +228,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind5"
+        },
         "next": [
             "AutoCollectDigStart"
         ]
@@ -260,6 +251,9 @@
                     911.3
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind6"
         },
         "next": [
             "AutoCollectDigStart"
@@ -282,6 +276,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind7"
+        },
         "next": [
             "AutoCollectDigStart"
         ]
@@ -303,6 +300,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind8"
+        },
         "next": [
             "AutoCollectDigStart"
         ]
@@ -323,6 +323,9 @@
                     915.0
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9Wait10sec"
         },
         "next": [
             "AutoCollectDigStart"
