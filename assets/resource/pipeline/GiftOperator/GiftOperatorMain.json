@@ -56,7 +56,7 @@
             }
         },
         "next": [
-            "GiftOperatorShiftToRunMapTracker"
+            "GiftOperatorShiftToRunMapTrackerSC"
         ]
     },
     "GiftOperatorLeave": {
