@@ -6,7 +6,9 @@
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
             "option": [
-                "SelectOperator"
+                "SelectOperator",
+                "OnlyReceiveGift",
+                "GiftCount"
             ],
             "controller": [
                 "Win32-Front",
@@ -39,6 +41,32 @@
                         },
                         "GiftOperatorSelectOp1": {
                             "enabled": true
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HasGift",
+                    "label": "$task.GiftOperator.select.has_gift",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Gift.png"
+                            ]
                         },
                         "GiftOperatorName": {
                             "expected": [
