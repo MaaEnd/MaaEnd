@@ -62,9 +62,13 @@ Optional parameters:
 
 - `sprint_threshold`: Positive real number, default `10.0`. The distance threshold for performing the sprint action, in pixel distance. When the distance between the player and the next target point exceeds this value and the orientation is correct, the player will perform a sprint.
 
-- `stuck_threshold`: Positive integer, default `2500`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, automatic jumping will be triggered.
+- `stuck_threshold`: Positive integer, default `2000`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, stuck mitigation actions will be triggered.
 
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
+
+- `stuck_mitigators`: List of strings, default `["MoveOrDeleteDevice", "Jump"]`. When the player is judged to be stuck, the actions in the list are executed sequentially to attempt to escape the stuck state. Doing nothing is not allowed; if this field is set to an empty list, the effect is the same as the default value. Available actions include:
+    - `"Jump"`: Perform a jump action;
+    - `"MoveOrDeleteDevice"`: Attempt to delete or move the device in front of the player.
 
 - `map_name_match_rule`: String, default `"^%s(_tier_\\w+)?$"`. Allows maps that satisfy this expression to be used for pathfinding. The `%s` will be replaced by the `map_name` parameter (and automatically regex-escaped). Typical values are:
     - `^%s(_tier_\\w+)?$` (default): Allows the map itself and all its tiered maps to participate in pathfinding.
