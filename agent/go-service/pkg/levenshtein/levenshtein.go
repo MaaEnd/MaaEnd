@@ -1,5 +1,7 @@
 package levenshtein
 
+// Distance 计算两个字符串之间的 Levenshtein 编辑距离。
+// 支持多字节字符（rune 级别比较）。
 func Distance(a, b string) int {
 	runesA := []rune(a)
 	runesB := []rune(b)
@@ -34,17 +36,4 @@ func Distance(a, b string) int {
 	}
 
 	return prev[lenB]
-}
-
-func min(a, b, c int) int {
-	if a < b {
-		if a < c {
-			return a
-		}
-		return c
-	}
-	if b < c {
-		return b
-	}
-	return c
 }
