@@ -58,6 +58,9 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
+	// StuckMitigators controls the sequential actions to take when a stuck condition is detected.
+	// Actions are cycled in order on each stuck event. Valid actions: "Jump".
+	StuckMitigators []string `json:"stuck_mitigators,omitempty"`
 	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
 	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
 }
@@ -78,6 +81,7 @@ var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
 	SprintThreshold:        10.0,
 	StuckThreshold:         2500,
 	StuckTimeout:           10000,
+	StuckMitigators:        []string{"Jump"},
 }
 
 var mapTrackerInferParamForMove = MapTrackerInferParam{
@@ -178,6 +182,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			prevLocation                *[2]float64
 			fineApproachOngoing         = false
 			fineApproachExpectedEndTime = time.Time{}
+			stuckMitigatorIdx           = 0
 		)
 
 		for {
@@ -292,9 +297,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					return false
 				}
 				if deltaLocationMs > param.StuckThreshold {
-					log.Info().Msg("Stuck detected, jumping...")
-					ca.SetPlayerMovement(ca.GetPlayerMovement(), control.PolicyActive)
-					ca.PlayerJump()
+					if len(param.StuckMitigators) > 0 {
+						action := param.StuckMitigators[stuckMitigatorIdx%len(param.StuckMitigators)]
+						stuckMitigatorIdx++
+						executeStuckMitigator(ca, action)
+					} else {
+						log.Debug().Msg("Stuck but no mitigators configured, skipping mitigation")
+					}
 				}
 			} else {
 				prevLocation = &[2]float64{curX, curY}
@@ -475,6 +484,10 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		param.StuckTimeout = mapTrackerMoveDefaultParam.StuckTimeout
 	}
 
+	if len(param.StuckMitigators) == 0 {
+		param.StuckMitigators = mapTrackerMoveDefaultParam.StuckMitigators
+	}
+
 	if len(param.MapNameMatchRule) == 0 {
 		param.MapNameMatchRule = mapTrackerMoveDefaultParam.MapNameMatchRule
 	}
@@ -562,6 +575,17 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	return &result, nil
+}
+
+func executeStuckMitigator(ca control.ControlAdaptor, action string) {
+	log.Info().Str("mitigator", action).Msg("Executing stuck mitigator action")
+	switch action {
+	case "Jump":
+		ca.SetPlayerMovement(ca.GetPlayerMovement(), control.PolicyActive)
+		ca.PlayerJump()
+	default:
+		log.Warn().Str("action", action).Msg("Unknown stuck mitigator action")
+	}
 }
 
 func buildMapNameRegex(rule string, mapName string) string {
