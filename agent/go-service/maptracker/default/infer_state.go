@@ -77,6 +77,7 @@ func (s *InferState) SetPending(loc InferLocationRawResult) {
 
 // UpdatePending updates the pending location and increments hit count
 func (s *InferState) UpdatePending(x, y float64) {
+	_ = s.getLockTime()
 	s.pending.X = x
 	s.pending.Y = y
 	s.pendingHitCount++
@@ -87,12 +88,12 @@ func (s *InferState) TakeoverPending() {
 	nowMs := s.getLockTime()
 	s.convinced = s.pending
 	s.convincedLastHitTime = nowMs
-	s.pending = emptyLocationRawResult
-	s.pendingHitCount = 0
+	s.ResetPending()
 }
 
 // ResetPending clears the pending state
 func (s *InferState) ResetPending() {
+	_ = s.getLockTime()
 	s.pending = emptyLocationRawResult
 	s.pendingFirstHitTime = 0
 	s.pendingHitCount = 0
