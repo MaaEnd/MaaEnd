@@ -85,10 +85,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	ctrlType := control.CachedControlType
-	if ctrlType == "" {
-		ctrlType, _ = control.GetControlType(ctx.GetTasker().GetController())
-	}
+	ctrlType, _ := control.GetCachedControlType(ctx.GetTasker().GetController())
 
 	// Compile regex
 	mapNameRegex, err := regexp.Compile(param.MapNameRegex)

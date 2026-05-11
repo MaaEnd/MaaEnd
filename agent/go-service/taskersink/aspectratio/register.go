@@ -31,7 +31,6 @@ func Cleanup() {
 	if defaultChecker == nil {
 		return
 	}
-	defaultChecker.cancelRestoreTimer()
 	defaultChecker.mu.Lock()
 	needRestore := defaultChecker.resized || defaultChecker.fullscreenToggled
 	defaultChecker.mu.Unlock()
