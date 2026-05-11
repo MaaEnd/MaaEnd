@@ -220,7 +220,17 @@
             "DailyTaskAssemble",
             "DailyTaskLevelUpOperator",
             "DailyTaskScrollFinished",
-            "[JumpBack]DailyTaskScrollDown"
+            "[JumpBack]DailyTaskScrollDown",
+            "DailyTaskRecoveryNavigate"
+        ]
+    },
+    "DailyTaskRecoveryNavigate": {
+        "desc": "不在日常任务界面时，回到起点重试",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]DailyTaskStart"
         ]
     },
     "DailyTaskUpgradeWeapon": {
