@@ -741,7 +741,8 @@
         "custom_action": "ItemTransferOCRAction",
         "custom_action_param": {
             "item_name": "",
-            "side": "repo"
+            "side": "repo",
+            "max_distance": 1
         },
         "next": [
             "ItemTransferSwitchRepoToDestination"
@@ -753,7 +754,8 @@
         "custom_action": "ItemTransferOCRAction",
         "custom_action_param": {
             "item_name": "",
-            "side": "bag"
+            "side": "bag",
+            "max_distance": 1
         },
         "next": [
             "ItemTransferCheckIfFull",
@@ -767,7 +769,8 @@
         "custom_action": "ItemTransferOCRAction",
         "custom_action_param": {
             "item_name": "",
-            "side": "bag"
+            "side": "bag",
+            "max_distance": 1
         },
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
@@ -779,7 +782,8 @@
         "custom_action": "ItemTransferFallbackAction",
         "custom_action_param": {
             "target_class": 0,
-            "side": "repo"
+            "side": "repo",
+            "max_distance": 1
         },
         "next": [
             "ItemTransferSwitchRepoToDestination"
@@ -791,7 +795,8 @@
         "custom_action": "ItemTransferFallbackAction",
         "custom_action_param": {
             "target_class": 0,
-            "side": "bag"
+            "side": "bag",
+            "max_distance": 1
         },
         "next": [
             "ItemTransferCheckIfFull",
@@ -805,7 +810,8 @@
         "custom_action": "ItemTransferFallbackAction",
         "custom_action_param": {
             "target_class": 0,
-            "side": "bag"
+            "side": "bag",
+            "max_distance": 1
         },
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"

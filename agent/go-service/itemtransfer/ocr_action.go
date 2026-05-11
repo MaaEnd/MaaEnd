@@ -20,6 +20,7 @@ type ocrActionParams struct {
 	ItemName   string `json:"item_name"`
 	Descending bool   `json:"descending"`
 	Side       string `json:"side"`
+	MaxDistance int    `json:"max_distance"`
 }
 
 func (a *ItemTransferOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -120,7 +121,7 @@ func (a *ItemTransferOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		items = buildSyntheticGrid(side, cols)
 	}
 
-	result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, params.ItemName)
+	result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, params.ItemName, params.MaxDistance)
 	if result != nil {
 		return ctrlClick(ctrl, result.CenterX, result.CenterY)
 	}

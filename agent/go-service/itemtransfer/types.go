@@ -22,6 +22,7 @@ type fallbackParams struct {
 	TargetClass int    `json:"target_class"`
 	Descending  bool   `json:"descending"`
 	Side        string `json:"side"`
+	MaxDistance  int    `json:"max_distance"`
 }
 
 type gridItem struct {
