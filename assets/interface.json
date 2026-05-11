@@ -101,7 +101,9 @@
     "agent": [
         {
             "child_exec": "agent/go-service",
-            "child_args": []
+            "child_args": [
+                "--agent"
+            ]
         },
         {
             "child_exec": "agent/cpp-algo",
@@ -152,6 +154,8 @@
     ],
     "task": [],
     "import": [
+        // pretask
+        "pretasks/GameSetting.json",
         // group: regional_development
         "tasks/SellProduct.json",
         "tasks/SeizeEntrustTask.json",

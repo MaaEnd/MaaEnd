@@ -2,14 +2,13 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
 )
+
+const usage = "Usage: go-service --agent <identifier> | --pretask <taskname> [args...]"
 
 func main() {
 	logFile, err := initLogger()
@@ -28,65 +27,24 @@ func main() {
 	i18n.Init()
 
 	if len(os.Args) < 2 {
-		log.Fatal().Msg("Usage: go-service <identifier>")
+		log.Fatal().Msg(usage)
 	}
 
-	identifier := os.Args[1]
-	log.Info().
-		Str("identifier", identifier).
-		Msg("Starting agent server")
-
-	// Initialize MAA framework first (required before any other MAA calls)
-	// MAA DLL 位于工作目录下的 maafw 子目录
-	libDir := filepath.Join(getCwd(), "maafw")
-	log.Info().
-		Str("libDir", libDir).
-		Msg("Initializing MAA framework")
-	if err := maa.Init(
-		maa.WithLibDir(libDir),
-		maa.WithJSONEncoder(sonic.Marshal),
-		maa.WithJSONDecoder(sonic.Unmarshal),
-	); err != nil {
+	mode := os.Args[1]
+	switch mode {
+	case "--agent":
+		if len(os.Args) < 3 {
+			log.Fatal().
+				Msg("Usage: go-service --agent <identifier>")
+		}
+		runAgent(os.Args[2])
+	case "--pretask":
+		runPretask(os.Args[2:])
+	default:
 		log.Fatal().
-			Err(err).
-			Msg("Failed to initialize MAA framework")
+			Str("arg", mode).
+			Msg("Unknown mode, expected --agent or --pretask")
 	}
-	defer maa.Release()
-	log.Info().
-		Msg("MAA framework initialized")
-
-	// Initialize toolkit config option
-	userPath := getCwd()
-	if err := maa.ConfigInitOption(userPath, "{}"); err != nil {
-		log.Warn().
-			Str("userPath", userPath).
-			Err(err).
-			Msg("Failed to init toolkit config option")
-	} else {
-		log.Info().
-			Str("userPath", userPath).
-			Msg("Toolkit config option initialized")
-	}
-
-	// Register all custom components and sinks
-	registerAll()
-
-	// Start the agent server
-	if err := maa.AgentServerStartUp(identifier); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to start agent server")
-	}
-	log.Info().
-		Msg("Agent server started")
-
-	// Wait for the server to finish
-	maa.AgentServerJoin()
-
-	// Shutdown
-	maa.AgentServerShutDown()
-	log.Info().
-		Msg("Agent server shutdown")
 }
 
 func getCwd() string {
