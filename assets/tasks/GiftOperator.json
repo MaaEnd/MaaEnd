@@ -798,6 +798,56 @@
                     }
                 }
             ]
+        },
+        "OnlyReceiveGift": {
+            "type": "switch",
+            "label": "$option.OnlyReceiveGift.label",
+            "description": "$option.OnlyReceiveGift.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorSkipDialog",
+                                "GiftOperatorLeave"
+                            ]
+                        },
+                        "GiftOperatorSkipDialog": {
+                            "next": [
+                                "GiftOperatorBranchReceive",
+                                "GiftOperatorLeave"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {}
+                }
+            ]
+        },
+        "GiftCount": {
+            "type": "input",
+            "label": "$option.GiftCount.label",
+            "description": "$option.GiftCount.description",
+            "inputs": [
+                {
+                    "name": "Count",
+                    "label": "$option.GiftCount.inputs.Count.label",
+                    "description": "$option.GiftCount.inputs.Count.description",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "default": "1"
+                }
+            ],
+            "pipeline_override": {
+                "GiftOperatorClickGift": {
+                    "repeat": "{Count}",
+                    "repeat_delay": 100
+                }
+            }
         }
     }
 }
