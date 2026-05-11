@@ -9,6 +9,7 @@ import (
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/levenshtein"
 	"github.com/rs/zerolog/log"
 )
 
@@ -537,20 +538,21 @@ func indexOf(order []string, name string) int {
 	return -1
 }
 
+// fuzzyIndexOf 在有序候选列表中查找与 name 编辑距离最小的项。
+// maxDistance 硬编码为 1；如需调整请修改此常量。
 func fuzzyIndexOf(order []string, name string) int {
+	const maxDistance = 1 // 硬编码：允许最多 1 个字符差异
 	name = strings.TrimSpace(name)
 	if name == "" {
 		return -1
 	}
 	bestIdx := -1
-	bestDist := len(name) + 1
+	bestDist := maxDistance + 1
 	for i, n := range order {
-		if strings.Contains(n, name) || strings.Contains(name, n) {
-			d := abs(len(n) - len(name))
-			if d < bestDist {
-				bestDist = d
-				bestIdx = i
-			}
+		dist := levenshtein.Distance(name, n)
+		if dist <= maxDistance && dist < bestDist {
+			bestDist = dist
+			bestIdx = i
 		}
 	}
 	return bestIdx
@@ -566,11 +568,4 @@ func reversed(s []string) []string {
 		out[i], out[j] = out[j], out[i]
 	}
 	return out
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
