@@ -738,7 +738,6 @@
     "task.GiftOperator.focus.all_full": "所有干员信赖度已满,无法进行任务",
     "task.GiftOperator.focus.move_fail": "⚠️ 寻找干员识别失败",
     "task.GiftOperator.select.any_three": "任意",
-    "task.GiftOperator.select.has_gift": "有礼物的干员",
     "task.AutoStockStaple.label": "🏪购买稳定物资",
     "task.AutoStockStaple.description": "购买稳定需求物资，仅购买每周刷新的物品。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "购买页面未正常打开",

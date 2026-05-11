@@ -738,7 +738,6 @@
     "task.GiftOperator.focus.all_full": "所有幹員信賴度已滿，無法進行任務",
     "task.GiftOperator.focus.move_fail": "⚠️ 尋找幹員識別失敗",
     "task.GiftOperator.select.any_three": "任意",
-    "task.GiftOperator.select.has_gift": "有禮物的幹員",
     "task.AutoStockStaple.label": "🏪購買穩定物資",
     "task.AutoStockStaple.description": "購買穩定需求物資，僅購買每週刷新的物品。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "購買頁面未正常開啟",

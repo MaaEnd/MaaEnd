@@ -738,7 +738,6 @@
     "task.GiftOperator.focus.all_full": "All operators' trust is already maxed out, unable to proceed with the task",
     "task.GiftOperator.focus.move_fail": "⚠️ Failed to locate operator",
     "task.GiftOperator.select.any_three": "Any",
-    "task.GiftOperator.select.has_gift": "Has Gift",
     "task.AutoStockStaple.label": "🏪 Buy Staple Goods",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "Purchase page did not open properly",

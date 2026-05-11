@@ -738,7 +738,6 @@
     "task.GiftOperator.focus.all_full": "모든 오퍼레이터의 신뢰도가 이미 가득 찼습니다. 작업을 수행할 수 없습니다",
     "task.GiftOperator.focus.move_fail": "⚠️ 오퍼레이터 인식 실패",
     "task.GiftOperator.select.any_three": "임의",
-    "task.GiftOperator.select.has_gift": "선물 있는 오퍼레이터",
     "task.AutoStockStaple.label": "🏪 안정 수요 물자 구매",
     "task.AutoStockStaple.description": "안정 수요 물자를 구매하며, 매주 갱신되는 물자만 구매합니다.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "구매 화면이 정상적으로 열리지 않았습니다",
