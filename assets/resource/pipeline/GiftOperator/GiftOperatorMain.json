@@ -5,11 +5,37 @@
         "post_delay": 0,
         "next": [
             "GiftOperatorInDijiang0",
+            "GiftOperatorInDijiang1",
             "[JumpBack]SceneEnterWorldDijiang0"
         ]
     },
     "GiftOperatorInDijiang0": {
         "desc": "确认已在帝江号舰桥大世界",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "base01_lv003",
+                            "target": [
+                                158.3,
+                                189.9,
+                                10.3,
+                                9.2
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorShiftToRunMapTracker"
+        ]
+    },
+    "GiftOperatorInDijiang1": {
+        "desc": "短路优化,当前处于干员联络站附近触发",
         "recognition": {
             "type": "Custom",
             "param": {
