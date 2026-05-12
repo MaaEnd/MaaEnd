@@ -131,6 +131,7 @@
     },
     "VisitFriendsMenuScanDetailOpen": {
         "desc": "识别进入好友船的按钮",
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             -100,
