@@ -360,7 +360,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{AutoSellFriendsPriceRecognition} > 3000 "
+            "expression": "{AutoSellFriendsPriceRecognition} >= 5000 "
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -415,7 +415,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{AutoSellFriendsPriceCurrentRecognition} > 3000 "
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 5000 "
         },
         "pre_delay": 0,
         "post_delay": 0,

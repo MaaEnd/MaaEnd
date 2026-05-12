@@ -154,12 +154,12 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression": "{AutoSellFriendsPriceRecognition} > " + strconv.Itoa(targetPrice),
+					"expression": "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
 				},
 			},
 			"AutoSellFriendsPricesExpectedBuy": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression": "{AutoSellFriendsPriceCurrentRecognition} > " + strconv.Itoa(targetPrice),
+					"expression": "{AutoSellFriendsPriceCurrentRecognition} >= " + strconv.Itoa(targetPrice),
 				},
 			},
 			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
