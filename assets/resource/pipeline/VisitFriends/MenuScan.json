@@ -144,15 +144,19 @@
             -10,
             -10
         ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                400,
-                300,
-                500,
-                100
-            ]
-        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailOpenSuccess"
+        ]
+    },
+    "VisitFriendsMenuScanDetailOpenSuccess": {
+        "desc": "成功打开好友详情弹窗",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanDetailSaveAssist"
