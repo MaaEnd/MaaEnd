@@ -96,7 +96,8 @@
                     45,
                     45
                 ],
-                "connected": true
+                "connected": true,
+                "count": 200
             }
         ],
         "pre_delay": 0,
