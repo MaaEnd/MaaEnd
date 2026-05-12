@@ -1,8 +1,6 @@
 {
     "GiftOperatorBranchReceive": {
         "pre_wait_freezes": {
-            "time": 200,
-            "timeout": 3000,
             "target": [
                 953,
                 413,
