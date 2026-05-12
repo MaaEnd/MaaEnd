@@ -8,10 +8,6 @@
             "option": [
                 "OnlyReceiveGift"
             ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
-            ],
             "group": [
                 "dijiang_ship"
             ]
