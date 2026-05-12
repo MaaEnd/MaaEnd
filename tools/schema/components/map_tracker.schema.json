@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "MapTracker Component Schema",
     "description": "All MapTracker custom action and recognition parameter definitions. Referenced by custom.action.schema.json and custom.recognition.schema.json.",
     "$defs": {

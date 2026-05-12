@@ -262,10 +262,12 @@ def main():
             file_uri = schema_file.as_uri()
             relative_file = schema_file.relative_to(schema_dir).as_posix()
             relative_path = f"./{relative_file}"
+            relative_plain = relative_file
             absolute_path = f"/{relative_file}"
 
             schema_store[file_uri] = schema
             schema_store[relative_path] = schema
+            schema_store[relative_plain] = schema
             schema_store[absolute_path] = schema
         except Exception as e:
             print(f"Warning: Failed to load schema {schema_file}: {e}")
