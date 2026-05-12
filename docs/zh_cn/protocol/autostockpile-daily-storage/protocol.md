@@ -1,6 +1,6 @@
 # AutoStockpile 本地每日商品价格记录 — 第三方读取协议
 
-`AutoStockpile` 任务启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功、地区与服务器日解析完成后，将当轮识别到的商品价格写入 `data/AutoStockpile/daily_storage.json`。该路径只用于本地文件记录，不会触发远程上传。
+`AutoStockpile` 任务启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功、地区与服务器日解析完成后，将当轮识别到的商品价格写入 `debug/record/ElasticGoodsPrices.json`。该路径只用于本地文件记录，不会触发远程上传。
 
 本文档定义文件格式与路径解析规则，供第三方工具（数据分析面板、Web 前端、用户）可靠读取。
 
@@ -73,37 +73,21 @@
 ### 目标文件
 
 ```text
-{数据目录}/AutoStockpile/daily_storage.json
+debug/record/ElasticGoodsPrices.json
 ```
 
-### 数据目录解析优先级
-
-按以下顺序查找，使用第一个满足条件的路径：
-
-1. **环境变量 `MAAEND_DATA_DIR`**：若设置且非空，直接使用该值（经 `filepath.Clean` 处理）。
-2. **当前工作目录向上查找**：从当前工作目录开始，向上逐级查找已存在的 `data/` 或 `assets/data/` 目录，使用第一个找到的。
-3. **可执行文件目录向上查找**：从 `os.Executable()` 所在目录开始，向上逐级查找已存在的 `data/` 或 `assets/data/` 目录，使用第一个找到的。
-4. **回退**：若以上均未找到，使用 `<工作目录>/data/`。目录不存在时由 `MkdirAll` 创建。
-
-### 向上查找算法
-
-从起始目录向上遍历时，每级目录检查两个候选路径（按顺序）：
-
-1. `{base}/data/`
-2. `{base}/assets/data/`
-
-以第一个存在且为目录的路径作为结果。若遍历到文件系统根仍未找到，返回空字符串。
+路径为相对于 MaaEnd 工作目录的固定路径，不再进行向上查找或环境变量解析。目录不存在时由 `MkdirAll` 自动创建。
 
 ### 原子写入流程
 
-1. 在同一目录下创建临时文件（命名模式 `.{daily_storage.json}.*.tmp`）
+1. 在同一目录下创建临时文件（命名模式 `.{ElasticGoodsPrices.json}.*.tmp`）
 2. 写入完整 JSON 内容
 3. `chmod` 设置权限为 `0644`
 4. `Sync` 刷盘
 5. `Close` 关闭文件句柄
 6. `os.Rename` 原子替换目标文件
 
-读取方可安全地在任何时刻读取 `daily_storage.json`，不会读到部分写入的内容。
+读取方可安全地在任何时刻读取 `ElasticGoodsPrices.json`，不会读到部分写入的内容。
 
 ### 写入失败行为
 

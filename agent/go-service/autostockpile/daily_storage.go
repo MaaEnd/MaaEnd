@@ -6,14 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 )
 
 const (
-	dailyStorageFileName     = "daily_storage.json"
+	dailyStorageFileName     = "ElasticGoodsPrices.json"
 	maxDailyStorageDateCount = 120
-	maaEndDataDirEnvVar      = "MAAEND_DATA_DIR"
 )
 
 var resolveDailyStoragePathFunc = resolveDailyStoragePath
@@ -68,50 +66,7 @@ func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, regi
 }
 
 func resolveDailyStoragePath() string {
-	return filepath.Join(resolveDailyStorageDataDir(), "AutoStockpile", dailyStorageFileName)
-}
-
-func resolveDailyStorageDataDir() string {
-	if dir := strings.TrimSpace(os.Getenv(maaEndDataDirEnvVar)); dir != "" {
-		return filepath.Clean(dir)
-	}
-
-	if cwd, err := os.Getwd(); err == nil {
-		if dir := findExistingDataDirFromAncestors(cwd); dir != "" {
-			return dir
-		}
-	}
-
-	if exePath, err := os.Executable(); err == nil {
-		if dir := findExistingDataDirFromAncestors(filepath.Dir(exePath)); dir != "" {
-			return dir
-		}
-	}
-
-	if cwd, err := os.Getwd(); err == nil {
-		return filepath.Join(cwd, "data")
-	}
-	return "data"
-}
-
-func findExistingDataDirFromAncestors(start string) string {
-	base := filepath.Clean(start)
-	for {
-		for _, candidate := range []string{
-			filepath.Join(base, "data"),
-			filepath.Join(base, "assets", "data"),
-		} {
-			if info, err := os.Stat(candidate); err == nil && info.IsDir() {
-				return candidate
-			}
-		}
-
-		parent := filepath.Dir(base)
-		if parent == base {
-			return ""
-		}
-		base = parent
-	}
+	return filepath.Join("debug", "record", dailyStorageFileName)
 }
 
 func upsertDailyStorageRecord(path string, record dailyStorageRecord) error {

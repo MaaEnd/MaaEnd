@@ -96,7 +96,7 @@ Defines format specifications for files written by MaaEnd, for reliable consumpt
 
 | Document                                                                                 | Description                                                   |
 | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| [AutoStockpile Daily Price Records](../protocol/autostockpile-daily-storage/protocol.md) | `daily_storage.json` format, path resolution, and write rules |
+| [AutoStockpile Daily Price Records](../protocol/autostockpile-daily-storage/protocol.md) | `ElasticGoodsPrices.json` format, path resolution, and write rules |
 
 ## Quick lookup
 

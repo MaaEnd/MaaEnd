@@ -96,7 +96,7 @@ flowchart TD
 
 | 文档                                                                              | 说明                                              |
 | --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| [AutoStockpile 每日价格记录](../protocol/autostockpile-daily-storage/protocol.md) | `daily_storage.json` 文件格式、路径解析与写入规则 |
+| [AutoStockpile 每日价格记录](../protocol/autostockpile-daily-storage/protocol.md) | `ElasticGoodsPrices.json` 文件格式、路径解析与写入规则 |
 
 ## 快速跳转
 

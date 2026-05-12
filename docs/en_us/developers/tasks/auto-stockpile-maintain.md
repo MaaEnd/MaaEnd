@@ -96,7 +96,7 @@ If you need different pricing behavior, update the Go defaults in code rather th
 
 ## Local Daily Goods-Price Storage
 
-When `AutoStockpileAllowDataUpload` is enabled, the Go Service writes the recognized goods prices to `data/AutoStockpile/daily_storage.json` after successful recognition. For file format and path resolution rules, see [AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol](../../protocol/autostockpile-daily-storage/protocol.md).
+When `AutoStockpileAllowDataUpload` is enabled, the Go Service writes the recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful recognition. For file format and path resolution rules, see [AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol](../../protocol/autostockpile-daily-storage/protocol.md).
 
 ## Threshold Resolution Mechanism
 

@@ -86,7 +86,7 @@
     "$id": "https://raw.githubusercontent.com/MaaEnd/MaaEnd/main/docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
-    "description": "AutoStockpile 任务写入的 daily_storage.json 文件格式定义。",
+    "description": "AutoStockpile 任务写入的 ElasticGoodsPrices.json 文件格式定义。",
     "properties": {
         "records": {
             "description": "价格记录数组。",

@@ -96,7 +96,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ## 本地每日商品价格记录
 
-启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功后将商品价格写入 `data/AutoStockpile/daily_storage.json`。文件格式与路径解析规则见 [AutoStockpile 本地每日商品价格记录 — 第三方读取协议](../../protocol/autostockpile-daily-storage/protocol.md)。
+启用 `AutoStockpileAllowDataUpload` 后，Go Service 会在每轮商品识别成功后将商品价格写入 `debug/record/ElasticGoodsPrices.json`。文件格式与路径解析规则见 [AutoStockpile 本地每日商品价格记录 — 第三方读取协议](../../protocol/autostockpile-daily-storage/protocol.md)。
 
 ## 阈值解析机制
 
