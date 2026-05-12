@@ -74,6 +74,7 @@
     },
     "ProtocolSpaceTeamChoose": {
         "desc": "选择协议空间队伍",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "ProtocolSpaceTeamChooseTextRecognition",
