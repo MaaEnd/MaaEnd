@@ -318,6 +318,8 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryModeratePriceVolatilityValue.label": "Minimum selling price (moderate volatility)",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "Minimum selling price (large volatility)",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "Minimum selling price (extreme volatility)",
+    "task.AutoSell.focus.friends_prices_expected_above_threshold": "Current highest price > configured threshold",
+    "task.AutoSell.focus.friends_prices_expected_below_threshold": "Current highest price < configured threshold",
     "task.AutoStockpile.label": "📦 Auto Stockpile",
     "task.AutoStockpile.description": "Purchase elastic demand supplies, based on big data intelligent calculation to derive the best purchasing strategy.",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "Server Timezone",

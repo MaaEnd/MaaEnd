@@ -6,5 +6,4 @@ import "github.com/MaaXYZ/maa-framework-go/v4"
 func Register() {
 	maa.AgentServerRegisterCustomRecognition("AutoSellScanItemRecognition", &AutoSellScanItemRecognition{})
 	maa.AgentServerRegisterCustomAction("AutoSellItemExecuteItemTaskAction", &AutoSellItemExecuteItemTaskAction{})
-	maa.AgentServerRegisterCustomRecognition("AutoSellPriceCompareRecognition", &AutoSellPriceCompareRecognition{})
 }

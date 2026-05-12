@@ -257,6 +257,8 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryModeratePriceVolatilityValue.label": "價格變動適中物資最低售賣價格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "價格變動較大物資最低售賣價格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "價格變動極大物資最低售賣價格",
+    "task.AutoSell.focus.friends_prices_expected_above_threshold": "目前最高價 > 設定閾值",
+    "task.AutoSell.focus.friends_prices_expected_below_threshold": "目前最高價 < 設定閾值",
     "task.AutoStockpile.label": "📦自動囤貨",
     "task.AutoStockpile.description": "購買彈性需求物資，基於大數據智能計算得出最佳購買策略。",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "伺服器時區",

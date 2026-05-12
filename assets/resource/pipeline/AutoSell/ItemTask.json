@@ -358,9 +358,9 @@
     "AutoSellFriendsPricesExpected": {
         "desc": "价格符合预期",
         "recognition": "Custom",
-        "custom_recognition": "AutoSellPriceCompareRecognition",
+        "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "lowest_price": 5000
+            "expression": "{AutoSellFriendsPriceRecognition} > 3000 "
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -368,7 +368,11 @@
         "next": [
             "AutoSellFriendsPricesExpectedBuy",
             "AutoSellFriendsPricesExpectedGoTo"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoSell.focus.friends_prices_expected_above_threshold",
+            "Node.Recognition.Failed": "$task.AutoSell.focus.friends_prices_expected_below_threshold"
+        }
     },
     "AutoSellFriendsPricesUnExpected": {
         "desc": "价格不符合预期",
@@ -408,10 +412,11 @@
     },
     "AutoSellFriendsPricesExpectedBuy": {
         "desc": "当前价格符合预期，在当前好友飞船上，可以直接购买",
-        "recognition": "And",
-        "all_of": [
-            "AutoSellFriendsPriceCurrentRecognition"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} > 3000 "
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

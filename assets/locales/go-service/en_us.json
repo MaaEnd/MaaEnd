@@ -12,8 +12,6 @@
     "visitfriends.can_growth_chamber": "assist Growth Chamber",
     "visitfriends.current_counts": "Assist count: %d, Clue exchange count: %d",
     "visitfriends.check_friend": "Checking friend %s",
-    "autosell.price_compare_ok": "Recognized highest price: %d, minimum selling price: %d, meets condition",
-    "autosell.price_compare_fail": "Recognized highest price: %d, minimum selling price: %d, does not meet condition",
     "autosell.check_item_price_moderate": "Checking price for %s; moderate price volatility",
     "autosell.check_item_price_large": "Checking price for %s; large price volatility",
     "autosell.check_item_price_massive": "Checking price for %s; extreme price volatility",

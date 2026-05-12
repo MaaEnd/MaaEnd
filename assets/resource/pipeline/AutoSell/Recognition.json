@@ -47,16 +47,17 @@
             10
         ],
         "lower": [
-            61,
-            60,
-            60
+            34,
+            34,
+            34
         ],
         "upper": [
-            81,
-            80,
-            80
+            54,
+            54,
+            54
         ],
-        "count": 20
+        "connected": true,
+        "count": 300
     },
     "AutoSellStockRedistributionItemGreenLineRecognition": {
         "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",
@@ -127,7 +128,7 @@
             "AutoSell/SellTicketFriendValleyIV.png",
             "AutoSell/SellTicketFriendWuling.png"
         ],
-        "threshold": 0.9
+        "threshold": 0.8
     },
     "AutoSellFriendsPriceRecognition": {
         "desc": "识别好友列表里第一个最高价格",
@@ -148,22 +149,21 @@
                 ],
                 "only_rec": true
             }
-        ]
+        ],
+        "box_index": 1
     },
     "AutoSellFriendsPriceCurrentRecognition": {
-        "desc": "识别好友列表里第一个价格是否是当前",
+        "desc": "识别好友列表里当前价格是否符合预期",
         "recognition": "And",
         "all_of": [
-            "AutoSellFriendsPriceFirstTicketRecognition",
             {
                 "sub_name": "current_area",
                 "recognition": "ColorMatch",
-                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
-                "roi_offset": [
-                    -200,
-                    -20,
-                    150,
-                    20
+                "roi": [
+                    540,
+                    230,
+                    200,
+                    355
                 ],
                 "lower": [
                     245,
@@ -176,20 +176,39 @@
                     10
                 ],
                 "connected": true,
-                "count": 100
+                "count": 150
+            },
+            {
+                "sub_name": "ticket_icon",
+                "recognition": "TemplateMatch",
+                "roi": "current_area",
+                "roi_offset": [
+                    0,
+                    -15,
+                    200,
+                    30
+                ],
+                "template": [
+                    "AutoSell/SellTicketFriendValleyIV.png",
+                    "AutoSell/SellTicketFriendWuling.png"
+                ],
+                "threshold": 0.9
             },
             {
                 "recognition": "OCR",
-                "roi": "current_area",
+                "roi": "ticket_icon",
+                "roi_offset": [
+                    30,
+                    0,
+                    32,
+                    0
+                ],
                 "expected": [
-                    "当前",
-                    "目前",
-                    "Current",
-                    "現在",
-                    "현재"
+                    "\\d"
                 ],
                 "only_rec": true
             }
-        ]
+        ],
+        "box_index": 2
     }
 }

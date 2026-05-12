@@ -257,6 +257,8 @@
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryModeratePriceVolatilityValue.label": "価格変動が中程度の物資の最低販売価格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "価格変動が大きい物資の最低販売価格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label": "価格変動が極大の物資の最低販売価格",
+    "task.AutoSell.focus.friends_prices_expected_above_threshold": "現在の最高価格 > 設定した閾値",
+    "task.AutoSell.focus.friends_prices_expected_below_threshold": "現在の最高価格 < 設定した閾値",
     "task.AutoStockpile.label": "📦 自動備蓄",
     "task.AutoStockpile.description": "弾性需要物資を購入し、ビッグデータによるインテリジェント計算で最適な購買戦略を導き出します。",
     "task.AutoStockpile.option.AutoStockpileServerTime.label": "サーバー時間帯",
