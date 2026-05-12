@@ -131,7 +131,7 @@
                     "name": "Route1",
                     "label": "$option.AutoCollectRoute1.label",
                     "pipeline_override": {
-                        "AutoCollectRoute1Sub": {
+                        "AutoCollectRoute1Start": {
                             "enabled": true
                         }
                     }
@@ -140,7 +140,7 @@
                     "name": "Route2",
                     "label": "$option.AutoCollectRoute2.label",
                     "pipeline_override": {
-                        "AutoCollectRoute2Sub": {
+                        "AutoCollectRoute2Start": {
                             "enabled": true
                         }
                     }
@@ -149,7 +149,7 @@
                     "name": "Route3",
                     "label": "$option.AutoCollectRoute3.label",
                     "pipeline_override": {
-                        "AutoCollectRoute3Sub": {
+                        "AutoCollectRoute3Start": {
                             "enabled": true
                         }
                     }
@@ -158,7 +158,7 @@
                     "name": "Route4",
                     "label": "$option.AutoCollectRoute4.label",
                     "pipeline_override": {
-                        "AutoCollectRoute4Sub": {
+                        "AutoCollectRoute4Start": {
                             "enabled": true
                         }
                     }
@@ -167,7 +167,7 @@
                     "name": "Route5",
                     "label": "$option.AutoCollectRoute5.label",
                     "pipeline_override": {
-                        "AutoCollectRoute5Sub": {
+                        "AutoCollectRoute5Start": {
                             "enabled": true
                         }
                     }
@@ -176,7 +176,7 @@
                     "name": "Route6",
                     "label": "$option.AutoCollectRoute6.label",
                     "pipeline_override": {
-                        "AutoCollectRoute6Sub": {
+                        "AutoCollectRoute6Start": {
                             "enabled": true
                         }
                     }
@@ -185,7 +185,7 @@
                     "name": "Route7",
                     "label": "$option.AutoCollectRoute7.label",
                     "pipeline_override": {
-                        "AutoCollectRoute7Sub": {
+                        "AutoCollectRoute7Start": {
                             "enabled": true
                         }
                     }
@@ -194,7 +194,7 @@
                     "name": "Route8",
                     "label": "$option.AutoCollectRoute8.label",
                     "pipeline_override": {
-                        "AutoCollectRoute8Sub": {
+                        "AutoCollectRoute8Start": {
                             "enabled": true
                         }
                     }
@@ -203,7 +203,7 @@
                     "name": "Route9",
                     "label": "$option.AutoCollectRoute9.label",
                     "pipeline_override": {
-                        "AutoCollectRoute9Sub": {
+                        "AutoCollectRoute9Start": {
                             "enabled": true
                         }
                     }
@@ -212,7 +212,7 @@
                     "name": "Route10",
                     "label": "$option.AutoCollectRoute10.label",
                     "pipeline_override": {
-                        "AutoCollectRoute10Sub": {
+                        "AutoCollectRoute10Start": {
                             "enabled": true
                         }
                     }

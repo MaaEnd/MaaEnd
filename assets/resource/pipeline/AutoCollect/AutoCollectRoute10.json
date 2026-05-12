@@ -1,12 +1,13 @@
 {
     "AutoCollectRoute10Start": {
         "desc": "共两个重红柱状菌采集点",
+        "enabled": false,
         "next": [
             "AutoCollectRoute10AssertLocation1",
             "[JumpBack]SceneEnterWorldWulingJingyuValley1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线10"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
         }
     },
     "AutoCollectRoute10End": {

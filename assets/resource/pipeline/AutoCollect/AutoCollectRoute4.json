@@ -1,11 +1,12 @@
 {
     "AutoCollectRoute4Start": {
+        "enabled": false,
         "next": [
             "AutoCollectRoute4AssertLocation",
             "[JumpBack]SceneEnterWorldValleyIVPowerPlateau3"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线4"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
         }
     },
     "AutoCollectRoute4End": {

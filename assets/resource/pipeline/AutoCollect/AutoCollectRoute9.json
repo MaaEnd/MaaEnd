@@ -1,12 +1,13 @@
 {
     "AutoCollectRoute9Start": {
         "desc": "燎石",
+        "enabled": false,
         "next": [
             "AutoCollectRoute9AssertLocation1",
             "[JumpBack]SceneEnterWorldWulingWulingCity7"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线9"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
         }
     },
     "AutoCollectRoute9End": {

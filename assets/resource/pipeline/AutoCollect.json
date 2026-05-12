@@ -48,123 +48,93 @@
         "post_delay": 0
     },
     "AutoCollectRoute1Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute1Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
-        }
+            "AutoCollectRoute1Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute2Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute2Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
-        }
+            "AutoCollectRoute2Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute3Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute3Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.label"
-        }
+            "AutoCollectRoute3Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute4Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute4Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
-        }
+            "AutoCollectRoute4Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute5Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute5Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
-        }
+            "AutoCollectRoute5Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute6Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute6Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.label"
-        }
+            "AutoCollectRoute6Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute7Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute7Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.label"
-        }
+            "AutoCollectRoute7Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute8Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute8Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"
-        }
+            "AutoCollectRoute8Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute9Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute9Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
-        }
+            "AutoCollectRoute9Start",
+            "EmptyNode"
+        ]
     },
     "AutoCollectRoute10Sub": {
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectRoute10Start"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
-        }
+            "AutoCollectRoute10Start",
+            "EmptyNode"
+        ]
     }
 }

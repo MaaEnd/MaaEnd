@@ -1,11 +1,12 @@
 {
     "AutoCollectRoute5Start": {
+        "enabled": false,
         "next": [
             "AutoCollectRoute5AssertLocation",
             "[JumpBack]SceneEnterWorldValleyIVTheHub2"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线5"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
         }
     },
     "AutoCollectRoute5End": {

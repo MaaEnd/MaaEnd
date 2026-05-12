@@ -1,11 +1,12 @@
 {
     "AutoCollectRoute1Start": {
+        "enabled": false,
         "next": [
             "AutoCollectRoute1AssertLocation",
             "[JumpBack]SceneEnterWorldWulingWulingCity5"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线1"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
         }
     },
     "AutoCollectRoute1End": {
