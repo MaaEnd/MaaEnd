@@ -734,7 +734,7 @@
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "Store backpack items after completing",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "Leave Wuling base with photo mode",
     "task.GiftOperator.label": "🎁Gift to Operator",
-    "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).\nNote: This task requires the \"Win32-Front\" controller. Do not move the mouse during execution, as it may cause the task to fail.",
+    "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).",
     "task.GiftOperator.focus.bag_full": "⚠️ Bag is full, unable to collect operator gift. Please clear bag manually",
     "task.GiftOperator.focus.max_affinity": "⚠️ Operator affinity is already maxed",
     "task.GiftOperator.focus.all_full": "All operators' trust is already maxed out, unable to proceed with the task",

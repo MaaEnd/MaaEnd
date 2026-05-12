@@ -734,7 +734,7 @@
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "タスク終了後にバックパック内の雑品を収納",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "撮影モードで武陵拠点を離れる",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
-    "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。\n注意：このタスクは「PC版-フォアグラウンド」接続設定でのみ利用可能です。実行中はマウスを動かさないでください。タスクが失敗する可能性があります。",
+    "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。",
     "task.GiftOperator.focus.bag_full": "⚠️ バッグが満杯です。オペレーターのプレゼントを受け取れません。手動でバッグを整理してください",
     "task.GiftOperator.focus.max_affinity": "⚠️ オペレーターの好感度が最大です",
     "task.GiftOperator.focus.all_full": "全オペレーターの信頼度が最大です。タスクを実行できません",

@@ -734,7 +734,7 @@
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "任務結束後存放背包雜物",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "開拍照模式離開武陵基地",
     "task.GiftOperator.label": "🎁贈送幹員禮物",
-    "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。\n注意：此任務僅在「電腦端-前台」連接配置下可用。執行期間請勿移動滑鼠，否則可能導致任務失敗。",
+    "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。",
     "task.GiftOperator.focus.bag_full": "⚠️ 背包已滿，無法領取幹員禮物，請手動清理背包",
     "task.GiftOperator.focus.max_affinity": "⚠️ 幹員好感度已滿",
     "task.GiftOperator.focus.all_full": "所有幹員信賴度已滿，無法進行任務",
