@@ -5,10 +5,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    144,
-                    105,
-                    163,
-                    75
+                    33,
+                    46,
+                    273,
+                    133
                 ],
                 "expected": [
                     "干员联络",
@@ -384,10 +384,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    547,
-                    179,
-                    546,
-                    310
+                    548,
+                    178,
+                    638,
+                    318
                 ],
                 "template": [
                     "GiftOperator/TrustIcon.png"
@@ -584,10 +584,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    750,
-                    377,
-                    427,
-                    312
+                    641,
+                    274,
+                    538,
+                    415
                 ],
                 "template": [
                     "GiftOperator/OperatorChat.png"
@@ -632,7 +632,10 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
         "next": [
             "GiftOperatorSkipDialog"
         ]

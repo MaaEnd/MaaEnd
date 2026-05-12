@@ -5,10 +5,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    929,
-                    393,
-                    239,
-                    220
+                    900,
+                    334,
+                    273,
+                    318
                 ],
                 "template": [
                     "GiftOperator/GiftGiving.png"
@@ -51,10 +51,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    948,
-                    462,
-                    193,
-                    133
+                    900,
+                    334,
+                    273,
+                    318
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipTip.png"
@@ -63,7 +63,7 @@
         },
         "pre_wait_freezes": {
             "time": 200,
-            "target": [
+            "target": [ //这是啥?等有礼物时试试
                 1008,
                 474,
                 84,
@@ -82,14 +82,38 @@
     },
     "GiftOperatorClickGift": {
         "desc": "选择礼物",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    466,
+                    1280,
+                    254
+                ],
+                "lower": [
+                    22,
+                    252,
+                    255
+                ],
+                "upper": [
+                    22,
+                    252,
+                    255
+                ],
+                "count": 10,
+                "method": 40,
+                "connected": true
+            }
+        },
         "action": {
             "type": "Click",
             "param": {
-                "target": [
-                    80,
-                    550,
-                    16,
-                    16
+                "target_offset": [
+                    40,
+                    -60,
+                    -80,
+                    0
                 ]
             }
         },
@@ -100,19 +124,10 @@
     "GiftOperatorConfirmGift": {
         "desc": "点击赠送按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    1201,
-                    629,
-                    48,
-                    62
-                ],
-                "template": [
-                    "Common/Button/YellowConfirmButtonType2.png"
-                ],
-                "threshold": [
-                    0.46
+                "all_of": [
+                    "YellowConfirmButtonType1"
                 ]
             }
         },
@@ -157,9 +172,9 @@
             "param": {
                 "roi": [
                     28,
-                    500,
+                    430,
                     1252,
-                    50
+                    130
                 ],
                 "method": 40,
                 "lower": [
@@ -240,9 +255,9 @@
             "param": {
                 "roi": [
                     20,
-                    634,
-                    92,
-                    56
+                    606,
+                    108,
+                    83
                 ],
                 "expected": [
                     "默认",

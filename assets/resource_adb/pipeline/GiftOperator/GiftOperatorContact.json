@@ -1,0 +1,88 @@
+{
+    "GiftOperatorContacChooseSortOrder": {
+        "desc": "选择信赖度排序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    846,
+                    423,
+                    110,
+                    128
+                ],
+                "expected": [
+                    "信赖度"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "GiftOperatorContacSortBy": {
+        "desc": "选择升序",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1044,
+                    542,
+                    50,
+                    50
+                ],
+                "expected": [
+                    "降序"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                908,
+                309,
+                180,
+                173
+            ]
+        }
+    },
+    "GiftOperatorContacSortOrder": {
+        "desc": "选择排序方式",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    842,
+                    530,
+                    104,
+                    67
+                ],
+                "expected": [
+                    "默认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorContacChooseSortOrder"
+        ]
+    },
+    "GiftOperatorNotSelect": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    42,
+                    -104,
+                    -24,
+                    0
+                ]
+            }
+        }
+    }
+}

@@ -65,10 +65,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    945,
-                    404,
-                    228,
-                    249
+                    900,
+                    334,
+                    273,
+                    318
                 ],
                 "template": [
                     "GiftOperator/Leave.png"
