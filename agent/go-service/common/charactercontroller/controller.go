@@ -70,8 +70,7 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 
 	scaledDX := int32(dx)
 	scaledDY := int32(dy)
-	controlType, _ := control.GetCachedControlType(ctx.GetTasker().GetController())
-	if controlType == control.CONTROL_TYPE_WLROOTS {
+	if control.CachedControlType == control.CONTROL_TYPE_WLROOTS {
 		scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
 		scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))
 	}
