@@ -738,6 +738,7 @@
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
     "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).",
     "task.GiftOperator.focus.bag_full": "⚠️ 가방이 가득 차서 오퍼레이터 선물을 받을 수 없습니다. 수동으로 가방을 비워주세요",
+    "task.GiftOperator.focus.bag_full_clear": "가방이 가득 찼습니다. 가방 정리를 시도합니다",
     "task.GiftOperator.focus.max_affinity": "⚠️ 오퍼레이터 호감도가 이미 최대입니다",
     "task.GiftOperator.focus.all_full": "모든 오퍼레이터의 신뢰도가 이미 가득 찼습니다. 작업을 수행할 수 없습니다",
     "task.GiftOperator.focus.move_fail": "⚠️ 오퍼레이터 인식 실패",

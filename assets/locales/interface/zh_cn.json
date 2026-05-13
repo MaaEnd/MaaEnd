@@ -738,6 +738,7 @@
     "task.GiftOperator.label": "🎁赠送干员礼物",
     "task.GiftOperator.description": "给一名幸运干员赠送一个礼物，顺便领取 TA 给的礼物（如果有）。",
     "task.GiftOperator.focus.bag_full": "⚠️ 背包已满，无法领取干员礼物，请手动清理背包",
+    "task.GiftOperator.focus.bag_full_clear": "背包已满，尝试清理背包",
     "task.GiftOperator.focus.max_affinity": "⚠️ 干员好感度已满",
     "task.GiftOperator.focus.all_full": "所有干员信赖度已满,无法进行任务",
     "task.GiftOperator.focus.move_fail": "⚠️ 寻找干员识别失败",
