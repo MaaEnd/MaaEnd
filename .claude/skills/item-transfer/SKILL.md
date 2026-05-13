@@ -29,17 +29,28 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 
 > ⚠️ `category_order` 里的顺序，是后续 OCR 滚动识别和 **locales / ItemTransfer.json 插入顺序**的唯一权威来源，必须和游戏里肉眼看到的顺序一致。
 
-### 3. 告诉 AI 两件事
+### 2b. 放入模板图片（仅模板匹配方式需要）
 
-请在向 AI 下达任务时，明确告诉它以下两点，否则 AI 无法选对模板：
+如果选择「模板匹配」方式，需要将物品图标放入共享模板目录：
 
-- **识别方式**：这个物品是「**可识别**」（有训练好的分类模型，用 `ItemTransferFindItemInRepo` 的 `expected` / `target_class` 匹配），还是「**纯 OCR**」（没有分类模型，只能用 `ItemTransferFindItemWithOCR` 按中文名识别）。
-    - 一般新物品、模型没来得及训的物品用「纯 OCR」。
-    - 老物品、有分类 ID 的用「可识别」。
+- 将物品的图标 PNG 文件（RGBA 格式，原始尺寸即可，无需预缩放）放入 `assets/resource/image/Items/r{稀有度}/`。
+- 文件名必须是物品的英文 PascalCase 键名 + `.png`，例如 `FerriumOre.png`、`CarbonPowder.png`。
+- 确保同稀有度目录下的其他模板图片齐全（竞争性匹配会在同稀有度内所有模板之间竞争）。
+- 模板图片来源：游戏内截图裁切，或用户提供。
+
+### 3. 告诉 AI 三件事
+
+请在向 AI 下达任务时，明确告诉它以下信息，否则 AI 无法选对模板：
+
+- **识别方式**（三选一）：
+    - 「**可识别**」— 有训练好的分类模型，用 `ItemTransferFindItemInRepo` 的 `expected` / `target_class` 匹配。
+    - 「**纯 OCR**」— 没有分类模型，只能用 `ItemTransferFindItemWithOCR` 按中文名识别。一般新物品、模型没来得及训的物品用此方式。
+    - 「**模板匹配**」— 物品图标已放入 `assets/resource/image/Items/r{稀有度}/` 目录，使用竞争性模板匹配识别（`ItemTransferCompetitiveMatch`）。
+- **稀有度**（仅模板匹配需要）：1 / 2 / 3 / 4，对应模板图片所在子目录 `r1` / `r2` / `r3` / `r4`。
 - **排序方向**：这个物品在升序排列下靠前，就用「**升序**」；在升序下非常靠后、但在降序下靠前，就用「**降序**」。
     - 目的是让 OCR 滚动查找从近端开始，减少滚动距离。
 
-把这两个信息给 AI 后，AI 会按第二部分的流程自动完成剩下的写入。
+把这些信息给 AI 后，AI 会按第二部分的流程自动完成剩下的写入。
 
 ---
 
@@ -52,7 +63,8 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 在开始前，确保用户已经：
 
 1. 在 `assets/data/ItemTransfer/item_order.json` 的 `category_order.<category>` 里把新增物品的**中文名**插到了正确位置。
-2. 明确告知该物品是「可识别 / 纯 OCR」以及「升序 / 降序」。
+2. 明确告知该物品的识别方式（「可识别」/「纯 OCR」/「模板匹配」）、排序方向（「升序」/「降序」）。模板匹配还需要稀有度。
+3. 若为模板匹配方式，物品图标 PNG 已放入 `assets/resource/image/Items/r{稀有度}/`。
 
 若用户没有完整写明具体物品，使用 `git diff` 查看 `assets/data/ItemTransfer/item_order.json`，确认新增物品都有哪些。
 如果任一信息缺失，**必须先向用户确认**，不要擅自猜测。
@@ -60,8 +72,9 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 注意：`item_order.json` 里的 `items` 字段是识别模型的真实 class ID 表，由开发者维护，**Agent 不要新增或修改 `items` 条目**。
 
 - 如果用户选「可识别」，说明该物品**已经**在 `items` 里有对应条目：Agent 需要用该中文 `name` 在 `items` 里反查出数字 key，作为下文模板里 `<Id>`（`expected` / `target_class`）的值。
-- 如果在 `items` 里查不到该物品、但用户仍坚持「可识别」，**必须停下来**提示用户：该物品当前模型没有类别，只能用「纯 OCR」，请用户改口后再继续。
+- 如果在 `items` 里查不出该物品、但用户仍坚持「可识别」，**必须停下来**提示用户：该物品当前模型没有类别，只能用「纯 OCR」或「模板匹配」，请用户改口后再继续。
 - 如果用户选「纯 OCR」，则 Agent 完全不需要读 `items`，也不需要任何数字 ID。
+- 如果用户选「模板匹配」，Agent 需要确认 `assets/resource/image/Items/r{稀有度}/<LabelKey>.png` 存在。不需要数字 ID。
 
 ### 作用域约束
 
@@ -108,16 +121,17 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 
 #### 3.2 选择模板
 
-根据用户告知的「识别方式 + 排序方向」组合，选对应的模板。四个模板如下。占位符含义：
+根据用户告知的「识别方式 + 排序方向」组合，选对应的模板。六个模板如下。占位符含义：
 
 - `<Name>` — 物品中文名（和 `item_order.json` 的 `name`、以及 `category_order` 里的字符串完全一致）。
-- `<LabelKey>` — 步骤 1 确定的英文字段名（例如 `CupriumOre`），`label` 写成 `"$item.<LabelKey>"`。
+- `<LabelKey>` — 步骤 1 确定的英文字段名（例如 `CupriumOre`），`label` 写成 `"$item.<LabelKey>"`。模板匹配时 `<LabelKey>` 也用于匹配 `Items/r{稀有度}/<LabelKey>.png` 文件名。
 - `<Category>` — `Ore` / `Plant` / `Product` / `Usable`，首字母大写，对应 `template` 的文件名 `ItemTransfer/<Category>.png`。
-- `<Id>` — `item_order.json` 里该物品的数字 ID。**只有「可识别」模板才需要 `<Id>`，「纯 OCR」模板用不到。**
+- `<Id>` — `item_order.json` 里该物品的数字 ID。**只有「可识别」模板才需要 `<Id>`，「纯 OCR」和「模板匹配」模板用不到。**
+- `<Rarity>` — 稀有度等级（`1` / `2` / `3` / `4`）。**只有「模板匹配」模板需要。**
 
 ---
 
-##### 模板 A：可识别 + 升序（参考：`蓝铁矿`）
+##### 模板 A：可识别 + 升序（参考：`紫晶矿`）
 
 ```json
 {
@@ -310,6 +324,137 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 > 注意：**"升序 / 降序"只适用于仓库查找这一个环节**，模板里对应 `ItemTransferFindItemWithOCR`（纯 OCR）或 `ItemTransferFindItemFallback`（可识别）。只有它需要写 `"descending": true`。
 > 其他 `*Bag` / `*BagReturn` 分支（背包、背包回放）**没有升降序的概念**，模板里就是不写 `descending` 字段，按模板原样照抄即可。不要把这种"只有一个地方带 descending"视为不一致或漏写，这是现有所有条目的统一写法。
 
+##### 模板 E：模板匹配 + 升序（参考：`蓝铁矿`）
+
+```json
+{
+    "name": "<Name>",
+    "label": "$item.<LabelKey>",
+    "pipeline_override": {
+        "ItemTransferClickItemCategory": {
+            "template": "ItemTransfer/<Category>.png"
+        },
+        "ItemTransferRepoToBag": {
+            "next": [
+                "ItemTransferClickSortAscending",
+                "ItemTransferClickItemCategory",
+                "ItemTransferFindItemByTemplate",
+                "ItemTransferScrollDownwardRepo"
+            ]
+        },
+        "ItemTransferBagToRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBag",
+                "ItemTransferScrollDownwardBag"
+            ]
+        },
+        "ItemTransferBagToOriginRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBagReturn",
+                "ItemTransferScrollDownwardBagReturn"
+            ]
+        },
+        "ItemTransferFindItemByTemplate": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBag": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBagReturn": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        }
+    }
+}
+```
+
+##### 模板 F：模板匹配 + 降序（参考：`高容谷地电池`）
+
+```json
+{
+    "name": "<Name>",
+    "label": "$item.<LabelKey>",
+    "pipeline_override": {
+        "ItemTransferClickItemCategory": {
+            "template": "ItemTransfer/<Category>.png"
+        },
+        "ItemTransferRepoToBag": {
+            "next": [
+                "ItemTransferClickSortDescending",
+                "ItemTransferClickItemCategory",
+                "ItemTransferFindItemByTemplate",
+                "ItemTransferScrollDownwardRepo"
+            ]
+        },
+        "ItemTransferBagToRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBag",
+                "ItemTransferScrollDownwardBag"
+            ]
+        },
+        "ItemTransferBagToOriginRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBagReturn",
+                "ItemTransferScrollDownwardBagReturn"
+            ]
+        },
+        "ItemTransferFindItemByTemplate": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBag": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBagReturn": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        }
+    }
+}
+```
+
+> 模板 E/F 使用竞争性模板匹配（`ItemTransferCompetitiveMatch`），通过 `custom_recognition_param` 传入物品键名、稀有度、阈值和缩放参数。`item_scale` 和 `item_crop_offset` 目前统一为 `0.51` / `[0, 0, 0.29, 0]`（来自 `recognition.py` 的 `bag_config`），如需调整需同步修改。
+> 模板匹配识别失败时，Pipeline 不会自动 fallback 到 NND/OCR，会直接进入滚动流程重试。
+
 #### 3.3 插入 case 对象
 
 1. 把选好的模板填入实际的 `<Name>` / `<LabelKey>` / `<Category>` / `<Id>`。
@@ -325,8 +470,9 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 - [ ] **没有**擅自修改 `item_order.json` 的 `items` 字段（那是模型类别表，只由开发者维护）。
 - [ ] 如果用了「可识别」模板，`<Id>` 是从现有 `items` 里按中文 `name` 反查到的真实 class ID，不是自己编的。
 - [ ] 5 个 locale 文件（`zh_cn` / `zh_tw` / `en_us` / `ja_jp` / `ko_kr`）里都新增了 `item.<LabelKey>` 条目，且顺序和 `category_order` 一致。
-- [ ] `assets/tasks/ItemTransfer.json` 的 `option.WhatToTransfer.cases` 里新增了该物品的 case，位置正确、模板选对（识别方式 × 排序方向 = 4 选 1）。
+- [ ] `assets/tasks/ItemTransfer.json` 的 `option.WhatToTransfer.cases` 里新增了该物品的 case，位置正确、模板选对（识别方式 × 排序方向 = 6 选 1）。
 - [ ] `<Category>` 对应的 `template` 文件 `ItemTransfer/<Category>.png` 写法与同类别其他条目一致。
+- [ ] 如果用了「模板匹配」，确认 `assets/resource/image/Items/r{稀有度}/<LabelKey>.png` 文件存在，且 `custom_recognition_param` 里的 `item` 与文件名（不含扩展名）一致。
 - [ ] 所有 JSON 文件可以被正常解析，逗号 / 引号没写错。
 
 若任何一项没通过，先修复再回复用户。回复用户时，简要说明改了哪几个文件、新增物品落在哪个位置、用了哪个模板，让用户二次确认游戏内顺序是否和代码里一致。
