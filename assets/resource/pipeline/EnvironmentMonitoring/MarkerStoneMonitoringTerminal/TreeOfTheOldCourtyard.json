@@ -323,11 +323,7 @@
                 ],
                 [
                     555.8,
-                    177.5
-                ],
-                [
-                    555.8,
-                    178.8
+                    178.2
                 ]
             ]
         },
@@ -340,8 +336,18 @@
         ]
     },
     "TreeOfTheOldCourtyardAdjustHeading": {
-        "desc": "旧庭树任务无需调整角色朝向",
+        "desc": "旧庭树任务中调整角色朝向",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

@@ -298,10 +298,10 @@
             [520.8, 196.3],
             [538.3, 195.1],
             [539.4, 178.7],
-            [555.8, 177.5],
-            [555.8, 178.8]
+            [555.8, 178.2]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 180
     },
     {
         "Name": "垂藤",
