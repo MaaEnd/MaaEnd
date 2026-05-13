@@ -119,6 +119,8 @@
     "option.SelectOperator.description": "指定干员时通过模板匹配寻人；「任意」会先切换为信赖排序并连选三名未满信赖干员，有利于提高选人成功率。",
     "option.OnlyReceiveGift.label": "只收礼物",
     "option.OnlyReceiveGift.description": "开启后只领取干员赠送的礼物，不再发起新的对话和送礼。",
+    "option.AcceptAllGifts.label": "接受全部礼物",
+    "option.AcceptAllGifts.description": "仅在「只收礼物」开启时可用。开启后将不会在对话中途点击离开；只有在联络界面识别到「无可选干员」时可退出本轮并在离开后重新开始任务入口，用于轮流领取多名干员的礼物。",
     "option.GiftCount.label": "赠送数量",
     "option.GiftCount.description": "单次任务赠送礼物的数量。",
     "option.GiftCount.inputs.Count.label": "数量",

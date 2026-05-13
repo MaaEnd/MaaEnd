@@ -119,6 +119,8 @@
     "option.SelectOperator.description": "指名時はテンプレート一致で探します。「任意」は信頼度ソートに切り替え、信頼度未満のオペレーターを3名連続で選び、成功率を上げやすくします。",
     "option.OnlyReceiveGift.label": "プレゼント受け取りのみ",
     "option.OnlyReceiveGift.description": "有効にすると、オペレーターからのプレゼントを受け取るだけで、新しい会話やプレゼントは行いません。",
+    "option.AcceptAllGifts.label": "すべてのプレゼントを受け取る",
+    "option.AcceptAllGifts.description": "「プレゼント受け取りのみ」がオンのときのみ利用できます。オンにすると会話の途中で「離脱」を押さず、連絡画面で「選択できるオペレーターがいない」と判定されたときだけ一度抜け、離脱後にタスク入口から再開して複数オペレーター分を順に受け取れます。",
     "option.GiftCount.label": "プレゼント数",
     "option.GiftCount.description": "1 回のタスクで贈るプレゼントの数。",
     "option.GiftCount.inputs.Count.label": "数量",

@@ -119,6 +119,8 @@
     "option.SelectOperator.description": "指定幹員時透過模板比對尋人；「任意」會先切換為信賴排序並連選三名未滿信賴幹員，有利於提高選人成功率。",
     "option.OnlyReceiveGift.label": "只收禮物",
     "option.OnlyReceiveGift.description": "開啟後只領取幹員贈送的禮物，不再發起新的對話和送禮。",
+    "option.AcceptAllGifts.label": "接受全部禮物",
+    "option.AcceptAllGifts.description": "僅在「只收禮物」開啟時可用。開啟後將不會在對話中途點選離開；只有在聯絡介面辨識到「無可選幹員」時可結束本輪並在離開後重新開始任務入口，用於輪流領取多名幹員的禮物。",
     "option.GiftCount.label": "贈送數量",
     "option.GiftCount.description": "單次任務贈送禮物的數量。",
     "option.GiftCount.inputs.Count.label": "數量",

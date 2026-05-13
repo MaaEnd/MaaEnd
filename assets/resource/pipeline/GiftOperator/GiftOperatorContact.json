@@ -23,8 +23,29 @@
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
-            "[JumpBack]GiftOperatorSwipe"
+            "[JumpBack]GiftOperatorSwipe",
+            "GiftOperatorNoOperatorCanSelect"
         ]
+    },
+    "GiftOperatorNoOperatorCanSelect": {
+        "desc": "没有可选择的干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    130,
+                    92,
+                    180,
+                    94
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        }
     },
     "GiftOperatorSwipe": {
         "desc": "滑动尝试找到干员",
@@ -354,6 +375,15 @@
             "param": {
                 "custom_action": "AutoAltClickAction"
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
         },
         "next": [
             "GiftOperatorCheckContact"

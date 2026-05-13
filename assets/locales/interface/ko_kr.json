@@ -119,6 +119,8 @@
     "option.SelectOperator.description": "지정 시 템플릿 매칭으로 찾습니다. \"임의\"는 신뢰도 정렬로 전환해 신뢰도가 아직 만렙이 아닌 오퍼레이터 3명을 연속 선택하며 성공률을 높이기 쉽습니다.",
     "option.OnlyReceiveGift.label": "선물 받기만",
     "option.OnlyReceiveGift.description": "활성화 시 오퍼레이터의 선물만 받고, 새로운 대화나 선물은 시작하지 않습니다.",
+    "option.AcceptAllGifts.label": "모든 선물 받기",
+    "option.AcceptAllGifts.description": "\"선물 받기만\"이 켜져 있을 때만 사용할 수 있습니다. 켜면 대화 중 이탈 버튼을 누르지 않으며, 연락 화면에서 \"선택 가능한 오퍼레이터 없음\"으로 인식될 때만 한 라운드를 종료하고 이탈 후 작업 시작 지점부터 다시 진행하여 여러 오퍼레이터의 선물을 순차적으로 받을 수 있습니다.",
     "option.GiftCount.label": "선물 개수",
     "option.GiftCount.description": "작업 1회당 선물할 개수입니다.",
     "option.GiftCount.inputs.Count.label": "개수",
