@@ -813,5 +813,50 @@
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
         }
+    },
+    "ItemTransferFindItemByTemplate": {
+        "desc": "竞争性模板匹配查找物品（仓库侧）",
+        "recognition": "Custom",
+        "custom_recognition": "ItemTransferCompetitiveMatch",
+        "custom_recognition_param": {},
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "next": [
+            "ItemTransferCtrlKeyDownRepo"
+        ]
+    },
+    "ItemTransferFindItemByTemplateBag": {
+        "desc": "竞争性模板匹配查找物品（背包侧）",
+        "recognition": "Custom",
+        "custom_recognition": "ItemTransferCompetitiveMatch",
+        "custom_recognition_param": {},
+        "roi": [
+            768,
+            203,
+            551,
+            292
+        ],
+        "next": [
+            "ItemTransferCtrlKeyDownBag"
+        ]
+    },
+    "ItemTransferFindItemByTemplateBagReturn": {
+        "desc": "竞争性模板匹配查找物品（背包返还侧）",
+        "recognition": "Custom",
+        "custom_recognition": "ItemTransferCompetitiveMatch",
+        "custom_recognition_param": {},
+        "roi": [
+            768,
+            203,
+            551,
+            292
+        ],
+        "next": [
+            "ItemTransferCtrlKeyDownBagReturn"
+        ]
     }
 }

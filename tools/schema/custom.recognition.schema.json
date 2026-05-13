@@ -25,6 +25,7 @@
                 "VisitFriendsMenuScanScrollFullRecognition",
                 "VisitFriendsMenuScanTargetFriendOpenRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
+                "ItemTransferCompetitiveMatch",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
         }

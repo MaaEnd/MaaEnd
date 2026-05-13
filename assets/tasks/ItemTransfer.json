@@ -101,28 +101,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Ore.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 141
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 141
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 141
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 141
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "FerriumOre",
+                                "rarity": 1,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 141
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "FerriumOre",
+                                "rarity": 1,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 141
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "FerriumOre",
+                                "rarity": 1,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1128,28 +1169,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 41
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 41
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 41
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 41
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "Xiranite",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 41
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "Xiranite",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 41
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "Xiranite",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1249,28 +1331,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 169
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 169
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 169
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 169
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "SteelBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 169
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "SteelBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 169
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "SteelBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1282,28 +1405,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 138
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 138
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 138
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 138
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "FerriumBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 138
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "FerriumBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 138
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "FerriumBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1315,28 +1479,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 187
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 187
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 187
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 187
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "CrystonBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 187
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "CrystonBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 187
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "CrystonBottle",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1348,28 +1553,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 107
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 107
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 107
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 107
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "AmethystBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 107
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "AmethystBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 107
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "AmethystBottle",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1425,28 +1671,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 168
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 168
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 168
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 168
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "Steel",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 168
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "Steel",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 168
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "Steel",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1566,28 +1853,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 111
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 111
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 111
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 111
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "GroundCitromePowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 111
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "GroundCitromePowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 111
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "GroundCitromePowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1599,28 +1927,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 112
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 112
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 112
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 112
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "GroundBuckflowerPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 112
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "GroundBuckflowerPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 112
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "GroundBuckflowerPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1632,28 +2001,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 118
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 118
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 118
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 118
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "DenseFerriumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 118
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "DenseFerriumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 118
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "DenseFerriumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1665,28 +2075,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 184
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 184
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 184
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 184
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 184
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 184
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1698,28 +2149,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 115
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 115
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 115
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 115
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "DenseOrigocrustPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 115
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "DenseOrigocrustPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 115
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "DenseOrigocrustPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1731,28 +2223,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 117
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 117
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 117
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 117
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "DenseCarbonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 117
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "DenseCarbonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 117
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "DenseCarbonPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1764,28 +2297,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 116
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 116
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 116
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 116
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "DenseOriginiumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 116
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "DenseOriginiumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 116
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "DenseOriginiumPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1797,28 +2371,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 162
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 162
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 162
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 162
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "AketinePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 162
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "AketinePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 162
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "AketinePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1830,28 +2445,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 90
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 90
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 90
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 90
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "SandleafPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 90
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "SandleafPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 90
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "SandleafPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1907,28 +2563,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 142
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 142
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 142
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 142
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 142
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 142
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1940,28 +2637,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 104
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 104
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 104
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 104
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 104
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 104
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -1973,28 +2711,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 53
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 53
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 53
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 53
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "OrigocrustPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 53
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "OrigocrustPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 53
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "OrigocrustPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2006,37 +2785,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 93
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 93
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 93
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 93,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "CarbonPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 93
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "CarbonPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 93
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "CarbonPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2048,28 +2859,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 73
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 73
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 73
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 73
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "OriginiumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 73
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "OriginiumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 73
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "OriginiumPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2132,28 +2984,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 137
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 137
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 137
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 137
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "Ferrium",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 137
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "Ferrium",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 137
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "Ferrium",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2654,37 +3547,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 167
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 167
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 167
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 167,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "SteelPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 167
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "SteelPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 167
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "SteelPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2696,37 +3621,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 170
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 170
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 170
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 170,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 170
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 170
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "FerriumPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2738,37 +3695,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 188
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 188
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 188
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 188,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 188
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 188
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "CrystonPart",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2780,37 +3769,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 108
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 108
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 108
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 108,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 108
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 108
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "AmethystPart",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2825,43 +3846,69 @@
                                 "ItemTransferFindItemWithOCR"
                             ]
                         },
-                        "ItemTransferClickSortDescending": {
-                            "next": [
-                                "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemWithOCR"
-                            ]
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemWithOCR"
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
                             ]
                         },
                         "ItemTransferBagToRepo": {
                             "next": [
-                                "ItemTransferFindItemWithOCRBag"
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
                             ]
                         },
                         "ItemTransferBagToOriginRepo": {
                             "next": [
-                                "ItemTransferFindItemWithOCRBagReturn"
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
                             ]
                         },
-                        "ItemTransferFindItemWithOCR": {
-                            "custom_action_param": {
-                                "item_name": "中容武陵电池",
-                                "descending": true
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "SCWulingBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemWithOCRBag": {
-                            "custom_action_param": {
-                                "item_name": "中容武陵电池"
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "SCWulingBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemWithOCRBagReturn": {
-                            "custom_action_param": {
-                                "item_name": "中容武陵电池"
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "SCWulingBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2915,37 +3962,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 183
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 183
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 183
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 183,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "HCValleyBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 183
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "HCValleyBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 183
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "HCValleyBattery",
+                                "rarity": 4,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2957,37 +4036,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 0
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 0
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 0
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 0,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "SCValleyBattery",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 0
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "SCValleyBattery",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 0
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "SCValleyBattery",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -2999,37 +4110,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Product.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 8
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 8
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 8
-                        },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickSortAscending",
                                 "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
+                                "ItemTransferFindItemByTemplate",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 8,
-                                "descending": true
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "LCValleyBattery",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 8
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "LCValleyBattery",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 8
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "LCValleyBattery",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3041,28 +4184,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 129
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 129
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 129
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 129
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "ThornyYazhenPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 129
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "ThornyYazhenPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 129
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "ThornyYazhenPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3074,28 +4258,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 145
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 145
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 145
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 145
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "FluffedJincaoPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 145
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "FluffedJincaoPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 145
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "FluffedJincaoPowder",
+                                "rarity": 3,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3107,28 +4332,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 123
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 123
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 123
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 123
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "YazhenPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 123
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "YazhenPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 123
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "YazhenPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3140,28 +4406,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 176
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 176
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 176
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 176
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "JincaoPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 176
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "JincaoPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 176
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "JincaoPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3173,28 +4480,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 59
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 59
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 59
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 59
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "CitromePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 59
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "CitromePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 59
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "CitromePowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }
@@ -3206,28 +4554,69 @@
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/Usable.png"
                         },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 135
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemByTemplate",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 135
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBag",
+                                "ItemTransferScrollDownwardBag"
+                            ]
                         },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 135
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemByTemplateBagReturn",
+                                "ItemTransferScrollDownwardBagReturn"
+                            ]
                         },
-                        "ItemTransferFindItemFallback": {
-                            "custom_action_param": {
-                                "target_class": 135
+                        "ItemTransferFindItemByTemplate": {
+                            "custom_recognition_param": {
+                                "item": "BuckflowerPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBag": {
-                            "custom_action_param": {
-                                "target_class": 135
+                        "ItemTransferFindItemByTemplateBag": {
+                            "custom_recognition_param": {
+                                "item": "BuckflowerPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         },
-                        "ItemTransferFindItemFallbackBagReturn": {
-                            "custom_action_param": {
-                                "target_class": 135
+                        "ItemTransferFindItemByTemplateBagReturn": {
+                            "custom_recognition_param": {
+                                "item": "BuckflowerPowder",
+                                "rarity": 2,
+                                "rarity_threshold": 0.6,
+                                "item_threshold": 0.65,
+                                "item_scale": 0.51,
+                                "item_crop_offset": [
+                                    0,
+                                    0,
+                                    0.29,
+                                    0
+                                ]
                             }
                         }
                     }

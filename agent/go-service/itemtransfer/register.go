@@ -13,4 +13,8 @@ func Register() {
 		"ItemTransferOCRAction",
 		&ItemTransferOCRAction{},
 	)
+	maa.AgentServerRegisterCustomRecognition(
+		"ItemTransferCompetitiveMatch",
+		&CompetitiveRecognition{},
+	)
 }
