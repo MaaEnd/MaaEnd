@@ -23,8 +23,8 @@
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
-            "[JumpBack]GiftOperatorSwipe",
-            "GiftOperatorNoOperatorCanSelect"
+            "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
+            "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
         ]
     },
     "GiftOperatorNoOperatorCanSelect": {
