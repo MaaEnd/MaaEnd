@@ -70,7 +70,13 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 
 	scaledDX := int32(dx)
 	scaledDY := int32(dy)
-	controlType, _ := control.GetCachedControlType(ctx.GetTasker().GetController())
+	// Use the process-wide fast lane to avoid allocating a controller wrapper
+	// per call: this action runs in tight per-frame loops on movement paths.
+	// See MaaXYZ/maa-framework-go#41 and MaaEnd #2901 for the failure mode.
+	controlType := control.GetLastSeenControlType()
+	if controlType == "" {
+		controlType, _ = control.GetControlType(ctx.GetTasker().GetController())
+	}
 	if controlType == control.CONTROL_TYPE_WLROOTS {
 		scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
 		scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))

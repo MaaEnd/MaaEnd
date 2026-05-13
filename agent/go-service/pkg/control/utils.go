@@ -7,6 +7,7 @@ import (
 	"math"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -27,6 +28,14 @@ type controllerCacheEntry struct {
 
 var controllerCache sync.Map
 
+// lastSeenControlType is the most recently observed control type across any
+// controller. Exists as a hot-path fast lane: callers like MapTrackerInfer run
+// per frame and must avoid resolving a controller wrapper just to look up the
+// type, because each ctx.GetTasker().GetController() allocates a new Go
+// wrapper whose finalizer can release the underlying C handle and invalidate
+// long-lived wrappers held elsewhere (see MaaXYZ/maa-framework-go#41).
+var lastSeenControlType atomic.Value
+
 func loadControllerCache(ctrl *maa.Controller) (controllerCacheEntry, bool) {
 	if ctrl == nil {
 		return controllerCacheEntry{}, false
@@ -44,6 +53,22 @@ func storeControllerCache(ctrl *maa.Controller, entry controllerCacheEntry) {
 		return
 	}
 	controllerCache.Store(ctrl, entry)
+	if entry.ControlType != "" {
+		lastSeenControlType.Store(entry.ControlType)
+	}
+}
+
+// GetLastSeenControlType returns the most recently observed control type in
+// this process, or "" if no controller has been resolved yet. Hot paths
+// should prefer this over GetCachedControlType to avoid the side effect of
+// allocating a fresh controller wrapper just for a cache lookup.
+func GetLastSeenControlType() string {
+	if v := lastSeenControlType.Load(); v != nil {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
 }
 
 // InvalidateControllerCache clears cached metadata for a specific controller

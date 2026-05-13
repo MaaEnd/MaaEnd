@@ -85,7 +85,16 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	ctrlType, _ := control.GetCachedControlType(ctx.GetTasker().GetController())
+	// Avoid GetCachedControlType here: it requires a *maa.Controller argument,
+	// which would force ctx.GetTasker().GetController() to allocate a fresh
+	// wrapper on every recognition frame. That wrapper's finalizer can release
+	// the underlying C handle (MaaXYZ/maa-framework-go#41) and invalidate the
+	// long-lived ctrl that MapTrackerMove.Run caches, manifesting as
+	// `controller_id=""` / `controller not found` mid-navigation (#2901).
+	ctrlType := control.GetLastSeenControlType()
+	if ctrlType == "" {
+		ctrlType, _ = control.GetControlType(ctx.GetTasker().GetController())
+	}
 
 	// Compile regex
 	mapNameRegex, err := regexp.Compile(param.MapNameRegex)
