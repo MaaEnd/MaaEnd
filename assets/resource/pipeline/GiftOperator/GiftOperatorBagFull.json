@@ -88,10 +88,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    896,
-                    497,
-                    57,
-                    41
+                    871,
+                    472,
+                    162,
+                    125
                 ],
                 "template": [
                     "AutoEcoFarm/autoecofarmQuickStash.png"
@@ -114,8 +114,8 @@
                 "roi": [
                     1023,
                     439,
-                    187,
-                    147
+                    237,
+                    167
                 ],
                 "template": [
                     "GiftOperator/SportBag.png"
@@ -135,10 +135,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    760,
-                    203,
-                    359,
-                    292
+                    761,
+                    174,
+                    474,
+                    356
                 ],
                 "template": [
                     "GiftOperator/Consumable.png"
