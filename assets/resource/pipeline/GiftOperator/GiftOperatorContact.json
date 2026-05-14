@@ -187,12 +187,12 @@
             "param": {
                 "method": 40,
                 "lower": [
-                    28,
+                    27,
                     255,
                     255
                 ],
                 "upper": [
-                    28,
+                    30,
                     255,
                     255
                 ],
@@ -208,14 +208,14 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    52,
-                    52,
-                    52
+                    50,
+                    50,
+                    50
                 ],
                 "upper": [
-                    52,
-                    52,
-                    52
+                    55,
+                    55,
+                    55
                 ],
                 "connected": true,
                 "count": 10
