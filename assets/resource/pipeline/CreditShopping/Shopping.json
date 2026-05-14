@@ -112,11 +112,6 @@
         ],
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
-        "action": "Custom",
-        "custom_action": "CreditShopping.RecordShelfSnapshots",
-        "custom_action_param": {
-            "loops": 1
-        },
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",

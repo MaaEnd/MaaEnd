@@ -8,7 +8,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockstaple"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoaltclick"
@@ -73,7 +72,6 @@ func registerAll() {
 	autostockpile.Register()
 	itemtransfer.Register()
 	sellproduct.Register()
-	creditshopping.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }
