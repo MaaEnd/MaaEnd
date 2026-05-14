@@ -6,8 +6,8 @@ import (
 
 func Register() {
 	maa.AgentServerRegisterCustomAction(
-		"ItemTransferOCRFallbackAction",
-		&ItemTransferOCRFallbackAction{},
+		"ItemTransferFallbackAction",
+		&ItemTransferFallbackAction{},
 	)
 	maa.AgentServerRegisterCustomAction(
 		"ItemTransferOCRAction",

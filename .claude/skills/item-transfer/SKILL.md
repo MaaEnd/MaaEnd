@@ -43,9 +43,9 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 请在向 AI 下达任务时，明确告诉它以下信息，否则 AI 无法选对模板：
 
 - **识别方式**（三选一）：
-    - 「**模板匹配**」— 物品图标已放入 `assets/resource/image/Items/r{稀有度}/` 目录，使用竞争性模板匹配识别（`ItemTransferCompetitiveMatch`）。模板匹配是 pipeline 默认识别方式，无需 `next` 路由。
-    - 「**可识别**」— 有训练好的分类模型，用 `ItemTransferFindItemInRepo` 的 `expected` / `target_class` 匹配。需通过 `next` 和 `target` override 路由到 NND 节点。
+    - 「**可识别**」— 有训练好的分类模型，用 `ItemTransferFindItemInRepo` 的 `expected` / `target_class` 匹配。
     - 「**纯 OCR**」— 没有分类模型，只能用 `ItemTransferFindItemWithOCR` 按中文名识别。一般新物品、模型没来得及训的物品用此方式。
+    - 「**模板匹配**」— 物品图标已放入 `assets/resource/image/Items/r{稀有度}/` 目录，使用竞争性模板匹配识别（`ItemTransferCompetitiveMatch`）。
 - **稀有度**（仅模板匹配需要）：1 / 2 / 3 / 4，对应模板图片所在子目录 `r1` / `r2` / `r3` / `r4`。
 - **排序方向**：这个物品在升序排列下靠前，就用「**升序**」；在升序下非常靠后、但在降序下靠前，就用「**降序**」。
     - 目的是让 OCR 滚动查找从近端开始，减少滚动距离。
@@ -139,47 +139,7 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
     "label": "$item.<LabelKey>",
     "pipeline_override": {
         "ItemTransferClickItemCategory": {
-            "template": "ItemTransfer/<Category>.png",
-            "next": [
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferRepoToBag": {
-            "next": [
-                "ItemTransferClickSortAscending",
-                "ItemTransferClickItemCategory",
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferClickSortAscending": {
-            "next": [
-                "ItemTransferClickItemCategory",
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferBagToRepo": {
-            "next": [
-                "ItemTransferFindItemInBag",
-                "ItemTransferScrollDownwardBag"
-            ]
-        },
-        "ItemTransferBagToOriginRepo": {
-            "next": [
-                "ItemTransferFindItemInBagReturn",
-                "ItemTransferScrollDownwardBagReturn"
-            ]
-        },
-        "ItemTransferTransferToBag": {
-            "target": "ItemTransferFindItemInRepo"
-        },
-        "ItemTransferTransferToRepo": {
-            "target": "ItemTransferFindItemInBag"
-        },
-        "ItemTransferTransferToRepoReturn": {
-            "target": "ItemTransferFindItemInBagReturn"
+            "template": "ItemTransfer/<Category>.png"
         },
         "ItemTransferFindItemInRepo": {
             "expected": <Id>
@@ -190,17 +150,17 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
         "ItemTransferFindItemInBagReturn": {
             "expected": <Id>
         },
-        "ItemTransferFindItemOCRFallback": {
+        "ItemTransferFindItemFallback": {
             "custom_action_param": {
                 "target_class": <Id>
             }
         },
-        "ItemTransferFindItemOCRFallbackBag": {
+        "ItemTransferFindItemFallbackBag": {
             "custom_action_param": {
                 "target_class": <Id>
             }
         },
-        "ItemTransferFindItemOCRFallbackBagReturn": {
+        "ItemTransferFindItemFallbackBagReturn": {
             "custom_action_param": {
                 "target_class": <Id>
             }
@@ -217,47 +177,7 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
     "label": "$item.<LabelKey>",
     "pipeline_override": {
         "ItemTransferClickItemCategory": {
-            "template": "ItemTransfer/<Category>.png",
-            "next": [
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferRepoToBag": {
-            "next": [
-                "ItemTransferClickSortDescending",
-                "ItemTransferClickItemCategory",
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferClickSortDescending": {
-            "next": [
-                "ItemTransferClickItemCategory",
-                "ItemTransferFindItemInRepo",
-                "ItemTransferScrollDownwardRepo"
-            ]
-        },
-        "ItemTransferBagToRepo": {
-            "next": [
-                "ItemTransferFindItemInBag",
-                "ItemTransferScrollDownwardBag"
-            ]
-        },
-        "ItemTransferBagToOriginRepo": {
-            "next": [
-                "ItemTransferFindItemInBagReturn",
-                "ItemTransferScrollDownwardBagReturn"
-            ]
-        },
-        "ItemTransferTransferToBag": {
-            "target": "ItemTransferFindItemInRepo"
-        },
-        "ItemTransferTransferToRepo": {
-            "target": "ItemTransferFindItemInBag"
-        },
-        "ItemTransferTransferToRepoReturn": {
-            "target": "ItemTransferFindItemInBagReturn"
+            "template": "ItemTransfer/<Category>.png"
         },
         "ItemTransferFindItemInRepo": {
             "expected": <Id>
@@ -268,18 +188,26 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
         "ItemTransferFindItemInBagReturn": {
             "expected": <Id>
         },
-        "ItemTransferFindItemOCRFallback": {
+        "ItemTransferRepoToBag": {
+            "next": [
+                "ItemTransferClickSortDescending",
+                "ItemTransferClickItemCategory",
+                "ItemTransferFindItemInRepo",
+                "ItemTransferScrollDownwardRepo"
+            ]
+        },
+        "ItemTransferFindItemFallback": {
             "custom_action_param": {
                 "target_class": <Id>,
                 "descending": true
             }
         },
-        "ItemTransferFindItemOCRFallbackBag": {
+        "ItemTransferFindItemFallbackBag": {
             "custom_action_param": {
                 "target_class": <Id>
             }
         },
-        "ItemTransferFindItemOCRFallbackBagReturn": {
+        "ItemTransferFindItemFallbackBagReturn": {
             "custom_action_param": {
                 "target_class": <Id>
             }
@@ -393,7 +321,7 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 }
 ```
 
-> 注意：**"升序 / 降序"只适用于仓库查找这一个环节**，模板里对应 `ItemTransferFindItemWithOCR`（纯 OCR）或 `ItemTransferFindItemOCRFallback`（可识别）。只有它需要写 `"descending": true`。
+> 注意：**"升序 / 降序"只适用于仓库查找这一个环节**，模板里对应 `ItemTransferFindItemWithOCR`（纯 OCR）或 `ItemTransferFindItemFallback`（可识别）。只有它需要写 `"descending": true`。
 > 其他 `*Bag` / `*BagReturn` 分支（背包、背包回放）**没有升降序的概念**，模板里就是不写 `descending` 字段，按模板原样照抄即可。不要把这种"只有一个地方带 descending"视为不一致或漏写，这是现有所有条目的统一写法。
 
 ##### 模板 E：模板匹配 + 升序（参考：`蓝铁矿`）
@@ -406,54 +334,24 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
         "ItemTransferClickItemCategory": {
             "template": "ItemTransfer/<Category>.png"
         },
-        "ItemTransferFindItemByTemplate": {
-            "custom_recognition_param": {
-                "item": "<LabelKey>",
-                "rarity": <Rarity>,
-                "rarity_threshold": 0.60,
-                "item_threshold": 0.65,
-                "item_scale": 0.51,
-                "item_crop_offset": [0, 0, 0.29, 0]
-            }
-        },
-        "ItemTransferFindItemByTemplateBag": {
-            "custom_recognition_param": {
-                "item": "<LabelKey>",
-                "rarity": <Rarity>,
-                "rarity_threshold": 0.60,
-                "item_threshold": 0.65,
-                "item_scale": 0.51,
-                "item_crop_offset": [0, 0, 0.29, 0]
-            }
-        },
-        "ItemTransferFindItemByTemplateBagReturn": {
-            "custom_recognition_param": {
-                "item": "<LabelKey>",
-                "rarity": <Rarity>,
-                "rarity_threshold": 0.60,
-                "item_threshold": 0.65,
-                "item_scale": 0.51,
-                "item_crop_offset": [0, 0, 0.29, 0]
-            }
-        }
-    }
-}
-##### 模板 F：模板匹配 + 降序（参考：`高容谷地电池`）
-
-```json
-{
-    "name": "<Name>",
-    "label": "$item.<LabelKey>",
-    "pipeline_override": {
-        "ItemTransferClickItemCategory": {
-            "template": "ItemTransfer/<Category>.png"
-        },
         "ItemTransferRepoToBag": {
             "next": [
-                "ItemTransferClickSortDescending",
+                "ItemTransferClickSortAscending",
                 "ItemTransferClickItemCategory",
                 "ItemTransferFindItemByTemplate",
                 "ItemTransferScrollDownwardRepo"
+            ]
+        },
+        "ItemTransferBagToRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBag",
+                "ItemTransferScrollDownwardBag"
+            ]
+        },
+        "ItemTransferBagToOriginRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBagReturn",
+                "ItemTransferScrollDownwardBagReturn"
             ]
         },
         "ItemTransferFindItemByTemplate": {
@@ -490,8 +388,72 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 }
 ```
 
-> 模板 E/F 使用竞争性模板匹配（`ItemTransferCompetitiveMatch`），通过 `custom_recognition_param` 传入物品键名、稀有度、阈值和缩放参数。模板匹配是 pipeline 默认识别方式，升序物品（模板 E）无需 `next` override；降序物品（模板 F）只需 `RepoToBag.next` 覆盖排序方向。`item_scale` 和 `item_crop_offset` 目前统一为 `0.51` / `[0, 0, 0.29, 0]`。
-> 模板匹配识别失败时，Pipeline 的滚动节点会回退到 NND 识别（`FindItemInRepo`），最终通过 `FindItemOCRFallback` 兜底。
+##### 模板 F：模板匹配 + 降序（参考：`高容谷地电池`）
+
+```json
+{
+    "name": "<Name>",
+    "label": "$item.<LabelKey>",
+    "pipeline_override": {
+        "ItemTransferClickItemCategory": {
+            "template": "ItemTransfer/<Category>.png"
+        },
+        "ItemTransferRepoToBag": {
+            "next": [
+                "ItemTransferClickSortDescending",
+                "ItemTransferClickItemCategory",
+                "ItemTransferFindItemByTemplate",
+                "ItemTransferScrollDownwardRepo"
+            ]
+        },
+        "ItemTransferBagToRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBag",
+                "ItemTransferScrollDownwardBag"
+            ]
+        },
+        "ItemTransferBagToOriginRepo": {
+            "next": [
+                "ItemTransferFindItemByTemplateBagReturn",
+                "ItemTransferScrollDownwardBagReturn"
+            ]
+        },
+        "ItemTransferFindItemByTemplate": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBag": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        },
+        "ItemTransferFindItemByTemplateBagReturn": {
+            "custom_recognition_param": {
+                "item": "<LabelKey>",
+                "rarity": <Rarity>,
+                "rarity_threshold": 0.60,
+                "item_threshold": 0.65,
+                "item_scale": 0.51,
+                "item_crop_offset": [0, 0, 0.29, 0]
+            }
+        }
+    }
+}
+```
+
+> 模板 E/F 使用竞争性模板匹配（`ItemTransferCompetitiveMatch`），通过 `custom_recognition_param` 传入物品键名、稀有度、阈值和缩放参数。`item_scale` 和 `item_crop_offset` 目前统一为 `0.51` / `[0, 0, 0.29, 0]`（来自 `recognition.py` 的 `bag_config`），如需调整需同步修改。
+> 模板匹配识别失败时，Pipeline 不会自动 fallback 到 NND/OCR，会直接进入滚动流程重试。
 
 #### 3.3 插入 case 对象
 
