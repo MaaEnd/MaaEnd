@@ -180,7 +180,7 @@
         "next": [
             "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -201,7 +201,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -222,7 +222,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -240,7 +240,7 @@
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -284,7 +284,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
-            "ItemTransferFindItemFallback",
+            "ItemTransferFindItemOCRFallback",
             "ItemTransferItemNotFound"
         ]
     },
@@ -302,7 +302,7 @@
     },
     "ItemTransferTransferToBag": {
         "action": "Click",
-        "target": "ItemTransferFindItemInRepo",
+        "target": "ItemTransferFindItemByTemplate",
         "target_offset": [
             26,
             25,
@@ -420,7 +420,7 @@
     "ItemTransferBagToRepo": {
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemByTemplateBag",
             "ItemTransferScrollDownwardBag"
         ]
     },
@@ -464,7 +464,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
-            "ItemTransferFindItemFallbackBag"
+            "ItemTransferFindItemOCRFallbackBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -476,7 +476,7 @@
     },
     "ItemTransferTransferToRepo": {
         "action": "Click",
-        "target": "ItemTransferFindItemInBag",
+        "target": "ItemTransferFindItemByTemplateBag",
         "target_offset": [
             26,
             25,
@@ -616,7 +616,7 @@
     "ItemTransferBagToOriginRepo": {
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemByTemplateBagReturn",
             "ItemTransferScrollDownwardBagReturn"
         ]
     },
@@ -660,7 +660,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
-            "ItemTransferFindItemFallbackBagReturn"
+            "ItemTransferFindItemOCRFallbackBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -672,7 +672,7 @@
     },
     "ItemTransferTransferToRepoReturn": {
         "action": "Click",
-        "target": "ItemTransferFindItemInBagReturn",
+        "target": "ItemTransferFindItemByTemplateBagReturn",
         "target_offset": [
             26,
             25,
@@ -773,10 +773,10 @@
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
         }
     },
-    "ItemTransferFindItemFallback": {
-        "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
+    "ItemTransferFindItemOCRFallback": {
+        "desc": "OCR 兜底：hover + OCR + 二分法查找（仓库侧）",
         "action": "Custom",
-        "custom_action": "ItemTransferFallbackAction",
+        "custom_action": "ItemTransferOCRFallbackAction",
         "custom_action_param": {
             "target_class": 0,
             "side": "repo",
@@ -786,10 +786,10 @@
             "ItemTransferSwitchRepoToDestination"
         ]
     },
-    "ItemTransferFindItemFallbackBag": {
-        "desc": "NND 兜底：hover + OCR + 二分法查找（背包侧）",
+    "ItemTransferFindItemOCRFallbackBag": {
+        "desc": "OCR 兜底：hover + OCR + 二分法查找（背包侧）",
         "action": "Custom",
-        "custom_action": "ItemTransferFallbackAction",
+        "custom_action": "ItemTransferOCRFallbackAction",
         "custom_action_param": {
             "target_class": 0,
             "side": "bag",
@@ -801,10 +801,10 @@
             "ItemTransferStop"
         ]
     },
-    "ItemTransferFindItemFallbackBagReturn": {
-        "desc": "NND 兜底：hover + OCR + 二分法查找（背包返还侧）",
+    "ItemTransferFindItemOCRFallbackBagReturn": {
+        "desc": "OCR 兜底：hover + OCR + 二分法查找（背包返还侧）",
         "action": "Custom",
-        "custom_action": "ItemTransferFallbackAction",
+        "custom_action": "ItemTransferOCRFallbackAction",
         "custom_action_param": {
             "target_class": 0,
             "side": "bag",
