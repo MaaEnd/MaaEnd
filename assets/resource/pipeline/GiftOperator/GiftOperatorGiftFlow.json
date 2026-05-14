@@ -128,8 +128,10 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "YellowConfirmButtonType2"
-                ]
+                    "YellowButtonBackground",
+                    "GiftOperatorConfirmGiftText"
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -143,6 +145,21 @@
             "[JumpBack]GiftOperatorGiftDialog",
             "GiftOperatorLeave"
         ]
+    },
+    "GiftOperatorConfirmGiftText": {
+        "desc": "确认赠送按钮上有文字，避免误点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "expected": [
+                    "确认赠送",
+                    "確定贈送",
+                    "Confirm",
+                    "贈る"
+                ]
+            }
+        }
     },
     "GiftOperatorGiftDialog": {
         "desc": "赠送后跳过对话。",
