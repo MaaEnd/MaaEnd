@@ -101,7 +101,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try3"
@@ -119,7 +121,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try3"
@@ -137,7 +141,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try3"
@@ -155,7 +161,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try3"
@@ -173,7 +181,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3"
@@ -191,7 +201,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry3"
@@ -209,7 +221,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopLeft",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring0Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": ""
@@ -227,7 +241,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopLeft",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring1Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring1Try3"
@@ -245,7 +261,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring2Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring2Try3"
@@ -263,7 +281,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2BottomRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try3"
@@ -281,7 +301,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2BottomRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring4Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring4Try3"
@@ -299,7 +321,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau0Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau0Try3"
@@ -317,7 +341,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau1Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau1Try3"
@@ -335,7 +361,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau2Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau2Try3"
@@ -353,7 +381,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try3"

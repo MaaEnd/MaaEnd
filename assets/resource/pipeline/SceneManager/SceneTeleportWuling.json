@@ -1245,7 +1245,7 @@
                     520
                 ],
                 "template": [
-                    "SceneManager/MapWuling/MarkerStoneCoreLeftTop.png"
+                    "SceneManager/MapWuling/MarkerStoneCoreTop.png"
                 ],
                 "threshold": 0.9
             },
@@ -1256,20 +1256,20 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
+                            0,
                             100,
                             0,
-                            120,
-                            140
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            228,
+                            214,
+                            142
                         ],
                         "upper": [
-                            255,
-                            255,
-                            170
+                            238,
+                            224,
+                            152
                         ],
                         "count": 20
                     },
@@ -1277,10 +1277,10 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
+                            0,
                             100,
                             0,
-                            120,
-                            140
+                            0
                         ],
                         "lower": [
                             245,
@@ -1327,7 +1327,7 @@
                     520
                 ],
                 "template": [
-                    "SceneManager/MapWuling/MarkerStoneCoreLeftBottom.png"
+                    "SceneManager/MapWuling/MarkerStoneCoreLeft.png"
                 ],
                 "threshold": 0.9
             },
@@ -1339,19 +1339,19 @@
                         "roi": "TargetLeft",
                         "roi_offset": [
                             100,
-                            -140,
-                            120,
-                            140
+                            0,
+                            0,
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            228,
+                            214,
+                            142
                         ],
                         "upper": [
-                            255,
-                            255,
-                            170
+                            238,
+                            224,
+                            152
                         ],
                         "count": 20
                     },
@@ -1360,9 +1360,9 @@
                         "roi": "TargetLeft",
                         "roi_offset": [
                             100,
-                            -140,
-                            120,
-                            140
+                            0,
+                            0,
+                            0
                         ],
                         "lower": [
                             245,
@@ -1420,20 +1420,20 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
-                            0,
                             100,
-                            120,
-                            140
+                            100,
+                            0,
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            228,
+                            214,
+                            142
                         ],
                         "upper": [
-                            255,
-                            255,
-                            170
+                            238,
+                            224,
+                            152
                         ],
                         "count": 20
                     },
@@ -1441,10 +1441,10 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
-                            0,
                             100,
-                            120,
-                            140
+                            100,
+                            0,
+                            0
                         ],
                         "lower": [
                             245,
