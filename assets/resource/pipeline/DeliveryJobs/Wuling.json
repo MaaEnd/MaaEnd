@@ -205,26 +205,6 @@
             "DeliveryJobsClickTransferJob"
         ]
     },
-    "DeliveryJobsInTestAreaLocalDepotNode": {
-        "desc": "在试验园区本地仓储节点界面",
-        "recognition": "And",
-        "all_of": [
-            "InLocalDepotNode",
-            "DeliveryJobsCheckLocalDepotNodeTestAreaText"
-        ],
-        "pre_wait_freezes": {
-            "time": 80,
-            "target": [
-                66,
-                221,
-                166,
-                124
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "DeliveryJobsCheckTestAreaCargo": {
         "desc": "检查试验园区的货物是否准备好",
         "recognition": "OCR",
