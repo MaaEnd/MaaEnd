@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 /* ******** Controller Type ******** */
@@ -34,7 +33,6 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Info().Str("controllerInfo", infoStr).Msg("Fetched controller info")
 	if infoStr == "" {
 		return "", fmt.Errorf("empty controller info")
 	}
