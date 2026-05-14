@@ -180,7 +180,7 @@
         "next": [
             "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -201,7 +201,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -222,7 +222,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -240,7 +240,7 @@
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -269,7 +269,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferScrollUpwardRepo"
         ]
     },
@@ -283,8 +283,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
-            "ItemTransferFindItemFallback",
+            "ItemTransferFindItemByTemplate",
             "ItemTransferItemNotFound"
         ]
     },
@@ -302,7 +301,7 @@
     },
     "ItemTransferTransferToBag": {
         "action": "Click",
-        "target": "ItemTransferFindItemInRepo",
+        "target": "ItemTransferFindItemByTemplate",
         "target_offset": [
             26,
             25,
@@ -420,7 +419,7 @@
     "ItemTransferBagToRepo": {
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemByTemplateBag",
             "ItemTransferScrollDownwardBag"
         ]
     },
@@ -449,7 +448,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemByTemplateBag",
             "ItemTransferScrollUpwardBag"
         ]
     },
@@ -463,8 +462,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
-            "ItemTransferFindItemFallbackBag"
+            "ItemTransferFindItemByTemplateBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -476,7 +474,7 @@
     },
     "ItemTransferTransferToRepo": {
         "action": "Click",
-        "target": "ItemTransferFindItemInBag",
+        "target": "ItemTransferFindItemByTemplateBag",
         "target_offset": [
             26,
             25,
@@ -616,7 +614,7 @@
     "ItemTransferBagToOriginRepo": {
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemByTemplateBagReturn",
             "ItemTransferScrollDownwardBagReturn"
         ]
     },
@@ -645,7 +643,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemByTemplateBagReturn",
             "ItemTransferScrollUpwardBagReturn"
         ]
     },
@@ -659,8 +657,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferFindItemFallbackBagReturn"
+            "ItemTransferFindItemByTemplateBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -672,7 +669,7 @@
     },
     "ItemTransferTransferToRepoReturn": {
         "action": "Click",
-        "target": "ItemTransferFindItemInBagReturn",
+        "target": "ItemTransferFindItemByTemplateBagReturn",
         "target_offset": [
             26,
             25,
