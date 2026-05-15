@@ -29,8 +29,9 @@ def merge_pipeline(resource_dir: Path) -> None:
                     with open(item, "r", encoding="utf-8") as f:
                         merged.update(json5.load(f))
                     print(f"  已读取: {item.relative_to(pipeline_dir)}", flush=True)
-                except Exception as e:
+                except (ValueError, OSError) as e:
                     print(f"  读取 {item.relative_to(pipeline_dir)} 时出错: {e}", flush=True)
+                    sys.exit(1)
 
     collect(pipeline_dir)
 
@@ -60,10 +61,16 @@ def main():
         print(f"错误: 目录不存在: {install_dir}", flush=True)
         sys.exit(1)
 
-    resource_names = ["resource", "resource_adb", "resource_wlroots"]
+    resource_dirs = sorted(
+        [d for d in install_dir.iterdir() if d.is_dir() and d.name.startswith("resource")],
+        key=lambda d: (d.name != "resource", d.name),
+    )
 
-    for name in resource_names:
-        resource_path = install_dir / name
+    if not resource_dirs:
+        print("警告: 未找到以 resource 开头的目录", flush=True)
+        return
+
+    for resource_path in resource_dirs:
         print(f"\n处理: {resource_path}", flush=True)
         print("=" * 50, flush=True)
         merge_pipeline(resource_path)
