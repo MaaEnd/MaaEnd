@@ -104,46 +104,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "FerriumOre",
-                                "rarity": 1,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 1
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "FerriumOre",
-                                "rarity": 1,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 1
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "FerriumOre",
-                                "rarity": 1,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 1
                             }
                         }
                     }
@@ -3223,46 +3196,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "Xiranite",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "Xiranite",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "Xiranite",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -3365,46 +3311,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "SteelBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "SteelBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "SteelBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -3419,46 +3338,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "FerriumBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "FerriumBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "FerriumBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -3473,46 +3365,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "CrystonBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "CrystonBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "CrystonBottle",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -3527,46 +3392,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "AmethystBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "AmethystBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "AmethystBottle",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -3625,46 +3463,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "Steel",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "Steel",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "Steel",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4010,46 +3821,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "GroundCitromePowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "GroundCitromePowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "GroundCitromePowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4064,46 +3848,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "GroundBuckflowerPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "GroundBuckflowerPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "GroundBuckflowerPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4118,46 +3875,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "DenseFerriumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "DenseFerriumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "DenseFerriumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4172,46 +3902,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "CrystonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "CrystonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "CrystonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4226,46 +3929,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "DenseOrigocrustPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "DenseOrigocrustPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "DenseOrigocrustPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4280,46 +3956,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "DenseCarbonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "DenseCarbonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "DenseCarbonPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4334,46 +3983,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "DenseOriginiumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "DenseOriginiumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "DenseOriginiumPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -4388,46 +4010,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "AketinePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "AketinePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "AketinePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4442,46 +4037,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "SandleafPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "SandleafPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "SandleafPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4540,46 +4108,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "FerriumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "FerriumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "FerriumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4594,46 +4135,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "AmethystPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "AmethystPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "AmethystPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4648,46 +4162,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "OrigocrustPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "OrigocrustPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "OrigocrustPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4702,46 +4189,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "CarbonPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "CarbonPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "CarbonPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4756,46 +4216,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "OriginiumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "OriginiumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "OriginiumPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -4861,46 +4294,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "Ferrium",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "Ferrium",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "Ferrium",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -5895,46 +5301,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "SteelPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "SteelPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "SteelPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -5949,46 +5328,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "FerriumPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "FerriumPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "FerriumPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6003,46 +5355,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "CrystonPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "CrystonPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "CrystonPart",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -6057,46 +5382,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "AmethystPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "AmethystPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "AmethystPart",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6111,46 +5409,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "SCWulingBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "SCWulingBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "SCWulingBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         }
                     }
@@ -6276,46 +5547,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "HCValleyBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "HCValleyBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "HCValleyBattery",
-                                "rarity": 4,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 4
                             }
                         }
                     }
@@ -6330,46 +5574,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "SCValleyBattery",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "SCValleyBattery",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "SCValleyBattery",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -6384,46 +5601,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "LCValleyBattery",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "LCValleyBattery",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "LCValleyBattery",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6438,46 +5628,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "ThornyYazhenPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "ThornyYazhenPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "ThornyYazhenPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -6492,46 +5655,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "FluffedJincaoPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "FluffedJincaoPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "FluffedJincaoPowder",
-                                "rarity": 3,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 3
                             }
                         }
                     }
@@ -6546,46 +5682,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "YazhenPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "YazhenPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "YazhenPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6600,46 +5709,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "JincaoPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "JincaoPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "JincaoPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6654,46 +5736,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "CitromePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "CitromePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "CitromePowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }
@@ -6708,46 +5763,19 @@
                         "ItemTransferFindItemByTemplate": {
                             "custom_recognition_param": {
                                 "item": "BuckflowerPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBag": {
                             "custom_recognition_param": {
                                 "item": "BuckflowerPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         },
                         "ItemTransferFindItemByTemplateBagReturn": {
                             "custom_recognition_param": {
                                 "item": "BuckflowerPowder",
-                                "rarity": 2,
-                                "rarity_threshold": 0.6,
-                                "item_threshold": 0.65,
-                                "item_scale": 0.51,
-                                "item_crop_offset": [
-                                    0,
-                                    0,
-                                    0.29,
-                                    0
-                                ]
+                                "rarity": 2
                             }
                         }
                     }

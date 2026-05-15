@@ -815,7 +815,12 @@
         "desc": "竞争性模板匹配查找物品（仓库侧）",
         "recognition": "Custom",
         "custom_recognition": "ItemTransferCompetitiveMatch",
-        "custom_recognition_param": {},
+        "custom_recognition_param": {
+            "rarity_threshold": 0.6,
+            "item_threshold": 0.65,
+            "item_scale": 0.51,
+            "item_crop_offset": [0, 0, 0.29, 0]
+        },
         "roi": [
             158,
             203,
@@ -830,7 +835,12 @@
         "desc": "竞争性模板匹配查找物品（背包侧）",
         "recognition": "Custom",
         "custom_recognition": "ItemTransferCompetitiveMatch",
-        "custom_recognition_param": {},
+        "custom_recognition_param": {
+            "rarity_threshold": 0.6,
+            "item_threshold": 0.65,
+            "item_scale": 0.51,
+            "item_crop_offset": [0, 0, 0.29, 0]
+        },
         "roi": [
             768,
             203,
@@ -845,7 +855,12 @@
         "desc": "竞争性模板匹配查找物品（背包返还侧）",
         "recognition": "Custom",
         "custom_recognition": "ItemTransferCompetitiveMatch",
-        "custom_recognition_param": {},
+        "custom_recognition_param": {
+            "rarity_threshold": 0.6,
+            "item_threshold": 0.65,
+            "item_scale": 0.51,
+            "item_crop_offset": [0, 0, 0.29, 0]
+        },
         "roi": [
             768,
             203,
