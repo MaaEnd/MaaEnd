@@ -55,8 +55,7 @@
             "param": {
                 "all_of": [
                     "WhiteConfirmButtonType1"
-                ],
-                "box_index": 0
+                ]
             }
         },
         "action": "Click",
@@ -71,8 +70,7 @@
             "param": {
                 "all_of": [
                     "YellowConfirmButtonType1"
-                ],
-                "box_index": 0
+                ]
             }
         },
         "action": "Click",
