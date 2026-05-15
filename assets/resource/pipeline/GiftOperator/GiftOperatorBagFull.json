@@ -94,7 +94,7 @@
                     125
                 ],
                 "template": [
-                    "AutoEcoFarm/autoecofarmQuickStash.png"
+                    "QuickStashBackpack/QuickStash.png"
                 ],
                 "order_by": "Score"
             }
