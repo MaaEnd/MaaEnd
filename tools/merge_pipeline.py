@@ -1,4 +1,5 @@
 import argparse
+import io
 import json
 import shutil
 import sys
@@ -6,12 +7,13 @@ from pathlib import Path
 
 import json5
 
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
 
 def merge_pipeline(resource_dir: Path) -> None:
-    """合并 resource_dir/pipeline 下所有 .json 文件到 nodes.json，并删除原始文件"""
     pipeline_dir = resource_dir / "pipeline"
     if not pipeline_dir.is_dir():
-        print(f"  跳过: {pipeline_dir} 不存在")
+        print(f"  跳过: {pipeline_dir} 不存在", flush=True)
         return
 
     merged: dict = {}
@@ -26,26 +28,26 @@ def merge_pipeline(resource_dir: Path) -> None:
                 try:
                     with open(item, "r", encoding="utf-8") as f:
                         merged.update(json5.load(f))
-                    print(f"  已读取: {item.relative_to(pipeline_dir)}")
+                    print(f"  已读取: {item.relative_to(pipeline_dir)}", flush=True)
                 except Exception as e:
-                    print(f"  读取 {item.relative_to(pipeline_dir)} 时出错: {e}", file=sys.stderr)
+                    print(f"  读取 {item.relative_to(pipeline_dir)} 时出错: {e}", flush=True)
 
     collect(pipeline_dir)
 
     nodes_file = pipeline_dir / "nodes.json"
     with open(nodes_file, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=4)
-    print(f"  已写入: {nodes_file} ({len(merged)} 个节点)")
+    print(f"  已写入: {nodes_file} ({len(merged)} 个节点)", flush=True)
 
     for item in sorted(pipeline_dir.iterdir(), reverse=True):
         if item.name == "nodes.json":
             continue
         if item.is_dir():
             shutil.rmtree(item)
-            print(f"  已删除目录: {item.name}")
+            print(f"  已删除目录: {item.name}", flush=True)
         elif item.is_file():
             item.unlink()
-            print(f"  已删除文件: {item.name}")
+            print(f"  已删除文件: {item.name}", flush=True)
 
 
 def main():
@@ -55,17 +57,17 @@ def main():
 
     install_dir = Path(args.install_dir)
     if not install_dir.is_dir():
-        print(f"错误: 目录不存在: {install_dir}", file=sys.stderr)
+        print(f"错误: 目录不存在: {install_dir}", flush=True)
         sys.exit(1)
 
     resource_names = ["resource", "resource_adb", "resource_wlroots"]
 
     for name in resource_names:
         resource_path = install_dir / name
-        print(f"\n处理: {resource_path}")
-        print("=" * 50)
+        print(f"\n处理: {resource_path}", flush=True)
+        print("=" * 50, flush=True)
         merge_pipeline(resource_path)
-        print("=" * 50)
+        print("=" * 50, flush=True)
 
 
 if __name__ == "__main__":
