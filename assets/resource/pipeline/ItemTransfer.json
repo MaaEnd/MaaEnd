@@ -818,7 +818,7 @@
         "custom_recognition_param": {
             "rarity_threshold": 0.6,
             "item_threshold": 0.65,
-            "item_scale": 0.51,
+            "item_scale": 0.252,
             "item_crop_offset": [0, 0, 0.29, 0]
         },
         "roi": [
@@ -838,7 +838,7 @@
         "custom_recognition_param": {
             "rarity_threshold": 0.6,
             "item_threshold": 0.65,
-            "item_scale": 0.51,
+            "item_scale": 0.252,
             "item_crop_offset": [0, 0, 0.29, 0]
         },
         "roi": [
@@ -858,7 +858,7 @@
         "custom_recognition_param": {
             "rarity_threshold": 0.6,
             "item_threshold": 0.65,
-            "item_scale": 0.51,
+            "item_scale": 0.252,
             "item_crop_offset": [0, 0, 0.29, 0]
         },
         "roi": [

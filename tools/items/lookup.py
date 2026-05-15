@@ -41,7 +41,7 @@ def build_name_id_index(item_table):
     for item_id, item in item_table.items():
         tid = str(item.get("name", {}).get("id", ""))
         icon_id = item.get("iconId", "")
-        if tid and tid != "0" and not item_id.startswith("sysbp_"):
+        if tid and tid != "0" and not item_id.startswith(("sysbp_", "item_factech_", "item_fbottle_", "item_formula_")):
             name_id_to_items.setdefault(tid, []).append((item_id, icon_id, item.get("rarity", 0)))
     return name_id_to_items
 
