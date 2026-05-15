@@ -12,9 +12,7 @@
             "option": [
                 "SelectFarm",
                 "FarmlandFindingScheme",
-                "GotoEcoFarmPathMethod",
-                "AutoEcoFarmClearBagBeforeTasks",
-                "AutoEcoFarmClearBagAfterTasks"
+                "GotoEcoFarmPathMethod"
             ],
             "group": [
                 "open_world"
@@ -204,54 +202,6 @@
                             "next": [
                                 "_AutoEcoFarmGotoEcoFarmExit"
                             ]
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEcoFarmClearBagBeforeTasks": {
-            "type": "switch",
-            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
-            "description": "",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "_AutoEcoFarmPrepareClearBagStart": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "_AutoEcoFarmPrepareClearBagStart": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEcoFarmClearBagAfterTasks": {
-            "type": "switch",
-            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label",
-            "description": "",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "_AutoEcoFarmEndClearBagStart": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "_AutoEcoFarmEndClearBagStart": {
-                            "enabled": false
                         }
                     }
                 }

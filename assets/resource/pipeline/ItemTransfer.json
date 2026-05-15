@@ -75,7 +75,7 @@
             57,
             41
         ],
-        "template": "AutoEcoFarm/autoecofarmQuickStash.png",
+        "template": "QuickStashBackpack/QuickStash.png",
         "action": "Click",
         "next": [
             "ItemTransferSwitchRepoToOrigin"

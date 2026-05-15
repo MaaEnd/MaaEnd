@@ -3856,7 +3856,6 @@
         },
         "PreClearBag": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
             "description": "$task.ItemTransfer.option.PreClearBag.description",
             "cases": [
                 {
