@@ -23,14 +23,6 @@
             -181
         ]
     },
-    "BuyFirstOCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
-        ]
-    },
     "BuyFirstOCR_CanNotAfford": {
         "roi_offset": [
             -150,
@@ -55,14 +47,6 @@
             11
         ]
     },
-    "Priority2OCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
-        ]
-    },
     "IsDiscountPriority2": {
         "roi_offset": [
             80,
@@ -79,14 +63,6 @@
             11
         ]
     },
-    "Priority3OCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
-        ]
-    },
     "IsDiscountPriority3": {
         "roi_offset": [
             80,
@@ -101,14 +77,6 @@
             -215,
             -47,
             11
-        ]
-    },
-    "BlacklistOCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
         ]
     },
     "IsDiscount": {
