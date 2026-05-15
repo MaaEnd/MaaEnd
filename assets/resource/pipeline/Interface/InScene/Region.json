@@ -1,5 +1,4 @@
 {
-    // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
         "desc": "在任意地图界面",
         "recognition": "And",
@@ -222,6 +221,19 @@
                     "에너지 공급 고지"
                 ]
             }
+        ]
+    },
+    "InMenuList": {
+        "desc": "在菜单列表界面",
+        "recognition": "OCR",
+        "roi": [
+            420,
+            -100,
+            450,
+            100
+        ],
+        "expected": [
+            "ENDFIELD"
         ]
     },
     "InNoticeRewards": {
