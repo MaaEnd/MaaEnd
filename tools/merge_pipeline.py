@@ -1,5 +1,4 @@
 import argparse
-import io
 import json
 import shutil
 import sys
@@ -49,14 +48,8 @@ def merge_pipeline(resource_dir: Path) -> None:
             print(f"  已删除文件: {item.name}", flush=True)
 
 
-def _setup_encoding():
-    if hasattr(sys.stdout, "buffer"):
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-
 
 def main():
-    _setup_encoding()
-
     parser = argparse.ArgumentParser(description="合并各 resource 的 pipeline JSON 文件")
     parser.add_argument("install_dir", nargs="?", default="install", help="install 目录路径（默认: install）")
     args = parser.parse_args()
