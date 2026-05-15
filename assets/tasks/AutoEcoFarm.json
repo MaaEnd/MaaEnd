@@ -3,7 +3,7 @@
         {
             "name": "AutoEcoFarm",
             "label": "$task.AutoEcoFarm.label",
-            "entry": "AutoEcoFarmMain",
+            "entry": "AutoEcoFarmTask",
             "description": "$task.AutoEcoFarm.description",
             "controller": [
                 "Win32-Front",
@@ -12,7 +12,8 @@
             "option": [
                 "SelectFarm",
                 "FarmlandFindingScheme",
-                "GotoEcoFarmPathMethod"
+                "GotoEcoFarmPathMethod",
+                "QuickStashBackpackEnable"
             ],
             "group": [
                 "open_world"

@@ -735,6 +735,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "수동·우하단",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "촬영 모드로 우링 기지 이탈",
     "task.QuickStashBackpack.label": "🎒배낭 원클릭 보관",
+    "task.QuickStashBackpack.option.QuickStashBackpackEnable.label": "태스크 시작 전 원클릭 배낭 보관",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
     "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).",
     "task.GiftOperator.focus.bag_full": "⚠️ 가방이 가득 차서 오퍼레이터 선물을 받을 수 없습니다. 수동으로 가방을 비워주세요",

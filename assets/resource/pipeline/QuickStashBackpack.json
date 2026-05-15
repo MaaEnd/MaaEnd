@@ -1,4 +1,14 @@
 {
+    "QuickStashBackpackSubTask": {
+        "desc": "被子任务调用的入口，用于设置QuickStashBackpackMain的enable",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "QuickStashBackpackMain",
+            "EmptyNode"
+        ]
+    },
     "QuickStashBackpackMain": {
         "desc": "任务入口",
         "pre_delay": 0,
@@ -10,17 +20,27 @@
         ]
     },
     "QuickStashBackpackMainClearBag": {
-        "desc": "前往帝江号，并打开背包，以是否识别到一键存放为标准，识别到了就点击一下",
-        "recognition": "TemplateMatch",
-        "roi": [
-            896,
-            497,
-            57,
-            41
+        "desc": "进入背包界面",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    896,
+                    497,
+                    57,
+                    41
+                ],
+                "template": [
+                    "QuickStashBackpack/QuickStash.png"
+                ]
+            }
         ],
-        "template": [
-            "QuickStashBackpack/QuickStash.png"
-        ],
-        "action": "Click"
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

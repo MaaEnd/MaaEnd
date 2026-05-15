@@ -11,7 +11,7 @@
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion",
-                "PreClearBag"
+                "QuickStashBackpackEnable"
             ],
             "controller": [
                 "Win32-Window",
@@ -3853,23 +3853,6 @@
                 }
             ],
             "default_case": "Wuling"
-        },
-        "PreClearBag": {
-            "type": "switch",
-            "description": "$task.ItemTransfer.option.PreClearBag.description",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "ItemTransferPreClearBag": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
         }
     }
 }

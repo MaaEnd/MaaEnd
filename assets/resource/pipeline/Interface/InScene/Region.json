@@ -224,6 +224,23 @@
             }
         ]
     },
+    "InBackpack": {
+        "desc": "在背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    100,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MenuBackpack.png"
+                ]
+            }
+        }
+    },
     "InNoticeRewards": {
         "desc": "在奖励领取界面",
         "recognition": {

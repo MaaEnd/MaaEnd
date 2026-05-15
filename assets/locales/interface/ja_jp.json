@@ -735,6 +735,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "手動・右下",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "撮影モードで武陵拠点を離れる",
     "task.QuickStashBackpack.label": "🎒バックパック一括収納",
+    "task.QuickStashBackpack.option.QuickStashBackpackEnable.label": "タスク開始前にワンタップでバックパックを収納",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
     "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。",
     "task.GiftOperator.focus.bag_full": "⚠️ バッグが満杯です。オペレーターのプレゼントを受け取れません。手動でバッグを整理してください",

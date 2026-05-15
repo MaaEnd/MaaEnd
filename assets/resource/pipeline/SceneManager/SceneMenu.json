@@ -1548,20 +1548,10 @@
     },
     "__ScenePrivateAnyEnterMenuBackpackSuccess": {
         "desc": "成功进入背包界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    900,
-                    100,
-                    250,
-                    160
-                ],
-                "template": [
-                    "SceneManager/MenuBackpackCraft.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "post_delay": 0
