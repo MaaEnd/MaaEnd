@@ -499,7 +499,6 @@
     "controller.Wlroots.description": "適用於基於 wlroots 的 Wayland 合成器（如 Sway）",
     "task.ItemTransfer.label": "🐌庫存轉移",
     "task.ItemTransfer.description": "將指定物品在不同地區之間批量轉移。請在帝江號<span style=\"color: #C62828\">會客室傳送點</span>處將<span style=\"color: #C62828\">視角抬至最高</span>，<span style=\"color: #C62828\">使用天花板為背景</span>。",
-    "task.ItemTransfer.option.PreClearBag.description": "在轉移開始前點擊「一鍵存放」，不指定一鍵存放的倉庫",
     "task.ItemTransfer.item_not_found": "未能找到目標物品，已回頂但識別失敗",
     "task.ItemTransfer.bag_return_completed": "目標倉庫已滿，剩餘物品已被放回原倉庫",
     "option.ItemTransferWhatToTransfer.label": "要搬運的物品",
