@@ -24,6 +24,8 @@ def merge_pipeline(resource_dir: Path) -> None:
             elif item.suffix == ".json":
                 try:
                     with open(item, "r", encoding="utf-8") as f:
+                        # check.yml 已通过 maa-tools 检测跨文件重复键（conflict-task），
+                        # 此处 dict.update 静默覆盖是安全的
                         merged.update(json5.load(f))
                     print(f"  已读取: {item.relative_to(pipeline_dir)}", flush=True)
                 except (ValueError, OSError) as e:
@@ -37,6 +39,7 @@ def merge_pipeline(resource_dir: Path) -> None:
         json.dump(merged, f, ensure_ascii=False, indent=4)
     print(f"  已写入: {nodes_file} ({len(merged)} 个节点)", flush=True)
 
+    # pipeline 目录仅包含 JSON pipeline 文件，可直接清理
     for item in sorted(pipeline_dir.iterdir(), reverse=True):
         if item.name == "nodes.json":
             continue
