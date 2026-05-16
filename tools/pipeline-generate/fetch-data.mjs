@@ -1,17 +1,13 @@
 #!/usr/bin/env node
-// 从 zmdmap API 获取最新版本，下载数据文件到 .cache/zmdmap/ 缓存目录。
+// 从 zmdmap API 获取最新版本，下载数据文件到 tools/pipeline-generate/data/ 目录。
 // 若本地已是最新版本则跳过下载。
 //
 // 用法：node tools/pipeline-generate/fetch-data.mjs [--force]
 //   --force  忽略本地版本缓存，强制重新下载
 
 import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
-import {resolve, dirname} from "node:path";
-import {fileURLToPath} from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, "..", "..");
-const cacheDir = resolve(repoRoot, ".cache", "zmdmap");
+import {resolve} from "node:path";
+import {dataDir} from "./utils/paths.mjs";
 
 const VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version";
 const DATA_BASE_URL = "https://assets.zmdmap.com/data/entity";
@@ -23,7 +19,7 @@ const force = process.argv.includes("--force");
 
 function readCachedVersion() {
     try {
-        return readFileSync(resolve(cacheDir, VERSION_FILE), "utf8").trim();
+        return readFileSync(resolve(dataDir, VERSION_FILE), "utf8").trim();
     } catch {
         return null;
     }
@@ -32,7 +28,7 @@ function readCachedVersion() {
 function isDataCached() {
     return DATA_FILES.every((file) => {
         try {
-            readFileSync(resolve(cacheDir, file), "utf8");
+            readFileSync(resolve(dataDir, file), "utf8");
             return true;
         } catch {
             return false;
@@ -54,7 +50,7 @@ async function fetchLatestVersion() {
 }
 
 async function fetchAndCache(version) {
-    mkdirSync(cacheDir, {recursive: true});
+    mkdirSync(dataDir, {recursive: true});
 
     for (const file of DATA_FILES) {
         const url = `${DATA_BASE_URL}/${version}/${file}`;
@@ -64,20 +60,21 @@ async function fetchAndCache(version) {
             throw new Error(`下载 ${file} 失败: ${res.status} ${res.statusText}`);
         }
         const text = await res.text();
-        writeFileSync(resolve(cacheDir, file), text, "utf8");
+        writeFileSync(resolve(dataDir, file), text, "utf8");
         console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(text) / 1024).toFixed(0)} KB)`);
     }
 
-    writeFileSync(resolve(cacheDir, VERSION_FILE), version, "utf8");
+    writeFileSync(resolve(dataDir, VERSION_FILE), version, "utf8");
 }
 
 async function main() {
     const cachedVersion = readCachedVersion();
     const dataCached = isDataCached();
+    let latestVersion;
 
     if (cachedVersion && dataCached && !force) {
         try {
-            const latestVersion = await fetchLatestVersion();
+            latestVersion = await fetchLatestVersion();
             if (latestVersion === cachedVersion) {
                 console.log(`[fetch-data] 本地已是最新版本 (v${cachedVersion})，跳过下载`);
                 return;
@@ -95,7 +92,7 @@ async function main() {
         console.log("[fetch-data] 本地无缓存，开始下载...");
     }
 
-    const version = await fetchLatestVersion();
+    const version = latestVersion ?? await fetchLatestVersion();
     await fetchAndCache(version);
     console.log(`[fetch-data] 完成，当前版本: v${version}`);
 }
