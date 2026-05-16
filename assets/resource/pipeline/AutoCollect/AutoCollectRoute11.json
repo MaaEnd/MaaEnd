@@ -1,0 +1,279 @@
+{
+    "AutoCollectRoute11Start": {
+        "desc": "重黯石",
+        "enabled": false,
+        "next": [
+            "AutoCollectRoute11AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.label"
+        }
+    },
+    "AutoCollectRoute11End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute11Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectRoute11End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    },
+    "AutoCollectRoute11AssertLocation1": {
+        "desc": "传送点定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        257.0,
+                        397.0,
+                        10.0,
+                        10.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute11GotoFindLine1Sub"
+        ]
+    },
+    "AutoCollectRoute11GotoFindLine1Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute11GotoFindLine1"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute11AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute11AssertLocation2": {
+        "desc": "重黯石定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        220.6,
+                        302.9,
+                        10.5,
+                        10.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute11GotoFind1"
+        ]
+    },
+    "AutoCollectRoute11GotoFindLine1": {
+        "desc": "前往重黯石采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    263.7,
+                    402.5
+                ],
+                [
+                    237.5,
+                    362.9
+                ],
+                [
+                    235.3,
+                    347.1
+                ],
+                [
+                    241.8,
+                    338.0
+                ],
+                [
+                    259.9,
+                    334.0
+                ],
+                [
+                    274.6,
+                    333.0
+                ],
+                [
+                    274.1,
+                    321.7
+                ],
+                [
+                    244.8,
+                    302.7
+                ],
+                [
+                    236.0,
+                    298.2
+                ],
+                [
+                    224.8,
+                    306.3
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute11GotoFind1": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    226.0,
+                    301.3
+                ],
+                [
+                    224.7,
+                    308.7
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11GotoFind2"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute11GotoFind2": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "no_ensure_initial_movement_state": true,
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    226.0,
+                    301.3
+                ],
+                [
+                    223.5,
+                    308.8
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11GotoFind3"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute11GotoFind3": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    226.0,
+                    301.3
+                ],
+                [
+                    221.0,
+                    310.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11GotoFind4"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute11GotoFind4": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    223.5,
+                    305.0
+                ],
+                [
+                    223.5,
+                    311.2
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11GotoFind5"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute11GotoFind5": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    223.5,
+                    305.0
+                ],
+                [
+                    226.0,
+                    312.5
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11GotoFind6"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectRoute11GotoFind6": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    223.5,
+                    305.0
+                ],
+                [
+                    222.2,
+                    311.2
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute11Wait10sec"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    }
+}
