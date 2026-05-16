@@ -12,7 +12,7 @@ import (
 const (
 	shelfSnapshotFileName = "CreditShoppingShelfSnapshots.json"
 	maxSnapshotRecords    = 400
-	schemaVersion         = 1
+	schemaVersion         = 2
 )
 
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
@@ -45,9 +45,7 @@ func slotsEqual(a, b []SlotRecord) bool {
 		return false
 	}
 	for i := range a {
-		if a[i].Index != b[i].Index ||
-			a[i].NameRaw != b[i].NameRaw ||
-			a[i].DiscountRaw != b[i].DiscountRaw {
+		if a[i].ItemID != b[i].ItemID || a[i].Discount != b[i].Discount {
 			return false
 		}
 	}

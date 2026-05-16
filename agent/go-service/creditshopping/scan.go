@@ -16,15 +16,14 @@ const (
 )
 
 type SlotRecord struct {
-	Index       int    `json:"index"`
-	NameRaw     string `json:"name_raw"`
-	DiscountRaw string `json:"discount_raw"`
+	ItemID   string `json:"item_id"`
+	Discount string `json:"discount"`
 }
 
 // ScanShelfSlots 流程：
 //  1) 运行 RecordItemName，从 CombinedResult 中 ItemNameOCR 子节点取全部名称命中；
-//  2) 将每条名称字框覆盖到 RecordItemDiscount 的 roi 锚点识别折扣；
-//  3) 折扣未命中记为 None，与名称一并写入快照（见 storage / action_record）。
+//  2) OCR 文本经 item_map 匹配为 CreditShoppingItems 唯一 ID；
+//  3) 将名称字框覆盖到 RecordItemDiscount 的 roi 锚点识别折扣（未命中记为 None）。
 func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
 	nameDetail, err := ctx.RunRecognition(pipelineNodeRecordItemName, img, nil)
 	if err != nil || nameDetail == nil || !nameDetail.Hit {
@@ -39,11 +38,18 @@ func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
 	}
 
 	out := make([]SlotRecord, 0, len(nameHits))
-	for i, hit := range nameHits {
+	for _, hit := range nameHits {
+		itemID, matched := matchCreditItemID(hit.Text)
+		if !matched {
+			log.Warn().
+				Str("component", component).
+				Str("ocr_text", hit.Text).
+				Msg("shelf scan: unmatched item name, skip slot")
+			continue
+		}
 		out = append(out, SlotRecord{
-			Index:       i,
-			NameRaw:     hit.Text,
-			DiscountRaw: recordDiscountAtNameBox(ctx, img, hit.Box),
+			ItemID:   itemID,
+			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
 		})
 	}
 	return out
