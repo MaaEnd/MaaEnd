@@ -233,6 +233,7 @@
             100
         ],
         "expected": [
+            "FIELD",
             "ENDFIELD"
         ]
     },
