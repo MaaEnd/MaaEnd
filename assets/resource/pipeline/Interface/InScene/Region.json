@@ -1,5 +1,4 @@
 {
-    // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
         "desc": "在任意地图界面",
         "recognition": "And",
@@ -224,6 +223,19 @@
             }
         ]
     },
+    "InMenuList": {
+        "desc": "在菜单列表界面",
+        "recognition": "OCR",
+        "roi": [
+            420,
+            -100,
+            450,
+            100
+        ],
+        "expected": [
+            "ENDFIELD"
+        ]
+    },
     "InNoticeRewards": {
         "desc": "在奖励领取界面",
         "recognition": {
@@ -363,7 +375,7 @@
         ],
         "expected": [
             "工业点数",
-            "工業點數",
+            "工業點",
             "AIC Index",
             "工業ポイント",
             "공업 포인트"

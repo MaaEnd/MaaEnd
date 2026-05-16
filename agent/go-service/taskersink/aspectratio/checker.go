@@ -462,11 +462,6 @@ func resolveControllerType(controller *maa.Controller) (string, string, error) {
 	if controlType := normalizeControllerType(pienv.ControllerType()); controlType != "" {
 		return controlType, "pi_env", nil
 	}
-	if controlType, err := control.GetCachedControlType(controller); err == nil {
-		if normalized := normalizeControllerType(controlType); normalized != "" {
-			return normalized, "cache", nil
-		}
-	}
 
 	controlType, err := control.GetControlType(controller)
 	if err != nil {

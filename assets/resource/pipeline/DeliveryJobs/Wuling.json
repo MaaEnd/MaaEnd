@@ -17,7 +17,9 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]DeliveryJobsEnterWulingCityDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterTestAreaDeliveryJob",
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
+            "[JumpBack]DeliveryJobsEnterTestAreaCargo",
             "DeliveryJobsLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
@@ -132,6 +134,109 @@
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeWulingCityText",
             "DeliveryJobsCheckWulingCityCargo"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsCheckLocalDepotNodeTestAreaText": {
+        "desc": "检查本地仓储节点中是否有试验园区",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "试验园区",
+            "實驗園區",
+            "(?i)Test\\s*Area",
+            "実験区域",
+            "실험 구역"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckTestAreaDeliveryJob": {
+        "desc": "检查试验园区的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeTestAreaText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterTestAreaDeliveryJob": {
+        "desc": "试验园区：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeTestAreaText",
+            "DeliveryJobsCheckTestAreaDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsCheckTestAreaCargo": {
+        "desc": "检查试验园区的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeTestAreaText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "(?i)Check\\s*Bid",
+            "希望価格確認",
+            "货物装箱",
+            "貨物裝箱",
+            "(?i)Pack\\s*Goods",
+            "パッキング",
+            "화물 포장",
+            "입찰 보기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterTestAreaCargo": {
+        "desc": "进入试验园区货物",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeTestAreaText",
+            "DeliveryJobsCheckTestAreaCargo"
         ],
         "box_index": 1,
         "pre_delay": 0,

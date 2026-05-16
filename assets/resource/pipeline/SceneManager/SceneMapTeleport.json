@@ -1,5 +1,5 @@
 {
-    // 在[330 20 600 600]对角线滑动
+    // 在[480 170]-[780 470]矩形对角线滑动
     "__ScenePrivateMapSwipeToStep0": {
         "desc": "原地查找",
         "recognition": "And",
@@ -23,12 +23,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            330,
-            20
+            480,
+            170
         ],
         "end": [
-            930,
-            620
+            780,
+            470
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -55,12 +55,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            930,
-            20
+            780,
+            170
         ],
         "end": [
-            330,
-            620
+            480,
+            470
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -87,12 +87,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            330,
-            620
+            480,
+            470
         ],
         "end": [
-            930,
-            20
+            780,
+            170
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -119,12 +119,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            930,
-            620
+            780,
+            470
         ],
         "end": [
-            330,
-            20
+            480,
+            170
         ],
         "end_hold": 200,
         "anchor": {
@@ -146,7 +146,7 @@
             "__ScenePrivateMapSwipeToStep1AnchorClear"
         ]
     },
-    "__ScenePrivateMapSwipeToStepFinishTopLeft": {
+    "__ScenePrivateMapSwipeToStep2TopLeft": {
         "desc": "在地图界面滑动到左上角并查找",
         "recognition": "And",
         "all_of": [
@@ -154,17 +154,14 @@
         ],
         "action": "Swipe",
         "begin": [
-            330,
-            20
+            480,
+            170
         ],
         "end": [
-            930,
-            620
+            780,
+            470
         ],
         "end_hold": 200,
-        "anchor": {
-            "__ScenePrivateMapSwipeToStepFinishAnchor": ""
-        },
         "post_wait_freezes": {
             "target": [
                 600,
@@ -178,10 +175,10 @@
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
-            "__ScenePrivateMapSwipeToStepFinishAnchorClear"
+            "__ScenePrivateMapSwipeToStep2AnchorClear"
         ]
     },
-    "__ScenePrivateMapSwipeToStepFinishTopRight": {
+    "__ScenePrivateMapSwipeToStep2TopRight": {
         "desc": "在地图界面滑动到右上角并查找",
         "recognition": "And",
         "all_of": [
@@ -189,12 +186,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            930,
-            20
+            780,
+            170
         ],
         "end": [
-            330,
-            620
+            480,
+            470
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -210,10 +207,10 @@
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
-            "__ScenePrivateMapSwipeToStepFinishAnchorClear"
+            "__ScenePrivateMapSwipeToStep2AnchorClear"
         ]
     },
-    "__ScenePrivateMapSwipeToStepFinishBottomLeft": {
+    "__ScenePrivateMapSwipeToStep2BottomLeft": {
         "desc": "在地图界面滑动到左下角并查找",
         "recognition": "And",
         "all_of": [
@@ -221,12 +218,12 @@
         ],
         "action": "Swipe",
         "begin": [
-            330,
-            620
+            480,
+            470
         ],
         "end": [
-            930,
-            20
+            780,
+            170
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -242,10 +239,10 @@
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
-            "__ScenePrivateMapSwipeToStepFinishAnchorClear"
+            "__ScenePrivateMapSwipeToStep2AnchorClear"
         ]
     },
-    "__ScenePrivateMapSwipeToStepFinishBottomRight": {
+    "__ScenePrivateMapSwipeToStep2BottomRight": {
         "desc": "在地图界面滑动到右下角并查找",
         "recognition": "And",
         "all_of": [
@@ -253,12 +250,47 @@
         ],
         "action": "Swipe",
         "begin": [
-            930,
-            620
+            780,
+            470
         ],
         "end": [
-            330,
-            20
+            480,
+            170
+        ],
+        "end_hold": 200,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep2Anchor": ""
+        },
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep2AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep3TopLeft": {
+        "desc": "在地图界面滑动到左上角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            480,
+            170
+        ],
+        "end": [
+            780,
+            470
         ],
         "end_hold": 200,
         "post_wait_freezes": {
@@ -274,7 +306,237 @@
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
-            "__ScenePrivateMapSwipeToStepFinishAnchorClear"
+            "__ScenePrivateMapSwipeToStep3AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep3TopRight": {
+        "desc": "在地图界面滑动到右上角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            780,
+            170
+        ],
+        "end": [
+            480,
+            470
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep3AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep3BottomLeft": {
+        "desc": "在地图界面滑动到左下角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            480,
+            470
+        ],
+        "end": [
+            780,
+            170
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep3AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep3BottomRight": {
+        "desc": "在地图界面滑动到右下角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            780,
+            470
+        ],
+        "end": [
+            480,
+            170
+        ],
+        "end_hold": 200,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep3Anchor": ""
+        },
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep3AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep4TopLeft": {
+        "desc": "在地图界面滑动到左上角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            480,
+            170
+        ],
+        "end": [
+            780,
+            470
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep4AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep4TopRight": {
+        "desc": "在地图界面滑动到右上角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            780,
+            170
+        ],
+        "end": [
+            480,
+            470
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep4AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep4BottomLeft": {
+        "desc": "在地图界面滑动到左下角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            480,
+            470
+        ],
+        "end": [
+            780,
+            170
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep4AnchorClear"
+        ]
+    },
+    "__ScenePrivateMapSwipeToStep4BottomRight": {
+        "desc": "在地图界面滑动到右下角并查找",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "action": "Swipe",
+        "begin": [
+            780,
+            470
+        ],
+        "end": [
+            480,
+            170
+        ],
+        "end_hold": 200,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep4Anchor": ""
+        },
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry2",
+            "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry3",
+            "__ScenePrivateMapSwipeToStep4AnchorClear"
         ]
     },
     "__ScenePrivateMapSwipeToStep0AnchorClear": {
@@ -293,11 +555,27 @@
         },
         "post_delay": 0
     },
-    "__ScenePrivateMapSwipeToStepFinishAnchorClear": {
+    "__ScenePrivateMapSwipeToStep2AnchorClear": {
         "desc": "清理滑动锚点",
         "pre_delay": 0,
         "anchor": {
-            "__ScenePrivateMapSwipeToStepFinishAnchor": ""
+            "__ScenePrivateMapSwipeToStep2Anchor": ""
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateMapSwipeToStep3AnchorClear": {
+        "desc": "清理滑动锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep3Anchor": ""
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateMapSwipeToStep4AnchorClear": {
+        "desc": "清理滑动锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep4Anchor": ""
         },
         "post_delay": 0
     }

@@ -23,8 +23,29 @@
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
-            "[JumpBack]GiftOperatorSwipe"
+            "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
+            "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
         ]
+    },
+    "GiftOperatorNoOperatorCanSelect": {
+        "desc": "没有可选择的干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    130,
+                    92,
+                    180,
+                    94
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        }
     },
     "GiftOperatorSwipe": {
         "desc": "滑动尝试找到干员",
@@ -187,12 +208,12 @@
             "param": {
                 "method": 40,
                 "lower": [
-                    28,
+                    27,
                     255,
                     255
                 ],
                 "upper": [
-                    28,
+                    30,
                     255,
                     255
                 ],
@@ -208,14 +229,14 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    52,
-                    52,
-                    52
+                    50,
+                    50,
+                    50
                 ],
                 "upper": [
-                    52,
-                    52,
-                    52
+                    55,
+                    55,
+                    55
                 ],
                 "connected": true,
                 "count": 10
@@ -354,6 +375,15 @@
             "param": {
                 "custom_action": "AutoAltClickAction"
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
         },
         "next": [
             "GiftOperatorCheckContact"

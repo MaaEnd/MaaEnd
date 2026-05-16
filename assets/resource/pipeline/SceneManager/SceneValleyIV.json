@@ -610,7 +610,9 @@
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
         ]
     },
     "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor": {
@@ -628,7 +630,9 @@
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
         ]
     },
     "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick": {
@@ -660,7 +664,9 @@
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
         ]
     },
     "__ScenePrivateMapValleyIVTheHubEnterTeleport": {

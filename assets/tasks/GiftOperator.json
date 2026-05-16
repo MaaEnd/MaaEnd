@@ -803,6 +803,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AcceptAllGifts"
+                    ],
                     "pipeline_override": {
                         "GiftOperatorContacSortOrder": {
                             "enabled": false
@@ -847,6 +850,28 @@
                         "SelectOperator",
                         "GiftCount"
                     ],
+                    "pipeline_override": {}
+                }
+            ]
+        },
+        "AcceptAllGifts": {
+            "type": "switch",
+            "label": "$option.AcceptAllGifts.label",
+            "description": "$option.AcceptAllGifts.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
                     "pipeline_override": {}
                 }
             ]
