@@ -1,0 +1,115 @@
+{
+    "ItemNameOCRLabelColor": {
+        "desc": "物品名称标签颜色（相对 CreditIcon）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CreditIcon",
+                "roi_offset": [
+                    -95,
+                    30,
+                    130,
+                    28
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "connected": true,
+                "count": 10,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "ItemNameOCRTextColor": {
+        "desc": "物品名称文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ItemNameOCRLabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "ItemNameOCR": {
+        "desc": "物品名称（相对 CreditIcon，不依赖售罄/买得起状态）",
+        "recognition": "OCR",
+        "roi": "ItemNameOCRTextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": ".*",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "ItemNameOCR_Expected": {
+        "desc": "物品名称识别（label → 文字色 → OCR）",
+        "recognition": "And",
+        "all_of": [
+            "ItemNameOCRLabelColor",
+            "ItemNameOCRTextColor",
+            "ItemNameOCR"
+        ],
+        "box_index": 2
+    },
+    "RecordItemName": {
+        "desc": "货架槽位物品名称（CreditIcon 锚定 + 名称 OCR）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "ItemNameOCR_Expected"
+        ],
+        "box_index": 1
+    },
+    "RecordItemDiscount": {
+        "desc": "货架槽位折扣力度（相对物品名称）",
+        "recognition": "OCR",
+        "roi": "ItemNameOCR",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingRecordShelfSnapshots": {
+        "desc": "信用点商店货架库存快照（名称与折扣，不判售罄/买不起）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShopping.RecordShelfSnapshots",
+        "custom_action_param": {
+            "loops": 1
+        },
+        "next": []
+    }
+}

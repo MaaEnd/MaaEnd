@@ -17,9 +17,9 @@ type recordShelfSnapshotsParam struct {
 }
 
 // RecordShelfSnapshotsAction 信用点商店库存快照（分步）：
-//  1) 模板识别 CreditIcon（即货架物品图标），每个命中对应一个物品槽位；
-//  2) 对每个命中框按固定偏移做名称 OCR、再相对名称字框偏移做折扣力度 OCR；
-//  3) 将本轮所有槽位写入本地 JSON（含去重）。
+//  1) 运行 pipeline 节点 RecordItemName 获取各槽位名称；
+//  2) 遍历 ItemNameOCR_Expected 命中框，以其 box 覆盖 RecordItemDiscount 的 roi 锚点识别折扣；
+//  3) 将本轮名称与折扣（未命中为 None）写入本地 JSON（含去重）。
 // 不判断售罄、买不起。
 // custom_action_param: {"loops":<正整数>}；省略或 <=0 时：ADB 默认 2 次，其它默认 1 次。
 type RecordShelfSnapshotsAction struct{}
