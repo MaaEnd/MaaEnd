@@ -354,19 +354,19 @@
         "desc": "点击干员联络台",
         "max_hit": 3,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     722,
                     312,
-                    481,
+                    550,
                     362
                 ],
-                "template": [
-                    "GiftOperator/OperatorContact.png"
-                ],
-                "threshold": [
-                    0.7
+                "expected": [
+                    "干员联络台",
+                    "幹員聯絡台",
+                    "(?i)Operator\\s*Contact\\s*Panel",
+                    "連絡カウンター"
                 ]
             }
         },

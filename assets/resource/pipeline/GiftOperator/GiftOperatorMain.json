@@ -62,16 +62,19 @@
     "GiftOperatorLeave": {
         "desc": "点击离开",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "GiftOperator/Leave.png"
+                "expected": [
+                    "暂时离开",
+                    "暫時離開",
+                    "(?i)Leave\\s*for\\s*now",
+                    "一旦離れる"
                 ]
             }
         },
