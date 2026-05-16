@@ -1,8 +1,16 @@
 // SellProduct 数据源
 
-import {createRequire} from "module";
+import {readFileSync} from "node:fs";
+import {resolve, dirname} from "node:path";
+import {fileURLToPath} from "node:url";
+import {createRequire} from "node:module";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, "..", "..", "..");
+
+const settlementData = JSON.parse(readFileSync(resolve(repoRoot, ".cache", "zmdmap", "settlement_trade.json"), "utf8"));
+
 const require = createRequire(import.meta.url);
-const settlementData = require("./settlement_trade.json");
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
 
 function escapeRegex(str) {
