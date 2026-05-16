@@ -9,11 +9,10 @@ import (
 )
 
 const (
-	pipelineNodeRecordItemName      = "RecordItemName"
-	pipelineNodeItemNameOCRExpected = "ItemNameOCR_Expected"
-	pipelineNodeRecordItemDiscount  = "RecordItemDiscount"
-	pipelineNodeItemNameOCR         = "ItemNameOCR"
-	discountNone                    = "None"
+	pipelineNodeRecordItemName     = "RecordItemName"
+	pipelineNodeRecordItemDiscount = "RecordItemDiscount"
+	pipelineNodeItemNameOCR        = "ItemNameOCR"
+	discountNone                   = "None"
 )
 
 type SlotRecord struct {
@@ -23,8 +22,8 @@ type SlotRecord struct {
 }
 
 // ScanShelfSlots 流程：
-//  1) 运行 RecordItemName 获取各槽位物品名称框；
-//  2) 遍历 ItemNameOCR_Expected 的全部命中框，将每条 box 作为 RecordItemDiscount 的 roi 锚点执行识别；
+//  1) 运行 RecordItemName，从 CombinedResult 中 ItemNameOCR 子节点取全部名称命中；
+//  2) 将每条名称字框覆盖到 RecordItemDiscount 的 roi 锚点识别折扣；
 //  3) 折扣未命中记为 None，与名称一并写入快照（见 storage / action_record）。
 func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
 	nameDetail, err := ctx.RunRecognition(pipelineNodeRecordItemName, img, nil)
@@ -33,38 +32,19 @@ func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
 		return nil
 	}
 
-	expectedDetail, err := ctx.RunRecognition(pipelineNodeItemNameOCRExpected, img, nil)
-	if err != nil || expectedDetail == nil || !expectedDetail.Hit {
-		log.Info().Str("component", component).Msg("shelf scan: no ItemNameOCR_Expected")
+	nameHits := ocrNameHitsFromRecordItemName(nameDetail)
+	if len(nameHits) == 0 {
+		log.Warn().Str("component", component).Msg("shelf scan: RecordItemName hit but no ItemNameOCR results in CombinedResult")
 		return nil
 	}
 
-	nameBoxes := recognitionBoxes(nameDetail)
-	sortRectsVertical(nameBoxes)
-
-	discountAnchors := recognitionBoxes(expectedDetail)
-	sortRectsVertical(discountAnchors)
-	if len(discountAnchors) == 0 {
-		return nil
-	}
-	if len(nameBoxes) != len(discountAnchors) {
-		log.Warn().
-			Str("component", component).
-			Int("record_item_name", len(nameBoxes)).
-			Int("item_name_expected", len(discountAnchors)).
-			Msg("shelf scan: name hit count mismatch, zip by index")
-	}
-
-	out := make([]SlotRecord, 0, len(discountAnchors))
-	for i, anchor := range discountAnchors {
-		rec := SlotRecord{
+	out := make([]SlotRecord, 0, len(nameHits))
+	for i, hit := range nameHits {
+		out = append(out, SlotRecord{
 			Index:       i,
-			DiscountRaw: recordDiscountAtNameBox(ctx, img, anchor),
-		}
-		if i < len(nameBoxes) {
-			rec.NameRaw = pipelineOCRTextAtROI(ctx, img, pipelineNodeItemNameOCR, nameBoxes[i])
-		}
-		out = append(out, rec)
+			NameRaw:     hit.Text,
+			DiscountRaw: recordDiscountAtNameBox(ctx, img, hit.Box),
+		})
 	}
 	return out
 }
@@ -84,17 +64,4 @@ func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect
 		return discountNone
 	}
 	return text
-}
-
-func pipelineOCRTextAtROI(ctx *maa.Context, img image.Image, node string, roi maa.Rect) string {
-	override := map[string]any{
-		node: map[string]any{
-			"roi": roi,
-		},
-	}
-	detail, err := ctx.RunRecognition(node, img, override)
-	if err != nil || detail == nil || !detail.Hit {
-		return ""
-	}
-	return strings.TrimSpace(bestOCRText(detail))
 }

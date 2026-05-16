@@ -2,9 +2,15 @@ package creditshopping
 
 import (
 	"sort"
+	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
+
+type ocrNameHit struct {
+	Box  maa.Rect
+	Text string
+}
 
 func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
 	if detail == nil || detail.Results == nil {
@@ -22,33 +28,55 @@ func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult 
 	return nil
 }
 
-func recognitionBoxes(detail *maa.RecognitionDetail) []maa.Rect {
-	results := recognitionResults(detail)
-	boxes := make([]maa.Rect, 0, len(results))
-	for _, r := range results {
-		box, ok := recognitionResultBox(r)
-		if !ok || !rectValid(box) {
-			continue
-		}
-		boxes = append(boxes, box)
+func findRecognitionDetailByName(detail *maa.RecognitionDetail, targetName string) *maa.RecognitionDetail {
+	if detail == nil {
+		return nil
 	}
-	return boxes
+	if detail.Name == targetName {
+		return detail
+	}
+	for _, child := range detail.CombinedResult {
+		if found := findRecognitionDetailByName(child, targetName); found != nil {
+			return found
+		}
+	}
+	return nil
 }
 
-func recognitionResultBox(r *maa.RecognitionResult) (maa.Rect, bool) {
-	if r == nil {
-		return maa.Rect{}, false
+// ocrNameHitsFromRecordItemName 从 RecordItemName（And）的 CombinedResult 中提取
+// ItemNameOCR 子节点的全部 filtered 命中（名称 + 字框）。
+func ocrNameHitsFromRecordItemName(detail *maa.RecognitionDetail) []ocrNameHit {
+	ocrDetail := findRecognitionDetailByName(detail, pipelineNodeItemNameOCR)
+	if ocrDetail == nil {
+		return nil
 	}
-	if o, ok := r.AsOCR(); ok {
-		return o.Box, true
+	results := recognitionResults(ocrDetail)
+	if len(results) == 0 {
+		return nil
 	}
-	if tm, ok := r.AsTemplateMatch(); ok {
-		return tm.Box, true
+	out := make([]ocrNameHit, 0, len(results))
+	for _, r := range results {
+		o, ok := r.AsOCR()
+		if !ok {
+			continue
+		}
+		text := strings.TrimSpace(o.Text)
+		if text == "" || !rectValid(o.Box) {
+			continue
+		}
+		out = append(out, ocrNameHit{Box: o.Box, Text: text})
 	}
-	if cm, ok := r.AsColorMatch(); ok {
-		return cm.Box, true
-	}
-	return maa.Rect{}, false
+	sortOCRNameHits(out)
+	return out
+}
+
+func sortOCRNameHits(hits []ocrNameHit) {
+	sort.Slice(hits, func(i, j int) bool {
+		if hits[i].Box[1] != hits[j].Box[1] {
+			return hits[i].Box[1] < hits[j].Box[1]
+		}
+		return hits[i].Box[0] < hits[j].Box[0]
+	})
 }
 
 func sortRectsVertical(boxes []maa.Rect) {
