@@ -90,7 +90,7 @@ func resolveLoops(arg *maa.CustomActionArg, ctrl *maa.Controller) int {
 }
 
 func defaultLoopCount(ctrl *maa.Controller) int {
-	t, err := control.GetCachedControlType(ctrl)
+	t, err := control.GetControlType(ctrl)
 	if err == nil && t == control.CONTROL_TYPE_ADB {
 		return 2
 	}
