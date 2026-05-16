@@ -94,7 +94,7 @@
                     125
                 ],
                 "template": [
-                    "QuickStashBackpack/QuickStash.png"
+                    "StashBackpack/QuickStash.png"
                 ],
                 "order_by": "Score"
             }

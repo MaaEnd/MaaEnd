@@ -195,7 +195,7 @@
         "tasks/Crafting.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/ReceiveProdManual.json",
-        "tasks/QuickStashBackpack.json",
+        "tasks/StashBackpack.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",

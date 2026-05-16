@@ -11,7 +11,7 @@
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion",
-                "QuickStashBackpackEnable"
+                "StashBackpackSubTask"
             ],
             "controller": [
                 "Win32-Window",

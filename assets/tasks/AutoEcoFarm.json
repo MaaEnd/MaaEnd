@@ -13,7 +13,7 @@
                 "SelectFarm",
                 "FarmlandFindingScheme",
                 "GotoEcoFarmPathMethod",
-                "QuickStashBackpackEnable"
+                "StashBackpackSubTask"
             ],
             "group": [
                 "open_world"
