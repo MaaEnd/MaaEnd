@@ -2,16 +2,19 @@
     "GiftOperatorBranchGift": {
         "desc": "分支1：可以赠送礼物",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "GiftOperator/GiftGiving.png"
+                "expected": [
+                    "赠送礼物",
+                    "贈送禮物",
+                    "(?i)Offering\\s*Gifts",
+                    "プレゼントを贈る"
                 ]
             }
         },
@@ -25,16 +28,19 @@
     "GiftOperatorBranchMaxAffinity": {
         "desc": "分支3：好感度已满",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    951,
-                    410,
-                    236,
-                    195
+                    900,
+                    334,
+                    350,
+                    318
                 ],
-                "template": [
-                    "GiftOperator/LikeAbility.png"
+                "expected": [
+                    "查看赠礼记录",
+                    "查看贈禮紀錄",
+                    "(?i)Gifting\\s*records",
+                    "プレゼント履歴を確認する"
                 ]
             }
         },
@@ -48,16 +54,19 @@
     "GiftOperatorBranchReceive": {
         "desc": "分支2：干员给你送礼，点击领取",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "RealTimeTask/AutoSkipTip.png"
+                "expected": [
+                    "收下礼物",
+                    "收下禮物",
+                    "(?i)Accept\\s*gift",
+                    "プレゼントを受け取る"
                 ]
             }
         },
@@ -99,7 +108,7 @@
                     250
                 ],
                 "upper": [
-                    25,
+                    30,
                     255,
                     255
                 ],

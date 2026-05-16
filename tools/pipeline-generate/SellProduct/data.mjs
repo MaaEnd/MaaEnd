@@ -1,8 +1,19 @@
 // SellProduct 数据源
 
-import {createRequire} from "module";
+import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
+import {createRequire} from "node:module";
+import {repoRoot, dataDir} from "../utils/paths.mjs";
+
+let settlementData;
+try {
+    settlementData = JSON.parse(readFileSync(resolve(dataDir, "settlement_trade.json"), "utf8"));
+} catch {
+    console.error("[SellProduct] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:SellProduct");
+    process.exit(1);
+}
+
 const require = createRequire(import.meta.url);
-const settlementData = require("./settlement_trade.json");
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
 
 function escapeRegex(str) {

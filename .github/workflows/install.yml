@@ -164,6 +164,8 @@ jobs:
 
       - name: Install
         shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
           python tools/build_and_install.py --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
@@ -184,6 +186,11 @@ jobs:
               cp downloads/MXU/mxu install/MaaEnd
             fi
           fi
+
+          # 合并各 resource 的 pipeline JSON 文件
+          echo "Merge pipeline JSON"
+          python -m pip install json5
+          python tools/merge_pipeline.py install
 
           # 更新 interface.json（版本号 + 资源 hash）
           echo "Update interface.json: version=${{ needs.meta.outputs.tag }}, compute resource hashes"
