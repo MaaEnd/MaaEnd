@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
@@ -10,9 +11,13 @@ import (
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sys/windows"
 )
 
 func main() {
+	os.Setenv("GOTRACEBACK", "crash")
+	debug.SetPanicOnFault(true)
+
 	logFile, err := initLogger()
 	if err != nil {
 		log.Fatal().
@@ -20,6 +25,28 @@ func main() {
 			Msg("Failed to initialize logger")
 	}
 	defer logFile.Close()
+
+	defer func() {
+		if r := recover(); r != nil {
+			stack := debug.Stack()
+			log.Error().
+				Interface("panic", r).
+				Str("stack", string(stack)).
+				Msg("FATAL: go-service panicked")
+			logFile.Sync()
+			logFile.Close()
+			os.Exit(1)
+		}
+	}()
+
+	// Redirect stderr to file so Go runtime crash output is preserved
+	if stderrFile, err := os.OpenFile(
+		filepath.Join(".", "debug", "go-service.stderr.log"),
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644,
+	); err == nil {
+		windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(stderrFile.Fd()))
+		os.Stderr = stderrFile
+	}
 
 	log.Info().
 		Str("version", Version).
