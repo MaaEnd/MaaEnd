@@ -8,8 +8,11 @@ import (
 )
 
 func redirectStderr() {
+	debugDir := filepath.Join(".", "debug")
+	os.MkdirAll(debugDir, 0755)
+
 	stderrFile, err := os.OpenFile(
-		filepath.Join(".", "debug", "go-service.stderr.log"),
+		filepath.Join(debugDir, "go-service.stderr.log"),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644,
 	)
 	if err != nil {

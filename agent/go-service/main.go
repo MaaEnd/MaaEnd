@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -27,13 +28,13 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			stack := debug.Stack()
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, true)
 			log.Error().
 				Interface("panic", r).
-				Str("stack", string(stack)).
+				Str("stack", string(buf[:n])).
 				Msg("FATAL: go-service panicked")
 			logFile.Sync()
-			logFile.Close()
 			os.Exit(1)
 		}
 	}()
