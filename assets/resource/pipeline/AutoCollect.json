@@ -33,7 +33,11 @@
                 "AutoCollectRoute7Sub",
                 "AutoCollectRoute8Sub",
                 "AutoCollectRoute9Sub",
-                "AutoCollectRoute10Sub"
+                "AutoCollectRoute10Sub",
+                "AutoCollectRoute11Sub",
+                "AutoCollectRoute12Sub",
+                "AutoCollectRoute13Sub",
+                "AutoCollectRoute14Sub"
             ],
             "continue": true,
             "strict": true
@@ -134,6 +138,42 @@
         "post_delay": 0,
         "next": [
             "AutoCollectRoute10Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectRoute11Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute11Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectRoute12Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute12Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectRoute13Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute13Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectRoute14Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute14Start",
             "EmptyNode"
         ]
     }
