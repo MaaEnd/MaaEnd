@@ -1,20 +1,10 @@
 {
     "__ScenePrivateMenuListEnterWorld": {
         "desc": "从菜单总列表退出到大世界，避免电脑比较卡反复在菜单总列表和大世界之间切换",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    420,
-                    -100,
-                    450,
-                    100
-                ],
-                "expected": [
-                    "ENDFIELD"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
         "pre_delay": 0,
         "action": {
             "type": "ClickKey",
@@ -67,20 +57,10 @@
     },
     "__ScenePrivateAnyEnterMenuListSuccess": {
         "desc": "成功进入菜单总列表",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    420,
-                    -100,
-                    450,
-                    100
-                ],
-                "expected": [
-                    "ENDFIELD"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
         "pre_delay": 0,
         "post_delay": 1500 // 3D动画菜单会一直动无法用wait_freeze
     },
@@ -686,8 +666,48 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuOperationalManualClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuOperationalManual",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "desc": "从菜单列表进入行动手册菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "行动手册",
+                            "行動手冊",
+                            "(?i)Operational\\s*Manual",
+                            "案内所",
+                            "작전 매뉴얼"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
         ]
     },
     "__ScenePrivateWorldEnterMenuOperationalManualClick": {
@@ -929,22 +949,7 @@
         "desc": "从菜单列表进入好友菜单",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": [
-                            420,
-                            -100,
-                            450,
-                            100
-                        ],
-                        "expected": [
-                            "ENDFIELD"
-                        ]
-                    }
-                }
-            },
+            "InMenuList",
             {
                 "recognition": {
                     "type": "OCR",
@@ -1411,20 +1416,10 @@
     },
     "__ScenePrivateMenuListEnterMenuBackpack": {
         "desc": "从菜单列表进入背包界面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    420,
-                    -100,
-                    450,
-                    100
-                ],
-                "expected": [
-                    "ENDFIELD"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
         "next": [
             "[JumpBack]__ScenePrivateMenuListScrollToBottom",
             "__ScenePrivateMenuListBottomEnterMenuBackpack"

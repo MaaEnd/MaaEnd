@@ -1,6 +1,6 @@
 ---
 name: maaend-issue-log-analysis
-description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd/MaaEnd/issues/...` 或 `#1234`）。自动抓取 issue 正文和评论中的 `MaaEnd-logs-*.zip` 附件，下载解压后从 `maa.log`、`maa.bak.log`、`go-service.log`、`mxu-tauri.log`、`mxu-web-*.log`、`mxu-agent*.log`、`config/*`、`on_error/` 中筛选关键证据，并结合 MaaEnd、MaaFramework、MXU 的代码和文档判断根因、给出修复方案，供用户在让你分析 MaaEnd issue、日志包、识别失败、任务卡死、控制器差异、Pipeline/Agent/MXU 问题时使用。
+description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd/MaaEnd/issues/...` 或 `#1234`）。自动抓取 issue 正文和评论中的 `MaaEnd-logs-*.zip` 附件，下载解压后从 `maafw.log`、`maafw.bak.*.log`、`go-service.log`、`mxu-tauri.log`、`mxu-web-*.log`、`mxu-agent*.log`、`config/*`、`on_error/` 中筛选关键证据，并结合 MaaEnd、MaaFramework、MXU 的代码和文档判断根因、给出修复方案，供用户在让你分析 MaaEnd issue、日志包、识别失败、任务卡死、控制器差异、Pipeline/Agent/MXU 问题时使用。
 ---
 
 # MaaEnd Issue Log Analysis
@@ -35,7 +35,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 先列一遍解压目录，不要假定结构固定。日志包可能包含：
         - 多份 `mxu-agent-<index>-<pid>.log`
         - 多天的 `mxu-web-YYYY-MM-DD.log`
-        - `maa.bak.log`
+        - `maafw.bak.*.log`
         - `config/` 目录
         - 没有 `on_error/`，或只有部分现场图
         - `.dmp` 崩溃转储文件（如 `MaaEnd.dmp`、`MaaEnd.exe.<pid>.dmp`）
@@ -46,15 +46,15 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     如果在日志包内或 issue 附件中发现了 `.dmp` 文件，**立即读取 `.claude/skills/dmp-analysis/SKILL.md` 并严格按其流程执行**。不要跳过这一步，不要只凭日志文本猜测崩溃原因。
 
     a. 按照 `dmp-analysis/SKILL.md` 的完整流程完成崩溃转储分析，包括：- 解析异常类型、崩溃地址、崩溃模块 - 提取 crashing thread 的完整堆栈帧 - 下载对应版本的 PDB 符号并使用 `dump_syms` + `minidump-stackwalk` 完成符号化
-    b. DMP 的进程 PID（通常在文件名中，如 `MaaEnd.exe.18188.dmp` → PID 18188）必须与 `maa.log` 中的 `[Px<pid>]` 标签交叉验证，确认是同一次崩溃会话。
+    b. DMP 的进程 PID（通常在文件名中，如 `MaaEnd.exe.18188.dmp` → PID 18188）必须与 `maafw.log` 中的 `[Px<pid>]` 标签交叉验证，确认是同一次崩溃会话。
     c. 最终报告中必须包含 **`## DMP 崩溃分析`** 区域（见 Output Format），内容包括：- 异常类型和异常码（如 `0xC0000409`），以及异常码的含义 - 崩溃模块和偏移 - **crashing thread 的全部有效堆栈帧**（module+offset 或符号化后的 function+line），不要省略或截断 - 关键模块列表
     d. 如果堆栈中涉及 MaaFramework 或 MXU 的帧且已完成符号化（有函数名+源码行号），**必须**按对应版本 clone 上游仓库源码，定位到具体代码行，并以远端 GitHub `blob` 行号链接（尖括号包裹）的形式贴出。clone 命令参考：- `git clone --depth 1 --branch "v<VERSION>" https://github.com/MaaXYZ/MaaFramework.git .cache/upstream-src/MaaFramework` - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MistEO/MXU.git .cache/upstream-src/MXU`
     e. 如果符号化失败或无法下载 PDB，在报告中明确说明，但仍必须输出 module+offset 级别的堆栈。
 
 6. 建立时间线。
     - 先从 issue 文本判断“用户觉得出问题的时刻”。
-    - 再把 `mxu-web-*`、`mxu-tauri.log`、`go-service.log`、`maa.log`、`mxu-agent*.log` 串成一条时间线。
-    - 先用 `mxu-tauri.log` 或 `maa.log` 找本次提交的 `task_id`，因为一个日志包里经常混有很多历史运行。
+    - 再把 `mxu-web-*`、`mxu-tauri.log`、`go-service.log`、`maafw.log`、`mxu-agent*.log` 串成一条时间线。
+    - 先用 `mxu-tauri.log` 或 `maafw.log` 找本次提交的 `task_id`，因为一个日志包里经常混有很多历史运行。
     - 如果有 `on_error/` 截图，用它校验当时实际停留画面；如果没有，要检查是否是未触发 `on_error`，还是日志导出因体积限制把图片截断了。
 
 7. 回溯到代码和文档。
@@ -68,14 +68,14 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 如果怀疑问题在 MXU、MaaFramework 或 binding 实现层，且现有证据不足以确认，再按需查看对应上游仓库源码。
     - 常见对应关系：
         - `MXU`：`https://github.com/MistEO/MXU`，前端配置、Tauri 后端编排、实例/任务/agent 生命周期、`mxu-tauri.log` / `mxu-web-*`
-        - `MaaFramework`：`https://github.com/MaaXYZ/MaaFramework`，Pipeline 运行时、控制器、资源加载、任务调度、`maa.log`
+        - `MaaFramework`：`https://github.com/MaaXYZ/MaaFramework`，Pipeline 运行时、控制器、资源加载、任务调度、`maafw.log`
         - `maa-framework-rs`：`https://github.com/MaaXYZ/maa-framework-rs`，Rust binding / FFI / `maa_ffi` 回调桥接
         - `maa-framework-go`：`https://github.com/MaaXYZ/maa-framework-go`，Go binding / Go 与 MaaFramework 的桥接
     - 只看真正相关的仓库；本地没有时再 clone 到临时目录，例如 `.cache/upstream-src/<repo>/`。
 
 ## Log Map
 
-### `maa.log`
+### `maafw.log`
 
 - 模块归属：`MaaFramework` 核心运行时。
 - 主要内容：资源加载、控制器连接、任务启动、节点识别、动作执行、超时、回调细节、C++ 源文件和函数名。
@@ -86,14 +86,14 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 控制器、截图、资源加载层面的异常
 - 这是分析 Pipeline/识别/动作问题时的主证据之一。
 
-### `maa.bak.log`
+### `maafw.bak.*.log`
 
 - 模块归属：`MaaFramework` 旧滚动日志。
-- 主要内容：和 `maa.log` 同类，但通常是更早一批运行。
+- 主要内容：和 `maafw.log` 同类，但通常是更早一批运行。
 - 最适合看：
-    - 当前 `maa.log` 不够长，复现发生在更早时间
+    - 当前 `maafw.log` 不够长，复现发生在更早时间
     - 用户在 issue 里对比“前一次失败 / 后一次成功”
-- 不要把 `maa.bak.log` 里的旧结论误判成最新一次复现。
+- 不要把 `maafw.bak.*.log` 里的旧结论误判成最新一次复现。
 
 ### `go-service.log`
 
@@ -139,7 +139,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 注意：
     - 新版日志包里可能不是单个 `mxu-agent.log`，而是多份 `mxu-agent-<index>-<pid>.log`。
     - 要结合 issue 时间、agent 启动时间、`mxu-tauri.log` 中的实例/agent 生命周期来判断哪一份是本次复现。
-- 注意：它很有用，但不是最权威的根因日志。涉及具体运行细节时，优先以 `maa.log` 和 `go-service.log` 为准。
+- 注意：它很有用，但不是最权威的根因日志。涉及具体运行细节时，优先以 `maafw.log` 和 `go-service.log` 为准。
 
 ### `config/*`
 
@@ -185,11 +185,11 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 3. 先锁定“这一次复现”的任务实例，再看细节：
     - 从 `mxu-tauri.log` 找 `post_task returned task_id`
-    - 再到 `maa.log` 用这个 `task_id` 跟完整个任务
+    - 再到 `maafw.log` 用这个 `task_id` 跟完整个任务
     - 如果 issue 文本说“失败”，但目标 `task_id` 实际 `Tasker.Task.Succeeded`，要明确写出“本日志未复现用户描述的失败”
 
 4. 对 Pipeline 问题，重点看：
-    - `maa.log`
+    - `maafw.log`
     - `mxu-tauri.log` 里的 `maa_ffi` 回调
 
 5. 对 Go 扩展问题，重点看：
@@ -243,12 +243,12 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 - `go-service.log` 只有 HDR / 分辨率告警，没有明确错误：
     - 这些更像环境风险提示，不能自动当成根因。
-    - 需要和 `maa.log` 里的识别结果、`on_error` 截图一起判断。
+    - 需要和 `maafw.log` 里的识别结果、`on_error` 截图一起判断。
 
 - `mxu-agent*.log` 里有 HTML 提示，但 `go-service.log` 没有对应错误：
     - 说明这可能是面向用户展示的提示，不等于流程失败点本身。
 
-- `maa.bak.log` 里有同一入口、同类参数的历史成功样本，而本次 `maa.log` 失败：
+- `maafw.bak.*.log` 里有同一入口、同类参数的历史成功样本，而本次 `maafw.log` 失败：
     - 这是判断“行为回归”或“某次改动引入脆弱性”的高价值证据。
     - 回答时要明确：这是同配置历史成功对比，还是只是相似场景的旁证。
 
@@ -334,7 +334,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 <details><summary>点击此处展开</summary>
 
-- `maa.log`：...
+- `maafw.log`：...
 - `go-service.log`：...
 - `mxu-tauri.log`：...
 - `mxu-web-*.log`：...
@@ -345,7 +345,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 （仅当 issue 存在 .dmp 文件时输出此区域。如果没有 .dmp 文件，删除整个区域。）
 
-- DMP 文件：`<filename>`（PID `<pid>`，与 `maa.log` 中 `[Px<pid>]` 已交叉验证）
+- DMP 文件：`<filename>`（PID `<pid>`，与 `maafw.log` 中 `[Px<pid>]` 已交叉验证）
 - 异常类型：`<EXCEPTION_*>`（`<hex code>`），含义：...
 - 崩溃模块：`<module_name>+<offset>`
 - 符号化状态：已符号化 / 仅 module+offset（原因：...）

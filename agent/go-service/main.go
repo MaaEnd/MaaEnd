@@ -84,11 +84,7 @@ func main() {
 	// Wait for the server to finish
 	maa.AgentServerJoin()
 
-	// Agent loop has exited — mirror the C++ Win32 controller's destructor
-	// cleanup by restoring any window state we changed during the session.
-	// Must run before AgentServerShutDown so the controller (if still alive)
-	// can still service us; SendAltEnter / SetWindowPos themselves only need
-	// the HWND and call user32 directly, so this works even after teardown.
+	// Restoring any window state we changed during the session.
 	aspectratio.Cleanup()
 
 	// Shutdown
