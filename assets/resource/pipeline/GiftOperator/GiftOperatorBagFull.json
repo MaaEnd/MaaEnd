@@ -22,7 +22,7 @@
             "GiftOperatorBagFullLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full_clear"
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
         }
     },
     "GiftOperatorBagFullDialog": {
@@ -44,11 +44,7 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "next": [
-            "GiftOperatorMoveItem",
-            "EmptyNode"
-        ]
+        }
     },
     "GiftOperatorBagFullLeave": {
         "desc": "背包满时点击离开",
@@ -131,10 +127,7 @@
         ]
     },
     "GiftOperatorBagFullNoSelect": {
-        "desc": "背包满时没有消耗品可选，直接离开",
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
-        }
+        "desc": "背包满时没有消耗品可选，直接离开"
     },
     "GiftOperatorBagItem": {
         "desc": "消耗品",
