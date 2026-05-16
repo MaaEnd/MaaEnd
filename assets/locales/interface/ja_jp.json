@@ -457,6 +457,7 @@
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "実験区域（10.6万）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "倉庫ノード近くのアンカーへ転送",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "有効にすると、受注完了後に倉庫ノード近くのアンカーへ自動転送します。",
+    "task.SeizeEntrustTask.focus.testAreaFound": "実験区域10.6万オーダーを見つけました！",
     "task.SeizeEntrustTaskisWalkingToDepotNode.label": "倉庫ノードまで歩行",
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "転送完了後に倉庫ノードへ歩行します。このオプションはフォアグラウンドコントローラーが必要です。水に落ちる可能性があります！！！",
     "task.ItemTransfer.label": "🐌在庫転送",

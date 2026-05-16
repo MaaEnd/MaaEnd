@@ -457,6 +457,7 @@
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "實驗園區（10.6萬）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "傳送至倉儲節點錨點",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "開啟後將搶完單後自動傳送到倉儲節點上面的錨點",
+    "task.SeizeEntrustTask.focus.testAreaFound": "找到試驗園區10.6萬訂單！",
     "task.SeizeEntrustTaskisWalkingToDepotNode.label": "走到倉儲節點",
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "傳送完成後將走到倉儲節點，開啟此選項需要使用前台控制器，注意有可能落水！！！",
     "task.AutoUseSpMedication.description": "自動使用一次應急理智加強劑(+40理智)",

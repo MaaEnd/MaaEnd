@@ -580,6 +580,7 @@
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "试验园区（10.6万）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "传送至仓储节点锚点",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "开启后将抢完单将自动传送到仓储节点上面的锚点",
+    "task.SeizeEntrustTask.focus.testAreaFound": "找到试验园区10.6万订单！",
     "task.SeizeEntrustTaskisWalkingToDepotNode.label": "走到仓储节点",
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "传送完成后将走到仓储节点，开启此选项需要使用前台控制器，注意有可能落水！！！",
     "task.WeaponUpgrade.label": "🔫升级武器",

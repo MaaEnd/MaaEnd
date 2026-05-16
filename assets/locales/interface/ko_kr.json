@@ -457,6 +457,7 @@
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "실험 구역（10.6만）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "창고 노드 앵커로 텔레포트",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "활성화하면 주문 접수 후 창고 노드 근처 앵커로 자동 텔레포트합니다.",
+    "task.SeizeEntrustTask.focus.testAreaFound": "실험 구역 10.6만 건을 찾았습니다!",
     "task.SeizeEntrustTaskisWalkingToDepotNode.label": "창고 노드까지 걷기",
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "텔레포트 완료 후 창고 노드까지 걷습니다. 이 옵션은 전경 컨트롤러가 필요합니다. 물에 빠질 수 있으니 주의하세요！！！",
     "task.ItemTransfer.label": "🐌재고 이전",

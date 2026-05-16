@@ -641,6 +641,7 @@
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "Test Area (106k)",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "Teleport to Depot Node Anchor",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "When enabled, automatically teleports to the anchor point near the depot node after seizing an order.",
+    "task.SeizeEntrustTask.focus.testAreaFound": "Found Test Area 106k order!",
     "task.SeizeEntrustTaskisWalkingToDepotNode.label": "Walk to Depot Node",
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "After teleporting, will walk to the depot node. Requires Foreground Controller. Warning: may fall into water!!!",
     "task.AutoUseSpMedication.description": "Automatically use one emergency sanity booster (+40 sanity)",

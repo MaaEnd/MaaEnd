@@ -164,6 +164,9 @@
                                         }
                                     ]
                                 }
+                            },
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeEntrustTask.focus.testAreaFound"
                             }
                         }
                     }
