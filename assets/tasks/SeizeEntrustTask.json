@@ -4,9 +4,8 @@
             "name": "SeizeEntrustTask",
             "label": "$task.SeizeEntrustTask.label",
             "entry": "SeizeEntrustTaskMain",
-            "description": "$task.SeizeEntrustTask.description",
             "option": [
-                "SeizeEntrustTaskisGoDepotNodeWorld"
+                "SeizeEntrustTaskCommissionSource"
             ],
             "controller": [
                 "Win32-Front",
@@ -20,6 +19,154 @@
         }
     ],
     "option": {
+        "SeizeEntrustTaskCommissionSource": {
+            "type": "select",
+            "default_case": "WulingCity",
+            "label": "$task.SeizeEntrustTaskCommissionSource.label",
+            "cases": [
+                {
+                    "name": "WulingCity",
+                    "label": "$task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label",
+                    "option": [
+                        "SeizeEntrustTaskisGoDepotNodeWorld"
+                    ]
+                },
+                {
+                    "name": "TestArea",
+                    "label": "$task.SeizeEntrustTaskCommissionSource.cases.TestArea.label",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskFindTarget": {
+                            "recognition": {
+                                "param": {
+                                    "all_of": [
+                                        {
+                                            "sub_name": "WulingTpl",
+                                            "recognition": {
+                                                "type": "TemplateMatch",
+                                                "param": {
+                                                    "roi": [
+                                                        841,
+                                                        177,
+                                                        48,
+                                                        424
+                                                    ],
+                                                    "template": [
+                                                        "SeizeEntrustTask/wuling.png"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "recognition": {
+                                                "type": "OCR",
+                                                "param": {
+                                                    "roi": "WulingTpl",
+                                                    "roi_offset": [
+                                                        0,
+                                                        30,
+                                                        0,
+                                                        -20
+                                                    ],
+                                                    "expected": [
+                                                        "10.6"
+                                                    ],
+                                                    "only_rec": true
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "recognition": {
+                                                "type": "OCR",
+                                                "param": {
+                                                    "roi": "WulingTpl",
+                                                    "roi_offset": [
+                                                        -215,
+                                                        -6,
+                                                        19,
+                                                        -6
+                                                    ],
+                                                    "expected": [
+                                                        "试验园区",
+                                                        "實驗園區",
+                                                        "(?i)Test\\s*Area",
+                                                        "実験区域",
+                                                        "실험 구역"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "SeizeEntrustTaskFindTargetF1": {
+                            "recognition": {
+                                "param": {
+                                    "all_of": [
+                                        {
+                                            "sub_name": "WulingTpl",
+                                            "recognition": {
+                                                "type": "TemplateMatch",
+                                                "param": {
+                                                    "roi": [
+                                                        841,
+                                                        177,
+                                                        48,
+                                                        424
+                                                    ],
+                                                    "template": [
+                                                        "SeizeEntrustTask/wuling.png"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "recognition": {
+                                                "type": "OCR",
+                                                "param": {
+                                                    "roi": "WulingTpl",
+                                                    "roi_offset": [
+                                                        0,
+                                                        30,
+                                                        0,
+                                                        -20
+                                                    ],
+                                                    "expected": [
+                                                        "10.6"
+                                                    ],
+                                                    "only_rec": true
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "recognition": {
+                                                "type": "OCR",
+                                                "param": {
+                                                    "roi": "WulingTpl",
+                                                    "roi_offset": [
+                                                        -215,
+                                                        -6,
+                                                        19,
+                                                        -6
+                                                    ],
+                                                    "expected": [
+                                                        "试验园区",
+                                                        "實驗園區",
+                                                        "(?i)Test\\s*Area",
+                                                        "実験区域",
+                                                        "실험 구역"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "SeizeEntrustTaskisGoDepotNodeWorld": {
             "type": "switch",
             "label": "$task.SeizeEntrustTaskisGoDepotNodeWorld.label",
