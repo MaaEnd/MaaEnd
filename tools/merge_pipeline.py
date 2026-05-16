@@ -6,7 +6,6 @@ from pathlib import Path
 
 import json5
 
-
 def merge_pipeline(resource_dir: Path) -> None:
     pipeline_dir = resource_dir / "pipeline"
     if not pipeline_dir.is_dir():
@@ -29,8 +28,7 @@ def merge_pipeline(resource_dir: Path) -> None:
                         merged.update(json5.load(f))
                     print(f"  已读取: {item.relative_to(pipeline_dir)}", flush=True)
                 except (ValueError, OSError) as e:
-                    print(f"  读取 {item.relative_to(pipeline_dir)} 时出错: {e}", flush=True)
-                    sys.exit(1)
+                    raise RuntimeError(f"读取 {item.relative_to(pipeline_dir)} 时出错: {e}") from e
 
     collect(pipeline_dir)
 
@@ -68,14 +66,18 @@ def main():
     )
 
     if not resource_dirs:
-        print("警告: 未找到以 resource 开头的目录", flush=True)
-        return
+        print("错误: 未找到以 resource 开头的目录", flush=True)
+        sys.exit(1)
 
-    for resource_path in resource_dirs:
-        print(f"\n处理: {resource_path}", flush=True)
-        print("=" * 50, flush=True)
-        merge_pipeline(resource_path)
-        print("=" * 50, flush=True)
+    try:
+        for resource_path in resource_dirs:
+            print(f"\n处理: {resource_path}", flush=True)
+            print("=" * 50, flush=True)
+            merge_pipeline(resource_path)
+            print("=" * 50, flush=True)
+    except RuntimeError as e:
+        print(f"\n错误: {e}", flush=True)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
