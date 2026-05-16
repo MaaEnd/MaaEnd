@@ -34,7 +34,7 @@ def merge_pipeline(resource_dir: Path) -> None:
 
     nodes_file = pipeline_dir / "nodes.json"
     with open(nodes_file, "w", encoding="utf-8") as f:
-        json.dump(merged, f, ensure_ascii=False, indent=4)
+        json.dump(merged, f, ensure_ascii=False, indent=4, sort_keys=True)
     print(f"  已写入: {nodes_file} ({len(merged)} 个节点)", flush=True)
 
     # pipeline 目录仅包含 JSON pipeline 文件，可直接清理
