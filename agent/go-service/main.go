@@ -11,7 +11,6 @@ import (
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/sys/windows"
 )
 
 func main() {
@@ -39,14 +38,7 @@ func main() {
 		}
 	}()
 
-	// Redirect stderr to file so Go runtime crash output is preserved
-	if stderrFile, err := os.OpenFile(
-		filepath.Join(".", "debug", "go-service.stderr.log"),
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644,
-	); err == nil {
-		windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(stderrFile.Fd()))
-		os.Stderr = stderrFile
-	}
+	redirectStderr()
 
 	log.Info().
 		Str("version", Version).
