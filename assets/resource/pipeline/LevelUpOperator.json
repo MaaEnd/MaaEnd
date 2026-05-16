@@ -427,8 +427,7 @@
                 "template": [
                     "LevelUpOperator/OperatorSelected.png"
                 ],
-                "green_mask": true,
-                "threshold": 0.9
+                "green_mask": true
             }
         },
         "pre_delay": 0,
@@ -458,8 +457,7 @@
                                 "template": [
                                     "LevelUpOperator/OperatorSelected.png"
                                 ],
-                                "green_mask": true,
-                                "threshold": 0.9
+                                "green_mask": true
                             }
                         }
                     }

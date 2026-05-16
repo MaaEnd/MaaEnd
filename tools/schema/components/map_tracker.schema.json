@@ -1,0 +1,291 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MapTracker Component Schema",
+    "description": "All MapTracker custom action and recognition parameter definitions. Referenced by custom.action.schema.json and custom.recognition.schema.json.",
+    "$defs": {
+        "Coordinate2D": {
+            "type": "array",
+            "description": "A 2D coordinate [x, y].",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
+        "Rect4D": {
+            "type": "array",
+            "description": "A rectangle [x, y, w, h].",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" },
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 4,
+            "maxItems": 4,
+            "items": false
+        },
+        "LocationCondition": {
+            "type": "object",
+            "description": "A single map location condition: map_name + bounding box.",
+            "additionalProperties": false,
+            "required": [ "map_name", "target" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Bounding box [x, y, w, h] defining the expected region in map pixel coordinates.",
+                    "$ref": "#/$defs/Rect4D"
+                }
+            }
+        },
+        "MapTrackerMoveParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
+            "additionalProperties": false,
+            "required": [ "map_name", "path" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "path": {
+                    "title": "Path",
+                    "description": "Sequence of [x, y] coordinate waypoints to follow in order.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/Coordinate2D" }
+                },
+                "no_print": {
+                    "title": "No Print",
+                    "description": "Suppress navigation status UI messages.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "path_trim": {
+                    "title": "Path Trim",
+                    "description": "Start from the nearest waypoint to current location (skip earlier points).",
+                    "type": "boolean",
+                    "default": false
+                },
+                "fine_approach": {
+                    "title": "Fine Approach",
+                    "description": "When to enable fine approaching (precise arrival).",
+                    "type": "string",
+                    "enum": [ "FinalTarget", "AllTargets", "Never" ],
+                    "default": "FinalTarget"
+                },
+                "no_ensure_initial_movement_state": {
+                    "title": "No Ensure Initial Movement State",
+                    "description": "Skip sprint preparation before first move.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "no_ensure_final_orientation": {
+                    "title": "No Ensure Final Orientation",
+                    "description": "Skip camera orientation adjustment at final target.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "arrival_threshold": {
+                    "title": "Arrival Threshold",
+                    "description": "Distance threshold in pixels to consider a target reached.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "default": 2.5
+                },
+                "arrival_timeout": {
+                    "title": "Arrival Timeout",
+                    "description": "Max time in milliseconds to reach each target point.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 60000
+                },
+                "rotation_lower_threshold": {
+                    "title": "Rotation Lower Threshold",
+                    "description": "Angular difference threshold in degrees for minor rotation adjustment.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 180,
+                    "default": 7.5
+                },
+                "rotation_upper_threshold": {
+                    "title": "Rotation Upper Threshold",
+                    "description": "Angular difference threshold in degrees for major rotation adjustment.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 180,
+                    "default": 60
+                },
+                "sprint_threshold": {
+                    "title": "Sprint Threshold",
+                    "description": "Distance threshold in pixels beyond which sprinting is used.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "default": 10
+                },
+                "stuck_threshold": {
+                    "title": "Stuck Threshold",
+                    "description": "Duration in milliseconds before triggering stuck mitigation.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 2000
+                },
+                "stuck_timeout": {
+                    "title": "Stuck Timeout",
+                    "description": "Max time in milliseconds to tolerate being stuck before failing.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 10000
+                },
+                "stuck_mitigators": {
+                    "title": "Stuck Mitigators",
+                    "description": "Sequential actions to take when stuck.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [ "Jump", "MoveOrDeleteDevice" ]
+                    },
+                    "default": [ "MoveOrDeleteDevice", "Jump" ]
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                }
+            }
+        },
+        "MapTrackerBigMapPickParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapPick: pan big map view to find and interact with a target coordinate.",
+            "additionalProperties": false,
+            "required": [ "map_name", "target" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Target coordinate [x, y] on the big map in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "on_find": {
+                    "title": "On Find",
+                    "description": "Action when target enters viewport.",
+                    "type": "string",
+                    "enum": [ "Click", "Teleport", "DoNothing" ],
+                    "default": "Click"
+                },
+                "auto_open_map_scene": {
+                    "title": "Auto Open Map Scene",
+                    "description": "Automatically open the big map scene before picking.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "no_zoom": {
+                    "title": "No Zoom",
+                    "description": "Disable auto zoom adjustment.",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "MapTrackerAssertLocationParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerAssertLocation: assert player is within expected map region(s).",
+            "additionalProperties": false,
+            "required": [ "expected" ],
+            "properties": {
+                "expected": {
+                    "title": "Expected",
+                    "description": "List of location conditions (OR logic). Player must satisfy at least one.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/LocationCondition" }
+                },
+                "precision": {
+                    "title": "Precision",
+                    "description": "Inference precision/speed tradeoff. Higher = more accurate but slower.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum confidence to consider inference successful.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.4
+                },
+                "fast_mode": {
+                    "title": "Fast Mode",
+                    "description": "Enable fast matching mode for extra speed. Not recommended unless hitting performance bottleneck.",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "MapTrackerInferParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerInfer: infer player's current map, position and heading.",
+            "additionalProperties": false,
+            "properties": {
+                "map_name_regex": {
+                    "title": "Map Name Regex",
+                    "description": "Regex to filter which maps participate in recognition.",
+                    "type": "string",
+                    "default": "^map\\d+_lv\\d+$"
+                },
+                "precision": {
+                    "title": "Precision",
+                    "description": "Inference precision/speed tradeoff. Higher for more accurate but slower.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum confidence to consider inference successful.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.4
+                }
+            }
+        },
+        "MapTrackerBigMapInferParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapInfer: infer current viewport position and zoom on the big map.",
+            "additionalProperties": false,
+            "properties": {
+                "map_name_regex": {
+                    "title": "Map Name Regex",
+                    "description": "Regex to filter which maps participate in recognition.",
+                    "type": "string",
+                    "default": "^map\\d+_lv\\d+$"
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum confidence to consider inference successful.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                }
+            }
+        }
+    }
+}

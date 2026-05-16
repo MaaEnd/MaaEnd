@@ -255,16 +255,19 @@ def main():
     schema_store = {}
 
     print("Loading schemas...")
-    for schema_file in schema_dir.glob("*.json"):
+    for schema_file in schema_dir.rglob("*.json"):
         try:
             schema = load_jsonc(schema_file)
             # 使用多种格式的 URI 作为 key
             file_uri = schema_file.as_uri()
-            relative_path = f"./{schema_file.name}"
-            absolute_path = f"/{schema_file.name}"
+            relative_file = schema_file.relative_to(schema_dir).as_posix()
+            relative_path = f"./{relative_file}"
+            relative_plain = relative_file
+            absolute_path = f"/{relative_file}"
 
             schema_store[file_uri] = schema
             schema_store[relative_path] = schema
+            schema_store[relative_plain] = schema
             schema_store[absolute_path] = schema
         except Exception as e:
             print(f"Warning: Failed to load schema {schema_file}: {e}")

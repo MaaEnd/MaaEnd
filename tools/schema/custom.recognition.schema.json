@@ -1,7 +1,72 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Custom Recognition Schema",
     "description": "Schema for custom recognitions in MaaFramework pipeline",
-    "type": "object",
-    "additionalProperties": true
+    "properties": {
+        "custom_recognition": {
+            "enum": [
+                "AutoFightEntryRecognition",
+                "AutoSellPriceCompareRecognition",
+                "AutoSellScanItemRecognition",
+                "AutoStockpile.Recognition",
+                "DailyEventUnreadItemInitRecognition",
+                "EssenceFilterAfterBattleNthRecognition",
+                "ExpressionRecognition",
+                "ImageCheckNotPassedRecognition",
+                "MapLocateAssertLocation",
+                "MapTrackerAssertLocation",
+                "MapTrackerBigMapInfer",
+                "MapTrackerInfer",
+                "PuzzleRecognition",
+                "SellProductNormalizedItemMatch",
+                "VisitFriendsMenuScanDetailAssistRecognition",
+                "VisitFriendsMenuScanDetailClueExchangeRecognition",
+                "VisitFriendsMenuScanScrollFinishRecognition",
+                "VisitFriendsMenuScanScrollFullRecognition",
+                "VisitFriendsMenuScanTargetFriendOpenRecognition",
+                "autoEcoFarmCalculateSwipeTarget",
+                "autoEcoFarmFindNearestRecognitionResult"
+            ]
+        }
+    },
+    "if": {
+        "type": "object",
+        "required": [ "custom_recognition" ],
+        "properties": { "custom_recognition": { "const": "MapTrackerAssertLocation" } }
+    },
+    "then": {
+        "type": "object",
+        "required": [ "custom_recognition_param" ],
+        "properties": {
+            "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam" }
+        }
+    },
+    "else": {
+        "if": {
+            "type": "object",
+            "required": [ "custom_recognition" ],
+            "properties": { "custom_recognition": { "const": "MapTrackerInfer" } }
+        },
+        "then": {
+            "type": "object",
+            "required": [ "custom_recognition_param" ],
+            "properties": {
+                "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam" }
+            }
+        },
+        "else": {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapTrackerBigMapInfer" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapInferParam" }
+                }
+            }
+        }
+    }
 }

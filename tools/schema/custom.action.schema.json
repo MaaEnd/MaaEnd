@@ -1,7 +1,104 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Custom Action Schema",
     "description": "Schema for custom actions in MaaFramework pipeline",
-    "type": "object",
-    "additionalProperties": true
+    "properties": {
+        "custom_action": {
+            "enum": [
+                "325",
+                "AttachToExpectedRegexAction",
+                "AutoAltClickAction",
+                "AutoFightMainAction",
+                "AutoSellItemExecuteItemTaskAction",
+                "AutoStockStapleQuantityControlAction",
+                "AutoStockpile.CaptureUid",
+                "AutoStockpile.ReconcileDecision",
+                "AutoStockpile.SelectItem",
+                "BatchAddFriendsAction",
+                "BatchAddFriendsFriendListFullAction",
+                "BatchAddFriendsStrangersFinishAction",
+                "BatchAddFriendsStrangersOnAddAction",
+                "BatchAddFriendsUIDEnterAction",
+                "BatchAddFriendsUIDFinishAction",
+                "BatchAddFriendsUIDLoopTopAction",
+                "BatchAddFriendsUIDOnAddAction",
+                "BatchAddFriendsUIDOnEmptyAction",
+                "BetterSliding",
+                "CharacterControllerForwardAxisAction",
+                "CharacterControllerPitchDeltaAction",
+                "CharacterControllerRelativeMoveAction",
+                "CharacterControllerYawDeltaAction",
+                "CharacterMoveToTargetAction",
+                "CharacterMoveToTargetNotFoundAction",
+                "ClearHitCount",
+                "DailyEventUnreadItemInitAction",
+                "ERROR",
+                "EssenceFilterAfterBattleSkillDecisionAction",
+                "EssenceFilterAfterBattleTierGateAction",
+                "EssenceFilterCheckItemAction",
+                "EssenceFilterCheckItemLevelAction",
+                "EssenceFilterFinishAction",
+                "EssenceFilterInitAction",
+                "EssenceFilterRowCollectAction",
+                "EssenceFilterRowNextItemAction",
+                "EssenceFilterSkillDecisionAction",
+                "EssenceFilterSwipeCalibrateAction",
+                "EssenceFilterTraceAction",
+                "FalseAction",
+                "ImageCheckSetResultAction",
+                "ImportBluePrintsEnterCodeAction",
+                "ImportBluePrintsFinishAction",
+                "ImportBluePrintsInitTextAction",
+                "ItemTransferFallbackAction",
+                "ItemTransferOCRAction",
+                "MapNavigateAction",
+                "MapTrackerBigMapPick",
+                "MapTrackerMove",
+                "OCREssenceInventoryNumberAction",
+                "PipelineOverride",
+                "PipelineOverrideAction",
+                "PuzzleAction",
+                "RealTimeTaskAction",
+                "SceneManagerMenuListClickItemAction",
+                "ScheduleAction",
+                "SubTask",
+                "VisitFriendsExecuteVisitAction",
+                "VisitFriendsMainAction",
+                "VisitFriendsMenuClueAssistAction",
+                "VisitFriendsMenuClueAssistFullAction",
+                "VisitFriendsMenuClueExchangeAction",
+                "VisitFriendsMenuClueExchangeFullAction",
+                "VisitFriendsMenuScanTargetFriendOpenAction",
+                "autoEcoFarmInterruptibleSleep",
+                "autoEcoFarmOverrideTargetTemplate",
+                "autoEcoFarmResetSwipeState"
+            ]
+        }
+    },
+    "if": {
+        "type": "object",
+        "required": [ "custom_action" ],
+        "properties": { "custom_action": { "const": "MapTrackerMove" } }
+    },
+    "then": {
+        "type": "object",
+        "required": [ "custom_action_param" ],
+        "properties": {
+            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerMoveParam" }
+        }
+    },
+    "else": {
+        "if": {
+            "type": "object",
+            "required": [ "custom_action" ],
+            "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+        },
+        "then": {
+            "type": "object",
+            "required": [ "custom_action_param" ],
+            "properties": {
+                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+            }
+        }
+    }
 }

@@ -94,13 +94,13 @@
                 ],
                 "method": 40,
                 "lower": [
-                    22,
-                    252,
-                    255
+                    20,
+                    250,
+                    250
                 ],
                 "upper": [
-                    22,
-                    252,
+                    25,
+                    255,
                     255
                 ],
                 "connected": true,
@@ -128,8 +128,10 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "YellowConfirmButtonType2"
-                ]
+                    "YellowButtonBackground",
+                    "GiftOperatorConfirmGiftText"
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -140,8 +142,24 @@
             "timeout": 3000
         },
         "next": [
-            "GiftOperatorGiftDialog"
+            "[JumpBack]GiftOperatorGiftDialog",
+            "GiftOperatorLeave"
         ]
+    },
+    "GiftOperatorConfirmGiftText": {
+        "desc": "确认赠送按钮上有文字，避免误点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "expected": [
+                    "确认赠送",
+                    "確定贈送",
+                    "Confirm",
+                    "贈る"
+                ]
+            }
+        }
     },
     "GiftOperatorGiftDialog": {
         "desc": "赠送后跳过对话。",
@@ -161,10 +179,7 @@
         },
         "action": {
             "type": "Click"
-        },
-        "next": [
-            "GiftOperatorLeave"
-        ]
+        }
     },
     "GiftOperatorGiftSelectedLabelColor": {
         "desc": "选中礼物标签颜色",
@@ -179,12 +194,12 @@
                 ],
                 "method": 40,
                 "lower": [
-                    28,
+                    25,
                     230,
                     240
                 ],
                 "upper": [
-                    28,
+                    30,
                     255,
                     255
                 ],

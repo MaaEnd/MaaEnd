@@ -687,7 +687,7 @@
     "resource/image/SceneManager/MapWuling/MarkerStoneCoreLeftTop": "bc08c70b3f9024d433e20ab592ba588eb064d6a6b7ba56563f41b05a52a96a7b",
     "resource/image/SceneManager/MapWuling/MarkerStoneCoreLeftBottom": "22ccb2035d6dfba3dddfc3bc2c9449b4100056eac816903e706c2fc688ff8885",
     "resource/image/SceneManager/MapWuling/MarkerStone4Right": "80a4b70c39cbbe936dd41e74a991da82e567fe6f9cdf3d5bea697f9d3643bca2",
-    "resource/image/SceneManager/MapWuling/MarkerStoneCoreTopLeft": "e23d90b55d8a0db0bf419b0e02159237e7560bf58a49484f1798d6f827a00e0e",
+    "resource/image/SceneManager/MapWuling/MarkerStoneCoreTopLeft": "267e13562e70d6617a74ad79f75818b017d7a9640b27584eafa350c4df80ab26",
     "resource/image/SceneManager/MapWuling/MarkerStone4Top": "e3a4b52f2874a54dd2d875856c18c269731f283fc961c9f537e53f90a41d7707",
     "resource/image/SceneManager/MapWuling/MarkerStone4Center": "13cc0c841011b132414cb569ed88c86f8fadb14b5f83a83b7dfe07d5249d443d",
     "resource/image/AutoEssence/SpDialogCloseButton": "0a73f8c8c4ea9ad224143dc5379c4d3e57eb8bfe8dd6869c2f29470f44e5a841",
@@ -755,5 +755,9 @@
     "resource/image/MapTracker/StuckMitigator/InteractButton": "081d6c13ad55650a822237d6c9b187ff0f5bf4906f4fb27f3cf3c5e2e82293dc",
     "resource/image/MapTracker/StuckMitigator/DeleteSharedDeviceButton": "8208d55aa6b2c98dd56e190d018bd448b43dc4d6326e7a2396de3bafa86b21bc",
     "resource/image/MapTracker/StuckMitigator/FactoryDeviceDialog": "8d0ba84358c1c2988ac140831f876b296858910dcca003868b19edc519a7aa52",
-    "resource/image/MapTracker/StuckMitigator/MoveDeviceButton": "6a9763ab25437e886faf05064a8e796d0e5394707311538edc989bd58386a30e"
+    "resource/image/MapTracker/StuckMitigator/MoveDeviceButton": "6a9763ab25437e886faf05064a8e796d0e5394707311538edc989bd58386a30e",
+    "resource/image/SceneManager/MapWuling/MarkerStoneCoreTop": "e518558a5611e6f6c0fd7e380b575cd4ff78c1c27461dc85745f4aa42905e1ac",
+    "resource/image/SceneManager/MapWuling/MarkerStoneCoreLeft": "8f04839d36b097fa2662d41b0c62007aacb57c9bdc960fd2fbebde5a4701f493",
+    "resource/image/GiftOperator/SportBag": "2e730b0f984900d958e2949ffaf59fe00174fe7709c3aaaf7f2de0f0f948d21b",
+    "resource/image/GiftOperator/Consumable": "e748af09731fd938d5ce4d058fcb9c59ff6825cf0c599250dc67d3ead1e97443"
 }

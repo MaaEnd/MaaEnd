@@ -89,7 +89,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopLeft",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try3"
@@ -178,7 +180,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry3"
@@ -399,7 +403,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2BottomRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try3"
@@ -416,7 +422,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3BottomRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4BottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingMarkerStoneCoreTry3"

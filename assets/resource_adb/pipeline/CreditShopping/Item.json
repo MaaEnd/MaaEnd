@@ -23,14 +23,6 @@
             -181
         ]
     },
-    "BuyFirstOCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
-        ]
-    },
     "BuyFirstOCR_CanNotAfford": {
         "roi_offset": [
             -150,
@@ -41,82 +33,58 @@
     },
     "IsDiscountPriority1": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscountPriority1_CanNotAfford": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
-        ]
-    },
-    "Priority2OCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscountPriority2": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscountPriority2_CanNotAfford": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
-        ]
-    },
-    "Priority3OCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscountPriority3": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscountPriority3_CanNotAfford": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
-        ]
-    },
-    "BlacklistOCR": {
-        "roi_offset": [
-            -150,
-            30,
-            160,
-            39
+            62,
+            -213,
+            -6,
+            7
         ]
     },
     "IsDiscount": {
         "roi_offset": [
-            80,
-            -215,
-            -47,
-            11
+            62,
+            -213,
+            -6,
+            7
         ]
     }
 }

@@ -75,7 +75,7 @@
         "rate_limit": 0,
         "next": [
             "__SceneImageCheckAICPlanColorSuccess",
-            "__SceneImageCheckAICPlanColorFailedScreenShot"
+            "__SceneImageCheckAICPlanColorFailedFinish"
         ]
     },
     "__SceneImageCheckAICPlanColorSuccess": {
@@ -98,17 +98,7 @@
             58
         ],
         "connected": true,
-        "count": 1500
-    },
-    "__SceneImageCheckAICPlanColorFailedScreenShot": {
-        "desc": "检查颜色失败并截图",
-        "pre_delay": 0,
-        "action": "Screencap",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__SceneImageCheckAICPlanColorFailedFinish"
-        ]
+        "count": 800
     },
     "__SceneImageCheckAICPlanColorFailedFinish": {
         "desc": "检查颜色失败",

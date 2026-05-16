@@ -159,7 +159,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": ""
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "",
+            "__ScenePrivateMapSwipeToStep4Anchor": ""
         },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",

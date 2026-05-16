@@ -5,10 +5,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    528,
-                    107,
-                    219,
-                    34
+                    478,
+                    57,
+                    319,
+                    134
                 ],
                 "expected": [
                     "礼物",
@@ -22,7 +22,7 @@
             "GiftOperatorBagFullLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full_clear"
         }
     },
     "GiftOperatorBagFullDialog": {
@@ -46,7 +46,8 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorLeave"
+            "GiftOperatorMoveItem",
+            "EmptyNode"
         ]
     },
     "GiftOperatorBagFullLeave": {
@@ -72,6 +73,144 @@
         "post_wait_freezes": 200,
         "next": [
             "GiftOperatorBagFullDialog"
+        ]
+    },
+    "GiftOperatorMoveItem": {
+        "desc": "背包满时转移消耗品",
+        "next": [
+            "GiftOperatorClearBag",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "GiftOperatorClearBag": {
+        "desc": "一键存放",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    871,
+                    472,
+                    162,
+                    125
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmQuickStash.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorSportBag"
+        ]
+    },
+    "GiftOperatorSportBag": {
+        "desc": "排序背包",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1023,
+                    439,
+                    237,
+                    167
+                ],
+                "template": [
+                    "GiftOperator/SportBag.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorBagSelectItem",
+            "GiftOperatorBagFullNoSelect"
+        ]
+    },
+    "GiftOperatorBagFullNoSelect": {
+        "desc": "背包满时没有消耗品可选，直接离开",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
+        }
+    },
+    "GiftOperatorBagItem": {
+        "desc": "消耗品",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    761,
+                    174,
+                    474,
+                    356
+                ],
+                "template": [
+                    "GiftOperator/Consumable.png"
+                ]
+            }
+        }
+    },
+    "GiftOperatorBagItemCount": {
+        "desc": "指定消耗品数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorBagItem",
+                "roi_offset": [
+                    20,
+                    44,
+                    4,
+                    -2
+                ],
+                "expected": [
+                    "(?<!\\d)[0-4](?!\\d)"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorBagSelectItem": {
+        "desc": "背包满时选择消耗品",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorBagItem",
+                    "GiftOperatorBagItemCount"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end": [
+                    388,
+                    330
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorBagLeave"
+        ]
+    },
+    "GiftOperatorBagLeave": {
+        "desc": "离开并重启赠送礼物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorMain"
         ]
     }
 }

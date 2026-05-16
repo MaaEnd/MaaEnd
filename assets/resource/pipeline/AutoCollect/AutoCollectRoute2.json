@@ -124,6 +124,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             530.1,
@@ -149,6 +150,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             528.8,
@@ -174,6 +176,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             531.2,
@@ -199,6 +202,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             531.3,
@@ -224,6 +228,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             532.5,
@@ -249,6 +254,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             530.1,
@@ -274,6 +280,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             525.1,
@@ -299,6 +306,7 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
                             523.8,
