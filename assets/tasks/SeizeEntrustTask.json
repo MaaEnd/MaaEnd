@@ -35,6 +35,9 @@
                     "name": "TestArea",
                     "label": "$task.SeizeEntrustTaskCommissionSource.cases.TestArea.label",
                     "pipeline_override": {
+                        "SeizeEntrustTaskGoDepotNode": {
+                            "enabled": false
+                        },
                         "SeizeEntrustTaskFindTarget": {
                             "recognition": {
                                 "param": {
