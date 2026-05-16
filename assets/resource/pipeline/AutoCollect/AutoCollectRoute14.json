@@ -139,21 +139,21 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect1"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect1"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect1": {
+    "AutoCollectRoute14GotoFindCollect1": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect2"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect2"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect2": {
+    "AutoCollectRoute14GotoFindCollect2": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14GotoFind2"
         },
@@ -180,21 +180,21 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect3"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect3"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect3": {
+    "AutoCollectRoute14GotoFindCollect3": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect4"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect4"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect4": {
+    "AutoCollectRoute14GotoFindCollect4": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14GotoFind3"
         },
@@ -221,21 +221,21 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect5"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect5"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect5": {
+    "AutoCollectRoute14GotoFindCollect5": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect6"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect6"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect6": {
+    "AutoCollectRoute14GotoFindCollect6": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14GotoFind4"
         },
@@ -262,21 +262,21 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect7"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect7"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect7": {
+    "AutoCollectRoute14GotoFindCollect7": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect8"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect8"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect8": {
+    "AutoCollectRoute14GotoFindCollect8": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14GotoFind5"
         },
@@ -303,13 +303,13 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect11"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect11"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect11": {
+    "AutoCollectRoute14GotoFindCollect11": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14GotoFind6"
         },
@@ -336,13 +336,13 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCllect12"
+            "AutoCollectClickAfter": "AutoCollectRoute14GotoFindCollect12"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute14GotoFindCllect12": {
+    "AutoCollectRoute14GotoFindCollect12": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute14End"
         },
