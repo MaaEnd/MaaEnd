@@ -408,10 +408,10 @@
             [497.9, 592.8],
             [492.8, 603.9],
             [489.0, 606.4],
-            [476.6, 602.8],
-            [476.5, 603.9]
+            [477.1, 603.3]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 260
     },
     {
         "Name": "念念家的桃树",
