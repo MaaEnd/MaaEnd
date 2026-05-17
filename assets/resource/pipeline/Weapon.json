@@ -103,6 +103,7 @@
         "action": {
             "type": "Click"
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "timeout": 5000,
         "rate_limit": 0,
