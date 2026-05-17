@@ -22,6 +22,35 @@
             "__ScenePrivateEndVisit"
         ]
     },
+    "__ScenePrivateWorldStorySkip": {
+        "desc": "大世界剧情跳过",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldStorySkipConfirm"
+        ]
+    },
+    "__ScenePrivateWorldStorySkipConfirm": {
+        "desc": "大世界剧情跳过确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 1000 // 点击后弹窗渐变消失，可能会重新识别成剧情跳过入口
+    },
     "__ScenePrivateEndVisit": {
         "desc": "识别结束拜访",
         "recognition": {

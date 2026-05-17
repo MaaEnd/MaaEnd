@@ -5198,6 +5198,28 @@
                     "label": "$item.SCWulingBattery"
                 },
                 {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "赫铜零件",
+                                    "赫銅零件",
+                                    "緋銅部品",
+                                    "Hetonite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
                     "name": "息壤葫芦",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem1": {
@@ -5392,6 +5414,28 @@
                         }
                     },
                     "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "赫铜零件",
+                                    "赫銅零件",
+                                    "緋銅部品",
+                                    "Hetonite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
                 },
                 {
                     "name": "息壤葫芦",
@@ -5590,6 +5634,28 @@
                     "label": "$item.SCWulingBattery"
                 },
                 {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "赫铜零件",
+                                    "赫銅零件",
+                                    "緋銅部品",
+                                    "Hetonite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
+                },
+                {
                     "name": "息壤葫芦",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem3": {
@@ -5784,6 +5850,28 @@
                         }
                     },
                     "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "赫铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "赫铜零件",
+                                    "赫銅零件",
+                                    "緋銅部品",
+                                    "Hetonite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HetonitePart"
                 },
                 {
                     "name": "息壤葫芦",

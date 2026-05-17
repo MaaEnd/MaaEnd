@@ -223,6 +223,23 @@
             }
         ]
     },
+    "InBackpack": {
+        "desc": "在背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    100,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MenuBackpack.png"
+                ]
+            }
+        }
+    },
     "InMenuList": {
         "desc": "在菜单列表界面",
         "recognition": "OCR",
@@ -233,6 +250,7 @@
             100
         ],
         "expected": [
+            "FIELD",
             "ENDFIELD"
         ]
     },

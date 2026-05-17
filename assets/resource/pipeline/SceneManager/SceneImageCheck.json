@@ -1,30 +1,46 @@
 {
     "__SceneImageCheck": {
-        "desc": "场景图像检查，检查完毕后回到大世界",
+        "desc": "场景图像检查，检查完毕后回到菜单列表",
         "recognition": "And",
         "all_of": [
-            "InWorld",
+            "InMenuList",
             {
                 "recognition": "Custom",
                 "custom_recognition": "ImageCheckNotPassedRecognition"
             }
         ],
         "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            30,
+            -50,
+            10,
+            10
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneImageCheckAICPlanIn",
-            "[JumpBack]__ScenePrivateWorldEnterMenuAICPlan"
+            "__SceneImageCheckDialogIn"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在检查画面"
         }
     },
-    "__SceneImageCheckAICPlanIn": {
-        "desc": "在工业计划界面",
-        "recognition": "And",
-        "all_of": [
-            "InAICPlan"
+    "__SceneImageCheckDialogIn": {
+        "desc": "在菜单列表界面",
+        "recognition": "OCR",
+        "roi": [
+            400,
+            250,
+            470,
+            200
+        ],
+        "expected": [
+            "登录界面",
+            "登入介面",
+            "login screen",
+            "画面に戻りますか",
+            "나가시겠습니까"
         ],
         "pre_wait_freezes": 120,
         "pre_delay": 0,
@@ -54,18 +70,29 @@
         }
     },
     "__SceneImageCheckFinishExit": {
-        "desc": "场景图像检查完成退出到大世界",
+        "desc": "场景图像检查完成退出到原界面",
         "recognition": "And",
         "all_of": [
-            "CloseButtonType1"
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterWorldSuccess"
+            "__SceneImageCheckFinishExitSuccess"
         ]
+    },
+    "__SceneImageCheckFinishExitSuccess": {
+        "desc": "场景图像检查完成退出到原界面成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__SceneImageCheckAICPlanColor": {
         "desc": "检查颜色",
@@ -80,25 +107,10 @@
     },
     "__SceneImageCheckAICPlanColorSuccess": {
         "desc": "检查颜色成功",
-        "recognition": "ColorMatch",
-        "roi": [
-            -300,
-            0,
-            300,
-            60
-        ],
-        "lower": [
-            56,
-            56,
-            56
-        ],
-        "upper": [
-            58,
-            58,
-            58
-        ],
-        "connected": true,
-        "count": 800
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ]
     },
     "__SceneImageCheckAICPlanColorFailedFinish": {
         "desc": "检查颜色失败",

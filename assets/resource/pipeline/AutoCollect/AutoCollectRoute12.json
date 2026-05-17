@@ -1,0 +1,339 @@
+{
+    "AutoCollectRoute12Start": {
+        "desc": "中红柱状菌",
+        "enabled": false,
+        "next": [
+            "AutoCollectRoute12AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingMarkerStone3"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.label"
+        }
+    },
+    "AutoCollectRoute12End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute12AssertLocation1": {
+        "desc": "传送点定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        601.9,
+                        321.5,
+                        11.5,
+                        11.4
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute12GotoFindLine1Sub"
+        ]
+    },
+    "AutoCollectRoute12GotoFindLine1Sub": {
+        "desc": "寻路中红柱状菌",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute12GotoFindLine1"
+            ],
+            "continue": true
+        },
+        "next": [
+            "AutoCollectRoute12AssertLocation2"
+        ]
+    },
+    "AutoCollectRoute12AssertLocation2": {
+        "desc": "中红柱状菌定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        630.6,
+                        345.6,
+                        9.6,
+                        9.2
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectRoute12GotoFind1"
+        ]
+    },
+    "AutoCollectRoute12GotoFindLine1": {
+        "desc": "前往中红柱状菌采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    607.5,
+                    327.2
+                ],
+                [
+                    635.0,
+                    324.7
+                ],
+                [
+                    641.0,
+                    343.0
+                ],
+                [
+                    633.8,
+                    349.7
+                ]
+            ]
+        }
+    },
+    "AutoCollectRoute12GotoFind1": {
+        "desc": "前往收集地1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    632.5,
+                    349.8
+                ],
+                [
+                    623.8,
+                    353.5
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind2": {
+        "desc": "前往收集地2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    630.0,
+                    351.0
+                ],
+                [
+                    626.3,
+                    354.7
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind3": {
+        "desc": "前往收集地3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    635.0,
+                    348.5
+                ],
+                [
+                    628.7,
+                    356.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind4": {
+        "desc": "前往收集地4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    635.0,
+                    348.5
+                ],
+                [
+                    628.7,
+                    356.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect1"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect1": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect2": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind5"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind5": {
+        "desc": "前往收集地5",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    635.0,
+                    348.5
+                ],
+                [
+                    630.0,
+                    356.0
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect3": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect4": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind6"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind6": {
+        "desc": "前往收集地6",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    635.0,
+                    348.5
+                ],
+                [
+                    628.7,
+                    358.5
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect5"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect5": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect6"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect6": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind7"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind7": {
+        "desc": "前往收集地7",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    623.7,
+                    352.2
+                ],
+                [
+                    631.2,
+                    354.8
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFind8"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFind8": {
+        "desc": "前往收集地8",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    623.7,
+                    352.2
+                ],
+                [
+                    632.5,
+                    354.7
+                ]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12End"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}
