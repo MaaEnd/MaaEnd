@@ -8,6 +8,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -55,6 +56,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			maxShot = param.MaxShot
 		}
 	}
+	maafocus.Print(ctx, "正在估计环境参数...")
 
 	// Estimate screen operations latency
 	for i := 0; i < latencySamples; i++ {
@@ -81,11 +83,12 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		time.Sleep(time.Duration(100) * time.Millisecond)
 	}
 	avgLatency := total / time.Duration(latencySamples)
-	latencySeconds := avgLatency.Seconds()
+	avgLatencySeconds := avgLatency.Seconds()
 	log.Info().
 		Str("component", "WebEvent202605").
 		Dur("avg_latency", avgLatency).
 		Msg("screen operations latency measured")
+	maafocus.Print(ctx, fmt.Sprintf("- 截图与响应延迟：%.2fms", avgLatencySeconds*1000))
 
 	// Estimate object speed
 	speed, err := getSpeed(ctx, time.Duration(speedObserveSec)*time.Second)
@@ -97,6 +100,8 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		Str("component", "WebEvent202605").
 		Float64("max_speed", speed).
 		Msg("object speed estimated")
+	maafocus.Print(ctx, fmt.Sprintf("- 物体峰值速率：%.2f倍直径/s", speed))
+	maafocus.Print(ctx, "环境参数估计完毕，正式开始运行...")
 
 	// Main loop to predict and click
 	lastHitAt := time.Now()
@@ -124,7 +129,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			return false
 		}
 
-		hit, err := predict(ctx, latencySeconds, speed, predictTolerance)
+		hit, err := predict(ctx, avgLatencySeconds, speed, predictTolerance)
 		if err != nil {
 			hit = false
 		} else {
@@ -150,6 +155,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Str("component", "WebEvent202605").
 				Int("shots", shots).
 				Msg("successfully hit once")
+			maafocus.Print(ctx, fmt.Sprintf("- 进度：%d/%d", shots, maxShot))
 		}
 		time.Sleep(time.Duration(50) * time.Millisecond)
 	}
