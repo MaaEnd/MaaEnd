@@ -78,12 +78,3 @@ func sortOCRNameHits(hits []ocrNameHit) {
 		return hits[i].Box[0] < hits[j].Box[0]
 	})
 }
-
-func sortRectsVertical(boxes []maa.Rect) {
-	sort.Slice(boxes, func(i, j int) bool {
-		if boxes[i][1] != boxes[j][1] {
-			return boxes[i][1] < boxes[j][1]
-		}
-		return boxes[i][0] < boxes[j][0]
-	})
-}
