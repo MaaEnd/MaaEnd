@@ -8,7 +8,6 @@
         "next": [
             "__ScenePrivateCloseADBExit",
             "__ScenePrivateMenuListEnterWorld",
-            "__SceneImageCheck",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
