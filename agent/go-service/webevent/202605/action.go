@@ -81,19 +81,18 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	latencySeconds := avgLatency.Seconds()
 	log.Info().
 		Str("component", "WebEvent202605").
-		Dur("avg_screencap_latency", avgLatency).
-		Int("samples", latencySamples).
-		Msg("screenshot latency measured")
+		Dur("avg_latency", avgLatency).
+		Msg("screen operations latency measured")
 
 	speed, err := getSpeed(ctx, time.Duration(speedObserveSec)*time.Second)
 	if err != nil {
-		log.Error().Err(err).Str("component", "WebEvent202605").Msg("failed to estimate speed")
+		log.Error().Err(err).Str("component", "WebEvent202605").Msg("failed to estimate object speed")
 		return false
 	}
 	log.Info().
 		Str("component", "WebEvent202605").
 		Float64("max_speed", speed).
-		Msg("speed estimated")
+		Msg("object speed estimated")
 
 	lastHitAt := time.Now()
 	lastEffectivePredictAt := time.Now()
@@ -142,9 +141,14 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			controller.PostClick(int32(centerX), int32(centerY)).Wait()
 			lastHitAt = time.Now()
 			shots++
+			log.Info().
+				Str("component", "WebEvent202605").
+				Int("shots", shots).
+				Msg("successfully hit once")
 		}
 		time.Sleep(time.Duration(50) * time.Millisecond)
 	}
+	log.Info().Str("component", "WebEvent202605").Msg("max shots reached, exiting normally")
 
 	return true
 }
@@ -274,6 +278,9 @@ func getSpeed(ctx *maa.Context, duration time.Duration) (float64, error) {
 
 	if !computed {
 		return 0, fmt.Errorf("not enough samples to compute speed")
+	}
+	if maxSpeed < 1e-6 {
+		return 0, fmt.Errorf("estimated speed is too small")
 	}
 
 	return maxSpeed, nil
