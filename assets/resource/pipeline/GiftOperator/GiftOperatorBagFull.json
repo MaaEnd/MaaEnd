@@ -61,6 +61,7 @@
                     318
                 ],
                 "expected": [
+                    // @i18n-skip
                     "暂时离开",
                     "暫時離開",
                     "(?i)Leave\\s*for\\s*now",
