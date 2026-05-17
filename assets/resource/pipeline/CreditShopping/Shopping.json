@@ -132,7 +132,7 @@
         "pre_delay": 0,
         "rate_limit": 0,
         "action": "Custom",
-        "custom_action": "CreditShopping.RecordShelfSnapshots",
+        "custom_action": "CreditShoppingScanItemAction",
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
