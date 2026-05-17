@@ -6,7 +6,8 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask"
+                "StashBackpackSubTask",
+                "GiftOperatorClearHitCount"
             ]
         },
         "post_delay": 0,
@@ -94,6 +95,24 @@
         "action": {
             "type": "Click",
             "param": {}
+        }
+    },
+    "GiftOperatorClearHitCount": {
+        "desc": "清空节点MaxHit",
+        "action": "Custom",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "GiftOperatorMoveLocation3",
+                "GiftOperatorMoveLocation3Move",
+                "GiftOperatorMoveLocation2",
+                "GiftOperatorMoveLocation2Move",
+                "GiftOperatorMoveLocation1",
+                "GiftOperatorMoveLocation1Move"
+            ]
         }
     }
 }
