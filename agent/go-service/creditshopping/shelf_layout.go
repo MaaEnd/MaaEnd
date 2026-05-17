@@ -1,6 +1,7 @@
 package creditshopping
 
 import (
+	"image"
 	"sort"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
