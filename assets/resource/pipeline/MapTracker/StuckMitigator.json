@@ -60,6 +60,7 @@
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
@@ -150,6 +151,42 @@
                 "template": [
                     "MapTracker/StuckMitigator/MoveAICCoreButton.png"
                 ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsInChatDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    20,
+                    90,
+                    90
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/ChatDialog.png"
+                ],
+                "green_mask": true,
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsSkipChatButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1190,
+                    10,
+                    90,
+                    90
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/SkipChatButton.png"
+                ],
+                "green_mask": true,
                 "order_by": "Score"
             }
         }
@@ -270,6 +307,43 @@
                 "key": 27 // Esc
             }
         }
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapTrackerInternal_IsInChatDialog",
+                    "__MapTrackerInternal_IsSkipChatButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    750,
+                    390,
+                    170,
+                    160
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": "Click"
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog": {
         "recognition": {
