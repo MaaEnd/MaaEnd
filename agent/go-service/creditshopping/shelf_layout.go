@@ -1,0 +1,188 @@
+package creditshopping
+
+import (
+	"sort"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
+// 720p 货架槽位：PC 第一排 7、第二排 3；ADB 第一排 6、第二排 4（分两次截图）。
+const (
+	shelfSlotCount   = 10
+	pcTopRowSlots    = 7
+	pcBottomRowSlots = 3
+	adbTopRowSlots   = 6
+	adbBottomRowSlots = 4
+	adbBottomSlotStart = 6
+	adbShelfNameMaxY   = 400 // ADB 货架名称 OCR 顶边 Y 上限（超出为区域外误识别）
+	rowClusterGapY     = 80
+)
+
+type slotAssignMode int
+
+const (
+	slotAssignPC slotAssignMode = iota
+	slotAssignADBTop
+	slotAssignADBBottom
+)
+
+func rectCenterY(r maa.Rect) int {
+	return r[1] + r[3]/2
+}
+
+// clusterRowsByY 按纵向间距将命中分为多行（上→下）。
+func clusterRowsByY(hits []ocrNameHit) [][]ocrNameHit {
+	if len(hits) == 0 {
+		return nil
+	}
+	sorted := append([]ocrNameHit(nil), hits...)
+	sort.Slice(sorted, func(i, j int) bool {
+		cyI := rectCenterY(sorted[i].Box)
+		cyJ := rectCenterY(sorted[j].Box)
+		if cyI != cyJ {
+			return cyI < cyJ
+		}
+		return sorted[i].Box[0] < sorted[j].Box[0]
+	})
+	var rows [][]ocrNameHit
+	cur := []ocrNameHit{sorted[0]}
+	for i := 1; i < len(sorted); i++ {
+		if rectCenterY(sorted[i].Box)-rectCenterY(sorted[i-1].Box) > rowClusterGapY {
+			rows = append(rows, cur)
+			cur = nil
+		}
+		cur = append(cur, sorted[i])
+	}
+	rows = append(rows, cur)
+	for i := range rows {
+		sort.Slice(rows[i], func(a, b int) bool {
+			return rows[i][a].Box[0] < rows[i][b].Box[0]
+		})
+	}
+	return rows
+}
+
+func hitsForMode(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
+	if len(hits) == 0 {
+		return nil
+	}
+	rows := clusterRowsByY(hits)
+	switch mode {
+	case slotAssignPC:
+		return flattenRowLimits(rows, []int{pcTopRowSlots, pcBottomRowSlots})
+	case slotAssignADBTop:
+		if len(rows) == 0 {
+			return nil
+		}
+		return capHits(rows[0], adbTopRowSlots)
+	case slotAssignADBBottom:
+		// 滑动后下排会移到视口上方，不再按屏幕 Y 区分；本屏通常只有 4 个槽，按 X 取前 4 个。
+		sorted := append([]ocrNameHit(nil), hits...)
+		sort.Slice(sorted, func(i, j int) bool {
+			if sorted[i].Box[1] != sorted[j].Box[1] {
+				return sorted[i].Box[1] < sorted[j].Box[1]
+			}
+			return sorted[i].Box[0] < sorted[j].Box[0]
+		})
+		return capHits(sorted, adbBottomRowSlots)
+	default:
+		return nil
+	}
+}
+
+func flattenRowLimits(rows [][]ocrNameHit, limits []int) []ocrNameHit {
+	var out []ocrNameHit
+	for i, lim := range limits {
+		if i >= len(rows) {
+			break
+		}
+		out = append(out, capHits(rows[i], lim)...)
+	}
+	return out
+}
+
+func capHits(hits []ocrNameHit, max int) []ocrNameHit {
+	if max <= 0 || len(hits) <= max {
+		return hits
+	}
+	log.Warn().
+		Str("component", component).
+		Int("hits", len(hits)).
+		Int("max", max).
+		Msg("shelf layout: truncating extra hits in row")
+	return hits[:max]
+}
+
+func slotStartForMode(mode slotAssignMode) int {
+	switch mode {
+	case slotAssignADBBottom:
+		return adbBottomSlotStart
+	default:
+		return 0
+	}
+}
+
+func filterADBShelfNameHits(hits []ocrNameHit) []ocrNameHit {
+	out := make([]ocrNameHit, 0, len(hits))
+	for _, h := range hits {
+		if h.Box[1] < adbShelfNameMaxY {
+			out = append(out, h)
+			continue
+		}
+		log.Debug().
+			Str("component", component).
+			Str("ocr_text", h.Text).
+			Int("box_y", h.Box[1]).
+			Msg("shelf layout adb: drop hit above shelf name max y")
+	}
+	return out
+}
+
+func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode slotAssignMode) []SlotRecord {
+	if mode == slotAssignADBTop || mode == slotAssignADBBottom {
+		hits = filterADBShelfNameHits(hits)
+	}
+	picked := hitsForMode(hits, mode)
+	if len(picked) == 0 {
+		return nil
+	}
+	start := slotStartForMode(mode)
+	out := make([]SlotRecord, 0, len(picked))
+	for i, hit := range picked {
+		itemID, ok := matchCreditItemID(hit.Text)
+		if !ok {
+			log.Warn().
+				Str("component", component).
+				Int("slot", start+i).
+				Str("ocr_text", hit.Text).
+				Msg("shelf scan: unmatched item name, skip slot")
+			continue
+		}
+		out = append(out, SlotRecord{
+			Slot:     start + i,
+			ItemID:   itemID,
+			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
+		})
+	}
+	return out
+}
+
+func mergeSlotRecordsByPosition(parts ...[]SlotRecord) []SlotRecord {
+	bySlot := make(map[int]SlotRecord, shelfSlotCount)
+	for _, part := range parts {
+		for _, s := range part {
+			if s.Slot < 0 || s.Slot >= shelfSlotCount {
+				continue
+			}
+			bySlot[s.Slot] = s
+		}
+	}
+	out := make([]SlotRecord, 0, len(bySlot))
+	for slot := 0; slot < shelfSlotCount; slot++ {
+		if s, ok := bySlot[slot]; ok {
+			out = append(out, s)
+		}
+	}
+	return out
+}

@@ -12,7 +12,7 @@ import (
 const (
 	shelfSnapshotFileName = "CreditShoppingShelfSnapshots.json"
 	maxSnapshotRecords    = 400
-	schemaVersion         = 2
+	schemaVersion         = 4
 )
 
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
@@ -27,55 +27,19 @@ type snapshotFile struct {
 }
 
 type snapshotEntry struct {
-	UID       string       `json:"uid"`
-	UTCTime   string       `json:"utc_time"`
-	LoopIndex int          `json:"loop_index"`
-	Slots     []SlotRecord `json:"slots"`
+	UID           string       `json:"uid"`
+	GameDate      string       `json:"game_date"`
+	RefreshIndex  int          `json:"refresh_index"`
+	RefreshCost   int          `json:"refresh_cost,omitempty"`
+	UTCTime       string       `json:"utc_time"`
+	Slots         []SlotRecord `json:"slots"`
 }
 
-func snapshotPayloadEqual(a, b snapshotEntry) bool {
-	if a.UID != b.UID {
-		return false
-	}
-	return slotsEqual(a.Slots, b.Slots)
+func snapshotRecordKey(e snapshotEntry) string {
+	return e.UID + "\x00" + e.GameDate + "\x00" + fmt.Sprintf("%d", e.RefreshIndex)
 }
 
-func slotsEqual(a, b []SlotRecord) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i].ItemID != b[i].ItemID || a[i].Discount != b[i].Discount {
-			return false
-		}
-	}
-	return true
-}
-
-func filterDuplicateSnapshots(existing []snapshotEntry, incoming []snapshotEntry) []snapshotEntry {
-	var last snapshotEntry
-	hasLast := len(existing) > 0
-	if hasLast {
-		last = existing[len(existing)-1]
-	}
-	out := make([]snapshotEntry, 0, len(incoming))
-	for _, e := range incoming {
-		if hasLast && snapshotPayloadEqual(e, last) {
-			log.Info().
-				Str("component", component).
-				Str("uid", e.UID).
-				Int("loop_index", e.LoopIndex).
-				Msg("credit shopping shelf snapshot deduped (same as previous)")
-			continue
-		}
-		out = append(out, e)
-		last = e
-		hasLast = true
-	}
-	return out
-}
-
-func appendShelfSnapshots(path string, entries []snapshotEntry) (appended int, err error) {
+func upsertShelfSnapshots(path string, entries []snapshotEntry) (upserted int, err error) {
 	if len(entries) == 0 {
 		return 0, nil
 	}
@@ -83,18 +47,32 @@ func appendShelfSnapshots(path string, entries []snapshotEntry) (appended int, e
 	if err != nil {
 		return 0, err
 	}
-	filtered := filterDuplicateSnapshots(storage.Records, entries)
-	deduped := len(entries) - len(filtered)
-	if len(filtered) == 0 {
-		log.Info().
-			Str("component", component).
-			Str("path", path).
-			Int("incoming", len(entries)).
-			Int("deduped", deduped).
-			Msg("credit shopping shelf snapshots all deduped, skip write")
-		return 0, nil
+	indexByKey := make(map[string]int, len(storage.Records))
+	for i, r := range storage.Records {
+		indexByKey[snapshotRecordKey(r)] = i
 	}
-	storage.Records = append(storage.Records, filtered...)
+	for _, e := range entries {
+		key := snapshotRecordKey(e)
+		if i, exists := indexByKey[key]; exists {
+			storage.Records[i] = e
+			log.Info().
+				Str("component", component).
+				Str("uid", e.UID).
+				Str("game_date", e.GameDate).
+				Int("refresh_index", e.RefreshIndex).
+				Msg("credit shopping shelf snapshot overwritten")
+		} else {
+			indexByKey[key] = len(storage.Records)
+			storage.Records = append(storage.Records, e)
+			log.Info().
+				Str("component", component).
+				Str("uid", e.UID).
+				Str("game_date", e.GameDate).
+				Int("refresh_index", e.RefreshIndex).
+				Msg("credit shopping shelf snapshot appended")
+		}
+		upserted++
+	}
 	if len(storage.Records) > maxSnapshotRecords {
 		storage.Records = storage.Records[len(storage.Records)-maxSnapshotRecords:]
 	}
@@ -110,7 +88,7 @@ func appendShelfSnapshots(path string, entries []snapshotEntry) (appended int, e
 	if err := writeFileAtomic(path, raw, 0644); err != nil {
 		return 0, err
 	}
-	return len(filtered), nil
+	return upserted, nil
 }
 
 func readSnapshotFile(path string) (snapshotFile, error) {
@@ -166,11 +144,10 @@ func writeFileAtomic(path string, content []byte, perm os.FileMode) error {
 	return nil
 }
 
-func logSnapshotSaved(path string, appended, deduped int) {
+func logSnapshotSaved(path string, upserted int) {
 	log.Info().
 		Str("component", component).
 		Str("path", path).
-		Int("appended", appended).
-		Int("deduped", deduped).
+		Int("upserted", upserted).
 		Msg("credit shopping shelf snapshots write done")
 }
