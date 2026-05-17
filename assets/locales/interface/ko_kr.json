@@ -183,6 +183,8 @@
     "task.DijiangRewards.focus.control_nexus_target_unrecognized": "대상 구역을 인식하지 못했습니다",
     "task.DijiangRewards.focus.recovery_emotion_full_prompt_failed": "기분 최대 또는 지원 불가 안내 처리에 실패했습니다",
     "task.DijiangRewards.focus.reception_room_flow_failed": "접견실 흐름이 알 수 없는 화면에서 실패했습니다",
+    "task.DijiangRewards.focus.gift_clues_select_clues_completed": "단서 보내기-보낼 수 있는 단서 선택 완료",
+    "task.DijiangRewards.focus.gift_clues_select_clues_node_failed": "단서 보내기-보낼 수 있는 단서 선택 실패: ClueItem 미일치 또는 수량이 3–20 범위를 벗어남",
     "task.DijiangRewards.focus.growth_chamber_entry_failed": "배양실 진입에 실패했고 화면을 인식하지 못했습니다",
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "배양실 보상 수령 또는 재배양 흐름에 실패했습니다",
     "option.AutoStartExchange.label": "단서 교환 시작",

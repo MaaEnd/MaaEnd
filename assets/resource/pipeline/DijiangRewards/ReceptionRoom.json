@@ -547,8 +547,8 @@
         ]
     },
     "ReceptionRoomSendCluesSwipe": {
-        "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
-        "max_hit": 1,
+        "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量，最多翻 5 页后退出",
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -581,7 +581,10 @@
             }
         },
         "timeout": 5000,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesViewIn"
+        ]
     },
     "ReceptionRoomSendCluesSelectClues": {
         "desc": "[会客室·线索] 在赠予界面选择自有库存数量 3–20 的线索并点击，以便发送",
@@ -614,7 +617,11 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesClickSend"
-        ]
+        ],
+        "focus": {
+            "Node.Task.Completed": "$task.DijiangRewards.focus.gift_clues_select_clues_completed",
+            "Node.Task.Failed": "$task.DijiangRewards.focus.gift_clues_select_clues_node_failed"
+        }
     },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
@@ -633,7 +640,11 @@
         },
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesViewIn"
+        ]
     },
     "ReceptionRoomSendCluesSelectFriend": {
         "desc": "[会客室·线索] 先识别缺失线索的好友",
@@ -731,6 +742,7 @@
             "type": "Click"
         },
         "post_delay": 0,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "InReceptionRoom"

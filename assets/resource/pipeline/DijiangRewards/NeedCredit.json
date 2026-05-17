@@ -14,7 +14,8 @@
                 "expected": [
                     "^会客室$",
                     "^會客室$",
-                    "Reception"
+                    "Reception",
+                    "応接室"
                 ]
             }
         },
@@ -277,7 +278,11 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesClickSend_NeedCredit"
-        ]
+        ],
+        "focus": {
+            "Node.Task.Completed": "$task.DijiangRewards.focus.gift_clues_select_clues_completed",
+            "Node.Task.Failed": "$task.DijiangRewards.focus.gift_clues_select_clues_node_failed"
+        }
     },
     "ReceptionRoomSendCluesClickSend_NeedCredit": {
         "desc": "[信用点商店联动任务·线索] 在赠予界面点击发送按钮确认发送",
@@ -296,7 +301,11 @@
         },
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesViewIn_NeedCredit"
+        ]
     },
     "ReceptionRoomSendCluesSelectFriend_NeedCredit": {
         "desc": "[信用点商店联动任务·线索] 先识别缺失线索的好友",
@@ -374,8 +383,8 @@
         }
     },
     "ReceptionRoomSendCluesSwipe_NeedCredit": {
-        "desc": "[信用点商店联动任务·线索] 赠予界面内滑动列表以刷新可选线索数量",
-        "max_hit": 1,
+        "desc": "[信用点商店联动任务·线索] 赠予界面内滑动列表以刷新可选线索数量，最多翻 5 页后退出",
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -408,7 +417,10 @@
             }
         },
         "timeout": 5000,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesViewIn_NeedCredit"
+        ]
     },
     "ReceptionRoomSendExit_NeedCredit": {
         "desc": "[信用点商店联动任务·线索] 发送完成后关闭赠予界面",
@@ -431,6 +443,7 @@
             "type": "Click"
         },
         "post_delay": 0,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "ReceptionRoom_NeedCredit"

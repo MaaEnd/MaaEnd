@@ -183,6 +183,8 @@
     "task.DijiangRewards.focus.control_nexus_target_unrecognized": "対象の区画を認識できませんでした",
     "task.DijiangRewards.focus.recovery_emotion_full_prompt_failed": "体力満タンまたは支援不可の案内処理に失敗しました",
     "task.DijiangRewards.focus.reception_room_flow_failed": "応接室フローが未知の画面で失敗しました",
+    "task.DijiangRewards.focus.gift_clues_select_clues_completed": "贈る手がかり-送信可能な手がかり選択完了",
+    "task.DijiangRewards.focus.gift_clues_select_clues_node_failed": "贈る手がかり-送信可能な手がかり選択失敗：ClueItem未ヒットまたは数量が3–20の範囲外",
     "task.DijiangRewards.focus.growth_chamber_entry_failed": "培養室への遷移に失敗し、画面を認識できませんでした",
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "培養室の報酬受取または再培養フローに失敗しました",
     "option.AutoStartExchange.label": "手がかり交換を開始",

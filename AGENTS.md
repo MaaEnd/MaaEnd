@@ -62,6 +62,57 @@
 - **Go 职责界限**：审查 Go Service 中的代码是否包含本应由 Pipeline 处理的业务逻辑。确保 Go 仅作为“工具”被 Pipeline 调用。
 - **配置文件同步**：若修改了任务列表，务必确认 `assets/interface.json` 已正确更新。
 
+## Issue 修复工作流
+
+当根据 MaaEnd 的 GitHub Issue 进行修复时，**必须**遵循以下流程：
+
+### 第一步：先看 MaaEndBot 分析
+
+1. 用 `webfetch` 拉取 Issue 页面内容
+2. 检查 MaaEndBot 是否已在评论区给出诊断和修复建议
+3. **以 bot 分析结论为准**规划修复方向，不盲目自行判断
+4. 注意 Issue 标签（`bug`、`controller: ADB`、`task: 基建任务` 等）辅助判断影响范围
+
+### 第二步：下载并解析日志附件
+
+1. 从 Issue 附件链接下载 `MaaEnd-logs-*.zip` 日志文件
+2. 下载到本地 `debug/` 目录后解压
+3. 解析日志文件，对照 bot 的诊断定位卡死节点和失败原因
+4. 重点关注焦点日志：`Node.Task.Failed`、`Node.Recognition.Failed`、`Node.PipelineNode.Failed`
+
+### 第三步：按建议分层修复
+
+修复必须覆盖以下维度：
+
+| 层级 | 路径 | 要点 |
+|------|------|------|
+| **Pipeline** | `assets/resource/pipeline/**/*.json` | 识别容错、next 链路、timeout 保护 |
+| **ADB Pipeline** | `assets/resource_adb/pipeline/` | 若涉及 ADB 特殊路径，同步修改 |
+| **Go Service** | `agent/go-service/` | 仅当 Pipeline 无法表达时修改 Go 逻辑 |
+| **Locale** | `assets/locales/interface/` | 新增 focus 日志时同步 5 语言文案 |
+
+识别容错要点：
+
+- 完整文案 OCR 可能因缩放/截断失败，优先用 `// @i18n-skip` + 正则放宽匹配（如 `自有库(?:存)?` 兼容截断）
+- 颜色匹配优先 **HSV**，避免 RGB 在 ADB/Win32 间渲染差异
+- 图片模板匹配仅适用于固定图标，文字类识别必须用 OCR
+
+Pipeline 安全要点：
+
+- 所有操作节点必须有 `next` 或明确的终止条件，**严禁空悬节点**
+- 必须添加 `timeout` 防止无限等待（推荐 5000ms）
+- `max_hit` 控制翻页/重试次数，配合 `timeout` 兜底
+
+### 第四步：验证
+
+```bash
+pnpm format        # JSON/YAML 格式化
+pnpm check         # 资源和 schema 检查
+pnpm test          # 节点测试（如有相关用例）
+```
+
+确保所有修改通过格式校验，JSON 缩进符合 `.prettierrc` 规则。
+
 ## 相关文档链接
 
 建议调取以下文档（通过读取文件或使用工具访问网页）以辅助理解和开发：

@@ -183,6 +183,8 @@
     "task.DijiangRewards.focus.control_nexus_target_unrecognized": "未識別到指定艙室",
     "task.DijiangRewards.focus.recovery_emotion_full_prompt_failed": "處理滿心情或無法助力提示失敗",
     "task.DijiangRewards.focus.reception_room_flow_failed": "進入會客室任務失敗，未知介面",
+    "task.DijiangRewards.focus.gift_clues_select_clues_completed": "贈予線索-選擇可發送線索完成",
+    "task.DijiangRewards.focus.gift_clues_select_clues_node_failed": "贈予線索-選擇可發送線索失敗：ClueItem 未命中或數量不在 3–20 範圍",
     "task.DijiangRewards.focus.growth_chamber_entry_failed": "進入培養艙失敗，無法識別培養艙介面",
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "培養艙獎勵或再次培養流程失敗",
     "option.AutoStartExchange.label": "開啟線索交流",

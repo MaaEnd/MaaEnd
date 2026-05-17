@@ -183,6 +183,8 @@
     "task.DijiangRewards.focus.control_nexus_target_unrecognized": "Failed to recognize the target cabin",
     "task.DijiangRewards.focus.recovery_emotion_full_prompt_failed": "Failed to handle the max mood or assist unavailable prompt",
     "task.DijiangRewards.focus.reception_room_flow_failed": "Reception Room flow failed, unknown screen",
+    "task.DijiangRewards.focus.gift_clues_select_clues_completed": "Gift clues - selecting sendable clues completed",
+    "task.DijiangRewards.focus.gift_clues_select_clues_node_failed": "Gift clues - selecting sendable clues failed: ClueItem not matched or count not in 3–20 range",
     "task.DijiangRewards.focus.growth_chamber_entry_failed": "Failed to enter the Growth Chamber, unable to recognize the chamber screen",
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "Growth Chamber reward or regrow flow failed",
     "option.AutoStartExchange.label": "Start Clue Exchange",
