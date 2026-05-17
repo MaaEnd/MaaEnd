@@ -119,7 +119,7 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingScanItemTabSelected",
-            "RefreshCost"
+            "RefreshButton"
         ],
         "next": [
             "CreditShoppingScanItemAction"
