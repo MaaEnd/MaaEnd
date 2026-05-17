@@ -33,14 +33,17 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		return false
 	}
 
-	const latencySamples = 10
-	const speedObserveSec = 3
-	const predictTolerance = 0.0625
-	const defaultMaxShot = 25
-	const timeoutLv1Sec = 30
-	const timeoutLv2Sec = 5
+	const (
+		latencySamples   = 10
+		speedObserveSec  = 3
+		predictTolerance = 0.0625
+		defaultMaxShot   = 25
+		timeoutLv1Sec    = 30
+		timeoutLv2Sec    = 5
+	)
 	var total time.Duration
 
+	// Parse parameters
 	maxShot := defaultMaxShot
 	if arg != nil && arg.CustomActionParam != "" {
 		var param webEvent202605Param
@@ -53,6 +56,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 	}
 
+	// Estimate screen operations latency
 	for i := 0; i < latencySamples; i++ {
 		if tasker.Stopping() {
 			controller.PostTouchUp(0).Wait()
@@ -76,7 +80,6 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		total += time.Since(start)
 		time.Sleep(time.Duration(100) * time.Millisecond)
 	}
-
 	avgLatency := total / time.Duration(latencySamples)
 	latencySeconds := avgLatency.Seconds()
 	log.Info().
@@ -84,6 +87,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		Dur("avg_latency", avgLatency).
 		Msg("screen operations latency measured")
 
+	// Estimate object speed
 	speed, err := getSpeed(ctx, time.Duration(speedObserveSec)*time.Second)
 	if err != nil {
 		log.Error().Err(err).Str("component", "WebEvent202605").Msg("failed to estimate object speed")
@@ -94,6 +98,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		Float64("max_speed", speed).
 		Msg("object speed estimated")
 
+	// Main loop to predict and click
 	lastHitAt := time.Now()
 	lastEffectivePredictAt := time.Now()
 	shots := 0
