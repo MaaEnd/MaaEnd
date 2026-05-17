@@ -15,7 +15,6 @@
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
         "next": [
-            "__SceneImageCheck",
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },
@@ -52,6 +51,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__SceneImageCheck",
             "__ScenePrivateAnyEnterMenuListSuccess"
         ]
     },
@@ -144,8 +144,48 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuOperatorClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuOperator",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuOperator": {
+        "desc": "从菜单列表进入干员界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "干员",
+                            "幹員",
+                            "(?i)Operator",
+                            "オペレーター",
+                            "오퍼레이터"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperatorSuccess"
         ]
     },
     "__ScenePrivateWorldEnterMenuOperatorClick": {
@@ -276,8 +316,49 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuRegionalDevelopmentClick",
-            "[JumpBack]__ScenePrivateWorldMenuLeftExpand"
+            "__ScenePrivateMenuListEnterMenuRegionalDevelopment",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "desc": "从菜单列表进入地区建设菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "地区建设",
+                            "地區建設",
+                            "(?i)Regional\\s*Development",
+                            "地域建設",
+                            "지역 건설"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentUnlockClose",
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
     },
     "__ScenePrivateWorldEnterMenuRegionalDevelopmentClick": {
@@ -381,8 +462,48 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuEventClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuEvent",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuEvent": {
+        "desc": "从菜单列表进入活动菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "活动",
+                            "活動",
+                            "(?i)Event\\s*",
+                            "イベント",
+                            "이벤트"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuEventSuccess"
         ]
     },
     "__ScenePrivateWorldEnterMenuEventClick": {
@@ -450,26 +571,66 @@
     "__ScenePrivateWorldEnterMenuValuables": {
         "desc": "从大世界进入贵重品库菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuValuablesClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuValuables",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
         ]
+    },
+    "__ScenePrivateMenuListEnterMenuValuables": {
+        "desc": "从菜单列表进入贵重品库菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "贵重品库",
+                            "Valuables",
+                            "VALUABLES",
+                            "STASH",
+                            "貴重品倉庫",
+                            "귀중품 창고",
+                            "貴重品庫"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateValuablesItemsExpired",
+            "__ScenePrivateAnyEnterMenuValuablesWaitExpired"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "从菜单列表进入贵重品库菜单失败"
+        }
     },
     "__ScenePrivateWorldEnterMenuValuablesClick": {
         "desc": "进入贵重品库菜单",
@@ -786,8 +947,52 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuProtocolPassClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuProtocolPass",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
+        "desc": "从菜单列表进入通行证菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "通行证",
+                            "通行證",
+                            "(?i)Protocol\\s*Pass",
+                            "(?i)Battle\\s*Pass",
+                            "(?i)Supply\\s*Pass",
+                            "プロトコルパス",
+                            "프로토콜 패스"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuProtocolPassSuccess",
+            "[JumpBack]__ScenePrivateAnyEnterMenuProtocolPassNew",
+            "[JumpBack]__ScenePrivateAnyEnterMenuProtocolPassAdvancedSupply"
         ]
     },
     "__ScenePrivateWorldEnterMenuProtocolPassClick": {
@@ -1554,27 +1759,63 @@
     "__ScenePrivateWorldEnterMenuShop": {
         "desc": "从大世界进入商店菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuEntryShopClick",
-            "[JumpBack]__ScenePrivateWorldMenuRightExpand"
+            "__ScenePrivateMenuListEnterMenuShop",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
         ]
+    },
+    "__ScenePrivateMenuListEnterMenuShop": {
+        "desc": "从菜单列表进入商店菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "采购中心",
+                            "採購中心",
+                            "(?i)Acquisition\\s*Center",
+                            "購買部",
+                            "구매 센터"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuShopSuccess"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "从菜单列表进入商店菜单失败"
+        }
     },
     "__ScenePrivateWorldEnterMenuEntryShopClick": {
         "desc": "进入商店",
