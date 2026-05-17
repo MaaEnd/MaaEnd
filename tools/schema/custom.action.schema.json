@@ -31,6 +31,7 @@
                 "CharacterMoveToTargetAction",
                 "CharacterMoveToTargetNotFoundAction",
                 "ClearHitCount",
+                "CreditShoppingScanItemAction",
                 "DailyEventUnreadItemInitAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",

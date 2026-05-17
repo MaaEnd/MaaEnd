@@ -102,7 +102,8 @@
             "CreditShoppingScanItem"
         ]
     },
-    "CreditShoppingScanItem": {
+    "CreditShoppingScanItemTabSelected": {
+        "desc": "信用交易所 Tab 已选中",
         "recognition": "TemplateMatch",
         "roi": [
             813,
@@ -111,9 +112,27 @@
             82
         ],
         "template": "CreditShopping/CreditShoppingTabSelected.png",
-        "threshold": 0.7,
+        "threshold": 0.7
+    },
+    "CreditShoppingScanItem": {
+        "desc": "货架快照门控（商店 Tab 已选中且可识别刷新花费）",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingScanItemTabSelected",
+            "RefreshCost"
+        ],
+        "next": [
+            "CreditShoppingScanItemAction"
+        ]
+    },
+    "CreditShoppingScanItemAction": {
+        "desc": "货架快照",
+        "recognition": "DirectHit",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Custom",
-        "custom_action": "CreditShopping.RecordShelfSnapshots",
+        "custom_action": "CreditShoppingScanItemAction",
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",

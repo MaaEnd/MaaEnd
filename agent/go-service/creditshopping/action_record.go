@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const recordShelfSnapshotsActionName = "CreditShopping.RecordShelfSnapshots"
+const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
 
 // RecordShelfSnapshotsAction 信用点商店货架库存快照：
 //  1) OCR UID 与 RefreshCost，推断本地游戏日（04:00 切日）与第几次刷新；
