@@ -1,6 +1,6 @@
 {
     "__SceneImageCheck": {
-        "desc": "场景图像检查，检查完毕后回到大世界",
+        "desc": "场景图像检查，检查完毕后回到菜单列表",
         "recognition": "And",
         "all_of": [
             "InMenuList",
