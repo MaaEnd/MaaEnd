@@ -60,6 +60,7 @@
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
@@ -225,6 +226,26 @@
                     "__MapTrackerInternal_IsCloseBagDialogButton"
                 ],
                 "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1050,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/CloseUnknownDeviceButton.png"
+                ],
+                "order_by": "Score"
             }
         },
         "action": {
