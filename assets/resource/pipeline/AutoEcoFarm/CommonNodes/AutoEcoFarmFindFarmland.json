@@ -344,12 +344,21 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "target": [
+                945,
+                13,
+                332,
+                697
+            ],
+            "time": 200
+        },
         "next": [
-            "_AutoEcoFarmIsMrarking",
+            "[JumpBack]_AutoEcoFarmIsMrarking",
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
-            "_AutoEcoFarmFarmlandStillVisibleRetry",
+            "[JumpBack]_AutoEcoFarmFarmlandStillVisibleRetry",
             "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
             "SceneAnyEnterWorld"
@@ -374,7 +383,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmlandCustom"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmIsMrarking": {
@@ -405,7 +414,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmlandCustom"
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
