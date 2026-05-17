@@ -59,6 +59,7 @@
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
@@ -112,6 +113,40 @@
                 ],
                 "template": [
                     "MapTracker/StuckMitigator/MoveDeviceButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsInBagDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/BagDialog.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsCloseBagDialogButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1050,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/CloseBagDialogButton.png"
                 ],
                 "order_by": "Score"
             }
@@ -179,6 +214,21 @@
             "param": {
                 "key": 27 // Esc
             }
+        }
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapTrackerInternal_IsInBagDialog",
+                    "__MapTrackerInternal_IsCloseBagDialogButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
         }
     }
 }
