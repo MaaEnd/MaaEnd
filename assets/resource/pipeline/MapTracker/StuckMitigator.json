@@ -59,6 +59,7 @@
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
@@ -114,6 +115,40 @@
                 ],
                 "template": [
                     "MapTracker/StuckMitigator/MoveDeviceButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsInAICCoreDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    560,
+                    130,
+                    150
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/AICCoreDialog.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapTrackerInternal_IsMoveAICCoreButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    530,
+                    580,
+                    130,
+                    120
+                ],
+                "template": [
+                    "MapTracker/StuckMitigator/MoveAICCoreButton.png"
                 ],
                 "order_by": "Score"
             }
@@ -204,12 +239,31 @@
         "action": {
             "type": "Click"
         },
+        "post_delay": 250,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDeviceCancel"
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDeviceCancel": {
-        "pre_delay": 250,
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapTrackerInternal_IsInAICCoreDialog",
+                    "__MapTrackerInternal_IsMoveAICCoreButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1500,
+        "next": [
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove": {
         "action": {
             "type": "ClickKey",
             "param": {
