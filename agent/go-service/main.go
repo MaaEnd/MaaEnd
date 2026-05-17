@@ -15,7 +15,9 @@ import (
 )
 
 func main() {
-	os.Setenv("GOTRACEBACK", "crash")
+	if _, ok := os.LookupEnv("GOTRACEBACK"); !ok {
+		debug.SetTraceback("crash")
+	}
 	debug.SetPanicOnFault(true)
 
 	logFile, err := initLogger()
@@ -29,10 +31,17 @@ func main() {
 	defer func() {
 		if r := recover(); r != nil {
 			buf := make([]byte, 64<<10)
-			n := runtime.Stack(buf, true)
+			for {
+				n := runtime.Stack(buf, true)
+				if n < len(buf) {
+					buf = buf[:n]
+					break
+				}
+				buf = make([]byte, 2*len(buf))
+			}
 			log.Error().
 				Interface("panic", r).
-				Str("stack", string(buf[:n])).
+				Str("stack", string(buf)).
 				Msg("FATAL: go-service panicked")
 			logFile.Sync()
 			panic(r)
