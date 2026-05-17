@@ -12,7 +12,7 @@ import (
 const (
 	shelfSnapshotFileName = "CreditShoppingShelfSnapshots.json"
 	maxSnapshotRecords    = 400
-	schemaVersion         = 7
+	schemaVersion         = 1
 )
 
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
@@ -27,12 +27,12 @@ type snapshotFile struct {
 }
 
 type snapshotEntry struct {
-	UID           string       `json:"uid"`
-	GameDate      string       `json:"game_date"`
-	RefreshIndex  int          `json:"refresh_index"`
-	RefreshCost   int          `json:"refresh_cost,omitempty"`
-	UTCTime       string       `json:"utc_time"`
-	Slots         []SlotRecord `json:"slots"`
+	UID          string       `json:"uid"`
+	GameDate     string       `json:"game_date"`
+	RefreshIndex int          `json:"refresh_index"`
+	RefreshCost  int          `json:"refresh_cost,omitempty"`
+	UTCTime      string       `json:"utc_time"`
+	Slots        []SlotRecord `json:"slots"`
 }
 
 func snapshotRecordKey(e snapshotEntry) string {

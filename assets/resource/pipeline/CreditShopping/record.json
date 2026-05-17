@@ -101,21 +101,5 @@
         ],
         "only_rec": true,
         "order_by": "Expected"
-    },
-    "RecordSellOut": {
-        "desc": "售罄检测（相对物品名称；命中=未售罄/未购买，未命中=售罄/已购买）",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "ItemNameOCR",
-                "method": 6,
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ]
-            }
-        }
     }
 }

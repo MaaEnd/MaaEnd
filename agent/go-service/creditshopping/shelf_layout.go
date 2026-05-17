@@ -10,11 +10,11 @@ import (
 
 // 720p 货架槽位：PC 一屏两行 7+3；ADB 一屏仅见一排名称，需滑动后见另一排（上 6 + 下 4）。
 const (
-	shelfSlotCount   = 10
-	pcTopRowSlots    = 7
-	pcBottomRowSlots = 3
-	adbTopRowSlots   = 6
-	adbBottomRowSlots = 4
+	shelfSlotCount     = 10
+	pcTopRowSlots      = 7
+	pcBottomRowSlots   = 3
+	adbTopRowSlots     = 6
+	adbBottomRowSlots  = 4
 	adbBottomSlotStart = 6
 	adbShelfNameMaxY   = 400 // ADB 货架名称 OCR 顶边 Y 上限（超出为区域外误识别）
 	rowClusterGapY     = 80
@@ -160,10 +160,9 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 			continue
 		}
 		out = append(out, SlotRecord{
-			Slot:        start + i,
-			ItemID:      itemID,
-			Discount:    recordDiscountAtNameBox(ctx, img, hit.Box),
-			Buy:         recordBuyAtNameBox(ctx, img, hit.Box),
+			Slot:     start + i,
+			ItemID:   itemID,
+			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
 		})
 	}
 	return out
