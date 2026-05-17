@@ -88,10 +88,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    770,
-                    130,
-                    130,
-                    130
+                    700,
+                    120,
+                    200,
+                    180
                 ],
                 "template": [
                     "MapTracker/StuckMitigator/DeleteSharedDeviceButton.png"
@@ -105,10 +105,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    730,
-                    130,
-                    130,
-                    130
+                    700,
+                    120,
+                    200,
+                    180
                 ],
                 "template": [
                     "MapTracker/StuckMitigator/MoveDeviceButton.png"
