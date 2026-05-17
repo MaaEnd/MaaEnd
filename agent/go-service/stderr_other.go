@@ -2,4 +2,4 @@
 
 package main
 
-func redirectStderr() {}
+func redirectStderr() error { return nil }

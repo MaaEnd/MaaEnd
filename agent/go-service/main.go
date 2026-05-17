@@ -35,11 +35,15 @@ func main() {
 				Str("stack", string(buf[:n])).
 				Msg("FATAL: go-service panicked")
 			logFile.Sync()
-			os.Exit(1)
+			panic(r)
 		}
 	}()
 
-	redirectStderr()
+	if err := redirectStderr(); err != nil {
+		log.Warn().
+			Err(err).
+			Msg("Failed to redirect stderr to file")
+	}
 
 	log.Info().
 		Str("version", Version).
