@@ -194,17 +194,6 @@
                             ]
                         }
                     }
-                },
-                {
-                    "name": "ManualFarmBottomRight",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
-                    "pipeline_override": {
-                        "_AutoEcoFarmGotoEcoFarmStart": {
-                            "next": [
-                                "_AutoEcoFarmGotoEcoFarmExit"
-                            ]
-                        }
-                    }
                 }
             ]
         },
