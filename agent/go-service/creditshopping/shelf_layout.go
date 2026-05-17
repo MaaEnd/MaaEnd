@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// 720p 货架槽位：PC 第一排 7、第二排 3；ADB 第一排 6、第二排 4（分两次截图）。
+// 720p 货架槽位：PC 一屏两行 7+3；ADB 一屏仅见一排名称，需滑动后见另一排（上 6 + 下 4）。
 const (
 	shelfSlotCount   = 10
 	pcTopRowSlots    = 7
@@ -72,23 +72,22 @@ func hitsForMode(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
 	case slotAssignPC:
 		return flattenRowLimits(rows, []int{pcTopRowSlots, pcBottomRowSlots})
 	case slotAssignADBTop:
-		if len(rows) == 0 {
-			return nil
-		}
-		return capHits(rows[0], adbTopRowSlots)
+		// 首屏只见第一排名称与折扣；屏内仅一排，按 X 排序取前 6，不做 Y 聚类分行。
+		return capHits(sortHitsByX(hits), adbTopRowSlots)
 	case slotAssignADBBottom:
-		// 滑动后下排会移到视口上方，不再按屏幕 Y 区分；本屏通常只有 4 个槽，按 X 取前 4 个。
-		sorted := append([]ocrNameHit(nil), hits...)
-		sort.Slice(sorted, func(i, j int) bool {
-			if sorted[i].Box[1] != sorted[j].Box[1] {
-				return sorted[i].Box[1] < sorted[j].Box[1]
-			}
-			return sorted[i].Box[0] < sorted[j].Box[0]
-		})
-		return capHits(sorted, adbBottomRowSlots)
+		// 滑动后只见第二排名称与折扣；屏内仅一排，按 X 排序取前 4。
+		return capHits(sortHitsByX(hits), adbBottomRowSlots)
 	default:
 		return nil
 	}
+}
+
+func sortHitsByX(hits []ocrNameHit) []ocrNameHit {
+	sorted := append([]ocrNameHit(nil), hits...)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Box[0] < sorted[j].Box[0]
+	})
+	return sorted
 }
 
 func flattenRowLimits(rows [][]ocrNameHit, limits []int) []ocrNameHit {
@@ -160,9 +159,10 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 			continue
 		}
 		out = append(out, SlotRecord{
-			Slot:     start + i,
-			ItemID:   itemID,
-			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
+			Slot:        start + i,
+			ItemID:      itemID,
+			Discount:    recordDiscountAtNameBox(ctx, img, hit.Box),
+			Buy:         recordBuyAtNameBox(ctx, img, hit.Box),
 		})
 	}
 	return out

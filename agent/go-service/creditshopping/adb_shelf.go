@@ -9,7 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// 与 Shopping.json ADBSpecial 一致：向上滑动以露出下半货架。
+// 与 Shopping.json ADBSpecial 一致：小幅上滑，使第一排名称+折扣与第二排名称+折扣分属两次截图。
+// 见第一排完整时看不到第二排名字；见第二排完整时看不到第一排折扣——故必须分两次记录后按 slot 合并。
 const (
 	adbShelfSwipeBeginX = 640
 	adbShelfSwipeBeginY = 500
@@ -34,27 +35,25 @@ func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller) bool {
 	return true
 }
 
-// scanShelfSlotsADB 第一次只录上排槽位 0–5，滑动后第二次只录下排槽位 6–9。
+// scanShelfSlotsADB 首屏录 slot 0–5（第一排名称+折扣），滑动后录 slot 6–9（第二排）；两屏合并为一条快照。
 func scanShelfSlotsADB(ctx *maa.Context, ctrl *maa.Controller, first image.Image) []SlotRecord {
-	hitsTop := scanShelfNameHits(ctx, first)
-	slotsTop := buildSlotRecords(ctx, first, hitsTop, slotAssignADBTop)
+	slotsTop := buildSlotRecords(ctx, first, scanShelfNameHits(ctx, first), slotAssignADBTop)
 
 	swipeShelfForADB(ctx, ctrl)
 	second, err := screencap(ctrl)
 	if err != nil {
-		log.Warn().Err(err).Str("component", component).Int("top_slots", len(slotsTop)).Msg("record shelf adb: second screencap failed, keep top half only")
+		log.Warn().Err(err).Str("component", component).Int("top_slots", len(slotsTop)).Msg("record shelf adb: second screencap failed, keep first row only")
 		return slotsTop
 	}
-	hitsBottom := scanShelfNameHits(ctx, second)
-	slotsBottom := buildSlotRecords(ctx, second, hitsBottom, slotAssignADBBottom)
+	slotsBottom := buildSlotRecords(ctx, second, scanShelfNameHits(ctx, second), slotAssignADBBottom)
 
 	merged := mergeSlotRecordsByPosition(slotsTop, slotsBottom)
 	log.Info().
 		Str("component", component).
-		Int("slots_top", len(slotsTop)).
-		Int("slots_bottom", len(slotsBottom)).
+		Int("slots_row1", len(slotsTop)).
+		Int("slots_row2", len(slotsBottom)).
 		Int("slots_merged", len(merged)).
-		Msg("record shelf adb: top row + bottom row by slot position")
+		Msg("record shelf adb: row1 screen + swipe + row2 screen merged by slot")
 	return merged
 }
 

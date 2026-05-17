@@ -11,6 +11,7 @@ import (
 const (
 	pipelineNodeRecordItemName     = "RecordItemName"
 	pipelineNodeRecordItemDiscount = "RecordItemDiscount"
+	pipelineNodeRecordSellOut      = "RecordSellOut"
 	pipelineNodeItemNameOCR        = "ItemNameOCR"
 	discountNone                   = "None"
 )
@@ -19,6 +20,8 @@ type SlotRecord struct {
 	Slot     int    `json:"slot"`
 	ItemID   string `json:"item_id"`
 	Discount string `json:"discount"`
+	// Buy 是否已购买：true=售罄（用户已买），false=未售罄（仍可购买）。
+	Buy bool `json:"buy"`
 }
 
 func scanShelfNameHits(ctx *maa.Context, img image.Image) []ocrNameHit {
@@ -55,4 +58,18 @@ func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect
 		return discountNone
 	}
 	return text
+}
+
+// recordBuyAtNameBox 运行 RecordSellOut：未命中（售罄）表示用户已购买该槽位商品。
+func recordBuyAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect) bool {
+	override := map[string]any{
+		pipelineNodeItemNameOCR: map[string]any{
+			"roi": nameBox,
+		},
+	}
+	detail, err := ctx.RunRecognition(pipelineNodeRecordSellOut, img, override)
+	if err != nil || detail == nil {
+		return false
+	}
+	return !detail.Hit
 }
