@@ -413,7 +413,7 @@
     "task.ItemTransfer.description": "将指定物品在不同地区之间批量转移。请在帝江号<span style=\"color: #C62828\">会客室传送点</span>处将<span style=\"color: #C62828\">视角抬至最高</span>，<span style=\"color: #C62828\">使用天花板为背景</span>。",
     "task.ItemTransfer.item_not_found": "未能找到目标物品，已回顶但识别失败",
     "task.ItemTransfer.bag_return_completed": "目标仓库已满，剩余物品被放回原仓库",
-    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "不建议开启",
+    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "任务开始前存放背包（不建议开启）",
     "option.ItemTransferWhatToTransfer.label": "要搬运的物品",
     "item.CupriumOre": "赤铜矿",
     "item.FerriumOre": "蓝铁矿",

@@ -464,7 +464,7 @@
     "task.ItemTransfer.description": "지정된 아이템을 서로 다른 지역 간에 일괄 전송합니다. 제강호 <span style=\"color: #C62828\">접견실 텔레포트 지점</span>에서 <span style=\"color: #C62828\">시점을 최대한 올려</span> <span style=\"color: #C62828\">천장을 배경으로 사용</span>하세요.",
     "task.ItemTransfer.item_not_found": "대상 아이템을 찾을 수 없습니다. 맨 위로 돌아갔지만 인식에 실패했습니다",
     "task.ItemTransfer.bag_return_completed": "대상 창고가 가득 찼습니다. 남은 아이템을 원래 창고로 반환했습니다",
-    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "사용 권장하지 않음",
+    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "태스크 시작 전 배낭 보관 (사용 권장하지 않음)",
     "option.ItemTransferWhatToTransfer.label": "이전할 아이템",
     "item.CupriumOre": "적동 광석",
     "item.FerriumOre": "페리움 광석",

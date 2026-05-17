@@ -464,7 +464,7 @@
     "task.ItemTransfer.description": "指定されたアイテムを異なる地域間で一括転送します。帝江号<span style=\"color: #C62828\">応接室のテレポートポイント</span>で<span style=\"color: #C62828\">視点を最大まで上げ</span>、<span style=\"color: #C62828\">天井を背景に</span>してください。",
     "task.ItemTransfer.item_not_found": "ターゲットアイテムが見つかりませんでした。トップに戻りましたが認識に失敗しました",
     "task.ItemTransfer.bag_return_completed": "目標倉庫がいっぱいのため、残りのアイテムを元の倉庫に戻しました",
-    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "非推奨",
+    "task.ItemTransfer.option.ItemTransferStashBackpack.label": "タスク開始前にバックパックを収納（非推奨）",
     "option.ItemTransferWhatToTransfer.label": "転送するアイテム",
     "item.CupriumOre": "赤銅鉱物",
     "item.FerriumOre": "青鉄鉱物",
