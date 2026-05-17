@@ -11,7 +11,7 @@
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion",
-                "StashBackpackSubTask"
+                "ItemTransferStashBackpack"
             ],
             "controller": [
                 "Win32-Window",
@@ -3853,6 +3853,27 @@
                 }
             ],
             "default_case": "Wuling"
+        },
+        "ItemTransferStashBackpack": {
+            "type": "switch",
+            "label": "$task.ItemTransfer.option.ItemTransferStashBackpack.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "StashBackpackType"
+                    ]
+                }
+            ]
         }
     }
 }
