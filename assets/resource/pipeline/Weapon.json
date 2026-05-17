@@ -100,14 +100,17 @@
                 200
             ]
         },
-        "pre_delay": 1500, // 显示升级按钮后会偶现会卡一会，pre_wait_freezes不好使
         "action": {
             "type": "Click"
         },
         "post_delay": 0,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "WeaponUpgradeClickAddUpgradeMaterial"
+        ],
+        "on_error": [
+            "WeaponUpgradeClickLevelUpButton" // 此动画过渡过程中会卡住时间较久，没办法了增加重试
         ]
     },
     "WeaponUpgradeClickAddUpgradeMaterial": {
