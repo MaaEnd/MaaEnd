@@ -112,8 +112,6 @@
         ],
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
-        "action": "Custom",
-        "custom_action": "CreditShopping.RecordShelfSnapshots",
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyPriority1",
@@ -132,6 +130,16 @@
     "ADBSpecial": {
         "desc": "ADB特殊流程,向上滑动一段",
         "enabled": false,
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": "Custom",
+        "custom_action": "CreditShopping.RecordShelfSnapshots",
+        "next": [
+            "ADBSpecialRecord"
+        ]
+    },
+    "ADBSpecialRecord": {
         "action": {
             "type": "Swipe",
             "param": {
@@ -190,13 +198,25 @@
                 178
             ]
         },
+        "focus": {
+            "Node.Action.Succeeded": "刷新商品"
+        },
+        "next": [
+            "RefreshRecord"
+        ]
+    },
+    "RefreshRecord": {
+        "desc": "记录刷新",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShopping.RecordShelfSnapshots",
         "next": [
             "CreditShoppingShopping",
             "[JumpBack]YellowConfirmButtonType1"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "刷新商品"
-        }
+        ]
     },
     "CreditShoppingReserveCredit": {
         "desc": "信用点低于保留阈值（选项：保留信用点阈值）",
@@ -211,7 +231,10 @@
         },
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.reserve_credit_reached"
-        }
+        },
+        "next": [
+            "CreditShoppingRecord"
+        ]
     },
     "CreditShoppingReserveCreditSatisfied": {
         "desc": "信用点高于等于保留阈值（选项：保留信用点阈值）",
@@ -437,7 +460,22 @@
         ],
         "box_index": 2,
         "pre_wait_freezes": 100,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "CreditShopping.RecordShelfSnapshots",
+        "next": [
+            "CreditShoppingBuyBlacklistRecord"
+        ]
+    },
+    "CreditShoppingBuyBlacklistRecord": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "CreditShoppingBuyBlacklist"
+            }
+        },
         "next": [
             "CreditShoppingBuyItem"
         ]
@@ -476,16 +514,30 @@
                 "box_index": 1
             }
         },
+        "action": "Custom",
+        "custom_action": "CreditShopping.RecordShelfSnapshots",
         "pre_wait_freezes": 100,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
+        },
+        "next": [
+            "CreditShoppingPrudentRefreshRecord"
+        ]
+    },
+    "CreditShoppingPrudentRefreshRecord": {
+        "desc": "稳健模式刷新记录",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target": "CreditShoppingPrudentRefresh"
+            }
         },
         "next": [
             "CreditShoppingBuyItem"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
-        }
+        ]
     },
     "CreditShoppingRefreshCountReached": {
         "desc": "刷新次数已用尽时直接购买（选项：没有可购买物品时=执行刷新）",
@@ -542,6 +594,9 @@
         "recognition": "DirectHit",
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.nothing_to_buy"
-        }
+        },
+        "next": [
+            "CreditShoppingRecord"
+        ]
     }
 }

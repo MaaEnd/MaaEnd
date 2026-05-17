@@ -31,6 +31,7 @@
                 "CharacterMoveToTargetAction",
                 "CharacterMoveToTargetNotFoundAction",
                 "ClearHitCount",
+                "CreditShopping.RecordShelfSnapshots",
                 "DailyEventUnreadItemInitAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",
