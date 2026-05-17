@@ -15,9 +15,9 @@ const (
 	pcBottomRowSlots   = 3
 	adbTopRowSlots     = 6
 	adbBottomRowSlots  = 4
-	adbBottomSlotStart = 6
-	adbShelfNameMaxY   = 400 // ADB 货架名称 OCR 顶边 Y 上限（超出为区域外误识别）
-	rowClusterGapY     = 80
+	adbBottomSlotStart  = 6
+	adbShelfNameRowSplitY = 400 // 首屏名称 Y<400；滑动后第二排名称 Y>=400
+	rowClusterGapY        = 80
 )
 
 type slotAssignMode int
@@ -123,25 +123,36 @@ func slotStartForMode(mode slotAssignMode) int {
 	}
 }
 
-func filterADBShelfNameHits(hits []ocrNameHit) []ocrNameHit {
+func filterADBShelfNameHits(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
 	out := make([]ocrNameHit, 0, len(hits))
 	for _, h := range hits {
-		if h.Box[1] < adbShelfNameMaxY {
+		y := h.Box[1]
+		keep := false
+		switch mode {
+		case slotAssignADBTop:
+			keep = y < adbShelfNameRowSplitY
+		case slotAssignADBBottom:
+			keep = y >= adbShelfNameRowSplitY
+		default:
+			keep = true
+		}
+		if keep {
 			out = append(out, h)
 			continue
 		}
 		log.Debug().
 			Str("component", component).
 			Str("ocr_text", h.Text).
-			Int("box_y", h.Box[1]).
-			Msg("shelf layout adb: drop hit above shelf name max y")
+			Int("box_y", y).
+			Int("mode", int(mode)).
+			Msg("shelf layout adb: drop hit outside target row")
 	}
 	return out
 }
 
 func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode slotAssignMode) []SlotRecord {
 	if mode == slotAssignADBTop || mode == slotAssignADBBottom {
-		hits = filterADBShelfNameHits(hits)
+		hits = filterADBShelfNameHits(hits, mode)
 	}
 	picked := hitsForMode(hits, mode)
 	if len(picked) == 0 {

@@ -19,6 +19,10 @@ var refreshCostToIndex = map[int]int{
 	200: 4,
 }
 
+// refreshIndexWhenCostAbsent 当日刷新花费 OCR 未命中（显示 "-" / 次数用尽 / 冷却）时，
+// 视为已完成当日最后一次（第 4 次）刷新后的货架状态。
+const refreshIndexWhenCostAbsent = 4
+
 func refreshCostFromImage(ctx *maa.Context, img image.Image) (cost int, ok bool) {
 	detail, err := ctx.RunRecognition(pipelineNodeRefreshCost, img, nil)
 	if err != nil || detail == nil || !detail.Hit {
@@ -36,11 +40,11 @@ func refreshCostFromImage(ctx *maa.Context, img image.Image) (cost int, ok bool)
 }
 
 // resolveRefreshIndex 根据 RefreshCost OCR 推断当日第几次刷新（1-based）。
-// 未识别到花费时返回 0，表示初次进入货架、尚未对应到某次刷新花费。
+// 未识别到花费（"-"、次数用尽、冷却文案等）时视为第 4 次刷新后的状态。
 func resolveRefreshIndex(ctx *maa.Context, img image.Image) (refreshIndex int, refreshCost int) {
 	cost, ok := refreshCostFromImage(ctx, img)
 	if !ok {
-		return 0, 0
+		return refreshIndexWhenCostAbsent, 0
 	}
 	if idx, known := refreshCostToIndex[cost]; known {
 		return idx, cost
