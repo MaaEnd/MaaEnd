@@ -77,11 +77,22 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 500, // 点击后弹窗渐变消失，菜单标识在消失过程中依然会显示
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterMenuListSuccess"
+            "__SceneImageCheckFinishExitSuccess"
         ]
+    },
+    "__SceneImageCheckFinishExitSuccess": {
+        "desc": "场景图像检查完成退出到原界面成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__SceneImageCheckAICPlanColor": {
         "desc": "检查颜色",
