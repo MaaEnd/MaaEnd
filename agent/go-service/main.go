@@ -43,7 +43,11 @@ func main() {
 				Interface("panic", r).
 				Str("stack", string(buf)).
 				Msg("FATAL: go-service panicked")
-			logFile.Sync()
+			if err := logFile.Sync(); err != nil {
+				log.Error().
+					Err(err).
+					Msg("FATAL: failed to sync log file")
+			}
 			panic(r)
 		}
 	}()
