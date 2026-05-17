@@ -351,6 +351,8 @@
     "task.CreditShopping.prudent_refresh_triggered": "현재 크레딧에서 새로고침 비용을 뺀 값이 임계값보다 낮아 신중 새로고침이 발동되었습니다",
     "task.CreditShopping.refresh_count_reached_triggered": "오늘의 새로고침 횟수가 소진되어 남은 물품을 직접 구매합니다",
     "task.CreditShopping.nothing_to_buy": "조건에 맞는 물품이 없어 작업을 종료합니다",
+    "option.CreditShoppingKeepShelfRecord.label": "선반 기록 유지",
+    "option.CreditShoppingKeepShelfRecord.description": "선반 물품과 할인을 로컬 debug/record/CreditShoppingShelfSnapshots.json에 기록해 새로고침 규칙 분석에 사용합니다. 끄면 기록하지 않습니다",
     "option.CreditShoppingForce.label": "구매 옵션이 모두 맞지 않을 때 동작",
     "option.CreditShoppingForce.cases.Exit.label": "종료",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "임의 물품 구매",

@@ -351,6 +351,8 @@
     "task.CreditShopping.prudent_refresh_triggered": "現在のクレジットから更新費用を差し引いた値が閾値を下回るため、慎重更新を発動します",
     "task.CreditShopping.refresh_count_reached_triggered": "本日の更新回数が上限に達したため、残りのアイテムを直接購入します",
     "task.CreditShopping.nothing_to_buy": "条件に合うアイテムがないため、タスクを終了します",
+    "option.CreditShoppingKeepShelfRecord.label": "棚記録を保持",
+    "option.CreditShoppingKeepShelfRecord.description": "棚の商品と割引をローカル debug/record/CreditShoppingShelfSnapshots.json に書き込み、更新規則の分析に使用します。オフの場合は書き込みません",
     "option.CreditShoppingForce.label": "購入設定がいずれも命中しない時の動作",
     "option.CreditShoppingForce.cases.Exit.label": "終了",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "任意のアイテムを購入",

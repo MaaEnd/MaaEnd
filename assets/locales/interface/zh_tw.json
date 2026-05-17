@@ -351,6 +351,8 @@
     "task.CreditShopping.prudent_refresh_triggered": "當前信用點扣除刷新花費後低於閾值，觸發穩健模式刷新",
     "task.CreditShopping.refresh_count_reached_triggered": "今日刷新次數已用盡，直接購買剩餘物品",
     "task.CreditShopping.nothing_to_buy": "沒有符合條件的物品，退出任務",
+    "option.CreditShoppingKeepShelfRecord.label": "保留貨架記錄",
+    "option.CreditShoppingKeepShelfRecord.description": "將貨架商品與折扣寫入本地 debug/record/CreditShoppingShelfSnapshots.json，用於分析刷新規律；關閉後不再寫入",
     "option.CreditShoppingForce.label": "購買選項均未命中時操作",
     "option.CreditShoppingForce.cases.Exit.label": "退出",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "購買任意物品",

@@ -412,6 +412,8 @@
     "task.CreditShopping.prudent_refresh_triggered": "Current credits minus refresh cost is below the threshold, prudent refresh triggered",
     "task.CreditShopping.refresh_count_reached_triggered": "Today's refresh count has been exhausted, purchasing remaining items directly",
     "task.CreditShopping.nothing_to_buy": "No eligible items found, exiting task",
+    "option.CreditShoppingKeepShelfRecord.label": "Keep shelf records",
+    "option.CreditShoppingKeepShelfRecord.description": "Write shelf items and discounts to local debug/record/CreditShoppingShelfSnapshots.json for refresh analysis; when off, no file is written",
     "option.CreditShoppingForce.label": "Action when no purchase option matches",
     "option.CreditShoppingForce.cases.Exit.label": "Exit",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "Buy any item",
