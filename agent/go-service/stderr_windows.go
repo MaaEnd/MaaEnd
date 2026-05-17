@@ -21,7 +21,10 @@ func redirectStderr() error {
 	if err != nil {
 		return fmt.Errorf("open stderr log: %w", err)
 	}
-	windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(stderrFile.Fd()))
+	if err := windows.SetStdHandle(windows.STD_ERROR_HANDLE, windows.Handle(stderrFile.Fd())); err != nil {
+		stderrFile.Close()
+		return fmt.Errorf("set stderr handle: %w", err)
+	}
 	os.Stderr = stderrFile
 	return nil
 }
