@@ -4,8 +4,7 @@
         "recognition": "DirectHit",
         "next": [
             "ItemTransferStart",
-            "ItemTransferPreClearBag",
-            "ItemTransferSwitchRepoToOrigin"
+            "ItemTransferInBackpack"
         ]
     },
     "ItemTransferStart": {
@@ -62,24 +61,22 @@
         "key": 66, // B
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferPreClearBag",
-            "ItemTransferSwitchRepoToOrigin"
+            "ItemTransferInBackpack"
         ]
     },
-    "ItemTransferPreClearBag": {
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            896,
-            497,
-            57,
-            41
-        ],
-        "template": "AutoEcoFarm/autoecofarmQuickStash.png",
-        "action": "Click",
-        "next": [
-            "ItemTransferSwitchRepoToOrigin"
-        ]
+    "ItemTransferInBackpack": {
+        "desc": "当前在背包界面，开始转移任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask",
+                "ItemTransferSwitchRepoToOrigin"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ItemTransferSwitchRepoToOrigin": {
         "recognition": "OCR",

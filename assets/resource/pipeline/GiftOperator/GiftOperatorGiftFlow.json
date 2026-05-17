@@ -2,16 +2,19 @@
     "GiftOperatorBranchGift": {
         "desc": "分支1：可以赠送礼物",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "GiftOperator/GiftGiving.png"
+                "expected": [
+                    "赠送礼物",
+                    "贈送禮物",
+                    "(?i)Offering\\s*Gifts",
+                    "プレゼントを贈る"
                 ]
             }
         },
@@ -25,16 +28,19 @@
     "GiftOperatorBranchMaxAffinity": {
         "desc": "分支3：好感度已满",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    951,
-                    410,
-                    236,
-                    195
+                    900,
+                    334,
+                    350,
+                    318
                 ],
-                "template": [
-                    "GiftOperator/LikeAbility.png"
+                "expected": [
+                    "查看赠礼记录",
+                    "查看贈禮紀錄",
+                    "(?i)Gifting\\s*records",
+                    "プレゼント履歴を確認する"
                 ]
             }
         },
@@ -48,16 +54,19 @@
     "GiftOperatorBranchReceive": {
         "desc": "分支2：干员给你送礼，点击领取",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "RealTimeTask/AutoSkipTip.png"
+                "expected": [
+                    "收下礼物",
+                    "收下禮物",
+                    "(?i)Accept\\s*gift",
+                    "プレゼントを受け取る"
                 ]
             }
         },
@@ -94,13 +103,13 @@
                 ],
                 "method": 40,
                 "lower": [
-                    22,
-                    252,
-                    255
+                    20,
+                    250,
+                    250
                 ],
                 "upper": [
-                    22,
-                    252,
+                    30,
+                    255,
                     255
                 ],
                 "connected": true,
@@ -128,8 +137,10 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "YellowConfirmButtonType2"
-                ]
+                    "YellowButtonBackground",
+                    "GiftOperatorConfirmGiftText"
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -140,8 +151,24 @@
             "timeout": 3000
         },
         "next": [
-            "GiftOperatorGiftDialog"
+            "[JumpBack]GiftOperatorGiftDialog",
+            "GiftOperatorLeave"
         ]
+    },
+    "GiftOperatorConfirmGiftText": {
+        "desc": "确认赠送按钮上有文字，避免误点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "expected": [
+                    "确认赠送",
+                    "確定贈送",
+                    "Confirm",
+                    "贈る"
+                ]
+            }
+        }
     },
     "GiftOperatorGiftDialog": {
         "desc": "赠送后跳过对话。",
@@ -161,10 +188,7 @@
         },
         "action": {
             "type": "Click"
-        },
-        "next": [
-            "GiftOperatorLeave"
-        ]
+        }
     },
     "GiftOperatorGiftSelectedLabelColor": {
         "desc": "选中礼物标签颜色",
@@ -179,12 +203,12 @@
                 ],
                 "method": 40,
                 "lower": [
-                    28,
+                    25,
                     230,
                     240
                 ],
                 "upper": [
-                    28,
+                    30,
                     255,
                     255
                 ],

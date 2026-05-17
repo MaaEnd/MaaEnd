@@ -1,0 +1,77 @@
+{
+    "task": [
+        {
+            "name": "StashBackpack",
+            "label": "$task.StashBackpack.label",
+            "entry": "StashBackpackMain",
+            "controller": [
+                "Win32-Window",
+                "Win32-Window-Background",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ],
+            "option": [
+                "StashBackpackType"
+            ]
+        }
+    ],
+    "option": {
+        "StashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "StashBackpackType"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "StashBackpackType": {
+            "type": "checkbox",
+            "label": "$option.StashBackpackType.label",
+            "default_case": [
+                "StashBackpackQuick",
+                "StashBackpackUsableItemsLimited"
+            ],
+            "cases": [
+                {
+                    "name": "StashBackpackQuick",
+                    "label": "$option.StashBackpackQuick.label",
+                    "pipeline_override": {
+                        "StashBackpackStashQuick": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "StashBackpackUsableItemsLimited",
+                    "label": "$option.StashBackpackUsableItemsLimited.label",
+                    "pipeline_override": {
+                        "StashBackpackUsableItemsLimited": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,12 +1,24 @@
 {
+    "AutoEcoFarmTask": {
+        "desc": "自动生态农场任务入口",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask",
+                "AutoEcoFarmMain"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoEcoFarmMain": {
         "desc": "自动生态农场主入口",
         "next": [
             //"AutoEcoFarmExitErr",
-            "_AutoEcoFarmPrepareStart",
             "_AutoEcoFarmInitStartValleyIV",
             "_AutoEcoFarmInitStartWulin",
-            "_AutoEcoFarmEndStart",
             "AutoEcoFarmExit"
         ]
     },

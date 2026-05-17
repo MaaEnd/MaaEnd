@@ -1,0 +1,128 @@
+{
+    "StashBackpackSubTask": {
+        "desc": "被子任务调用的入口，用于设置 StashBackpackMain 的 enable",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackMain",
+            "EmptyNode"
+        ]
+    },
+    "StashBackpackMain": {
+        "desc": "任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterSuccess",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "StashBackpackEnterSuccess": {
+        "desc": "进入背包界面",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]StashBackpackStashQuick",
+            "[JumpBack]StashBackpackUsableItemsLimited",
+            "EmptyNode"
+        ]
+    },
+    "StashBackpackStashQuick": {
+        "desc": "一键存放",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": [
+            "StashBackpack/QuickStash.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackUsableItemsLimited": {
+        "desc": "少量可用物品存放",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "TemplateMatch",
+        "roi": [
+            1023,
+            439,
+            237,
+            167
+        ],
+        "template": [
+            "GiftOperator/SportBag.png"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]StashBackpackUsableItemsLimitedDrag",
+            "EmptyNode"
+        ]
+    },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "desc": "拖动物品到仓库",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    761,
+                    174,
+                    474,
+                    356
+                ],
+                "template": [
+                    "StashBackpack/UsableItems.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    20,
+                    44,
+                    4,
+                    -2
+                ],
+                "expected": [
+                    "(?<!\\d)[0-4](?!\\d)"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end": [
+                    388,
+                    330
+                ]
+            }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

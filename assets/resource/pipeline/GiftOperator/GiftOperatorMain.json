@@ -2,6 +2,13 @@
     "GiftOperatorMain": {
         "desc": "赠送干员礼物 - 入口节点",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "GiftOperatorInDijiang0",
@@ -62,16 +69,19 @@
     "GiftOperatorLeave": {
         "desc": "点击离开",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     900,
                     334,
-                    273,
+                    350,
                     318
                 ],
-                "template": [
-                    "GiftOperator/Leave.png"
+                "expected": [
+                    "暂时离开",
+                    "暫時離開",
+                    "(?i)Leave\\s*for\\s*now",
+                    "一旦離れる"
                 ]
             }
         },
