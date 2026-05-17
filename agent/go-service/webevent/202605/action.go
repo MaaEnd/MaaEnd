@@ -54,6 +54,12 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 
 	for i := 0; i < latencySamples; i++ {
+		if tasker.Stopping() {
+			controller.PostTouchUp(0).Wait()
+			log.Warn().Str("component", "WebEvent202605").Msg("task stopping, exiting")
+			return false
+		}
+
 		start := time.Now()
 		controller.PostScreencap().Wait()
 		img, err := controller.CacheImage()
@@ -95,8 +101,10 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	for shots < maxShot {
 		if tasker.Stopping() {
 			controller.PostTouchUp(0).Wait()
+			log.Warn().Str("component", "WebEvent202605").Msg("task stopping, exiting")
 			return false
 		}
+
 		if time.Since(lastHitAt) >= time.Duration(timeoutLv1Sec)*time.Second {
 			log.Warn().
 				Str("component", "WebEvent202605").
@@ -134,7 +142,6 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			controller.PostClick(int32(centerX), int32(centerY)).Wait()
 			lastHitAt = time.Now()
 			shots++
-
 		}
 		time.Sleep(time.Duration(50) * time.Millisecond)
 	}
@@ -178,7 +185,7 @@ func getPosition(img image.Image) (float64, error) {
 	leftX := -1
 	for x := startX; x <= endX; x++ {
 		r, g, b, _ := img.At(x, rowY).RGBA()
-		if uint8(r>>8) == 255 && uint8(g>>8) == 255 && uint8(b>>8) == 255 {
+		if int(uint8(r>>8))+int(uint8(g>>8))+int(uint8(b>>8)) >= 255*3-1 {
 			leftX = x
 			break
 		}
@@ -191,7 +198,7 @@ func getPosition(img image.Image) (float64, error) {
 	rightX := -1
 	for x := endX; x >= startX; x-- {
 		r, g, b, _ := img.At(x, rowY).RGBA()
-		if uint8(r>>8) >= 254 && uint8(g>>8) >= 254 && uint8(b>>8) >= 254 {
+		if int(uint8(r>>8))+int(uint8(g>>8))+int(uint8(b>>8)) >= 255*3-1 {
 			rightX = x
 			break
 		}
@@ -326,7 +333,7 @@ func predict(ctx *maa.Context, screenLatency float64, speed float64, tolerance f
 	if delta > 0 {
 		dir = 1
 	} else if delta < 0 {
-		dir = -1
+		// dir = -1
 		return false, nil // Only one direction is valid
 	}
 
