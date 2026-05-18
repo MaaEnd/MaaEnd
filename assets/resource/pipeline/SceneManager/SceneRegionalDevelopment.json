@@ -384,10 +384,10 @@
         "desc": "在四号谷地地区建设界面，进入物资调度界面成功",
         "recognition": "TemplateMatch",
         "roi": [
-            340,
-            55,
-            60,
-            70
+            335,
+            46,
+            180,
+            123
         ],
         "template": [
             "AutoStockpile/ElasticGoodsButton.png",
