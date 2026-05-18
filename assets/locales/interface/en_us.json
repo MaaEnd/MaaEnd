@@ -661,6 +661,7 @@
     "task.AutoArtificing.label": "⚒️ Auto Refining",
     "task.AutoCollect.description": "Automatically collect wild resources (the game must stay in the foreground; do not move the mouse).\nNote: if crops have not fully grown, they may grow randomly, which can lead to incomplete collection.\nDue to recognition accuracy limits, even when fully grown some may not be collected.",
     "task.AutoCollect.label": "🧺 Auto Collect",
+    "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "Stash backpack before and after task",
     "option.AutoCollectRoutes.label": "Collect Routes",
     "option.AutoCollectRoute1.label": "Collect Route 1: Wuling City - Blighted Yuhua Leaf",
     "option.AutoCollectRoute2.label": "Collect Route 2: Wuling City - False Aggela",

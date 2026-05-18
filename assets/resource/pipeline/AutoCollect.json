@@ -24,6 +24,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
+                "StashBackpackSubTask",
                 "AutoCollectRoute1Sub",
                 "AutoCollectRoute2Sub",
                 "AutoCollectRoute3Sub",
@@ -37,7 +38,9 @@
                 "AutoCollectRoute11Sub",
                 "AutoCollectRoute12Sub",
                 "AutoCollectRoute13Sub",
-                "AutoCollectRoute14Sub"
+                "AutoCollectRoute14Sub",
+                "AutoCollectResetStashBackpackHitCount",
+                "StashBackpackSubTask"
             ],
             "continue": true,
             "strict": true
@@ -49,6 +52,20 @@
     },
     "AutoCollectEnd": {
         "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectResetStashBackpackHitCount": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "StashBackpackMain",
+                "StashBackpackStashQuick",
+                "StashBackpackUsableItemsLimited"
+            ],
+            "strict": true
+        },
         "post_delay": 0
     },
     "AutoCollectRoute1Sub": {

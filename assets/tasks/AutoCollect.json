@@ -11,7 +11,8 @@
             ],
             "option": [
                 "AutoCollectSchedule",
-                "AutoCollectRoutes"
+                "AutoCollectRoutes",
+                "AutoCollectStashBackpackSubTask"
             ],
             "group": [
                 "open_world"
@@ -106,6 +107,32 @@
                             "attach": {
                                 "sunday": true
                             }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCollectStashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.AutoCollect.option.AutoCollectStashBackpackSubTask.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "StashBackpackType"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
                         }
                     }
                 }
