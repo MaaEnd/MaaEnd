@@ -420,7 +420,8 @@ public:
 
     bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) override
     {
-        bool globalAccept = (fineRes.score >= 0.85) || (fineRes.score >= 0.42 && fineRes.delta >= 0.04 && fineRes.psr >= 3.8)
+        bool globalAccept = (fineRes.score >= 0.85) || (fineRes.score >= 0.70 && fineRes.delta >= 0.25 && fineRes.psr >= 2.0)
+                            || (fineRes.score >= 0.42 && fineRes.delta >= 0.04 && fineRes.psr >= 3.8)
                             || (fineRes.score >= 0.40 && fineRes.delta >= 0.05 && fineRes.psr >= 3.8);
         if (!globalAccept) {
             return false;
