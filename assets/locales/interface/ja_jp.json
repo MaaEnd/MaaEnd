@@ -661,6 +661,7 @@
     "task.AutoArtificing.label": "⚒️自動精錬",
     "task.AutoCollect.description": "フィールド資源を自動採集します（ゲームを常に前面に表示し、マウスを動かさないでください）。\n注意：作物が完全に成長していない場合、作物がランダムに成長し、採集漏れが発生することがあります。\n認識精度の制限により、成長済みでも一部採集できない場合があります。",
     "task.AutoCollect.label": "🧺自動収集",
+    "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "タスク前後にバックパックを収納",
     "option.AutoCollectRoutes.label": "採集ルート",
     "option.AutoCollectRoute1.label": "採集ルート1：武陵城内-侵蝕玉華葉",
     "option.AutoCollectRoute2.label": "採集ルート2：武陵城内-岩アンゲロス葉",

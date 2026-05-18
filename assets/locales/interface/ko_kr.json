@@ -661,6 +661,7 @@
     "task.AutoArtificing.label": "⚒️자동 정련",
     "task.AutoCollect.description": "야외 자원을 자동 수집합니다(게임을 계속 전면에 유지하고 마우스를 움직이지 마세요).\n참고: 작물이 완전히 자라기 전에 랜덤 성장으로 인해 수집이 누락될 수 있습니다.\n인식 정확도의 한계로 인해 완전히 자라도 일부는 수집되지 않을 수 있습니다.",
     "task.AutoCollect.label": "🧺자동 수집",
+    "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "태스크 전후 배낭 보관",
     "option.AutoCollectRoutes.label": "채집 경로",
     "option.AutoCollectRoute1.label": "채집 경로 1: 무릉성 도심-침식된 유화 잎",
     "option.AutoCollectRoute2.label": "채집 경로 2: 무릉성 도심-바위아겔로스 잎",
