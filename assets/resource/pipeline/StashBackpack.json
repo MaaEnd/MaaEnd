@@ -68,7 +68,7 @@
         "rate_limit": 0
     },
     "StashBackpackUsableItemsLimitedSubTask": {
-        "desc": "少量可用物品存放被子任务入口",
+        "desc": "少量可用物品存放背包任务入口",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
