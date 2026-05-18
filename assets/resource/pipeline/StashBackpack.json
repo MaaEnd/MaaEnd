@@ -11,7 +11,6 @@
     },
     "StashBackpackMain": {
         "desc": "任务入口",
-        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -27,18 +26,30 @@
             "InBackpack"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackStashQuickSubTask",
+                "StashBackpackUsableItemsLimitedSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackStashQuickSubTask": {
+        "desc": "一键存放被子任务入口",
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]StashBackpackStashQuick",
-            "[JumpBack]StashBackpackUsableItemsLimited",
+            "StashBackpackStashQuick",
             "EmptyNode"
         ]
     },
     "StashBackpackStashQuick": {
         "desc": "一键存放",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "TemplateMatch",
         "roi": [
             871,
@@ -56,10 +67,19 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "StashBackpackUsableItemsLimitedSubTask": {
+        "desc": "少量可用物品存放被子任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackUsableItemsLimited",
+            "EmptyNode"
+        ]
+    },
     "StashBackpackUsableItemsLimited": {
         "desc": "少量可用物品存放",
         "enabled": false,
-        "max_hit": 1,
         "recognition": "TemplateMatch",
         "roi": [
             1023,
