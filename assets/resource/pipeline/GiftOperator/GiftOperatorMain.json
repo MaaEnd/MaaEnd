@@ -13,7 +13,7 @@
         "post_delay": 0,
         "next": [
             "GiftOperatorInDijiang0",
-            "GiftOperatorInDijiang1",
+            //"GiftOperatorInDijiang1",
             "[JumpBack]SceneEnterWorldDijiang0"
         ]
     },
