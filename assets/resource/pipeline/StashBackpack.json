@@ -112,6 +112,7 @@
                 "only_rec": true
             }
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Swipe",
