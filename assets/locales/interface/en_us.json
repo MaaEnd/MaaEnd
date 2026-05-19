@@ -299,7 +299,6 @@
     "option.CrisisDrills.AdvancedProgression4.label": "Advanced Progression Ⅳ (Quadrant Fitting Fluid)",
     "option.CrisisDrills.AdvancedProgression5.label": "Advanced Progression Ⅴ (Triphasic Nanoflake)",
     "option.ProtocolSpaceLevel.label": "Select Protocol Space Level",
-    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevelDefault.label": "Default",
     "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label": "Level 1",
     "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label": "Level 2",
     "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label": "Level 3",

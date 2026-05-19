@@ -422,18 +422,8 @@
         "ProtocolSpaceLevel": {
             "type": "select",
             "label": "$option.ProtocolSpaceLevel.label",
-            "default_case": "ProtocolSpaceLevelDefault",
+            "default_case": "ProtocolSpaceLevel05",
             "cases": [
-                {
-                    "name": "ProtocolSpaceLevelDefault",
-                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevelDefault.label",
-                    "pipeline_override": {
-                        "ProtocolSpaceLevelChoose": {
-                            "recognition": "DirectHit",
-                            "action": "DoNothing"
-                        }
-                    }
-                },
                 {
                     "name": "ProtocolSpaceLevel01",
                     "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label",
@@ -482,6 +472,17 @@
                         "ProtocolSpaceLevelChoose": {
                             "recognition": {
                                 "param": {"index": 3}
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel05",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel05.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 4}
                             }
                         }
                     }
