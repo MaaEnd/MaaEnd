@@ -55,7 +55,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	const maxRetries = 20
 	var width, height int32
 	var err error
-	for i := range maxRetries {
+	for i := 0; i < maxRetries; i++ {
 		width, height, err = controller.GetResolution()
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to get resolution")
