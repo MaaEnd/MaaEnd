@@ -75,20 +75,15 @@
                 "threshold": 0.9
             },
             {
-                "recognition": "OCR",
+                "recognition": "TemplateMatch",
                 "roi": [
                     -200,
                     0,
                     200,
                     200
                 ],
-                "expected": [
-                    "活动说明",
-                    "活動說明",
-                    "Event Details",
-                    "イベント概要",
-                    "이벤트 설명"
-                ]
+                "template": "DailyRewards/Event/EventDetailsIcon.png",
+                "green_mask": true
             }
         ],
         "box_index": 1,
@@ -124,14 +119,19 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
+                "roi": [
+                    0,
+                    0,
+                    300,
+                    720
+                ],
                 "template": [
                     "DailyRewards/EventRedDot.png",
                     "DailyRewards/EventRedDot2.png",
                     "DailyRewards/EventRedDot3.png",
                     "DailyRewards/EventRedDot4.png"
                 ],
-                "green_mask": true,
-                "threshold": 0.9
+                "green_mask": true
             }
         }
     },
