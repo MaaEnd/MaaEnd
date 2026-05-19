@@ -168,6 +168,7 @@ func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				Interface("box", item.Box).
 				Msg("DailyEventUnreadItemSwitch task failed")
 			actionResult = false
+			break
 		}
 		if !detail.Status.Success() {
 			actionResult = false
