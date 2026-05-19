@@ -42,7 +42,6 @@ void MotionTracker::hold(const MapPosition& oldPos, std::chrono::steady_clock::t
 {
     lastKnownPos = oldPos;
     lastTime = now;
-    lostTrackingCount++;
 }
 
 void MotionTracker::markLost(int increment)

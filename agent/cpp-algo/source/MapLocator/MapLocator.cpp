@@ -541,6 +541,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
                 held.scale = trackScale;
                 held.isHeld = true;
                 motionTracker->hold(held, now);
+                motionTracker->markLost();
                 LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score) << VAR(trackScale);
                 return held;
             }
@@ -1039,8 +1040,12 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, &rawPrimaryPos);
     const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
 
-    if (trackingResult && !trackingHeld) {
-        return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Success" };
+    if (trackingResult) {
+        return LocateResult {
+            .status = LocateStatus::Success,
+            .position = trackingResult,
+            .debugMessage = trackingHeld ? "Tracking Hold" : "Tracking Success",
+        };
     }
 
     const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
@@ -1075,11 +1080,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         }
     }
 
-    if (!trackingHeld) {
-        return std::nullopt;
-    }
-
-    return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Hold" };
+    return std::nullopt;
 }
 
 SearchConstraint MapLocator::Impl::buildSearchConstraint(
