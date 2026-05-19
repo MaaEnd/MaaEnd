@@ -436,7 +436,7 @@
                 },
                 {
                     "name": "ProtocolSpaceLevel01",
-                    "label": "一级",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label",
                     "pipeline_override": {
                         "ProtocolSpaceLevelChoose": {
                             "recognition": {
@@ -451,7 +451,7 @@
                 },
                 {
                     "name": "ProtocolSpaceLevel02",
-                    "label": "二级",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label",
                     "pipeline_override": {
                         "ProtocolSpaceLevelChoose": {
                             "recognition": {
@@ -466,7 +466,7 @@
                 },
                 {
                     "name": "ProtocolSpaceLevel03",
-                    "label": "三级",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label",
                     "pipeline_override": {
                         "ProtocolSpaceLevelChoose": {
                             "recognition": {
@@ -477,7 +477,7 @@
                 },
                 {
                     "name": "ProtocolSpaceLevel04",
-                    "label": "四级",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel04.label",
                     "pipeline_override": {
                         "ProtocolSpaceLevelChoose": {
                             "recognition": {

@@ -32,8 +32,11 @@
                     291,
                     354
                 ],
-                "template": "ProtocolSpace/LevelCommonParts.png",
-                "threshold": 0.6,
+                "template": [
+                    "ProtocolSpace/LevelCompleted.png",
+                    "ProtocolSpace/LevelUncompleted.png",
+                    "ProtocolSpace/LevelLocked.png"
+                ],
                 "order_by": "Vertical",
                 "index": 0
             }
