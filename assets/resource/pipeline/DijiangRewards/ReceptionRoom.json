@@ -25,7 +25,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomClueExchangeWait",
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomViewWait"
         ]
     },
@@ -149,7 +149,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            // "ReceptionRoomClueExchangeWait",
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomViewIn"
         ],
         "focus": {
