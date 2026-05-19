@@ -183,6 +183,22 @@ bool TryReadAngleValue(const json::object& obj, double& angle)
     return false;
 }
 
+bool TryReadHeadingTargetValue(const json::object& obj, double& target_x, double& target_y, bool& has_target)
+{
+    has_target = obj.contains("target");
+    if (!has_target) {
+        return true;
+    }
+
+    const json::value& target = obj.at("target");
+    if (!target.is_array() || target.as_array().size() != 2) {
+        return false;
+    }
+
+    const json::array& point = target.as_array();
+    return TryReadNumber(point[0], target_x) && TryReadNumber(point[1], target_y);
+}
+
 bool AppendArrayWaypoint(const json::array& p, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
     if (p.size() < 2) {
@@ -270,8 +286,20 @@ bool AppendObjectWaypoint(const json::object& obj, std::vector<Waypoint>& out_wa
 
     double angle = 0.0;
     const bool has_angle = TryReadAngleValue(obj, angle);
+    double heading_target_x = 0.0;
+    double heading_target_y = 0.0;
+    bool has_heading_target = false;
+    if (!TryReadHeadingTargetValue(obj, heading_target_x, heading_target_y, has_heading_target)) {
+        return false;
+    }
 
     if (primary_action == ActionType::HEADING) {
+        if (has_heading_target) {
+            Waypoint heading_waypoint = Waypoint::HeadingToTarget(heading_target_x, heading_target_y);
+            heading_waypoint.zone_id = zone_id;
+            out_waypoints.push_back(std::move(heading_waypoint));
+            return true;
+        }
         if (!has_angle) {
             return false;
         }
@@ -362,6 +390,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
         else {
             const bool looks_like_single_waypoint = options.contains("x") || options.contains("y") || options.contains("action")
                                                     || options.contains("actions") || options.contains("angle")
+                                                    || options.contains("target")
                                                     || options.contains("heading") || options.contains("yaw");
             if (looks_like_single_waypoint && !AppendParsedWaypoints(*options_opt, param.path, zone_context)) {
                 LogError << "Failed to parse MapNavigator waypoint from custom_action_param object.";

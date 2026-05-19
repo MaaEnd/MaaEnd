@@ -122,7 +122,19 @@ This is a **positionless control node** used to declare which zone the following
 }
 ```
 
-A positionless node. It turns the camera to the specified heading, then taps `W` once.
+Or:
+
+```json
+{
+    "action": "HEADING",
+    "target": [
+        688,
+        350
+    ]
+}
+```
+
+A positionless node. It turns the camera, then taps `W` once. `angle` provides a direct heading in degrees, while `target` computes that heading from the current position toward the given coordinate before reusing the same `HEADING` behavior.
 
 #### Return Behavior
 

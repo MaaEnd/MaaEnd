@@ -307,9 +307,15 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
     bool consumed = false;
     while (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsHeadingOnly()) {
         const Waypoint heading_node = ctx.session->CurrentWaypoint();
-        double target_heading = std::fmod(heading_node.heading_angle, 360.0);
-        if (target_heading < 0.0) {
-            target_heading += 360.0;
+        double target_heading = 0.0;
+        if (heading_node.heading_uses_target) {
+            target_heading = NaviMath::CalcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
+        }
+        else {
+            target_heading = std::fmod(heading_node.heading_angle, 360.0);
+            if (target_heading < 0.0) {
+                target_heading += 360.0;
+            }
         }
 
         const double start_heading = NaviMath::NormalizeAngle(ctx.position->angle);

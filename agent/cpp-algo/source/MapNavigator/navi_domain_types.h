@@ -49,6 +49,7 @@ struct Waypoint
     ActionType action;
     bool has_position;
     bool strict_arrival;
+    bool heading_uses_target;
     double heading_angle;
     std::string zone_id;
 
@@ -87,6 +88,7 @@ struct Waypoint
         , action(ActionType::RUN)
         , has_position(true)
         , strict_arrival(false)
+        , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
     {
@@ -98,6 +100,7 @@ struct Waypoint
         , action(waypoint_action)
         , has_position(true)
         , strict_arrival(false)
+        , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
     {
@@ -109,7 +112,21 @@ struct Waypoint
         waypoint.action = ActionType::HEADING;
         waypoint.has_position = false;
         waypoint.strict_arrival = false;
+        waypoint.heading_uses_target = false;
         waypoint.heading_angle = angle;
+        return waypoint;
+    }
+
+    static Waypoint HeadingToTarget(double target_x, double target_y)
+    {
+        Waypoint waypoint;
+        waypoint.x = target_x;
+        waypoint.y = target_y;
+        waypoint.action = ActionType::HEADING;
+        waypoint.has_position = false;
+        waypoint.strict_arrival = false;
+        waypoint.heading_uses_target = true;
+        waypoint.heading_angle = 0.0;
         return waypoint;
     }
 
