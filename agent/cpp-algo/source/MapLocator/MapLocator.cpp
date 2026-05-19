@@ -1048,7 +1048,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         };
     }
 
-    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
+    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && !trackingResult;
     if (shouldTryDualTracking) {
         auto fallbackStrategy =
             MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
