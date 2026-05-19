@@ -36,7 +36,7 @@
             "param": {
                 "any_of": [
                     "ReceptionRoomExchangeEnd1"
-                    // "ReceptionRoomExchangeEnd2"
+                    // "ReceptionRoomExchangeEnd2" //原本识别到信用点增加也会判断命中情报交流结束,为了防止误伤先关闭
                 ]
             }
         },
