@@ -13,6 +13,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoaltclick"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/exprcoord"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
@@ -56,6 +57,7 @@ func registerAll() {
 	charactercontroller.Register()
 	falseaction.Register()
 	schedule.Register()
+	exprcoord.Register()
 
 	// Business Custom
 	autosell.Register()
