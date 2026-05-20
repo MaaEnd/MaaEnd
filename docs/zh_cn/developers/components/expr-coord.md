@@ -134,7 +134,9 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
 
 ## 与 MaaXYZ/MaaFramework#1336 的关系
 
-当上游合入相关支持并配合 `display_expand: [1280, 720]` 使用时，表达式里的 `WIDTH` / `HEIGHT` 会始终等于 `1280` / `720`；这时 ExprCoord 仍然可用，但它表达的是“扩展后坐标系”而不是原始窗口像素尺寸。
+上游 `display_expand: [1280, 720]` 按 Unity Canvas Scaler Expand 语义等比缩放截图，只保证缩放后截图的宽高都不小于参考分辨率，不保证输出尺寸固定为 `1280×720`。因此表达式里的 `WIDTH` / `HEIGHT` 表示缩放后截图的实际宽高：其中一边通常等于参考值，另一边可能因源宽高比不同而大于参考值。
+
+`display_expand` 解决的是 UI 元素像素尺寸与模板匹配的问题，不解决 UI 位置随宽高比漂移的问题；这类位置差异仍需要在 pipeline 层用 ExprCoord 这类相对 ROI/target 表达方式处理。
 
 ## 何时不该用
 
