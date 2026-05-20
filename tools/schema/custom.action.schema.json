@@ -6,6 +6,8 @@
         "custom_action": {
             "enum": [
                 "325",
+                "AspectRatioRecordResolutionAndClick",
+                "AspectRatioRestoreResolution",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoFightMainAction",
@@ -55,6 +57,10 @@
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
                 "MapTrackerMove",
+                "MpExprClick",
+                "MpExprOCRBottomStateReset",
+                "MpExprSwipe",
+                "MpExprTouchMove",
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",

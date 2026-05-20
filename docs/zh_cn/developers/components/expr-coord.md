@@ -116,17 +116,17 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
 
 ## 表达式语法
 
-| 项目 | 说明 | 示例 |
-| --- | --- | --- |
-| `+` | 加法 | `WIDTH/2+10` |
-| `-` | 减法 | `WIDTH-200` |
-| `*` | 乘法 | `WIDTH*0.5` |
-| `/` | 除法 | `HEIGHT/2` |
-| `WIDTH` | 当前截图宽度 | `WIDTH/2` |
-| `HEIGHT` | 当前截图高度 | `HEIGHT-100` |
-| `()` | 括号分组 | `(WIDTH-200)/2` |
-| 负号 | 一元负号 | `-50` |
-| 整数与小数 | 数字字面量 | `1280`、`0.5` |
+| 项目       | 说明         | 示例            |
+| ---------- | ------------ | --------------- |
+| `+`        | 加法         | `WIDTH/2+10`    |
+| `-`        | 减法         | `WIDTH-200`     |
+| `*`        | 乘法         | `WIDTH*0.5`     |
+| `/`        | 除法         | `HEIGHT/2`      |
+| `WIDTH`    | 当前截图宽度 | `WIDTH/2`       |
+| `HEIGHT`   | 当前截图高度 | `HEIGHT-100`    |
+| `()`       | 括号分组     | `(WIDTH-200)/2` |
+| 负号       | 一元负号     | `-50`           |
+| 整数与小数 | 数字字面量   | `1280`、`0.5`   |
 
 > [!TIP]
 >
@@ -155,7 +155,12 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
         "recognition": "Custom",
         "custom_recognition": "MpExprTemplateMatch",
         "custom_recognition_param": {
-            "roi": ["WIDTH-200", "0", "200", "200"],
+            "roi": [
+                "WIDTH-200",
+                "0",
+                "200",
+                "200"
+            ],
             "template": ["SceneManager/WorldMenu.png"],
             "threshold": [0.7],
             "green_mask": true
@@ -167,8 +172,16 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
         "recognition": "Custom",
         "custom_recognition": "MpExprOCR",
         "custom_recognition_param": {
-            "roi": ["WIDTH/2-100", "0", "200", "60"],
-            "expected": ["设置", "Settings"]
+            "roi": [
+                "WIDTH/2-100",
+                "0",
+                "200",
+                "60"
+            ],
+            "expected": [
+                "设置",
+                "Settings"
+            ]
         },
         "action": "DoNothing"
     },
@@ -177,8 +190,16 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
         "action": "Custom",
         "custom_action": "MpExprClick",
         "custom_action_param": {
-            "target": ["WIDTH/2", "HEIGHT/2"],
-            "target_offset": ["5", "5", "-10", "-10"]
+            "target": [
+                "WIDTH/2",
+                "HEIGHT/2"
+            ],
+            "target_offset": [
+                "5",
+                "5",
+                "-10",
+                "-10"
+            ]
         }
     },
     "MpExprSwipeExample": {
@@ -186,8 +207,14 @@ ExprCoord 只解决“坐标层”的表达方式问题，不改变底层识别�
         "action": "Custom",
         "custom_action": "MpExprSwipe",
         "custom_action_param": {
-            "begin": ["WIDTH-230", "540"],
-            "end": ["WIDTH-230", "365"],
+            "begin": [
+                "WIDTH-230",
+                "540"
+            ],
+            "end": [
+                "WIDTH-230",
+                "365"
+            ],
             "duration": 350,
             "end_hold": 100
         }
