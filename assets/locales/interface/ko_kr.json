@@ -942,12 +942,5 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중",
     "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중",
     "task.ResourceRecycleStation.focus.Found": "자원 재활용 스테이션 발견",
-    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
-    "task.SceneMpResolutionTest.label": "🧪Mp 해상도 테스트",
-    "task.SceneMpResolutionTest.description": "Mp 범용 이동으로 워치 메뉴에 진입한 뒤 설정에서 대상 해상도로 전환하는 테스트입니다.",
-    "task.SceneMpResolutionTest.option.Target.label": "대상 해상도",
-    "task.SceneMpResolutionTest.option.Target.description": "게임 설정 드롭다운에서 선택할 해상도의 OCR 매칭 표현식입니다.",
-    "task.SceneMpResolutionTest.option.Target.input.label": "대상 해상도",
-    "task.SceneMpResolutionTest.option.Target.input.description": "예: 1280.*720, 1600.*720, 1280.*1024.",
-    "task.SceneMpResolutionTest.option.Target.input.error": "1280.*720 같은 해상도 매칭 표현식을 입력하세요"
+    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다"
 }

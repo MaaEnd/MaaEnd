@@ -942,12 +942,5 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "開始收取四號谷地資源回收站",
     "task.ResourceRecycleStation.focus.LimitReached": "稀有資源已達上限，滑動查看",
     "task.ResourceRecycleStation.focus.Found": "發現資源回收站",
-    "task.ResourceRecycleStation.focus.Empty": "該地區暫無可收取資源",
-    "task.SceneMpResolutionTest.label": "🧪Mp 解析度測試",
-    "task.SceneMpResolutionTest.description": "測試 Mp 萬能跳轉到手錶選單，並進入設定將解析度切換為目標解析度。",
-    "task.SceneMpResolutionTest.option.Target.label": "目標解析度",
-    "task.SceneMpResolutionTest.option.Target.description": "要在遊戲設定下拉框中選擇的解析度 OCR 匹配表示式。",
-    "task.SceneMpResolutionTest.option.Target.input.label": "目標解析度",
-    "task.SceneMpResolutionTest.option.Target.input.description": "例如 1280.*720、1600.*720、1280.*1024。",
-    "task.SceneMpResolutionTest.option.Target.input.error": "請輸入類似 1280.*720 的解析度匹配表示式"
+    "task.ResourceRecycleStation.focus.Empty": "該地區暫無可收取資源"
 }

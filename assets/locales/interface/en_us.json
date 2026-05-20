@@ -942,12 +942,5 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
     "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
-    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
-    "task.SceneMpResolutionTest.label": "🧪Mp Resolution Test",
-    "task.SceneMpResolutionTest.description": "Tests Mp universal navigation to the watch menu, then enters settings and switches to the target resolution.",
-    "task.SceneMpResolutionTest.option.Target.label": "Target resolution",
-    "task.SceneMpResolutionTest.option.Target.description": "OCR match expression for the resolution option to select in the game settings dropdown.",
-    "task.SceneMpResolutionTest.option.Target.input.label": "Target resolution",
-    "task.SceneMpResolutionTest.option.Target.input.description": "For example: 1280.*720, 1600.*720, 1280.*1024.",
-    "task.SceneMpResolutionTest.option.Target.input.error": "Enter a resolution match expression like 1280.*720"
+    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region"
 }
