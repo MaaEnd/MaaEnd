@@ -942,5 +942,12 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "四号谷地の資源回収ステーションを収集中",
     "task.ResourceRecycleStation.focus.LimitReached": "希少資源が上限に達しました、スクロール中",
     "task.ResourceRecycleStation.focus.Found": "資源回収ステーションを発見",
-    "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません"
+    "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
+    "task.SceneMpResolutionTest.label": "🧪Mp 解像度テスト",
+    "task.SceneMpResolutionTest.description": "Mp の汎用遷移でウォッチメニューへ移動し、設定で対象解像度に切り替えるテストです。",
+    "task.SceneMpResolutionTest.option.Target.label": "対象解像度",
+    "task.SceneMpResolutionTest.option.Target.description": "ゲーム設定のドロップダウンで選択する解像度の OCR マッチ式です。",
+    "task.SceneMpResolutionTest.option.Target.input.label": "対象解像度",
+    "task.SceneMpResolutionTest.option.Target.input.description": "例: 1280.*720、1600.*720、1280.*1024。",
+    "task.SceneMpResolutionTest.option.Target.input.error": "1280.*720 のような解像度マッチ式を入力してください"
 }

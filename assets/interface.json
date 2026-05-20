@@ -23,6 +23,10 @@
             "label": "$controller.Win32-Window.label",
             "description": "$controller.Win32-Window.description",
             "type": "Win32",
+            "display_expand": [
+                1280,
+                720
+            ],
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
@@ -37,6 +41,10 @@
             "label": "$controller.Win32-Window-Background.label",
             "description": "$controller.Win32-Window-Background.description",
             "type": "Win32",
+            "display_expand": [
+                1280,
+                720
+            ],
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
@@ -51,6 +59,10 @@
             "label": "$controller.Win32-Front.label",
             "description": "$controller.Win32-Front.description",
             "type": "Win32",
+            "display_expand": [
+                1280,
+                720
+            ],
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
@@ -65,6 +77,10 @@
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",
             "type": "Adb",
+            "display_expand": [
+                1280,
+                720
+            ],
             "attach_resource_path": [
                 "./resource_adb"
             ]
@@ -72,6 +88,10 @@
         {
             "name": "PlayCover",
             "type": "PlayCover",
+            "display_expand": [
+                1280,
+                720
+            ],
             "playcover": {
                 "uuid": "maa.playcover"
             }
@@ -81,6 +101,10 @@
             "label": "$controller.Wlroots.label",
             "description": "$controller.Wlroots.description",
             "type": "WlRoots",
+            "display_expand": [
+                1280,
+                720
+            ],
             "attach_resource_path": [
                 "./resource_wlroots"
             ],
@@ -189,6 +213,7 @@
         "tasks/CreditShopping.json",
         "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/SceneMpResolutionTest.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack
