@@ -5,8 +5,25 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileGetUid",
+            "AutoStockpileEnterRegionalDevelopment",
             "AutoStockpileStart"
+        ]
+    },
+    "AutoStockpileEnterRegionalDevelopment": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopment"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoStockpileGetUid"
         ]
     },
     "AutoStockpileElasticValleyIV": {
@@ -78,14 +95,11 @@
         ]
     },
     "AutoStockpileGetUid": {
-        "enabled": false,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "CaptureUid",
-                "custom_action_param": {
-                    "stay_on_current_screen": false
-                }
+                "custom_action_param": {}
             }
         },
         "next": [

@@ -125,6 +125,9 @@
                                 "allow_data_upload": true
                             }
                         },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": true
+                        },
                         "AutoStockpileGetUid": {
                             "enabled": true
                         }
@@ -137,6 +140,9 @@
                             "attach": {
                                 "allow_data_upload": false
                             }
+                        },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": false
                         },
                         "AutoStockpileGetUid": {
                             "enabled": false
