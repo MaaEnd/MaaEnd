@@ -28,7 +28,7 @@ var (
 
 // Capture captures and hashes the player UID.
 //   - useCache: if true and cache has a UID, return cached UID immediately
-//   - stayOnCurrentScreen: if false, navigate to SceneEnterMenuList before OCR
+//   - stayOnCurrentScreen: if false, navigate to SceneEnterMenuOperationalManual before OCR
 //   - allowUnknown: if true and OCR cannot extract UID, return "unknown" instead of error
 func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool) (string, error) {
 	if useCache {
@@ -39,8 +39,8 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	}
 
 	if !stayOnCurrentScreen {
-		if _, err := ctx.RunTask("SceneEnterMenuList"); err != nil {
-			return captureErr(allowUnknown, "failed to navigate to SceneEnterMenuList: %w", err)
+		if _, err := ctx.RunTask("SceneEnterMenuOperationalManual"); err != nil {
+			return captureErr(allowUnknown, "failed to navigate to SceneEnterMenuOperationalManual: %w", err)
 		}
 	}
 
