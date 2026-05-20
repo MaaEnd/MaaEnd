@@ -17,7 +17,8 @@ const (
 
 type SlotRecord struct {
 	Slot     int    `json:"slot"`
-	ItemID   string `json:"item_id"`
+	Name     string `json:"name"`
+	ID       string `json:"id,omitempty"`
 	Discount string `json:"discount"`
 }
 
@@ -41,9 +42,15 @@ func ScanShelfSlotsPC(ctx *maa.Context, img image.Image) []SlotRecord {
 }
 
 func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect) string {
+	var ctrl *maa.Controller
+	if ctx != nil && ctx.GetTasker() != nil {
+		ctrl = ctx.GetTasker().GetController()
+	}
+	discountROI := applyROIOffset(nameBox, recordItemDiscountROIOffset(ctrl))
+	// 必须覆写 RecordItemDiscount 自身的 roi：覆写 ItemNameOCR 仍会跑完整名称链并命中第一个槽位。
 	override := map[string]any{
-		pipelineNodeItemNameOCR: map[string]any{
-			"roi": nameBox,
+		pipelineNodeRecordItemDiscount: map[string]any{
+			"roi": discountROI,
 		},
 	}
 	detail, err := ctx.RunRecognition(pipelineNodeRecordItemDiscount, img, override)

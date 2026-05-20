@@ -12,7 +12,7 @@ import (
 const (
 	shelfSnapshotFileName = "CreditShoppingShelfSnapshots.json"
 	maxSnapshotRecords    = 400
-	schemaVersion         = 1
+	schemaVersion         = 2
 )
 
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
