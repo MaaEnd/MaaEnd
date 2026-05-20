@@ -2,11 +2,11 @@
 
 This document describes the Pipeline organization, route data, terminal grouping, automatic generation mechanism, and how to onboard new observation points for the `EnvironmentMonitoring` task.
 
-The core characteristic of environment monitoring is **"data-driven + template batch generation"**: the Pipeline JSON for each observation point is not written by hand; instead, it is batch-rendered from the templates and data under `tools/pipeline-generate/EnvironmentMonitoring/` to `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool. Maintenance effort centers on **data files**, not hand-editing JSON.
+The core characteristic of environment monitoring is **"data-driven + template batch generation"**: the Pipeline JSON for each observation point is not written by hand; instead, it is batch-rendered from the templates/route config under `tools/pipeline-generate/EnvironmentMonitoring/` and the zmdmap cache under `tools/pipeline-generate/data/` to `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool. Maintenance effort centers on **generation config and cached data**, not hand-editing JSON.
 
 > [!WARNING]
 >
-> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` and `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` are **generated artifacts**. Edits to these files will be overwritten the next time generation runs. All maintenance must go through the source data under `tools/pipeline-generate/EnvironmentMonitoring/`.
+> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` and `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` are **generated artifacts**. Edits to these files will be overwritten the next time generation runs. All maintenance must go through the generation config under `tools/pipeline-generate/EnvironmentMonitoring/`, or through `pnpm fetch:zmdmap` for the zmdmap cache under `tools/pipeline-generate/data/`.
 
 ## Overview
 
@@ -28,7 +28,7 @@ The core maintenance points for environment monitoring are:
 | Route JSON Schema       | `tools/schema/environment_monitoring_routes.schema.json`                | Field constraints for `routes.json` (required keys, enum values, coordinate shapes); registered via `.vscode/settings.json` for IDE completion   |
 | Route defaults / export | `tools/pipeline-generate/EnvironmentMonitoring/routes.mjs`              | Re-exports `ROUTE_CONFIG` from `routes.json` and exports `ROUTE_DEFAULTS` (the not-adapted placeholder values)                                   |
 | Terminal list data      | `tools/pipeline-generate/EnvironmentMonitoring/terminals-data.mjs`      | Builds each terminal's `next` list from `data.mjs` rows and the automatically derived terminal list                                              |
-| Game data snapshot      | `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json`       | Official terminal/commission data from `zmdmap` (multi-language names, `shotTargetName`)                                                         |
+| Game data snapshot      | `tools/pipeline-generate/data/kite_station_i18n.json`                   | Official terminal/commission data from `zmdmap` (multi-language names, `shotTargetName`), cached by `pnpm fetch:zmdmap`                          |
 | Generator config        | `tools/pipeline-generate/EnvironmentMonitoring/config.json`             | Per-point output config: `outputPattern: "${Station}/${Id}.json"`                                                                                |
 | Terminal gen. config    | `tools/pipeline-generate/EnvironmentMonitoring/terminals-config.json`   | Merged terminal output config: `outputFile: "Terminals.json"`                                                                                    |
 | Locale strings          | `assets/locales/interface/*.json`                                       | `task.EnvironmentMonitoring.*` label / description (task level; observation-point names use OCR)                                                 |
@@ -105,7 +105,7 @@ EcologyNearTheFieldLogisticsDepot → 储备站周围的生态环境
 MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 ```
 
-By default, `Id` is derived from the corresponding task's `name["en-US"]` in `kite_station.json`, PascalCase'd via `buildDefaultId()` / `toPascalCase()` in `data.mjs`. If the English name is missing, it falls back to `missionId` / `entrustIdx`; if duplicates occur, `ensureUniqueId()` appends a suffix automatically.
+By default, `Id` is derived from the corresponding task's `name["en-US"]` in `kite_station_i18n.json`, PascalCase'd via `buildDefaultId()` / `toPascalCase()` in `data.mjs`. If the English name is missing, it falls back to `missionId` / `entrustIdx`; if duplicates occur, `ensureUniqueId()` appends a suffix automatically.
 
 When maintaining `ROUTE_CONFIG`, you **normally do not need to write `Id`**. `ROUTE_CONFIG` is matched by the Chinese `Name`; `Id` is only an internal generation field for node names and file names. Write an explicit `Id` only when you intentionally need to pin an old node name, typically when the game's official English name changed but you want to keep the old generated file name and avoid noisy renames.
 
@@ -115,14 +115,14 @@ When maintaining `ROUTE_CONFIG`, you **normally do not need to write `Id`**. `RO
 
 ### Terminal group (`Station`)
 
-Derived in `data.mjs` by `buildStationName()` from `mission.kiteStation` (or falling back to `__terminalId`), mapped to `kite_station.json[terminalId].level.name["en-US"]` and PascalCase'd. The current repository contains two groups:
+Derived in `data.mjs` by `buildStationName()` from `mission.kiteStation` (or falling back to `__terminalId`), mapped to `kite_station_i18n.json[terminalId].level.name["en-US"]` and PascalCase'd. The current repository contains two groups:
 
 | Chinese name | Station ID                      | terminalId          | `GoToMonitoringTerminal` anchor                          |
 | ------------ | ------------------------------- | ------------------- | -------------------------------------------------------- |
 | 城郊监测终端 | `OutskirtsMonitoringTerminal`   | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal`   |
 | 首墩监测终端 | `MarkerStoneMonitoringTerminal` | `kitestation_004_1` | `EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal` |
 
-When a new Station appears, **the generator side (`routes.json` + `routes.mjs` + `data.mjs`) requires zero changes**: `MONITORING_TERMINAL_IDS` is derived automatically from `kite_station.json`, and the `GoToMonitoringTerminal` anchor name is assembled via the `EnvironmentMonitoringGoTo{Station}` template. However, the following **hand-written linking nodes** referenced by the generated Pipeline must be added first, otherwise MaaFramework will report "referenced undefined task" at runtime:
+When a new Station appears, **the generator side (`routes.json` + `routes.mjs` + `data.mjs`) requires zero changes**: `MONITORING_TERMINAL_IDS` is derived automatically from `kite_station_i18n.json`, and the `GoToMonitoringTerminal` anchor name is assembled via the `EnvironmentMonitoringGoTo{Station}` template. However, the following **hand-written linking nodes** referenced by the generated Pipeline must be added first, otherwise MaaFramework will report "referenced undefined task" at runtime:
 
 1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`: add `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` and `EnvironmentMonitoringSelect{Station}MonitoringTerminal` nodes.
 2. `EnvironmentMonitoringLoop.next` in `assets/resource/pipeline/EnvironmentMonitoring.json`: add `[JumpBack]{Station}MonitoringTerminal`.
@@ -143,20 +143,20 @@ When a new Station appears, **the generator side (`routes.json` + `routes.mjs` +
 }
 ```
 
-`data.mjs`'s default export is an array; each element is the render context for one observation point (field names map to `${Xxx}` placeholders in `template.json`). It reads the manually maintained `ROUTE_CONFIG` (the underlying data lives in `routes.json` next to `routes.mjs`) / `ROUTE_DEFAULTS` from `routes.mjs` and assembles each row together with `kite_station.json`:
+`data.mjs`'s default export is an array; each element is the render context for one observation point (field names map to `${Xxx}` placeholders in `template.json`). It reads the manually maintained `ROUTE_CONFIG` (the underlying data lives in `routes.json` next to `routes.mjs`) / `ROUTE_DEFAULTS` from `routes.mjs` and assembles each row together with `kite_station_i18n.json`:
 
 | Field                                  | Source                                                                                                                                                                               |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Station`                              | English terminal name from `kite_station.json` (PascalCase)                                                                                                                          |
+| `Station`                              | English terminal name from `kite_station_i18n.json` (PascalCase)                                                                                                                     |
 | `Id`                                   | Generated from the official English name by default; overridden only when `ROUTE_CONFIG[*].Id` is explicitly provided                                                                |
-| `Name`                                 | `name["zh-CN"]` from `kite_station.json`, special characters stripped; `ROUTE_CONFIG` is also matched by this Chinese name                                                           |
+| `Name`                                 | `name["zh-CN"]` from `kite_station_i18n.json`, special characters stripped; `ROUTE_CONFIG` is also matched by this Chinese name                                                      |
 | `GoToMonitoringTerminal`               | Determined by `Station`                                                                                                                                                              |
 | `EnterMap`                             | `ROUTE_CONFIG[*].EnterMap`; **must be an existing SceneManager node name**                                                                                                           |
 | `MapName` / `MapTarget` / `MapPath`    | `ROUTE_CONFIG[*]`; maps to `MapTrackerMove` / `MapTrackerAssertLocation` parameters                                                                                                  |
 | `CameraSwipeDirection`                 | `ROUTE_CONFIG[*]`; must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`                                                                                             |
 | `CameraMaxHit`                         | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe                                      |
-| `ExpectedText`                         | Expanded automatically from `mission.name` multi-language map in `kite_station.json` (5 languages, English converted to a flexible regex)                                            |
-| `InExpectedText`                       | Expanded from `mission.shotTargetName` in `kite_station.json`                                                                                                                        |
+| `ExpectedText`                         | Expanded automatically from `mission.name` multi-language map in `kite_station_i18n.json` (5 languages, English converted to a flexible regex)                                       |
+| `InExpectedText`                       | Expanded from `mission.shotTargetName` in `kite_station_i18n.json`                                                                                                                   |
 | `TrackOrGoToNext` / `AfterTrackedNext` | Decided automatically by `data.mjs`: `TrackOrGoToNext` fans out to `Track${Id}` / `AlreadyTracked${Id}`; `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` otherwise |
 
 ### Terminal groups: `terminals-config.json`
@@ -180,7 +180,10 @@ When a new Station appears, **the generator side (`routes.json` + `routes.mjs` +
 # Recommended: run from the repository root
 pnpm generate:EnvironmentMonitoring
 
-# Equivalent to running in tools/pipeline-generate/EnvironmentMonitoring/:
+# Only update the zmdmap cache
+pnpm fetch:zmdmap
+
+# If the zmdmap cache is already current, you can render only the generated files from tools/pipeline-generate/EnvironmentMonitoring/:
 
 # 1) Render all observation-point Pipelines
 npx @joebao/maa-pipeline-generate
@@ -216,7 +219,7 @@ The main entry node `EnvironmentMonitoringMain` enters the terminal selection sc
 
 ## Adding a new observation point
 
-New observation points generally come from game updates, reflected as additional `mission` entries in `kite_station.json`. Maintenance flow:
+New observation points generally come from game updates, reflected as additional `mission` entries in `kite_station_i18n.json`. Maintenance flow:
 
 > [!TIP]
 >
@@ -224,11 +227,11 @@ New observation points generally come from game updates, reflected as additional
 
 ### 1. Update game data
 
-Replace `tools/pipeline-generate/EnvironmentMonitoring/kite_station.json` with the latest version (source: `zmdmap`).
+Run `pnpm fetch:zmdmap` to download and cache the latest `tools/pipeline-generate/data/kite_station_i18n.json` from the zmdmap API.
 
 ### 2. Check route adaptation status
 
-Compare `entrustTasks` in `kite_station.json` against entries in `routes.json` and confirm each observation point's status. Matching is done by normalized Chinese `Name`, not by `Id`:
+Compare `entrustTasks` in `kite_station_i18n.json` against entries in `routes.json` and confirm each observation point's status. Matching is done by normalized Chinese `Name`, not by `Id`:
 
 - **Not adapted**: the observation point has no entry in `routes.json`, or the entry is missing any required field (including `null` / empty string / empty array) → after generation, it only accepts and tracks.
 - **Ready to adapt**: the observation point should automatically travel and take the photo → proceed to step 3 and fill real route data.
@@ -243,7 +246,7 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
 
 ```jsonc
 {
-    "Name": "我的新观察点",                  // must match zh-CN name in kite_station.json (after stripping special characters)
+    "Name": "我的新观察点",                  // must match zh-CN name in kite_station_i18n.json (after stripping special characters)
     "EnterMap": "SceneEnterWorldWulingXxx", // existing teleport node in SceneManager
     "MapName": "map02_lv001",               // MapTracker minimap identifier
     "MapTarget": [x, y, w, h],              // target rectangle (minimap coordinates)
@@ -258,7 +261,7 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
 >
 > `routes.json` is strict JSON: double quotes only, no inline comments, no trailing commas. The `//` lines above are documentation hints — they will break parsing if pasted verbatim. `ROUTE_DEFAULTS` still lives in (and is exported from) `routes.mjs`.
 >
-> `Name` is the matching key used internally by `data.mjs`'s `normalizeMissionName()`; it is compared against `mission.name["zh-CN"]` in `kite_station.json` with symbols stripped and lowercased. If the match fails, the override in `routes.json` will not take effect and the point is treated as not adapted. `Id` is not the matching key, so do not add it by default for new observation points.
+> `Name` is the matching key used internally by `data.mjs`'s `normalizeMissionName()`; it is compared against `mission.name["zh-CN"]` in `kite_station_i18n.json` with symbols stripped and lowercased. If the match fails, the override in `routes.json` will not take effect and the point is treated as not adapted. `Id` is not the matching key, so do not add it by default for new observation points.
 
 ### 4. Record coordinates and path
 
@@ -304,7 +307,7 @@ If the observation point's official English name changes, the generated `Id` / f
 Before committing, at minimum verify:
 
 1. New/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` have all required fields.
-2. The `Name` of each new entry matches `mission.name["zh-CN"]` in `kite_station.json`; do not add `Id` by default for new points.
+2. The `Name` of each new entry matches `mission.name["zh-CN"]` in `kite_station_i18n.json`; do not add `Id` by default for new points.
 3. Adapted entries have real `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values (not `ROUTE_DEFAULTS` placeholders defined in `routes.mjs`).
 4. The regenerated `Terminals.json` has `[JumpBack]{Id}Job` for every new point in each `{Station}MonitoringTerminalLoop.next` list, ending with `EnvironmentMonitoringFinish`.
 5. The `Scene*` node referenced by `EnterMap` actually exists under `assets/resource/pipeline/SceneManager/` and `Interface/`.
@@ -314,10 +317,10 @@ Before committing, at minimum verify:
 
 ## Common pitfalls
 
-- **Hand-editing generated artifacts**: Directly editing `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` or `Terminals.json` will lose changes on the next generation run. Edit source data and regenerate.
-- **`Name` does not match game text**: the `Name` in a `routes.json` entry is only used internally in `data.mjs` to match `mission.name["zh-CN"]` in `kite_station.json`. It is not display text or an OCR expectation. A mismatch emits a `console.warn` and treats the point as not adapted (accept and track only).
+- **Hand-editing generated artifacts**: Directly editing `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` or `Terminals.json` will lose changes on the next generation run. Edit generation config / update the zmdmap cache, then regenerate.
+- **`Name` does not match game text**: the `Name` in a `routes.json` entry is only used internally in `data.mjs` to match `mission.name["zh-CN"]` in `kite_station_i18n.json`. It is not display text or an OCR expectation. A mismatch emits a `console.warn` and treats the point as not adapted (accept and track only).
 - **Treating `Id` as required**: new observation points normally should not write `Id`. Add `Id` only when you need to pin an old node/file name.
-- **`Id` drifts from `kite_station.json` English name**: When the game renames an item in English, the auto-computed `Id` changes, which can cause generated file renames or stale old files. Add `"Id"` to the `routes.json` entry explicitly if you want to keep the old name.
+- **`Id` drifts from `kite_station_i18n.json` English name**: When the game renames an item in English, the auto-computed `Id` changes, which can cause generated file renames or stale old files. Add `"Id"` to the `routes.json` entry explicitly if you want to keep the old name.
 - **`EnterMap` references a non-existent Scene node**: The generator does not validate this; at runtime the task will loop indefinitely at `GoTo{Id}NotAtStartPos`.
 - **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.

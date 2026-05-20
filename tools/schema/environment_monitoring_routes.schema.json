@@ -20,7 +20,7 @@
             "Name": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点中文名，用于在 data.mjs 中匹配 kite_station.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
+                "description": "观察点中文名，用于在 data.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
             },
             "EnterMap": {
                 "type": "string",
@@ -91,7 +91,7 @@
             "Id": {
                 "type": "string",
                 "pattern": "^[A-Za-z][A-Za-z0-9]*$",
-                "description": "可选；默认从 kite_station.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
+                "description": "可选；默认从 zmdmap 缓存数据 kite_station_i18n.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
             },
             "NoEnsureInitialMovementState": {
                 "type": "boolean",

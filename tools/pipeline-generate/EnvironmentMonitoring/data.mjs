@@ -1,16 +1,28 @@
-import {createRequire} from "module";
+import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
+import {dataDir} from "../utils/paths.mjs";
 import {ROUTE_CONFIG, ROUTE_DEFAULTS} from "./routes.mjs";
 
-const require = createRequire(import.meta.url);
-const kiteStationData = require("./kite_station.json");
+function readKiteStationData() {
+    try {
+        return JSON.parse(readFileSync(resolve(dataDir, "kite_station_i18n.json"), "utf8"));
+    } catch {
+        console.error(
+            "[EnvironmentMonitoring] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:EnvironmentMonitoring 以获取最新数据",
+        );
+        process.exit(1);
+    }
+}
 
-// 监测终端 ID 列表直接从 kite_station.json 派生：凡是带有 entrustTasks 的条目都算。
+export const kiteStationData = readKiteStationData();
+
+// 监测终端 ID 列表直接从 zmdmap 缓存数据派生：凡是带有 entrustTasks 的条目都算。
 // 上游游戏数据若新增监测终端会自动包含；新终端要真正可用还需手动补 Pipeline 侧的联动节点
 // （Locations.json / EnvironmentMonitoringLoop.next 等），详见 docs 维护手册。
 export const MONITORING_TERMINAL_IDS = Object.keys(kiteStationData)
     .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
     .sort();
-// 与 kite_station.json 中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
+// 与 zmdmap 数据中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
 const LOCALES = [
     "zh-CN",
     "zh-TW",
@@ -142,10 +154,10 @@ const ROUTE_OVERRIDE_BY_NAME = new Map(
 function buildStationName(terminalId) {
     const stationEnglishName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
     if (!stationEnglishName) {
-        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 kite_station.json 主键脱节，
+        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 zmdmap 数据主键脱节，
         // 直接 PascalCase terminalId 容易得到中文/纯数字串这种诡异结果。打个 warn 让维护者尽早发现。
         console.warn(
-            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 kite_station.json 是否同步。`,
+            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 zmdmap 缓存数据是否同步。`,
         );
     }
     return toPascalCase(stationEnglishName || terminalId) || terminalId;
