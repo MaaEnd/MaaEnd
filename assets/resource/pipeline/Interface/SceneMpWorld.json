@@ -51,6 +51,23 @@
             "[JumpBack]SceneMpEnterSettings"
         ]
     },
+    "SceneMpSetResolution1280x720": {
+        "desc": "【Mp】尝试记录当前分辨率并切换到 1280x720",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneMpSetResolutionTarget"
+        ]
+    },
+    "SceneMpRestoreResolution": {
+        "desc": "【Mp】尝试还原记录的游戏分辨率",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AspectRatioRestoreResolution",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SceneMpWaitLoadingExit": {
         "desc": "【Mp】判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
         "recognition": "Custom",

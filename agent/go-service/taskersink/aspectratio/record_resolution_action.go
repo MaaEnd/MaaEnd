@@ -18,8 +18,10 @@ var _ maa.CustomActionRunner = &RecordResolutionAndClickAction{}
 var resolutionPattern = regexp.MustCompile(`(?i)(\d{3,4})\D+(\d{3,4})`)
 
 type recordResolutionAndClickParam struct {
-	OCRROI []any `json:"ocr_roi"`
-	Target []any `json:"target"`
+	OCRROI        []any    `json:"ocr_roi"`
+	Target        []any    `json:"target"`
+	LabelROI      []any    `json:"label_roi,omitempty"`
+	LabelExpected []string `json:"label_expected,omitempty"`
 }
 
 // RecordResolutionAndClickAction records the current resolution before opening the dropdown.
@@ -34,7 +36,8 @@ func (a *RecordResolutionAndClickAction) Run(ctx *maa.Context, arg *maa.CustomAc
 
 	controller := ctx.GetTasker().GetController()
 	recordOriginal := defaultChecker != nil && defaultChecker.shouldRecordOriginalResolution()
-	w, h, img, ok := actionImageSize(controller, recordOriginal)
+	requireImage := recordOriginal || len(params.LabelROI) > 0
+	w, h, img, ok := actionImageSize(controller, requireImage)
 	if !ok {
 		log.Error().Str("component", "AspectRatioRecordResolutionAndClick").Msg("failed to get image size")
 		return false
@@ -64,6 +67,17 @@ func (a *RecordResolutionAndClickAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	if err != nil {
 		log.Error().Err(err).Str("component", "AspectRatioRecordResolutionAndClick").Msg("failed to resolve target")
 		return false
+	}
+	if len(params.LabelROI) > 0 {
+		labelY, ok := actionBoxCenterY(arg.Box)
+		if !ok {
+			labelY, ok = recognizeLabelCenterY(ctx, img, params.LabelROI, params.LabelExpected, w, h)
+		}
+		if !ok {
+			log.Warn().Str("component", "AspectRatioRecordResolutionAndClick").Msg("failed to align target with label")
+			return false
+		}
+		target[1] = labelY - target.Height()/2
 	}
 
 	_, err = ctx.RunActionDirect(maa.ActionTypeClick, &maa.ClickParam{Target: maa.NewTargetRect(target)}, target, nil)
@@ -112,6 +126,33 @@ func recognizeResolution(ctx *maa.Context, img image.Image, roi maa.Rect) (strin
 		}
 	}
 	return "", 0, 0, false
+}
+
+func actionBoxCenterY(box maa.Rect) (int, bool) {
+	if box.Width() <= 0 || box.Height() <= 0 {
+		return 0, false
+	}
+	return box.Y() + box.Height()/2, true
+}
+
+func recognizeLabelCenterY(ctx *maa.Context, img image.Image, rawROI []any, expected []string, w, h int) (int, bool) {
+	roi, err := exprcoord.ResolveRect(rawROI, w, h)
+	if err != nil {
+		log.Warn().Err(err).Str("component", "AspectRatioRecordResolutionAndClick").Msg("failed to resolve label_roi")
+		return 0, false
+	}
+	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, maa.OCRParam{
+		ROI:      maa.NewTargetRect(roi),
+		Expected: expected,
+	}, img)
+	if err != nil || detail == nil || !detail.Hit {
+		if err != nil {
+			log.Warn().Err(err).Str("component", "AspectRatioRecordResolutionAndClick").Msg("label OCR failed")
+		}
+		return 0, false
+	}
+	box := detail.Box
+	return box.Y() + box.Height()/2, true
 }
 
 func resolutionTexts(detail *maa.RecognitionDetail) []string {

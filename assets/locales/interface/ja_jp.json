@@ -942,5 +942,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "四号谷地の資源回収ステーションを収集中",
     "task.ResourceRecycleStation.focus.LimitReached": "希少資源が上限に達しました、スクロール中",
     "task.ResourceRecycleStation.focus.Found": "資源回収ステーションを発見",
-    "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません"
+    "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
+    "task.SceneMpSetResolution1280x720.label": "🛠️ 解像度調整",
+    "task.SceneMpSetResolution1280x720.description": "要件を満たさないウィンドウ用の準備です。現在の解像度を記録し、必要なら全画面を解除して 1280×720 へ切り替えます。まとめて実行する場合は先頭に置いてください。",
+    "task.SceneMpRestoreResolution.label": "↩️ 解像度復元",
+    "task.SceneMpRestoreResolution.description": "「解像度調整」が記録した元の解像度と全画面状態を復元します。まとめて実行する場合は末尾に置いてください。"
 }

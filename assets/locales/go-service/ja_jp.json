@@ -122,7 +122,7 @@
     "tasker.aspect_ratio.restore_done": "元の解像度 %dx%d に戻しました",
     "tasker.aspect_ratio_warning.title": "🚨 警告：解像度が要件を満たしていません！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 タスクを強制停止しました",
-    "tasker.aspect_ratio_warning.desc": "💡 解像度を調整してから再実行してください。",
+    "tasker.aspect_ratio_warning.desc": "💡 現在のウィンドウ解像度ではタスクを直接実行できません。",
     "tasker.aspect_ratio_warning.controller_label": "現在のコントローラー：",
     "tasker.aspect_ratio_warning.current_resolution": "現在の解像度：",
     "tasker.aspect_ratio_warning.requirement_label": "必要条件：",
@@ -146,5 +146,7 @@
     "schedule.weekday_thursday": "木曜日",
     "schedule.weekday_friday": "金曜日",
     "schedule.weekday_saturday": "土曜日",
-    "schedule.weekday_sunday": "日曜日"
+    "schedule.weekday_sunday": "日曜日",
+    "tasker.aspect_ratio.restore_skip": "元の解像度が記録されていないため、復元をスキップします",
+    "tasker.aspect_ratio_warning.queue_hint": "🛠️ 自動で処理する場合は、「解像度調整」をタスクキューの先頭に、「解像度復元」を末尾に置いてください。"
 }

@@ -942,5 +942,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중",
     "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중",
     "task.ResourceRecycleStation.focus.Found": "자원 재활용 스테이션 발견",
-    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다"
+    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
+    "task.SceneMpSetResolution1280x720.label": "🛠️ 해상도 조정",
+    "task.SceneMpSetResolution1280x720.description": "조건을 만족하지 않는 창을 준비합니다. 현재 게임 해상도를 기록하고, 필요하면 전체 화면을 해제한 뒤 1280×720으로 전환을 시도합니다. 일괄 실행 시 맨 위에 두세요.",
+    "task.SceneMpRestoreResolution.label": "↩️ 해상도 복원",
+    "task.SceneMpRestoreResolution.description": "“해상도 조정”이 기록한 원래 해상도와 전체 화면 상태를 복원합니다. 일괄 실행 시 맨 아래에 두세요."
 }

@@ -1,0 +1,32 @@
+{
+    "task": [
+        {
+            "name": "SceneMpSetResolution1280x720",
+            "label": "$task.SceneMpSetResolution1280x720.label",
+            "description": "$task.SceneMpSetResolution1280x720.description",
+            "entry": "SceneMpSetResolution1280x720",
+            "controller": [
+                "Win32-Window",
+                "Win32-Window-Background",
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        },
+        {
+            "name": "SceneMpRestoreResolution",
+            "label": "$task.SceneMpRestoreResolution.label",
+            "description": "$task.SceneMpRestoreResolution.description",
+            "entry": "SceneMpRestoreResolution",
+            "controller": [
+                "Win32-Window",
+                "Win32-Window-Background",
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ]
+}

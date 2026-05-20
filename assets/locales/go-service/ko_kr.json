@@ -122,7 +122,7 @@
     "tasker.aspect_ratio.restore_done": "원래 해상도 %dx%d로 복원했습니다",
     "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도가 요구 사항을 만족하지 않습니다! 🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 작업이 강제로 중지되었습니다",
-    "tasker.aspect_ratio_warning.desc": "💡 해상도를 조정한 뒤 다시 실행해 주세요.",
+    "tasker.aspect_ratio_warning.desc": "💡 현재 창 해상도는 작업을 바로 실행하기에 적합하지 않습니다.",
     "tasker.aspect_ratio_warning.controller_label": "현재 컨트롤러:",
     "tasker.aspect_ratio_warning.current_resolution": "현재 해상도:",
     "tasker.aspect_ratio_warning.requirement_label": "요구 사항:",
@@ -146,5 +146,7 @@
     "schedule.weekday_thursday": "목요일",
     "schedule.weekday_friday": "금요일",
     "schedule.weekday_saturday": "토요일",
-    "schedule.weekday_sunday": "일요일"
+    "schedule.weekday_sunday": "일요일",
+    "tasker.aspect_ratio.restore_skip": "기록된 원래 해상도가 없어 복원을 건너뜁니다",
+    "tasker.aspect_ratio_warning.queue_hint": "🛠️ 자동으로 처리하려면 “해상도 조정”을 작업 대기열 맨 위에, “해상도 복원”을 맨 아래에 두세요."
 }

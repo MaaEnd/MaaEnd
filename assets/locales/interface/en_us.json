@@ -942,5 +942,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
     "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
-    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region"
+    "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
+    "task.SceneMpSetResolution1280x720.label": "🛠️ Set resolution",
+    "task.SceneMpSetResolution1280x720.description": "Prepares an unsupported window: records the current game resolution, exits fullscreen if needed, and tries to switch to 1280×720. Put this at the top of a batch.",
+    "task.SceneMpRestoreResolution.label": "↩️ Restore resolution",
+    "task.SceneMpRestoreResolution.description": "Restores the resolution and fullscreen state recorded by “Set resolution”. Put this at the bottom of a batch."
 }

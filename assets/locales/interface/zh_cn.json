@@ -942,5 +942,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站",
     "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看",
     "task.ResourceRecycleStation.focus.Found": "发现资源回收站",
-    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源"
+    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源",
+    "task.SceneMpSetResolution1280x720.label": "🛠️ 调分辨率",
+    "task.SceneMpSetResolution1280x720.description": "为不符合要求的窗口做准备：记录当前游戏分辨率，必要时退出全屏，并尝试切到 1280×720。批量运行时建议放在最上面。",
+    "task.SceneMpRestoreResolution.label": "↩️ 还原分辨率",
+    "task.SceneMpRestoreResolution.description": "把“调分辨率”记录的原分辨率和全屏状态还原回来。批量运行时建议放在最下面。"
 }

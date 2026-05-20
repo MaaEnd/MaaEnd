@@ -213,6 +213,7 @@
         "tasks/CreditShopping.json",
         "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/SceneMpResolution.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack

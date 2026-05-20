@@ -13,42 +13,32 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/maa-framework-go/v4"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	// Target aspect ratio: 16:9
-	targetRatio = 16.0 / 9.0
-	// Tolerance for aspect ratio comparison (±2%)
+	targetRatio  = 16.0 / 9.0
 	tolerance    = 0.02
 	targetWidth  = 1280
 	targetHeight = 720
 
-	// MaaTaskerPostStop is the synthetic entry name that fires after Tasker.PostStop().
-	entryPostStop = "MaaTaskerPostStop"
-
+	entryPostStop                   = "MaaTaskerPostStop"
+	entrySceneMpSetResolution1280   = "SceneMpSetResolution1280x720"
+	entrySceneMpRestoreResolution   = "SceneMpRestoreResolution"
 	entrySceneMpSetResolutionTarget = "SceneMpSetResolutionTarget"
 	nodeSceneMpResolutionSelect     = "__ScenePrivateMpSettingsResolutionSelectTarget"
 
-	// Wait time after Alt+Enter is dispatched for the game to actually swap
-	// between fullscreen and windowed mode. Most engines need a few hundred ms
-	// to recreate the swap chain.
 	fullscreenToggleSettleDelay = 1500 * time.Millisecond
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution.
-// For Win32 controllers, fullscreen mode is switched to windowed mode via Alt+Enter
-// before re-checking the aspect ratio.
 type AspectRatioChecker struct {
 	mu                     sync.Mutex
-	fullscreenToggled      bool
-	targetHWnd             uintptr
-	pendingSet720TaskID    uint64
 	adjustingResolution    bool
 	restoringResolution    bool
-	adjustedTo720          bool
-	adjustedTaskID         uint64
+	fullscreenToggled      bool
+	targetHWnd             uintptr
 	originalResolutionText string
 	originalWidth          int
 	originalHeight         int
@@ -57,34 +47,22 @@ type AspectRatioChecker struct {
 var _ maa.TaskerEventSink = &AspectRatioChecker{}
 var _ maa.ContextEventSink = &AspectRatioChecker{}
 
-// OnTaskerTask handles tasker task events
+// OnTaskerTask handles tasker task events.
 func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
-	// PostStop entry is a synthetic task posted by Tasker::post_stop() (see
-	// MaaFramework/source/MaaFramework/Tasker/Tasker.cpp). It fires only on
-	// explicit `PostStop()` calls — manual stop from the client, or
-	// programmatic stop via `stopWithWarning`.
 	if detail.Entry == entryPostStop {
-		c.handlePostStop(tasker, detail, true)
+		log.Debug().Msg("Received PostStop event, skipping aspect ratio check")
 		return
 	}
 
-	if c.isAdjustingResolution() {
+	if detail.Entry == entrySceneMpSetResolution1280 {
+		c.handleSetResolutionTaskEvent(tasker, event, detail)
+		return
+	}
+	if detail.Entry == entrySceneMpRestoreResolution {
 		return
 	}
 
-	switch event {
-	case maa.EventStatusStarting:
-	case maa.EventStatusSucceeded, maa.EventStatusFailed:
-		if c.shouldRestoreAfterTask(detail.TaskID) {
-			log.Warn().
-				Uint64("task_id", detail.TaskID).
-				Str("entry", detail.Entry).
-				Msg("Task ended before original resolution was restored")
-			return
-		}
-		c.restoreFullscreen(detail)
-		return
-	default:
+	if event != maa.EventStatusStarting || c.isResolutionTaskRunning() {
 		return
 	}
 
@@ -157,125 +135,70 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Float64("target_ratio", targetRatio).
 		Msg("Using aspect ratio check for non-ADB controller")
 
-	if isAspectRatio16x9(int(width), int(height)) {
-		log.Debug().
-			Uint64("task_id", detail.TaskID).
-			Str("entry", detail.Entry).
-			Str("controller_name", pienv.ControllerName()).
-			Str("controller_type", controlType).
-			Str("requirement", "aspect_ratio").
-			Int32("width", width).
-			Int32("height", height).
-			Str("mode", "aspect_ratio_only").
-			Msg("resolution check passed")
+	if !isAspectRatio16x9(int(width), int(height)) {
+		c.warnAndStop(tasker, controllerDisplay, controlType, detail, int(width), int(height))
 		return
 	}
 
-	if controlType == control.CONTROL_TYPE_WIN32 {
-		if !c.alreadyToggledFullscreen() {
-			if newW, newH, ok := c.switchFullscreenToWindowedAndRead(controller, detail); ok {
-				width, height = newW, newH
-				if isAspectRatio16x9(int(width), int(height)) {
-					log.Info().
-						Uint64("task_id", detail.TaskID).
-						Str("entry", detail.Entry).
-						Int32("width", width).
-						Int32("height", height).
-						Msg("Resolution check passed after switching fullscreen to windowed mode")
-					return
-				}
-			}
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Str("controller_name", pienv.ControllerName()).
+		Str("controller_type", controlType).
+		Str("requirement", "aspect_ratio").
+		Int32("width", width).
+		Int32("height", height).
+		Str("mode", "aspect_ratio_only").
+		Msg("resolution check passed")
+}
+
+func (c *AspectRatioChecker) handleSetResolutionTaskEvent(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
+	switch event {
+	case maa.EventStatusStarting:
+		c.setAdjustingResolution(true)
+		controller := tasker.GetController()
+		if controller == nil {
+			log.Warn().Uint64("task_id", detail.TaskID).Msg("Failed to get controller for fullscreen switch")
+			return
 		}
-		c.markPendingSet720(detail.TaskID)
-		log.Warn().
-			Uint64("task_id", detail.TaskID).
-			Str("entry", detail.Entry).
-			Str("controller_name", pienv.ControllerName()).
-			Str("controller_type", controlType).
-			Int32("width", width).
-			Int32("height", height).
-			Msg("Win32 resolution check failed, scheduling SceneMp resolution adjustment")
-		return
+		c.switchFullscreenToWindowed(controller, detail)
+	case maa.EventStatusSucceeded, maa.EventStatusFailed:
+		c.setAdjustingResolution(false)
 	}
-
-	c.warnAndStop(tasker, controllerDisplay, controlType, detail, int(width), int(height))
 }
 
-// handlePostStop restores fullscreen mode after a tasker stop.
-func (c *AspectRatioChecker) handlePostStop(_ *maa.Tasker, detail maa.TaskerTaskDetail, _ bool) {
-	if c.hasPendingOriginalResolution() {
-		log.Warn().
-			Uint64("task_id", detail.TaskID).
-			Msg("No active context available; skip original resolution restore")
-	}
-	c.restoreFullscreen(detail)
-}
-
-func (c *AspectRatioChecker) restoreFullscreen(detail maa.TaskerTaskDetail) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if !c.fullscreenToggled || c.targetHWnd == 0 {
-		log.Debug().
-			Uint64("task_id", detail.TaskID).
-			Str("entry", detail.Entry).
-			Msg("No fullscreen state to restore")
-		return
-	}
-
-	if err := SendAltEnter(c.targetHWnd); err != nil {
-		log.Warn().Err(err).Uint64("task_id", detail.TaskID).Msg("Failed to send Alt+Enter to restore fullscreen")
-	} else {
-		log.Info().Uint64("task_id", detail.TaskID).Msg("Sent Alt+Enter to restore fullscreen")
-	}
-
-	c.fullscreenToggled = false
-	c.targetHWnd = 0
-}
-
-func (c *AspectRatioChecker) restoreOriginalResolution(ctx *maa.Context, taskID uint64) {
-	width, height, ok := c.beginRestoreOriginalResolution(taskID, false)
+func (c *AspectRatioChecker) restoreOriginalResolution(ctx *maa.Context) bool {
+	width, height, ok := c.beginRestoreOriginalResolution()
 	if !ok {
-		return
+		maafocus.Print(ctx, i18n.T("tasker.aspect_ratio.restore_skip"))
+		log.Info().Msg("No original resolution recorded, skipping restore")
+		c.restoreFullscreen(maa.TaskerTaskDetail{Entry: entrySceneMpRestoreResolution})
+		return true
 	}
 	defer c.finishRestoreOriginalResolution()
 
 	maafocus.Print(ctx, i18n.T("tasker.aspect_ratio.restore_start", width, height))
 	taskDetail, err := ctx.RunTask(entrySceneMpSetResolutionTarget, buildResolutionOverride(width, height))
 	if err != nil {
-		log.Warn().
-			Err(err).
-			Uint64("task_id", taskID).
-			Int("width", width).
-			Int("height", height).
-			Msg("Failed to run original resolution restore task")
-		return
+		log.Warn().Err(err).Int("width", width).Int("height", height).Msg("Failed to run original resolution restore task")
+		return false
 	}
 	if taskDetail == nil || !taskDetail.Status.Success() {
 		status := "unknown"
 		if taskDetail != nil {
 			status = taskDetail.Status.String()
 		}
-		log.Warn().
-			Uint64("task_id", taskID).
-			Str("status", status).
-			Int("width", width).
-			Int("height", height).
-			Msg("Original resolution restore task failed")
-		return
+		log.Warn().Str("status", status).Int("width", width).Int("height", height).Msg("Original resolution restore task failed")
+		return false
 	}
 
 	c.clearOriginalResolution()
 	maafocus.Print(ctx, i18n.T("tasker.aspect_ratio.restore_done", width, height))
-	log.Info().
-		Uint64("task_id", taskID).
-		Int("width", width).
-		Int("height", height).
-		Msg("Original resolution restored")
-	c.restoreFullscreen(maa.TaskerTaskDetail{TaskID: taskID, Entry: entrySceneMpSetResolutionTarget})
+	log.Info().Int("width", width).Int("height", height).Msg("Original resolution restored")
+	c.restoreFullscreen(maa.TaskerTaskDetail{Entry: entrySceneMpRestoreResolution})
+	return true
 }
 
-// handleADB handles the ADB-controller exact-resolution check (original behavior).
 func (c *AspectRatioChecker) handleADB(tasker *maa.Tasker, detail maa.TaskerTaskDetail, controlType, controllerDisplay string, width, height int32) {
 	requirement := i18n.T("tasker.aspect_ratio_warning.requirement_exact", targetWidth, targetHeight)
 	log.Debug().
@@ -324,7 +247,6 @@ func (c *AspectRatioChecker) handleADB(tasker *maa.Tasker, detail maa.TaskerTask
 	c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), requirement)
 }
 
-// warnAndStop emits the standard 16:9-required warning and stops the tasker.
 func (c *AspectRatioChecker) warnAndStop(tasker *maa.Tasker, controllerDisplay, controlType string, detail maa.TaskerTaskDetail, width, height int) {
 	actualRatio := calculateAspectRatio(width, height)
 	log.Error().
@@ -341,44 +263,30 @@ func (c *AspectRatioChecker) warnAndStop(tasker *maa.Tasker, controllerDisplay, 
 		Str("mode", "aspect_ratio_only").
 		Msg("resolution check failed")
 	fullScreen, _ := gamesetting.GetVideoFullScreen()
+	queueHint := i18n.T("tasker.aspect_ratio_warning.queue_hint")
 	if fullScreen == 1 {
-		c.stopWithWarning(tasker, controllerDisplay, width, height, i18n.T("tasker.aspect_ratio_warning.full_screen_illegal"))
+		c.stopWithWarning(tasker, controllerDisplay, width, height, i18n.T("tasker.aspect_ratio_warning.full_screen_illegal"), queueHint)
 	} else {
-		c.stopWithWarning(tasker, controllerDisplay, width, height, i18n.T("tasker.aspect_ratio_warning.requirement_ratio"))
+		c.stopWithWarning(tasker, controllerDisplay, width, height, i18n.T("tasker.aspect_ratio_warning.requirement_ratio"), queueHint)
 	}
 }
 
-func (c *AspectRatioChecker) alreadyToggledFullscreen() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.fullscreenToggled
-}
-
-func (c *AspectRatioChecker) switchFullscreenToWindowedAndRead(controller *maa.Controller, detail maa.TaskerTaskDetail) (int32, int32, bool) {
+func (c *AspectRatioChecker) switchFullscreenToWindowed(controller *maa.Controller, detail maa.TaskerTaskDetail) {
 	fs, ferr := gamesetting.GetVideoFullScreen()
 	if ferr != nil || fs != 1 {
-		return 0, 0, false
+		return
 	}
 
 	hwnd, err := getWin32HWnd(controller)
 	if err != nil {
-		log.Warn().
-			Err(err).
-			Uint64("task_id", detail.TaskID).
-			Msg("Cannot resolve Win32 HWND from controller info; skip fullscreen toggle")
-		return 0, 0, false
+		log.Warn().Err(err).Uint64("task_id", detail.TaskID).Msg("Cannot resolve Win32 HWND from controller info; skip fullscreen toggle")
+		return
 	}
 
-	log.Info().
-		Uint64("task_id", detail.TaskID).
-		Uint64("hwnd", uint64(hwnd)).
-		Msg("Game is in fullscreen; sending Alt+Enter to switch to windowed mode")
+	log.Info().Uint64("task_id", detail.TaskID).Uint64("hwnd", uint64(hwnd)).Msg("Game is in fullscreen; sending Alt+Enter to switch to windowed mode")
 	if err := SendAltEnter(hwnd); err != nil {
-		log.Warn().
-			Err(err).
-			Uint64("task_id", detail.TaskID).
-			Msg("Failed to send Alt+Enter to switch fullscreen to windowed mode")
-		return 0, 0, false
+		log.Warn().Err(err).Uint64("task_id", detail.TaskID).Msg("Failed to send Alt+Enter to switch fullscreen to windowed mode")
+		return
 	}
 
 	c.mu.Lock()
@@ -388,19 +296,46 @@ func (c *AspectRatioChecker) switchFullscreenToWindowedAndRead(controller *maa.C
 
 	time.Sleep(fullscreenToggleSettleDelay)
 	controller.PostScreencap().Wait()
-	newW, newH, ok := readResolutionWithRetry(controller)
-	if ok {
-		log.Debug().
-			Uint64("task_id", detail.TaskID).
-			Int32("post_toggle_w", newW).
-			Int32("post_toggle_h", newH).
-			Msg("Updated resolution after fullscreen toggle")
-	}
-	return newW, newH, ok
 }
 
-// readResolutionWithRetry retries up to 20 times (1s apart) until the
-// controller reports a usable resolution (> 100 px on both axes).
+func (c *AspectRatioChecker) restoreFullscreen(detail maa.TaskerTaskDetail) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if !c.fullscreenToggled || c.targetHWnd == 0 {
+		log.Debug().Str("entry", detail.Entry).Msg("No fullscreen state to restore")
+		return
+	}
+
+	if err := SendAltEnter(c.targetHWnd); err != nil {
+		log.Warn().Err(err).Str("entry", detail.Entry).Msg("Failed to send Alt+Enter to restore fullscreen")
+	} else {
+		log.Info().Str("entry", detail.Entry).Msg("Sent Alt+Enter to restore fullscreen")
+	}
+	c.fullscreenToggled = false
+	c.targetHWnd = 0
+}
+
+func getWin32HWnd(controller *maa.Controller) (uintptr, error) {
+	if controller == nil {
+		return 0, fmt.Errorf("nil controller")
+	}
+	infoStr, err := controller.GetInfo()
+	if err != nil {
+		return 0, err
+	}
+	var info struct {
+		HWnd uint64 `json:"hwnd"`
+	}
+	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
+		return 0, err
+	}
+	if info.HWnd == 0 {
+		return 0, fmt.Errorf("empty win32 hwnd")
+	}
+	return uintptr(info.HWnd), nil
+}
+
 func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
 	const maxRetries = 20
 	var width, height int32
@@ -432,70 +367,20 @@ func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDispl
 	tasker.PostStop()
 }
 
-// OnNodePipelineNode runs SceneMp resolution adjustment and restore while a context is active.
-func (c *AspectRatioChecker) OnNodePipelineNode(ctx *maa.Context, event maa.EventStatus, detail maa.NodePipelineNodeDetail) {
-	if event != maa.EventStatusStarting || !c.claimPendingSet720(detail.TaskID) {
-		return
-	}
-
-	c.setAdjustingResolution(true)
-	defer c.setAdjustingResolution(false)
-
-	maafocus.Print(ctx, i18n.T("tasker.aspect_ratio.adjust_start", targetWidth, targetHeight))
-	taskDetail, err := ctx.RunTask(entrySceneMpSetResolutionTarget, buildResolutionOverride(targetWidth, targetHeight))
-	if err != nil {
-		log.Warn().Err(err).Uint64("task_id", detail.TaskID).Msg("Failed to run SceneMp resolution adjustment")
-		return
-	}
-	if taskDetail == nil || !taskDetail.Status.Success() {
-		status := "unknown"
-		if taskDetail != nil {
-			status = taskDetail.Status.String()
-		}
-		log.Warn().Uint64("task_id", detail.TaskID).Str("status", status).Msg("SceneMp resolution adjustment failed")
-		return
-	}
-
-	c.markAdjustedTo720(detail.TaskID)
-	maafocus.Print(ctx, i18n.T("tasker.aspect_ratio.adjust_done", targetWidth, targetHeight))
-	log.Info().Uint64("task_id", detail.TaskID).Msg("SceneMp resolution adjusted to 1280x720")
+func (c *AspectRatioChecker) OnNodePipelineNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodePipelineNodeDetail) {
 }
-
 func (c *AspectRatioChecker) OnNodeRecognitionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionNodeDetail) {
 }
-
 func (c *AspectRatioChecker) OnNodeActionNode(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionNodeDetail) {
 }
-
 func (c *AspectRatioChecker) OnNodeNextList(_ *maa.Context, _ maa.EventStatus, _ maa.NodeNextListDetail) {
 }
-
 func (c *AspectRatioChecker) OnNodeRecognition(_ *maa.Context, _ maa.EventStatus, _ maa.NodeRecognitionDetail) {
 }
-
-func (c *AspectRatioChecker) OnNodeAction(ctx *maa.Context, event maa.EventStatus, detail maa.NodeActionDetail) {
-	if event == maa.EventStatusSucceeded && c.shouldRestoreAfterTask(detail.TaskID) && isTerminalTaskNode(detail.Name) {
-		c.restoreOriginalResolution(ctx, detail.TaskID)
-	}
+func (c *AspectRatioChecker) OnNodeAction(_ *maa.Context, _ maa.EventStatus, _ maa.NodeActionDetail) {
 }
 
-func (c *AspectRatioChecker) markPendingSet720(taskID uint64) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.pendingSet720TaskID = taskID
-}
-
-func (c *AspectRatioChecker) claimPendingSet720(taskID uint64) bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.pendingSet720TaskID != taskID || c.adjustingResolution || c.restoringResolution {
-		return false
-	}
-	c.pendingSet720TaskID = 0
-	return true
-}
-
-func (c *AspectRatioChecker) isAdjustingResolution() bool {
+func (c *AspectRatioChecker) isResolutionTaskRunning() bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.adjustingResolution || c.restoringResolution
@@ -505,25 +390,6 @@ func (c *AspectRatioChecker) setAdjustingResolution(adjusting bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.adjustingResolution = adjusting
-}
-
-func (c *AspectRatioChecker) markAdjustedTo720(taskID uint64) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.adjustedTo720 = true
-	c.adjustedTaskID = taskID
-}
-
-func (c *AspectRatioChecker) shouldRestoreAfterTask(taskID uint64) bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.adjustedTo720 && c.adjustedTaskID == taskID
-}
-
-func (c *AspectRatioChecker) hasPendingOriginalResolution() bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.adjustedTo720 && c.originalWidth > 0 && c.originalHeight > 0
 }
 
 func (c *AspectRatioChecker) shouldRecordOriginalResolution() bool {
@@ -543,13 +409,10 @@ func (c *AspectRatioChecker) saveOriginalResolution(text string, width, height i
 	c.originalHeight = height
 }
 
-func (c *AspectRatioChecker) beginRestoreOriginalResolution(taskID uint64, force bool) (int, int, bool) {
+func (c *AspectRatioChecker) beginRestoreOriginalResolution() (int, int, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if !c.adjustedTo720 || c.originalWidth <= 0 || c.originalHeight <= 0 || c.restoringResolution {
-		return 0, 0, false
-	}
-	if !force && c.adjustedTaskID != taskID {
+	if c.originalWidth <= 0 || c.originalHeight <= 0 || c.restoringResolution {
 		return 0, 0, false
 	}
 	c.restoringResolution = true
@@ -565,17 +428,9 @@ func (c *AspectRatioChecker) finishRestoreOriginalResolution() {
 func (c *AspectRatioChecker) clearOriginalResolution() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.adjustedTo720 = false
-	c.adjustedTaskID = 0
 	c.originalResolutionText = ""
 	c.originalWidth = 0
 	c.originalHeight = 0
-}
-
-func isTerminalTaskNode(name string) bool {
-	return strings.HasSuffix(name, "End") ||
-		strings.HasSuffix(name, "Finish") ||
-		strings.HasSuffix(name, "Finished")
 }
 
 func buildResolutionOverride(width, height int) map[string]any {
@@ -598,26 +453,6 @@ func buildResolutionExpected(width, height int) []string {
 	}
 }
 
-func getWin32HWnd(controller *maa.Controller) (uintptr, error) {
-	if controller == nil {
-		return 0, fmt.Errorf("nil controller")
-	}
-	infoStr, err := controller.GetInfo()
-	if err != nil {
-		return 0, err
-	}
-	var info struct {
-		HWnd uint64 `json:"hwnd"`
-	}
-	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
-		return 0, err
-	}
-	if info.HWnd == 0 {
-		return 0, fmt.Errorf("empty win32 hwnd")
-	}
-	return uintptr(info.HWnd), nil
-}
-
 func resolveControllerType(controller *maa.Controller) (string, string, error) {
 	if controlType := normalizeControllerType(pienv.ControllerType()); controlType != "" {
 		return controlType, "pi_env", nil
@@ -634,26 +469,19 @@ func resolveControllerType(controller *maa.Controller) (string, string, error) {
 	return "unknown", "controller_info", nil
 }
 
-// isAspectRatio16x9 checks if the given dimensions are approximately 16:9
-// This handles both landscape (16:9) and portrait (9:16) orientations
 func isAspectRatio16x9(width, height int) bool {
 	if width <= 0 || height <= 0 {
 		return false
 	}
 
 	ratio := calculateAspectRatio(width, height)
-
-	// Check if ratio is within tolerance of 16:9
 	return math.Abs(ratio-targetRatio) <= targetRatio*tolerance
 }
 
-// calculateAspectRatio calculates the aspect ratio, always returning the larger/smaller ratio
-// This normalizes both landscape and portrait orientations
 func calculateAspectRatio(width, height int) float64 {
 	w := float64(width)
 	h := float64(height)
 
-	// Always return wider/narrower to normalize orientation
 	if w > h {
 		return w / h
 	}

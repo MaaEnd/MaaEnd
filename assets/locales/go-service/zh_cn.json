@@ -122,7 +122,7 @@
     "tasker.aspect_ratio.restore_done": "已恢复原分辨率 %dx%d",
     "tasker.aspect_ratio_warning.title": "🚨 警告：分辨率不符合要求！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任务已强制停止",
-    "tasker.aspect_ratio_warning.desc": "💡 请调整分辨率后重新运行任务。",
+    "tasker.aspect_ratio_warning.desc": "💡 当前窗口分辨率不适合直接运行。",
     "tasker.aspect_ratio_warning.controller_label": "当前控制器：",
     "tasker.aspect_ratio_warning.current_resolution": "当前分辨率：",
     "tasker.aspect_ratio_warning.requirement_label": "目标要求：",
@@ -146,5 +146,7 @@
     "schedule.weekday_thursday": "周四",
     "schedule.weekday_friday": "周五",
     "schedule.weekday_saturday": "周六",
-    "schedule.weekday_sunday": "周日"
+    "schedule.weekday_sunday": "周日",
+    "tasker.aspect_ratio.restore_skip": "未记录原分辨率，跳过还原",
+    "tasker.aspect_ratio_warning.queue_hint": "🛠️ 需要自动处理时，请把“调分辨率”放在任务队列最上面，把“还原分辨率”放在最下面。"
 }

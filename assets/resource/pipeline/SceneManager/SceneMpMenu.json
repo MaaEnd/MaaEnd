@@ -657,7 +657,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMpSettingsInGraphics",
-            "__ScenePrivateMpMenuListEnterSettingsRetry"
+            "[JumpBack]SceneMpEnterSettings"
         ]
     },
     "__ScenePrivateMpMenuListEnterSettingsRetry": {
@@ -726,6 +726,7 @@
             "__ScenePrivateMpSettingsInGraphics",
             "__ScenePrivateMpSettingsResolutionLabel"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AspectRatioRecordResolutionAndClick",
@@ -735,6 +736,17 @@
                 "311",
                 "270",
                 "39"
+            ],
+            "label_roi": [
+                "42",
+                "259",
+                "155",
+                "145"
+            ],
+            "label_expected": [
+                "分辨率",
+                "解析度",
+                "(?i)Resolution"
             ],
             "target": [
                 "WIDTH-365",
@@ -762,8 +774,43 @@
         "next": [
             "__ScenePrivateMpSettingsResolutionSelectTarget",
             "__ScenePrivateMpSettingsResolutionDropdownBottomStable",
-            "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom"
+            "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom",
+            "__ScenePrivateMpSettingsResolutionRestartFromDropdown"
         ]
+    },
+    "__ScenePrivateMpSettingsResolutionRestartFromDropdown": {
+        "desc": "【Mp】分辨率下拉框异常时关闭当前层级并重启设置跳转",
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 600,
+        "rate_limit": 0,
+        "next": [
+            "SceneMpSetResolutionTarget"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionDropdownHasResolution": {
+        "desc": "【Mp】识别分辨率下拉框内存在合法分辨率字段",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-367",
+                "348",
+                "269",
+                "231"
+            ],
+            "expected": [
+                "\\d{3,4}.*\\d{3,4}"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateMpSettingsResolutionSelectTarget": {
         "desc": "【Mp】在分辨率下拉框中选择目标分辨率",
@@ -788,7 +835,8 @@
         "post_delay": 2500,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMpSettingsInGraphics"
+            "__ScenePrivateMpSettingsInGraphics",
+            "__ScenePrivateMpSettingsResolutionRestartFromDropdown"
         ]
     },
     "__ScenePrivateMpSettingsResolutionDropdownBottomStable": {
@@ -816,6 +864,10 @@
     },
     "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom": {
         "desc": "【Mp】分辨率下拉框持续向下滚动到低分辨率选项区域",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpSettingsResolutionDropdownHasResolution"
+        ],
         "max_hit": 12,
         "pre_delay": 0,
         "action": "Custom",
@@ -851,11 +903,16 @@
             "__ScenePrivateMpSettingsResolutionSelectTarget",
             "__ScenePrivateMpSettingsResolutionDropdownBottomStable",
             "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom",
-            "__ScenePrivateMpSettingsResolutionDropdownScrollUp"
+            "__ScenePrivateMpSettingsResolutionDropdownScrollUp",
+            "__ScenePrivateMpSettingsResolutionRestartFromDropdown"
         ]
     },
     "__ScenePrivateMpSettingsResolutionDropdownScrollUp": {
         "desc": "【Mp】分辨率下拉框向上回找目标分辨率选项",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpSettingsResolutionDropdownHasResolution"
+        ],
         "max_hit": 12,
         "pre_delay": 0,
         "action": "Custom",
@@ -889,7 +946,8 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMpSettingsResolutionSelectTarget",
-            "__ScenePrivateMpSettingsResolutionDropdownScrollUp"
+            "__ScenePrivateMpSettingsResolutionDropdownScrollUp",
+            "__ScenePrivateMpSettingsResolutionRestartFromDropdown"
         ]
     }
 }

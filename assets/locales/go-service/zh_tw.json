@@ -122,7 +122,7 @@
     "tasker.aspect_ratio.restore_done": "已恢復原解析度 %dx%d",
     "tasker.aspect_ratio_warning.title": "🚨 警告：解析度不符合要求！🚨",
     "tasker.aspect_ratio_warning.stopped": "🚫 任務已強制停止",
-    "tasker.aspect_ratio_warning.desc": "💡 請調整解析度後重新執行任務。",
+    "tasker.aspect_ratio_warning.desc": "💡 目前視窗解析度不適合直接執行。",
     "tasker.aspect_ratio_warning.controller_label": "目前控制器：",
     "tasker.aspect_ratio_warning.current_resolution": "目前解析度：",
     "tasker.aspect_ratio_warning.requirement_label": "目標要求：",
@@ -146,5 +146,7 @@
     "schedule.weekday_thursday": "週四",
     "schedule.weekday_friday": "週五",
     "schedule.weekday_saturday": "週六",
-    "schedule.weekday_sunday": "週日"
+    "schedule.weekday_sunday": "週日",
+    "tasker.aspect_ratio.restore_skip": "未記錄原解析度，略過還原",
+    "tasker.aspect_ratio_warning.queue_hint": "🛠️ 需要自動處理時，請把「調解析度」放在任務佇列最上面，把「還原解析度」放在最下面。"
 }
