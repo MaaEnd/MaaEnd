@@ -182,6 +182,7 @@
         "tasks/GiftOperator.json",
         "tasks/BatchAddFriends.json",
         // group: other_menu
+        "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
         "tasks/DailyRewards.json",
