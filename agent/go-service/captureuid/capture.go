@@ -32,7 +32,7 @@ var (
 //   - allowUnknown: if true and OCR cannot extract UID, return "unknown" instead of error
 func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool) (string, error) {
 	if useCache {
-		if uid := getCachedUID(); uid != "" {
+		if uid := GetCachedUID(); uid != "" {
 			log.Debug().Str("component", component).Str("uid", uid).Msg("returning cached uid")
 			return uid, nil
 		}
@@ -83,7 +83,8 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	return uid, nil
 }
 
-func getCachedUID() string {
+// GetCachedUID returns the most recently captured UID (thread-safe).
+func GetCachedUID() string {
 	capturedUidMu.Lock()
 	defer capturedUidMu.Unlock()
 	return capturedUid
