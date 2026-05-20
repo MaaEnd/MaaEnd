@@ -1,0 +1,81 @@
+{
+    "PullCountCalculatorMain": {
+        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏并输出限定抽数估算",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "single_ticket_node": "PullCountCalculatorSingleTicketOCR",
+            "ten_ticket_node": "PullCountCalculatorTenTicketOCR",
+            "originium_node": "PullCountCalculatorOriginiumOCR",
+            "oroberyl_node": "PullCountCalculatorOroberylOCR",
+            "reserved_originium": 29,
+            "originium_to_oroberyl": 75,
+            "oroberyl_per_pull": 500,
+            "ten_ticket_multiplier": 10
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.PullCountCalculator.focus.start",
+            "Node.Action.Succeeded": "$task.PullCountCalculator.focus.succeeded",
+            "Node.Action.Failed": "$task.PullCountCalculator.focus.failed"
+        }
+    },
+    "PullCountCalculatorSingleTicketOCR": {
+        "desc": "识别顶部单抽寻访凭证数量",
+        "recognition": "OCR",
+        "roi": [
+            756,
+            8,
+            40,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    },
+    "PullCountCalculatorTenTicketOCR": {
+        "desc": "识别顶部十连寻访凭证数量",
+        "recognition": "OCR",
+        "roi": [
+            858,
+            8,
+            40,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    },
+    "PullCountCalculatorOriginiumOCR": {
+        "desc": "识别顶部衍质源石数量",
+        "recognition": "OCR",
+        "roi": [
+            982,
+            8,
+            68,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    },
+    "PullCountCalculatorOroberylOCR": {
+        "desc": "识别顶部嵌晶玉数量",
+        "recognition": "OCR",
+        "roi": [
+            1104,
+            8,
+            72,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    }
+}
