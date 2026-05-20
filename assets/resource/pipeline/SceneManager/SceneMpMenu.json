@@ -1,0 +1,895 @@
+{
+    // Mp (Multi-Proportion) 版本 SceneManager 内部节点
+    // 本文件包含 SceneAnyEnterWorld 收敛路径上的所有 __ScenePrivate* 节点
+    // 以及进入菜单列表 (__ScenePrivateWorldEnterMenuList) 的完整链路
+    "__ScenePrivateMpInMenuList": {
+        "desc": "【Mp】在菜单列表界面",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2-225",
+                "HEIGHT/2+260",
+                "450",
+                "100"
+            ],
+            "expected": [
+                "FIELD",
+                "ENDFIELD"
+            ]
+        }
+    },
+    "__ScenePrivateMpMenuListEnterWorld": {
+        "desc": "【Mp】从菜单总列表退出到大世界，避免电脑比较卡反复在菜单总列表和大世界之间切换",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpInMenuList"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 1500,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpAnyEnterWorldSuccess"
+        ]
+    },
+    "__ScenePrivateMpAnyEnterWorldSuccess": {
+        "desc": "【Mp】从任意界面进入大世界成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                70,
+                80,
+                70,
+                60
+            ],
+            "time": 800,
+            "timeout": 2000
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMpLogin": {
+        "desc": "【Mp】处理登录界面",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprTemplateMatch",
+        "custom_recognition_param": {
+            "roi": [
+                "0",
+                "HEIGHT-100",
+                "100",
+                "100"
+            ],
+            "template": [
+                "SceneManager/LoginExit.png"
+            ]
+        },
+        "next": [
+            "__ScenePrivateMpLoginContinue",
+            "[JumpBack]__ScenePrivateMpCloseLoginAnnouncement",
+            "__ScenePrivateMpLogin"
+        ]
+    },
+    "__ScenePrivateMpLoginContinue": {
+        "desc": "【Mp】等待登录页面出现按钮继续",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-250",
+                "HEIGHT/2-160",
+                "250",
+                "400"
+            ],
+            "expected": [
+                "点击任意位置继续",
+                "按下任意位置繼續",
+                "Click to continue",
+                "クリックして続ける",
+                "아무 곳이나 눌러 계속하기"
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]SceneMpWaitLoadingExit",
+            "[JumpBack]__ScenePrivateMpLoginMonthlyPassConfirm",
+            "[JumpBack]__ScenePrivateMpLoginPristineMonthlyPassConfirm",
+            "__ScenePrivateMpLoginSuccess",
+            "[JumpBack]__ScenePrivateMpLoginCloseDialog"
+        ]
+    },
+    "__ScenePrivateMpCloseLoginAnnouncement": {
+        "desc": "【Mp】关闭登录时公告界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "__ScenePrivateMpCloseAnnouncementButton",
+                "recognition": {
+                    "type": "Custom",
+                    "param": {
+                        "custom_recognition": "MpExprTemplateMatch",
+                        "custom_recognition_param": {
+                            "roi": [
+                                "WIDTH-102",
+                                "59",
+                                "80",
+                                "80"
+                            ],
+                            "template": [
+                                "SceneManager/LoginAnnouncementClose.png"
+                            ]
+                        }
+                    },
+                    "desc": "【Mp】识别登录时公告界面的关闭按钮"
+                }
+            },
+            {
+                "recognition": {
+                    "type": "Custom",
+                    "param": {
+                        "custom_recognition": "MpExprOCR",
+                        "custom_recognition_param": {
+                            "roi": [
+                                "WIDTH/2-388",
+                                "HEIGHT/2-342",
+                                "817",
+                                "179"
+                            ],
+                            "expected": [
+                                "公告"
+                            ]
+                        }
+                    },
+                    "desc": "【Mp】识别是否在公告界面"
+                }
+            }
+        ],
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__ScenePrivateMpLoginMonthlyPassConfirm": {
+        "desc": "【Mp】领取月卡，无法跳过必须领取",
+        "max_hit": 1,
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2-240",
+                "HEIGHT/2-180",
+                "500",
+                "362"
+            ],
+            "expected": [
+                "月卡剩余天数",
+                    "月卡剩餘天數",
+                    "(?i)Monthly\\s*Pass\\s*Day\\s*\\(\\s*s\\s*\\)\\s*Left",
+                    "月パス残り",
+                    "今日月卡奖励",
+                    "今日月卡獎勵",
+                "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards"
+            ]
+        },
+        "pre_delay": 1000,
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__ScenePrivateMpLoginPristineMonthlyPassConfirm": {
+        "desc": "【Mp】领取焕新月卡，无法跳过必须领取",
+        "max_hit": 1,
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2+210",
+                "HEIGHT/2-180",
+                "300",
+                "150"
+            ],
+            "expected": [
+                "焕新月卡赠礼",
+                "煥新月卡贈禮",
+                "Pristine Monthly Pass Tribute",
+                "月パス特典",
+                "리뉴얼 월정액 선물"
+            ]
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "__ScenePrivateMpLoginCloseDialog": {
+        "desc": "【Mp】关闭所有待领取的弹窗",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                0,
+                0,
+                100,
+                100
+            ],
+            "time": 600
+        }
+    },
+    "__ScenePrivateMpLoginSuccess": {
+        "desc": "【Mp】进入大世界成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMpNoticeRewardsUpgrade": {
+        "desc": "【Mp】检测到升级",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2-140",
+                "0",
+                "280",
+                "200"
+            ],
+            "expected": [
+                "权限等阶",
+                "權限等階",
+                "Authority Level",
+                "行動レベル",
+                "권한 등급"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMpNoticeRewardsUpgradeConfirm"
+        ]
+    },
+    "__ScenePrivateMpNoticeRewardsUpgradeConfirm": {
+        "desc": "【Mp】升级奖励界面，点击确认",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2-140",
+                "HEIGHT-280",
+                "280",
+                "260"
+            ],
+            "expected": [
+                "点击空白处继续",
+                "按下空白處繼續",
+                "Click to continue",
+                "クリックして続ける",
+                "빈 곳을 눌러 계속하기"
+            ]
+        },
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Click"
+    },
+    "__ScenePrivateMpWorldSpaceExit": {
+        "desc": "【Mp】从大世界协议空间、好友飞船退出",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprTemplateMatch",
+        "custom_recognition_param": {
+            "roi": [
+                "0",
+                "0",
+                "100",
+                "100"
+            ],
+            "template": [
+                "SceneManager/WorldSpaceExit.png",
+                "SceneManager/WorldSpaceExit1.png"
+            ]
+        },
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMpWorldSpaceExitConfirm",
+            "__ScenePrivateMpEndVisit"
+        ]
+    },
+    "__ScenePrivateMpWorldSpaceExitConfirm": {
+        "desc": "【Mp】从大世界协议空间、好友飞船退出的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateMpEndVisit": {
+        "desc": "【Mp】识别结束拜访",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-260",
+                "HEIGHT-100",
+                "260",
+                "100"
+            ],
+            "expected": [
+                "结束拜访",
+                "結束拜訪",
+                "(?i)End\\s*Visit",
+                "訪問終了",
+                "방문 종료"
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateMpWorldSpaceExitConfirm"
+        ]
+    },
+    "__ScenePrivateMpWorldStorySkip": {
+        "desc": "【Mp】大世界剧情跳过",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprTemplateMatch",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-140",
+                "0",
+                "120",
+                "90"
+            ],
+            "template": [
+                "RealTimeTask/AutoSkipEsc.png"
+            ],
+            "threshold": [
+                0.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMpWorldStorySkipConfirm"
+        ]
+    },
+    "__ScenePrivateMpWorldStorySkipConfirm": {
+        "desc": "【Mp】大世界剧情跳过确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 1000
+    },
+    "__ScenePrivateMpLoggedOutConfirm": {
+        "desc": "【Mp】确认自动登出弹窗",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "Custom",
+                "custom_recognition": "MpExprOCR",
+                "custom_recognition_param": {
+                    "roi": [
+                        "WIDTH/2-290",
+                        "HEIGHT/2-110",
+                        "550",
+                        "202"
+                    ],
+                    "expected": [
+                        "自动登出",
+                        "自動登出",
+                        "Logged out",
+                        "自動的にロ",
+                        "장시간 활동"
+                    ]
+                }
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "__ScenePrivateMpAnyExit": {
+        "desc": "【Mp】退出当前场景，返回上一个场景",
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 600
+    },
+    "__ScenePrivateMpNextTrue": {
+        "desc": "【Mp】识别结果永远为真，用于退出next循环"
+    },
+    "__ScenePrivateMpWorldEnterMenuList": {
+        "desc": "【Mp】从大世界进入菜单总列表",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprTemplateMatch",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-200",
+                "0",
+                "200",
+                "200"
+            ],
+            "template": [
+                "SceneManager/WorldMenu.png"
+            ],
+            "green_mask": true
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction",
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneMpImageCheck",
+            "__ScenePrivateMpAnyEnterMenuListSuccess"
+        ]
+    },
+    "__ScenePrivateMpAnyEnterMenuListSuccess": {
+        "desc": "【Mp】成功进入菜单总列表",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpInMenuList"
+        ],
+        "pre_delay": 0,
+        "post_delay": 1500
+    },
+    "__SceneMpImageCheck": {
+        "desc": "【Mp】场景图像检查，检查完毕后回到菜单列表",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpInMenuList",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "ImageCheckNotPassedRecognition"
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprClick",
+        "custom_action_param": {
+            "target": [
+                "WIDTH/2-545",
+                "HEIGHT/2+250",
+                "10",
+                "10"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneMpImageCheckDialogIn"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在检查画面"
+        }
+    },
+    "__SceneMpImageCheckDialogIn": {
+        "desc": "【Mp】在菜单列表界面",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH/2-229",
+                "HEIGHT/2-109",
+                "470",
+                "200"
+            ],
+            "expected": [
+                "登录界面",
+                "登入介面",
+                "login screen",
+                "画面に戻りますか",
+                "나가시겠습니까"
+            ]
+        },
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__SceneCheckOSD",
+            "[JumpBack]__SceneMpImageCheckAICPlanColor",
+            "__SceneMpImageCheckFinishSave"
+        ]
+    },
+    "__SceneMpImageCheckFinishSave": {
+        "desc": "【Mp】场景图像检查完成保存状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ImageCheckSetResultAction",
+        "custom_action_param": {
+            "result": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneMpImageCheckFinishExit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "画面检查通过"
+        }
+    },
+    "__SceneMpImageCheckFinishExit": {
+        "desc": "【Mp】场景图像检查完成退出到原界面",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "rate_limit": 0,
+        "next": [
+            "__SceneMpImageCheckFinishExitSuccess"
+        ]
+    },
+    "__SceneMpImageCheckFinishExitSuccess": {
+        "desc": "【Mp】场景图像检查完成退出到原界面成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneMpImageCheckAICPlanColor": {
+        "desc": "【Mp】检查颜色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneMpImageCheckAICPlanColorSuccess",
+            "__SceneMpImageCheckAICPlanColorFailedFinish"
+        ]
+    },
+    "__SceneMpImageCheckAICPlanColorSuccess": {
+        "desc": "【Mp】检查颜色成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ]
+    },
+    "__SceneMpImageCheckAICPlanColorFailedFinish": {
+        "desc": "【Mp】检查颜色失败",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.SceneManager.focus.color_match_failed_prefix"
+        }
+    },
+    "__ScenePrivateMpMenuListEnterSettings": {
+        "desc": "【Mp】从手表菜单移动到设置图标",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpInMenuList"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprTouchMove",
+        "custom_action_param": {
+            "target": [
+                "WIDTH/2-435",
+                "HEIGHT/2-312",
+                "15",
+                "16"
+            ]
+        },
+        "post_delay": 400,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpMenuListEnterSettingsClick"
+        ]
+    },
+    "__ScenePrivateMpMenuListEnterSettingsClick": {
+        "desc": "【Mp】点击手表菜单设置图标",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprClick",
+        "custom_action_param": {
+            "target": [
+                "WIDTH/2-435",
+                "HEIGHT/2-312",
+                "15",
+                "16"
+            ]
+        },
+        "post_delay": 1200,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsInGraphics",
+            "__ScenePrivateMpMenuListEnterSettingsRetry"
+        ]
+    },
+    "__ScenePrivateMpMenuListEnterSettingsRetry": {
+        "desc": "【Mp】进入设置失败后返回菜单列表并重试",
+        "max_hit": 3,
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 800,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpMenuListEnterSettings"
+        ]
+    },
+    "__ScenePrivateMpSettingsInGraphics": {
+        "desc": "【Mp】识别已进入设置的性能与画面页",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "0",
+                "120",
+                "220",
+                "90"
+            ],
+            "expected": [
+                "性能与画面",
+                "性能與畫面",
+                "(?i)Performance"
+            ]
+        },
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMpSettingsResolutionLabel": {
+        "desc": "【Mp】识别设置页的分辨率设置项",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "42",
+                "259",
+                "155",
+                "145"
+            ],
+            "expected": [
+                "分辨率",
+                "解析度",
+                "(?i)Resolution"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMpSettingsResolutionOpenDropdown": {
+        "desc": "【Mp】打开分辨率下拉框",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMpSettingsInGraphics",
+            "__ScenePrivateMpSettingsResolutionLabel"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AspectRatioRecordResolutionAndClick",
+        "custom_action_param": {
+            "ocr_roi": [
+                "WIDTH-365",
+                "311",
+                "270",
+                "39"
+            ],
+            "target": [
+                "WIDTH-365",
+                "311",
+                "270",
+                "39"
+            ]
+        },
+        "post_delay": 500,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionDropdownBottomStateReset"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionDropdownBottomStateReset": {
+        "desc": "【Mp】重置分辨率下拉框底部 OCR 比较状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprOCRBottomStateReset",
+        "custom_action_param": {
+            "key": "SceneMpResolutionDropdown"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionSelectTarget",
+            "__ScenePrivateMpSettingsResolutionDropdownBottomStable",
+            "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionSelectTarget": {
+        "desc": "【Mp】在分辨率下拉框中选择目标分辨率",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCR",
+        "custom_recognition_param": {
+            "roi": [
+                "WIDTH-367",
+                "348",
+                "269",
+                "231"
+            ],
+            "expected": [
+                "1280.*720",
+                "1280×720",
+                "1280x720",
+                "1280\\*720"
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 2500,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsInGraphics"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionDropdownBottomStable": {
+        "desc": "【Mp】识别分辨率下拉框最下方选项未变化，认为已滚到底部",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprOCRBottomStable",
+        "custom_recognition_param": {
+            "key": "SceneMpResolutionDropdown",
+            "roi": [
+                "WIDTH-367",
+                "348",
+                "269",
+                "231"
+            ],
+            "expected": [
+                "\\d{3,4}.*\\d{3,4}"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionDropdownScrollUp"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom": {
+        "desc": "【Mp】分辨率下拉框持续向下滚动到低分辨率选项区域",
+        "max_hit": 12,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprSwipe",
+        "custom_action_param": {
+            "begin": [
+                "WIDTH-230",
+                "540"
+            ],
+            "end": [
+                [
+                    "WIDTH-230",
+                    "365"
+                ],
+                [
+                    "WIDTH-80",
+                    "365"
+                ]
+            ],
+            "duration": [
+                350,
+                80
+            ],
+            "end_hold": [
+                0,
+                100
+            ]
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionSelectTarget",
+            "__ScenePrivateMpSettingsResolutionDropdownBottomStable",
+            "__ScenePrivateMpSettingsResolutionDropdownScrollToBottom",
+            "__ScenePrivateMpSettingsResolutionDropdownScrollUp"
+        ]
+    },
+    "__ScenePrivateMpSettingsResolutionDropdownScrollUp": {
+        "desc": "【Mp】分辨率下拉框向上回找目标分辨率选项",
+        "max_hit": 12,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MpExprSwipe",
+        "custom_action_param": {
+            "begin": [
+                "WIDTH-230",
+                "365"
+            ],
+            "end": [
+                [
+                    "WIDTH-230",
+                    "540"
+                ],
+                [
+                    "WIDTH-80",
+                    "540"
+                ]
+            ],
+            "duration": [
+                350,
+                80
+            ],
+            "end_hold": [
+                0,
+                100
+            ]
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionSelectTarget",
+            "__ScenePrivateMpSettingsResolutionDropdownScrollUp"
+        ]
+    }
+}

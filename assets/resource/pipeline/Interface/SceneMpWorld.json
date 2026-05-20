@@ -1,0 +1,74 @@
+{
+    // Mp (Multi-Proportion) 版本：从任意界面进入大世界/菜单列表
+    // 本文件为 SceneAnyEnterWorld 的 fork，用于非 16:9 屏幕适配
+    // 原始节点见 Scene.json，本文件节点带 Mp 前缀
+    "SceneMpAnyEnterWorld": {
+        "desc": "【Mp】从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpMenuListEnterWorld",
+            "__ScenePrivateMpAnyEnterWorldSuccess",
+            "[JumpBack]__ScenePrivateMpLogin",
+            "[JumpBack]__ScenePrivateMpNoticeRewardsUpgrade",
+            "[JumpBack]__ScenePrivateMpWorldSpaceExit",
+            "[JumpBack]__ScenePrivateMpWorldStorySkip",
+            "[JumpBack]__ScenePrivateMpLoggedOutConfirm",
+            "[JumpBack]SceneMpWaitLoadingExit",
+            "[JumpBack]__ScenePrivateMpAnyExit"
+        ]
+    },
+    "SceneMpEnterMenuList": {
+        "desc": "【Mp】从任意界面进入手表菜单（菜单总列表 InMenuList）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpWorldEnterMenuList",
+            "[JumpBack]SceneMpAnyEnterWorld"
+        ]
+    },
+    "SceneMpEnterSettings": {
+        "desc": "【Mp】从任意界面进入设置的性能与画面页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsInGraphics",
+            "__ScenePrivateMpMenuListEnterSettings",
+            "[JumpBack]SceneMpEnterMenuList"
+        ]
+    },
+    "SceneMpSetResolutionTarget": {
+        "desc": "【Mp】进入设置并将分辨率切换到目标分辨率",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMpSettingsResolutionSelectTarget",
+            "__ScenePrivateMpSettingsResolutionOpenDropdown",
+            "[JumpBack]SceneMpEnterSettings"
+        ]
+    },
+    "SceneMpWaitLoadingExit": {
+        "desc": "【Mp】判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
+        "recognition": "Custom",
+        "custom_recognition": "MpExprTemplateMatch",
+        "custom_recognition_param": {
+            "roi": [
+                "0",
+                "0",
+                "200",
+                "200"
+            ],
+            "template": [
+                "SceneManager/LoadingIcon.png"
+            ]
+        },
+        "next": [
+            "SceneMpWaitLoadingExit",
+            "__ScenePrivateMpNextTrue"
+        ]
+    }
+}
