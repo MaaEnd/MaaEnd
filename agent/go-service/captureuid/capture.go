@@ -147,7 +147,8 @@ func loadOrCreateSalt() (string, error) {
 
 func captureErr(allowUnknown bool, format string, args ...any) (string, error) {
 	if allowUnknown {
-		log.Warn().Str("component", component).Msg("uid capture failed, returning unknown")
+		msg := fmt.Sprintf(format, args...)
+		log.Warn().Str("component", component).Str("reason", msg).Msg("uid capture failed, returning unknown")
 		return "unknown", nil
 	}
 	return "", fmt.Errorf(format, args...)
