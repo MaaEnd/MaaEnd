@@ -198,7 +198,8 @@
                     "name": "Yes",
                     "option": [
                         "ClueSend",
-                        "ClueStockLimit"
+                        "ClueStockLimit",
+                        "ClueSendForce"
                     ]
                 },
                 {
@@ -257,6 +258,35 @@
                 }
             ]
         },
+        "ClueSendForce": {
+            "type": "switch",
+            "label": "$option.ClueSendForce.labe1",
+            "description": "$option.ClueSendForce.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomViewIn": {
+                            "next": [
+                                "[JumpBack]ReceptionRoomCollectClues",
+                                "[JumpBack]ReceptionRoomReceiveClues",
+                                "[JumpBack]ReceptionRoomSetClues",
+                                "[JumpBack]ReceptionRoomStartExchange",
+                                "[JumpBack]ReceptionRoomSendCluesEntry",
+                                "ReceptionRoomExit"
+                            ]
+                        },                        
+                        "ReceptionRoomSendCluesEntry": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },        
         "SelectToGrow": {
             "type": "select",
             "label": "$option.SelectToGrow.label",

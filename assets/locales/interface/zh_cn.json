@@ -214,6 +214,8 @@
     "option.ClueStockLimit.description": "按单种线索库存计算；当某一种线索数量超过设定值时，会自动赠送该种线索。",
     "option.ClueSetting.label": "线索设置",
     "option.ClueSetting.description": "启用后可自定义线索规则；关闭时使用默认行为：每种线索最多保留 2 个，且最多赠送 3 次。",
+    "option.ClueSendForce.labe1": "未溢出也赠送线索",
+    "option.ClueSendForce.description": "启用后线索未溢出时也将赠送线索，用于小号向大号送线索，默认不建议开启。",
     "option.SelectToGrow.label": "种植目标",
     "option.SelectToGrow.description": "会自动种植对应目标",
     "option.SelectToGrow.cases.DoNothing.label": "不种植",

@@ -214,6 +214,8 @@
     "option.ClueStockLimit.description": "按單種線索庫存計算；當某一種線索數量超過設定值時，會自動贈送該種線索。",
     "option.ClueSetting.label": "線索設定",
     "option.ClueSetting.description": "啟用後可自訂線索規則；關閉時使用預設行為：每種線索最多保留 2 個，且最多贈送 3 次。",
+    "option.ClueSendForce.labe1": "未溢出時也贈送線索",
+    "option.ClueSendForce.description": "啟用後，即使線索未溢出也會贈送線索，用於小號向大號贈送線索。預設不建議開啟。",
     "option.SelectToGrow.label": "種植目標",
     "option.SelectToGrow.description": "會自動種植對應目標",
     "option.SelectToGrow.cases.DoNothing.label": "不種植",

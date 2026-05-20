@@ -210,6 +210,8 @@
     "option.ClueStockLimit.description": "단서 종류별로 계산합니다. 특정 종류의 단서가 이 수량을 넘으면 해당 종류를 자동으로 선물합니다.",
     "option.ClueSetting.label": "단서 설정",
     "option.ClueSetting.description": "활성화하면 단서 처리 규칙을 변경할 수 있습니다. 비활성화 시 기본 동작으로 각 종류를 최대 2개까지 남기고, 최대 3개까지 선물합니다.",
+    "option.ClueSendForce.labe1": "초과되지 않아도 단서 보내기",
+    "option.ClueSendForce.description": "활성화하면 단서가 넘치지 않은 상태에서도 단서를 보냅니다. 부계정에서 본계정으로 단서를 보내는 용도로 사용됩니다. 기본적으로 비활성화되어 있으며 일반적으로 권장되지 않습니다.",
     "option.SelectToGrow.label": "재배 대상",
     "option.SelectToGrow.description": "활성화 시 가 선택한 대상을 자동으로 재배합니다.",
     "option.SelectToGrow.cases.DoNothing.label": "재배하지 않음",

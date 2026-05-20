@@ -210,6 +210,8 @@
     "option.ClueStockLimit.description": "手掛かりの種類ごとに計算します。特定の手掛かりがこの数を超えた場合、その種類を自動で贈ります。",
     "option.ClueSetting.label": "手掛かり設定",
     "option.ClueSetting.description": "有効にすると手掛かり処理ルールを変更できます。無効時は既定動作として、各種類を 2 個まで残し、最大 3 件まで贈ります。",
+    "option.ClueSendForce.labe1": "手がかりが上限未満でも送信",
+    "option.ClueSendForce.description": "有効にすると、手がかりが上限を超えていない場合でも送信されます。サブアカウントからメインアカウントへ手がかりを送る用途向けです。デフォルトでは無効で、通常は有効化を推奨しません。",
     "option.SelectToGrow.label": "栽培対象",
     "option.SelectToGrow.description": "有効にすると、が選択した対象を自動で栽培します。",
     "option.SelectToGrow.cases.DoNothing.label": "栽培しない",

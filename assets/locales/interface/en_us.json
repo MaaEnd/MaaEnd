@@ -214,6 +214,8 @@
     "option.ClueStockLimit.description": "Calculated per clue type. If a single clue type exceeds this amount, that clue will be sent automatically.",
     "option.ClueSetting.label": "Clue Settings",
     "option.ClueSetting.description": "Enable to customize clue rules. When disabled, the default behavior keeps up to 2 of each clue type and sends at most 3 clues.",
+    "option.ClueSendForce.labe1": "Send Clues Even Without Overflow",
+    "option.ClueSendForce.description": "When enabled, clues will still be gifted even if they are not overflowing. Intended for transferring clues from alternate accounts to a main account. Disabled by default and generally not recommended.",
     "option.SelectToGrow.label": "Growth Target",
     "option.SelectToGrow.description": "Will automatically plant the selected target.",
     "option.SelectToGrow.cases.DoNothing.label": "Do Nothing",
