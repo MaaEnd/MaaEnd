@@ -142,5 +142,6 @@
     "schedule.weekday_thursday": "周四",
     "schedule.weekday_friday": "周五",
     "schedule.weekday_saturday": "周六",
-    "schedule.weekday_sunday": "周日"
+    "schedule.weekday_sunday": "周日",
+    "schedule.skip_interval": "距上次执行仅 %d 天 (要求 ≥ %d 天)，跳过任务"
 }

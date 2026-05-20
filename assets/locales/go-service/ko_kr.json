@@ -142,5 +142,6 @@
     "schedule.weekday_thursday": "목요일",
     "schedule.weekday_friday": "금요일",
     "schedule.weekday_saturday": "토요일",
-    "schedule.weekday_sunday": "일요일"
+    "schedule.weekday_sunday": "일요일",
+    "schedule.skip_interval": "마지막 실행 %d일 전 (>= %d일 필요), 작업 건너뜀"
 }

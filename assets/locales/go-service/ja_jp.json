@@ -142,5 +142,6 @@
     "schedule.weekday_thursday": "木曜日",
     "schedule.weekday_friday": "金曜日",
     "schedule.weekday_saturday": "土曜日",
-    "schedule.weekday_sunday": "日曜日"
+    "schedule.weekday_sunday": "日曜日",
+    "schedule.skip_interval": "前回の実行から%d日しか経過していません (>= %d日必要)、タスクをスキップします"
 }

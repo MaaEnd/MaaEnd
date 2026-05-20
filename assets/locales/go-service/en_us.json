@@ -142,5 +142,6 @@
     "schedule.weekday_thursday": "Thursday",
     "schedule.weekday_friday": "Friday",
     "schedule.weekday_saturday": "Saturday",
-    "schedule.weekday_sunday": "Sunday"
+    "schedule.weekday_sunday": "Sunday",
+    "schedule.skip_interval": "Last run was %d days ago (requires ≥ %d days), skipping task"
 }
