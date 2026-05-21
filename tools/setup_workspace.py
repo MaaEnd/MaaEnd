@@ -198,7 +198,15 @@ def bootstrap_3rdparty(update: bool = False) -> bool:
         return dep_3rdparty.download_all(skip_if_exist=not update)
     except Exception as exc:
         traceback.print_exc()
-        print(Console.err(f"[ERR] bootstrap_3rdparty failed: {exc}"))
+        print(
+            Console.err(
+                t(
+                    "err_bootstrap_3rdparty_failed",
+                    exc_type=type(exc).__name__,
+                    error=exc,
+                )
+            )
+        )
         return False
 
 
