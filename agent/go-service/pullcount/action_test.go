@@ -94,10 +94,6 @@ func TestSummarizeVouchers(t *testing.T) {
 	if got.NextOnlyPulls != 10 {
 		t.Fatalf("next only pulls = %d, want 10", got.NextOnlyPulls)
 	}
-	wantUnknown := []string{"未配置十连寻访凭证", "未配置寻访凭证"}
-	if len(got.UnknownNames) != len(wantUnknown) || got.UnknownNames[0] != wantUnknown[0] || got.UnknownNames[1] != wantUnknown[1] {
-		t.Fatalf("unknown names = %#v, want %#v", got.UnknownNames, wantUnknown)
-	}
 	if len(got.Matches) != 4 {
 		t.Fatalf("matches length = %d, want 4", len(got.Matches))
 	}
@@ -198,12 +194,12 @@ func TestParseIntegerTextRejectsInputsWithoutDigits(t *testing.T) {
 	}
 }
 
-// TestCurrentPageItemsUsesOneRecordPerCell verifies repeated OCR on one cell is de-duplicated.
-func TestCurrentPageItemsUsesOneRecordPerCell(t *testing.T) {
+// TestCurrentPageCellsUsesOneRecordPerCell verifies repeated OCR on one cell is de-duplicated.
+func TestCurrentPageCellsUsesOneRecordPerCell(t *testing.T) {
 	session := newTestSession()
 	recordPageQuantity(session, 1, 7)
-	recordPageItem(session, 1, "普通物品", 7, true)
-	recordPageItem(session, 1, "普通物品噪声", 1, false)
+	recordPageItem(session, 1, "普通物品")
+	recordPageItem(session, 1, "普通物品噪声")
 
 	items := currentPageItems(session)
 	if len(items) != 1 {
@@ -292,29 +288,13 @@ func TestOCRTextCandidatesReadsNestedDetails(t *testing.T) {
 	}
 }
 
-// TestFindRecognitionDetailByName verifies nested Pipeline recognition results can be located by node name.
-func TestFindRecognitionDetailByName(t *testing.T) {
-	want := &maa.RecognitionDetail{Name: "target", Hit: true}
-	detail := &maa.RecognitionDetail{
-		Name: "root",
-		CombinedResult: []*maa.RecognitionDetail{
-			{Name: "other"},
-			{Name: "parent", CombinedResult: []*maa.RecognitionDetail{want}},
-		},
-	}
-
-	if got := findRecognitionDetailByName(detail, "target"); got != want {
-		t.Fatalf("findRecognitionDetailByName() = %#v, want target detail", got)
-	}
-}
-
 // TestRecordVisiblePageAccumulatesVouchers verifies page recording leaves flow decisions to Pipeline.
 func TestRecordVisiblePageAccumulatesVouchers(t *testing.T) {
 	session := newTestSession()
-	session.CurrentPageItems = []scannedVoucher{
-		{Name: "寻访情报书", Quantity: 1},
-		{Name: "普通物品", Quantity: 3},
-	}
+	recordPageQuantity(session, 1, 1)
+	recordPageItem(session, 1, "寻访情报书")
+	recordPageQuantity(session, 2, 3)
+	recordPageItem(session, 2, "普通物品")
 
 	got := recordVisiblePage(session)
 	if session.PageCount != 1 {
@@ -360,6 +340,5 @@ func newTestSession() *runSession {
 		VoucherIndex:      index,
 		VoucherQuantities: make(map[string]int),
 		CurrentPageCells:  make(map[int]scannedCell),
-		CurrentPageItems:  nil,
 	}
 }

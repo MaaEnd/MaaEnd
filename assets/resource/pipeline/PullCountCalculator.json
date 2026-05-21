@@ -300,7 +300,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -501,7 +501,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -699,7 +699,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -894,7 +894,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -1086,7 +1086,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -1275,7 +1275,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -1461,7 +1461,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -1644,7 +1644,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -1824,7 +1824,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2001,7 +2001,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2175,7 +2175,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2346,7 +2346,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2514,7 +2514,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2679,7 +2679,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -2841,7 +2841,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3000,7 +3000,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3156,7 +3156,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3309,7 +3309,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3459,7 +3459,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3606,7 +3606,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3750,7 +3750,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -3891,7 +3891,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4029,7 +4029,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4164,7 +4164,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4296,7 +4296,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4425,7 +4425,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4551,7 +4551,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4674,7 +4674,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4794,7 +4794,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -4911,7 +4911,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5025,7 +5025,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5136,7 +5136,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5244,7 +5244,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5349,7 +5349,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5451,7 +5451,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5550,7 +5550,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5646,7 +5646,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5739,7 +5739,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5829,7 +5829,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -5916,7 +5916,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -6000,7 +6000,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -6081,7 +6081,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -6159,7 +6159,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -6234,7 +6234,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
@@ -6306,7 +6306,7 @@
             48
         ],
         "expected": [
-            ".+"
+            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
         ],
         "only_rec": true,
         "action": "Custom",
