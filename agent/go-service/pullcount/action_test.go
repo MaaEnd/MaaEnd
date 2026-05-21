@@ -19,15 +19,15 @@ func TestCalculatePullCount(t *testing.T) {
 		NextOnlyPulls:    10,
 	}
 	got := calculatePullCount(resourceValues{
-		Originium: 2925,
-		Oroberyl:  20770,
+		ConvertedOriginiumOroberyl: 2925,
+		Oroberyl:                   20770,
 	}, summary, param)
 
-	if got.ReservedOriginiumValue != 2175 {
-		t.Fatalf("reserved originium value = %d, want 2175", got.ReservedOriginiumValue)
+	if got.ReservedOriginiumOroberyl != 2175 {
+		t.Fatalf("reserved originium oroberyl = %d, want 2175", got.ReservedOriginiumOroberyl)
 	}
-	if got.UsableOriginium != 750 {
-		t.Fatalf("usable originium = %d, want 750", got.UsableOriginium)
+	if got.UsableOriginiumOroberyl != 750 {
+		t.Fatalf("usable originium oroberyl = %d, want 750", got.UsableOriginiumOroberyl)
 	}
 	if got.ResourcePulls != 43 {
 		t.Fatalf("resource pulls = %d, want 43", got.ResourcePulls)
@@ -48,12 +48,12 @@ func TestCalculatePullCountClampsReservedOriginium(t *testing.T) {
 	}
 
 	got := calculatePullCount(resourceValues{
-		Originium: 2000,
-		Oroberyl:  499,
+		ConvertedOriginiumOroberyl: 2000,
+		Oroberyl:                   499,
 	}, voucherSummary{}, param)
 
-	if got.UsableOriginium != 0 {
-		t.Fatalf("usable originium = %d, want 0", got.UsableOriginium)
+	if got.UsableOriginiumOroberyl != 0 {
+		t.Fatalf("usable originium oroberyl = %d, want 0", got.UsableOriginiumOroberyl)
 	}
 	if got.ResourcePulls != 0 {
 		t.Fatalf("resource pulls = %d, want 0", got.ResourcePulls)
@@ -66,18 +66,21 @@ func TestCalculatePullCountClampsReservedOriginium(t *testing.T) {
 // TestSummarizeVouchers verifies voucher weights and pool scopes.
 func TestSummarizeVouchers(t *testing.T) {
 	config := &voucherConfig{Vouchers: []voucherDef{
-		{Name: "当前单抽券", PullValue: 1, PoolScope: "current_only"},
+		{Name: "当前单抽券", Names: []string{"当前单抽券别名1", "当前单抽券别名2"}, PullValue: 1, PoolScope: "current_only"},
 		{Name: "通用单抽券", PullValue: 1, PoolScope: "carry_to_next"},
 		{Name: "下池十连券", PullValue: 10, PoolScope: "next_only"},
 	}}
 
-	got := summarizeVouchers([]scannedVoucher{
-		{Name: "当前单抽券", Quantity: 2},
+	got, err := summarizeVouchers([]scannedVoucher{
+		{Name: "当前单抽券别名2", Quantity: 2},
 		{Name: "通用单抽券", Quantity: 3},
 		{Name: "下池十连券", Quantity: 1},
 		{Name: "未配置寻访凭证", Quantity: 7},
 		{Name: "无关物品", Quantity: 99},
 	}, config)
+	if err != nil {
+		t.Fatalf("summarizeVouchers() error = %v", err)
+	}
 
 	if got.CurrentOnlyPulls != 2 {
 		t.Fatalf("current only pulls = %d, want 2", got.CurrentOnlyPulls)
@@ -91,6 +94,60 @@ func TestSummarizeVouchers(t *testing.T) {
 	if len(got.UnknownNames) != 1 || got.UnknownNames[0] != "未配置寻访凭证" {
 		t.Fatalf("unknown names = %#v, want [未配置寻访凭证]", got.UnknownNames)
 	}
+	if len(got.Matches) != 3 {
+		t.Fatalf("matches length = %d, want 3", len(got.Matches))
+	}
+	assertVoucherMatch(t, got.Matches, voucherMatch{
+		CanonicalName: "当前单抽券",
+		DisplayName:   "当前单抽券别名2",
+		PullValue:     1,
+		PoolScope:     "current_only",
+		Quantity:      2,
+		Pulls:         2,
+	})
+	assertVoucherMatch(t, got.Matches, voucherMatch{
+		CanonicalName: "通用单抽券",
+		DisplayName:   "通用单抽券",
+		PullValue:     1,
+		PoolScope:     "carry_to_next",
+		Quantity:      3,
+		Pulls:         3,
+	})
+	assertVoucherMatch(t, got.Matches, voucherMatch{
+		CanonicalName: "下池十连券",
+		DisplayName:   "下池十连券",
+		PullValue:     10,
+		PoolScope:     "next_only",
+		Quantity:      1,
+		Pulls:         10,
+	})
+}
+
+// TestBuildVoucherIndexRejectsDuplicateAliases verifies conflicting voucher aliases fail fast.
+func TestBuildVoucherIndexRejectsDuplicateAliases(t *testing.T) {
+	config := &voucherConfig{Vouchers: []voucherDef{
+		{Name: "通用单抽券", Names: []string{"寻访券"}, PullValue: 1, PoolScope: "carry_to_next"},
+		{Name: "限时单抽券", Names: []string{"寻访券"}, PullValue: 1, PoolScope: "current_only"},
+	}}
+
+	if _, err := buildVoucherIndex(config); err == nil {
+		t.Fatal("buildVoucherIndex() error = nil, want duplicate alias error")
+	}
+}
+
+// TestBuildVoucherIndexAllowsDuplicateAliasesWithinSameVoucher verifies repeated names on one voucher are harmless.
+func TestBuildVoucherIndexAllowsDuplicateAliasesWithinSameVoucher(t *testing.T) {
+	config := &voucherConfig{Vouchers: []voucherDef{
+		{Name: "通用单抽券", Names: []string{"通用单抽券", " 通 用 单 抽 券 "}, PullValue: 1, PoolScope: "carry_to_next"},
+	}}
+
+	index, err := buildVoucherIndex(config)
+	if err != nil {
+		t.Fatalf("buildVoucherIndex() error = %v", err)
+	}
+	if _, ok := index[normalizeName("通用单抽券")]; !ok {
+		t.Fatal("buildVoucherIndex() missing canonical voucher key")
+	}
 }
 
 // TestParseIntegerText accepts compact OCR noise around a counter.
@@ -98,6 +155,9 @@ func TestParseIntegerText(t *testing.T) {
 	cases := map[string]int{
 		" 20,770 |": 20770,
 		"20770 1":   20770,
+		"x 123 y":   123,
+		"abc 456":   456,
+		"987654321": 987654321,
 	}
 
 	for text, want := range cases {
@@ -107,6 +167,21 @@ func TestParseIntegerText(t *testing.T) {
 		}
 		if got != want {
 			t.Fatalf("parseIntegerText(%q) = %d, want %d", text, got, want)
+		}
+	}
+}
+
+// TestParseIntegerTextRejectsInputsWithoutDigits verifies OCR text must contain a counter.
+func TestParseIntegerTextRejectsInputsWithoutDigits(t *testing.T) {
+	cases := []string{
+		"abc",
+		" | ",
+		"",
+	}
+
+	for _, text := range cases {
+		if got, err := parseIntegerText(text); err == nil {
+			t.Fatalf("parseIntegerText(%q) = %d, want error", text, got)
 		}
 	}
 }
@@ -156,6 +231,61 @@ func TestWarehouseGridChangedDetectsChangedGrid(t *testing.T) {
 	if !changed {
 		t.Fatalf("warehouseGridChanged() changed = false, want true; ratio=%f", ratio)
 	}
+}
+
+// TestWarehouseGridChangedHandlesNilImages verifies missing screenshots are treated as unchanged.
+func TestWarehouseGridChangedHandlesNilImages(t *testing.T) {
+	img := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
+
+	cases := []struct {
+		name   string
+		before image.Image
+		after  image.Image
+	}{
+		{name: "nil before", before: nil, after: img},
+		{name: "nil after", before: img, after: nil},
+		{name: "both nil", before: nil, after: nil},
+	}
+
+	for _, tc := range cases {
+		changed, ratio := warehouseGridChanged(tc.before, tc.after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0.01)
+		if changed {
+			t.Fatalf("%s: changed = true, want false; ratio=%f", tc.name, ratio)
+		}
+		if ratio != 0 {
+			t.Fatalf("%s: ratio = %f, want 0", tc.name, ratio)
+		}
+	}
+}
+
+// TestWarehouseGridChangedZeroThresholdTreatsAnyChangeAsChanged verifies threshold boundary behavior.
+func TestWarehouseGridChangedZeroThresholdTreatsAnyChangeAsChanged(t *testing.T) {
+	before := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
+	after := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
+	fillRect(after, image.Rect(60, 140, 61, 141), color.RGBA{R: 220, G: 220, B: 220, A: 255})
+
+	changed, ratio := warehouseGridChanged(before, after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0)
+	if !changed {
+		t.Fatalf("warehouseGridChanged() changed = false, want true; ratio=%f", ratio)
+	}
+	if ratio <= 0 {
+		t.Fatalf("warehouseGridChanged() ratio = %f, want positive", ratio)
+	}
+}
+
+// assertVoucherMatch verifies one expected voucher classification result.
+func assertVoucherMatch(t *testing.T, matches []voucherMatch, want voucherMatch) {
+	t.Helper()
+	for _, got := range matches {
+		if got.CanonicalName != want.CanonicalName {
+			continue
+		}
+		if got != want {
+			t.Fatalf("voucher match for %q = %+v, want %+v", want.CanonicalName, got, want)
+		}
+		return
+	}
+	t.Fatalf("voucher match for %q not found in %+v", want.CanonicalName, matches)
 }
 
 // solidImage creates a filled RGBA image for image-diff tests.

@@ -79,22 +79,22 @@ type roiParam struct {
 }
 
 type resourceValues struct {
-	Originium int
-	Oroberyl  int
+	ConvertedOriginiumOroberyl int
+	Oroberyl                   int
 }
 
 type calculationResult struct {
-	ReservedOriginium      int
-	ReservedOriginiumValue int
-	UsableOriginium        int
-	ResourcePulls          int
-	CurrentOnlyPulls       int
-	CarryToNextPulls       int
-	NextOnlyPulls          int
-	NextPoolShopPulls      int
-	NextPoolSigninPulls    int
-	CurrentPoolTotal       int
-	NextPoolTotal          int
+	ReservedOriginium         int
+	ReservedOriginiumOroberyl int
+	UsableOriginiumOroberyl   int
+	ResourcePulls             int
+	CurrentOnlyPulls          int
+	CarryToNextPulls          int
+	NextOnlyPulls             int
+	NextPoolShopPulls         int
+	NextPoolSigninPulls       int
+	CurrentPoolTotal          int
+	NextPoolTotal             int
 }
 
 type voucherConfig struct {
@@ -209,7 +209,12 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	summary := summarizeVouchers(scanned, config)
+	summary, err := summarizeVouchers(scanned, config)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Msg("failed to summarize voucher config")
+		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
+		return false
+	}
 	result := calculatePullCount(values, summary, param)
 	maafocus.Print(ctx, formatResultFocus(values, summary, result))
 
@@ -217,9 +222,9 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Str("component", componentName).
 		Int("oroberyl", values.Oroberyl).
 		Int("reserved_originium", result.ReservedOriginium).
-		Int("converted_originium_oroberyl", values.Originium).
-		Int("reserved_originium_oroberyl", result.ReservedOriginiumValue).
-		Int("usable_converted_originium_oroberyl", result.UsableOriginium).
+		Int("converted_originium_oroberyl", values.ConvertedOriginiumOroberyl).
+		Int("reserved_originium_oroberyl", result.ReservedOriginiumOroberyl).
+		Int("usable_converted_originium_oroberyl", result.UsableOriginiumOroberyl).
 		Int("resource_pulls", result.ResourcePulls).
 		Int("current_only_pulls", result.CurrentOnlyPulls).
 		Int("carry_to_next_pulls", result.CarryToNextPulls).
@@ -391,7 +396,7 @@ func readResourceValues(ctx *maa.Context, img image.Image, param *actionParam) (
 	var values resourceValues
 	var err error
 
-	if values.Originium, err = runIntegerOCR(ctx, img, param.OriginiumNode, i18n.T("pullcount.resource.originium")); err != nil {
+	if values.ConvertedOriginiumOroberyl, err = runIntegerOCR(ctx, img, param.OriginiumNode, i18n.T("pullcount.resource.originium")); err != nil {
 		return values, err
 	}
 	if values.Oroberyl, err = runIntegerOCR(ctx, img, param.OroberylNode, i18n.T("pullcount.resource.oroberyl")); err != nil {
@@ -612,7 +617,10 @@ func scanWarehouseVouchers(ctx *maa.Context, param *actionParam, config *voucher
 
 	byName := make(map[string]int)
 	pageSignatures := make(map[string]struct{})
-	configuredNames := buildVoucherIndex(config)
+	configuredNames, err := buildVoucherIndex(config)
+	if err != nil {
+		return nil, err
+	}
 
 	for page := 0; page < param.ScanMaxPages; page++ {
 		if tasker.Stopping() {
@@ -945,6 +953,9 @@ func loadVoucherConfig(path string) (*voucherConfig, error) {
 			return nil, fmt.Errorf("voucher %d: %w", i, err)
 		}
 	}
+	if _, err := buildVoucherIndex(&config); err != nil {
+		return nil, err
+	}
 	return &config, nil
 }
 
@@ -965,8 +976,11 @@ func validateVoucherDef(def voucherDef) error {
 }
 
 // summarizeVouchers classifies scanned items and totals pull values by pool scope.
-func summarizeVouchers(scanned []scannedVoucher, config *voucherConfig) voucherSummary {
-	index := buildVoucherIndex(config)
+func summarizeVouchers(scanned []scannedVoucher, config *voucherConfig) (voucherSummary, error) {
+	index, err := buildVoucherIndex(config)
+	if err != nil {
+		return voucherSummary{}, err
+	}
 	summary := voucherSummary{}
 	unknown := make(map[string]struct{})
 
@@ -1011,26 +1025,55 @@ func summarizeVouchers(scanned []scannedVoucher, config *voucherConfig) voucherS
 		}
 		return summary.Matches[i].DisplayName < summary.Matches[j].DisplayName
 	})
-	return summary
+	return summary, nil
 }
 
 // buildVoucherIndex maps every configured alias to its voucher definition.
-func buildVoucherIndex(config *voucherConfig) map[string]voucherDef {
+func buildVoucherIndex(config *voucherConfig) (map[string]voucherDef, error) {
 	index := make(map[string]voucherDef)
 	if config == nil {
-		return index
+		return index, nil
 	}
-	for _, def := range config.Vouchers {
+	owners := make(map[string]int)
+	for i, def := range config.Vouchers {
 		aliases := append([]string{def.Name}, def.Names...)
 		for _, alias := range aliases {
 			key := normalizeName(alias)
 			if key == "" {
 				continue
 			}
+			if owner, exists := owners[key]; exists {
+				if owner == i {
+					continue
+				}
+				return nil, fmt.Errorf(
+					"duplicate voucher alias %q normalized as %q for voucher %d (%s) and voucher %d (%s)",
+					alias,
+					key,
+					owner,
+					voucherDefDisplayName(config.Vouchers[owner]),
+					i,
+					voucherDefDisplayName(def),
+				)
+			}
+			owners[key] = i
 			index[key] = def
 		}
 	}
-	return index
+	return index, nil
+}
+
+// voucherDefDisplayName returns a stable label for config validation errors.
+func voucherDefDisplayName(def voucherDef) string {
+	if strings.TrimSpace(def.Name) != "" {
+		return def.Name
+	}
+	for _, name := range def.Names {
+		if strings.TrimSpace(name) != "" {
+			return name
+		}
+	}
+	return "<unnamed>"
 }
 
 // normalizeName strips OCR noise for exact item-name matching.
@@ -1096,28 +1139,28 @@ func voucherTitleRelevant(name string, configuredNames map[string]voucherDef) bo
 
 // calculatePullCount converts resources and classified vouchers into current and next-pool totals.
 func calculatePullCount(values resourceValues, summary voucherSummary, param *actionParam) calculationResult {
-	reservedOriginiumValue := param.ReservedOriginium * param.OriginiumToOroberyl
-	usableOriginium := values.Originium - reservedOriginiumValue
-	if usableOriginium < 0 {
-		usableOriginium = 0
+	reservedOriginiumOroberyl := param.ReservedOriginium * param.OriginiumToOroberyl
+	usableOriginiumOroberyl := values.ConvertedOriginiumOroberyl - reservedOriginiumOroberyl
+	if usableOriginiumOroberyl < 0 {
+		usableOriginiumOroberyl = 0
 	}
 
-	resourcePulls := (values.Oroberyl + usableOriginium) / param.OroberylPerPull
+	resourcePulls := (values.Oroberyl + usableOriginiumOroberyl) / param.OroberylPerPull
 	currentPoolTotal := resourcePulls + summary.CurrentOnlyPulls + summary.CarryToNextPulls
 	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + summary.NextOnlyPulls + param.NextPoolShopPulls + param.NextPoolSigninPulls
 
 	return calculationResult{
-		ReservedOriginium:      param.ReservedOriginium,
-		ReservedOriginiumValue: reservedOriginiumValue,
-		UsableOriginium:        usableOriginium,
-		ResourcePulls:          resourcePulls,
-		CurrentOnlyPulls:       summary.CurrentOnlyPulls,
-		CarryToNextPulls:       summary.CarryToNextPulls,
-		NextOnlyPulls:          summary.NextOnlyPulls,
-		NextPoolShopPulls:      param.NextPoolShopPulls,
-		NextPoolSigninPulls:    param.NextPoolSigninPulls,
-		CurrentPoolTotal:       currentPoolTotal,
-		NextPoolTotal:          nextPoolTotal,
+		ReservedOriginium:         param.ReservedOriginium,
+		ReservedOriginiumOroberyl: reservedOriginiumOroberyl,
+		UsableOriginiumOroberyl:   usableOriginiumOroberyl,
+		ResourcePulls:             resourcePulls,
+		CurrentOnlyPulls:          summary.CurrentOnlyPulls,
+		CarryToNextPulls:          summary.CarryToNextPulls,
+		NextOnlyPulls:             summary.NextOnlyPulls,
+		NextPoolShopPulls:         param.NextPoolShopPulls,
+		NextPoolSigninPulls:       param.NextPoolSigninPulls,
+		CurrentPoolTotal:          currentPoolTotal,
+		NextPoolTotal:             nextPoolTotal,
 	}
 }
 
@@ -1134,10 +1177,10 @@ func formatResultFocus(values resourceValues, summary voucherSummary, result cal
 		result.CurrentPoolTotal,
 		result.NextPoolTotal,
 		values.Oroberyl,
-		values.Originium,
+		values.ConvertedOriginiumOroberyl,
 		result.ReservedOriginium,
-		result.ReservedOriginiumValue,
-		result.UsableOriginium,
+		result.ReservedOriginiumOroberyl,
+		result.UsableOriginiumOroberyl,
 	)
 	if len(summary.UnknownNames) > 0 {
 		message += "\n" + i18n.T("pullcount.result.unknown_vouchers", strings.Join(summary.UnknownNames, i18n.Separator()))
