@@ -169,7 +169,7 @@ def _read_installed_webview2_version() -> str:
 
 def download_webview2(skip_if_exist: bool = True) -> bool:
     """
-    在 Windows 平台下载 Microsoft.Web.WebView2 SDK 并解压到 3rdparty/webview2/。
+    在 Windows 平台下载 Microsoft.Web.WebView2 SDK 并解压到 agent/cpp-algo/3rdparty/webview2/。
     其它平台 no-op。
 
     跳过语义对齐 setup_workspace 中的 maafw/mxu 模块：
