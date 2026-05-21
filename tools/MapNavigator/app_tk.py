@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from pathlib import Path
+from typing import Any
 
 from PIL import Image, ImageTk
 
@@ -18,12 +18,13 @@ from json_import import (
     load_points_from_json_file,
     split_route_into_segments,
 )
-from basenav_preview import BaseNavField, PreviewRoute, find_preview_route
+from basenav_preview import PreviewRoute, find_preview_route, load_basenav_field
 from model import (
     ACTION_COLORS,
     ACTION_MENU_NAMES,
     ACTION_NAMES,
     ActionType,
+    BASE_NAV_DISPLAY_ZONE_IDS,
     PathPoint,
     get_point_actions,
     normalize_path_points,
@@ -46,7 +47,6 @@ def _compact_number(value: float) -> int | float:
     return rounded
 
 
-BASE_NAV_DISPLAY_ZONE_IDS = ["map01base", "map02base", "base01", "dung01"]
 ASTAR_PREVIEW_SNAP_RADIUS = 5.0
 
 
@@ -83,7 +83,7 @@ class RouteEditorApp:
         self.raw_points: list[PathPoint] = []
         self.points: list[PathPoint] = []
         self.available_zone_ids = list_available_zone_ids()
-        self.astar_display_zone_ids = BASE_NAV_DISPLAY_ZONE_IDS
+        self.astar_display_zone_ids = list(BASE_NAV_DISPLAY_ZONE_IDS)
         self.assert_mode_var = tk.BooleanVar(value=False)
         self.assert_zone_var = tk.StringVar(value="")
         self.astar_mode_var = tk.BooleanVar(value=False)
@@ -137,7 +137,7 @@ class RouteEditorApp:
         self.assert_start_world_x = 0.0
         self.assert_start_world_y = 0.0
         self.assert_rect_world: tuple[float, float, float, float] | None = None
-        self.astar_field: BaseNavField | None = None
+        self.astar_field: Any | None = None
         self.astar_start: tuple[float, float] | None = None
         self.astar_goal: tuple[float, float] | None = None
         self.astar_route: PreviewRoute | None = None
@@ -825,7 +825,7 @@ class RouteEditorApp:
             messagebox.showerror("加载失败", f"未找到固定 NavMesh 文件：{input_file}")
             return
         try:
-            field = BaseNavField(input_file)
+            field = load_basenav_field(input_file)
         except Exception as exc:
             messagebox.showerror("加载失败", str(exc))
             return

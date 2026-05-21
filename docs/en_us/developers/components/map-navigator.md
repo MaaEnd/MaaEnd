@@ -162,7 +162,7 @@ This is a **BaseNav semantic routing node**. It does not carry `zone_id`, `navme
 In the GUI, clicking `Load BaseNav` enters the same BaseNav preview flow, and `Copy NAVMESH` copies exactly this node shape to the clipboard.
 `NAVMESH` is useful when you want the system to find a triangle-graph route from the current standing position to a target point without manually recording an entire path first.
 
-**as long as the raw route is reachable without interactions, zone transitions, or special mechanisms, `NAVMESH` only needs a single `target` to carry the character directly to the destination**. You do not need to pre-record the whole path, add intermediate waypoints, or tune the route by hand for that goal. In the GUI, once you click the target, the runtime uses the BaseNav triangle graph to plan an executable route directly.
+**As long as the raw route is reachable without interactions, zone transitions, or special mechanisms, `NAVMESH` only needs a single `target` to carry the character directly to the destination**. You do not need to pre-record the whole path, add intermediate waypoints, or tune the route by hand for that goal. In the GUI, once you click the target, the runtime uses the BaseNav triangle graph to plan an executable route directly.
 
 #### Return Behavior
 

@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
@@ -39,6 +41,19 @@ struct NavmeshExpansionState
     std::string navmesh_zone;
 };
 
+struct BaseNavZoneAlias
+{
+    std::string_view zone_id;
+    std::array<std::string_view, 2> prefixes;
+};
+
+constexpr std::array<BaseNavZoneAlias, 4> kBaseNavZoneAliases {{
+    { "map01base", { "map01", "ValleyIV" } },
+    { "map02base", { "map02", "Wuling" } },
+    { "base01", { "base01", "OMVBase" } },
+    { "dung01", { "dung01", "Dung" } },
+}};
+
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
     return waypoint.action == ActionType::NAVMESH && waypoint.HasPosition();
@@ -54,9 +69,10 @@ bool StartsWith(std::string_view text, std::string_view prefix)
     return text.size() >= prefix.size() && text.substr(0, prefix.size()) == prefix;
 }
 
-bool IsBaseNavZoneName(const std::string& zone_id)
+bool IsBaseNavZoneName(std::string_view zone_id)
 {
-    return zone_id == "map01base" || zone_id == "map02base" || zone_id == "base01" || zone_id == "dung01";
+    return std::any_of(kBaseNavZoneAliases.begin(), kBaseNavZoneAliases.end(),
+                       [zone_id](const BaseNavZoneAlias& alias) { return alias.zone_id == zone_id; });
 }
 
 std::string InferBaseNavZone(const std::string& locator_zone, const std::string& map_name)
@@ -65,17 +81,11 @@ std::string InferBaseNavZone(const std::string& locator_zone, const std::string&
     if (IsBaseNavZoneName(source)) {
         return source;
     }
-    if (StartsWith(source, "map01") || StartsWith(source, "ValleyIV")) {
-        return "map01base";
-    }
-    if (StartsWith(source, "map02") || StartsWith(source, "Wuling")) {
-        return "map02base";
-    }
-    if (StartsWith(source, "base01") || StartsWith(source, "OMVBase")) {
-        return "base01";
-    }
-    if (StartsWith(source, "dung01") || StartsWith(source, "Dung")) {
-        return "dung01";
+    for (const BaseNavZoneAlias& alias : kBaseNavZoneAliases) {
+        if (std::any_of(alias.prefixes.begin(), alias.prefixes.end(),
+                        [&source](std::string_view prefix) { return StartsWith(source, prefix); })) {
+            return std::string(alias.zone_id);
+        }
     }
     return {};
 }
@@ -126,7 +136,10 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
 std::shared_ptr<CachedNavmesh> LoadCachedNavmesh(const std::filesystem::path& navmesh_path)
 {
     static std::unordered_map<std::string, std::shared_ptr<CachedNavmesh>> cache;
+    static std::mutex cache_mutex;
+
     const std::string cache_key = std::filesystem::absolute(navmesh_path).lexically_normal().string();
+    const std::lock_guard lock(cache_mutex);
     if (auto iter = cache.find(cache_key); iter != cache.end()) {
         return iter->second;
     }

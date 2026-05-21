@@ -7,6 +7,15 @@ from pathlib import Path
 from typing import NotRequired, TypedDict
 
 
+BASE_NAV_ZONE_IMAGE_PARTS = {
+    "map01base": ("MapLocator", "ValleyIV", "Base.png"),
+    "map02base": ("MapLocator", "Wuling", "Base.png"),
+    "base01": ("MapLocator", "OMVBase", "OMVBase01.png"),
+    "dung01": ("MapLocator", "Dung", "Dung01Base.png"),
+}
+BASE_NAV_DISPLAY_ZONE_IDS = tuple(BASE_NAV_ZONE_IMAGE_PARTS)
+
+
 class PathPoint(TypedDict):
     """路径点统一结构，录制与导出都复用该格式。"""
 
@@ -368,13 +377,8 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
     if not map_image_dir.exists():
         return None
 
-    base_aliases = {
-        "map01base": map_image_dir / "MapLocator" / "ValleyIV" / "Base.png",
-        "map02base": map_image_dir / "MapLocator" / "Wuling" / "Base.png",
-        "base01": map_image_dir / "MapLocator" / "OMVBase" / "OMVBase01.png",
-        "dung01": map_image_dir / "MapLocator" / "Dung" / "Dung01Base.png",
-    }
-    alias_path = base_aliases.get(normalized_zone_id)
+    alias_parts = BASE_NAV_ZONE_IMAGE_PARTS.get(normalized_zone_id)
+    alias_path = map_image_dir.joinpath(*alias_parts) if alias_parts is not None else None
     if alias_path is not None and alias_path.exists():
         return alias_path
 

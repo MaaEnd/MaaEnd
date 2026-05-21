@@ -2,14 +2,24 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 from runtime import PROJECT_ROOT
 
 BASENAV_TOOLS_DIR = PROJECT_ROOT / "agent" / "cpp-algo" / "NavmeshWorkspace" / "tools"
-if str(BASENAV_TOOLS_DIR) not in sys.path:
-    sys.path.insert(0, str(BASENAV_TOOLS_DIR))
 
-from basenav_lib import BaseNavField
+
+def load_basenav_field(input_file: Path) -> Any:
+    if str(BASENAV_TOOLS_DIR) not in sys.path:
+        sys.path.insert(0, str(BASENAV_TOOLS_DIR))
+    try:
+        from basenav_lib import BaseNavField
+    except ModuleNotFoundError as exc:
+        if exc.name != "basenav_lib":
+            raise
+        raise RuntimeError(f"缺少 BaseNav 预览依赖：{BASENAV_TOOLS_DIR / 'basenav_lib.py'}") from exc
+    return BaseNavField(input_file)
 
 
 @dataclass(frozen=True)
@@ -21,7 +31,7 @@ class PreviewRoute:
 
 
 def find_preview_route(
-    field: BaseNavField,
+    field: Any,
     zone_id: int,
     display_zone_id: str,
     start: tuple[float, float],

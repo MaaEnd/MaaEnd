@@ -11,6 +11,8 @@
 
 #include <zlib.h>
 
+#include <MaaUtils/Logger.h>
+
 #include "BaseNavReader.h"
 
 namespace navmesh
@@ -269,6 +271,9 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path)
         BaseNavTriangle triangle;
         for (uint32_t& value : triangle.vertices) {
             value = ReadU32(triangle_cursor);
+            if (value >= vertex_count) {
+                return Fail(BaseNavLoadStatus::InvalidSize, "triangle vertex index is outside vertex table");
+            }
         }
         for (int32_t& value : triangle.neighbors) {
             value = ReadI32(triangle_cursor);
@@ -286,6 +291,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path)
         BaseNavLink link;
         link.source = ReadU32(link_cursor);
         link.target = ReadU32(link_cursor);
+        if (link.source >= triangle_count || link.target >= triangle_count) {
+            LogWarn << "Skipping invalid BaseNav link." << VAR(index) << VAR(link.source) << VAR(link.target)
+                    << VAR(triangle_count);
+            continue;
+        }
         links.push_back(link);
     }
 
