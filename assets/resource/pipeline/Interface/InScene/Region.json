@@ -230,9 +230,9 @@
             "param": {
                 "roi": [
                     700,
-                    100,
+                    50,
                     250,
-                    160
+                    210
                 ],
                 "template": [
                     "SceneManager/MenuBackpack.png"

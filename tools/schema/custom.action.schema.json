@@ -30,6 +30,7 @@
                 "CharacterControllerYawDeltaAction",
                 "CharacterMoveToTargetAction",
                 "CharacterMoveToTargetNotFoundAction",
+                "CaptureUid",
                 "ClearHitCount",
                 "CreditShoppingScanItemAction",
                 "DailyEventUnreadItemInitAction",

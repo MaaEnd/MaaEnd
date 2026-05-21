@@ -5,6 +5,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -101,7 +102,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
-	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, getCapturedUid(), *data); err != nil {
+	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, captureuid.GetCachedUID(), *data); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", "autostockpile").

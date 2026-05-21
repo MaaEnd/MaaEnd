@@ -9,6 +9,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoaltclick"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
@@ -58,6 +59,7 @@ func registerAll() {
 	schedule.Register()
 
 	// Business Custom
+	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
 	puzzle.Register()
