@@ -47,6 +47,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuListEnterMenuValuables",
             "__ScenePrivateWorldEnterMenuValuables",
             "[JumpBack]SceneAnyEnterWorld"
         ]

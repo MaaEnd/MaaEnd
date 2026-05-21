@@ -1,19 +1,51 @@
 {
     "PullCountCalculatorMain": {
-        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏并输出限定抽数估算",
+        "desc": "抽数计算入口：先读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描寻访券并输出当前池/下版本池抽数估算",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "single_ticket_node": "PullCountCalculatorSingleTicketOCR",
-            "ten_ticket_node": "PullCountCalculatorTenTicketOCR",
             "originium_node": "PullCountCalculatorOriginiumOCR",
             "oroberyl_node": "PullCountCalculatorOroberylOCR",
+            "valuables_scene_node": "SceneStashValuablesTab",
+            "voucher_config_path": "data/PullCountCalculator/vouchers.json",
             "reserved_originium": 29,
             "originium_to_oroberyl": 75,
             "oroberyl_per_pull": 500,
-            "ten_ticket_multiplier": 10
+            "next_pool_shop_pulls": 5,
+            "next_pool_signin_pulls": 5,
+            "scan_max_pages": 8,
+            "scan_click_delay_ms": 180,
+            "scan_scroll_node": "PullCountCalculatorWarehouseScrollDown",
+            "scan_grid": {
+                "start_x": 85,
+                "start_y": 168,
+                "step_x": 103,
+                "step_y": 103,
+                "cols": 9,
+                "rows": 5,
+                "max_y": 640
+            },
+            "title_roi": {
+                "x": 980,
+                "y": 82,
+                "w": 250,
+                "h": 48
+            },
+            "quantity_roi": {
+                "x": -24,
+                "y": 18,
+                "w": 58,
+                "h": 32
+            },
+            "scroll_check_roi": {
+                "x": 40,
+                "y": 120,
+                "w": 930,
+                "h": 540
+            },
+            "scroll_change_threshold": 0.01
         },
         "post_delay": 0,
         "focus": {
@@ -22,33 +54,14 @@
             "Node.Action.Failed": "$task.PullCountCalculator.focus.failed"
         }
     },
-    "PullCountCalculatorSingleTicketOCR": {
-        "desc": "识别顶部单抽寻访凭证数量",
-        "recognition": "OCR",
-        "roi": [
-            756,
-            8,
-            40,
-            40
+    "PullCountCalculatorWarehouseScrollDown": {
+        "action": "Scroll",
+        "target": [
+            640,
+            350
         ],
-        "expected": [
-            "^\\d+$"
-        ],
-        "only_rec": true
-    },
-    "PullCountCalculatorTenTicketOCR": {
-        "desc": "识别顶部十连寻访凭证数量",
-        "recognition": "OCR",
-        "roi": [
-            858,
-            8,
-            40,
-            40
-        ],
-        "expected": [
-            "^\\d+$"
-        ],
-        "only_rec": true
+        "dy": -360,
+        "post_wait_freezes": 650
     },
     "PullCountCalculatorOriginiumOCR": {
         "desc": "识别顶部衍质源石数量",
@@ -68,9 +81,9 @@
         "desc": "识别顶部嵌晶玉数量",
         "recognition": "OCR",
         "roi": [
-            1104,
+            1084,
             8,
-            72,
+            78,
             40
         ],
         "expected": [
