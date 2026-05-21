@@ -63,6 +63,7 @@
     "autofight.switch_character": "Switching to operator #%d",
     "pullcount.resource.originium": "Essence Originium converted to Oroberyl",
     "pullcount.resource.oroberyl": "Oroberyl",
+    "pullcount.resource_read_success": "%s read successfully: %d",
     "pullcount.error.invalid_params": "Invalid pull count calculation parameters",
     "pullcount.error.capture_failed": "Failed to capture screenshot for pull count calculation",
     "pullcount.error.recognition_failed": "Pull count recognition failed: %s. Make sure the Operator Recruitment screen is open and the top resource bar is visible.",

@@ -63,6 +63,7 @@
     "autofight.switch_character": "切换到干员%d",
     "pullcount.resource.originium": "衍质源石换算嵌晶玉",
     "pullcount.resource.oroberyl": "嵌晶玉",
+    "pullcount.resource_read_success": "%s读取成功：%d",
     "pullcount.error.invalid_params": "抽数计算参数无效",
     "pullcount.error.capture_failed": "抽数计算截图失败",
     "pullcount.error.recognition_failed": "抽数计算识别失败：%s。请确认当前处于干员寻访界面且顶部资源栏无遮挡。",

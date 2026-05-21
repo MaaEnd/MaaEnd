@@ -1,9 +1,9 @@
 package pullcount
 
 import (
-	"image"
-	"image/color"
 	"testing"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
 // TestCalculatePullCount verifies the recruitment screen resource formula from issue #2147.
@@ -68,13 +68,16 @@ func TestSummarizeVouchers(t *testing.T) {
 	config := &voucherConfig{Vouchers: []voucherDef{
 		{Name: "当前单抽券", Names: []string{"当前单抽券别名1", "当前单抽券别名2"}, PullValue: 1, PoolScope: "current_only"},
 		{Name: "通用单抽券", PullValue: 1, PoolScope: "carry_to_next"},
-		{Name: "下池十连券", PullValue: 10, PoolScope: "next_only"},
+		{Name: "基础寻访凭证", PullValue: 1, PoolScope: "ignore"},
+		{Name: "寻访情报书", Names: []string{"尋訪情報書"}, PullValue: 10, PoolScope: "next_only"},
 	}}
 
 	got, err := summarizeVouchers([]scannedVoucher{
 		{Name: "当前单抽券别名2", Quantity: 2},
 		{Name: "通用单抽券", Quantity: 3},
-		{Name: "下池十连券", Quantity: 1},
+		{Name: "基础寻访凭证", Quantity: 99},
+		{Name: "尋訪情報書", Quantity: 1},
+		{Name: "未配置十连寻访凭证", Quantity: 1},
 		{Name: "未配置寻访凭证", Quantity: 7},
 		{Name: "无关物品", Quantity: 99},
 	}, config)
@@ -91,11 +94,12 @@ func TestSummarizeVouchers(t *testing.T) {
 	if got.NextOnlyPulls != 10 {
 		t.Fatalf("next only pulls = %d, want 10", got.NextOnlyPulls)
 	}
-	if len(got.UnknownNames) != 1 || got.UnknownNames[0] != "未配置寻访凭证" {
-		t.Fatalf("unknown names = %#v, want [未配置寻访凭证]", got.UnknownNames)
+	wantUnknown := []string{"未配置十连寻访凭证", "未配置寻访凭证"}
+	if len(got.UnknownNames) != len(wantUnknown) || got.UnknownNames[0] != wantUnknown[0] || got.UnknownNames[1] != wantUnknown[1] {
+		t.Fatalf("unknown names = %#v, want %#v", got.UnknownNames, wantUnknown)
 	}
-	if len(got.Matches) != 3 {
-		t.Fatalf("matches length = %d, want 3", len(got.Matches))
+	if len(got.Matches) != 4 {
+		t.Fatalf("matches length = %d, want 4", len(got.Matches))
 	}
 	assertVoucherMatch(t, got.Matches, voucherMatch{
 		CanonicalName: "当前单抽券",
@@ -114,8 +118,16 @@ func TestSummarizeVouchers(t *testing.T) {
 		Pulls:         3,
 	})
 	assertVoucherMatch(t, got.Matches, voucherMatch{
-		CanonicalName: "下池十连券",
-		DisplayName:   "下池十连券",
+		CanonicalName: "基础寻访凭证",
+		DisplayName:   "基础寻访凭证",
+		PullValue:     1,
+		PoolScope:     "ignore",
+		Quantity:      99,
+		Pulls:         0,
+	})
+	assertVoucherMatch(t, got.Matches, voucherMatch{
+		CanonicalName: "寻访情报书",
+		DisplayName:   "尋訪情報書",
 		PullValue:     10,
 		PoolScope:     "next_only",
 		Quantity:      1,
@@ -186,90 +198,47 @@ func TestParseIntegerTextRejectsInputsWithoutDigits(t *testing.T) {
 	}
 }
 
-// TestScannedPageSignatureUsesAllReadableItems verifies non-voucher items can stop repeated page scans.
-func TestScannedPageSignatureUsesAllReadableItems(t *testing.T) {
-	first := []scannedVoucher{
-		{Name: "普通物品", Quantity: 3},
-		{Name: "无关材料", Quantity: 12},
-	}
-	second := []scannedVoucher{
-		{Name: "无关材料", Quantity: 12},
-		{Name: "普通物品", Quantity: 3},
-	}
+// TestCurrentPageItemsUsesOneRecordPerCell verifies repeated OCR on one cell is de-duplicated.
+func TestCurrentPageItemsUsesOneRecordPerCell(t *testing.T) {
+	session := newTestSession()
+	recordPageQuantity(session, 1, 7)
+	recordPageItem(session, 1, "普通物品", 7, true)
+	recordPageItem(session, 1, "普通物品噪声", 1, false)
 
-	firstSig := scannedPageSignature(first)
-	secondSig := scannedPageSignature(second)
-	if firstSig == "" {
-		t.Fatalf("scannedPageSignature() returned empty signature for readable non-voucher items")
+	items := currentPageItems(session)
+	if len(items) != 1 {
+		t.Fatalf("currentPageItems() length = %d, want 1: %#v", len(items), items)
 	}
-	if firstSig != secondSig {
-		t.Fatalf("scannedPageSignature() = %q, want order-independent %q", secondSig, firstSig)
+	if items[0].Cell != 1 || items[0].Quantity != 7 || !items[0].HasQuantity {
+		t.Fatalf("currentPageItems()[0] = %+v, want cell 1 quantity 7", items[0])
 	}
 }
 
-// TestWarehouseGridChangedDetectsUnchangedGrid verifies identical scroll ROI means the list reached bottom.
-func TestWarehouseGridChangedDetectsUnchangedGrid(t *testing.T) {
-	before := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
-	after := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
+// TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch verifies bottom detection from Pipeline OCR probes.
+func TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch(t *testing.T) {
+	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135}
+	after := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
 
-	changed, ratio := warehouseGridChanged(before, after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0.01)
-	if changed {
-		t.Fatalf("warehouseGridChanged() changed = true, want false; ratio=%f", ratio)
+	unchanged, comparable, matches := scrollProbeUnchanged(before, after)
+	if !unchanged {
+		t.Fatalf("scrollProbeUnchanged() unchanged = false, want true")
 	}
-	if ratio != 0 {
-		t.Fatalf("warehouseGridChanged() ratio = %f, want 0", ratio)
-	}
-}
-
-// TestWarehouseGridChangedDetectsChangedGrid verifies movement inside the grid ROI exceeds the threshold.
-func TestWarehouseGridChangedDetectsChangedGrid(t *testing.T) {
-	before := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
-	after := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
-	fillRect(after, image.Rect(60, 140, 260, 340), color.RGBA{R: 220, G: 220, B: 220, A: 255})
-
-	changed, ratio := warehouseGridChanged(before, after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0.01)
-	if !changed {
-		t.Fatalf("warehouseGridChanged() changed = false, want true; ratio=%f", ratio)
+	if comparable != 4 || matches != 4 {
+		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 4/4", comparable, matches)
 	}
 }
 
-// TestWarehouseGridChangedHandlesNilImages verifies missing screenshots are treated as unchanged.
-func TestWarehouseGridChangedHandlesNilImages(t *testing.T) {
-	img := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
+// TestScrollProbeUnchangedNeedsEnoughSignal verifies weak probes fall back to full scanning.
+func TestScrollProbeUnchangedNeedsEnoughSignal(t *testing.T) {
+	before := map[int]int{1: 30, 2: 80, 3: 80}
+	after := map[int]int{1: 30, 2: 80, 3: 80}
 
-	cases := []struct {
-		name   string
-		before image.Image
-		after  image.Image
-	}{
-		{name: "nil before", before: nil, after: img},
-		{name: "nil after", before: img, after: nil},
-		{name: "both nil", before: nil, after: nil},
+	unchanged, comparable, matches := scrollProbeUnchanged(before, after)
+	if unchanged {
+		t.Fatalf("scrollProbeUnchanged() unchanged = true, want false for weak signal")
 	}
-
-	for _, tc := range cases {
-		changed, ratio := warehouseGridChanged(tc.before, tc.after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0.01)
-		if changed {
-			t.Fatalf("%s: changed = true, want false; ratio=%f", tc.name, ratio)
-		}
-		if ratio != 0 {
-			t.Fatalf("%s: ratio = %f, want 0", tc.name, ratio)
-		}
-	}
-}
-
-// TestWarehouseGridChangedZeroThresholdTreatsAnyChangeAsChanged verifies threshold boundary behavior.
-func TestWarehouseGridChangedZeroThresholdTreatsAnyChangeAsChanged(t *testing.T) {
-	before := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
-	after := solidImage(1280, 720, color.RGBA{R: 20, G: 30, B: 40, A: 255})
-	fillRect(after, image.Rect(60, 140, 61, 141), color.RGBA{R: 220, G: 220, B: 220, A: 255})
-
-	changed, ratio := warehouseGridChanged(before, after, roiParam{X: 40, Y: 120, W: 930, H: 540}, 0)
-	if !changed {
-		t.Fatalf("warehouseGridChanged() changed = false, want true; ratio=%f", ratio)
-	}
-	if ratio <= 0 {
-		t.Fatalf("warehouseGridChanged() ratio = %f, want positive", ratio)
+	if comparable != 3 || matches != 3 {
+		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 3/3", comparable, matches)
 	}
 }
 
@@ -288,18 +257,109 @@ func assertVoucherMatch(t *testing.T, matches []voucherMatch, want voucherMatch)
 	t.Fatalf("voucher match for %q not found in %+v", want.CanonicalName, matches)
 }
 
-// solidImage creates a filled RGBA image for image-diff tests.
-func solidImage(width int, height int, c color.Color) *image.RGBA {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	fillRect(img, img.Bounds(), c)
-	return img
+// TestReadIntegerFromRecognitionDetailJSON verifies Pipeline OCR text can be parsed from raw detail JSON.
+func TestReadIntegerFromRecognitionDetailJSON(t *testing.T) {
+	detail := &maa.RecognitionDetail{
+		Hit:        true,
+		DetailJson: `{"best":{"text":"20,770"}}`,
+	}
+
+	got, err := readIntegerFromRecognition(detail)
+	if err != nil {
+		t.Fatalf("readIntegerFromRecognition() error = %v", err)
+	}
+	if got != 20770 {
+		t.Fatalf("readIntegerFromRecognition() = %d, want 20770", got)
+	}
 }
 
-// fillRect fills an image rectangle with one color.
-func fillRect(img *image.RGBA, rect image.Rectangle, c color.Color) {
-	for y := rect.Min.Y; y < rect.Max.Y; y++ {
-		for x := rect.Min.X; x < rect.Max.X; x++ {
-			img.Set(x, y, c)
-		}
+// TestOCRTextCandidatesReadsNestedDetails verifies And-node child OCR results are visible to actions.
+func TestOCRTextCandidatesReadsNestedDetails(t *testing.T) {
+	detail := &maa.RecognitionDetail{
+		Hit: true,
+		CombinedResult: []*maa.RecognitionDetail{
+			{Name: "quantity", Hit: true, DetailJson: `{"best":{"text":"12"}}`},
+			{Name: "title", Hit: true, DetailJson: `{"best":{"text":" 寻访情报书 "}}`},
+		},
+	}
+
+	texts := ocrTextCandidates(detail)
+	if len(texts) != 2 {
+		t.Fatalf("ocrTextCandidates() length = %d, want 2: %#v", len(texts), texts)
+	}
+	if texts[0] != "12" || texts[1] != "寻访情报书" {
+		t.Fatalf("ocrTextCandidates() = %#v, want [12 寻访情报书]", texts)
+	}
+}
+
+// TestFindRecognitionDetailByName verifies nested Pipeline recognition results can be located by node name.
+func TestFindRecognitionDetailByName(t *testing.T) {
+	want := &maa.RecognitionDetail{Name: "target", Hit: true}
+	detail := &maa.RecognitionDetail{
+		Name: "root",
+		CombinedResult: []*maa.RecognitionDetail{
+			{Name: "other"},
+			{Name: "parent", CombinedResult: []*maa.RecognitionDetail{want}},
+		},
+	}
+
+	if got := findRecognitionDetailByName(detail, "target"); got != want {
+		t.Fatalf("findRecognitionDetailByName() = %#v, want target detail", got)
+	}
+}
+
+// TestRecordVisiblePageAccumulatesVouchers verifies page recording leaves flow decisions to Pipeline.
+func TestRecordVisiblePageAccumulatesVouchers(t *testing.T) {
+	session := newTestSession()
+	session.CurrentPageItems = []scannedVoucher{
+		{Name: "寻访情报书", Quantity: 1},
+		{Name: "普通物品", Quantity: 3},
+	}
+
+	got := recordVisiblePage(session)
+	if session.PageCount != 1 {
+		t.Fatalf("page count = %d, want 1", session.PageCount)
+	}
+	if got != 2 {
+		t.Fatalf("recordVisiblePage() = %d, want 2", got)
+	}
+	if session.VoucherQuantities["寻访情报书"] != 1 {
+		t.Fatalf("voucher quantity = %d, want 1", session.VoucherQuantities["寻访情报书"])
+	}
+}
+
+// TestRecordVisiblePageStoresHeadProbe verifies scroll comparison can use top-row quantity OCR.
+func TestRecordVisiblePageStoresHeadProbe(t *testing.T) {
+	session := newTestSession()
+	session.CurrentPageCells = map[int]scannedCell{
+		1: {Name: "探测器", Quantity: 30, HasQuantity: true},
+		2: {Name: "探测器", Quantity: 80, HasQuantity: true},
+		3: {Name: "刻写券", Quantity: 135, HasQuantity: true},
+		4: {Name: "沉积具象物", Quantity: 4, HasQuantity: true},
+		5: {Name: "礼物", Quantity: 358, HasQuantity: true},
+	}
+
+	recordVisiblePage(session)
+	if len(session.LastHeadProbe) != 5 || session.LastHeadProbe[1] != 30 || session.LastHeadProbe[5] != 358 {
+		t.Fatalf("last head probe = %#v, want top-row quantities", session.LastHeadProbe)
+	}
+}
+
+// newTestSession builds the minimal state needed by page-decision unit tests.
+func newTestSession() *runSession {
+	config := &voucherConfig{Vouchers: []voucherDef{
+		{Name: "寻访情报书", PullValue: 10, PoolScope: "next_only"},
+	}}
+	index, err := buildVoucherIndex(config)
+	if err != nil {
+		panic(err)
+	}
+	return &runSession{
+		Param:             actionParam{},
+		Config:            config,
+		VoucherIndex:      index,
+		VoucherQuantities: make(map[string]int),
+		CurrentPageCells:  make(map[int]scannedCell),
+		CurrentPageItems:  nil,
 	}
 }

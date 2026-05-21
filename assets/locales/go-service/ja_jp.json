@@ -63,6 +63,7 @@
     "autofight.switch_character": "オペレーター %d 号に切り替え",
     "pullcount.resource.originium": "衍質源石を嵌晶玉へ換算した値",
     "pullcount.resource.oroberyl": "嵌晶玉",
+    "pullcount.resource_read_success": "%sの読み取り成功：%d",
     "pullcount.error.invalid_params": "スカウト回数計算のパラメータが無効です",
     "pullcount.error.capture_failed": "スカウト回数計算用のスクリーンショット取得に失敗しました",
     "pullcount.error.recognition_failed": "スカウト回数の認識に失敗しました：%s。オペレーター募集画面を開き、上部リソース欄が隠れていないことを確認してください。",

@@ -6,7 +6,7 @@
                 "基础尋訪憑證"
             ],
             "pull_value": 1,
-            "pool_scope": "carry_to_next"
+            "pool_scope": "ignore"
         },
         {
             "name": "特许寻访凭证",
@@ -30,14 +30,6 @@
                 "行火留燼尋訪憑證"
             ],
             "pull_value": 1,
-            "pool_scope": "current_only"
-        },
-        {
-            "name": "行火留烬十连凭证",
-            "names": [
-                "行火留燼十連憑證"
-            ],
-            "pull_value": 10,
             "pool_scope": "current_only"
         },
         {

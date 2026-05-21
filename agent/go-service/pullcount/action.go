@@ -3,13 +3,10 @@ package pullcount
 import (
 	"encoding/json"
 	"fmt"
-	"image"
-	"image/color"
-	"math"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
+	"sync"
 	"unicode"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -22,60 +19,49 @@ import (
 const (
 	componentName = "PullCountCalculator"
 
-	defaultOriginiumNode       = "PullCountCalculatorOriginiumOCR"
-	defaultOroberylNode        = "PullCountCalculatorOroberylOCR"
-	defaultValuablesSceneNode  = "SceneStashValuablesTab"
-	defaultWarehouseScrollNode = "PullCountCalculatorWarehouseScrollDown"
-	defaultVoucherConfigPath   = "data/PullCountCalculator/vouchers.json"
+	defaultVoucherConfigPath = "data/PullCountCalculator/vouchers.json"
 
-	fallbackValuablesMenuNode = "__ScenePrivateMenuListEnterMenuValuables"
-	fallbackValuablesTabNode  = "_SceneStashValuablesTabIn"
-	fallbackValuablesSwitch   = "_SceneStashValuablesTabSwitch"
+	stageInit            = "init"
+	stageRecordOriginium = "record_originium"
+	stageRecordOroberyl  = "record_oroberyl"
+	stageRecordQuantity  = "record_quantity"
+	stageRecordItem      = "record_item"
+	stagePageBegin       = "page_begin"
+	stagePageDone        = "page_done"
+	stageProbeBegin      = "probe_begin"
+	stageRecordProbe     = "record_probe_quantity"
+	stageScrollProbeDone = "scroll_probe_done"
+	stageFinish          = "finish"
+
+	nextWarehouseScrollNode = "PullCountCalculatorWarehouseScrollDown"
+	nextPageBeginNode       = "PullCountCalculatorPageBegin"
+	nextFinishNode          = "PullCountCalculatorFinish"
+
+	warehouseProbeCellLimit  = 9
+	minScrollProbeComparable = 4
 )
 
-var _ maa.CustomActionRunner = &Action{}
+var (
+	_ maa.CustomActionRunner = &Action{}
 
-// Action calculates current and next-version recruitment pulls from resources and warehouse vouchers.
+	sessionMu      sync.Mutex
+	currentSession *runSession
+)
+
+// Action calculates current and next-version recruitment pulls from Pipeline-provided OCR results.
 type Action struct{}
 
 type actionParam struct {
-	OriginiumNode      string `json:"originium_node"`
-	OroberylNode       string `json:"oroberyl_node"`
-	ValuablesSceneNode string `json:"valuables_scene_node"`
-	VoucherConfigPath  string `json:"voucher_config_path"`
+	Stage string `json:"stage"`
+	Cell  int    `json:"cell"`
+
+	VoucherConfigPath string `json:"voucher_config_path"`
 
 	ReservedOriginium   int `json:"reserved_originium"`
 	OriginiumToOroberyl int `json:"originium_to_oroberyl"`
 	OroberylPerPull     int `json:"oroberyl_per_pull"`
 	NextPoolShopPulls   int `json:"next_pool_shop_pulls"`
 	NextPoolSigninPulls int `json:"next_pool_signin_pulls"`
-
-	ScanMaxPages   int       `json:"scan_max_pages"`
-	ScanClickDelay int       `json:"scan_click_delay_ms"`
-	ScanScrollNode string    `json:"scan_scroll_node"`
-	ScanGrid       gridParam `json:"scan_grid"`
-	TitleROI       roiParam  `json:"title_roi"`
-	QuantityROI    roiParam  `json:"quantity_roi"`
-	ScrollCheckROI roiParam  `json:"scroll_check_roi"`
-
-	ScrollChangeThreshold float64 `json:"scroll_change_threshold"`
-}
-
-type gridParam struct {
-	StartX int `json:"start_x"`
-	StartY int `json:"start_y"`
-	StepX  int `json:"step_x"`
-	StepY  int `json:"step_y"`
-	Cols   int `json:"cols"`
-	Rows   int `json:"rows"`
-	MaxY   int `json:"max_y"`
-}
-
-type roiParam struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	W int `json:"w"`
-	H int `json:"h"`
 }
 
 type resourceValues struct {
@@ -130,27 +116,43 @@ type scannedVoucher struct {
 	Quantity int
 }
 
-type visiblePageScan struct {
-	Items    []scannedVoucher
-	Vouchers []scannedVoucher
+type scannedCell struct {
+	Name        string
+	Quantity    int
+	HasQuantity bool
 }
 
-type scaledLayout struct {
-	ScaleX float64
-	ScaleY float64
-	Grid   []gridCell
-	Title  roiParam
-	Qty    roiParam
+type pageItem struct {
+	Cell        int
+	Name        string
+	Quantity    int
+	HasQuantity bool
 }
 
-type gridCell struct {
-	X int
-	Y int
+type runSession struct {
+	Param        actionParam
+	Config       *voucherConfig
+	VoucherIndex map[string]voucherDef
+	Values       resourceValues
+
+	HasConvertedOriginium bool
+	HasOroberyl           bool
+
+	CurrentPageItems  []scannedVoucher
+	CurrentPageCells  map[int]scannedCell
+	VoucherQuantities map[string]int
+	LastHeadProbe     map[int]int
+	CurrentProbe      map[int]int
+
+	PageCount int
+
+	PendingQuantityCell int
+	PendingQuantity     int
 }
 
 // --- Entry And Parameters --- //
 
-// Run reads recruitment resources, scans warehouse vouchers, and prints the pull totals.
+// Run dispatches one Pipeline stage of the pull-count calculation.
 func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		log.Error().Str("component", componentName).Msg("context is nil")
@@ -172,131 +174,58 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	img, err := captureCurrentImage(ctx)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("failed to capture image")
-		maafocus.Print(ctx, i18n.T("pullcount.error.capture_failed"))
+	stage := resolveStage(param.Stage, arg.CurrentTaskName)
+	sessionMu.Lock()
+	defer sessionMu.Unlock()
+
+	switch stage {
+	case stageInit:
+		return handleInit(ctx, param)
+	case stageRecordOriginium:
+		return handleRecordResource(ctx, arg, true)
+	case stageRecordOroberyl:
+		return handleRecordResource(ctx, arg, false)
+	case stageRecordQuantity:
+		return handleRecordQuantity(ctx, arg, param.Cell)
+	case stageRecordItem:
+		return handleRecordItem(ctx, arg, param.Cell)
+	case stagePageBegin:
+		return handlePageBegin(ctx)
+	case stagePageDone:
+		return handlePageDone(ctx)
+	case stageProbeBegin:
+		return handleProbeBegin(ctx)
+	case stageRecordProbe:
+		return handleRecordProbeQuantity(ctx, arg, param.Cell)
+	case stageScrollProbeDone:
+		return handleScrollProbeDone(ctx, arg)
+	case stageFinish:
+		return handleFinish(ctx)
+	default:
+		log.Error().Str("component", componentName).Str("stage", stage).Msg("unknown stage")
+		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
 		return false
 	}
-
-	values, err := readResourceValues(ctx, img, param)
-	if err != nil {
-		log.Warn().Err(err).Str("component", componentName).Msg("failed to read resource values")
-		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
-		return false
-	}
-
-	config, err := loadVoucherConfig(param.VoucherConfigPath)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("path", param.VoucherConfigPath).Msg("failed to load voucher config")
-		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
-		return false
-	}
-
-	if err := enterValuablesTab(ctx, param); err != nil {
-		log.Warn().Err(err).Str("component", componentName).Msg("failed to enter valuables tab")
-		if fallbackErr := enterValuablesTabFromCurrentMenu(ctx); fallbackErr != nil {
-			log.Warn().Err(fallbackErr).Str("component", componentName).Msg("failed to enter valuables tab from current menu fallback")
-			maafocus.Print(ctx, i18n.T("pullcount.error.enter_valuables_failed", fmt.Sprintf("%s；fallback: %s", err.Error(), fallbackErr.Error())))
-			return false
-		}
-	}
-
-	scanned, err := scanWarehouseVouchers(ctx, param, config)
-	if err != nil {
-		log.Warn().Err(err).Str("component", componentName).Msg("failed to scan warehouse vouchers")
-		maafocus.Print(ctx, i18n.T("pullcount.error.warehouse_scan_failed", err.Error()))
-		return false
-	}
-
-	summary, err := summarizeVouchers(scanned, config)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("failed to summarize voucher config")
-		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
-		return false
-	}
-	result := calculatePullCount(values, summary, param)
-	maafocus.Print(ctx, formatResultFocus(values, summary, result))
-
-	log.Info().
-		Str("component", componentName).
-		Int("oroberyl", values.Oroberyl).
-		Int("reserved_originium", result.ReservedOriginium).
-		Int("converted_originium_oroberyl", values.ConvertedOriginiumOroberyl).
-		Int("reserved_originium_oroberyl", result.ReservedOriginiumOroberyl).
-		Int("usable_converted_originium_oroberyl", result.UsableOriginiumOroberyl).
-		Int("resource_pulls", result.ResourcePulls).
-		Int("current_only_pulls", result.CurrentOnlyPulls).
-		Int("carry_to_next_pulls", result.CarryToNextPulls).
-		Int("next_only_pulls", result.NextOnlyPulls).
-		Int("next_pool_shop_pulls", result.NextPoolShopPulls).
-		Int("next_pool_signin_pulls", result.NextPoolSigninPulls).
-		Int("current_pool_total", result.CurrentPoolTotal).
-		Int("next_pool_total", result.NextPoolTotal).
-		Interface("voucher_matches", summary.Matches).
-		Strs("unknown_vouchers", summary.UnknownNames).
-		Msg("pull count calculated")
-
-	return true
 }
 
-// parseActionParam parses the custom action config and fills default constants.
+// parseActionParam parses stage parameters and fills default calculation constants.
 func parseActionParam(raw string) (*actionParam, error) {
 	param := actionParam{
-		OriginiumNode:       defaultOriginiumNode,
-		OroberylNode:        defaultOroberylNode,
-		ValuablesSceneNode:  defaultValuablesSceneNode,
 		VoucherConfigPath:   defaultVoucherConfigPath,
 		ReservedOriginium:   29,
 		OriginiumToOroberyl: 75,
 		OroberylPerPull:     500,
 		NextPoolShopPulls:   5,
 		NextPoolSigninPulls: 5,
-		ScanMaxPages:        8,
-		ScanClickDelay:      180,
-		ScanScrollNode:      defaultWarehouseScrollNode,
-		ScanGrid: gridParam{
-			StartX: 85,
-			StartY: 168,
-			StepX:  103,
-			StepY:  103,
-			Cols:   9,
-			Rows:   5,
-			MaxY:   640,
-		},
-		TitleROI: roiParam{
-			X: 980,
-			Y: 82,
-			W: 250,
-			H: 48,
-		},
-		QuantityROI: roiParam{
-			X: -24,
-			Y: 18,
-			W: 58,
-			H: 32,
-		},
-		ScrollCheckROI: roiParam{
-			X: 40,
-			Y: 120,
-			W: 930,
-			H: 540,
-		},
-		ScrollChangeThreshold: 0.01,
 	}
 
-	if strings.TrimSpace(raw) == "" {
-		return &param, nil
+	if strings.TrimSpace(raw) != "" {
+		if err := json.Unmarshal([]byte(raw), &param); err != nil {
+			return nil, err
+		}
 	}
 
-	if err := json.Unmarshal([]byte(raw), &param); err != nil {
-		return nil, err
-	}
-
-	param.OriginiumNode = defaultIfEmpty(param.OriginiumNode, defaultOriginiumNode)
-	param.OroberylNode = defaultIfEmpty(param.OroberylNode, defaultOroberylNode)
-	param.ValuablesSceneNode = defaultIfEmpty(param.ValuablesSceneNode, defaultValuablesSceneNode)
-	param.ScanScrollNode = defaultIfEmpty(param.ScanScrollNode, defaultWarehouseScrollNode)
+	param.Stage = strings.TrimSpace(param.Stage)
 	param.VoucherConfigPath = defaultIfEmpty(param.VoucherConfigPath, defaultVoucherConfigPath)
 	if param.OriginiumToOroberyl <= 0 {
 		return nil, fmt.Errorf("originium_to_oroberyl must be positive")
@@ -310,28 +239,6 @@ func parseActionParam(raw string) (*actionParam, error) {
 	if param.NextPoolSigninPulls < 0 {
 		return nil, fmt.Errorf("next_pool_signin_pulls must be non-negative")
 	}
-	if param.ScanMaxPages <= 0 {
-		return nil, fmt.Errorf("scan_max_pages must be positive")
-	}
-	if param.ScanClickDelay < 0 {
-		return nil, fmt.Errorf("scan_click_delay_ms must be non-negative")
-	}
-	if err := validateGridParam(param.ScanGrid); err != nil {
-		return nil, err
-	}
-	if err := validateROIParam("title_roi", param.TitleROI); err != nil {
-		return nil, err
-	}
-	if err := validateROIParam("quantity_roi", param.QuantityROI); err != nil {
-		return nil, err
-	}
-	if err := validateROIParam("scroll_check_roi", param.ScrollCheckROI); err != nil {
-		return nil, err
-	}
-	if param.ScrollChangeThreshold < 0 || param.ScrollChangeThreshold > 1 {
-		return nil, fmt.Errorf("scroll_change_threshold must be between 0 and 1")
-	}
-
 	return &param, nil
 }
 
@@ -344,102 +251,473 @@ func defaultIfEmpty(value string, fallback string) string {
 	return value
 }
 
-// validateGridParam checks the visible warehouse grid shape.
-func validateGridParam(grid gridParam) error {
-	if grid.Cols <= 0 || grid.Rows <= 0 {
-		return fmt.Errorf("scan_grid cols and rows must be positive")
+// resolveStage keeps the old main-node entry compatible with an empty stage parameter.
+func resolveStage(stage string, currentTaskName string) string {
+	if strings.TrimSpace(stage) != "" {
+		return strings.TrimSpace(stage)
 	}
-	if grid.StepX <= 0 || grid.StepY <= 0 {
-		return fmt.Errorf("scan_grid step_x and step_y must be positive")
+	if currentTaskName == "PullCountCalculatorMain" {
+		return stageInit
 	}
-	if grid.MaxY <= 0 {
-		return fmt.Errorf("scan_grid max_y must be positive")
-	}
-	return nil
+	return ""
 }
 
-// validateROIParam checks that an OCR ROI has a usable size.
-func validateROIParam(name string, roi roiParam) error {
-	if roi.W <= 0 || roi.H <= 0 {
-		return fmt.Errorf("%s width and height must be positive", name)
-	}
-	return nil
-}
+// --- Stage Handlers --- //
 
-// --- OCR Reading --- //
-
-// captureCurrentImage requests a fresh screenshot from the current controller.
-func captureCurrentImage(ctx *maa.Context) (image.Image, error) {
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		return nil, fmt.Errorf("tasker is nil")
-	}
-
-	controller := tasker.GetController()
-	if controller == nil {
-		return nil, fmt.Errorf("controller is nil")
-	}
-
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
+// handleInit loads voucher configuration and starts a fresh scan session.
+func handleInit(ctx *maa.Context, param *actionParam) bool {
+	config, err := loadVoucherConfig(param.VoucherConfigPath)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Str("component", componentName).Str("path", param.VoucherConfigPath).Msg("failed to load voucher config")
+		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
+		return false
 	}
-	if img == nil {
-		return nil, fmt.Errorf("cached image is nil")
-	}
-	return img, nil
-}
-
-// readResourceValues reads resource counters from the recruitment top bar.
-func readResourceValues(ctx *maa.Context, img image.Image, param *actionParam) (resourceValues, error) {
-	var values resourceValues
-	var err error
-
-	if values.ConvertedOriginiumOroberyl, err = runIntegerOCR(ctx, img, param.OriginiumNode, i18n.T("pullcount.resource.originium")); err != nil {
-		return values, err
-	}
-	if values.Oroberyl, err = runIntegerOCR(ctx, img, param.OroberylNode, i18n.T("pullcount.resource.oroberyl")); err != nil {
-		return values, err
-	}
-
-	return values, nil
-}
-
-// runIntegerOCR executes one OCR node and extracts the first integer-like value.
-func runIntegerOCR(ctx *maa.Context, img image.Image, nodeName string, label string) (int, error) {
-	detail, err := ctx.RunRecognition(nodeName, img)
+	index, err := buildVoucherIndex(config)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", label, err)
+		log.Error().Err(err).Str("component", componentName).Msg("failed to build voucher index")
+		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
+		return false
 	}
+
+	currentSession = &runSession{
+		Param:             *param,
+		Config:            config,
+		VoucherIndex:      index,
+		CurrentPageCells:  make(map[int]scannedCell),
+		VoucherQuantities: make(map[string]int),
+	}
+	log.Info().Str("component", componentName).Msg("pull count session initialized")
+	return true
+}
+
+// handleRecordResource stores one resource counter from the current Pipeline OCR result.
+func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, convertedOriginium bool) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+
+	value, err := readIntegerFromRecognition(arg.RecognitionDetail)
+	if err != nil {
+		label := i18n.T("pullcount.resource.oroberyl")
+		if convertedOriginium {
+			label = i18n.T("pullcount.resource.originium")
+		}
+		log.Warn().Err(err).Str("component", componentName).Str("resource", label).Msg("failed to read resource OCR")
+		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", fmt.Sprintf("%s: %s", label, err.Error())))
+		return false
+	}
+
+	if convertedOriginium {
+		session.Values.ConvertedOriginiumOroberyl = value
+		session.HasConvertedOriginium = true
+		log.Info().Str("component", componentName).Int("converted_originium_oroberyl", value).Msg("converted originium recorded")
+		maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", i18n.T("pullcount.resource.originium"), value))
+		return true
+	}
+
+	session.Values.Oroberyl = value
+	session.HasOroberyl = true
+	log.Info().Str("component", componentName).Int("oroberyl", value).Msg("oroberyl recorded")
+	maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", i18n.T("pullcount.resource.oroberyl"), value))
+	return true
+}
+
+// handleRecordQuantity stores the stack count recognized for the current warehouse cell.
+func handleRecordQuantity(ctx *maa.Context, arg *maa.CustomActionArg, cell int) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+	if cell <= 0 {
+		log.Error().Str("component", componentName).Int("cell", cell).Msg("invalid cell for quantity stage")
+		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+		return false
+	}
+
+	quantity, err := readIntegerFromRecognition(arg.RecognitionDetail)
+	if err != nil || quantity <= 0 {
+		log.Debug().Err(err).Str("component", componentName).Int("cell", cell).Msg("quantity OCR ignored")
+		return true
+	}
+
+	recordPageQuantity(session, cell, quantity)
+	session.PendingQuantityCell = cell
+	session.PendingQuantity = quantity
+	log.Debug().Str("component", componentName).Int("cell", cell).Int("quantity", quantity).Msg("warehouse cell quantity recorded")
+	return true
+}
+
+// handleRecordItem stores the selected item title and its pending quantity.
+func handleRecordItem(ctx *maa.Context, arg *maa.CustomActionArg, cell int) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+	if cell <= 0 {
+		log.Error().Str("component", componentName).Int("cell", cell).Msg("invalid cell for item stage")
+		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+		return false
+	}
+
+	title, ok := readTitleFromRecognition(arg.RecognitionDetail)
+	if !ok {
+		log.Debug().Str("component", componentName).Int("cell", cell).Msg("warehouse item title OCR empty")
+		return true
+	}
+
+	quantity := 1
+	hasQuantity := session.PendingQuantityCell == cell && session.PendingQuantity > 0
+	if session.PendingQuantityCell == cell && session.PendingQuantity > 0 {
+		quantity = session.PendingQuantity
+	}
+	session.PendingQuantityCell = 0
+	session.PendingQuantity = 0
+
+	item := scannedVoucher{Name: title, Quantity: quantity}
+	session.CurrentPageItems = append(session.CurrentPageItems, item)
+	recordPageItem(session, cell, title, quantity, hasQuantity)
+	log.Debug().Str("component", componentName).Int("cell", cell).Str("title", title).Int("quantity", quantity).Msg("warehouse item recorded")
+	return true
+}
+
+// handlePageBegin clears transient state before scanning a visible warehouse page.
+func handlePageBegin(ctx *maa.Context) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+
+	session.CurrentPageItems = nil
+	session.CurrentPageCells = make(map[int]scannedCell)
+	session.CurrentProbe = nil
+	session.PendingQuantityCell = 0
+	session.PendingQuantity = 0
+	log.Debug().Str("component", componentName).Int("page", session.PageCount+1).Msg("warehouse page scan begin")
+	return true
+}
+
+// handlePageDone records the scanned page; Pipeline decides whether to scroll or finish.
+func handlePageDone(ctx *maa.Context) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+
+	items := recordVisiblePage(session)
+
+	log.Info().
+		Str("component", componentName).
+		Int("page_count", session.PageCount).
+		Int("items", items).
+		Str("next", nextWarehouseScrollNode).
+		Msg("warehouse page scan done")
+	return true
+}
+
+// handleProbeBegin clears the lightweight post-scroll quantity probe state.
+func handleProbeBegin(ctx *maa.Context) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+
+	session.CurrentProbe = make(map[int]int)
+	log.Debug().Str("component", componentName).Int("page", session.PageCount+1).Msg("warehouse scroll probe begin")
+	return true
+}
+
+// handleRecordProbeQuantity stores one post-scroll quantity OCR result.
+func handleRecordProbeQuantity(ctx *maa.Context, arg *maa.CustomActionArg, cell int) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+	if cell <= 0 {
+		log.Error().Str("component", componentName).Int("cell", cell).Msg("invalid cell for probe quantity stage")
+		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+		return false
+	}
+
+	quantity, err := readIntegerFromRecognition(arg.RecognitionDetail)
+	if err != nil || quantity <= 0 {
+		log.Debug().Err(err).Str("component", componentName).Int("cell", cell).Msg("warehouse probe quantity OCR ignored")
+		return true
+	}
+	if session.CurrentProbe == nil {
+		session.CurrentProbe = make(map[int]int)
+	}
+	session.CurrentProbe[cell] = quantity
+	log.Debug().Str("component", componentName).Int("cell", cell).Int("quantity", quantity).Msg("warehouse probe quantity recorded")
+	return true
+}
+
+// handleScrollProbeDone chooses whether the unchanged post-scroll view should finish or scan.
+func handleScrollProbeDone(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+
+	unchanged, comparable, matches := scrollProbeUnchanged(session.LastHeadProbe, session.CurrentProbe)
+	nextNode := nextPageBeginNode
+	reason := "scroll probe changed"
+	if unchanged {
+		nextNode = nextFinishNode
+		reason = "warehouse scan reached bottom / unchanged after scroll probe"
+	}
+
+	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}}); err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("next", nextNode).Msg("failed to override scroll probe next")
+		maafocus.Print(ctx, i18n.T("pullcount.error.warehouse_scan_failed", err.Error()))
+		return false
+	}
+
+	log.Info().
+		Str("component", componentName).
+		Int("comparable", comparable).
+		Int("matches", matches).
+		Bool("unchanged", unchanged).
+		Str("next", nextNode).
+		Msg(reason)
+	return true
+}
+
+// handleFinish summarizes the session and prints the user-visible pull count result.
+func handleFinish(ctx *maa.Context) bool {
+	session, ok := requireSession(ctx)
+	if !ok {
+		return false
+	}
+	defer func() {
+		currentSession = nil
+	}()
+
+	if !session.HasConvertedOriginium || !session.HasOroberyl {
+		err := fmt.Errorf("resource OCR values are incomplete")
+		log.Warn().Err(err).Str("component", componentName).Msg("cannot finish pull count")
+		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
+		return false
+	}
+
+	summary, err := summarizeVouchers(scannedVouchersFromSession(session), session.Config)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Msg("failed to summarize voucher config")
+		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
+		return false
+	}
+
+	result := calculatePullCount(session.Values, summary, &session.Param)
+	maafocus.Print(ctx, formatResultFocus(session.Values, summary, result))
+	logCalculation(session, summary, result)
+	return true
+}
+
+// requireSession returns the active run session or reports a user-facing error.
+func requireSession(ctx *maa.Context) (*runSession, bool) {
+	if currentSession != nil {
+		return currentSession, true
+	}
+	err := fmt.Errorf("pull count session is not initialized")
+	log.Error().Err(err).Str("component", componentName).Msg("missing session")
+	maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+	return nil, false
+}
+
+// recordPageQuantity stores a visible cell quantity without relying on title OCR order.
+func recordPageQuantity(session *runSession, cell int, quantity int) {
+	if session.CurrentPageCells == nil {
+		session.CurrentPageCells = make(map[int]scannedCell)
+	}
+	current := session.CurrentPageCells[cell]
+	current.Quantity = quantity
+	current.HasQuantity = true
+	session.CurrentPageCells[cell] = current
+}
+
+// recordPageItem stores a visible cell title by cell index so repeated OCR cannot duplicate it.
+func recordPageItem(session *runSession, cell int, title string, quantity int, hasQuantity bool) {
+	if ignoredPageTitle(title) {
+		return
+	}
+	if session.CurrentPageCells == nil {
+		session.CurrentPageCells = make(map[int]scannedCell)
+	}
+	current := session.CurrentPageCells[cell]
+	current.Name = title
+	if hasQuantity || !current.HasQuantity {
+		current.Quantity = quantity
+		current.HasQuantity = hasQuantity
+	}
+	session.CurrentPageCells[cell] = current
+}
+
+// recordVisiblePage accumulates recognized vouchers and stores the top-row probe for the next scroll.
+func recordVisiblePage(session *runSession) int {
+	items := currentPageItems(session)
+	session.LastHeadProbe = headQuantityProbeFromCells(session.CurrentPageCells, warehouseProbeCellLimit)
+	accumulatePageVouchers(session, items)
+	session.PageCount++
+	return len(items)
+}
+
+// accumulatePageVouchers keeps the largest visible quantity for each recognized voucher title.
+func accumulatePageVouchers(session *runSession, items []pageItem) {
+	for _, item := range items {
+		if !voucherTitleRelevant(item.Name, session.VoucherIndex) {
+			continue
+		}
+		if item.Quantity > session.VoucherQuantities[item.Name] {
+			session.VoucherQuantities[item.Name] = item.Quantity
+		}
+	}
+}
+
+// scannedVouchersFromSession returns a stable list of voucher titles accumulated during scanning.
+func scannedVouchersFromSession(session *runSession) []scannedVoucher {
+	result := make([]scannedVoucher, 0, len(session.VoucherQuantities))
+	for name, quantity := range session.VoucherQuantities {
+		result = append(result, scannedVoucher{Name: name, Quantity: quantity})
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
+	return result
+}
+
+// currentPageItems returns the best cell-indexed view of the visible warehouse page.
+func currentPageItems(session *runSession) []pageItem {
+	if len(session.CurrentPageCells) == 0 {
+		items := make([]pageItem, 0, len(session.CurrentPageItems))
+		for i, item := range session.CurrentPageItems {
+			if ignoredPageTitle(item.Name) {
+				continue
+			}
+			items = append(items, pageItem{
+				Cell:        i + 1,
+				Name:        item.Name,
+				Quantity:    item.Quantity,
+				HasQuantity: item.Quantity > 1,
+			})
+		}
+		return items
+	}
+
+	cells := make([]int, 0, len(session.CurrentPageCells))
+	for cell := range session.CurrentPageCells {
+		cells = append(cells, cell)
+	}
+	sort.Ints(cells)
+
+	items := make([]pageItem, 0, len(cells))
+	for _, cell := range cells {
+		item := session.CurrentPageCells[cell]
+		if item.Name == "" || ignoredPageTitle(item.Name) {
+			continue
+		}
+		quantity := item.Quantity
+		if quantity <= 0 {
+			quantity = 1
+		}
+		items = append(items, pageItem{
+			Cell:        cell,
+			Name:        item.Name,
+			Quantity:    quantity,
+			HasQuantity: item.HasQuantity,
+		})
+	}
+	return items
+}
+
+// logCalculation writes structured details for troubleshooting pull-count results.
+func logCalculation(session *runSession, summary voucherSummary, result calculationResult) {
+	log.Info().
+		Str("component", componentName).
+		Int("oroberyl", session.Values.Oroberyl).
+		Int("reserved_originium", result.ReservedOriginium).
+		Int("converted_originium_oroberyl", session.Values.ConvertedOriginiumOroberyl).
+		Int("reserved_originium_oroberyl", result.ReservedOriginiumOroberyl).
+		Int("usable_converted_originium_oroberyl", result.UsableOriginiumOroberyl).
+		Int("resource_pulls", result.ResourcePulls).
+		Int("current_only_pulls", result.CurrentOnlyPulls).
+		Int("carry_to_next_pulls", result.CarryToNextPulls).
+		Int("next_only_pulls", result.NextOnlyPulls).
+		Int("next_pool_shop_pulls", result.NextPoolShopPulls).
+		Int("next_pool_signin_pulls", result.NextPoolSigninPulls).
+		Int("current_pool_total", result.CurrentPoolTotal).
+		Int("next_pool_total", result.NextPoolTotal).
+		Interface("voucher_matches", summary.Matches).
+		Strs("unknown_vouchers", summary.UnknownNames).
+		Msg("pull count calculated")
+}
+
+// --- OCR Detail Reading --- //
+
+// readIntegerFromRecognition extracts the first integer-like OCR value from Pipeline recognition detail.
+func readIntegerFromRecognition(detail *maa.RecognitionDetail) (int, error) {
 	if detail == nil || !detail.Hit {
-		return 0, fmt.Errorf("%s: OCR not hit", label)
+		return 0, fmt.Errorf("OCR not hit")
 	}
-
 	for _, text := range ocrTextCandidates(detail) {
 		value, err := parseIntegerText(text)
 		if err == nil {
 			return value, nil
 		}
 	}
+	return 0, fmt.Errorf("no integer OCR result")
+}
 
-	return 0, fmt.Errorf("%s: no integer OCR result", label)
+// readTitleFromRecognition extracts and cleans the first non-empty item title from Pipeline OCR.
+func readTitleFromRecognition(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil || !detail.Hit {
+		return "", false
+	}
+	for _, text := range ocrTextCandidates(detail) {
+		if cleaned := cleanTitleText(text); cleaned != "" {
+			return cleaned, true
+		}
+	}
+	return "", false
 }
 
 // ocrTextCandidates returns OCR texts in preferred reading order.
 func ocrTextCandidates(detail *maa.RecognitionDetail) []string {
-	if detail == nil || detail.Results == nil {
-		return nil
+	texts := make([]string, 0)
+	seen := make(map[string]struct{})
+	appendText := func(text string) {
+		text = strings.TrimSpace(text)
+		if text == "" {
+			return
+		}
+		if _, exists := seen[text]; exists {
+			return
+		}
+		seen[text] = struct{}{}
+		texts = append(texts, text)
 	}
 
+	appendOCRResults(detail, appendText)
+	for _, text := range detailJSONOCRTexts(detail.DetailJson) {
+		appendText(text)
+	}
+	for _, child := range detail.CombinedResult {
+		for _, text := range ocrTextCandidates(child) {
+			appendText(text)
+		}
+	}
+	return texts
+}
+
+// appendOCRResults appends OCR text from MaaFramework parsed recognition results.
+func appendOCRResults(detail *maa.RecognitionDetail, appendText func(string)) {
+	if detail == nil || detail.Results == nil {
+		return
+	}
 	sources := [][]*maa.RecognitionResult{
 		resultsFromBest(detail.Results.Best),
 		detail.Results.Filtered,
 		detail.Results.All,
 	}
-
-	texts := make([]string, 0)
-	seen := make(map[string]struct{})
 	for _, source := range sources {
 		for _, result := range source {
 			if result == nil {
@@ -449,18 +727,47 @@ func ocrTextCandidates(detail *maa.RecognitionDetail) []string {
 			if !ok {
 				continue
 			}
-			text := strings.TrimSpace(ocrResult.Text)
-			if text == "" {
-				continue
-			}
-			if _, exists := seen[text]; exists {
-				continue
-			}
-			seen[text] = struct{}{}
-			texts = append(texts, text)
+			appendText(ocrResult.Text)
 		}
 	}
+}
 
+// detailJSONOCRTexts parses OCR text from raw detail JSON when tests or diagnostics provide it directly.
+func detailJSONOCRTexts(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+
+	var payload struct {
+		Text string `json:"text"`
+		Best *struct {
+			Text string `json:"text"`
+		} `json:"best"`
+		Filtered []struct {
+			Text string `json:"text"`
+		} `json:"filtered"`
+		All []struct {
+			Text string `json:"text"`
+		} `json:"all"`
+	}
+	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+		return nil
+	}
+
+	texts := make([]string, 0)
+	if payload.Text != "" {
+		texts = append(texts, payload.Text)
+	}
+	if payload.Best != nil {
+		texts = append(texts, payload.Best.Text)
+	}
+	for _, item := range payload.Filtered {
+		texts = append(texts, item.Text)
+	}
+	for _, item := range payload.All {
+		texts = append(texts, item.Text)
+	}
 	return texts
 }
 
@@ -470,6 +777,22 @@ func resultsFromBest(best *maa.RecognitionResult) []*maa.RecognitionResult {
 		return nil
 	}
 	return []*maa.RecognitionResult{best}
+}
+
+// findRecognitionDetailByName returns the named detail from a nested recognition tree.
+func findRecognitionDetailByName(detail *maa.RecognitionDetail, targetName string) *maa.RecognitionDetail {
+	if detail == nil {
+		return nil
+	}
+	if detail.Name == targetName {
+		return detail
+	}
+	for _, child := range detail.CombinedResult {
+		if found := findRecognitionDetailByName(child, targetName); found != nil {
+			return found
+		}
+	}
+	return nil
 }
 
 // parseIntegerText extracts the first decimal counter from OCR text.
@@ -501,322 +824,6 @@ func isNumberSeparator(r rune) bool {
 	return r == ','
 }
 
-// --- Warehouse Scanning --- //
-
-// enterValuablesTab uses the existing scene manager route to open the valuables tab.
-func enterValuablesTab(ctx *maa.Context, param *actionParam) error {
-	detail, err := ctx.RunTask(param.ValuablesSceneNode)
-	if err != nil {
-		return err
-	}
-	if detail == nil {
-		return fmt.Errorf("%s returned nil detail", param.ValuablesSceneNode)
-	}
-	if !detail.Status.Success() {
-		return fmt.Errorf("%s status is %s", param.ValuablesSceneNode, detail.Status.String())
-	}
-	return nil
-}
-
-// enterValuablesTabFromCurrentMenu handles the common case where the menu list is already open.
-func enterValuablesTabFromCurrentMenu(ctx *maa.Context) error {
-	if detail, err := ctx.RunTask(fallbackValuablesMenuNode); err == nil && detail != nil && detail.Status.Success() {
-		return switchValuablesTab(ctx)
-	}
-	if err := clickValuablesByVisibleText(ctx); err != nil {
-		return err
-	}
-	return switchValuablesTab(ctx)
-}
-
-// switchValuablesTab ensures the valuables page is on the Precious Items tab.
-func switchValuablesTab(ctx *maa.Context) error {
-	if detail, err := ctx.RunTask(fallbackValuablesTabNode); err == nil && detail != nil && detail.Status.Success() {
-		return nil
-	}
-	detail, err := ctx.RunTask(fallbackValuablesSwitch)
-	if err != nil {
-		return err
-	}
-	if detail == nil {
-		return fmt.Errorf("%s returned nil detail", fallbackValuablesSwitch)
-	}
-	if !detail.Status.Success() {
-		return fmt.Errorf("%s status is %s", fallbackValuablesSwitch, detail.Status.String())
-	}
-	return nil
-}
-
-// clickValuablesByVisibleText OCRs the right menu area and clicks the Valuables entry.
-func clickValuablesByVisibleText(ctx *maa.Context) error {
-	img, err := captureCurrentImage(ctx)
-	if err != nil {
-		return err
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, maa.OCRParam{
-		ROI: maa.NewTargetRect(maa.Rect{880, 350, 380, 230}),
-		Expected: []string{
-			"贵重品库",
-			"貴重品庫",
-			"貴重品倉庫",
-			"Valuables",
-			"VALUABLES",
-			"STASH",
-			"귀중품 창고",
-		},
-	}, img)
-	if err != nil {
-		return err
-	}
-	if detail == nil || !detail.Hit || detail.Results == nil {
-		return fmt.Errorf("visible valuables menu OCR not hit")
-	}
-	box, ok := bestOCRBox(detail)
-	if !ok {
-		return fmt.Errorf("visible valuables menu OCR has no box")
-	}
-	ctrl := ctx.GetTasker().GetController()
-	ctrl.PostClick(int32(box.X()+box.Width()/2), int32(box.Y()+box.Height()/2)).Wait()
-	time.Sleep(1500 * time.Millisecond)
-	return nil
-}
-
-// bestOCRBox returns the box of the preferred OCR result.
-func bestOCRBox(detail *maa.RecognitionDetail) (maa.Rect, bool) {
-	if detail == nil || detail.Results == nil {
-		return maa.Rect{}, false
-	}
-	for _, result := range resultsFromBest(detail.Results.Best) {
-		if ocr, ok := result.AsOCR(); ok {
-			return ocr.Box, true
-		}
-	}
-	for _, group := range [][]*maa.RecognitionResult{detail.Results.Filtered, detail.Results.All} {
-		for _, result := range group {
-			if result == nil {
-				continue
-			}
-			if ocr, ok := result.AsOCR(); ok {
-				return ocr.Box, true
-			}
-		}
-	}
-	return maa.Rect{}, false
-}
-
-// scanWarehouseVouchers scans visible valuables pages and returns the highest seen quantity per voucher name.
-func scanWarehouseVouchers(ctx *maa.Context, param *actionParam, config *voucherConfig) ([]scannedVoucher, error) {
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		return nil, fmt.Errorf("tasker is nil")
-	}
-	ctrl := tasker.GetController()
-	if ctrl == nil {
-		return nil, fmt.Errorf("controller is nil")
-	}
-
-	byName := make(map[string]int)
-	pageSignatures := make(map[string]struct{})
-	configuredNames, err := buildVoucherIndex(config)
-	if err != nil {
-		return nil, err
-	}
-
-	for page := 0; page < param.ScanMaxPages; page++ {
-		if tasker.Stopping() {
-			return nil, fmt.Errorf("task is stopping")
-		}
-
-		img, err := captureCurrentImage(ctx)
-		if err != nil {
-			return nil, err
-		}
-		layout := buildScaledLayout(img, param)
-		pageScan := scanVisibleVoucherPage(ctx, ctrl, img, layout, param, configuredNames)
-		signature := scannedPageSignature(pageScan.Items)
-		if signature != "" {
-			if _, seen := pageSignatures[signature]; seen && page > 0 {
-				log.Info().Str("component", componentName).Int("page", page).Str("signature", signature).Msg("warehouse scan reached repeated page")
-				break
-			}
-			pageSignatures[signature] = struct{}{}
-		}
-
-		for _, item := range pageScan.Vouchers {
-			if item.Name == "" {
-				continue
-			}
-			if item.Quantity > byName[item.Name] {
-				byName[item.Name] = item.Quantity
-			}
-		}
-
-		if page+1 >= param.ScanMaxPages {
-			break
-		}
-		beforeScroll, err := captureCurrentImage(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if err := scrollWarehousePage(ctx, param); err != nil {
-			return nil, err
-		}
-		afterScroll, err := captureCurrentImage(ctx)
-		if err != nil {
-			return nil, err
-		}
-		changed, ratio := warehouseGridChanged(beforeScroll, afterScroll, param.ScrollCheckROI, param.ScrollChangeThreshold)
-		if !changed {
-			log.Info().
-				Str("component", componentName).
-				Int("page", page).
-				Float64("change_ratio", ratio).
-				Float64("threshold", param.ScrollChangeThreshold).
-				Msg("warehouse scan reached bottom: unchanged after scroll")
-			break
-		}
-	}
-
-	result := make([]scannedVoucher, 0, len(byName))
-	for name, quantity := range byName {
-		result = append(result, scannedVoucher{Name: name, Quantity: quantity})
-	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Name < result[j].Name
-	})
-	return result, nil
-}
-
-// scanVisibleVoucherPage clicks visible cells, recording all readable items and relevant vouchers.
-func scanVisibleVoucherPage(ctx *maa.Context, ctrl *maa.Controller, pageImg image.Image, layout scaledLayout, param *actionParam, configuredNames map[string]voucherDef) visiblePageScan {
-	scan := visiblePageScan{
-		Items:    make([]scannedVoucher, 0),
-		Vouchers: make([]scannedVoucher, 0),
-	}
-	for _, cell := range layout.Grid {
-		qty := readCellQuantity(ctx, pageImg, cell, layout.Qty)
-
-		ctrl.PostClick(int32(cell.X), int32(cell.Y)).Wait()
-		if param.ScanClickDelay > 0 {
-			time.Sleep(time.Duration(param.ScanClickDelay) * time.Millisecond)
-		}
-
-		img, err := captureCurrentImage(ctx)
-		if err != nil {
-			log.Debug().Err(err).Str("component", componentName).Int("x", cell.X).Int("y", cell.Y).Msg("failed to capture selected cell")
-			continue
-		}
-
-		title := readVoucherTitle(ctx, img, layout.Title)
-		if title == "" {
-			continue
-		}
-		if qty <= 0 {
-			qty = 1
-		}
-		item := scannedVoucher{Name: title, Quantity: qty}
-		scan.Items = append(scan.Items, item)
-		if !voucherTitleRelevant(title, configuredNames) {
-			continue
-		}
-		scan.Vouchers = append(scan.Vouchers, item)
-		log.Debug().Str("component", componentName).Str("title", title).Int("qty", qty).Int("x", cell.X).Int("y", cell.Y).Msg("warehouse voucher cell scanned")
-	}
-	return scan
-}
-
-// buildScaledLayout maps 720p-based coordinates to the current screenshot size.
-func buildScaledLayout(img image.Image, param *actionParam) scaledLayout {
-	bounds := img.Bounds()
-	scaleX := float64(bounds.Dx()) / 1280.0
-	scaleY := float64(bounds.Dy()) / 720.0
-
-	grid := make([]gridCell, 0, param.ScanGrid.Cols*param.ScanGrid.Rows)
-	for row := 0; row < param.ScanGrid.Rows; row++ {
-		y720 := param.ScanGrid.StartY + row*param.ScanGrid.StepY
-		if y720 > param.ScanGrid.MaxY {
-			continue
-		}
-		for col := 0; col < param.ScanGrid.Cols; col++ {
-			x720 := param.ScanGrid.StartX + col*param.ScanGrid.StepX
-			grid = append(grid, gridCell{
-				X: scaleCoord(x720, scaleX),
-				Y: scaleCoord(y720, scaleY),
-			})
-		}
-	}
-
-	return scaledLayout{
-		ScaleX: scaleX,
-		ScaleY: scaleY,
-		Grid:   grid,
-		Title:  scaleROI(param.TitleROI, scaleX, scaleY),
-		Qty:    scaleROI(param.QuantityROI, scaleX, scaleY),
-	}
-}
-
-// scaleCoord scales a 720p coordinate to current screenshot coordinates.
-func scaleCoord(value int, scale float64) int {
-	return int(math.Round(float64(value) * scale))
-}
-
-// scaleROI scales a 720p ROI to current screenshot coordinates.
-func scaleROI(roi roiParam, scaleX, scaleY float64) roiParam {
-	return roiParam{
-		X: scaleCoord(roi.X, scaleX),
-		Y: scaleCoord(roi.Y, scaleY),
-		W: maxInt(1, scaleCoord(roi.W, scaleX)),
-		H: maxInt(1, scaleCoord(roi.H, scaleY)),
-	}
-}
-
-// offsetROI places a relative ROI around a cell center.
-func offsetROI(cell gridCell, roi roiParam) roiParam {
-	return roiParam{
-		X: cell.X + roi.X,
-		Y: cell.Y + roi.Y,
-		W: roi.W,
-		H: roi.H,
-	}
-}
-
-// readCellQuantity OCRs the stack count near a grid cell; empty stacks default to one.
-func readCellQuantity(ctx *maa.Context, img image.Image, cell gridCell, qtyROI roiParam) int {
-	texts := runDirectOCRTexts(ctx, img, offsetROI(cell, qtyROI), []string{".*\\d+.*"}, true)
-	for _, text := range texts {
-		value, err := parseIntegerText(text)
-		if err == nil && value > 0 {
-			return value
-		}
-	}
-	return 1
-}
-
-// readVoucherTitle OCRs the selected item name in the right detail panel.
-func readVoucherTitle(ctx *maa.Context, img image.Image, titleROI roiParam) string {
-	texts := runDirectOCRTexts(ctx, img, titleROI, []string{".+"}, true)
-	for _, text := range texts {
-		if cleaned := cleanTitleText(text); cleaned != "" {
-			return cleaned
-		}
-	}
-	return ""
-}
-
-// runDirectOCRTexts runs OCR directly on a ROI and returns unique texts.
-func runDirectOCRTexts(ctx *maa.Context, img image.Image, roi roiParam, expected []string, onlyRec bool) []string {
-	param := maa.OCRParam{
-		ROI:      maa.NewTargetRect(maa.Rect{roi.X, roi.Y, roi.W, roi.H}),
-		Expected: expected,
-		OnlyRec:  onlyRec,
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, param, img)
-	if err != nil || detail == nil || !detail.Hit {
-		return nil
-	}
-	return ocrTextCandidates(detail)
-}
-
 // cleanTitleText removes common OCR decorations while keeping the item name.
 func cleanTitleText(text string) string {
 	text = strings.TrimSpace(text)
@@ -832,112 +839,46 @@ func cleanTitleText(text string) string {
 	return strings.Trim(text, "[]|")
 }
 
-// scannedPageSignature builds a stable signature for scroll-end detection.
-func scannedPageSignature(items []scannedVoucher) string {
-	if len(items) == 0 {
-		return ""
+// ignoredPageTitle reports UI labels that are not warehouse item titles.
+func ignoredPageTitle(text string) bool {
+	switch normalizeName(text) {
+	case "", normalizeName("珍贵物品"), normalizeName("貴重品"), normalizeName("Precious Items"):
+		return true
+	default:
+		return false
 	}
-	parts := make([]string, 0, len(items))
-	for _, item := range items {
-		if item.Name == "" {
+}
+
+// headQuantityProbeFromCells returns top quantity OCR results, including cells whose title OCR missed.
+func headQuantityProbeFromCells(cells map[int]scannedCell, limit int) map[int]int {
+	if limit <= 0 {
+		return nil
+	}
+	probe := make(map[int]int)
+	for cell, item := range cells {
+		if cell <= 0 || cell > limit || !item.HasQuantity || item.Quantity <= 0 {
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("%s:%d", normalizeName(item.Name), item.Quantity))
+		probe[cell] = item.Quantity
 	}
-	if len(parts) == 0 {
-		return ""
-	}
-	sort.Strings(parts)
-	return strings.Join(parts, "|")
+	return probe
 }
 
-// scrollWarehousePage scrolls the valuables grid down to expose more cells.
-func scrollWarehousePage(ctx *maa.Context, param *actionParam) error {
-	detail, err := ctx.RunTask(param.ScanScrollNode)
-	if err != nil {
-		return err
-	}
-	if detail == nil {
-		return fmt.Errorf("%s returned nil detail", param.ScanScrollNode)
-	}
-	if !detail.Status.Success() {
-		return fmt.Errorf("%s status is %s", param.ScanScrollNode, detail.Status.String())
-	}
-	return nil
-}
-
-// warehouseGridChanged reports whether the configured warehouse grid ROI changed after scrolling.
-func warehouseGridChanged(before image.Image, after image.Image, roi roiParam, threshold float64) (bool, float64) {
-	ratio := changedPixelRatio(before, after, roi)
-	if threshold <= 0 {
-		return ratio > 0, ratio
-	}
-	return ratio >= threshold, ratio
-}
-
-// changedPixelRatio calculates the proportion of meaningfully changed pixels inside a 720p-based ROI.
-func changedPixelRatio(before image.Image, after image.Image, roi roiParam) float64 {
-	if before == nil || after == nil {
-		return 0
-	}
-
-	rect := scaledImageRect(roi, before.Bounds())
-	rect = rect.Intersect(after.Bounds())
-	if rect.Empty() {
-		return 0
-	}
-
-	changed := 0
-	total := 0
-	for y := rect.Min.Y; y < rect.Max.Y; y++ {
-		for x := rect.Min.X; x < rect.Max.X; x++ {
-			total++
-			if colorsMeaningfullyDifferent(before.At(x, y), after.At(x, y)) {
-				changed++
-			}
+// scrollProbeUnchanged compares pre-scroll and post-scroll top quantity vectors.
+func scrollProbeUnchanged(before map[int]int, after map[int]int) (bool, int, int) {
+	comparable := 0
+	matches := 0
+	for cell, beforeValue := range before {
+		afterValue, ok := after[cell]
+		if !ok {
+			continue
+		}
+		comparable++
+		if beforeValue == afterValue {
+			matches++
 		}
 	}
-	if total == 0 {
-		return 0
-	}
-	return float64(changed) / float64(total)
-}
-
-// scaledImageRect maps a 720p ROI to an image rectangle and clamps it to the image bounds.
-func scaledImageRect(roi roiParam, bounds image.Rectangle) image.Rectangle {
-	scaleX := float64(bounds.Dx()) / 1280.0
-	scaleY := float64(bounds.Dy()) / 720.0
-	rect := image.Rect(
-		bounds.Min.X+scaleCoord(roi.X, scaleX),
-		bounds.Min.Y+scaleCoord(roi.Y, scaleY),
-		bounds.Min.X+scaleCoord(roi.X+roi.W, scaleX),
-		bounds.Min.Y+scaleCoord(roi.Y+roi.H, scaleY),
-	)
-	return rect.Intersect(bounds)
-}
-
-// colorsMeaningfullyDifferent ignores tiny capture noise while detecting real UI movement.
-func colorsMeaningfullyDifferent(a color.Color, b color.Color) bool {
-	ar, ag, ab, _ := a.RGBA()
-	br, bg, bb, _ := b.RGBA()
-	const channelNoise = uint32(8 * 257)
-	return absDiffUint32(ar, br)+absDiffUint32(ag, bg)+absDiffUint32(ab, bb) > channelNoise*3
-}
-
-// absDiffUint32 returns the absolute difference between two color channels.
-func absDiffUint32(a uint32, b uint32) uint32 {
-	if a > b {
-		return a - b
-	}
-	return b - a
-}
-
-// maxInt returns the larger integer.
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return comparable >= minScrollProbeComparable && matches == comparable, comparable, matches
 }
 
 // --- Voucher Config And Classification --- //
@@ -968,10 +909,10 @@ func validateVoucherDef(def voucherDef) error {
 		return fmt.Errorf("pull_value must be 1 or 10")
 	}
 	switch def.PoolScope {
-	case "current_only", "carry_to_next", "next_only":
+	case "current_only", "carry_to_next", "next_only", "ignore":
 		return nil
 	default:
-		return fmt.Errorf("pool_scope must be current_only, carry_to_next, or next_only")
+		return fmt.Errorf("pool_scope must be current_only, carry_to_next, next_only, or ignore")
 	}
 }
 
@@ -996,6 +937,9 @@ func summarizeVouchers(scanned []scannedVoucher, config *voucherConfig) (voucher
 			continue
 		}
 		pulls := item.Quantity * def.PullValue
+		if def.PoolScope == "ignore" {
+			pulls = 0
+		}
 		match := voucherMatch{
 			CanonicalName: def.Name,
 			DisplayName:   item.Name,

@@ -63,6 +63,7 @@
     "autofight.switch_character": "%d번 오퍼레이터로 전환",
     "pullcount.resource.originium": "연질 원석의 오로베릴 환산값",
     "pullcount.resource.oroberyl": "오로베릴",
+    "pullcount.resource_read_success": "%s 읽기 성공: %d",
     "pullcount.error.invalid_params": "모집 횟수 계산 파라미터가 올바르지 않습니다",
     "pullcount.error.capture_failed": "모집 횟수 계산용 스크린샷 캡처에 실패했습니다",
     "pullcount.error.recognition_failed": "모집 횟수 인식 실패: %s. 오퍼레이터 모집 화면이 열려 있고 상단 자원 바가 가려지지 않았는지 확인해 주세요.",
