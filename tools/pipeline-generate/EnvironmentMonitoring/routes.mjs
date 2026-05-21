@@ -24,6 +24,7 @@ export const ROUTE_DEFAULTS = {
             0,
         ],
     ],
+    NavMeshTarget: null,
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     CameraMaxHit: 2,
     Heading: null,

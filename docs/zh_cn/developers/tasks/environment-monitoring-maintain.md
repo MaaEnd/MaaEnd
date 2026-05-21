@@ -145,19 +145,19 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 `data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。它从 `routes.mjs` 读取维护者手动维护的 `ROUTE_CONFIG`（实际数据存放在同目录 `routes.json`）/ `ROUTE_DEFAULTS`，再结合 `kite_station_i18n.json` 装配出最终行：
 
-| 字段                                   | 来源                                                                                                                                                                             |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Station`                              | `kite_station_i18n.json` 的英文站名（PascalCase）                                                                                                                                |
-| `Id`                                   | 默认由官方英文名 PascalCase 自动生成；仅当 `ROUTE_CONFIG[*].Id` 显式提供时覆盖                                                                                                   |
-| `Name`                                 | `kite_station_i18n.json` 的 `name["zh-CN"]`，去掉特殊符号；`ROUTE_CONFIG` 也按这个中文名归并匹配                                                                                 |
-| `GoToMonitoringTerminal`               | 由 `Station` 决定                                                                                                                                                                |
-| `EnterMap`                             | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                                                                                                               |
-| `MapName` / `MapTarget` / `MapPath`    | `ROUTE_CONFIG[*]`，对应 `MapTrackerMove` / `MapTrackerAssertLocation` 参数                                                                                                       |
-| `CameraSwipeDirection`                 | `ROUTE_CONFIG[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                            |
-| `CameraMaxHit`                         | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                     |
-| `ExpectedText`                         | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                      |
-| `InExpectedText`                       | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开                                                                                                                 |
-| `TrackOrGoToNext` / `AfterTrackedNext` | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted` |
+| 字段                                                  | 来源                                                                                                                                                                                   |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Station`                                             | `kite_station_i18n.json` 的英文站名（PascalCase）                                                                                                                                      |
+| `Id`                                                  | 默认由官方英文名 PascalCase 自动生成；仅当 `ROUTE_CONFIG[*].Id` 显式提供时覆盖                                                                                                         |
+| `Name`                                                | `kite_station_i18n.json` 的 `name["zh-CN"]`，去掉特殊符号；`ROUTE_CONFIG` 也按这个中文名归并匹配                                                                                       |
+| `GoToMonitoringTerminal`                              | 由 `Station` 决定                                                                                                                                                                      |
+| `EnterMap`                                            | `ROUTE_CONFIG[*].EnterMap`，**必须是 SceneManager 中存在的节点名**                                                                                                                     |
+| `MapName` / `MapTarget` / `MapPath` / `NavMeshTarget` | `ROUTE_CONFIG[*]`，对应 `MapTrackerAssertLocation` 与后续寻路参数；`MapPath` 生成 `MapTrackerMove`，`NavMeshTarget` 生成 `MapNavigateAction` 的 `NAVMESH` 语义点，二者必须且只能选一个 |
+| `CameraSwipeDirection`                                | `ROUTE_CONFIG[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                                  |
+| `CameraMaxHit`                                        | `ROUTE_CONFIG[*].CameraMaxHit`，缺省用 `ROUTE_DEFAULTS.CameraMaxHit`（`2`）；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                           |
+| `ExpectedText`                                        | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                            |
+| `InExpectedText`                                      | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开                                                                                                                       |
+| `TrackOrGoToNext` / `AfterTrackedNext`                | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted`       |
 
 ### 终端分组：`terminals-config.json`
 
@@ -198,12 +198,12 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ## 关键依赖
 
-### MapTracker
+### 寻路组件
 
-观察点的「传送 → 复核 → 寻路」三段都依赖 `agent/go-service/maptracker/`：
+观察点的「传送 → 复核 → 寻路」三段会组合使用 MapTracker 与 MapNavigator：
 
 - `MapTrackerAssertLocation`（识别）：根据当前小地图判断是否在 `MapTarget` 矩形内。
-- `MapTrackerMove`（动作）：沿 `MapPath` 路径走到目标点，过程中支持 anchor 机制改写 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`。
+- `MapTrackerMove` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，或按 `NavMeshTarget` 生成 `NAVMESH` 语义点自动规划到目标点；过程中支持 anchor 机制改写 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`。
 
 详细参数与坐标录制方式见 [map-tracker.md](../components/map-tracker.md) 与 [map-navigator.md](../components/map-navigator.md)。
 
@@ -211,7 +211,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 `EnterMap` 字段必须填写 SceneManager 中已存在的传送节点名，例如 `SceneEnterWorldWulingJingyuValley7`。如果新增观察点位于尚未支持的传送点，需要先在 `assets/resource/pipeline/SceneManager/` 与 `assets/resource/pipeline/Interface/` 下补齐对应的 `SceneEnterWorld*` 与场景识别节点（参见 [scene-manager.md](../scene-manager.md)）。
 
-`SceneAnyEnterWorld` 仅作为未适配观察点在生成 Pipeline 时填进模板的占位值（`ROUTE_DEFAULTS.EnterMap`），运行时不会执行——`data.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。要让观察点完整自动化，必须在 `routes.json` 里给齐 `EnterMap`（真实的 `SceneEnterWorld*` 节点）/ `MapName` / `MapTarget` / `MapPath` / `CameraSwipeDirection` 五项必填字段；暂时没有可用传送点时，可以先不加该条目，让它按"仅接取并追踪"的降级流程运行。
+`SceneAnyEnterWorld` 仅作为未适配观察点在生成 Pipeline 时填进模板的占位值（`ROUTE_DEFAULTS.EnterMap`），运行时不会执行——`data.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。要让观察点完整自动化，必须在 `routes.json` 里给齐 `EnterMap`（真实的 `SceneEnterWorld*` 节点）/ `MapName` / `MapTarget` / `CameraSwipeDirection`，并在 `MapPath` 与 `NavMeshTarget` 中二选一；暂时没有可用传送点时，可以先不加该条目，让它按"仅接取并追踪"的降级流程运行。
 
 ### 主菜单入口
 
@@ -250,7 +250,8 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
     "EnterMap": "SceneEnterWorldWulingXxx", // SceneManager 中存在的传送节点
     "MapName": "map02_lv001",               // MapTracker 的小地图标识
     "MapTarget": [x, y, w, h],              // 目标矩形（小地图坐标）
-    "MapPath": [[x1, y1], [x2, y2]],        // 寻路路径（小地图坐标）
+    "MapPath": [[x1, y1], [x2, y2]],        // 寻路路径（小地图坐标），与 NavMeshTarget 二选一
+    // "NavMeshTarget": [x, y],             // Navmesh 目标点，适合普通可达路线
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp" // 朝向调整方向
     // "CameraMaxHit": 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
     // "Id": "ExistingObservationPoint", // 可选；仅在需要锁定旧节点/文件名时填写，新增点通常不要加
@@ -265,7 +266,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ### 4. 录制坐标和路径
 
-参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制 `MapTarget` / `MapPath`，并在游戏中确认：
+参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制 `MapTarget` / `MapPath`，或复制 `NAVMESH` 目标点填入 `NavMeshTarget`，并在游戏中确认：
 
 - 拍照时摄像头需要往哪个方向滑（决定 `CameraSwipeDirection`）。
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 走 `EnvironmentMonitoringEnterCameraMode`（自动朝向目标）成功；如果不行，会自动回退到 `EnvironmentMonitoringTakePhotoDirectly` + 手动滑屏 `${Id}AdjustCamera`。
@@ -308,7 +309,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `Name` 是否能匹配 `kite_station_i18n.json` 的 `mission.name["zh-CN"]`；不要为了新增点默认添加 `Id`。
-3. 已适配条目的 `EnterMap`、`MapTarget`、`MapPath`、`CameraSwipeDirection` 均已填写真实值（非 `routes.mjs` 中 `ROUTE_DEFAULTS` 占位）。
+3. 已适配条目的 `EnterMap`、`MapTarget`、`CameraSwipeDirection` 均已填写真实值（非 `routes.mjs` 中 `ROUTE_DEFAULTS` 占位），且 `MapPath` / `NavMeshTarget` 已二选一填写。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
 5. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
 6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
@@ -322,7 +323,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **把 `Id` 当必填字段**：新增观察点通常不要写 `Id`。只有需要锁定旧节点名/文件名时才补 `Id`。
 - **`Id` 与 `kite_station_i18n.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留。若想保留旧名，在 `routes.json` 对应条目里加 `"Id"` 显式锁定即可。
 - **`EnterMap` 写了不存在的 Scene 节点**：生成器不校验，运行时会卡在 `GoTo{Id}NotAtStartPos` 死循环。
-- **`MapPath` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 不处理战斗与剧情，路径只能选纯通行段。
+- **`MapPath` / `NavMeshTarget` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 与 NAVMESH 语义都不处理战斗、剧情、过图和机关交互，路径只能选纯通行段。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
-- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补齐真实的 `EnterMap`、`MapName`、`MapTarget`、`MapPath` 和 `CameraSwipeDirection`。
+- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须补齐真实的 `EnterMap`、`MapName`、`MapTarget`、`CameraSwipeDirection`，并在 `MapPath` 与 `NavMeshTarget` 中二选一。

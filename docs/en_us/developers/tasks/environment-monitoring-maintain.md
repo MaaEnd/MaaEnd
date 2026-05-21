@@ -145,19 +145,19 @@ When a new Station appears, **the generator side (`routes.json` + `routes.mjs` +
 
 `data.mjs`'s default export is an array; each element is the render context for one observation point (field names map to `${Xxx}` placeholders in `template.json`). It reads the manually maintained `ROUTE_CONFIG` (the underlying data lives in `routes.json` next to `routes.mjs`) / `ROUTE_DEFAULTS` from `routes.mjs` and assembles each row together with `kite_station_i18n.json`:
 
-| Field                                  | Source                                                                                                                                                                               |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Station`                              | English terminal name from `kite_station_i18n.json` (PascalCase)                                                                                                                     |
-| `Id`                                   | Generated from the official English name by default; overridden only when `ROUTE_CONFIG[*].Id` is explicitly provided                                                                |
-| `Name`                                 | `name["zh-CN"]` from `kite_station_i18n.json`, special characters stripped; `ROUTE_CONFIG` is also matched by this Chinese name                                                      |
-| `GoToMonitoringTerminal`               | Determined by `Station`                                                                                                                                                              |
-| `EnterMap`                             | `ROUTE_CONFIG[*].EnterMap`; **must be an existing SceneManager node name**                                                                                                           |
-| `MapName` / `MapTarget` / `MapPath`    | `ROUTE_CONFIG[*]`; maps to `MapTrackerMove` / `MapTrackerAssertLocation` parameters                                                                                                  |
-| `CameraSwipeDirection`                 | `ROUTE_CONFIG[*]`; must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`                                                                                             |
-| `CameraMaxHit`                         | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe                                      |
-| `ExpectedText`                         | Expanded automatically from `mission.name` multi-language map in `kite_station_i18n.json` (5 languages, English converted to a flexible regex)                                       |
-| `InExpectedText`                       | Expanded from `mission.shotTargetName` in `kite_station_i18n.json`                                                                                                                   |
-| `TrackOrGoToNext` / `AfterTrackedNext` | Decided automatically by `data.mjs`: `TrackOrGoToNext` fans out to `Track${Id}` / `AlreadyTracked${Id}`; `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` otherwise |
+| Field                                                 | Source                                                                                                                                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Station`                                             | English terminal name from `kite_station_i18n.json` (PascalCase)                                                                                                                                                          |
+| `Id`                                                  | Generated from the official English name by default; overridden only when `ROUTE_CONFIG[*].Id` is explicitly provided                                                                                                     |
+| `Name`                                                | `name["zh-CN"]` from `kite_station_i18n.json`, special characters stripped; `ROUTE_CONFIG` is also matched by this Chinese name                                                                                           |
+| `GoToMonitoringTerminal`                              | Determined by `Station`                                                                                                                                                                                                   |
+| `EnterMap`                                            | `ROUTE_CONFIG[*].EnterMap`; **must be an existing SceneManager node name**                                                                                                                                                |
+| `MapName` / `MapTarget` / `MapPath` / `NavMeshTarget` | `ROUTE_CONFIG[*]`; maps to `MapTrackerAssertLocation` and pathfinding parameters. `MapPath` renders `MapTrackerMove`, while `NavMeshTarget` renders a `MapNavigateAction` `NAVMESH` semantic waypoint. Choose exactly one |
+| `CameraSwipeDirection`                                | `ROUTE_CONFIG[*]`; must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`                                                                                                                                  |
+| `CameraMaxHit`                                        | `ROUTE_CONFIG[*].CameraMaxHit`; defaults to `ROUTE_DEFAULTS.CameraMaxHit` (`2`); corresponds to the max-hit count for `${Id}AdjustCamera` swipe                                                                           |
+| `ExpectedText`                                        | Expanded automatically from `mission.name` multi-language map in `kite_station_i18n.json` (5 languages, English converted to a flexible regex)                                                                            |
+| `InExpectedText`                                      | Expanded from `mission.shotTargetName` in `kite_station_i18n.json`                                                                                                                                                        |
+| `TrackOrGoToNext` / `AfterTrackedNext`                | Decided automatically by `data.mjs`: `TrackOrGoToNext` fans out to `Track${Id}` / `AlreadyTracked${Id}`; `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` otherwise                                      |
 
 ### Terminal groups: `terminals-config.json`
 
@@ -198,12 +198,12 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ## Key dependencies
 
-### MapTracker
+### Navigation Components
 
-The three phases "teleport → recheck → pathfind" for each observation point all depend on `agent/go-service/maptracker/`:
+The three phases "teleport → recheck → pathfind" for each observation point combine MapTracker and MapNavigator:
 
 - `MapTrackerAssertLocation` (recognizer): determines whether the current minimap position is within the `MapTarget` rectangle.
-- `MapTrackerMove` (action): walks along `MapPath` to the target, with anchor-rewrite support for `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`.
+- `MapTrackerMove` / `MapNavigateAction` (action): walks along `MapPath`, or uses `NavMeshTarget` to render a `NAVMESH` semantic waypoint that auto-plans to the target; both keep anchor-rewrite support for `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`.
 
 For detailed parameters and coordinate recording, see [map-tracker.md](../components/map-tracker.md) and [map-navigator.md](../components/map-navigator.md).
 
@@ -211,7 +211,7 @@ For detailed parameters and coordinate recording, see [map-tracker.md](../compon
 
 The `EnterMap` field must be an existing teleport node name in SceneManager, e.g. `SceneEnterWorldWulingJingyuValley7`. If a new observation point is in a yet-unsupported teleport location, the corresponding `SceneEnterWorld*` and scene-recognition nodes must first be added under `assets/resource/pipeline/SceneManager/` and `assets/resource/pipeline/Interface/` (see [scene-manager.md](../scene-manager.md)).
 
-`SceneAnyEnterWorld` is only the placeholder value (`ROUTE_DEFAULTS.EnterMap`) that gets rendered into the template for not-adapted points; it is never executed at runtime — `data.mjs` decides whether to enter the path/photo flow by checking whether the `routes.json` entry has all required fields, and not-adapted points always go to the `${Id}NotAdapted` branch. To fully automate a point, fill in all five required fields in `routes.json`: `EnterMap` (a real `SceneEnterWorld*` node), `MapName`, `MapTarget`, `MapPath`, and `CameraSwipeDirection`. If no usable teleport exists yet, leave the point without an entry and let it use the degraded "accept and track only" flow for now.
+`SceneAnyEnterWorld` is only the placeholder value (`ROUTE_DEFAULTS.EnterMap`) that gets rendered into the template for not-adapted points; it is never executed at runtime — `data.mjs` decides whether to enter the path/photo flow by checking whether the `routes.json` entry has all required fields, and not-adapted points always go to the `${Id}NotAdapted` branch. To fully automate a point, fill in `EnterMap` (a real `SceneEnterWorld*` node), `MapName`, `MapTarget`, `CameraSwipeDirection`, and exactly one of `MapPath` or `NavMeshTarget`. If no usable teleport exists yet, leave the point without an entry and let it use the degraded "accept and track only" flow for now.
 
 ### Main menu entry
 
@@ -250,7 +250,8 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
     "EnterMap": "SceneEnterWorldWulingXxx", // existing teleport node in SceneManager
     "MapName": "map02_lv001",               // MapTracker minimap identifier
     "MapTarget": [x, y, w, h],              // target rectangle (minimap coordinates)
-    "MapPath": [[x1, y1], [x2, y2]],        // pathfinding route (minimap coordinates)
+    "MapPath": [[x1, y1], [x2, y2]],        // pathfinding route (minimap coordinates), choose one of this or NavMeshTarget
+    // "NavMeshTarget": [x, y],             // Navmesh target point for ordinary reachable routes
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp" // facing-adjustment direction
     // "CameraMaxHit": 2,  // optional; max swipe count, default 2; increase if the target is hard to frame
     // "Id": "ExistingObservationPoint", // optional; only pin old node/file names when needed, usually omit for new points
@@ -265,7 +266,7 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
 
 ### 4. Record coordinates and path
 
-Use the GUI tool described in [map-navigator.md](../components/map-navigator.md) to record `MapTarget` / `MapPath`, and verify in-game:
+Use the GUI tool described in [map-navigator.md](../components/map-navigator.md) to record `MapTarget` / `MapPath`, or copy a `NAVMESH` target point into `NavMeshTarget`, and verify in-game:
 
 - Which direction the camera needs to swipe when taking the photo (determines `CameraSwipeDirection`).
 - Whether the standing position allows `EnvironmentMonitoringTakePhoto` to follow the `EnvironmentMonitoringEnterCameraMode` path (auto-face target) successfully; if not, it automatically falls back to `EnvironmentMonitoringTakePhotoDirectly` + manual swipe `${Id}AdjustCamera`.
@@ -308,7 +309,7 @@ Before committing, at minimum verify:
 
 1. New/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` have all required fields.
 2. The `Name` of each new entry matches `mission.name["zh-CN"]` in `kite_station_i18n.json`; do not add `Id` by default for new points.
-3. Adapted entries have real `EnterMap`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values (not `ROUTE_DEFAULTS` placeholders defined in `routes.mjs`).
+3. Adapted entries have real `EnterMap`, `MapTarget`, and `CameraSwipeDirection` values (not `ROUTE_DEFAULTS` placeholders defined in `routes.mjs`), and exactly one of `MapPath` or `NavMeshTarget`.
 4. The regenerated `Terminals.json` has `[JumpBack]{Id}Job` for every new point in each `{Station}MonitoringTerminalLoop.next` list, ending with `EnvironmentMonitoringFinish`.
 5. The `Scene*` node referenced by `EnterMap` actually exists under `assets/resource/pipeline/SceneManager/` and `Interface/`.
 6. `CameraSwipeDirection` is one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`.
@@ -322,7 +323,7 @@ Before committing, at minimum verify:
 - **Treating `Id` as required**: new observation points normally should not write `Id`. Add `Id` only when you need to pin an old node/file name.
 - **`Id` drifts from `kite_station_i18n.json` English name**: When the game renames an item in English, the auto-computed `Id` changes, which can cause generated file renames or stale old files. Add `"Id"` to the `routes.json` entry explicitly if you want to keep the old name.
 - **`EnterMap` references a non-existent Scene node**: The generator does not validate this; at runtime the task will loop indefinitely at `GoTo{Id}NotAtStartPos`.
-- **`MapPath` passes through locked areas / combat / interactables**: MapTracker does not handle combat or cutscenes; paths must only traverse freely walkable sections.
+- **`MapPath` / `NavMeshTarget` passes through locked areas / combat / interactables**: MapTracker and the `NAVMESH` semantic route do not handle combat, cutscenes, map transitions, or mechanism interactions; paths must only traverse freely walkable sections.
 - **New `Station` added but `Locations.json` / `EnvironmentMonitoringLoop.next` not updated**: the new terminal cannot be recognized or entered, so all its observation points are unreachable.
 - **`anchor` key name consistency**: The `anchor` key `EnvironmentMonitoringBackToTerminal` in `template.json` must stay exactly consistent with `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; a mismatch silently disables the anchor mechanism.
-- **"Generated successfully ≠ fully adapted"**: points without a `routes.json` entry, or entries missing any required field, are generated as a degraded flow. They only accept and track; they do not travel or take the photo. Full automation requires real `EnterMap`, `MapName`, `MapTarget`, `MapPath`, and `CameraSwipeDirection` values.
+- **"Generated successfully ≠ fully adapted"**: points without a `routes.json` entry, or entries missing any required field, are generated as a degraded flow. They only accept and track; they do not travel or take the photo. Full automation requires real `EnterMap`, `MapName`, `MapTarget`, `CameraSwipeDirection`, and exactly one of `MapPath` or `NavMeshTarget`.

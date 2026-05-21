@@ -42,7 +42,10 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
         // 目标矩形（小地图坐标），用于 MapTrackerAssertLocation 判断是否已就位。
     "MapPath": [[x1, y1], [x2, y2]],
         // 寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。
-        // 用 tools/MapNavigator/ 的 GUI 工具录制。
+        // 与 NavMeshTarget 二选一，用 tools/MapNavigator/ 的 GUI 工具录制。
+    // "NavMeshTarget": [x, y],
+    //     Navmesh 目标点，由 MapNavigateAction 的 NAVMESH 语义自动规划路线。
+    //     与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         // 摄像头朝向调整方向，四选一：Up / Down / Left / Right。
     "CameraMaxHit": 2,
@@ -61,7 +64,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 }
 ```
 
-> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。
+> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。`MapPath` 与 `NavMeshTarget` 必须且只能填写其中一个。
 
 > 编辑 `routes.json` 时 VS Code 会自动应用 `tools/schema/environment_monitoring_routes.schema.json`（通过 `.vscode/settings.json` 注册），提供字段补全、枚举值（`CameraSwipeDirection`）和必填项校验。
 

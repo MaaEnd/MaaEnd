@@ -168,12 +168,11 @@ function buildGoToMonitoringTerminal(station) {
     return `EnvironmentMonitoringGoTo${station}`;
 }
 
-// 需要校验是否在 ROUTE_CONFIG 中显式配置的字段。CameraMaxHit 有合理默认值，未配置不视为缺失。
+// 需要校验是否在 ROUTE_CONFIG 中显式配置的公共字段。CameraMaxHit 有合理默认值，未配置不视为缺失。
 const REQUIRED_ROUTE_FIELDS = [
     "EnterMap",
     "MapName",
     "MapTarget",
-    "MapPath",
     "CameraSwipeDirection",
 ];
 
@@ -206,7 +205,18 @@ function buildRow(mission, usedIds) {
             resolved[key] = overrideValue;
         }
     }
-    const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
+    const hasMapPath = !isFieldMissing(override?.MapPath);
+    const hasNavMeshTarget = !isFieldMissing(override?.NavMeshTarget);
+    if (!hasMapPath && !hasNavMeshTarget) {
+        missingFields.push("MapPath/NavMeshTarget");
+    }
+    if (hasMapPath && hasNavMeshTarget) {
+        missingFields.push("MapPath/NavMeshTarget 二选一");
+    }
+
+    const {EnterMap, MapName, MapTarget, CameraSwipeDirection} = resolved;
+    const MapPath = hasMapPath && !hasNavMeshTarget ? override.MapPath : ROUTE_DEFAULTS.MapPath;
+    const NavMeshTarget = hasNavMeshTarget && !hasMapPath ? override.NavMeshTarget : ROUTE_DEFAULTS.NavMeshTarget;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
     // Heading 是可选朝向（角度），未配置时不调整角色朝向，AdjustHeading 节点退化为透传。
     const HeadingRaw = override?.Heading;
@@ -250,13 +260,24 @@ function buildRow(mission, usedIds) {
     // 朝向节点：配置了 Heading 时调用 MapNavigateAction 的 HEADING 旋转角色，
     // 否则退化为透传节点（仅承担 next 桥接）。模板里以 "${AdjustHeadingNodeBody}" 整体注入。
 
-    // MapTrackerMove 参数：按需构建，仅在非默认时注入可选字段。
+    // 寻路参数：MapPath 使用旧 MapTrackerMove；NavMeshTarget 使用 MapNavigateAction 的 NAVMESH 语义点。
     const NoEnsureInitialMovementState = override?.NoEnsureInitialMovementState ?? false;
-    const MapTrackerMoveParam = {
-        map_name: MapName,
-        path: MapPath,
-        ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
-    };
+    const MapNavigationAction = hasNavMeshTarget && !hasMapPath ? "MapNavigateAction" : "MapTrackerMove";
+    const MapNavigationParam =
+        MapNavigationAction === "MapNavigateAction"
+            ? {
+                  path: [
+                      {
+                          action: "NAVMESH",
+                          target: NavMeshTarget,
+                      },
+                  ],
+              }
+            : {
+                  map_name: MapName,
+                  path: MapPath,
+                  ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+              };
     const AdjustHeadingNodeBody = HasHeading
         ? {
               desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
@@ -292,6 +313,7 @@ function buildRow(mission, usedIds) {
         MapName,
         MapTarget,
         MapPath,
+        NavMeshTarget,
         CameraSwipeDirection,
         CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
@@ -299,7 +321,8 @@ function buildRow(mission, usedIds) {
         TrackOrGoToNext,
         AfterTrackedNext,
         AdjustHeadingNodeBody,
-        MapTrackerMoveParam,
+        MapNavigationAction,
+        MapNavigationParam,
     };
 }
 
