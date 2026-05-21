@@ -46,13 +46,9 @@ func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect
 	if ctx != nil && ctx.GetTasker() != nil {
 		ctrl = ctx.GetTasker().GetController()
 	}
-	discountROI := applyROIOffset(nameBox, recordItemDiscountROIOffset(ctrl))
-	// 必须覆写 RecordItemDiscount 自身的 roi：覆写 ItemNameOCR 仍会跑完整名称链并命中第一个槽位。
-	override := map[string]any{
-		pipelineNodeRecordItemDiscount: map[string]any{
-			"roi": discountROI,
-		},
-	}
+	// 覆写 roi 为当前槽位名称框，并显式指定 roi_offset（与 pipeline 一致）。
+	// 不可先 applyROIOffset 再只覆写 roi：流水线仍会再叠一层 roi_offset。
+	override := recordItemDiscountPipelineOverride(nameBox, ctrl)
 	detail, err := ctx.RunRecognition(pipelineNodeRecordItemDiscount, img, override)
 	if err != nil || detail == nil || !detail.Hit {
 		return discountNone

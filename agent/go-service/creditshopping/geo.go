@@ -18,6 +18,17 @@ func recordItemDiscountROIOffset(ctrl *maa.Controller) maa.Rect {
 	return recordItemDiscountROIOffsetPC
 }
 
+// recordItemDiscountPipelineOverride 为单槽折扣 OCR 构造 pipeline override。
+func recordItemDiscountPipelineOverride(nameBox maa.Rect, ctrl *maa.Controller) map[string]any {
+	off := recordItemDiscountROIOffset(ctrl)
+	return map[string]any{
+		pipelineNodeRecordItemDiscount: map[string]any{
+			"roi":        nameBox,
+			"roi_offset": []int{off[0], off[1], off[2], off[3]},
+		},
+	}
+}
+
 // applyROIOffset 与 Pipeline 协议 roi_offset 语义一致：在 base 矩形四元组上分别相加。
 func applyROIOffset(base, offset maa.Rect) maa.Rect {
 	return maa.Rect{
