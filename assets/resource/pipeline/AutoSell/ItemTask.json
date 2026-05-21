@@ -156,6 +156,7 @@
     },
     "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": {
         "desc": "当前在好友界面，回到地区建设界面，切换地区到四号谷地",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -176,6 +177,7 @@
     },
     "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling": {
         "desc": "当前在好友界面，回到地区建设界面，切换地区到武陵",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

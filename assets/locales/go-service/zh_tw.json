@@ -17,6 +17,8 @@
     "autosell.check_item_price_massive": "檢查物資 %s 價格，該物資價格變動極大",
     "autosell.check_item_price_unknown": "檢查物資 %s 價格，該物資價格變動未知",
     "autosell.scan_item_owned": "擁有彈性需求物資：%s",
+    "autosell.sell_success": "物資 %s 售賣成功",
+    "autosell.try_next_friend": "物資 %s：目前好友無貨，嘗試第 %d 位好友",
     "autostockpile.recognition_done": "識別完成，共識別到 %d 個商品",
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.hit_but_skip": "已命中商品，但最終不購買（%s）",

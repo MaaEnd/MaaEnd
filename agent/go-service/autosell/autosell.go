@@ -108,7 +108,6 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 
 	hasError := false
 	for _, name := range names {
-		// 翻译有缘再写
 		targetPrice := 9999
 		targetName := "unknown"
 		if k := firstContainedKeyword(name, moderatePriceKeywords); k != "" {
@@ -133,7 +132,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			continue
 		}
 
-		override := map[string]any{
+		baseOverride := map[string]any{
 			"AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV": map[string]any{
 				"enabled": param.Region == "ValleyIV",
 			},
@@ -147,10 +146,12 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 				"enabled": param.Region == "Wuling",
 			},
 			"AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": map[string]any{
-				"enabled": param.Region == "ValleyIV",
+				"enabled":   param.Region == "ValleyIV",
+				"max_hit":   1,
 			},
 			"AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling": map[string]any{
-				"enabled": param.Region == "Wuling",
+				"enabled":   param.Region == "Wuling",
+				"max_hit":   1,
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
@@ -167,11 +168,49 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 		}
 
-		detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
-		if detail == nil || err != nil {
-			log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Str("item_name", name).Msg("run prepare task")
-			hasError = true
+		sold := false
+		for friendIdx := 0; friendIdx < 20 && !sold; friendIdx++ {
+			override := make(map[string]any, len(baseOverride)+1)
+			for k, v := range baseOverride {
+				override[k] = v
+			}
+			if friendIdx > 0 {
+				yOffset := friendIdx * 145
+				override["AutoSellFriendsPriceFirstTicketRecognition"] = map[string]any{
+					"roi_offset": []int{0, yOffset, 0, 0},
+				}
+				maafocus.Print(ctx, i18n.T("autosell.try_next_friend", name, friendIdx+1))
+			}
+
+			detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
+			if detail == nil || err != nil {
+				log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Str("item_name", name).Int("friend_idx", friendIdx).Msg("run prepare task")
+				hasError = true
+				break
+			}
+
+			if detail.Status.Success() {
+				sold = true
+				maafocus.Print(ctx, i18n.T("autosell.sell_success", name))
+			} else {
+				log.Info().
+					Str("component", "autosell").
+					Str("step", "execute_sell").
+					Str("item_name", name).
+					Int("friend_idx", friendIdx).
+					Msg("current friend does not have target item, try next")
+			}
+		}
+
+		if hasError {
 			break
+		}
+		if !sold {
+			log.Warn().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Msg("no friends have the target item")
 		}
 	}
 	if hasError {
