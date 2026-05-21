@@ -51,10 +51,20 @@ REGION_IMAGE_API = APIEndpoint(
     file_name="{region_name}.png",
 )
 
+TIER_IMAGE_API = APIEndpoint(
+    re_url="gnp.}eman_lluf_egami_reit{/reit/segami/moc.pamdmz.stessa//:sptth",
+    file_name="{tier_image_full_name}.png",
+)
+
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
 
 _RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
+"""Regex to match remote layout JSON file names.
+
+Groups:
+1. region_name
+"""
 
 
 def _save_json(
@@ -67,6 +77,16 @@ def _save_json(
         if len(json_str) < no_minify_if_size_less_than:
             json_str = json.dumps(data, ensure_ascii=False, indent=4)
         f.write(json_str)
+
+
+def _scale_image(img: np.ndarray, factor: float) -> np.ndarray:
+    if factor == 1.0:
+        return img
+    return cv2.resize(
+        img,
+        (round(img.shape[1] * factor), round(img.shape[0] * factor)),
+        interpolation=cv2.INTER_AREA if factor < 1.0 else cv2.INTER_LINEAR,
+    )
 
 
 def _download_json_cached(url: str, dest: str, use_cache: bool = False) -> bool:
@@ -182,6 +202,7 @@ def cmd_image(
     output_dir: str,
     match: str | None = None,
     use_cache: bool = False,
+    no_tiers: bool = False,
 ) -> None:
     """Download region images, split into levels, save to output_dir."""
     print(f"  Loading layouts from {_C}{input_dir}{_0}...")
@@ -190,12 +211,16 @@ def cmd_image(
 
     os.makedirs(output_dir, exist_ok=True)
 
-    print(f"\n  Downloading...")
+    # Track which regions were processed for tier downloading
+    processed_regions: list[str] = []
+
+    print(f"\n  Downloading regions...")
     for region_name, layout in layouts.items():
         if match and match not in region_name:
             print(f"  {_A}{region_name}: filtered out{_0}")
             continue
 
+        processed_regions.append(region_name)
         region_path = os.path.join(output_dir, f"{region_name}.png")
         print(f"\n  [{region_name}]")
 
@@ -212,21 +237,7 @@ def cmd_image(
                 continue
             canvas, size = result
             print(f"  {_G}Downloaded {size / 1024 / 1024:.2f} MB")
-
-            if SCALE_MAP_FACTOR != 1.0:
-                canvas = cv2.resize(
-                    canvas,
-                    (
-                        round(canvas.shape[1] * SCALE_MAP_FACTOR),
-                        round(canvas.shape[0] * SCALE_MAP_FACTOR),
-                    ),
-                    interpolation=(
-                        cv2.INTER_AREA
-                        if SCALE_MAP_FACTOR < 1.0
-                        else cv2.INTER_LINEAR
-                    ),
-                )
-
+            canvas = _scale_image(canvas, SCALE_MAP_FACTOR)
             cv2.imwrite(region_path, canvas)
             print(
                 f"    {_C}{region_name}.png {_A}({canvas.shape[1]}x{canvas.shape[0]}){_0}"
@@ -239,6 +250,41 @@ def cmd_image(
             print(
                 f"    {_C}{fname} {_A}({level_img.shape[1]}x{level_img.shape[0]}){_0}"
             )
+
+    # Download tier images after all regions are processed
+    if not no_tiers and processed_regions:
+        print(f"\n  Downloading tier images...")
+        grid_tiers_path = os.path.join(input_dir, GRID_TIERS_API.file_name)
+        if not os.path.exists(grid_tiers_path):
+            print(f"  {_Y}grid_tiers.json not found in {input_dir}, skipping tiers{_0}")
+        else:
+            grid_table = GridTiersTable.load(grid_tiers_path)
+            tier_count = 0
+            for position_key, tier_data in grid_table.tiers.items():
+                # position_key: "region_level_gx_gy"
+                region_name = position_key.split("_")[0]
+                if region_name not in processed_regions:
+                    continue
+
+                for tier_name in tier_data.items.values():
+                    dest = os.path.join(output_dir, f"{tier_name}.png")
+
+                    if use_cache and os.path.exists(dest):
+                        continue
+
+                    url = TIER_IMAGE_API.format(tier_image_full_name=tier_name)
+                    result = download_image(url)
+                    if result is None:
+                        continue
+                    img, size = result
+                    img = _scale_image(img, SCALE_MAP_FACTOR)
+                    cv2.imwrite(dest, img)
+                    print(
+                        f"    {_C}{tier_name}.png {_A}({img.shape[1]}x{img.shape[0]}){_0}"
+                    )
+                    tier_count += 1
+
+            print(f"  {_G}Downloaded {tier_count} tier image(s){_0}")
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -272,6 +318,11 @@ def main():
     p_img.add_argument(
         "--match", type=str, default=None, help="Only process matching regions"
     )
+    p_img.add_argument(
+        "--no-tiers",
+        action="store_true",
+        help="Only download region images, skip tier images",
+    )
 
     args = parser.parse_args()
 
@@ -280,7 +331,9 @@ def main():
     if args.command == "json":
         cmd_json(args.output_dir, args.with_cache)
     elif args.command == "image":
-        cmd_image(args.input_dir, args.output_dir, args.match, args.with_cache)
+        cmd_image(
+            args.input_dir, args.output_dir, args.match, args.with_cache, args.no_tiers
+        )
 
     print(f"\n{_G}Done.{_0}")
 

@@ -6,7 +6,7 @@
 # ///
 
 # MapTracker - Merger Tool
-# Stitches level images from map_fetcher output into composite maps,
+# Distinguishes level images from map_fetcher output into separate maps,
 # with island removal and manual overlap splitting.
 
 import os
@@ -26,7 +26,7 @@ SCALE_MAP_FACTOR = 0.1625
 DISCARD_THRESHOLD = 2
 """Pixels with brightness < this value are discarded as non-land."""
 
-LAND_THRESHOLD = 32
+LAND_THRESHOLD = 48
 """Pixels with brightness < this value are filtered out of bounding boxes."""
 
 _RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
@@ -80,14 +80,13 @@ def ensure_output_dir(path: str) -> None:
 
 
 class DistinMapPage:
-    """Stitches multiple level maps into a single composite map
-    using layout data for level positioning."""
+    """Distinguishes level maps into separate maps using layout data for positioning."""
 
     def __init__(self, input_dir: str, output_dir: str, layout_dir: str):
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.layout_dir = layout_dir
-        self.window_name = "MapTracker Map Stitcher"
+        self.window_name = "MapTracker Level Distinguisher"
         self.window_w, self.window_h = 1280, 720
 
     def _load_level_maps(self) -> Dict[str, np.ndarray]:
@@ -166,14 +165,14 @@ class DistinMapPage:
             drawer.paste(self._make_land_alpha(maps[nm]), (x, y), with_alpha=True)
         return canvas
 
-    def _stitch_group(
+    def _distinguish_group(
         self,
         group_key: str,
         maps: Dict[str, np.ndarray],
         layout: RegionLayoutTable,
     ) -> None:
-        """Stitch a single group of maps using layout positions."""
-        print(f"\n{_G}[{group_key}]{_0} Stitching {len(maps)} map(s)...")
+        """Distinguish a single group of maps using layout positions."""
+        print(f"\n{_G}[{group_key}]{_0} Processing {len(maps)} map(s)...")
 
         if SCALE_MAP_FACTOR != 1.0:
             layout = scale_layout(layout, SCALE_MAP_FACTOR)
@@ -192,10 +191,6 @@ class DistinMapPage:
             x, y = positions[nm]
             print(f"    {_C}{nm}{_0} -> ({x}, {y})")
         canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
-
-        output_path = os.path.join(self.output_dir, f"_stitched_{group_key}.png")
-        cv2.imwrite(output_path, cv2.cvtColor(canvas, cv2.COLOR_RGBA2BGRA))
-        print(f"  {_G}Saved to {output_path}{_0}")
 
         # --- Remove islands ---
         maps = self._remove_islands(maps)
@@ -654,8 +649,8 @@ class DistinMapPage:
             cv2.destroyWindow(self.window_name)
 
     def run(self) -> None:
-        """Main stitching flow - groups maps by region and stitches each separately."""
-        print(f"\n{_G}MapTracker Map Stitcher{_0}")
+        """Main flow - groups maps by region and distinguishes each separately."""
+        print(f"\n{_G}MapTracker Level Distinguisher{_0}")
         print(f"  Source dir  : {_C}{self.input_dir}{_0}")
         print(f"  Output dir  : {_C}{self.output_dir}{_0}")
         print(f"  Layout dir  : {_C}{self.layout_dir}{_0}")
@@ -695,14 +690,14 @@ class DistinMapPage:
             group_maps = groups[group_key]
             layout = layouts[group_key]
             if len(group_maps) < 2:
-                print(f"\n{_Y}[{group_key}]{_0} Only 1 map – skipping stitch.")
+                print(f"\n{_Y}[{group_key}]{_0} Only 1 map – skipping.")
                 continue
-            self._stitch_group(group_key, group_maps, layout)
+            self._distinguish_group(group_key, group_maps, layout)
 
 
-def generate_map_bbox_json(input_dir: str) -> str:
+def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
     """Generate map bbox json for all map png files in directory recursively."""
-    ensure_output_dir(input_dir)
+    ensure_output_dir(output_dir)
     results: Dict[str, List[int]] = {}
 
     for root, _, files in os.walk(input_dir):
@@ -719,8 +714,6 @@ def generate_map_bbox_json(input_dir: str) -> str:
 
             if img.ndim == 2:
                 rgb = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-            elif img.shape[2] == 4:
-                rgb = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
             elif img.shape[2] == 3:
                 rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             else:
@@ -735,56 +728,227 @@ def generate_map_bbox_json(input_dir: str) -> str:
             min_y, max_y = int(ys.min()), int(ys.max())
             results[map_name] = [min_x, min_y, max_x + 1, max_y + 1]
 
-    output_path = os.path.join(input_dir, "map_bbox.json")
+    output_path = os.path.join(output_dir, "map_bbox.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
     print(f"{_G}Saved map rectangles to {output_path}{_0}")
     return output_path
 
 
+def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> None:
+    """Distinguish level images into separate maps with island removal and manual split."""
+    if not os.path.isdir(input_dir):
+        print(f"{_R}Input directory not found: {input_dir}{_0}")
+        return
+    if not os.path.isdir(layout_dir):
+        print(f"{_R}Layout directory not found: {layout_dir}{_0}")
+        return
+
+    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir)
+    distinguisher.run()
+
+
+def cmd_bbox(input_dir: str, output_dir: str) -> None:
+    """Generate bounding box JSON for map images."""
+    if not os.path.isdir(input_dir):
+        print(f"{_R}Input directory not found: {input_dir}{_0}")
+        return
+
+    generate_map_bbox_json(input_dir, output_dir)
+
+
+# Tier image filename format: region_level_gx_gy_tier_id.png
+_RE_TIER_FILE = re.compile(r"^(\w+_\w+)_(\d+)_(\d+)_tier_\d+\.png$")
+
+GRID_XY_SIZE = SCALE_MAP_FACTOR * 600
+"""Scaled pixel size of one grid cell."""
+
+RING_RADIUS = 50
+"""Radius of the ring background around land areas."""
+
+
+def _load_image_rgb(path: str) -> np.ndarray | None:
+    """Load image and convert to RGB."""
+    img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    if img is None:
+        return None
+    if img.ndim == 2:
+        return cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    if img.shape[2] == 4:
+        alpha = img[:, :, 3:4].astype(np.float32) / 255.0
+        bgr = img[:, :, :3].astype(np.float32) * alpha
+        return cv2.cvtColor(np.clip(bgr, 0, 255).astype(np.uint8), cv2.COLOR_BGR2RGB)
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+
+def _load_image_rgba(path: str) -> np.ndarray | None:
+    """Load image and convert to RGBA."""
+    img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    if img is None:
+        return None
+    if img.ndim == 2:
+        return cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
+    if img.shape[2] == 3:
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
+    if img.shape[2] == 4:
+        return cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+    return None
+
+
+def cmd_tidy_tiers(input_dir: str, output_dir: str) -> None:
+    """Blend tier images with their parent region-level images."""
+    if not os.path.isdir(input_dir):
+        print(f"{_R}Input directory not found: {input_dir}{_0}")
+        return
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Discover tier images
+    tier_files: list[tuple[str, int, int, str]] = []  # (level_key, gx, gy, fname)
+    for fname in os.listdir(input_dir):
+        m = _RE_TIER_FILE.match(fname)
+        if m:
+            tier_files.append((m.group(1), int(m.group(2)), int(m.group(3)), fname))
+
+    if not tier_files:
+        print(f"{_Y}No tier images found in {input_dir}{_0}")
+        return
+
+    print(f"  Found {len(tier_files)} tier image(s).")
+
+    region_cache: dict[str, np.ndarray] = {}
+    dilate_kernel = cv2.getStructuringElement(
+        cv2.MORPH_ELLIPSE, (RING_RADIUS * 2 + 1, RING_RADIUS * 2 + 1)
+    )
+
+    for level_key, gx, gy, fname in sorted(tier_files):
+        # Load tier image as RGBA
+        tier_rgba = _load_image_rgba(os.path.join(input_dir, fname))
+        if tier_rgba is None:
+            print(f"  {_Y}Failed to load {fname}{_0}")
+            continue
+
+        # Load parent region-level image as RGB (cached)
+        if level_key not in region_cache:
+            parent_path = os.path.join(input_dir, f"{level_key}.png")
+            parent_rgb = _load_image_rgb(parent_path)
+            if parent_rgb is None:
+                print(f"  {_Y}Parent {level_key}.png not found, skipping {fname}{_0}")
+                continue
+            region_cache[level_key] = parent_rgb
+        parent_rgb = region_cache[level_key]
+
+        # Calculate tier position on canvas (gx, gy are 1-indexed)
+        # Anchor is bottom-left; gy counts from bottom to top
+        th, tw = tier_rgba.shape[:2]
+        ph, pw = parent_rgb.shape[:2]
+        px = round((gx - 1) * GRID_XY_SIZE)
+        py = round(ph - (gy - 1) * GRID_XY_SIZE - th)
+
+        # Clip to canvas bounds
+        x1, y1 = max(0, px), max(0, py)
+        x2, y2 = min(pw, px + tw), min(ph, py + th)
+        if x1 >= x2 or y1 >= y2:
+            print(f"  {_Y}{fname}: outside parent bounds{_0}")
+            continue
+        tx1, ty1 = x1 - px, y1 - py
+        tx2, ty2 = tx1 + (x2 - x1), ty1 + (y2 - y1)
+
+        # Land mask: brightness >= threshold and alpha > 0
+        tier_rgb = tier_rgba[:, :, :3]
+        gray = cv2.cvtColor(tier_rgb, cv2.COLOR_RGB2GRAY)
+        land_mask = (gray >= LAND_THRESHOLD) & (tier_rgba[:, :, 3] > 0)
+        land_crop = land_mask[ty1:ty2, tx1:tx2]
+
+        # Build dilated mask on canvas for ring background
+        land_canvas = np.zeros((ph, pw), dtype=np.uint8)
+        land_canvas[y1:y2, x1:x2] = land_crop.astype(np.uint8)
+        ring_mask = cv2.dilate(land_canvas, dilate_kernel).astype(bool)
+
+        # Draw: ring background (parent at 0.25 opacity) + alpha-blended tier
+        canvas = np.zeros((ph, pw, 3), dtype=np.uint8)
+        canvas[ring_mask] = np.clip(
+            parent_rgb[ring_mask].astype(np.float32) * 0.25, 0, 255
+        ).astype(np.uint8)
+
+        tier_crop_rgb = tier_rgb[ty1:ty2, tx1:tx2].astype(np.float32)
+        tier_crop_alpha = tier_rgba[ty1:ty2, tx1:tx2, 3:4].astype(np.float32) / 255.0
+        canvas_region = canvas[y1:y2, x1:x2].astype(np.float32)
+        blended = tier_crop_rgb * tier_crop_alpha + canvas_region * (
+            1.0 - tier_crop_alpha
+        )
+        canvas[y1:y2, x1:x2] = np.clip(blended, 0, 255).astype(np.uint8)
+
+        # Save with gx_gy removed: "map01_lv001_3_5_tier_56" -> "map01_lv001_tier_56"
+        parts = fname[:-4].split("_")
+        save_name = "_".join(parts[:2] + parts[-2:]) + ".png"
+        cv2.imwrite(
+            os.path.join(output_dir, save_name),
+            cv2.cvtColor(canvas, cv2.COLOR_RGB2BGR),
+        )
+        print(f"    {_C}{save_name}{_0}")
+
+    print(f"\n  {_G}Done.{_0}")
+
+
 def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="MapTracker map merger - stitch level images into composite maps"
+        description="MapTracker merger - distinguish levels, tidy tiers, generate bounding boxes"
     )
-    parser.add_argument(
-        "input_dir",
-        help="Directory containing level images from map_fetcher output",
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # distinguish_levels subcommand
+    p_distin = sub.add_parser(
+        "distinguish_levels", help="Distinguish level images into separate maps"
     )
-    parser.add_argument(
-        "--layout-dir",
+    p_distin.add_argument(
+        "-i", "--input-dir", required=True, help="Directory containing level images"
+    )
+    p_distin.add_argument(
+        "-o",
+        "--output-dir",
         required=True,
-        help="Directory containing *_layout.json files for level positioning",
+        help="Output directory for distinguished maps",
     )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output directory (default: {input_dir}_merged)",
+    p_distin.add_argument(
+        "--layout-dir", required=True, help="Directory containing *_layout.json files"
     )
-    parser.add_argument(
-        "--bbox",
-        action="store_true",
-        help="Generate bbox JSON instead of stitching",
+
+    # tidy_tiers subcommand
+    p_tiers = sub.add_parser(
+        "tidy_tiers", help="Blend tier images with parent region-level images"
     )
+    p_tiers.add_argument(
+        "-i",
+        "--input-dir",
+        required=True,
+        help="Directory containing tier and level images",
+    )
+    p_tiers.add_argument(
+        "-o",
+        "--output-dir",
+        required=True,
+        help="Output directory for blended tier images",
+    )
+
+    # bbox subcommand
+    p_bbox = sub.add_parser("bbox", help="Generate bounding box JSON for map images")
+    p_bbox.add_argument(
+        "-i", "--input-dir", required=True, help="Directory containing map images"
+    )
+    p_bbox.add_argument(
+        "-o", "--output-dir", required=True, help="Output directory for bbox JSON"
+    )
+
     args = parser.parse_args()
 
-    if not os.path.isdir(args.input_dir):
-        print(f"{_R}Input directory not found: {args.input_dir}{_0}")
-        return
-
-    if args.bbox:
-        generate_map_bbox_json(args.input_dir)
-        return
-
-    if not os.path.isdir(args.layout_dir):
-        print(f"{_R}Layout directory not found: {args.layout_dir}{_0}")
-        return
-
-    output_dir = args.output or args.input_dir.rstrip("/\\") + "_merged"
-    stitcher = DistinMapPage(args.input_dir, output_dir, args.layout_dir)
-    stitcher.run()
+    if args.command == "distinguish_levels":
+        cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
+    elif args.command == "tidy_tiers":
+        cmd_tidy_tiers(args.input_dir, args.output_dir)
+    elif args.command == "bbox":
+        cmd_bbox(args.input_dir, args.output_dir)
 
 
 if __name__ == "__main__":

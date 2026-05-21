@@ -207,7 +207,7 @@ class GridTierData:
 class GridTiersTable:
     """
     Properties:
-    - tiers: mapping from grid key (like `map01_lv001_{gx}_{gy}`) to its tier data, where gy counts from bottom to top.
+    - tiers: mapping from position key (like `map01_lv001_{gx}_{gy}`) to its tier data, where gy counts from bottom to top.
     - region_names: list of unique region names extracted from tier keys (like `map01`).
     """
 
