@@ -107,127 +107,12 @@
         },
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorCellPrepare"
+            "PullCountCalculatorCell01Click",
+            "PullCountCalculatorCell01Skip"
         ]
     },
-    "PullCountCalculatorCellPrepare": {
-        "desc": "[Go覆盖] 准备当前格子的识别、点击和记录参数",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "cell_prepare"
-        },
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorCellClick",
-            "PullCountCalculatorCellSkip"
-        ]
-    },
-    "PullCountCalculatorCellClick": {
-        "desc": "[Go覆盖] 点击当前可见贵重品格子",
-        "recognition": "And",
-        "all_of": [
-            "InStashValuablesTab",
-            "PullCountCalculatorCellPresent"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            85,
-            168,
-            1,
-            1
-        ],
-        "post_wait_freezes": 150,
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorCellQuantityOCR",
-            "PullCountCalculatorCellTitleOCR",
-            "PullCountCalculatorCellAdvance"
-        ]
-    },
-    "PullCountCalculatorCellSkip": {
-        "desc": "当前格子不存在时跳过并推进到下一格",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "cell_advance"
-        },
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorCellPrepare",
-            "PullCountCalculatorPageDone"
-        ]
-    },
-    "PullCountCalculatorCellQuantityOCR": {
-        "desc": "[Go覆盖] 识别当前格子的堆叠数量",
-        "recognition": "OCR",
-        "roi": [
-            61,
-            186,
-            58,
-            32
-        ],
-        "expected": [
-            ".*\\d+.*"
-        ],
-        "only_rec": true,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_quantity",
-            "cell": 1
-        },
-        "next": [
-            "PullCountCalculatorCellTitleOCR",
-            "PullCountCalculatorCellAdvance"
-        ]
-    },
-    "PullCountCalculatorCellTitleOCR": {
-        "desc": "[Go覆盖] 识别当前格子的右侧详情标题",
-        "recognition": "OCR",
-        "roi": [
-            980,
-            82,
-            250,
-            48
-        ],
-        "expected": [
-            ".*(寻访|尋訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
-        ],
-        "only_rec": true,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_item",
-            "cell": 1
-        },
-        "next": [
-            "PullCountCalculatorCellAdvance"
-        ]
-    },
-    "PullCountCalculatorCellAdvance": {
-        "desc": "推进到下一格，或在本页扫描完成后进入翻页流程",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "cell_advance"
-        },
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorCellPrepare",
-            "PullCountCalculatorPageDone"
-        ]
-    },
-    "PullCountCalculatorCellPresent": {
-        "desc": "[Go覆盖] 判断当前贵重品格子是否存在",
+    "PullCountCalculatorCell01Present": {
+        "desc": "识别贵重品库第 1 格是否存在",
         "recognition": "ColorMatch",
         "roi": [
             44,
@@ -246,8 +131,4709 @@
         "count": 80,
         "order_by": "Vertical"
     },
+    "PullCountCalculatorCell01Click": {
+        "desc": "点击贵重品库第 1 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell01Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            85,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell01QuantityOCR",
+            "PullCountCalculatorCell01TitleOCR",
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell01QuantityOCR": {
+        "desc": "识别贵重品库第 1 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            61,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 1
+        },
+        "next": [
+            "PullCountCalculatorCell01TitleOCR",
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell01TitleOCR": {
+        "desc": "识别贵重品库第 1 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 1
+        },
+        "next": [
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell01Skip": {
+        "desc": "贵重品库第 1 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell02Present": {
+        "desc": "识别贵重品库第 2 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            147,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell02Click": {
+        "desc": "点击贵重品库第 2 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell02Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            188,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell02QuantityOCR",
+            "PullCountCalculatorCell02TitleOCR",
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell02QuantityOCR": {
+        "desc": "识别贵重品库第 2 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 2
+        },
+        "next": [
+            "PullCountCalculatorCell02TitleOCR",
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell02TitleOCR": {
+        "desc": "识别贵重品库第 2 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 2
+        },
+        "next": [
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell02Skip": {
+        "desc": "贵重品库第 2 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell03Present": {
+        "desc": "识别贵重品库第 3 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            250,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell03Click": {
+        "desc": "点击贵重品库第 3 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell03Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            291,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell03QuantityOCR",
+            "PullCountCalculatorCell03TitleOCR",
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell03QuantityOCR": {
+        "desc": "识别贵重品库第 3 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 3
+        },
+        "next": [
+            "PullCountCalculatorCell03TitleOCR",
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell03TitleOCR": {
+        "desc": "识别贵重品库第 3 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 3
+        },
+        "next": [
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell03Skip": {
+        "desc": "贵重品库第 3 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell04Present": {
+        "desc": "识别贵重品库第 4 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            353,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell04Click": {
+        "desc": "点击贵重品库第 4 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell04Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            394,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell04QuantityOCR",
+            "PullCountCalculatorCell04TitleOCR",
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell04QuantityOCR": {
+        "desc": "识别贵重品库第 4 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 4
+        },
+        "next": [
+            "PullCountCalculatorCell04TitleOCR",
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell04TitleOCR": {
+        "desc": "识别贵重品库第 4 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 4
+        },
+        "next": [
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell04Skip": {
+        "desc": "贵重品库第 4 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell05Present": {
+        "desc": "识别贵重品库第 5 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            456,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell05Click": {
+        "desc": "点击贵重品库第 5 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell05Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            497,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell05QuantityOCR",
+            "PullCountCalculatorCell05TitleOCR",
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell05QuantityOCR": {
+        "desc": "识别贵重品库第 5 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 5
+        },
+        "next": [
+            "PullCountCalculatorCell05TitleOCR",
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell05TitleOCR": {
+        "desc": "识别贵重品库第 5 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 5
+        },
+        "next": [
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell05Skip": {
+        "desc": "贵重品库第 5 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell06Present": {
+        "desc": "识别贵重品库第 6 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            559,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell06Click": {
+        "desc": "点击贵重品库第 6 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell06Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell06QuantityOCR",
+            "PullCountCalculatorCell06TitleOCR",
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell06QuantityOCR": {
+        "desc": "识别贵重品库第 6 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 6
+        },
+        "next": [
+            "PullCountCalculatorCell06TitleOCR",
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell06TitleOCR": {
+        "desc": "识别贵重品库第 6 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 6
+        },
+        "next": [
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell06Skip": {
+        "desc": "贵重品库第 6 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell07Present": {
+        "desc": "识别贵重品库第 7 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            662,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell07Click": {
+        "desc": "点击贵重品库第 7 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell07Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            703,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell07QuantityOCR",
+            "PullCountCalculatorCell07TitleOCR",
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell07QuantityOCR": {
+        "desc": "识别贵重品库第 7 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 7
+        },
+        "next": [
+            "PullCountCalculatorCell07TitleOCR",
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell07TitleOCR": {
+        "desc": "识别贵重品库第 7 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 7
+        },
+        "next": [
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell07Skip": {
+        "desc": "贵重品库第 7 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell08Present": {
+        "desc": "识别贵重品库第 8 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            765,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell08Click": {
+        "desc": "点击贵重品库第 8 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell08Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            806,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell08QuantityOCR",
+            "PullCountCalculatorCell08TitleOCR",
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell08QuantityOCR": {
+        "desc": "识别贵重品库第 8 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 8
+        },
+        "next": [
+            "PullCountCalculatorCell08TitleOCR",
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell08TitleOCR": {
+        "desc": "识别贵重品库第 8 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 8
+        },
+        "next": [
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell08Skip": {
+        "desc": "贵重品库第 8 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell09Present": {
+        "desc": "识别贵重品库第 9 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            868,
+            127,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell09Click": {
+        "desc": "点击贵重品库第 9 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell09Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            909,
+            168,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell09QuantityOCR",
+            "PullCountCalculatorCell09TitleOCR",
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell09QuantityOCR": {
+        "desc": "识别贵重品库第 9 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 9
+        },
+        "next": [
+            "PullCountCalculatorCell09TitleOCR",
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell09TitleOCR": {
+        "desc": "识别贵重品库第 9 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 9
+        },
+        "next": [
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell09Skip": {
+        "desc": "贵重品库第 9 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell10Present": {
+        "desc": "识别贵重品库第 10 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            44,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell10Click": {
+        "desc": "点击贵重品库第 10 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell10Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            85,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell10QuantityOCR",
+            "PullCountCalculatorCell10TitleOCR",
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell10QuantityOCR": {
+        "desc": "识别贵重品库第 10 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            61,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 10
+        },
+        "next": [
+            "PullCountCalculatorCell10TitleOCR",
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell10TitleOCR": {
+        "desc": "识别贵重品库第 10 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 10
+        },
+        "next": [
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell10Skip": {
+        "desc": "贵重品库第 10 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell11Present": {
+        "desc": "识别贵重品库第 11 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            147,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell11Click": {
+        "desc": "点击贵重品库第 11 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell11Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            188,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell11QuantityOCR",
+            "PullCountCalculatorCell11TitleOCR",
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell11QuantityOCR": {
+        "desc": "识别贵重品库第 11 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 11
+        },
+        "next": [
+            "PullCountCalculatorCell11TitleOCR",
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell11TitleOCR": {
+        "desc": "识别贵重品库第 11 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 11
+        },
+        "next": [
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell11Skip": {
+        "desc": "贵重品库第 11 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell12Present": {
+        "desc": "识别贵重品库第 12 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            250,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell12Click": {
+        "desc": "点击贵重品库第 12 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell12Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            291,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell12QuantityOCR",
+            "PullCountCalculatorCell12TitleOCR",
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell12QuantityOCR": {
+        "desc": "识别贵重品库第 12 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 12
+        },
+        "next": [
+            "PullCountCalculatorCell12TitleOCR",
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell12TitleOCR": {
+        "desc": "识别贵重品库第 12 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 12
+        },
+        "next": [
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell12Skip": {
+        "desc": "贵重品库第 12 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell13Present": {
+        "desc": "识别贵重品库第 13 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            353,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell13Click": {
+        "desc": "点击贵重品库第 13 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell13Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            394,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell13QuantityOCR",
+            "PullCountCalculatorCell13TitleOCR",
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell13QuantityOCR": {
+        "desc": "识别贵重品库第 13 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 13
+        },
+        "next": [
+            "PullCountCalculatorCell13TitleOCR",
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell13TitleOCR": {
+        "desc": "识别贵重品库第 13 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 13
+        },
+        "next": [
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell13Skip": {
+        "desc": "贵重品库第 13 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell14Present": {
+        "desc": "识别贵重品库第 14 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            456,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell14Click": {
+        "desc": "点击贵重品库第 14 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell14Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            497,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell14QuantityOCR",
+            "PullCountCalculatorCell14TitleOCR",
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell14QuantityOCR": {
+        "desc": "识别贵重品库第 14 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 14
+        },
+        "next": [
+            "PullCountCalculatorCell14TitleOCR",
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell14TitleOCR": {
+        "desc": "识别贵重品库第 14 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 14
+        },
+        "next": [
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell14Skip": {
+        "desc": "贵重品库第 14 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell15Present": {
+        "desc": "识别贵重品库第 15 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            559,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell15Click": {
+        "desc": "点击贵重品库第 15 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell15Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell15QuantityOCR",
+            "PullCountCalculatorCell15TitleOCR",
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell15QuantityOCR": {
+        "desc": "识别贵重品库第 15 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 15
+        },
+        "next": [
+            "PullCountCalculatorCell15TitleOCR",
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell15TitleOCR": {
+        "desc": "识别贵重品库第 15 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 15
+        },
+        "next": [
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell15Skip": {
+        "desc": "贵重品库第 15 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell16Present": {
+        "desc": "识别贵重品库第 16 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            662,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell16Click": {
+        "desc": "点击贵重品库第 16 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell16Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            703,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell16QuantityOCR",
+            "PullCountCalculatorCell16TitleOCR",
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell16QuantityOCR": {
+        "desc": "识别贵重品库第 16 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 16
+        },
+        "next": [
+            "PullCountCalculatorCell16TitleOCR",
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell16TitleOCR": {
+        "desc": "识别贵重品库第 16 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 16
+        },
+        "next": [
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell16Skip": {
+        "desc": "贵重品库第 16 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell17Present": {
+        "desc": "识别贵重品库第 17 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            765,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell17Click": {
+        "desc": "点击贵重品库第 17 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell17Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            806,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell17QuantityOCR",
+            "PullCountCalculatorCell17TitleOCR",
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell17QuantityOCR": {
+        "desc": "识别贵重品库第 17 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 17
+        },
+        "next": [
+            "PullCountCalculatorCell17TitleOCR",
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell17TitleOCR": {
+        "desc": "识别贵重品库第 17 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 17
+        },
+        "next": [
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell17Skip": {
+        "desc": "贵重品库第 17 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell18Present": {
+        "desc": "识别贵重品库第 18 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            868,
+            230,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell18Click": {
+        "desc": "点击贵重品库第 18 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell18Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            909,
+            271,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell18QuantityOCR",
+            "PullCountCalculatorCell18TitleOCR",
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell18QuantityOCR": {
+        "desc": "识别贵重品库第 18 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            289,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 18
+        },
+        "next": [
+            "PullCountCalculatorCell18TitleOCR",
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell18TitleOCR": {
+        "desc": "识别贵重品库第 18 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 18
+        },
+        "next": [
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell18Skip": {
+        "desc": "贵重品库第 18 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell19Present": {
+        "desc": "识别贵重品库第 19 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            44,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell19Click": {
+        "desc": "点击贵重品库第 19 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell19Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            85,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell19QuantityOCR",
+            "PullCountCalculatorCell19TitleOCR",
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell19QuantityOCR": {
+        "desc": "识别贵重品库第 19 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            61,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 19
+        },
+        "next": [
+            "PullCountCalculatorCell19TitleOCR",
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell19TitleOCR": {
+        "desc": "识别贵重品库第 19 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 19
+        },
+        "next": [
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell19Skip": {
+        "desc": "贵重品库第 19 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell20Present": {
+        "desc": "识别贵重品库第 20 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            147,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell20Click": {
+        "desc": "点击贵重品库第 20 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell20Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            188,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell20QuantityOCR",
+            "PullCountCalculatorCell20TitleOCR",
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell20QuantityOCR": {
+        "desc": "识别贵重品库第 20 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 20
+        },
+        "next": [
+            "PullCountCalculatorCell20TitleOCR",
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell20TitleOCR": {
+        "desc": "识别贵重品库第 20 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 20
+        },
+        "next": [
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell20Skip": {
+        "desc": "贵重品库第 20 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell21Present": {
+        "desc": "识别贵重品库第 21 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            250,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell21Click": {
+        "desc": "点击贵重品库第 21 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell21Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            291,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell21QuantityOCR",
+            "PullCountCalculatorCell21TitleOCR",
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell21QuantityOCR": {
+        "desc": "识别贵重品库第 21 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 21
+        },
+        "next": [
+            "PullCountCalculatorCell21TitleOCR",
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell21TitleOCR": {
+        "desc": "识别贵重品库第 21 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 21
+        },
+        "next": [
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell21Skip": {
+        "desc": "贵重品库第 21 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell22Present": {
+        "desc": "识别贵重品库第 22 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            353,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell22Click": {
+        "desc": "点击贵重品库第 22 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell22Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            394,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell22QuantityOCR",
+            "PullCountCalculatorCell22TitleOCR",
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell22QuantityOCR": {
+        "desc": "识别贵重品库第 22 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 22
+        },
+        "next": [
+            "PullCountCalculatorCell22TitleOCR",
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell22TitleOCR": {
+        "desc": "识别贵重品库第 22 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 22
+        },
+        "next": [
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell22Skip": {
+        "desc": "贵重品库第 22 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell23Present": {
+        "desc": "识别贵重品库第 23 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            456,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell23Click": {
+        "desc": "点击贵重品库第 23 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell23Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            497,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell23QuantityOCR",
+            "PullCountCalculatorCell23TitleOCR",
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell23QuantityOCR": {
+        "desc": "识别贵重品库第 23 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 23
+        },
+        "next": [
+            "PullCountCalculatorCell23TitleOCR",
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell23TitleOCR": {
+        "desc": "识别贵重品库第 23 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 23
+        },
+        "next": [
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell23Skip": {
+        "desc": "贵重品库第 23 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell24Present": {
+        "desc": "识别贵重品库第 24 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            559,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell24Click": {
+        "desc": "点击贵重品库第 24 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell24Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell24QuantityOCR",
+            "PullCountCalculatorCell24TitleOCR",
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell24QuantityOCR": {
+        "desc": "识别贵重品库第 24 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 24
+        },
+        "next": [
+            "PullCountCalculatorCell24TitleOCR",
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell24TitleOCR": {
+        "desc": "识别贵重品库第 24 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 24
+        },
+        "next": [
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell24Skip": {
+        "desc": "贵重品库第 24 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell25Present": {
+        "desc": "识别贵重品库第 25 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            662,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell25Click": {
+        "desc": "点击贵重品库第 25 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell25Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            703,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell25QuantityOCR",
+            "PullCountCalculatorCell25TitleOCR",
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell25QuantityOCR": {
+        "desc": "识别贵重品库第 25 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 25
+        },
+        "next": [
+            "PullCountCalculatorCell25TitleOCR",
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell25TitleOCR": {
+        "desc": "识别贵重品库第 25 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 25
+        },
+        "next": [
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell25Skip": {
+        "desc": "贵重品库第 25 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell26Present": {
+        "desc": "识别贵重品库第 26 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            765,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell26Click": {
+        "desc": "点击贵重品库第 26 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell26Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            806,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell26QuantityOCR",
+            "PullCountCalculatorCell26TitleOCR",
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell26QuantityOCR": {
+        "desc": "识别贵重品库第 26 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 26
+        },
+        "next": [
+            "PullCountCalculatorCell26TitleOCR",
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell26TitleOCR": {
+        "desc": "识别贵重品库第 26 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 26
+        },
+        "next": [
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell26Skip": {
+        "desc": "贵重品库第 26 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell27Present": {
+        "desc": "识别贵重品库第 27 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            868,
+            333,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell27Click": {
+        "desc": "点击贵重品库第 27 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell27Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            909,
+            374,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell27QuantityOCR",
+            "PullCountCalculatorCell27TitleOCR",
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell27QuantityOCR": {
+        "desc": "识别贵重品库第 27 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            392,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 27
+        },
+        "next": [
+            "PullCountCalculatorCell27TitleOCR",
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell27TitleOCR": {
+        "desc": "识别贵重品库第 27 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 27
+        },
+        "next": [
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell27Skip": {
+        "desc": "贵重品库第 27 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell28Present": {
+        "desc": "识别贵重品库第 28 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            44,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell28Click": {
+        "desc": "点击贵重品库第 28 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell28Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            85,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell28QuantityOCR",
+            "PullCountCalculatorCell28TitleOCR",
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell28QuantityOCR": {
+        "desc": "识别贵重品库第 28 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            61,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 28
+        },
+        "next": [
+            "PullCountCalculatorCell28TitleOCR",
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell28TitleOCR": {
+        "desc": "识别贵重品库第 28 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 28
+        },
+        "next": [
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell28Skip": {
+        "desc": "贵重品库第 28 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell29Present": {
+        "desc": "识别贵重品库第 29 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            147,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell29Click": {
+        "desc": "点击贵重品库第 29 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell29Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            188,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell29QuantityOCR",
+            "PullCountCalculatorCell29TitleOCR",
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell29QuantityOCR": {
+        "desc": "识别贵重品库第 29 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 29
+        },
+        "next": [
+            "PullCountCalculatorCell29TitleOCR",
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell29TitleOCR": {
+        "desc": "识别贵重品库第 29 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 29
+        },
+        "next": [
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell29Skip": {
+        "desc": "贵重品库第 29 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell30Present": {
+        "desc": "识别贵重品库第 30 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            250,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell30Click": {
+        "desc": "点击贵重品库第 30 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell30Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            291,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell30QuantityOCR",
+            "PullCountCalculatorCell30TitleOCR",
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell30QuantityOCR": {
+        "desc": "识别贵重品库第 30 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 30
+        },
+        "next": [
+            "PullCountCalculatorCell30TitleOCR",
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell30TitleOCR": {
+        "desc": "识别贵重品库第 30 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 30
+        },
+        "next": [
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell30Skip": {
+        "desc": "贵重品库第 30 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell31Present": {
+        "desc": "识别贵重品库第 31 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            353,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell31Click": {
+        "desc": "点击贵重品库第 31 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell31Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            394,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell31QuantityOCR",
+            "PullCountCalculatorCell31TitleOCR",
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell31QuantityOCR": {
+        "desc": "识别贵重品库第 31 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 31
+        },
+        "next": [
+            "PullCountCalculatorCell31TitleOCR",
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell31TitleOCR": {
+        "desc": "识别贵重品库第 31 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 31
+        },
+        "next": [
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell31Skip": {
+        "desc": "贵重品库第 31 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell32Present": {
+        "desc": "识别贵重品库第 32 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            456,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell32Click": {
+        "desc": "点击贵重品库第 32 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell32Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            497,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell32QuantityOCR",
+            "PullCountCalculatorCell32TitleOCR",
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell32QuantityOCR": {
+        "desc": "识别贵重品库第 32 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 32
+        },
+        "next": [
+            "PullCountCalculatorCell32TitleOCR",
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell32TitleOCR": {
+        "desc": "识别贵重品库第 32 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 32
+        },
+        "next": [
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell32Skip": {
+        "desc": "贵重品库第 32 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell33Present": {
+        "desc": "识别贵重品库第 33 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            559,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell33Click": {
+        "desc": "点击贵重品库第 33 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell33Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell33QuantityOCR",
+            "PullCountCalculatorCell33TitleOCR",
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell33QuantityOCR": {
+        "desc": "识别贵重品库第 33 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 33
+        },
+        "next": [
+            "PullCountCalculatorCell33TitleOCR",
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell33TitleOCR": {
+        "desc": "识别贵重品库第 33 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 33
+        },
+        "next": [
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell33Skip": {
+        "desc": "贵重品库第 33 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell34Present": {
+        "desc": "识别贵重品库第 34 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            662,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell34Click": {
+        "desc": "点击贵重品库第 34 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell34Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            703,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell34QuantityOCR",
+            "PullCountCalculatorCell34TitleOCR",
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell34QuantityOCR": {
+        "desc": "识别贵重品库第 34 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 34
+        },
+        "next": [
+            "PullCountCalculatorCell34TitleOCR",
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell34TitleOCR": {
+        "desc": "识别贵重品库第 34 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 34
+        },
+        "next": [
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell34Skip": {
+        "desc": "贵重品库第 34 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell35Present": {
+        "desc": "识别贵重品库第 35 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            765,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell35Click": {
+        "desc": "点击贵重品库第 35 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell35Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            806,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell35QuantityOCR",
+            "PullCountCalculatorCell35TitleOCR",
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell35QuantityOCR": {
+        "desc": "识别贵重品库第 35 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 35
+        },
+        "next": [
+            "PullCountCalculatorCell35TitleOCR",
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell35TitleOCR": {
+        "desc": "识别贵重品库第 35 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 35
+        },
+        "next": [
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell35Skip": {
+        "desc": "贵重品库第 35 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell36Present": {
+        "desc": "识别贵重品库第 36 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            868,
+            436,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell36Click": {
+        "desc": "点击贵重品库第 36 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell36Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            909,
+            477,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell36QuantityOCR",
+            "PullCountCalculatorCell36TitleOCR",
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell36QuantityOCR": {
+        "desc": "识别贵重品库第 36 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            495,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 36
+        },
+        "next": [
+            "PullCountCalculatorCell36TitleOCR",
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell36TitleOCR": {
+        "desc": "识别贵重品库第 36 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 36
+        },
+        "next": [
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell36Skip": {
+        "desc": "贵重品库第 36 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell37Present": {
+        "desc": "识别贵重品库第 37 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            44,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell37Click": {
+        "desc": "点击贵重品库第 37 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell37Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            85,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell37QuantityOCR",
+            "PullCountCalculatorCell37TitleOCR",
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell37QuantityOCR": {
+        "desc": "识别贵重品库第 37 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            61,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 37
+        },
+        "next": [
+            "PullCountCalculatorCell37TitleOCR",
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell37TitleOCR": {
+        "desc": "识别贵重品库第 37 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 37
+        },
+        "next": [
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell37Skip": {
+        "desc": "贵重品库第 37 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell38Present": {
+        "desc": "识别贵重品库第 38 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            147,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell38Click": {
+        "desc": "点击贵重品库第 38 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell38Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            188,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell38QuantityOCR",
+            "PullCountCalculatorCell38TitleOCR",
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell38QuantityOCR": {
+        "desc": "识别贵重品库第 38 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 38
+        },
+        "next": [
+            "PullCountCalculatorCell38TitleOCR",
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell38TitleOCR": {
+        "desc": "识别贵重品库第 38 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 38
+        },
+        "next": [
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell38Skip": {
+        "desc": "贵重品库第 38 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell39Present": {
+        "desc": "识别贵重品库第 39 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            250,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell39Click": {
+        "desc": "点击贵重品库第 39 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell39Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            291,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell39QuantityOCR",
+            "PullCountCalculatorCell39TitleOCR",
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell39QuantityOCR": {
+        "desc": "识别贵重品库第 39 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 39
+        },
+        "next": [
+            "PullCountCalculatorCell39TitleOCR",
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell39TitleOCR": {
+        "desc": "识别贵重品库第 39 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 39
+        },
+        "next": [
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell39Skip": {
+        "desc": "贵重品库第 39 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell40Present": {
+        "desc": "识别贵重品库第 40 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            353,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell40Click": {
+        "desc": "点击贵重品库第 40 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell40Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            394,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell40QuantityOCR",
+            "PullCountCalculatorCell40TitleOCR",
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell40QuantityOCR": {
+        "desc": "识别贵重品库第 40 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 40
+        },
+        "next": [
+            "PullCountCalculatorCell40TitleOCR",
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell40TitleOCR": {
+        "desc": "识别贵重品库第 40 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 40
+        },
+        "next": [
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell40Skip": {
+        "desc": "贵重品库第 40 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell41Present": {
+        "desc": "识别贵重品库第 41 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            456,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell41Click": {
+        "desc": "点击贵重品库第 41 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell41Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            497,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell41QuantityOCR",
+            "PullCountCalculatorCell41TitleOCR",
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell41QuantityOCR": {
+        "desc": "识别贵重品库第 41 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 41
+        },
+        "next": [
+            "PullCountCalculatorCell41TitleOCR",
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell41TitleOCR": {
+        "desc": "识别贵重品库第 41 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 41
+        },
+        "next": [
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell41Skip": {
+        "desc": "贵重品库第 41 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell42Present": {
+        "desc": "识别贵重品库第 42 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            559,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell42Click": {
+        "desc": "点击贵重品库第 42 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell42Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            600,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell42QuantityOCR",
+            "PullCountCalculatorCell42TitleOCR",
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell42QuantityOCR": {
+        "desc": "识别贵重品库第 42 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 42
+        },
+        "next": [
+            "PullCountCalculatorCell42TitleOCR",
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell42TitleOCR": {
+        "desc": "识别贵重品库第 42 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 42
+        },
+        "next": [
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell42Skip": {
+        "desc": "贵重品库第 42 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell43Present": {
+        "desc": "识别贵重品库第 43 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            662,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell43Click": {
+        "desc": "点击贵重品库第 43 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell43Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            703,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell43QuantityOCR",
+            "PullCountCalculatorCell43TitleOCR",
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell43QuantityOCR": {
+        "desc": "识别贵重品库第 43 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 43
+        },
+        "next": [
+            "PullCountCalculatorCell43TitleOCR",
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell43TitleOCR": {
+        "desc": "识别贵重品库第 43 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 43
+        },
+        "next": [
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell43Skip": {
+        "desc": "贵重品库第 43 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell44Present": {
+        "desc": "识别贵重品库第 44 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            765,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell44Click": {
+        "desc": "点击贵重品库第 44 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell44Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            806,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell44QuantityOCR",
+            "PullCountCalculatorCell44TitleOCR",
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell44QuantityOCR": {
+        "desc": "识别贵重品库第 44 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 44
+        },
+        "next": [
+            "PullCountCalculatorCell44TitleOCR",
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell44TitleOCR": {
+        "desc": "识别贵重品库第 44 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 44
+        },
+        "next": [
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell44Skip": {
+        "desc": "贵重品库第 44 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell45Present": {
+        "desc": "识别贵重品库第 45 格是否存在",
+        "recognition": "ColorMatch",
+        "roi": [
+            868,
+            539,
+            82,
+            82
+        ],
+        "method": 6,
+        "lower": [
+            65
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 80,
+        "order_by": "Vertical"
+    },
+    "PullCountCalculatorCell45Click": {
+        "desc": "点击贵重品库第 45 格",
+        "recognition": "And",
+        "all_of": [
+            "InStashValuablesTab",
+            "PullCountCalculatorCell45Present"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            909,
+            580,
+            1,
+            1
+        ],
+        "post_wait_freezes": 150,
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorCell45QuantityOCR",
+            "PullCountCalculatorCell45TitleOCR",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorCell45QuantityOCR": {
+        "desc": "识别贵重品库第 45 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            598,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_quantity",
+            "cell": 45
+        },
+        "next": [
+            "PullCountCalculatorCell45TitleOCR",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorCell45TitleOCR": {
+        "desc": "识别贵重品库第 45 格右侧详情标题",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_item",
+            "cell": 45
+        },
+        "next": [
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorCell45Skip": {
+        "desc": "贵重品库第 45 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorPageDone"
+        ]
+    },
     "PullCountCalculatorPageDone": {
-        "desc": "记录本页扫描结果并准备滚动探测",
+        "desc": "记录本页扫描结果并交由 Pipeline 判断继续滚动或完成",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -257,7 +4843,21 @@
         },
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorWarehouseScrollDown",
+            "PullCountCalculatorPageShouldFinish",
+            "PullCountCalculatorWarehouseScrollDown"
+        ]
+    },
+    "PullCountCalculatorPageShouldFinish": {
+        "desc": "Go 仅判断本页扫描是否应结束，流程分支由 Pipeline next 处理",
+        "recognition": "Custom",
+        "custom_recognition": "PullCountCalculatorRecognition",
+        "custom_recognition_param": {
+            "stage": "page_should_finish"
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
             "PullCountCalculatorFinish"
         ]
     },
@@ -294,26 +4894,12 @@
         },
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorScrollProbePrepare"
+            "PullCountCalculatorScrollProbe01QuantityOCR",
+            "PullCountCalculatorScrollProbe01Skip"
         ]
     },
-    "PullCountCalculatorScrollProbePrepare": {
-        "desc": "[Go覆盖] 准备当前页首探针格子的数量 OCR 参数",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "probe_prepare"
-        },
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorScrollProbeQuantityOCR",
-            "PullCountCalculatorScrollProbeSkip"
-        ]
-    },
-    "PullCountCalculatorScrollProbeQuantityOCR": {
-        "desc": "[Go覆盖] 探测滚动后当前页首格子的堆叠数量",
+    "PullCountCalculatorScrollProbe01QuantityOCR": {
+        "desc": "探测滚动后页首第 1 格堆叠数量",
         "recognition": "OCR",
         "roi": [
             61,
@@ -332,51 +4918,312 @@
             "cell": 1
         },
         "next": [
-            "PullCountCalculatorScrollProbeAdvance"
+            "PullCountCalculatorScrollProbe02QuantityOCR",
+            "PullCountCalculatorScrollProbe02Skip"
         ]
     },
-    "PullCountCalculatorScrollProbeSkip": {
-        "desc": "当前页首探针格子没有数量命中时跳过并推进",
+    "PullCountCalculatorScrollProbe01Skip": {
+        "desc": "滚动探针第 1 格未命中时跳过",
         "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe02QuantityOCR",
+            "PullCountCalculatorScrollProbe02Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe02QuantityOCR": {
+        "desc": "探测滚动后页首第 2 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "probe_advance"
+            "stage": "record_probe_quantity",
+            "cell": 2
         },
-        "post_delay": 0,
         "next": [
-            "PullCountCalculatorScrollProbePrepare",
-            "PullCountCalculatorScrollProbeDone"
+            "PullCountCalculatorScrollProbe03QuantityOCR",
+            "PullCountCalculatorScrollProbe03Skip"
         ]
     },
-    "PullCountCalculatorScrollProbeAdvance": {
-        "desc": "推进到下一个页首探针格子，或结束本轮滚动探测",
+    "PullCountCalculatorScrollProbe02Skip": {
+        "desc": "滚动探针第 2 格未命中时跳过",
         "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe03QuantityOCR",
+            "PullCountCalculatorScrollProbe03Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe03QuantityOCR": {
+        "desc": "探测滚动后页首第 3 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            267,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "probe_advance"
+            "stage": "record_probe_quantity",
+            "cell": 3
         },
-        "post_delay": 0,
         "next": [
-            "PullCountCalculatorScrollProbePrepare",
-            "PullCountCalculatorScrollProbeDone"
+            "PullCountCalculatorScrollProbe04QuantityOCR",
+            "PullCountCalculatorScrollProbe04Skip"
         ]
     },
-    "PullCountCalculatorScrollProbeDone": {
-        "desc": "滚动后页首探测结束，判断继续扫描或结束",
+    "PullCountCalculatorScrollProbe03Skip": {
+        "desc": "滚动探针第 3 格未命中时跳过",
         "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe04QuantityOCR",
+            "PullCountCalculatorScrollProbe04Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe04QuantityOCR": {
+        "desc": "探测滚动后页首第 4 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "scroll_probe_done"
+            "stage": "record_probe_quantity",
+            "cell": 4
         },
+        "next": [
+            "PullCountCalculatorScrollProbe05QuantityOCR",
+            "PullCountCalculatorScrollProbe05Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe04Skip": {
+        "desc": "滚动探针第 4 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorPageBegin",
+            "PullCountCalculatorScrollProbe05QuantityOCR",
+            "PullCountCalculatorScrollProbe05Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe05QuantityOCR": {
+        "desc": "探测滚动后页首第 5 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            473,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_probe_quantity",
+            "cell": 5
+        },
+        "next": [
+            "PullCountCalculatorScrollProbe06QuantityOCR",
+            "PullCountCalculatorScrollProbe06Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe05Skip": {
+        "desc": "滚动探针第 5 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe06QuantityOCR",
+            "PullCountCalculatorScrollProbe06Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe06QuantityOCR": {
+        "desc": "探测滚动后页首第 6 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            576,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_probe_quantity",
+            "cell": 6
+        },
+        "next": [
+            "PullCountCalculatorScrollProbe07QuantityOCR",
+            "PullCountCalculatorScrollProbe07Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe06Skip": {
+        "desc": "滚动探针第 6 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe07QuantityOCR",
+            "PullCountCalculatorScrollProbe07Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe07QuantityOCR": {
+        "desc": "探测滚动后页首第 7 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            679,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_probe_quantity",
+            "cell": 7
+        },
+        "next": [
+            "PullCountCalculatorScrollProbe08QuantityOCR",
+            "PullCountCalculatorScrollProbe08Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe07Skip": {
+        "desc": "滚动探针第 7 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe08QuantityOCR",
+            "PullCountCalculatorScrollProbe08Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe08QuantityOCR": {
+        "desc": "探测滚动后页首第 8 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            782,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_probe_quantity",
+            "cell": 8
+        },
+        "next": [
+            "PullCountCalculatorScrollProbe09QuantityOCR",
+            "PullCountCalculatorScrollProbe09Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe08Skip": {
+        "desc": "滚动探针第 8 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbe09QuantityOCR",
+            "PullCountCalculatorScrollProbe09Skip"
+        ]
+    },
+    "PullCountCalculatorScrollProbe09QuantityOCR": {
+        "desc": "探测滚动后页首第 9 格堆叠数量",
+        "recognition": "OCR",
+        "roi": [
+            885,
+            186,
+            58,
+            32
+        ],
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_probe_quantity",
+            "cell": 9
+        },
+        "next": [
+            "PullCountCalculatorScrollProbeUnchanged",
+            "PullCountCalculatorPageBegin"
+        ]
+    },
+    "PullCountCalculatorScrollProbe09Skip": {
+        "desc": "滚动探针第 9 格未命中时跳过",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "PullCountCalculatorScrollProbeUnchanged",
+            "PullCountCalculatorPageBegin"
+        ]
+    },
+    "PullCountCalculatorScrollProbeUnchanged": {
+        "desc": "Go 仅判断滚动后页首探针是否未变化，流程分支由 Pipeline next 处理",
+        "recognition": "Custom",
+        "custom_recognition": "PullCountCalculatorRecognition",
+        "custom_recognition_param": {
+            "stage": "scroll_probe_unchanged"
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
             "PullCountCalculatorFinish"
         ]
     },

@@ -1,7 +1,6 @@
 package pullcount
 
 import (
-	"reflect"
 	"testing"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -211,91 +210,6 @@ func TestCurrentPageCellsUsesOneRecordPerCell(t *testing.T) {
 	}
 }
 
-// TestGeometryForCell verifies 720p warehouse grid coordinates.
-func TestGeometryForCell(t *testing.T) {
-	config := testWarehouseScanConfig()
-	cases := map[int]cellGeometry{
-		1: {
-			Cell:        1,
-			PresentROI:  []int{44, 127, 82, 82},
-			ClickTarget: []int{85, 168, 1, 1},
-			QuantityROI: []int{61, 186, 58, 32},
-			TitleROI:    []int{980, 82, 250, 48},
-		},
-		9: {
-			Cell:        9,
-			PresentROI:  []int{868, 127, 82, 82},
-			ClickTarget: []int{909, 168, 1, 1},
-			QuantityROI: []int{885, 186, 58, 32},
-			TitleROI:    []int{980, 82, 250, 48},
-		},
-		10: {
-			Cell:        10,
-			PresentROI:  []int{44, 230, 82, 82},
-			ClickTarget: []int{85, 271, 1, 1},
-			QuantityROI: []int{61, 289, 58, 32},
-			TitleROI:    []int{980, 82, 250, 48},
-		},
-		45: {
-			Cell:        45,
-			PresentROI:  []int{868, 539, 82, 82},
-			ClickTarget: []int{909, 580, 1, 1},
-			QuantityROI: []int{885, 598, 58, 32},
-			TitleROI:    []int{980, 82, 250, 48},
-		},
-	}
-
-	for cell, want := range cases {
-		got, err := geometryForCell(config, cell)
-		if err != nil {
-			t.Fatalf("geometryForCell(%d) error = %v", cell, err)
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("geometryForCell(%d) = %+v, want %+v", cell, got, want)
-		}
-	}
-}
-
-// TestGeometryForCellRejectsOutOfRange verifies invalid cell indices fail fast.
-func TestGeometryForCellRejectsOutOfRange(t *testing.T) {
-	config := testWarehouseScanConfig()
-	for _, cell := range []int{0, 46} {
-		if got, err := geometryForCell(config, cell); err == nil {
-			t.Fatalf("geometryForCell(%d) = %+v, want error", cell, got)
-		}
-	}
-}
-
-// TestBuildCellScanOverride verifies one concrete cell is patched into generic Pipeline nodes.
-func TestBuildCellScanOverride(t *testing.T) {
-	config := testWarehouseScanConfig()
-	geometry, err := geometryForCell(config, 10)
-	if err != nil {
-		t.Fatalf("geometryForCell() error = %v", err)
-	}
-
-	got := buildCellScanOverride(geometry, config.TitleExpected)
-	assertMapValue(t, got[nodeCellPresent], "roi", []int{44, 230, 82, 82})
-	assertMapValue(t, got[nodeCellClick], "target", []int{85, 271, 1, 1})
-	assertMapValue(t, got[nodeCellQuantityOCR], "roi", []int{61, 289, 58, 32})
-	assertMapValue(t, got[nodeCellTitleOCR], "roi", []int{980, 82, 250, 48})
-	assertMapValue(t, got[nodeCellTitleOCR], "expected", []string{".*(寻访|recruit).*"})
-	assertMapValue(t, got[nodeCellQuantityOCR], "custom_action_param", map[string]any{"stage": "record_quantity", "cell": 10})
-	assertMapValue(t, got[nodeCellTitleOCR], "custom_action_param", map[string]any{"stage": "record_item", "cell": 10})
-}
-
-// TestBuildProbeOverride verifies the scroll probe reuses cell quantity ROI with probe params.
-func TestBuildProbeOverride(t *testing.T) {
-	geometry, err := geometryForCell(testWarehouseScanConfig(), 9)
-	if err != nil {
-		t.Fatalf("geometryForCell() error = %v", err)
-	}
-
-	got := buildProbeOverride(geometry)
-	assertMapValue(t, got[nodeProbeQuantity], "roi", []int{885, 186, 58, 32})
-	assertMapValue(t, got[nodeProbeQuantity], "custom_action_param", map[string]any{"stage": "record_probe_quantity", "cell": 9})
-}
-
 // TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch verifies bottom detection from Pipeline OCR probes.
 func TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch(t *testing.T) {
 	rule := testWarehouseScanConfig().Probe
@@ -369,18 +283,6 @@ func assertVoucherMatch(t *testing.T, matches []voucherMatch, want voucherMatch)
 		return
 	}
 	t.Fatalf("voucher match for %q not found in %+v", want.CanonicalName, matches)
-}
-
-// assertMapValue verifies a nested override node value.
-func assertMapValue(t *testing.T, node any, key string, want any) {
-	t.Helper()
-	values, ok := node.(map[string]any)
-	if !ok {
-		t.Fatalf("node type = %T, want map[string]any", node)
-	}
-	if got := values[key]; !reflect.DeepEqual(got, want) {
-		t.Fatalf("node[%q] = %#v, want %#v", key, got, want)
-	}
 }
 
 // TestReadIntegerFromRecognitionDetailJSON verifies Pipeline OCR text can be parsed from raw detail JSON.
@@ -503,24 +405,51 @@ func TestLoadWarehouseScanConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadWarehouseScanConfig() error = %v", err)
 	}
-	if config.CellCount() != 45 {
-		t.Fatalf("CellCount() = %d, want 45", config.CellCount())
+	if config.Probe.CellLimit != 9 {
+		t.Fatalf("probe cell limit = %d, want 9", config.Probe.CellLimit)
 	}
-	geometry, err := geometryForCell(config, 45)
-	if err != nil {
-		t.Fatalf("geometryForCell(45) error = %v", err)
-	}
-	if !reflect.DeepEqual(geometry.QuantityROI, []int{885, 598, 58, 32}) {
-		t.Fatalf("cell 45 quantity ROI = %#v, want [885 598 58 32]", geometry.QuantityROI)
+	if config.RepeatPage.CellLimit != 45 {
+		t.Fatalf("repeat page cell limit = %d, want 45", config.RepeatPage.CellLimit)
 	}
 }
 
 // TestWarehouseScanConfigRejectsMissingFields verifies config errors are explicit.
 func TestWarehouseScanConfigRejectsMissingFields(t *testing.T) {
 	config := testWarehouseScanConfig()
-	config.TitleROI = nil
+	config.Probe.MinComparable = 0
 	if err := config.validate(); err == nil {
-		t.Fatal("validate() error = nil, want missing title_roi error")
+		t.Fatal("validate() error = nil, want invalid probe error")
+	}
+}
+
+// TestPageShouldFinishRecognitionMatchesStopFlag verifies Pipeline can branch to finish without OverrideNext.
+func TestPageShouldFinishRecognitionMatchesStopFlag(t *testing.T) {
+	session := newTestSession()
+	session.StopAfterPageDone = true
+	session.PageStopReason = "warehouse scan reached bottom / repeated page signature"
+
+	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); !ok {
+		t.Fatal("pageShouldFinishResult() ok = false, want true")
+	}
+	session.StopAfterPageDone = false
+	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); ok {
+		t.Fatal("pageShouldFinishResult() ok = true, want false")
+	}
+}
+
+// TestScrollProbeUnchangedRecognitionMatchesBottom verifies Pipeline can branch after static probe OCR.
+func TestScrollProbeUnchangedRecognitionMatchesBottom(t *testing.T) {
+	session := newTestSession()
+	session.LastHeadProbe = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
+	session.CurrentProbe = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
+
+	if _, ok := scrollProbeUnchangedResult(&maa.CustomRecognitionArg{}, session); !ok {
+		t.Fatal("scrollProbeUnchangedResult() ok = false, want true")
+	}
+	session.CurrentProbe[2] = 8
+	session.CurrentProbe[3] = 8
+	if _, ok := scrollProbeUnchangedResult(&maa.CustomRecognitionArg{}, session); ok {
+		t.Fatal("scrollProbeUnchangedResult() ok = true, want false")
 	}
 }
 
@@ -546,16 +475,6 @@ func newTestSession() *runSession {
 // testWarehouseScanConfig returns the production-like warehouse geometry used by unit tests.
 func testWarehouseScanConfig() *warehouseScanConfig {
 	return &warehouseScanConfig{
-		Grid: warehouseGridConfig{
-			Columns:  9,
-			Rows:     5,
-			Start:    []int{44, 127},
-			Step:     []int{103, 103},
-			CellSize: []int{82, 82},
-		},
-		QuantityROIOffset: []int{17, 59, 58, 32},
-		TitleROI:          []int{980, 82, 250, 48},
-		TitleExpected:     []string{".*(寻访|recruit).*"},
 		Probe: warehouseSimilarityRule{
 			CellLimit:     9,
 			MinComparable: 4,

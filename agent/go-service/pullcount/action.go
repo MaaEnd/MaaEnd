@@ -23,19 +23,13 @@ const (
 	stageRecordQuantity  = "record_quantity"
 	stageRecordItem      = "record_item"
 	stagePageBegin       = "page_begin"
-	stageCellPrepare     = "cell_prepare"
-	stageCellAdvance     = "cell_advance"
 	stagePageDone        = "page_done"
 	stageProbeBegin      = "probe_begin"
-	stageProbePrepare    = "probe_prepare"
-	stageProbeAdvance    = "probe_advance"
 	stageRecordProbe     = "record_probe_quantity"
-	stageScrollProbeDone = "scroll_probe_done"
 	stageFinish          = "finish"
 
-	nextWarehouseScrollNode = "PullCountCalculatorWarehouseScrollDown"
-	nextPageBeginNode       = "PullCountCalculatorPageBegin"
-	nextFinishNode          = "PullCountCalculatorFinish"
+	stagePageShouldFinish     = "page_should_finish"
+	stageScrollProbeUnchanged = "scroll_probe_unchanged"
 )
 
 var _ maa.CustomActionRunner = &Action{}
@@ -84,22 +78,12 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return handleRecordItem(ctx, arg, param.Cell)
 	case stagePageBegin:
 		return handlePageBegin(ctx)
-	case stageCellPrepare:
-		return handleCellPrepare(ctx, arg)
-	case stageCellAdvance:
-		return handleCellAdvance(ctx, arg)
 	case stagePageDone:
 		return handlePageDone(ctx)
 	case stageProbeBegin:
 		return handleProbeBegin(ctx)
-	case stageProbePrepare:
-		return handleProbePrepare(ctx, arg)
-	case stageProbeAdvance:
-		return handleProbeAdvance(ctx, arg)
 	case stageRecordProbe:
 		return handleRecordProbeQuantity(ctx, arg, param.Cell)
-	case stageScrollProbeDone:
-		return handleScrollProbeDone(ctx, arg)
 	case stageFinish:
 		return handleFinish(ctx)
 	default:

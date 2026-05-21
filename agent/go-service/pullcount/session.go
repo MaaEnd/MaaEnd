@@ -49,9 +49,7 @@ type runSession struct {
 	StopAfterPageDone bool
 	PageStopReason    string
 
-	PageCount        int
-	CurrentCell      int
-	CurrentProbeCell int
+	PageCount int
 }
 
 // requireSession returns the active run session or reports a user-facing error.
@@ -63,14 +61,4 @@ func requireSession(ctx *maa.Context) (*runSession, bool) {
 	log.Error().Err(err).Str("component", componentName).Msg("missing session")
 	maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
 	return nil, false
-}
-
-// overrideNext changes a generic scheduler node to the concrete next node chosen by Go state.
-func overrideNext(ctx *maa.Context, currentNode string, nextNode string, errorMessage string) bool {
-	if err := ctx.OverrideNext(currentNode, []maa.NextItem{{Name: nextNode}}); err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("current", currentNode).Str("next", nextNode).Msg(errorMessage)
-		maafocus.Print(ctx, i18n.T("pullcount.error.warehouse_scan_failed", err.Error()))
-		return false
-	}
-	return true
 }

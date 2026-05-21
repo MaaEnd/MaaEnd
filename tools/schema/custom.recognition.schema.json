@@ -17,6 +17,7 @@
                 "MapTrackerAssertLocation",
                 "MapTrackerBigMapInfer",
                 "MapTrackerInfer",
+                "PullCountCalculatorRecognition",
                 "PuzzleRecognition",
                 "SellProductNormalizedItemMatch",
                 "VisitFriendsMenuScanDetailAssistRecognition",
