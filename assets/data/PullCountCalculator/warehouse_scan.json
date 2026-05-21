@@ -1,0 +1,46 @@
+{
+    "grid": {
+        "columns": 9,
+        "rows": 5,
+        "start": [
+            44,
+            127
+        ],
+        "step": [
+            103,
+            103
+        ],
+        "cell_size": [
+            82,
+            82
+        ]
+    },
+    "quantity_roi_offset": [
+        17,
+        59,
+        58,
+        32
+    ],
+    "title_roi": [
+        980,
+        82,
+        250,
+        48
+    ],
+    "title_expected": [
+        ".*(寻访|寻訪|凭证|憑證|情报书|情報書|recruit|voucher|ticket).*"
+    ],
+    "probe": {
+        "cell_limit": 9,
+        "min_comparable": 4,
+        "max_mismatches": 1,
+        "min_match_ratio": 0.85
+    },
+    "repeat_page": {
+        "cell_limit": 45,
+        "min_comparable": 8,
+        "max_mismatches": 1,
+        "min_match_ratio": 0.85
+    },
+    "scan_max_pages": 8
+}

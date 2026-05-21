@@ -1,6 +1,7 @@
 package pullcount
 
 import (
+	"reflect"
 	"testing"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -210,12 +211,98 @@ func TestCurrentPageCellsUsesOneRecordPerCell(t *testing.T) {
 	}
 }
 
+// TestGeometryForCell verifies 720p warehouse grid coordinates.
+func TestGeometryForCell(t *testing.T) {
+	config := testWarehouseScanConfig()
+	cases := map[int]cellGeometry{
+		1: {
+			Cell:        1,
+			PresentROI:  []int{44, 127, 82, 82},
+			ClickTarget: []int{85, 168, 1, 1},
+			QuantityROI: []int{61, 186, 58, 32},
+			TitleROI:    []int{980, 82, 250, 48},
+		},
+		9: {
+			Cell:        9,
+			PresentROI:  []int{868, 127, 82, 82},
+			ClickTarget: []int{909, 168, 1, 1},
+			QuantityROI: []int{885, 186, 58, 32},
+			TitleROI:    []int{980, 82, 250, 48},
+		},
+		10: {
+			Cell:        10,
+			PresentROI:  []int{44, 230, 82, 82},
+			ClickTarget: []int{85, 271, 1, 1},
+			QuantityROI: []int{61, 289, 58, 32},
+			TitleROI:    []int{980, 82, 250, 48},
+		},
+		45: {
+			Cell:        45,
+			PresentROI:  []int{868, 539, 82, 82},
+			ClickTarget: []int{909, 580, 1, 1},
+			QuantityROI: []int{885, 598, 58, 32},
+			TitleROI:    []int{980, 82, 250, 48},
+		},
+	}
+
+	for cell, want := range cases {
+		got, err := geometryForCell(config, cell)
+		if err != nil {
+			t.Fatalf("geometryForCell(%d) error = %v", cell, err)
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Fatalf("geometryForCell(%d) = %+v, want %+v", cell, got, want)
+		}
+	}
+}
+
+// TestGeometryForCellRejectsOutOfRange verifies invalid cell indices fail fast.
+func TestGeometryForCellRejectsOutOfRange(t *testing.T) {
+	config := testWarehouseScanConfig()
+	for _, cell := range []int{0, 46} {
+		if got, err := geometryForCell(config, cell); err == nil {
+			t.Fatalf("geometryForCell(%d) = %+v, want error", cell, got)
+		}
+	}
+}
+
+// TestBuildCellScanOverride verifies one concrete cell is patched into generic Pipeline nodes.
+func TestBuildCellScanOverride(t *testing.T) {
+	config := testWarehouseScanConfig()
+	geometry, err := geometryForCell(config, 10)
+	if err != nil {
+		t.Fatalf("geometryForCell() error = %v", err)
+	}
+
+	got := buildCellScanOverride(geometry, config.TitleExpected)
+	assertMapValue(t, got[nodeCellPresent], "roi", []int{44, 230, 82, 82})
+	assertMapValue(t, got[nodeCellClick], "target", []int{85, 271, 1, 1})
+	assertMapValue(t, got[nodeCellQuantityOCR], "roi", []int{61, 289, 58, 32})
+	assertMapValue(t, got[nodeCellTitleOCR], "roi", []int{980, 82, 250, 48})
+	assertMapValue(t, got[nodeCellTitleOCR], "expected", []string{".*(寻访|recruit).*"})
+	assertMapValue(t, got[nodeCellQuantityOCR], "custom_action_param", map[string]any{"stage": "record_quantity", "cell": 10})
+	assertMapValue(t, got[nodeCellTitleOCR], "custom_action_param", map[string]any{"stage": "record_item", "cell": 10})
+}
+
+// TestBuildProbeOverride verifies the scroll probe reuses cell quantity ROI with probe params.
+func TestBuildProbeOverride(t *testing.T) {
+	geometry, err := geometryForCell(testWarehouseScanConfig(), 9)
+	if err != nil {
+		t.Fatalf("geometryForCell() error = %v", err)
+	}
+
+	got := buildProbeOverride(geometry)
+	assertMapValue(t, got[nodeProbeQuantity], "roi", []int{885, 186, 58, 32})
+	assertMapValue(t, got[nodeProbeQuantity], "custom_action_param", map[string]any{"stage": "record_probe_quantity", "cell": 9})
+}
+
 // TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch verifies bottom detection from Pipeline OCR probes.
 func TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch(t *testing.T) {
+	rule := testWarehouseScanConfig().Probe
 	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135}
 	after := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
 
-	unchanged, comparable, matches := scrollProbeUnchanged(before, after)
+	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
 	if !unchanged {
 		t.Fatalf("scrollProbeUnchanged() unchanged = false, want true")
 	}
@@ -224,12 +311,43 @@ func TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch(t *testing.T) {
 	}
 }
 
+// TestScrollProbeUnchangedAllowsOneOcrNoise verifies a single OCR mismatch still stops at bottom.
+func TestScrollProbeUnchangedAllowsOneOcrNoise(t *testing.T) {
+	rule := testWarehouseScanConfig().Probe
+	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
+	after := map[int]int{1: 30, 2: 8, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
+
+	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
+	if !unchanged {
+		t.Fatalf("scrollProbeUnchanged() unchanged = false, want true for 8/9 match")
+	}
+	if comparable != 9 || matches != 8 {
+		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 9/8", comparable, matches)
+	}
+}
+
+// TestScrollProbeUnchangedRejectsTooManyMismatches verifies noisy but changed pages keep scanning.
+func TestScrollProbeUnchangedRejectsTooManyMismatches(t *testing.T) {
+	rule := testWarehouseScanConfig().Probe
+	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
+	after := map[int]int{1: 30, 2: 8, 3: 8, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
+
+	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
+	if unchanged {
+		t.Fatalf("scrollProbeUnchanged() unchanged = true, want false for 7/9 match")
+	}
+	if comparable != 9 || matches != 7 {
+		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 9/7", comparable, matches)
+	}
+}
+
 // TestScrollProbeUnchangedNeedsEnoughSignal verifies weak probes fall back to full scanning.
 func TestScrollProbeUnchangedNeedsEnoughSignal(t *testing.T) {
+	rule := testWarehouseScanConfig().Probe
 	before := map[int]int{1: 30, 2: 80, 3: 80}
 	after := map[int]int{1: 30, 2: 80, 3: 80}
 
-	unchanged, comparable, matches := scrollProbeUnchanged(before, after)
+	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
 	if unchanged {
 		t.Fatalf("scrollProbeUnchanged() unchanged = true, want false for weak signal")
 	}
@@ -251,6 +369,18 @@ func assertVoucherMatch(t *testing.T, matches []voucherMatch, want voucherMatch)
 		return
 	}
 	t.Fatalf("voucher match for %q not found in %+v", want.CanonicalName, matches)
+}
+
+// assertMapValue verifies a nested override node value.
+func assertMapValue(t *testing.T, node any, key string, want any) {
+	t.Helper()
+	values, ok := node.(map[string]any)
+	if !ok {
+		t.Fatalf("node type = %T, want map[string]any", node)
+	}
+	if got := values[key]; !reflect.DeepEqual(got, want) {
+		t.Fatalf("node[%q] = %#v, want %#v", key, got, want)
+	}
 }
 
 // TestReadIntegerFromRecognitionDetailJSON verifies Pipeline OCR text can be parsed from raw detail JSON.
@@ -308,6 +438,48 @@ func TestRecordVisiblePageAccumulatesVouchers(t *testing.T) {
 	}
 }
 
+// TestRecordVisiblePageStopsOnRepeatedQuantitySignature verifies the full-page fallback catches repeated pages.
+func TestRecordVisiblePageStopsOnRepeatedQuantitySignature(t *testing.T) {
+	session := newTestSession()
+	session.LastPageSignature = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2}
+	session.CurrentPageCells = map[int]scannedCell{
+		1: {Quantity: 30, HasQuantity: true},
+		2: {Quantity: 80, HasQuantity: true},
+		3: {Quantity: 80, HasQuantity: true},
+		4: {Quantity: 135, HasQuantity: true},
+		5: {Quantity: 358, HasQuantity: true},
+		6: {Quantity: 4, HasQuantity: true},
+		7: {Quantity: 10, HasQuantity: true},
+		8: {Quantity: 2, HasQuantity: true},
+	}
+
+	recordVisiblePage(session)
+	if !session.StopAfterPageDone {
+		t.Fatal("StopAfterPageDone = false, want true for repeated page signature")
+	}
+}
+
+// TestRecordVisiblePageContinuesOnChangedQuantitySignature verifies clearly changed pages keep scanning.
+func TestRecordVisiblePageContinuesOnChangedQuantitySignature(t *testing.T) {
+	session := newTestSession()
+	session.LastPageSignature = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2}
+	session.CurrentPageCells = map[int]scannedCell{
+		1: {Quantity: 30, HasQuantity: true},
+		2: {Quantity: 8, HasQuantity: true},
+		3: {Quantity: 8, HasQuantity: true},
+		4: {Quantity: 135, HasQuantity: true},
+		5: {Quantity: 358, HasQuantity: true},
+		6: {Quantity: 4, HasQuantity: true},
+		7: {Quantity: 10, HasQuantity: true},
+		8: {Quantity: 2, HasQuantity: true},
+	}
+
+	recordVisiblePage(session)
+	if session.StopAfterPageDone {
+		t.Fatal("StopAfterPageDone = true, want false for changed page signature")
+	}
+}
+
 // TestRecordVisiblePageStoresHeadProbe verifies scroll comparison can use top-row quantity OCR.
 func TestRecordVisiblePageStoresHeadProbe(t *testing.T) {
 	session := newTestSession()
@@ -325,6 +497,33 @@ func TestRecordVisiblePageStoresHeadProbe(t *testing.T) {
 	}
 }
 
+// TestLoadWarehouseScanConfig verifies the committed resource config is loadable.
+func TestLoadWarehouseScanConfig(t *testing.T) {
+	config, err := loadWarehouseScanConfig("../../../assets/data/PullCountCalculator/warehouse_scan.json")
+	if err != nil {
+		t.Fatalf("loadWarehouseScanConfig() error = %v", err)
+	}
+	if config.CellCount() != 45 {
+		t.Fatalf("CellCount() = %d, want 45", config.CellCount())
+	}
+	geometry, err := geometryForCell(config, 45)
+	if err != nil {
+		t.Fatalf("geometryForCell(45) error = %v", err)
+	}
+	if !reflect.DeepEqual(geometry.QuantityROI, []int{885, 598, 58, 32}) {
+		t.Fatalf("cell 45 quantity ROI = %#v, want [885 598 58 32]", geometry.QuantityROI)
+	}
+}
+
+// TestWarehouseScanConfigRejectsMissingFields verifies config errors are explicit.
+func TestWarehouseScanConfigRejectsMissingFields(t *testing.T) {
+	config := testWarehouseScanConfig()
+	config.TitleROI = nil
+	if err := config.validate(); err == nil {
+		t.Fatal("validate() error = nil, want missing title_roi error")
+	}
+}
+
 // newTestSession builds the minimal state needed by page-decision unit tests.
 func newTestSession() *runSession {
 	config := &voucherConfig{Vouchers: []voucherDef{
@@ -337,8 +536,38 @@ func newTestSession() *runSession {
 	return &runSession{
 		Param:             actionParam{},
 		Config:            config,
+		ScanConfig:        testWarehouseScanConfig(),
 		VoucherIndex:      index,
 		VoucherQuantities: make(map[string]int),
 		CurrentPageCells:  make(map[int]scannedCell),
+	}
+}
+
+// testWarehouseScanConfig returns the production-like warehouse geometry used by unit tests.
+func testWarehouseScanConfig() *warehouseScanConfig {
+	return &warehouseScanConfig{
+		Grid: warehouseGridConfig{
+			Columns:  9,
+			Rows:     5,
+			Start:    []int{44, 127},
+			Step:     []int{103, 103},
+			CellSize: []int{82, 82},
+		},
+		QuantityROIOffset: []int{17, 59, 58, 32},
+		TitleROI:          []int{980, 82, 250, 48},
+		TitleExpected:     []string{".*(寻访|recruit).*"},
+		Probe: warehouseSimilarityRule{
+			CellLimit:     9,
+			MinComparable: 4,
+			MaxMismatches: 1,
+			MinMatchRatio: 0.85,
+		},
+		RepeatPage: warehouseSimilarityRule{
+			CellLimit:     45,
+			MinComparable: 8,
+			MaxMismatches: 1,
+			MinMatchRatio: 0.85,
+		},
+		ScanMaxPages: 8,
 	}
 }
