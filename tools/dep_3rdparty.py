@@ -21,6 +21,7 @@
 
 import argparse
 import platform
+import socket
 import shutil
 import sys
 import time
@@ -35,6 +36,7 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 # locale 资源仍沿用原目录名 3rdparty_download，避免迁徙文件；目录名只在本模块内部引用一次。
 LOCALS_DIR: Path = Path(__file__).parent / "locals" / "3rdparty_download"
 THIRDPARTY_DIR: Path = PROJECT_BASE / "agent" / "cpp-algo" / "3rdparty"
+TIMEOUT: int = 30
 
 # -------------------- WebView2 --------------------
 
@@ -107,7 +109,7 @@ def _download_to_file(url: str, dest_path: Path) -> bool:
         url, headers={"User-Agent": "MaaEnd-3rdparty-download/1.0"}
     )
     try:
-        with urllib.request.urlopen(request) as response, open(
+        with urllib.request.urlopen(request, timeout=TIMEOUT) as response, open(
             dest_path, "wb"
         ) as out_file:
             size_total = int(response.headers.get("Content-Length", 0) or 0)
@@ -148,10 +150,19 @@ def _download_to_file(url: str, dest_path: Path) -> bool:
                     cached_progress = progress
             # 把进度行收尾到下一行，避免与后续日志同行混排。
             print()
-    except (urllib.error.URLError, OSError) as exc:
+    except (urllib.error.URLError, OSError, TimeoutError) as exc:
         # 异常情况下进度行可能未换行，先补一个换行再打错误，避免错误信息黏在尾部。
         print()
-        print(Console.err(t("err_download_failed", url=url, error=exc)))
+        is_timeout = isinstance(exc, (TimeoutError, socket.timeout)) or (
+            isinstance(exc, urllib.error.URLError)
+            and isinstance(exc.reason, (TimeoutError, socket.timeout))
+        )
+        error_message = (
+            f"request timed out after {TIMEOUT}s"
+            if is_timeout
+            else str(exc)
+        )
+        print(Console.err(t("err_download_failed", url=url, error=error_message)))
         dest_path.unlink(missing_ok=True)
         return False
     return True
