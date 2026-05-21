@@ -50,7 +50,7 @@ Implemented in Go/C++ with stronger coupling to game behavior. Per [coding stand
 | BetterSliding                                   | Discrete quantity sliders                         | [components/better-sliding.md](./components/better-sliding.md)             |
 | MapLocator                                      | AI + CV minimap localization                      | [components/map-locator.md](./components/map-locator.md)                   |
 | MapTracker                                      | Minimap tracking & path movement                  | [components/map-tracker.md](./components/map-tracker.md)                   |
-| MapNavigator                                    | High-precision navigation + GUI recorder          | [components/map-navigator.md](./components/map-navigator.md)               |
+| MapNavigator                                    | High-precision navigation + BaseNav A* preview     | [components/map-navigator.md](./components/map-navigator.md)               |
 
 ## Task maintenance docs
 

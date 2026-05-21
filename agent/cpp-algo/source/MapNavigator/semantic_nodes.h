@@ -3,7 +3,6 @@
 #include "action_executor.h"
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
-
 struct MaaContext;
 
 namespace mapnavigator

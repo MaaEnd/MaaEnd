@@ -7,7 +7,7 @@ target_include_directories(cpp-algo
 
 target_link_libraries(cpp-algo
     PRIVATE MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
-    PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime)
+    PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)
     target_link_libraries(cpp-algo PRIVATE pthread dl)

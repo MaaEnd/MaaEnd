@@ -33,6 +33,7 @@ class ActionType(IntEnum):
     TRANSFER = 6
     COLLECT = 7
     DIG = 8
+    NAVMESH = 9
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -46,6 +47,7 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.TRANSFER: "#fb7185",
     ActionType.COLLECT: "#22d3ee",
     ActionType.DIG: "#a16207",
+    ActionType.NAVMESH: "#14b8a6",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -59,6 +61,7 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.TRANSFER: "Transfer",
     ActionType.COLLECT: "Collect",
     ActionType.DIG: "Dig",
+    ActionType.NAVMESH: "Navmesh",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -71,6 +74,7 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.TRANSFER: "TRANSFER",
     ActionType.COLLECT: "COLLECT",
     ActionType.DIG: "DIG",
+    ActionType.NAVMESH: "NAVMESH",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -84,6 +88,7 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "TRANSFER": int(ActionType.TRANSFER),
     "COLLECT": int(ActionType.COLLECT),
     "DIG": int(ActionType.DIG),
+    "NAVMESH": int(ActionType.NAVMESH),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -95,6 +100,7 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.TRANSFER,
     ActionType.COLLECT,
     ActionType.DIG,
+    ActionType.NAVMESH,
 )
 ACTION_MENU_NAMES: tuple[str, ...] = tuple(ACTION_NAMES[action_type] for action_type in ACTION_MENU_TYPES)
 INVALID_ZONE_IDS = {"NONE", "NULL", "N/A"}
@@ -361,6 +367,16 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
         return None
     if not map_image_dir.exists():
         return None
+
+    base_aliases = {
+        "map01base": map_image_dir / "MapLocator" / "ValleyIV" / "Base.png",
+        "map02base": map_image_dir / "MapLocator" / "Wuling" / "Base.png",
+        "base01": map_image_dir / "MapLocator" / "OMVBase" / "OMVBase01.png",
+        "dung01": map_image_dir / "MapLocator" / "Dung" / "Dung01Base.png",
+    }
+    alias_path = base_aliases.get(normalized_zone_id)
+    if alias_path is not None and alias_path.exists():
+        return alias_path
 
     if map_image_dir.name.lower() == "maplocator":
         map_locator_dir = map_image_dir

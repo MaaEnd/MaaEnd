@@ -6,6 +6,8 @@
 
 **MapNavigator** 是 MaaEnd 当前的高精度自动导航 Action 模块。它依赖底层定位能力持续获取角色当前所处区域、全局坐标与朝向，然后按照开发者提供的 `path` 路径点序列，驱动角色逐点移动，并在关键点执行冲刺、跳跃、交互、过图等动作。
 
+除了传统的录制路径外，MapNavigator 现在还支持基于 BNAV v2 的 `NAVMESH` 语义寻路。GUI 可以直接加载 `base.nav.gz` 做三角面 A* 预览，运行时会把 `NAVMESH` 节点展开成普通 `RUN` 路径点，从而让预览、复制和执行都走同一套 BaseNav 数据。
+
 ### 边界说明
 
 MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”，属于 Action 层。
@@ -136,6 +138,32 @@ MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”
 
 无坐标节点。执行时调整镜头朝向后轻按一下 `W` 前进让朝向生效。`angle` 表示直接给定朝向角度；`target` 表示以“当前位置 -> 目标坐标”计算朝向，然后复用同一套 `HEADING` 动作流程。
 
+##### **6. BaseNav 语义节点 `NAVMESH`**
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        720,
+        630
+    ]
+}
+```
+
+这是一个 **BaseNav 语义寻路节点**。它本身不携带 `zone_id`、`navmesh_zone` 或 `path`，而是只提供目标点 `target`，其余信息由运行时根据当前定位自动推断。
+
+`NAVMESH` 的运行流程是：
+
+1. 运行时优先加载 `assets/resource/model/map/navmesh/base.nav.gz`，不存在时回退 `base.nav`。
+2. 根据当前定位区域推断 BaseNav zone。
+3. 在 `.nav` 三角图上执行 A*，只走 BaseNav 自身的连边。
+4. 将规划结果展开成普通 `RUN` waypoints，再交给旧的移动执行链路。
+
+在 GUI 里点击 `加载 BaseNav` 后，工具会进入同一套 BaseNav 预览逻辑；点击 `复制 NAVMESH` 后复制到剪贴板的就是这种节点。
+`NAVMESH` 适合需要“从当前站位自动找一条三角图路径到目标点”的场景，不需要手工先录一整段路径。
+
+**只要原始路径在不发生交互、过图或特殊机关的情况下本来就可达，`NAVMESH` 只需要一个 `target` 就能直接把角色带到目标位置**。不需要预录制整段路线，也不需要为了这个目标点额外补中间点、调坐标或手动拼路径，GUI 里只要点出目标，运行时就会基于 BaseNav 三角图直接规划出可执行路径。
+
 #### 返回行为
 
 `MapNavigateAction` 是一个 Action 节点，没有像 Recognition 那样稳定的结构化识别输出；其结果主要体现为：
@@ -236,9 +264,10 @@ MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”
 4. 导入已有 JSON / JSONC，递归搜索可识别的 `path` 并继续编辑。
 5. 一键复制可直接粘贴到 `custom_action_param.path` 的 canonical `path`。
 6. 通过独立的 `Assert 模式` 手动选择底图并框出矩形区域，导出 `MapLocateAssertLocation` 节点。
+7. 进入 BaseNav A* 模式，加载 `.nav.gz` / `.nav`，在红色三角面 overlay 上预览路径，并复制 `NAVMESH` 节点。
 
 需要额外说明的是，当前 GUI 编辑器主要 round-trip 带坐标的路径点，以及由区域信息派生出来的 `ZONE` 声明。  
-像 `HEADING` 这类无坐标控制节点，不属于 GUI 的常规点编辑对象，建议在导出 `path` 后再手工补回或维护。
+像 `HEADING` 这类无坐标控制节点，以及 `NAVMESH` 这类语义寻路节点，不属于 GUI 的常规点编辑对象，`HEADING` 建议在导出 `path` 后再手工补回或维护，`NAVMESH` 则可以直接用 `复制 NAVMESH` 生成。
 
 ### 运行方式
 

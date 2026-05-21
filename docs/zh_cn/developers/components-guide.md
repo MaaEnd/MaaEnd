@@ -50,7 +50,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | BetterSliding                                   | 离散数量滑条调节                 | [components/better-sliding.md](./components/better-sliding.md)             |
 | MapLocator                                      | AI + CV 小地图定位               | [components/map-locator.md](./components/map-locator.md)                   |
 | MapTracker                                      | 小地图追踪与路径移动             | [components/map-tracker.md](./components/map-tracker.md)                   |
-| MapNavigator                                    | 高精度自动导航 + GUI 录制工具    | [components/map-navigator.md](./components/map-navigator.md)               |
+| MapNavigator                                    | 高精度自动导航 + BaseNav A* 预览 | [components/map-navigator.md](./components/map-navigator.md)               |
 
 ## 任务维护文档
 
