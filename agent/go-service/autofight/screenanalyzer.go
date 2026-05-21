@@ -23,6 +23,7 @@ const (
 	LabelEnemyDodge               = "EnemyDodge"
 	LabelEnemyTarget              = "EnemyTarget"
 	LabelEnemyFacing              = "EnemyFacing"
+	LabelEnemyLocked              = "EnemyLocked"
 	LabelEnergyLevelEmpty         = "EnergyLevelEmpty"
 	LabelEnergyLevelFull          = "EnergyLevelFull"
 	LabelMenuList                 = "MenuList"
@@ -204,14 +205,28 @@ func (sa *ScreenAnalyzer) GetEnergyLevel(unused bool) int {
 	return -1
 }
 
-var enemyFacingRegion = maa.Rect{250, 160, 900, 400}
+var enemyFacingLeftRegion = maa.Rect{330, 200, 320, 400}
+var enemyFacingRightRegion = maa.Rect{650, 200, 320, 400}
+var enemyFacingBackRegion = maa.Rect{330, 480, 640, 150}
 
-func (sa *ScreenAnalyzer) GetEnemyFacing() bool {
-	return sa.hasLabelInFrames(LabelEnemyFacing, 10, false, enemyFacingRegion)
+func (sa *ScreenAnalyzer) GetEnemyFacingLeft() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingLeftRegion)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyFacingRight() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingRightRegion)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyFacingBack() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingBackRegion)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyTarget() bool {
-	return sa.hasLabelInDuration(LabelEnemyTarget, 3*time.Second)
+	return sa.hasLabelInDuration(LabelEnemyTarget, 5*time.Second)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyLocked() bool {
+	return sa.hasLabelInFrames(LabelEnemyLocked, 3, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyBossHealth() bool {
