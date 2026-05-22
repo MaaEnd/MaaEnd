@@ -8,7 +8,7 @@
 - Using AI to generate large amounts of unmaintainable, opaque “black box” code in critical modules—for example pointless over-abstraction, or thousands of lines of Go/C++ for a simple feature.
 - Submitting code in critical modules that you do not understand and cannot control.
 
-_Custom code is usually maintainable only by the author who wrote it. If the author cannot read it, nobody can extend it—let alone fix bugs. Mainstream AI models also still have a low success rate when fixing bugs in this project._
+_Custom code is usually maintainable only by the author who wrote it. If the author cannot read it, nobody can extend it—let alone fix bugs. Do not mindlessly let AI take full responsibility for fixes without reviewing or understanding the changes; moreover, fully offloading work to AI still has a low success rate in this project._
 
 ### Recommended way to use AI
 
