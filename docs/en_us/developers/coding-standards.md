@@ -2,7 +2,7 @@
 
 ## AI programming standards
 
-MaaEnd is a long-term, in-house maintained project—not a one-off contract job where “good enough to run” is acceptable.
+MaaEnd is a long-term, open-source maintained project—not a one-off contract job where “good enough to run” is acceptable.
 
 ### Do not use AI blindly for development
 
