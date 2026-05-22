@@ -27,29 +27,29 @@ type calculationResult struct {
 }
 
 // calculatePullCount converts resources and classified vouchers into current and next-pool totals.
-func calculatePullCount(values resourceValues, summary voucherSummary, param *actionParam) calculationResult {
-	reservedOriginiumOroberyl := param.ReservedOriginium * param.OriginiumToOroberyl
+func calculatePullCount(values resourceValues, summary voucherSummary) calculationResult {
+	reservedOriginiumOroberyl := reservedOriginium * originiumToOroberyl
 	usableOriginiumOroberyl := values.ConvertedOriginiumOroberyl - reservedOriginiumOroberyl
 	if usableOriginiumOroberyl < 0 {
 		usableOriginiumOroberyl = 0
 	}
 
-	resourcePulls := (values.Oroberyl + usableOriginiumOroberyl) / param.OroberylPerPull
-	oroberylPulls := values.Oroberyl / param.OroberylPerPull
-	usableOriginiumPulls := usableOriginiumOroberyl / param.OroberylPerPull
+	resourcePulls := (values.Oroberyl + usableOriginiumOroberyl) / oroberylPerPull
+	oroberylPulls := values.Oroberyl / oroberylPerPull
+	usableOriginiumPulls := usableOriginiumOroberyl / oroberylPerPull
 	currentPoolTotal := resourcePulls + summary.CarryToNextPulls
-	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + param.NextPoolShopPulls + param.NextPoolSigninPulls
+	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + nextPoolShopPulls + nextPoolSigninPulls
 
 	return calculationResult{
-		ReservedOriginium:         param.ReservedOriginium,
+		ReservedOriginium:         reservedOriginium,
 		ReservedOriginiumOroberyl: reservedOriginiumOroberyl,
 		UsableOriginiumOroberyl:   usableOriginiumOroberyl,
 		OroberylPulls:             oroberylPulls,
 		UsableOriginiumPulls:      usableOriginiumPulls,
 		ResourcePulls:             resourcePulls,
 		CarryToNextPulls:          summary.CarryToNextPulls,
-		NextPoolShopPulls:         param.NextPoolShopPulls,
-		NextPoolSigninPulls:       param.NextPoolSigninPulls,
+		NextPoolShopPulls:         nextPoolShopPulls,
+		NextPoolSigninPulls:       nextPoolSigninPulls,
 		CurrentPoolTotal:          currentPoolTotal,
 		NextPoolTotal:             nextPoolTotal,
 	}

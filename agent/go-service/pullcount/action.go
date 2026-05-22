@@ -2,7 +2,6 @@ package pullcount
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -21,19 +20,14 @@ const (
 	stagePageDone        = "page_done"
 	stageFinish          = "finish"
 
-	stagePageShouldFinish = "page_should_finish"
+	reservedOriginium   = 29
+	originiumToOroberyl = 75
+	oroberylPerPull     = 500
+	nextPoolShopPulls   = 5
+	nextPoolSigninPulls = 5
 )
 
 var _ maa.CustomActionRunner = &Action{}
-
-var defaultActionParam = actionParam{
-	ReservedOriginium:   29,
-	OriginiumToOroberyl: 75,
-	OroberylPerPull:     500,
-	NextPoolShopPulls:   5,
-	NextPoolSigninPulls: 5,
-	ScanMaxPages:        8,
-}
 
 // Action calculates current and next-version recruitment pulls from Pipeline-provided OCR results.
 type Action struct{}
@@ -68,7 +62,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	switch stage {
 	case stageInit:
-		return handleInit(ctx, param)
+		return handleInit(ctx)
 	case stageRecordOriginium:
 		return handleRecordResource(ctx, arg, true)
 	case stageRecordOroberyl:
@@ -86,9 +80,9 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 }
 
-// parseActionParam parses stage parameters and fills default calculation constants.
+// parseActionParam parses the small per-node behavior parameters passed from Pipeline.
 func parseActionParam(raw string) (*actionParam, error) {
-	param := defaultActionParam
+	var param actionParam
 	if strings.TrimSpace(raw) != "" {
 		if err := json.Unmarshal([]byte(raw), &param); err != nil {
 			return nil, err
@@ -97,15 +91,6 @@ func parseActionParam(raw string) (*actionParam, error) {
 
 	param.Stage = strings.TrimSpace(param.Stage)
 	param.PoolScope = strings.TrimSpace(param.PoolScope)
-	if param.OriginiumToOroberyl <= 0 || param.OroberylPerPull <= 0 {
-		return nil, fmt.Errorf("resource conversion constants must be positive")
-	}
-	if param.NextPoolShopPulls < 0 || param.NextPoolSigninPulls < 0 {
-		return nil, fmt.Errorf("next pool fixed pulls must be non-negative")
-	}
-	if param.ScanMaxPages <= 0 {
-		return nil, fmt.Errorf("scan_max_pages must be positive")
-	}
 	return &param, nil
 }
 

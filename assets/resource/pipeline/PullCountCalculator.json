@@ -6,13 +6,7 @@
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "init",
-            "reserved_originium": 29,
-            "originium_to_oroberyl": 75,
-            "oroberyl_per_pull": 500,
-            "next_pool_shop_pulls": 5,
-            "next_pool_signin_pulls": 5,
-            "scan_max_pages": 8
+            "stage": "init"
         },
         "post_delay": 0,
         "next": [
@@ -207,27 +201,13 @@
         },
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorPageShouldFinish",
-            "PullCountCalculatorWarehouseScrollDown"
-        ]
-    },
-    "PullCountCalculatorPageShouldFinish": {
-        "desc": "Go 仅判断本页扫描是否应结束，流程分支由 Pipeline next 处理",
-        "recognition": "Custom",
-        "custom_recognition": "PullCountCalculatorRecognition",
-        "custom_recognition_param": {
-            "stage": "page_should_finish"
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "next": [
+            "PullCountCalculatorWarehouseScrollDown",
             "PullCountCalculatorFinish"
         ]
     },
     "PullCountCalculatorWarehouseScrollDown": {
         "desc": "向下滚动贵重品库列表，继续扫描下一页",
-        "max_hit": 7,
+        "max_hit": 4,
         "recognition": {
             "type": "And",
             "param": {

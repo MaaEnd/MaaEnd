@@ -1,18 +1,9 @@
 package pullcount
 
-import (
-	"testing"
-
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
-)
+import "testing"
 
 // TestCalculatePullCount verifies the resource formula and fixed next-pool pulls.
 func TestCalculatePullCount(t *testing.T) {
-	param, err := parseActionParam("")
-	if err != nil {
-		t.Fatalf("parseActionParam() error = %v", err)
-	}
-
 	tests := []struct {
 		name string
 		vals resourceValues
@@ -46,7 +37,7 @@ func TestCalculatePullCount(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := calculatePullCount(tt.vals, tt.sum, param)
+		got := calculatePullCount(tt.vals, tt.sum)
 		if got.ReservedOriginiumOroberyl != tt.want.ReservedOriginiumOroberyl ||
 			got.UsableOriginiumOroberyl != tt.want.UsableOriginiumOroberyl ||
 			got.OroberylPulls != tt.want.OroberylPulls ||
@@ -114,40 +105,7 @@ func TestParseIntegerText(t *testing.T) {
 	}
 }
 
-// TestPageShouldFinish verifies the Pipeline finish branch is still driven by Go state.
-func TestPageShouldFinish(t *testing.T) {
-	session := newTestSession()
-	session.StopAfterPageDone = true
-	session.PageStopReason = "max pages"
-	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); !ok {
-		t.Fatal("pageShouldFinishResult() ok = false, want true")
-	}
-
-	session.StopAfterPageDone = false
-	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); ok {
-		t.Fatal("pageShouldFinishResult() ok = true, want false")
-	}
-}
-
-// TestParseActionParam verifies calculation params reject invalid scan limits.
-func TestParseActionParam(t *testing.T) {
-	param, err := parseActionParam(`{"scan_max_pages":3}`)
-	if err != nil {
-		t.Fatalf("parseActionParam() error = %v", err)
-	}
-	if param.ScanMaxPages != 3 {
-		t.Fatalf("ScanMaxPages = %d, want 3", param.ScanMaxPages)
-	}
-
-	if _, err := parseActionParam(`{"scan_max_pages":0}`); err == nil {
-		t.Fatal("parseActionParam() error = nil, want invalid scan_max_pages error")
-	}
-}
-
 // newTestSession builds the minimal state needed by page-decision unit tests.
 func newTestSession() *runSession {
-	return &runSession{
-		Param:       defaultActionParam,
-		VoucherHits: make(map[string]struct{}),
-	}
+	return newRunSession()
 }
