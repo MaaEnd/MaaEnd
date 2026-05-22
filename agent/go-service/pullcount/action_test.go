@@ -54,33 +54,17 @@ func TestCalculatePullCount(t *testing.T) {
 func TestAddVoucher(t *testing.T) {
 	session := newTestSession()
 
-	if quantity, added, err := addVoucher(session, "p1:carry", "carry_to_next", 1); err != nil || !added || quantity != 1 {
-		t.Fatalf("addVoucher carry = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
+	if added := recordCarryToNextVoucher(session, "p1"); !added {
+		t.Fatal("recordCarryToNextVoucher first hit = false, want true")
 	}
-	if _, added, err := addVoucher(session, "p1:carry", "carry_to_next", 1); err != nil || added {
-		t.Fatalf("addVoucher duplicate = added %v err %v, want false nil", added, err)
+	if added := recordCarryToNextVoucher(session, "p1"); added {
+		t.Fatal("recordCarryToNextVoucher duplicate = true, want false")
 	}
-	if quantity, added, err := addVoucher(session, "p1:carry2", "carry_to_next", 1); err != nil || !added || quantity != 1 {
-		t.Fatalf("addVoucher default quantity = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
+	if added := recordCarryToNextVoucher(session, "p2"); !added {
+		t.Fatal("recordCarryToNextVoucher second hit = false, want true")
 	}
 	if session.Vouchers.CarryToNextPulls != 2 {
 		t.Fatalf("voucher summary = %+v, want carry 2", session.Vouchers)
-	}
-}
-
-// TestAddVoucherRejectsInvalidParams verifies Pipeline classification params are validated.
-func TestAddVoucherRejectsInvalidParams(t *testing.T) {
-	session := newTestSession()
-	for _, tt := range []struct {
-		scope     string
-		pullValue int
-	}{
-		{"bad_scope", 1},
-		{"carry_to_next", 2},
-	} {
-		if _, _, err := addVoucher(session, "key", tt.scope, tt.pullValue); err == nil {
-			t.Fatalf("addVoucher(%+v) error = nil, want error", tt)
-		}
 	}
 }
 

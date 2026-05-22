@@ -2,13 +2,11 @@
     "PullCountCalculatorMain": {
         "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
         "recognition": "DirectHit",
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
             "stage": "init"
         },
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorOriginiumOCR"
         ],
@@ -63,8 +61,6 @@
     },
     "PullCountCalculatorEnterValuables": {
         "desc": "进入贵重品库珍贵物品页，界面跳转交由 SceneManager Pipeline 处理",
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorInStashValuablesTab",
             "[JumpBack]SceneStashValuablesTab"
@@ -83,8 +79,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorScanPage"
         ]
@@ -92,7 +86,6 @@
     "PullCountCalculatorScanPage": {
         "desc": "开始扫描当前页的寻访相关券图标",
         "recognition": "DirectHit",
-        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -104,7 +97,6 @@
                 }
             }
         },
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorFindCarryToNextVoucher",
             "PullCountCalculatorPageDone"
@@ -128,9 +120,7 @@
                 "order_by": "Vertical"
             }
         },
-        "pre_delay": 0,
         "action": "DoNothing",
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorClickCarryToNextVoucher",
             "PullCountCalculatorPageDone"
@@ -148,7 +138,6 @@
                 "box_index": 1
             }
         },
-        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -156,7 +145,6 @@
             }
         },
         "post_wait_freezes": 150,
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorCarryToNextVoucherTitleOCR"
         ]
@@ -181,9 +169,7 @@
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_voucher",
-            "pool_scope": "carry_to_next",
-            "pull_value": 1
+            "stage": "record_voucher"
         },
         "target": "PullCountCalculatorFindCarryToNextVoucher",
         "next": [
@@ -193,13 +179,7 @@
     "PullCountCalculatorPageDone": {
         "desc": "记录本页图标扫描结果并判断继续滚动或完成",
         "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "page_done"
-        },
-        "post_delay": 0,
+        "action": "DoNothing",
         "next": [
             "PullCountCalculatorWarehouseScrollDown",
             "PullCountCalculatorFinish"
@@ -230,12 +210,10 @@
     "PullCountCalculatorFinish": {
         "desc": "汇总资源与仓库券并输出抽数计算结果",
         "recognition": "DirectHit",
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
             "stage": "finish"
-        },
-        "post_delay": 0
+        }
     }
 }

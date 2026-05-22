@@ -17,7 +17,6 @@ const (
 	stageRecordOriginium = "record_originium"
 	stageRecordOroberyl  = "record_oroberyl"
 	stageRecordVoucher   = "record_voucher"
-	stagePageDone        = "page_done"
 	stageFinish          = "finish"
 
 	reservedOriginium   = 29
@@ -45,7 +44,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	param, err := parseActionParam(arg.CustomActionParam)
+	stage, err := parseStage(arg.CustomActionParam)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -56,7 +55,6 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	stage := resolveStage(param.Stage, arg.CurrentTaskName)
 	sessionMu.Lock()
 	defer sessionMu.Unlock()
 
@@ -68,9 +66,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case stageRecordOroberyl:
 		return handleRecordResource(ctx, arg, false)
 	case stageRecordVoucher:
-		return handleRecordVoucher(ctx, arg, param)
-	case stagePageDone:
-		return handlePageDone(ctx)
+		return handleRecordVoucher(ctx, arg)
 	case stageFinish:
 		return handleFinish(ctx)
 	default:
@@ -80,28 +76,16 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 }
 
-// parseActionParam parses the small per-node behavior parameters passed from Pipeline.
-func parseActionParam(raw string) (*actionParam, error) {
-	var param actionParam
+// parseStage reads the pull-count stage name passed from Pipeline.
+func parseStage(raw string) (string, error) {
+	var param struct {
+		Stage string `json:"stage"`
+	}
 	if strings.TrimSpace(raw) != "" {
 		if err := json.Unmarshal([]byte(raw), &param); err != nil {
-			return nil, err
+			return "", err
 		}
 	}
 
-	param.Stage = strings.TrimSpace(param.Stage)
-	param.PoolScope = strings.TrimSpace(param.PoolScope)
-	return &param, nil
-}
-
-// resolveStage keeps the old main-node entry compatible with an empty stage parameter.
-func resolveStage(stage string, currentTaskName string) string {
-	stage = strings.TrimSpace(stage)
-	if stage != "" {
-		return stage
-	}
-	if currentTaskName == "PullCountCalculatorMain" {
-		return stageInit
-	}
-	return ""
+	return strings.TrimSpace(param.Stage), nil
 }

@@ -17,12 +17,6 @@ var (
 	currentSession *runSession
 )
 
-type actionParam struct {
-	Stage     string `json:"stage"`
-	PoolScope string `json:"pool_scope"`
-	PullValue int    `json:"pull_value"`
-}
-
 type runSession struct {
 	Values      resourceValues
 	Vouchers    voucherSummary
@@ -30,8 +24,6 @@ type runSession struct {
 
 	HasConvertedOriginium bool
 	HasOroberyl           bool
-
-	PageCount int
 }
 
 type voucherSummary struct {
@@ -121,71 +113,36 @@ func handleFinish(ctx *maa.Context) bool {
 // --- Warehouse Scan Stages --- //
 
 // handleRecordVoucher stores one Pipeline-classified voucher for the selected template hit.
-func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg, param *actionParam) bool {
+func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
 		return false
 	}
 
-	quantity, added, err := addVoucher(session, voucherKey(arg, param.PoolScope), param.PoolScope, param.PullValue)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("invalid voucher record")
-		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
-		return false
-	}
-
-	log.Debug().
+	added := recordCarryToNextVoucher(session, voucherKey(arg))
+	log.Info().
 		Str("component", componentName).
-		Str("pool_scope", param.PoolScope).
-		Int("pull_value", param.PullValue).
-		Int("quantity", quantity).
 		Bool("added", added).
+		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
 		Msg("warehouse voucher recorded")
 	return true
 }
 
-// handlePageDone advances the page counter and lets Pipeline choose whether to finish or scroll.
-func handlePageDone(ctx *maa.Context) bool {
-	session, ok := requireSession(ctx)
-	if !ok {
-		return false
-	}
-
-	session.PageCount++
-	log.Info().
-		Str("component", componentName).
-		Int("page_count", session.PageCount).
-		Msg("warehouse page scan done")
-	return true
-}
-
 // voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
-func voucherKey(arg *maa.CustomActionArg, poolScope string) string {
+func voucherKey(arg *maa.CustomActionArg) string {
 	if arg == nil {
-		return poolScope
+		return "carry_to_next"
 	}
 	box := arg.Box
-	return fmt.Sprintf("%d:%d:%d:%d:%s", box.X(), box.Y(), box.Width(), box.Height(), poolScope)
+	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// addVoucher adds one Pipeline-classified voucher record to the running total.
-func addVoucher(session *runSession, key string, poolScope string, pullValue int) (int, bool, error) {
-	if pullValue != 1 && pullValue != 10 {
-		return 0, false, fmt.Errorf("pull_value must be 1 or 10")
-	}
-
-	quantity := 1
+// recordCarryToNextVoucher adds one confirmed carry-over voucher unless the hit box was already counted.
+func recordCarryToNextVoucher(session *runSession, key string) bool {
 	if _, exists := session.VoucherHits[key]; exists {
-		return quantity, false, nil
+		return false
 	}
 	session.VoucherHits[key] = struct{}{}
-
-	pulls := quantity * pullValue
-	switch poolScope {
-	case "carry_to_next":
-		session.Vouchers.CarryToNextPulls += pulls
-	default:
-		return quantity, false, fmt.Errorf("pool_scope must be carry_to_next")
-	}
-	return quantity, true, nil
+	session.Vouchers.CarryToNextPulls++
+	return true
 }
