@@ -187,6 +187,7 @@
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/CreditShopping.json",
+        "tasks/AccountSwitch.json",
         "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
         // group: realtime

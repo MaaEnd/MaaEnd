@@ -1,0 +1,185 @@
+{
+    "AccountSwitchStart": {
+        "desc": "账号切换入口：先到登录界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__AccountSwitchAtLoginScreen",
+            "[JumpBack]SceneEnterMenuLogin"
+        ]
+    },
+    "__AccountSwitchAtLoginScreen": {
+        "desc": "已在登录界面，寻找登出按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    -100,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/LoginExit.png"
+                ]
+            }
+        },
+        "next": [
+            "__AccountSwitchClickLogout"
+        ]
+    },
+    "__AccountSwitchClickLogout": {
+        "desc": "点击登出按钮（占位）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -300,
+                    0,
+                    300,
+                    300
+                ],
+                "template": [
+                    "AccountSwitch/LogoutButton.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "[JumpBack]__AccountSwitchLogoutConfirm",
+            "__AccountSwitchClickDropdown"
+        ]
+    },
+    "__AccountSwitchLogoutConfirm": {
+        "desc": "确认登出弹窗（占位）",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    350,
+                    250,
+                    550,
+                    202
+                ],
+                "expected": [
+                    "登出",
+                    "登出",
+                    "(?i)Log\\s*out",
+                    "ログアウト",
+                    "로그아웃"
+                ]
+            },
+            {
+                "recognition": {
+                    "type": "TemplateMatch",
+                    "param": {
+                        "roi": [
+                            350,
+                            350,
+                            550,
+                            100
+                        ],
+                        "template": [
+                            "AccountSwitch/ConfirmButton.png"
+                        ],
+                        "threshold": 0.9
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 500
+    },
+    "__AccountSwitchClickDropdown": {
+        "desc": "点击账号下拉按钮（占位）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    325,
+                    60,
+                    50
+                ],
+                "template": [
+                    "AccountSwitch/DropdownButton.png"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "__AccountSwitchOCRSelectAccount"
+        ]
+    },
+    "__AccountSwitchOCRSelectAccount": {
+        "desc": "OCR识别账号后四位并点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    400
+                ],
+                "expected": [
+                    "\\d{4}$"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "__AccountSwitchClickLogin"
+        ]
+    },
+    "__AccountSwitchClickLogin": {
+        "desc": "点击登录按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "登录",
+                    "登入",
+                    "(?i)Log\\s*in",
+                    "ログイン",
+                    "로그인"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "__AccountSwitchLoginSuccess"
+        ]
+    },
+    "__AccountSwitchLoginSuccess": {
+        "desc": "账号切换登录成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    -100,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/LoginExit.png"
+                ]
+            }
+        }
+    }
+}

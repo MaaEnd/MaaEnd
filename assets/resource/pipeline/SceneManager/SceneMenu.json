@@ -812,7 +812,6 @@
             "Node.Action.Starting": "切换到珍贵物品页界面"
         }
     },
-
     "__ScenePrivateWorldEnterMenuOperationalManual": {
         "desc": "从大世界进入行动手册菜单",
         "recognition": {
@@ -1883,5 +1882,99 @@
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "__ScenePrivateWorldEnterMenuLogin": {
+        "desc": "从大世界进入登录菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuLogin",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuLogin": {
+        "desc": "从菜单列表进入登录菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    -400,
+                    400,
+                    400
+                ],
+                "template": [
+                    "SceneManager/MenuExit.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateLoginConfirm"
+        ]
+    },
+    "__ScenePrivateLoginConfirm": {
+        "desc": "确认登录/登出弹窗",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    350,
+                    250,
+                    550,
+                    202
+                ],
+                "expected": [
+                    "登录",
+                    "登入",
+                    "(?i)Log\\s*in",
+                    "ログイン",
+                    "로그인"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateLoginScreen"
+        ]
+    },
+    "__ScenePrivateLoginScreen": {
+        "desc": "成功到达登录界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    -100,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/LoginExit.png"
+                ]
+            }
+        }
     }
 }
