@@ -132,18 +132,13 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
     print(f"  Downloading grid_tiers...")
     grid_url = GRID_TIERS_API.format(version=version)
     grid_dest = os.path.join(output_dir, GRID_TIERS_API.file_name)
-    ok = _download_json_cached(grid_url, grid_dest, use_cache)
-    if not ok:
+    if not _download_json_cached(grid_url, grid_dest, use_cache):
         print(f"  {_R}Failed to fetch grid_tiers{_0}")
         raise SystemExit(1)
 
     # Extract region names from grid_tiers + some defaults
-    region_names = ["base01"]
-    if ok:
-        grid_table = GridTiersTable.load(grid_dest)
-        region_names = list(set(grid_table.region_names) | set(region_names))
-    else:
-        print(f"  {_R}Failed to fetch grid_tiers, using default only{_0}")
+    grid_table = GridTiersTable.load(grid_dest)
+    region_names = {"base01"} | set(grid_table.region_names)
     print(f"  {_G}Regions with Tiers: {_C}{', '.join(sorted(region_names))}{_0}")
 
     # Download layouts
@@ -220,7 +215,6 @@ def cmd_image(
             print(f"  {_A}{region_name}: filtered out{_0}")
             continue
 
-        processed_regions.append(region_name)
         region_path = os.path.join(output_dir, f"{region_name}.png")
         print(f"\n  [{region_name}]")
 
@@ -243,6 +237,7 @@ def cmd_image(
                 f"    {_C}{region_name}.png {_A}({canvas.shape[1]}x{canvas.shape[0]}){_0}"
             )
 
+        processed_regions.append(region_name)
         print(f"  Canvas size: {canvas.shape[1]}x{canvas.shape[0]}")
 
         for fname, level_img in split_levels(canvas, layout, SCALE_MAP_FACTOR).items():
