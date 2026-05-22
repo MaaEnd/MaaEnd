@@ -1,4 +1,3 @@
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -113,7 +112,7 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
         return Fail(BaseNavLoadStatus::FileOpenFailed, "failed to open gzip nav file");
     }
 
-    std::array<uint8_t, kGzipReadChunkSize> buffer {};
+    std::vector<uint8_t> buffer(kGzipReadChunkSize);
     while (true) {
         const int bytes_read = gzread(file, buffer.data(), static_cast<unsigned int>(buffer.size()));
         if (bytes_read < 0) {
