@@ -1,6 +1,10 @@
 package pullcount
 
-import "fmt"
+import (
+	"fmt"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+)
 
 // --- Voucher Totals --- //
 
@@ -10,24 +14,31 @@ type voucherSummary struct {
 	NextOnlyPulls    int
 }
 
-// addVoucher adds one Pipeline-classified voucher record to the running total.
-func addVoucher(session *runSession, cell int, poolScope string, pullValue int) (int, bool, error) {
-	if cell <= 0 {
-		return 0, false, fmt.Errorf("cell must be positive")
+// voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
+func voucherKey(arg *maa.CustomActionArg, poolScope string) string {
+	if arg == nil {
+		return poolScope
 	}
+	box := arg.Box
+	return fmt.Sprintf("%d:%d:%d:%d:%s", box.X(), box.Y(), box.Width(), box.Height(), poolScope)
+}
+
+// addVoucher adds one Pipeline-classified voucher record to the running total.
+func addVoucher(session *runSession, key string, poolScope string, pullValue int) (int, bool, error) {
 	if pullValue != 1 && pullValue != 10 {
 		return 0, false, fmt.Errorf("pull_value must be 1 or 10")
 	}
 
-	quantity := session.CurrentPageCells[cell].Quantity
+	quantity := session.PendingQuantity[poolScope]
 	if quantity <= 0 {
 		quantity = 1
 	}
-	key := fmt.Sprintf("%d:%d:%s", session.PageCount+1, cell, poolScope)
-	if _, exists := session.VoucherCells[key]; exists {
+	if _, exists := session.VoucherHits[key]; exists {
+		delete(session.PendingQuantity, poolScope)
 		return quantity, false, nil
 	}
-	session.VoucherCells[key] = struct{}{}
+	session.VoucherHits[key] = struct{}{}
+	delete(session.PendingQuantity, poolScope)
 
 	pulls := quantity * pullValue
 	switch poolScope {

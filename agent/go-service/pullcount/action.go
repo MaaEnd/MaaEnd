@@ -19,14 +19,10 @@ const (
 	stageRecordOroberyl  = "record_oroberyl"
 	stageRecordQuantity  = "record_quantity"
 	stageRecordVoucher   = "record_voucher"
-	stagePageBegin       = "page_begin"
 	stagePageDone        = "page_done"
-	stageProbeBegin      = "probe_begin"
-	stageRecordProbe     = "record_probe_quantity"
 	stageFinish          = "finish"
 
-	stagePageShouldFinish     = "page_should_finish"
-	stageScrollProbeUnchanged = "scroll_probe_unchanged"
+	stagePageShouldFinish = "page_should_finish"
 )
 
 var _ maa.CustomActionRunner = &Action{}
@@ -37,8 +33,6 @@ var defaultActionParam = actionParam{
 	OroberylPerPull:     500,
 	NextPoolShopPulls:   5,
 	NextPoolSigninPulls: 5,
-	Probe:               warehouseSimilarityRule{CellLimit: 9, MinComparable: 4, MaxMismatches: 1, MinMatchRatio: 0.85},
-	RepeatPage:          warehouseSimilarityRule{CellLimit: 45, MinComparable: 8, MaxMismatches: 1, MinMatchRatio: 0.85},
 	ScanMaxPages:        8,
 }
 
@@ -81,17 +75,11 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case stageRecordOroberyl:
 		return handleRecordResource(ctx, arg, false)
 	case stageRecordQuantity:
-		return handleQuantityOCR(ctx, arg, param.Cell, false)
+		return handleQuantityOCR(ctx, arg, param.PoolScope)
 	case stageRecordVoucher:
-		return handleRecordVoucher(ctx, param)
-	case stagePageBegin:
-		return handleScanBegin(ctx, false)
+		return handleRecordVoucher(ctx, arg, param)
 	case stagePageDone:
 		return handlePageDone(ctx)
-	case stageProbeBegin:
-		return handleScanBegin(ctx, true)
-	case stageRecordProbe:
-		return handleQuantityOCR(ctx, arg, param.Cell, true)
 	case stageFinish:
 		return handleFinish(ctx)
 	default:
@@ -118,9 +106,8 @@ func parseActionParam(raw string) (*actionParam, error) {
 	if param.NextPoolShopPulls < 0 || param.NextPoolSigninPulls < 0 {
 		return nil, fmt.Errorf("next pool fixed pulls must be non-negative")
 	}
-	scanConfig := param.scanConfig()
-	if err := scanConfig.validate(); err != nil {
-		return nil, err
+	if param.ScanMaxPages <= 0 {
+		return nil, fmt.Errorf("scan_max_pages must be positive")
 	}
 	return &param, nil
 }

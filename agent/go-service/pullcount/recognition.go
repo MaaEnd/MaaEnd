@@ -38,8 +38,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	switch param.Stage {
 	case stagePageShouldFinish:
 		return pageShouldFinishResult(arg, currentSession)
-	case stageScrollProbeUnchanged:
-		return scrollProbeUnchangedResult(arg, currentSession)
 	default:
 		log.Error().Str("component", componentName).Str("stage", param.Stage).Msg("unknown recognition stage")
 		return nil, false
@@ -57,29 +55,6 @@ func pageShouldFinishResult(arg *maa.CustomRecognitionArg, session *runSession) 
 		Str("reason", session.PageStopReason).
 		Msg("warehouse page finish branch matched")
 	return customRecognitionResult(arg, session.PageStopReason)
-}
-
-// scrollProbeUnchangedResult matches when the post-scroll top row is still mostly the previous page.
-func scrollProbeUnchangedResult(arg *maa.CustomRecognitionArg, session *runSession) (*maa.CustomRecognitionResult, bool) {
-	unchanged, comparable, matches := quantityVectorsMostlyUnchanged(session.ScanConfig.Probe, session.LastHeadProbe, session.CurrentProbe)
-	reason := "scroll probe changed"
-	if unchanged {
-		reason = "warehouse scan reached bottom / probe mostly unchanged"
-	}
-	log.Info().
-		Str("component", componentName).
-		Int("comparable", comparable).
-		Int("matches", matches).
-		Float64("min_match_ratio", session.ScanConfig.Probe.MinMatchRatio).
-		Int("max_mismatches", session.ScanConfig.Probe.MaxMismatches).
-		Interface("before_probe", session.LastHeadProbe).
-		Interface("after_probe", session.CurrentProbe).
-		Bool("unchanged", unchanged).
-		Msg(reason)
-	if !unchanged {
-		return nil, false
-	}
-	return customRecognitionResult(arg, reason)
 }
 
 // customRecognitionResult returns a DirectHit-like custom result with a diagnostic detail string.

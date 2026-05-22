@@ -80,6 +80,6 @@ func logCalculation(session *runSession, result calculationResult) {
 		Interface("values", session.Values).
 		Interface("summary", session.Vouchers).
 		Interface("result", result).
-		Int("recorded_voucher_cells", len(session.VoucherCells)).
+		Int("recorded_voucher_hits", len(session.VoucherHits)).
 		Msg("pull count calculated")
 }

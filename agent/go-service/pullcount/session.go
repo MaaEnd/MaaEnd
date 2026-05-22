@@ -18,7 +18,6 @@ var (
 
 type actionParam struct {
 	Stage     string `json:"stage"`
-	Cell      int    `json:"cell"`
 	PoolScope string `json:"pool_scope"`
 	PullValue int    `json:"pull_value"`
 
@@ -28,25 +27,19 @@ type actionParam struct {
 	NextPoolShopPulls   int `json:"next_pool_shop_pulls"`
 	NextPoolSigninPulls int `json:"next_pool_signin_pulls"`
 
-	Probe        warehouseSimilarityRule `json:"probe"`
-	RepeatPage   warehouseSimilarityRule `json:"repeat_page"`
-	ScanMaxPages int                     `json:"scan_max_pages"`
+	ScanMaxPages int `json:"scan_max_pages"`
 }
 
 type runSession struct {
-	Param        actionParam
-	ScanConfig   warehouseScanConfig
-	Values       resourceValues
-	Vouchers     voucherSummary
-	VoucherCells map[string]struct{}
+	Param       actionParam
+	Values      resourceValues
+	Vouchers    voucherSummary
+	VoucherHits map[string]struct{}
 
 	HasConvertedOriginium bool
 	HasOroberyl           bool
 
-	CurrentPageCells  map[int]scannedCell
-	LastHeadProbe     map[int]int
-	CurrentProbe      map[int]int
-	LastPageSignature map[int]int
+	PendingQuantity   map[string]int
 	StopAfterPageDone bool
 	PageStopReason    string
 
