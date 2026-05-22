@@ -7,11 +7,10 @@ on:
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "!assets/resource/model"
       - "tools/schema/**"
       - "package.json"
       - "maatools.config.mts"
-    paths-ignore:
-      - "assets/resource/model"
 
   pull_request:
     branches:
@@ -19,11 +18,10 @@ on:
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "!assets/resource/model"
       - "tools/schema/**"
       - "package.json"
       - "maatools.config.mts"
-    paths-ignore:
-      - "assets/resource/model"
 
   workflow_dispatch:
 
