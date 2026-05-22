@@ -672,7 +672,8 @@
                     "目前理智不足",
                     "Insufficient Sanity",
                     "理性が不足しているため",
-                    "현재 이성이 부족해"
+                    "현재 이성이 부족해",
+                    "// @i18n-skip"
                 ]
             },
             "CancelButton"
