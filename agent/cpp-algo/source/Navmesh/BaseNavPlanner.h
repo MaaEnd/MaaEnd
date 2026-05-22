@@ -62,8 +62,10 @@ private:
     std::vector<uint16_t> triangle_zones_;
     std::vector<uint32_t> adjacency_offsets_;
     std::vector<uint32_t> adjacency_links_;
+    std::vector<double> triangle_heights_;
 
     void buildIndex();
+    void computeTriangleHeights();
     double triangleAverageHeight(uint32_t triangle_index) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> sharedEdgePortal(uint32_t lhs, uint32_t rhs) const;

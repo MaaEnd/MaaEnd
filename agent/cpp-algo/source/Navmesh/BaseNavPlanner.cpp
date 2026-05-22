@@ -37,8 +37,10 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     : pack_(pack)
     , triangle_zones_(pack.triangles().size(), 0)
     , adjacency_offsets_(pack.triangles().size() + 1, 0)
+    , triangle_heights_(pack.triangles().size(), 0.0)
 {
     buildIndex();
+    computeTriangleHeights();
 }
 
 void BaseNavPlanner::buildIndex()
@@ -49,29 +51,42 @@ void BaseNavPlanner::buildIndex()
             triangle_zones_[index] = zone.zone_id;
         }
     }
-    // BNAV stores links sorted by source, so the CSR adjacency can be built in one pass.
-    adjacency_links_.reserve(pack_.links().size());
-    size_t next_source = 0;
+    size_t valid_link_count = 0;
     for (const BaseNavLink& link : pack_.links()) {
         if (link.source < triangle_zones_.size() && link.target < triangle_zones_.size()) {
-            while (next_source <= link.source) {
-                adjacency_offsets_[next_source++] = static_cast<uint32_t>(adjacency_links_.size());
-            }
-            adjacency_links_.push_back(link.target);
+            ++adjacency_offsets_[link.source + 1];
+            ++valid_link_count;
         }
     }
-    while (next_source < adjacency_offsets_.size()) {
-        adjacency_offsets_[next_source++] = static_cast<uint32_t>(adjacency_links_.size());
+    for (size_t index = 1; index < adjacency_offsets_.size(); ++index) {
+        adjacency_offsets_[index] += adjacency_offsets_[index - 1];
+    }
+
+    adjacency_links_.resize(valid_link_count);
+    std::vector<uint32_t> next_offsets = adjacency_offsets_;
+    for (const BaseNavLink& link : pack_.links()) {
+        if (link.source < triangle_zones_.size() && link.target < triangle_zones_.size()) {
+            adjacency_links_[next_offsets[link.source]++] = link.target;
+        }
+    }
+}
+
+void BaseNavPlanner::computeTriangleHeights()
+{
+    const auto& triangles = pack_.triangles();
+    const auto& vertices = pack_.vertices();
+    for (size_t index = 0; index < triangles.size(); ++index) {
+        const auto& triangle = triangles[index];
+        triangle_heights_[index] =
+            (static_cast<double>(vertices[triangle.vertices[0]].height) + static_cast<double>(vertices[triangle.vertices[1]].height)
+             + static_cast<double>(vertices[triangle.vertices[2]].height))
+            / 3.0;
     }
 }
 
 double BaseNavPlanner::triangleAverageHeight(uint32_t triangle_index) const
 {
-    const auto& triangle = pack_.triangles()[triangle_index];
-    const auto& vertices = pack_.vertices();
-    return (static_cast<double>(vertices[triangle.vertices[0]].height) + static_cast<double>(vertices[triangle.vertices[1]].height)
-            + static_cast<double>(vertices[triangle.vertices[2]].height))
-           / 3.0;
+    return triangle_heights_[triangle_index];
 }
 
 BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) const
