@@ -41,7 +41,6 @@ func handlePageDone(ctx *maa.Context) bool {
 	}
 
 	session.PageCount++
-	session.PendingQuantity = make(map[string]int)
 	session.StopAfterPageDone = session.PageCount >= session.Param.ScanMaxPages
 	session.PageStopReason = ""
 	if session.StopAfterPageDone {
@@ -52,24 +51,5 @@ func handlePageDone(ctx *maa.Context) bool {
 		Int("page_count", session.PageCount).
 		Str("stop_reason", session.PageStopReason).
 		Msg("warehouse page scan done")
-	return true
-}
-
-// handleQuantityOCR stores the quantity OCR for the voucher selected by Pipeline.
-func handleQuantityOCR(ctx *maa.Context, arg *maa.CustomActionArg, poolScope string) bool {
-	session, ok := requireSession(ctx)
-	if !ok {
-		return false
-	}
-	quantity, err := readIntegerFromRecognition(arg.RecognitionDetail)
-	if err != nil || quantity <= 0 {
-		log.Debug().Err(err).Str("component", componentName).Msg("warehouse quantity OCR ignored")
-		return true
-	}
-	if session.PendingQuantity == nil {
-		session.PendingQuantity = make(map[string]int)
-	}
-	session.PendingQuantity[poolScope] = quantity
-	log.Debug().Str("component", componentName).Str("pool_scope", poolScope).Int("quantity", quantity).Msg("warehouse quantity recorded")
 	return true
 }

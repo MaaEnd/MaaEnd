@@ -1,6 +1,6 @@
 {
     "PullCountCalculatorMain": {
-        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描寻访券并输出当前池/下版本池抽数估算",
+        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -105,116 +105,15 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "PullCountCalculatorFindCurrentOnlyVoucher",
-                        "PullCountCalculatorFindCarryToNextVoucher",
-                        "PullCountCalculatorFindNextOnlyVoucher"
+                        "PullCountCalculatorFindCarryToNextVoucher"
                     ]
                 }
             }
         },
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorFindCurrentOnlyVoucher",
             "PullCountCalculatorFindCarryToNextVoucher",
-            "PullCountCalculatorFindNextOnlyVoucher",
             "PullCountCalculatorPageDone"
-        ]
-    },
-    "PullCountCalculatorFindCurrentOnlyVoucher": {
-        "desc": "查找当前池限时寻访凭证图标",
-        "max_hit": 1,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    30,
-                    80,
-                    950,
-                    560
-                ],
-                "template": "PullCountCalculator/CurrentOnly",
-                "green_mask": true,
-                "threshold": 0.78,
-                "order_by": "Vertical"
-            }
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorClickCurrentOnlyVoucher",
-            "PullCountCalculatorFindCarryToNextVoucher"
-        ]
-    },
-    "PullCountCalculatorClickCurrentOnlyVoucher": {
-        "desc": "点击当前池限时寻访凭证图标",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab",
-                    "PullCountCalculatorFindCurrentOnlyVoucher"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": "PullCountCalculatorFindCurrentOnlyVoucher"
-            }
-        },
-        "post_wait_freezes": 150,
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorCurrentOnlyVoucherQuantityOCR",
-            "PullCountCalculatorRecordCurrentOnlyVoucher"
-        ]
-    },
-    "PullCountCalculatorCurrentOnlyVoucherQuantityOCR": {
-        "desc": "识别当前池限时寻访凭证堆叠数量",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "PullCountCalculatorFindCurrentOnlyVoucher",
-                "roi_offset": [
-                    16,
-                    60,
-                    20,
-                    -50
-                ],
-                "expected": [
-                    ".*\\d+.*"
-                ],
-                "only_rec": true
-            }
-        },
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_quantity",
-            "pool_scope": "current_only"
-        },
-        "next": [
-            "PullCountCalculatorRecordCurrentOnlyVoucher"
-        ]
-    },
-    "PullCountCalculatorRecordCurrentOnlyVoucher": {
-        "desc": "记录当前池限时寻访凭证",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_voucher",
-            "pool_scope": "current_only",
-            "pull_value": 1
-        },
-        "target": "PullCountCalculatorFindCurrentOnlyVoucher",
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorFindCarryToNextVoucher"
         ]
     },
     "PullCountCalculatorFindCarryToNextVoucher": {
@@ -240,7 +139,7 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorClickCarryToNextVoucher",
-            "PullCountCalculatorFindNextOnlyVoucher"
+            "PullCountCalculatorPageDone"
         ]
     },
     "PullCountCalculatorClickCarryToNextVoucher": {
@@ -293,104 +192,6 @@
             "pull_value": 1
         },
         "target": "PullCountCalculatorFindCarryToNextVoucher",
-        "next": [
-            "PullCountCalculatorFindNextOnlyVoucher",
-            "PullCountCalculatorPageDone"
-        ]
-    },
-    "PullCountCalculatorFindNextOnlyVoucher": {
-        "desc": "查找下版本专用寻访情报书图标",
-        "max_hit": 1,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    30,
-                    80,
-                    950,
-                    560
-                ],
-                "template": "PullCountCalculator/NextOnlyVoucher.Template.png",
-                "green_mask": true,
-                "threshold": 0.78,
-                "order_by": "Vertical"
-            }
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorClickNextOnlyVoucher",
-            "PullCountCalculatorPageDone"
-        ]
-    },
-    "PullCountCalculatorClickNextOnlyVoucher": {
-        "desc": "点击下版本专用寻访情报书图标",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab",
-                    "PullCountCalculatorFindNextOnlyVoucher"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": "PullCountCalculatorFindNextOnlyVoucher"
-            }
-        },
-        "post_wait_freezes": 150,
-        "post_delay": 0,
-        "next": [
-            "PullCountCalculatorNextOnlyVoucherQuantityOCR",
-            "PullCountCalculatorRecordNextOnlyVoucher"
-        ]
-    },
-    "PullCountCalculatorNextOnlyVoucherQuantityOCR": {
-        "desc": "识别下版本专用寻访情报书堆叠数量",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "PullCountCalculatorFindNextOnlyVoucher",
-                "roi_offset": [
-                    16,
-                    60,
-                    20,
-                    -50
-                ],
-                "expected": [
-                    ".*\\d+.*"
-                ],
-                "only_rec": true
-            }
-        },
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_quantity",
-            "pool_scope": "next_only"
-        },
-        "next": [
-            "PullCountCalculatorRecordNextOnlyVoucher"
-        ]
-    },
-    "PullCountCalculatorRecordNextOnlyVoucher": {
-        "desc": "记录下版本专用寻访情报书",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_voucher",
-            "pool_scope": "next_only",
-            "pull_value": 10
-        },
-        "target": "PullCountCalculatorFindNextOnlyVoucher",
-        "post_delay": 0,
         "next": [
             "PullCountCalculatorPageDone"
         ]

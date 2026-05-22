@@ -17,7 +17,6 @@ const (
 	stageInit            = "init"
 	stageRecordOriginium = "record_originium"
 	stageRecordOroberyl  = "record_oroberyl"
-	stageRecordQuantity  = "record_quantity"
 	stageRecordVoucher   = "record_voucher"
 	stagePageDone        = "page_done"
 	stageFinish          = "finish"
@@ -74,8 +73,6 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return handleRecordResource(ctx, arg, true)
 	case stageRecordOroberyl:
 		return handleRecordResource(ctx, arg, false)
-	case stageRecordQuantity:
-		return handleQuantityOCR(ctx, arg, param.PoolScope)
 	case stageRecordVoucher:
 		return handleRecordVoucher(ctx, arg, param)
 	case stagePageDone:

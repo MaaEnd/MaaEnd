@@ -27,9 +27,8 @@ func handleInit(ctx *maa.Context, param *actionParam) bool {
 // newRunSession builds the mutable state used by Pipeline stages.
 func newRunSession(param *actionParam) (*runSession, error) {
 	return &runSession{
-		Param:           *param,
-		VoucherHits:     make(map[string]struct{}),
-		PendingQuantity: make(map[string]int),
+		Param:       *param,
+		VoucherHits: make(map[string]struct{}),
 	}, nil
 }
 

@@ -9,9 +9,7 @@ import (
 // --- Voucher Totals --- //
 
 type voucherSummary struct {
-	CurrentOnlyPulls int
 	CarryToNextPulls int
-	NextOnlyPulls    int
 }
 
 // voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
@@ -29,27 +27,18 @@ func addVoucher(session *runSession, key string, poolScope string, pullValue int
 		return 0, false, fmt.Errorf("pull_value must be 1 or 10")
 	}
 
-	quantity := session.PendingQuantity[poolScope]
-	if quantity <= 0 {
-		quantity = 1
-	}
+	quantity := 1
 	if _, exists := session.VoucherHits[key]; exists {
-		delete(session.PendingQuantity, poolScope)
 		return quantity, false, nil
 	}
 	session.VoucherHits[key] = struct{}{}
-	delete(session.PendingQuantity, poolScope)
 
 	pulls := quantity * pullValue
 	switch poolScope {
-	case "current_only":
-		session.Vouchers.CurrentOnlyPulls += pulls
 	case "carry_to_next":
 		session.Vouchers.CarryToNextPulls += pulls
-	case "next_only":
-		session.Vouchers.NextOnlyPulls += pulls
 	default:
-		return quantity, false, fmt.Errorf("pool_scope must be current_only, carry_to_next, or next_only")
+		return quantity, false, fmt.Errorf("pool_scope must be carry_to_next")
 	}
 	return quantity, true, nil
 }

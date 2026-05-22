@@ -22,13 +22,15 @@ func TestCalculatePullCount(t *testing.T) {
 		{
 			name: "issue resource example",
 			vals: resourceValues{ConvertedOriginiumOroberyl: 2925, Oroberyl: 20770},
-			sum:  voucherSummary{CurrentOnlyPulls: 2, CarryToNextPulls: 3, NextOnlyPulls: 10},
+			sum:  voucherSummary{CarryToNextPulls: 3},
 			want: calculationResult{
 				ReservedOriginiumOroberyl: 2175,
 				UsableOriginiumOroberyl:   750,
+				OroberylPulls:             41,
+				UsableOriginiumPulls:      1,
 				ResourcePulls:             43,
-				CurrentPoolTotal:          48,
-				NextPoolTotal:             66,
+				CurrentPoolTotal:          46,
+				NextPoolTotal:             56,
 			},
 		},
 		{
@@ -47,6 +49,8 @@ func TestCalculatePullCount(t *testing.T) {
 		got := calculatePullCount(tt.vals, tt.sum, param)
 		if got.ReservedOriginiumOroberyl != tt.want.ReservedOriginiumOroberyl ||
 			got.UsableOriginiumOroberyl != tt.want.UsableOriginiumOroberyl ||
+			got.OroberylPulls != tt.want.OroberylPulls ||
+			got.UsableOriginiumPulls != tt.want.UsableOriginiumPulls ||
 			got.ResourcePulls != tt.want.ResourcePulls ||
 			got.CurrentPoolTotal != tt.want.CurrentPoolTotal ||
 			got.NextPoolTotal != tt.want.NextPoolTotal {
@@ -58,24 +62,18 @@ func TestCalculatePullCount(t *testing.T) {
 // TestAddVoucher verifies Pipeline-classified voucher accumulation and duplicate suppression.
 func TestAddVoucher(t *testing.T) {
 	session := newTestSession()
-	session.PendingQuantity["current_only"] = 2
 
-	if quantity, added, err := addVoucher(session, "p1:current", "current_only", 1); err != nil || !added || quantity != 2 {
-		t.Fatalf("addVoucher current = quantity %d added %v err %v, want 2 true nil", quantity, added, err)
+	if quantity, added, err := addVoucher(session, "p1:carry", "carry_to_next", 1); err != nil || !added || quantity != 1 {
+		t.Fatalf("addVoucher carry = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
 	}
-	session.PendingQuantity["current_only"] = 2
-	if _, added, err := addVoucher(session, "p1:current", "current_only", 1); err != nil || added {
+	if _, added, err := addVoucher(session, "p1:carry", "carry_to_next", 1); err != nil || added {
 		t.Fatalf("addVoucher duplicate = added %v err %v, want false nil", added, err)
 	}
-	session.PendingQuantity["carry_to_next"] = 3
-	if _, _, err := addVoucher(session, "p1:carry", "carry_to_next", 1); err != nil {
-		t.Fatalf("addVoucher carry error = %v", err)
+	if quantity, added, err := addVoucher(session, "p1:carry2", "carry_to_next", 1); err != nil || !added || quantity != 1 {
+		t.Fatalf("addVoucher default quantity = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
 	}
-	if quantity, added, err := addVoucher(session, "p1:next", "next_only", 10); err != nil || !added || quantity != 1 {
-		t.Fatalf("addVoucher next default quantity = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
-	}
-	if session.Vouchers.CurrentOnlyPulls != 2 || session.Vouchers.CarryToNextPulls != 3 || session.Vouchers.NextOnlyPulls != 10 {
-		t.Fatalf("voucher summary = %+v, want current/carry/next 2/3/10", session.Vouchers)
+	if session.Vouchers.CarryToNextPulls != 2 {
+		t.Fatalf("voucher summary = %+v, want carry 2", session.Vouchers)
 	}
 }
 
@@ -87,7 +85,7 @@ func TestAddVoucherRejectsInvalidParams(t *testing.T) {
 		pullValue int
 	}{
 		{"bad_scope", 1},
-		{"current_only", 2},
+		{"carry_to_next", 2},
 	} {
 		if _, _, err := addVoucher(session, "key", tt.scope, tt.pullValue); err == nil {
 			t.Fatalf("addVoucher(%+v) error = nil, want error", tt)
@@ -149,8 +147,7 @@ func TestParseActionParam(t *testing.T) {
 // newTestSession builds the minimal state needed by page-decision unit tests.
 func newTestSession() *runSession {
 	return &runSession{
-		Param:           defaultActionParam,
-		VoucherHits:     make(map[string]struct{}),
-		PendingQuantity: make(map[string]int),
+		Param:       defaultActionParam,
+		VoucherHits: make(map[string]struct{}),
 	}
 }

@@ -16,10 +16,10 @@ type calculationResult struct {
 	ReservedOriginium         int
 	ReservedOriginiumOroberyl int
 	UsableOriginiumOroberyl   int
+	OroberylPulls             int
+	UsableOriginiumPulls      int
 	ResourcePulls             int
-	CurrentOnlyPulls          int
 	CarryToNextPulls          int
-	NextOnlyPulls             int
 	NextPoolShopPulls         int
 	NextPoolSigninPulls       int
 	CurrentPoolTotal          int
@@ -35,17 +35,19 @@ func calculatePullCount(values resourceValues, summary voucherSummary, param *ac
 	}
 
 	resourcePulls := (values.Oroberyl + usableOriginiumOroberyl) / param.OroberylPerPull
-	currentPoolTotal := resourcePulls + summary.CurrentOnlyPulls + summary.CarryToNextPulls
-	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + summary.NextOnlyPulls + param.NextPoolShopPulls + param.NextPoolSigninPulls
+	oroberylPulls := values.Oroberyl / param.OroberylPerPull
+	usableOriginiumPulls := usableOriginiumOroberyl / param.OroberylPerPull
+	currentPoolTotal := resourcePulls + summary.CarryToNextPulls
+	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + param.NextPoolShopPulls + param.NextPoolSigninPulls
 
 	return calculationResult{
 		ReservedOriginium:         param.ReservedOriginium,
 		ReservedOriginiumOroberyl: reservedOriginiumOroberyl,
 		UsableOriginiumOroberyl:   usableOriginiumOroberyl,
+		OroberylPulls:             oroberylPulls,
+		UsableOriginiumPulls:      usableOriginiumPulls,
 		ResourcePulls:             resourcePulls,
-		CurrentOnlyPulls:          summary.CurrentOnlyPulls,
 		CarryToNextPulls:          summary.CarryToNextPulls,
-		NextOnlyPulls:             summary.NextOnlyPulls,
 		NextPoolShopPulls:         param.NextPoolShopPulls,
 		NextPoolSigninPulls:       param.NextPoolSigninPulls,
 		CurrentPoolTotal:          currentPoolTotal,
@@ -58,18 +60,18 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 	return i18n.T(
 		"pullcount.result",
 		result.ResourcePulls,
-		result.CurrentOnlyPulls,
-		result.CarryToNextPulls,
-		result.NextOnlyPulls,
-		result.NextPoolShopPulls,
-		result.NextPoolSigninPulls,
-		result.CurrentPoolTotal,
-		result.NextPoolTotal,
 		values.Oroberyl,
+		result.OroberylPulls,
 		values.ConvertedOriginiumOroberyl,
 		result.ReservedOriginium,
 		result.ReservedOriginiumOroberyl,
 		result.UsableOriginiumOroberyl,
+		result.UsableOriginiumPulls,
+		result.CarryToNextPulls,
+		result.NextPoolShopPulls,
+		result.NextPoolSigninPulls,
+		result.CurrentPoolTotal,
+		result.NextPoolTotal,
 	)
 }
 

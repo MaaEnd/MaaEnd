@@ -39,7 +39,6 @@ type runSession struct {
 	HasConvertedOriginium bool
 	HasOroberyl           bool
 
-	PendingQuantity   map[string]int
 	StopAfterPageDone bool
 	PageStopReason    string
 
