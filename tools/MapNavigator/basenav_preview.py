@@ -63,7 +63,7 @@ class _SnapResult:
     distance: float
 
 
-@dataclass(frozen=True)
+@dataclass
 class _BaseNavRoute:
     points: list[tuple[float, float]]
     triangles: list[int]
@@ -402,7 +402,7 @@ class BaseNavField:
 
 
 def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex], list[_BaseNavTriangle], list[tuple[int, int]]]:
-    data = gzip.decompress(path.read_bytes()) if path.suffix.lower() == ".gz" else path.read_bytes()
+    data = _read_basenav_bytes(path)
     if len(data) < HEADER_STRUCT.size:
         raise ValueError("file is smaller than BaseNav header")
     header_values = HEADER_STRUCT.unpack_from(data, 0)
@@ -438,7 +438,7 @@ def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex],
     vertex_data = _read_exact(data, vertex_offset, VERTEX_STRUCT.size * vertex_count)
     triangle_data = _read_exact(data, triangle_offset, TRIANGLE_STRUCT.size * triangle_count)
     link_data = _read_exact(data, link_offset, LINK_STRUCT.size * link_count)
-    if _fnv64(zone_table + vertex_data + triangle_data + link_data) != build_hash:
+    if _fnv64_parts((zone_table, vertex_data, triangle_data, link_data)) != build_hash:
         raise ValueError("BaseNav build hash mismatch")
 
     zones = []
@@ -462,6 +462,8 @@ def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex],
                 transform=(float(values[8]), float(values[9]), float(values[10]), float(values[11])),
             )
         )
+    if cursor != vertex_offset:
+        raise ValueError("invalid BaseNav zone table size")
 
     vertices = []
     cursor = vertex_offset
@@ -494,6 +496,13 @@ def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex],
     return zones, vertices, triangles, links
 
 
+def _read_basenav_bytes(path: Path) -> bytes:
+    if path.suffix.lower() != ".gz":
+        return path.read_bytes()
+    with gzip.open(path, "rb") as handle:
+        return handle.read()
+
+
 def _read_exact(data: bytes, offset: int, size: int) -> bytes:
     end = offset + size
     if end > len(data):
@@ -502,10 +511,15 @@ def _read_exact(data: bytes, offset: int, size: int) -> bytes:
 
 
 def _fnv64(data: bytes) -> int:
+    return _fnv64_parts((data,))
+
+
+def _fnv64_parts(parts) -> int:
     value = FNV_OFFSET
-    for byte in data:
-        value ^= byte
-        value = (value * FNV_PRIME) & 0xFFFFFFFFFFFFFFFF
+    for data in parts:
+        for byte in data:
+            value ^= byte
+            value = (value * FNV_PRIME) & 0xFFFFFFFFFFFFFFFF
     return value
 
 
