@@ -2,19 +2,19 @@
 
 ## AI programming standards
 
-MaaEnd is a long-term, open-source maintained project—not a one-off contract job where “good enough to run” is acceptable.
-
 ### Do not use AI blindly for development
 
-- Asking AI things like “implement feature X and open a PR” or “fix this bug and open a PR” without understanding the work.
-- Using AI to generate large volumes of unmaintainable, opaque “black box” code in critical modules—for example pointless over-abstraction, or thousands of lines of Go/C++ for a simple feature.
+- Giving AI vague instructions such as “implement feature X and open a PR” or “fix this bug and open a PR” without understanding the work.
+- Using AI to generate large amounts of unmaintainable, opaque “black box” code in critical modules—for example pointless over-abstraction, or thousands of lines of Go/C++ for a simple feature.
 - Submitting code in critical modules that you do not understand and cannot control.
 
-_Custom code is maintained by the author who wrote it. If even the author cannot read it, nobody can extend it—let alone fix bugs. Today’s AI models also have too low a success rate when fixing bugs in this project._
+_Custom code is usually maintainable only by the author who wrote it. If the author cannot read it, nobody can extend it—let alone fix bugs. Mainstream AI models also still have a low success rate when fixing bugs in this project._
 
 ### Recommended way to use AI
 
-- Learn this project’s coding standards, do your own architecture (or use AI’s suggestions as a reference), use AI for targeted development, review generated code yourself to ensure it matches intent, then submit a PR.
+- Learn this project’s coding standards first; do your own architecture, or use AI suggestions as a reference.
+- Use AI for targeted, incremental development, and review generated code yourself to ensure it matches intent.
+- Submit a PR only after you are confident the changes are correct.
 
 ## Pipeline low-code standards
 
