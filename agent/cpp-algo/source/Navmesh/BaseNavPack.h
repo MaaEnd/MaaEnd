@@ -21,6 +21,7 @@ enum class BaseNavLoadStatus
     InvalidSize,
     DuplicateZone,
     HashMismatch,
+    ZoneNotFound,
 };
 
 struct BaseNavZone

@@ -6,7 +6,6 @@
 #include <limits>
 #include <queue>
 #include <tuple>
-#include <unordered_set>
 #include <utility>
 
 #include "BaseNavGeometry.h"
@@ -19,7 +18,6 @@ namespace navmesh
 namespace
 {
 
-constexpr double kIndexBinSize = 96.0;
 constexpr double kBridgeFixedCost = 12.0;
 constexpr double kBridgeGapCostFactor = 3.0;
 constexpr double kBridgeHeightCostFactor = 40.0;
@@ -38,19 +36,9 @@ struct QueueNode
 BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     : pack_(pack)
     , triangle_zones_(pack.triangles().size(), 0)
-    , adjacency_(pack.triangles().size())
-    , triangle_bounds_(pack.triangles().size())
-    , triangle_heights_(pack.triangles().size(), 0.0)
+    , adjacency_offsets_(pack.triangles().size() + 1, 0)
 {
     buildIndex();
-}
-
-size_t BaseNavPlanner::BinKeyHash::operator()(const BinKey& key) const
-{
-    uint64_t value = static_cast<uint64_t>(key.zone_id);
-    value = value * 1'099'511'628'211ULL ^ static_cast<uint32_t>(key.x);
-    value = value * 1'099'511'628'211ULL ^ static_cast<uint32_t>(key.y);
-    return static_cast<size_t>(value);
 }
 
 void BaseNavPlanner::buildIndex()
@@ -61,33 +49,19 @@ void BaseNavPlanner::buildIndex()
             triangle_zones_[index] = zone.zone_id;
         }
     }
+    // BNAV stores links sorted by source, so the CSR adjacency can be built in one pass.
+    adjacency_links_.reserve(pack_.links().size());
+    size_t next_source = 0;
     for (const BaseNavLink& link : pack_.links()) {
-        if (link.source < adjacency_.size() && link.target < adjacency_.size()) {
-            adjacency_[link.source].push_back(link.target);
+        if (link.source < triangle_zones_.size() && link.target < triangle_zones_.size()) {
+            while (next_source <= link.source) {
+                adjacency_offsets_[next_source++] = static_cast<uint32_t>(adjacency_links_.size());
+            }
+            adjacency_links_.push_back(link.target);
         }
     }
-
-    for (uint32_t triangle_index = 0; triangle_index < pack_.triangles().size(); ++triangle_index) {
-        triangle_heights_[triangle_index] = triangleAverageHeight(triangle_index);
-        const uint16_t zone_id = triangle_zones_[triangle_index];
-        if (zone_id == 0) {
-            continue;
-        }
-        const auto points = trianglePoints(triangle_index);
-        const double left = std::min({ points[0].x, points[1].x, points[2].x });
-        const double right = std::max({ points[0].x, points[1].x, points[2].x });
-        const double top = std::min({ points[0].y, points[1].y, points[2].y });
-        const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
-        triangle_bounds_[triangle_index] = { left, top, right, bottom };
-        const int32_t left_bin = static_cast<int32_t>(std::floor(left / kIndexBinSize));
-        const int32_t right_bin = static_cast<int32_t>(std::floor(right / kIndexBinSize));
-        const int32_t top_bin = static_cast<int32_t>(std::floor(top / kIndexBinSize));
-        const int32_t bottom_bin = static_cast<int32_t>(std::floor(bottom / kIndexBinSize));
-        for (int32_t bin_x = left_bin; bin_x <= right_bin; ++bin_x) {
-            for (int32_t bin_y = top_bin; bin_y <= bottom_bin; ++bin_y) {
-                bins_[BinKey { .zone_id = zone_id, .x = bin_x, .y = bin_y }].push_back(triangle_index);
-            }
-        }
+    while (next_source < adjacency_offsets_.size()) {
+        adjacency_offsets_[next_source++] = static_cast<uint32_t>(adjacency_links_.size());
     }
 }
 
@@ -147,7 +121,8 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
             return result;
         }
         closed[current] = 1;
-        for (uint32_t next : adjacency_[current]) {
+        for (uint32_t adjacency_index = adjacency_offsets_[current]; adjacency_index < adjacency_offsets_[current + 1]; ++adjacency_index) {
+            const uint32_t next = adjacency_links_[adjacency_index];
             if (next >= triangles.size() || triangle_zones_[next] != zone->zone_id) {
                 continue;
             }
@@ -171,13 +146,32 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
 
 std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const WorldPoint& point, double radius) const
 {
-    const auto candidates = candidateTriangles(zone_id, point, radius);
+    const BaseNavZone* zone = pack_.findZone(zone_id);
+    if (zone == nullptr) {
+        return std::nullopt;
+    }
+
     std::optional<BaseNavSnapResult> best;
-    for (uint32_t triangle_index : candidates) {
+    const uint32_t zone_end = zone->first_triangle + zone->triangle_count;
+    for (uint32_t triangle_index = zone->first_triangle; triangle_index < zone_end && triangle_index < pack_.triangles().size();
+         ++triangle_index) {
+        if (triangle_zones_[triangle_index] != zone_id) {
+            continue;
+        }
         const auto points = trianglePoints(triangle_index);
+        const double left = std::min({ points[0].x, points[1].x, points[2].x });
+        const double right = std::max({ points[0].x, points[1].x, points[2].x });
+        const double top = std::min({ points[0].y, points[1].y, points[2].y });
+        const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
+        if (point.x < left - radius || point.x > right + radius || point.y < top - radius || point.y > bottom + radius) {
+            continue;
+        }
+        if (detail::PointInTriangle(point, points)) {
+            return BaseNavSnapResult { .triangle = triangle_index, .point = point, .distance = 0.0 };
+        }
         const WorldPoint snapped = detail::ClosestPointOnTriangle(point, points);
         const double distance = detail::Distance(snapped, point);
-        if (distance > radius && !detail::PointInTriangle(point, points)) {
+        if (distance > radius) {
             continue;
         }
         if (!best || distance < best->distance) {
@@ -185,42 +179,6 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         }
     }
     return best;
-}
-
-std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const
-{
-    const BaseNavZone* zone = pack_.findZone(zone_id);
-    if (zone == nullptr) {
-        return {};
-    }
-    std::vector<uint32_t> result;
-    std::unordered_set<uint32_t> seen;
-    const int32_t left_bin = static_cast<int32_t>(std::floor((point.x - radius) / kIndexBinSize));
-    const int32_t right_bin = static_cast<int32_t>(std::floor((point.x + radius) / kIndexBinSize));
-    const int32_t top_bin = static_cast<int32_t>(std::floor((point.y - radius) / kIndexBinSize));
-    const int32_t bottom_bin = static_cast<int32_t>(std::floor((point.y + radius) / kIndexBinSize));
-    for (int32_t bin_x = left_bin; bin_x <= right_bin; ++bin_x) {
-        for (int32_t bin_y = top_bin; bin_y <= bottom_bin; ++bin_y) {
-            const auto iter = bins_.find(BinKey { .zone_id = zone_id, .x = bin_x, .y = bin_y });
-            if (iter == bins_.end()) {
-                continue;
-            }
-            for (uint32_t triangle_index : iter->second) {
-                if (!seen.insert(triangle_index).second) {
-                    continue;
-                }
-                const auto& bounds = triangle_bounds_[triangle_index];
-                if (bounds[0] - radius <= point.x && point.x <= bounds[2] + radius && bounds[1] - radius <= point.y
-                    && point.y <= bounds[3] + radius) {
-                    result.push_back(triangle_index);
-                }
-            }
-        }
-    }
-    if (result.empty() && radius < kIndexBinSize) {
-        return candidateTriangles(zone_id, point, kIndexBinSize);
-    }
-    return result;
 }
 
 std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index) const
@@ -330,7 +288,7 @@ double BaseNavPlanner::transitionCost(uint32_t lhs, uint32_t rhs) const
         return detail::Distance(lhs_center, *midpoint) + detail::Distance(*midpoint, rhs_center);
     }
     const auto bridge_points = closestEdgeBridgePoints(lhs, rhs);
-    const double height_delta = std::abs(triangle_heights_[lhs] - triangle_heights_[rhs]);
+    const double height_delta = std::abs(triangleAverageHeight(lhs) - triangleAverageHeight(rhs));
     if (height_delta > kBridgeMaxHeightDelta) {
         return std::numeric_limits<double>::infinity();
     }

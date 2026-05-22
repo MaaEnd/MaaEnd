@@ -71,8 +71,9 @@ bool StartsWith(std::string_view text, std::string_view prefix)
 
 bool IsBaseNavZoneName(std::string_view zone_id)
 {
-    return std::any_of(kBaseNavZoneAliases.begin(), kBaseNavZoneAliases.end(),
-                       [zone_id](const BaseNavZoneAlias& alias) { return alias.zone_id == zone_id; });
+    return std::any_of(kBaseNavZoneAliases.begin(), kBaseNavZoneAliases.end(), [zone_id](const BaseNavZoneAlias& alias) {
+        return alias.zone_id == zone_id;
+    });
 }
 
 std::string InferBaseNavZone(const std::string& locator_zone, const std::string& map_name)
@@ -82,8 +83,9 @@ std::string InferBaseNavZone(const std::string& locator_zone, const std::string&
         return source;
     }
     for (const BaseNavZoneAlias& alias : kBaseNavZoneAliases) {
-        if (std::any_of(alias.prefixes.begin(), alias.prefixes.end(),
-                        [&source](std::string_view prefix) { return StartsWith(source, prefix); })) {
+        if (std::any_of(alias.prefixes.begin(), alias.prefixes.end(), [&source](std::string_view prefix) {
+                return StartsWith(source, prefix);
+            })) {
             return std::string(alias.zone_id);
         }
     }
@@ -125,7 +127,7 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
         return configured;
     }
 
-    for (const char* relative_path : { kDefaultCompressedNavmeshRelativePath, kDefaultNavmeshRelativePath }) {
+    for (const char* relative_path : { kDefaultNavmeshRelativePath, kDefaultCompressedNavmeshRelativePath }) {
         if (auto found = FindExistingFromParents(relative_path); found.has_value()) {
             return *found;
         }
@@ -133,20 +135,20 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
     return std::filesystem::path(kDefaultNavmeshRelativePath);
 }
 
-std::shared_ptr<CachedNavmesh> LoadCachedNavmesh(const std::filesystem::path& navmesh_path)
+std::shared_ptr<CachedNavmesh> LoadCachedNavmesh(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
     static std::unordered_map<std::string, std::shared_ptr<CachedNavmesh>> cache;
     static std::mutex cache_mutex;
 
-    const std::string cache_key = std::filesystem::absolute(navmesh_path).lexically_normal().string();
+    const std::string cache_key = std::filesystem::absolute(navmesh_path).lexically_normal().string() + "#" + navmesh_zone;
     const std::lock_guard lock(cache_mutex);
     if (auto iter = cache.find(cache_key); iter != cache.end()) {
         return iter->second;
     }
 
-    const auto load_result = navmesh::LoadBaseNavPack(navmesh_path);
+    const auto load_result = navmesh::LoadBaseNavPack(navmesh_path, navmesh_zone);
     if (!load_result.ok()) {
-        LogError << "Failed to load navmesh .nav file." << VAR(navmesh_path) << VAR(load_result.message);
+        LogError << "Failed to load navmesh .nav file." << VAR(navmesh_path) << VAR(navmesh_zone) << VAR(load_result.message);
         return nullptr;
     }
     auto loaded = std::make_shared<CachedNavmesh>(std::move(*load_result.pack));
@@ -286,14 +288,14 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
         return true;
     }
 
-    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
-    const auto navmesh = LoadCachedNavmesh(navmesh_path);
-    if (!navmesh) {
+    auto state = MakeExpansionState(param, initial_pos);
+    if (!state) {
         return false;
     }
 
-    auto state = MakeExpansionState(param, initial_pos);
-    if (!state) {
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, state->navmesh_zone);
+    if (!navmesh) {
         return false;
     }
 
