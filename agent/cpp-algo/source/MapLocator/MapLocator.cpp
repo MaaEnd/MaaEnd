@@ -1019,6 +1019,9 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     if (options.force_global_search) {
         return std::nullopt;
     }
+    if (!motionTracker) {
+        return std::nullopt;
+    }
 
     refreshAsyncYoloState(minimap, now);
 
@@ -1055,6 +1058,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         auto fallbackTmpl = fallbackStrategy->extractTemplateFeature(minimap);
 
         MapPosition rawFallbackPos {};
+        // fallback 只作为 dual 互证的第二路信号；试算后立即恢复状态，避免两策略不一致时单独推进或 hold tracker
         auto savedMotionTracker = *motionTracker;
         const auto savedStablePosition = stablePosition;
         tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
