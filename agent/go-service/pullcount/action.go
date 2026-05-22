@@ -14,14 +14,11 @@ import (
 const (
 	componentName = "PullCountCalculator"
 
-	defaultVoucherConfigPath = "data/PullCountCalculator/vouchers.json"
-	defaultWarehouseScanPath = "data/PullCountCalculator/warehouse_scan.json"
-
 	stageInit            = "init"
 	stageRecordOriginium = "record_originium"
 	stageRecordOroberyl  = "record_oroberyl"
 	stageRecordQuantity  = "record_quantity"
-	stageRecordItem      = "record_item"
+	stageRecordVoucher   = "record_voucher"
 	stagePageBegin       = "page_begin"
 	stagePageDone        = "page_done"
 	stageProbeBegin      = "probe_begin"
@@ -33,6 +30,17 @@ const (
 )
 
 var _ maa.CustomActionRunner = &Action{}
+
+var defaultActionParam = actionParam{
+	ReservedOriginium:   29,
+	OriginiumToOroberyl: 75,
+	OroberylPerPull:     500,
+	NextPoolShopPulls:   5,
+	NextPoolSigninPulls: 5,
+	Probe:               warehouseSimilarityRule{CellLimit: 9, MinComparable: 4, MaxMismatches: 1, MinMatchRatio: 0.85},
+	RepeatPage:          warehouseSimilarityRule{CellLimit: 45, MinComparable: 8, MaxMismatches: 1, MinMatchRatio: 0.85},
+	ScanMaxPages:        8,
+}
 
 // Action calculates current and next-version recruitment pulls from Pipeline-provided OCR results.
 type Action struct{}
@@ -73,17 +81,17 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case stageRecordOroberyl:
 		return handleRecordResource(ctx, arg, false)
 	case stageRecordQuantity:
-		return handleRecordQuantity(ctx, arg, param.Cell)
-	case stageRecordItem:
-		return handleRecordItem(ctx, arg, param.Cell)
+		return handleQuantityOCR(ctx, arg, param.Cell, false)
+	case stageRecordVoucher:
+		return handleRecordVoucher(ctx, param)
 	case stagePageBegin:
-		return handlePageBegin(ctx)
+		return handleScanBegin(ctx, false)
 	case stagePageDone:
 		return handlePageDone(ctx)
 	case stageProbeBegin:
-		return handleProbeBegin(ctx)
+		return handleScanBegin(ctx, true)
 	case stageRecordProbe:
-		return handleRecordProbeQuantity(ctx, arg, param.Cell)
+		return handleQuantityOCR(ctx, arg, param.Cell, true)
 	case stageFinish:
 		return handleFinish(ctx)
 	default:
@@ -95,16 +103,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 // parseActionParam parses stage parameters and fills default calculation constants.
 func parseActionParam(raw string) (*actionParam, error) {
-	param := actionParam{
-		VoucherConfigPath:   defaultVoucherConfigPath,
-		WarehouseScanPath:   defaultWarehouseScanPath,
-		ReservedOriginium:   29,
-		OriginiumToOroberyl: 75,
-		OroberylPerPull:     500,
-		NextPoolShopPulls:   5,
-		NextPoolSigninPulls: 5,
-	}
-
+	param := defaultActionParam
 	if strings.TrimSpace(raw) != "" {
 		if err := json.Unmarshal([]byte(raw), &param); err != nil {
 			return nil, err
@@ -112,33 +111,25 @@ func parseActionParam(raw string) (*actionParam, error) {
 	}
 
 	param.Stage = strings.TrimSpace(param.Stage)
-	param.VoucherConfigPath = strings.TrimSpace(param.VoucherConfigPath)
-	if param.VoucherConfigPath == "" {
-		param.VoucherConfigPath = defaultVoucherConfigPath
+	param.PoolScope = strings.TrimSpace(param.PoolScope)
+	if param.OriginiumToOroberyl <= 0 || param.OroberylPerPull <= 0 {
+		return nil, fmt.Errorf("resource conversion constants must be positive")
 	}
-	param.WarehouseScanPath = strings.TrimSpace(param.WarehouseScanPath)
-	if param.WarehouseScanPath == "" {
-		param.WarehouseScanPath = defaultWarehouseScanPath
+	if param.NextPoolShopPulls < 0 || param.NextPoolSigninPulls < 0 {
+		return nil, fmt.Errorf("next pool fixed pulls must be non-negative")
 	}
-	if param.OriginiumToOroberyl <= 0 {
-		return nil, fmt.Errorf("originium_to_oroberyl must be positive")
-	}
-	if param.OroberylPerPull <= 0 {
-		return nil, fmt.Errorf("oroberyl_per_pull must be positive")
-	}
-	if param.NextPoolShopPulls < 0 {
-		return nil, fmt.Errorf("next_pool_shop_pulls must be non-negative")
-	}
-	if param.NextPoolSigninPulls < 0 {
-		return nil, fmt.Errorf("next_pool_signin_pulls must be non-negative")
+	scanConfig := param.scanConfig()
+	if err := scanConfig.validate(); err != nil {
+		return nil, err
 	}
 	return &param, nil
 }
 
 // resolveStage keeps the old main-node entry compatible with an empty stage parameter.
 func resolveStage(stage string, currentTaskName string) string {
-	if strings.TrimSpace(stage) != "" {
-		return strings.TrimSpace(stage)
+	stage = strings.TrimSpace(stage)
+	if stage != "" {
+		return stage
 	}
 	if currentTaskName == "PullCountCalculatorMain" {
 		return stageInit

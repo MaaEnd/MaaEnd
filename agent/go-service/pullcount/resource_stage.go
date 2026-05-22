@@ -11,37 +11,31 @@ import (
 
 // --- Resource And Finish Stages --- //
 
-// handleInit loads voucher and warehouse configuration, then starts a fresh scan session.
+// handleInit starts a fresh scan session with Pipeline-provided thresholds.
 func handleInit(ctx *maa.Context, param *actionParam) bool {
-	config, err := loadVoucherConfig(param.VoucherConfigPath)
+	session, err := newRunSession(param)
 	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("path", param.VoucherConfigPath).Msg("failed to load voucher config")
+		log.Error().Err(err).Str("component", componentName).Msg("failed to initialize pull count session")
 		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
 		return false
 	}
-	index, err := buildVoucherIndex(config)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("failed to build voucher index")
-		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
-		return false
-	}
-	scanConfig, err := loadWarehouseScanConfig(param.WarehouseScanPath)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("path", param.WarehouseScanPath).Msg("failed to load warehouse scan config")
-		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
-		return false
-	}
-
-	currentSession = &runSession{
-		Param:             *param,
-		Config:            config,
-		ScanConfig:        scanConfig,
-		VoucherIndex:      index,
-		CurrentPageCells:  make(map[int]scannedCell),
-		VoucherQuantities: make(map[string]int),
-	}
+	currentSession = session
 	log.Info().Str("component", componentName).Msg("pull count session initialized")
 	return true
+}
+
+// newRunSession builds the mutable state used by Pipeline stages.
+func newRunSession(param *actionParam) (*runSession, error) {
+	scanConfig := param.scanConfig()
+	if err := scanConfig.validate(); err != nil {
+		return nil, err
+	}
+	return &runSession{
+		Param:            *param,
+		ScanConfig:       scanConfig,
+		CurrentPageCells: make(map[int]scannedCell),
+		VoucherCells:     make(map[string]struct{}),
+	}, nil
 }
 
 // handleRecordResource stores one resource counter from the current Pipeline OCR result.
@@ -52,11 +46,11 @@ func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, convertedO
 	}
 
 	value, err := readIntegerFromRecognition(arg.RecognitionDetail)
+	label := i18n.T("pullcount.resource.oroberyl")
+	if convertedOriginium {
+		label = i18n.T("pullcount.resource.originium")
+	}
 	if err != nil {
-		label := i18n.T("pullcount.resource.oroberyl")
-		if convertedOriginium {
-			label = i18n.T("pullcount.resource.originium")
-		}
 		log.Warn().Err(err).Str("component", componentName).Str("resource", label).Msg("failed to read resource OCR")
 		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", fmt.Sprintf("%s: %s", label, err.Error())))
 		return false
@@ -65,15 +59,13 @@ func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, convertedO
 	if convertedOriginium {
 		session.Values.ConvertedOriginiumOroberyl = value
 		session.HasConvertedOriginium = true
-		log.Info().Str("component", componentName).Int("converted_originium_oroberyl", value).Msg("converted originium recorded")
-		maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", i18n.T("pullcount.resource.originium"), value))
-		return true
+	} else {
+		session.Values.Oroberyl = value
+		session.HasOroberyl = true
 	}
 
-	session.Values.Oroberyl = value
-	session.HasOroberyl = true
-	log.Info().Str("component", componentName).Int("oroberyl", value).Msg("oroberyl recorded")
-	maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", i18n.T("pullcount.resource.oroberyl"), value))
+	log.Info().Str("component", componentName).Str("resource", label).Int("value", value).Msg("resource recorded")
+	maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", label, value))
 	return true
 }
 
@@ -94,15 +86,8 @@ func handleFinish(ctx *maa.Context) bool {
 		return false
 	}
 
-	summary, err := summarizeVouchers(scannedVouchersFromSession(session), session.Config)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("failed to summarize voucher config")
-		maafocus.Print(ctx, i18n.T("pullcount.error.config_failed", err.Error()))
-		return false
-	}
-
-	result := calculatePullCount(session.Values, summary, &session.Param)
+	result := calculatePullCount(session.Values, session.Vouchers, &session.Param)
 	maafocus.Print(ctx, formatResultFocus(session.Values, result))
-	logCalculation(session, summary, result)
+	logCalculation(session, result)
 	return true
 }

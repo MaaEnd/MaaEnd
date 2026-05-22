@@ -1,7 +1,6 @@
 package pullcount
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -18,31 +17,33 @@ var (
 )
 
 type actionParam struct {
-	Stage string `json:"stage"`
-	Cell  int    `json:"cell"`
-
-	VoucherConfigPath string `json:"voucher_config_path"`
-	WarehouseScanPath string `json:"warehouse_scan_path"`
+	Stage     string `json:"stage"`
+	Cell      int    `json:"cell"`
+	PoolScope string `json:"pool_scope"`
+	PullValue int    `json:"pull_value"`
 
 	ReservedOriginium   int `json:"reserved_originium"`
 	OriginiumToOroberyl int `json:"originium_to_oroberyl"`
 	OroberylPerPull     int `json:"oroberyl_per_pull"`
 	NextPoolShopPulls   int `json:"next_pool_shop_pulls"`
 	NextPoolSigninPulls int `json:"next_pool_signin_pulls"`
+
+	Probe        warehouseSimilarityRule `json:"probe"`
+	RepeatPage   warehouseSimilarityRule `json:"repeat_page"`
+	ScanMaxPages int                     `json:"scan_max_pages"`
 }
 
 type runSession struct {
 	Param        actionParam
-	Config       *voucherConfig
-	ScanConfig   *warehouseScanConfig
-	VoucherIndex map[string]voucherDef
+	ScanConfig   warehouseScanConfig
 	Values       resourceValues
+	Vouchers     voucherSummary
+	VoucherCells map[string]struct{}
 
 	HasConvertedOriginium bool
 	HasOroberyl           bool
 
 	CurrentPageCells  map[int]scannedCell
-	VoucherQuantities map[string]int
 	LastHeadProbe     map[int]int
 	CurrentProbe      map[int]int
 	LastPageSignature map[int]int
@@ -57,8 +58,7 @@ func requireSession(ctx *maa.Context) (*runSession, bool) {
 	if currentSession != nil {
 		return currentSession, true
 	}
-	err := fmt.Errorf("pull count session is not initialized")
-	log.Error().Err(err).Str("component", componentName).Msg("missing session")
+	log.Error().Str("component", componentName).Msg("missing session")
 	maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
 	return nil, false
 }

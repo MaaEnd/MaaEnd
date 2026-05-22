@@ -74,22 +74,12 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 }
 
 // logCalculation writes structured details for troubleshooting pull-count results.
-func logCalculation(session *runSession, summary voucherSummary, result calculationResult) {
+func logCalculation(session *runSession, result calculationResult) {
 	log.Info().
 		Str("component", componentName).
-		Int("oroberyl", session.Values.Oroberyl).
-		Int("reserved_originium", result.ReservedOriginium).
-		Int("converted_originium_oroberyl", session.Values.ConvertedOriginiumOroberyl).
-		Int("reserved_originium_oroberyl", result.ReservedOriginiumOroberyl).
-		Int("usable_converted_originium_oroberyl", result.UsableOriginiumOroberyl).
-		Int("resource_pulls", result.ResourcePulls).
-		Int("current_only_pulls", result.CurrentOnlyPulls).
-		Int("carry_to_next_pulls", result.CarryToNextPulls).
-		Int("next_only_pulls", result.NextOnlyPulls).
-		Int("next_pool_shop_pulls", result.NextPoolShopPulls).
-		Int("next_pool_signin_pulls", result.NextPoolSigninPulls).
-		Int("current_pool_total", result.CurrentPoolTotal).
-		Int("next_pool_total", result.NextPoolTotal).
-		Interface("voucher_matches", summary.Matches).
+		Interface("values", session.Values).
+		Interface("summary", session.Vouchers).
+		Interface("result", result).
+		Int("recorded_voucher_cells", len(session.VoucherCells)).
 		Msg("pull count calculated")
 }

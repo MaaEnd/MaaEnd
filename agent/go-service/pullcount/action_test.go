@@ -6,443 +6,196 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-// TestCalculatePullCount verifies the recruitment screen resource formula from issue #2147.
+// TestCalculatePullCount verifies the resource formula and fixed next-pool pulls.
 func TestCalculatePullCount(t *testing.T) {
 	param, err := parseActionParam("")
 	if err != nil {
 		t.Fatalf("parseActionParam() error = %v", err)
 	}
 
-	summary := voucherSummary{
-		CurrentOnlyPulls: 2,
-		CarryToNextPulls: 3,
-		NextOnlyPulls:    10,
+	tests := []struct {
+		name string
+		vals resourceValues
+		sum  voucherSummary
+		want calculationResult
+	}{
+		{
+			name: "issue resource example",
+			vals: resourceValues{ConvertedOriginiumOroberyl: 2925, Oroberyl: 20770},
+			sum:  voucherSummary{CurrentOnlyPulls: 2, CarryToNextPulls: 3, NextOnlyPulls: 10},
+			want: calculationResult{
+				ReservedOriginiumOroberyl: 2175,
+				UsableOriginiumOroberyl:   750,
+				ResourcePulls:             43,
+				CurrentPoolTotal:          48,
+				NextPoolTotal:             66,
+			},
+		},
+		{
+			name: "reserved originium clamps to zero",
+			vals: resourceValues{ConvertedOriginiumOroberyl: 2000, Oroberyl: 499},
+			want: calculationResult{
+				ReservedOriginiumOroberyl: 2175,
+				UsableOriginiumOroberyl:   0,
+				ResourcePulls:             0,
+				NextPoolTotal:             10,
+			},
+		},
 	}
-	got := calculatePullCount(resourceValues{
-		ConvertedOriginiumOroberyl: 2925,
-		Oroberyl:                   20770,
-	}, summary, param)
 
-	if got.ReservedOriginiumOroberyl != 2175 {
-		t.Fatalf("reserved originium oroberyl = %d, want 2175", got.ReservedOriginiumOroberyl)
-	}
-	if got.UsableOriginiumOroberyl != 750 {
-		t.Fatalf("usable originium oroberyl = %d, want 750", got.UsableOriginiumOroberyl)
-	}
-	if got.ResourcePulls != 43 {
-		t.Fatalf("resource pulls = %d, want 43", got.ResourcePulls)
-	}
-	if got.CurrentPoolTotal != 48 {
-		t.Fatalf("current pool total = %d, want 48", got.CurrentPoolTotal)
-	}
-	if got.NextPoolTotal != 66 {
-		t.Fatalf("next pool total = %d, want 66", got.NextPoolTotal)
+	for _, tt := range tests {
+		got := calculatePullCount(tt.vals, tt.sum, param)
+		if got.ReservedOriginiumOroberyl != tt.want.ReservedOriginiumOroberyl ||
+			got.UsableOriginiumOroberyl != tt.want.UsableOriginiumOroberyl ||
+			got.ResourcePulls != tt.want.ResourcePulls ||
+			got.CurrentPoolTotal != tt.want.CurrentPoolTotal ||
+			got.NextPoolTotal != tt.want.NextPoolTotal {
+			t.Fatalf("%s: calculatePullCount() = %+v, want key fields %+v", tt.name, got, tt.want)
+		}
 	}
 }
 
-// TestCalculatePullCountClampsReservedOriginium verifies reserved originium never goes negative.
-func TestCalculatePullCountClampsReservedOriginium(t *testing.T) {
-	param, err := parseActionParam("")
-	if err != nil {
-		t.Fatalf("parseActionParam() error = %v", err)
-	}
+// TestAddVoucher verifies Pipeline-classified voucher accumulation and duplicate suppression.
+func TestAddVoucher(t *testing.T) {
+	session := newTestSession()
+	recordPageQuantity(session, 1, 2)
+	recordPageQuantity(session, 2, 3)
 
-	got := calculatePullCount(resourceValues{
-		ConvertedOriginiumOroberyl: 2000,
-		Oroberyl:                   499,
-	}, voucherSummary{}, param)
-
-	if got.UsableOriginiumOroberyl != 0 {
-		t.Fatalf("usable originium oroberyl = %d, want 0", got.UsableOriginiumOroberyl)
+	if quantity, added, err := addVoucher(session, 1, "current_only", 1); err != nil || !added || quantity != 2 {
+		t.Fatalf("addVoucher current = quantity %d added %v err %v, want 2 true nil", quantity, added, err)
 	}
-	if got.ResourcePulls != 0 {
-		t.Fatalf("resource pulls = %d, want 0", got.ResourcePulls)
+	if _, added, err := addVoucher(session, 1, "current_only", 1); err != nil || added {
+		t.Fatalf("addVoucher duplicate = added %v err %v, want false nil", added, err)
 	}
-	if got.NextPoolTotal != 10 {
-		t.Fatalf("next pool total = %d, want fixed 10", got.NextPoolTotal)
+	if _, _, err := addVoucher(session, 2, "carry_to_next", 1); err != nil {
+		t.Fatalf("addVoucher carry error = %v", err)
+	}
+	if quantity, added, err := addVoucher(session, 3, "next_only", 10); err != nil || !added || quantity != 1 {
+		t.Fatalf("addVoucher next default quantity = quantity %d added %v err %v, want 1 true nil", quantity, added, err)
+	}
+	if session.Vouchers.CurrentOnlyPulls != 2 || session.Vouchers.CarryToNextPulls != 3 || session.Vouchers.NextOnlyPulls != 10 {
+		t.Fatalf("voucher summary = %+v, want current/carry/next 2/3/10", session.Vouchers)
 	}
 }
 
-// TestSummarizeVouchers verifies voucher weights and pool scopes.
-func TestSummarizeVouchers(t *testing.T) {
-	config := &voucherConfig{Vouchers: []voucherDef{
-		{Name: "当前单抽券", Names: []string{"当前单抽券别名1", "当前单抽券别名2"}, PullValue: 1, PoolScope: "current_only"},
-		{Name: "通用单抽券", PullValue: 1, PoolScope: "carry_to_next"},
-		{Name: "基础寻访凭证", PullValue: 1, PoolScope: "ignore"},
-		{Name: "寻访情报书", Names: []string{"尋訪情報書"}, PullValue: 10, PoolScope: "next_only"},
-	}}
-
-	got, err := summarizeVouchers([]scannedVoucher{
-		{Name: "当前单抽券别名2", Quantity: 2},
-		{Name: "通用单抽券", Quantity: 3},
-		{Name: "基础寻访凭证", Quantity: 99},
-		{Name: "尋訪情報書", Quantity: 1},
-		{Name: "未配置十连寻访凭证", Quantity: 1},
-		{Name: "未配置寻访凭证", Quantity: 7},
-		{Name: "无关物品", Quantity: 99},
-	}, config)
-	if err != nil {
-		t.Fatalf("summarizeVouchers() error = %v", err)
-	}
-
-	if got.CurrentOnlyPulls != 2 {
-		t.Fatalf("current only pulls = %d, want 2", got.CurrentOnlyPulls)
-	}
-	if got.CarryToNextPulls != 3 {
-		t.Fatalf("carry to next pulls = %d, want 3", got.CarryToNextPulls)
-	}
-	if got.NextOnlyPulls != 10 {
-		t.Fatalf("next only pulls = %d, want 10", got.NextOnlyPulls)
-	}
-	if len(got.Matches) != 4 {
-		t.Fatalf("matches length = %d, want 4", len(got.Matches))
-	}
-	assertVoucherMatch(t, got.Matches, voucherMatch{
-		CanonicalName: "当前单抽券",
-		DisplayName:   "当前单抽券别名2",
-		PullValue:     1,
-		PoolScope:     "current_only",
-		Quantity:      2,
-		Pulls:         2,
-	})
-	assertVoucherMatch(t, got.Matches, voucherMatch{
-		CanonicalName: "通用单抽券",
-		DisplayName:   "通用单抽券",
-		PullValue:     1,
-		PoolScope:     "carry_to_next",
-		Quantity:      3,
-		Pulls:         3,
-	})
-	assertVoucherMatch(t, got.Matches, voucherMatch{
-		CanonicalName: "基础寻访凭证",
-		DisplayName:   "基础寻访凭证",
-		PullValue:     1,
-		PoolScope:     "ignore",
-		Quantity:      99,
-		Pulls:         0,
-	})
-	assertVoucherMatch(t, got.Matches, voucherMatch{
-		CanonicalName: "寻访情报书",
-		DisplayName:   "尋訪情報書",
-		PullValue:     10,
-		PoolScope:     "next_only",
-		Quantity:      1,
-		Pulls:         10,
-	})
-}
-
-// TestBuildVoucherIndexRejectsDuplicateAliases verifies conflicting voucher aliases fail fast.
-func TestBuildVoucherIndexRejectsDuplicateAliases(t *testing.T) {
-	config := &voucherConfig{Vouchers: []voucherDef{
-		{Name: "通用单抽券", Names: []string{"寻访券"}, PullValue: 1, PoolScope: "carry_to_next"},
-		{Name: "限时单抽券", Names: []string{"寻访券"}, PullValue: 1, PoolScope: "current_only"},
-	}}
-
-	if _, err := buildVoucherIndex(config); err == nil {
-		t.Fatal("buildVoucherIndex() error = nil, want duplicate alias error")
+// TestAddVoucherRejectsInvalidParams verifies Pipeline classification params are validated.
+func TestAddVoucherRejectsInvalidParams(t *testing.T) {
+	session := newTestSession()
+	for _, tt := range []struct {
+		cell      int
+		scope     string
+		pullValue int
+	}{
+		{0, "current_only", 1},
+		{1, "bad_scope", 1},
+		{1, "current_only", 2},
+	} {
+		if _, _, err := addVoucher(session, tt.cell, tt.scope, tt.pullValue); err == nil {
+			t.Fatalf("addVoucher(%+v) error = nil, want error", tt)
+		}
 	}
 }
 
-// TestBuildVoucherIndexAllowsDuplicateAliasesWithinSameVoucher verifies repeated names on one voucher are harmless.
-func TestBuildVoucherIndexAllowsDuplicateAliasesWithinSameVoucher(t *testing.T) {
-	config := &voucherConfig{Vouchers: []voucherDef{
-		{Name: "通用单抽券", Names: []string{"通用单抽券", " 通 用 单 抽 券 "}, PullValue: 1, PoolScope: "carry_to_next"},
-	}}
-
-	index, err := buildVoucherIndex(config)
-	if err != nil {
-		t.Fatalf("buildVoucherIndex() error = %v", err)
-	}
-	if _, ok := index[normalizeName("通用单抽券")]; !ok {
-		t.Fatal("buildVoucherIndex() missing canonical voucher key")
-	}
-}
-
-// TestParseIntegerText accepts compact OCR noise around a counter.
+// TestParseIntegerText verifies OCR counter parsing and rejection.
 func TestParseIntegerText(t *testing.T) {
-	cases := map[string]int{
+	for text, want := range map[string]int{
 		" 20,770 |": 20770,
 		"20770 1":   20770,
 		"x 123 y":   123,
 		"abc 456":   456,
 		"987654321": 987654321,
-	}
-
-	for text, want := range cases {
+	} {
 		got, err := parseIntegerText(text)
-		if err != nil {
-			t.Fatalf("parseIntegerText(%q) error = %v", text, err)
-		}
-		if got != want {
-			t.Fatalf("parseIntegerText(%q) = %d, want %d", text, got, want)
+		if err != nil || got != want {
+			t.Fatalf("parseIntegerText(%q) = %d, %v; want %d", text, got, err, want)
 		}
 	}
-}
-
-// TestParseIntegerTextRejectsInputsWithoutDigits verifies OCR text must contain a counter.
-func TestParseIntegerTextRejectsInputsWithoutDigits(t *testing.T) {
-	cases := []string{
-		"abc",
-		" | ",
-		"",
-	}
-
-	for _, text := range cases {
+	for _, text := range []string{"abc", " | ", ""} {
 		if got, err := parseIntegerText(text); err == nil {
 			t.Fatalf("parseIntegerText(%q) = %d, want error", text, got)
 		}
 	}
 }
 
-// TestCurrentPageCellsUsesOneRecordPerCell verifies repeated OCR on one cell is de-duplicated.
-func TestCurrentPageCellsUsesOneRecordPerCell(t *testing.T) {
-	session := newTestSession()
-	recordPageQuantity(session, 1, 7)
-	recordPageItem(session, 1, "普通物品")
-	recordPageItem(session, 1, "普通物品噪声")
-
-	items := currentPageItems(session)
-	if len(items) != 1 {
-		t.Fatalf("currentPageItems() length = %d, want 1: %#v", len(items), items)
-	}
-	if items[0].Cell != 1 || items[0].Quantity != 7 || !items[0].HasQuantity {
-		t.Fatalf("currentPageItems()[0] = %+v, want cell 1 quantity 7", items[0])
-	}
-}
-
-// TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch verifies bottom detection from Pipeline OCR probes.
-func TestScrollProbeUnchangedStopsWhenTopQuantitiesMatch(t *testing.T) {
+// TestScrollProbeUnchanged verifies bottom detection from Pipeline OCR probes.
+func TestScrollProbeUnchanged(t *testing.T) {
 	rule := testWarehouseScanConfig().Probe
-	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135}
-	after := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
-
-	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
-	if !unchanged {
-		t.Fatalf("scrollProbeUnchanged() unchanged = false, want true")
+	tests := []struct {
+		name       string
+		before     map[int]int
+		after      map[int]int
+		wantStop   bool
+		wantMatch  int
+		wantSample int
+	}{
+		{"exact", map[int]int{1: 30, 2: 80, 3: 80, 4: 135}, map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}, true, 4, 4},
+		{"one noise", map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}, map[int]int{1: 30, 2: 8, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}, true, 8, 9},
+		{"too noisy", map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}, map[int]int{1: 30, 2: 8, 3: 8, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}, false, 7, 9},
+		{"weak", map[int]int{1: 30, 2: 80, 3: 80}, map[int]int{1: 30, 2: 80, 3: 80}, false, 3, 3},
 	}
-	if comparable != 4 || matches != 4 {
-		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 4/4", comparable, matches)
-	}
-}
 
-// TestScrollProbeUnchangedAllowsOneOcrNoise verifies a single OCR mismatch still stops at bottom.
-func TestScrollProbeUnchangedAllowsOneOcrNoise(t *testing.T) {
-	rule := testWarehouseScanConfig().Probe
-	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
-	after := map[int]int{1: 30, 2: 8, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
-
-	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
-	if !unchanged {
-		t.Fatalf("scrollProbeUnchanged() unchanged = false, want true for 8/9 match")
-	}
-	if comparable != 9 || matches != 8 {
-		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 9/8", comparable, matches)
-	}
-}
-
-// TestScrollProbeUnchangedRejectsTooManyMismatches verifies noisy but changed pages keep scanning.
-func TestScrollProbeUnchangedRejectsTooManyMismatches(t *testing.T) {
-	rule := testWarehouseScanConfig().Probe
-	before := map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
-	after := map[int]int{1: 30, 2: 8, 3: 8, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2, 9: 2}
-
-	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
-	if unchanged {
-		t.Fatalf("scrollProbeUnchanged() unchanged = true, want false for 7/9 match")
-	}
-	if comparable != 9 || matches != 7 {
-		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 9/7", comparable, matches)
-	}
-}
-
-// TestScrollProbeUnchangedNeedsEnoughSignal verifies weak probes fall back to full scanning.
-func TestScrollProbeUnchangedNeedsEnoughSignal(t *testing.T) {
-	rule := testWarehouseScanConfig().Probe
-	before := map[int]int{1: 30, 2: 80, 3: 80}
-	after := map[int]int{1: 30, 2: 80, 3: 80}
-
-	unchanged, comparable, matches := scrollProbeUnchanged(rule, before, after)
-	if unchanged {
-		t.Fatalf("scrollProbeUnchanged() unchanged = true, want false for weak signal")
-	}
-	if comparable != 3 || matches != 3 {
-		t.Fatalf("scrollProbeUnchanged() comparable/matches = %d/%d, want 3/3", comparable, matches)
-	}
-}
-
-// assertVoucherMatch verifies one expected voucher classification result.
-func assertVoucherMatch(t *testing.T, matches []voucherMatch, want voucherMatch) {
-	t.Helper()
-	for _, got := range matches {
-		if got.CanonicalName != want.CanonicalName {
-			continue
+	for _, tt := range tests {
+		got, comparable, matches := quantityVectorsMostlyUnchanged(rule, tt.before, tt.after)
+		if got != tt.wantStop || comparable != tt.wantSample || matches != tt.wantMatch {
+			t.Fatalf("%s: quantityVectorsMostlyUnchanged() = %v/%d/%d, want %v/%d/%d", tt.name, got, comparable, matches, tt.wantStop, tt.wantSample, tt.wantMatch)
 		}
-		if got != want {
-			t.Fatalf("voucher match for %q = %+v, want %+v", want.CanonicalName, got, want)
-		}
-		return
-	}
-	t.Fatalf("voucher match for %q not found in %+v", want.CanonicalName, matches)
-}
-
-// TestReadIntegerFromRecognitionDetailJSON verifies Pipeline OCR text can be parsed from raw detail JSON.
-func TestReadIntegerFromRecognitionDetailJSON(t *testing.T) {
-	detail := &maa.RecognitionDetail{
-		Hit:        true,
-		DetailJson: `{"best":{"text":"20,770"}}`,
-	}
-
-	got, err := readIntegerFromRecognition(detail)
-	if err != nil {
-		t.Fatalf("readIntegerFromRecognition() error = %v", err)
-	}
-	if got != 20770 {
-		t.Fatalf("readIntegerFromRecognition() = %d, want 20770", got)
 	}
 }
 
-// TestOCRTextCandidatesReadsNestedDetails verifies And-node child OCR results are visible to actions.
-func TestOCRTextCandidatesReadsNestedDetails(t *testing.T) {
-	detail := &maa.RecognitionDetail{
-		Hit: true,
-		CombinedResult: []*maa.RecognitionDetail{
-			{Name: "quantity", Hit: true, DetailJson: `{"best":{"text":"12"}}`},
-			{Name: "title", Hit: true, DetailJson: `{"best":{"text":" 寻访情报书 "}}`},
-		},
-	}
-
-	texts := ocrTextCandidates(detail)
-	if len(texts) != 2 {
-		t.Fatalf("ocrTextCandidates() length = %d, want 2: %#v", len(texts), texts)
-	}
-	if texts[0] != "12" || texts[1] != "寻访情报书" {
-		t.Fatalf("ocrTextCandidates() = %#v, want [12 寻访情报书]", texts)
-	}
-}
-
-// TestRecordVisiblePageAccumulatesVouchers verifies page recording leaves flow decisions to Pipeline.
-func TestRecordVisiblePageAccumulatesVouchers(t *testing.T) {
+// TestRecordVisiblePage verifies repeated-page and max-page stopping.
+func TestRecordVisiblePage(t *testing.T) {
 	session := newTestSession()
-	recordPageQuantity(session, 1, 1)
-	recordPageItem(session, 1, "寻访情报书")
-	recordPageQuantity(session, 2, 3)
-	recordPageItem(session, 2, "普通物品")
-
-	got := recordVisiblePage(session)
-	if session.PageCount != 1 {
-		t.Fatalf("page count = %d, want 1", session.PageCount)
-	}
-	if got != 2 {
-		t.Fatalf("recordVisiblePage() = %d, want 2", got)
-	}
-	if session.VoucherQuantities["寻访情报书"] != 1 {
-		t.Fatalf("voucher quantity = %d, want 1", session.VoucherQuantities["寻访情报书"])
-	}
-}
-
-// TestRecordVisiblePageStopsOnRepeatedQuantitySignature verifies the full-page fallback catches repeated pages.
-func TestRecordVisiblePageStopsOnRepeatedQuantitySignature(t *testing.T) {
-	session := newTestSession()
-	session.LastPageSignature = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2}
-	session.CurrentPageCells = map[int]scannedCell{
-		1: {Quantity: 30, HasQuantity: true},
-		2: {Quantity: 80, HasQuantity: true},
-		3: {Quantity: 80, HasQuantity: true},
-		4: {Quantity: 135, HasQuantity: true},
-		5: {Quantity: 358, HasQuantity: true},
-		6: {Quantity: 4, HasQuantity: true},
-		7: {Quantity: 10, HasQuantity: true},
-		8: {Quantity: 2, HasQuantity: true},
+	for cell, quantity := range map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2} {
+		recordPageQuantity(session, cell, quantity)
 	}
 
+	if got := recordVisiblePage(session); got != 8 || session.PageCount != 1 {
+		t.Fatalf("recordVisiblePage() items/page = %d/%d, want 8/1", got, session.PageCount)
+	}
+	session.CurrentPageCells = map[int]scannedCell{}
+	for cell, quantity := range session.LastPageSignature {
+		recordPageQuantity(session, cell, quantity)
+	}
 	recordVisiblePage(session)
 	if !session.StopAfterPageDone {
 		t.Fatal("StopAfterPageDone = false, want true for repeated page signature")
 	}
-}
 
-// TestRecordVisiblePageContinuesOnChangedQuantitySignature verifies clearly changed pages keep scanning.
-func TestRecordVisiblePageContinuesOnChangedQuantitySignature(t *testing.T) {
-	session := newTestSession()
-	session.LastPageSignature = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358, 6: 4, 7: 10, 8: 2}
-	session.CurrentPageCells = map[int]scannedCell{
-		1: {Quantity: 30, HasQuantity: true},
-		2: {Quantity: 8, HasQuantity: true},
-		3: {Quantity: 8, HasQuantity: true},
-		4: {Quantity: 135, HasQuantity: true},
-		5: {Quantity: 358, HasQuantity: true},
-		6: {Quantity: 4, HasQuantity: true},
-		7: {Quantity: 10, HasQuantity: true},
-		8: {Quantity: 2, HasQuantity: true},
-	}
-
+	session = newTestSession()
+	session.PageCount = session.ScanConfig.ScanMaxPages - 1
 	recordVisiblePage(session)
-	if session.StopAfterPageDone {
-		t.Fatal("StopAfterPageDone = true, want false for changed page signature")
+	if !session.StopAfterPageDone {
+		t.Fatal("StopAfterPageDone = false, want true at scan max pages")
 	}
 }
 
-// TestRecordVisiblePageStoresHeadProbe verifies scroll comparison can use top-row quantity OCR.
-func TestRecordVisiblePageStoresHeadProbe(t *testing.T) {
-	session := newTestSession()
-	session.CurrentPageCells = map[int]scannedCell{
-		1: {Name: "探测器", Quantity: 30, HasQuantity: true},
-		2: {Name: "探测器", Quantity: 80, HasQuantity: true},
-		3: {Name: "刻写券", Quantity: 135, HasQuantity: true},
-		4: {Name: "沉积具象物", Quantity: 4, HasQuantity: true},
-		5: {Name: "礼物", Quantity: 358, HasQuantity: true},
-	}
-
-	recordVisiblePage(session)
-	if len(session.LastHeadProbe) != 5 || session.LastHeadProbe[1] != 30 || session.LastHeadProbe[5] != 358 {
-		t.Fatalf("last head probe = %#v, want top-row quantities", session.LastHeadProbe)
-	}
-}
-
-// TestLoadWarehouseScanConfig verifies the committed resource config is loadable.
-func TestLoadWarehouseScanConfig(t *testing.T) {
-	config, err := loadWarehouseScanConfig("../../../assets/data/PullCountCalculator/warehouse_scan.json")
+// TestScanConfigFromParams verifies scan thresholds are read from action params.
+func TestScanConfigFromParams(t *testing.T) {
+	param, err := parseActionParam(`{"scan_max_pages":3,"probe":{"cell_limit":2,"min_comparable":1,"max_mismatches":0,"min_match_ratio":1},"repeat_page":{"cell_limit":4,"min_comparable":2,"max_mismatches":1,"min_match_ratio":0.5}}`)
 	if err != nil {
-		t.Fatalf("loadWarehouseScanConfig() error = %v", err)
+		t.Fatalf("parseActionParam() error = %v", err)
 	}
-	if config.Probe.CellLimit != 9 {
-		t.Fatalf("probe cell limit = %d, want 9", config.Probe.CellLimit)
+	config := param.scanConfig()
+	if config.ScanMaxPages != 3 || config.Probe.CellLimit != 2 || config.RepeatPage.CellLimit != 4 {
+		t.Fatalf("scan config = %+v, want custom thresholds", config)
 	}
-	if config.RepeatPage.CellLimit != 45 {
-		t.Fatalf("repeat page cell limit = %d, want 45", config.RepeatPage.CellLimit)
+
+	if _, err := parseActionParam(`{"probe":{"cell_limit":2,"min_comparable":0},"repeat_page":{"cell_limit":4,"min_comparable":2,"max_mismatches":1,"min_match_ratio":0.5}}`); err == nil {
+		t.Fatal("parseActionParam() error = nil, want invalid probe error")
 	}
 }
 
-// TestWarehouseScanConfigRejectsMissingFields verifies config errors are explicit.
-func TestWarehouseScanConfigRejectsMissingFields(t *testing.T) {
-	config := testWarehouseScanConfig()
-	config.Probe.MinComparable = 0
-	if err := config.validate(); err == nil {
-		t.Fatal("validate() error = nil, want invalid probe error")
-	}
-}
-
-// TestPageShouldFinishRecognitionMatchesStopFlag verifies Pipeline can branch to finish without OverrideNext.
-func TestPageShouldFinishRecognitionMatchesStopFlag(t *testing.T) {
+// TestCustomRecognitionBranches verifies Pipeline can branch without graph overrides.
+func TestCustomRecognitionBranches(t *testing.T) {
 	session := newTestSession()
 	session.StopAfterPageDone = true
-	session.PageStopReason = "warehouse scan reached bottom / repeated page signature"
-
+	session.PageStopReason = "repeated page"
 	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); !ok {
 		t.Fatal("pageShouldFinishResult() ok = false, want true")
 	}
-	session.StopAfterPageDone = false
-	if _, ok := pageShouldFinishResult(&maa.CustomRecognitionArg{}, session); ok {
-		t.Fatal("pageShouldFinishResult() ok = true, want false")
-	}
-}
 
-// TestScrollProbeUnchangedRecognitionMatchesBottom verifies Pipeline can branch after static probe OCR.
-func TestScrollProbeUnchangedRecognitionMatchesBottom(t *testing.T) {
-	session := newTestSession()
 	session.LastHeadProbe = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
 	session.CurrentProbe = map[int]int{1: 30, 2: 80, 3: 80, 4: 135, 5: 358}
-
 	if _, ok := scrollProbeUnchangedResult(&maa.CustomRecognitionArg{}, session); !ok {
 		t.Fatal("scrollProbeUnchangedResult() ok = false, want true")
 	}
@@ -455,38 +208,20 @@ func TestScrollProbeUnchangedRecognitionMatchesBottom(t *testing.T) {
 
 // newTestSession builds the minimal state needed by page-decision unit tests.
 func newTestSession() *runSession {
-	config := &voucherConfig{Vouchers: []voucherDef{
-		{Name: "寻访情报书", PullValue: 10, PoolScope: "next_only"},
-	}}
-	index, err := buildVoucherIndex(config)
-	if err != nil {
-		panic(err)
-	}
+	config := testWarehouseScanConfig()
 	return &runSession{
-		Param:             actionParam{},
-		Config:            config,
-		ScanConfig:        testWarehouseScanConfig(),
-		VoucherIndex:      index,
-		VoucherQuantities: make(map[string]int),
-		CurrentPageCells:  make(map[int]scannedCell),
+		Param:            actionParam{},
+		ScanConfig:       config,
+		VoucherCells:     make(map[string]struct{}),
+		CurrentPageCells: make(map[int]scannedCell),
 	}
 }
 
-// testWarehouseScanConfig returns the production-like warehouse geometry used by unit tests.
-func testWarehouseScanConfig() *warehouseScanConfig {
-	return &warehouseScanConfig{
-		Probe: warehouseSimilarityRule{
-			CellLimit:     9,
-			MinComparable: 4,
-			MaxMismatches: 1,
-			MinMatchRatio: 0.85,
-		},
-		RepeatPage: warehouseSimilarityRule{
-			CellLimit:     45,
-			MinComparable: 8,
-			MaxMismatches: 1,
-			MinMatchRatio: 0.85,
-		},
+// testWarehouseScanConfig returns the production-like warehouse thresholds used by unit tests.
+func testWarehouseScanConfig() warehouseScanConfig {
+	return warehouseScanConfig{
+		Probe:        warehouseSimilarityRule{CellLimit: 9, MinComparable: 4, MaxMismatches: 1, MinMatchRatio: 0.85},
+		RepeatPage:   warehouseSimilarityRule{CellLimit: 45, MinComparable: 8, MaxMismatches: 1, MinMatchRatio: 0.85},
 		ScanMaxPages: 8,
 	}
 }

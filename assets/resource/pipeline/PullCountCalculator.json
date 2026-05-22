@@ -7,13 +7,24 @@
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
             "stage": "init",
-            "voucher_config_path": "data/PullCountCalculator/vouchers.json",
-            "warehouse_scan_path": "data/PullCountCalculator/warehouse_scan.json",
             "reserved_originium": 29,
             "originium_to_oroberyl": 75,
             "oroberyl_per_pull": 500,
             "next_pool_shop_pulls": 5,
-            "next_pool_signin_pulls": 5
+            "next_pool_signin_pulls": 5,
+            "probe": {
+                "cell_limit": 9,
+                "min_comparable": 4,
+                "max_mismatches": 1,
+                "min_match_ratio": 0.85
+            },
+            "repeat_page": {
+                "cell_limit": 45,
+                "min_comparable": 8,
+                "max_mismatches": 1,
+                "min_match_ratio": 0.85
+            },
+            "scan_max_pages": 8
         },
         "post_delay": 0,
         "next": [
@@ -151,7 +162,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell01QuantityOCR",
-            "PullCountCalculatorCell01TitleOCR",
+            "PullCountCalculatorCell01CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell01CarryToNextVoucherOCR",
+            "PullCountCalculatorCell01NextOnlyVoucherOCR",
             "PullCountCalculatorCell02Click",
             "PullCountCalculatorCell02Skip"
         ]
@@ -176,13 +189,15 @@
             "cell": 1
         },
         "next": [
-            "PullCountCalculatorCell01TitleOCR",
+            "PullCountCalculatorCell01CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell01CarryToNextVoucherOCR",
+            "PullCountCalculatorCell01NextOnlyVoucherOCR",
             "PullCountCalculatorCell02Click",
             "PullCountCalculatorCell02Skip"
         ]
     },
-    "PullCountCalculatorCell01TitleOCR": {
-        "desc": "识别贵重品库第 1 格右侧详情标题",
+    "PullCountCalculatorCell01CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 1 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -191,14 +206,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 1
+            "stage": "record_voucher",
+            "cell": 1,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell01CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 1 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 1,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell02Click",
+            "PullCountCalculatorCell02Skip"
+        ]
+    },
+    "PullCountCalculatorCell01NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 1 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 1,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell02Click",
@@ -256,7 +325,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell02QuantityOCR",
-            "PullCountCalculatorCell02TitleOCR",
+            "PullCountCalculatorCell02CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell02CarryToNextVoucherOCR",
+            "PullCountCalculatorCell02NextOnlyVoucherOCR",
             "PullCountCalculatorCell03Click",
             "PullCountCalculatorCell03Skip"
         ]
@@ -281,13 +352,15 @@
             "cell": 2
         },
         "next": [
-            "PullCountCalculatorCell02TitleOCR",
+            "PullCountCalculatorCell02CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell02CarryToNextVoucherOCR",
+            "PullCountCalculatorCell02NextOnlyVoucherOCR",
             "PullCountCalculatorCell03Click",
             "PullCountCalculatorCell03Skip"
         ]
     },
-    "PullCountCalculatorCell02TitleOCR": {
-        "desc": "识别贵重品库第 2 格右侧详情标题",
+    "PullCountCalculatorCell02CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 2 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -296,14 +369,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 2
+            "stage": "record_voucher",
+            "cell": 2,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell02CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 2 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 2,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell03Click",
+            "PullCountCalculatorCell03Skip"
+        ]
+    },
+    "PullCountCalculatorCell02NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 2 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 2,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell03Click",
@@ -361,7 +488,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell03QuantityOCR",
-            "PullCountCalculatorCell03TitleOCR",
+            "PullCountCalculatorCell03CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell03CarryToNextVoucherOCR",
+            "PullCountCalculatorCell03NextOnlyVoucherOCR",
             "PullCountCalculatorCell04Click",
             "PullCountCalculatorCell04Skip"
         ]
@@ -386,13 +515,15 @@
             "cell": 3
         },
         "next": [
-            "PullCountCalculatorCell03TitleOCR",
+            "PullCountCalculatorCell03CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell03CarryToNextVoucherOCR",
+            "PullCountCalculatorCell03NextOnlyVoucherOCR",
             "PullCountCalculatorCell04Click",
             "PullCountCalculatorCell04Skip"
         ]
     },
-    "PullCountCalculatorCell03TitleOCR": {
-        "desc": "识别贵重品库第 3 格右侧详情标题",
+    "PullCountCalculatorCell03CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 3 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -401,14 +532,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 3
+            "stage": "record_voucher",
+            "cell": 3,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell03CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 3 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 3,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell04Click",
+            "PullCountCalculatorCell04Skip"
+        ]
+    },
+    "PullCountCalculatorCell03NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 3 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 3,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell04Click",
@@ -466,7 +651,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell04QuantityOCR",
-            "PullCountCalculatorCell04TitleOCR",
+            "PullCountCalculatorCell04CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell04CarryToNextVoucherOCR",
+            "PullCountCalculatorCell04NextOnlyVoucherOCR",
             "PullCountCalculatorCell05Click",
             "PullCountCalculatorCell05Skip"
         ]
@@ -491,13 +678,15 @@
             "cell": 4
         },
         "next": [
-            "PullCountCalculatorCell04TitleOCR",
+            "PullCountCalculatorCell04CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell04CarryToNextVoucherOCR",
+            "PullCountCalculatorCell04NextOnlyVoucherOCR",
             "PullCountCalculatorCell05Click",
             "PullCountCalculatorCell05Skip"
         ]
     },
-    "PullCountCalculatorCell04TitleOCR": {
-        "desc": "识别贵重品库第 4 格右侧详情标题",
+    "PullCountCalculatorCell04CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 4 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -506,14 +695,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 4
+            "stage": "record_voucher",
+            "cell": 4,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell04CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 4 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 4,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell05Click",
+            "PullCountCalculatorCell05Skip"
+        ]
+    },
+    "PullCountCalculatorCell04NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 4 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 4,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell05Click",
@@ -571,7 +814,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell05QuantityOCR",
-            "PullCountCalculatorCell05TitleOCR",
+            "PullCountCalculatorCell05CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell05CarryToNextVoucherOCR",
+            "PullCountCalculatorCell05NextOnlyVoucherOCR",
             "PullCountCalculatorCell06Click",
             "PullCountCalculatorCell06Skip"
         ]
@@ -596,13 +841,15 @@
             "cell": 5
         },
         "next": [
-            "PullCountCalculatorCell05TitleOCR",
+            "PullCountCalculatorCell05CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell05CarryToNextVoucherOCR",
+            "PullCountCalculatorCell05NextOnlyVoucherOCR",
             "PullCountCalculatorCell06Click",
             "PullCountCalculatorCell06Skip"
         ]
     },
-    "PullCountCalculatorCell05TitleOCR": {
-        "desc": "识别贵重品库第 5 格右侧详情标题",
+    "PullCountCalculatorCell05CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 5 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -611,14 +858,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 5
+            "stage": "record_voucher",
+            "cell": 5,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell05CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 5 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 5,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell06Click",
+            "PullCountCalculatorCell06Skip"
+        ]
+    },
+    "PullCountCalculatorCell05NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 5 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 5,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell06Click",
@@ -676,7 +977,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell06QuantityOCR",
-            "PullCountCalculatorCell06TitleOCR",
+            "PullCountCalculatorCell06CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell06CarryToNextVoucherOCR",
+            "PullCountCalculatorCell06NextOnlyVoucherOCR",
             "PullCountCalculatorCell07Click",
             "PullCountCalculatorCell07Skip"
         ]
@@ -701,13 +1004,15 @@
             "cell": 6
         },
         "next": [
-            "PullCountCalculatorCell06TitleOCR",
+            "PullCountCalculatorCell06CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell06CarryToNextVoucherOCR",
+            "PullCountCalculatorCell06NextOnlyVoucherOCR",
             "PullCountCalculatorCell07Click",
             "PullCountCalculatorCell07Skip"
         ]
     },
-    "PullCountCalculatorCell06TitleOCR": {
-        "desc": "识别贵重品库第 6 格右侧详情标题",
+    "PullCountCalculatorCell06CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 6 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -716,14 +1021,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 6
+            "stage": "record_voucher",
+            "cell": 6,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell06CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 6 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 6,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell07Click",
+            "PullCountCalculatorCell07Skip"
+        ]
+    },
+    "PullCountCalculatorCell06NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 6 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 6,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell07Click",
@@ -781,7 +1140,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell07QuantityOCR",
-            "PullCountCalculatorCell07TitleOCR",
+            "PullCountCalculatorCell07CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell07CarryToNextVoucherOCR",
+            "PullCountCalculatorCell07NextOnlyVoucherOCR",
             "PullCountCalculatorCell08Click",
             "PullCountCalculatorCell08Skip"
         ]
@@ -806,13 +1167,15 @@
             "cell": 7
         },
         "next": [
-            "PullCountCalculatorCell07TitleOCR",
+            "PullCountCalculatorCell07CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell07CarryToNextVoucherOCR",
+            "PullCountCalculatorCell07NextOnlyVoucherOCR",
             "PullCountCalculatorCell08Click",
             "PullCountCalculatorCell08Skip"
         ]
     },
-    "PullCountCalculatorCell07TitleOCR": {
-        "desc": "识别贵重品库第 7 格右侧详情标题",
+    "PullCountCalculatorCell07CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 7 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -821,14 +1184,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 7
+            "stage": "record_voucher",
+            "cell": 7,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell07CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 7 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 7,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell08Click",
+            "PullCountCalculatorCell08Skip"
+        ]
+    },
+    "PullCountCalculatorCell07NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 7 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 7,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell08Click",
@@ -886,7 +1303,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell08QuantityOCR",
-            "PullCountCalculatorCell08TitleOCR",
+            "PullCountCalculatorCell08CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell08CarryToNextVoucherOCR",
+            "PullCountCalculatorCell08NextOnlyVoucherOCR",
             "PullCountCalculatorCell09Click",
             "PullCountCalculatorCell09Skip"
         ]
@@ -911,13 +1330,15 @@
             "cell": 8
         },
         "next": [
-            "PullCountCalculatorCell08TitleOCR",
+            "PullCountCalculatorCell08CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell08CarryToNextVoucherOCR",
+            "PullCountCalculatorCell08NextOnlyVoucherOCR",
             "PullCountCalculatorCell09Click",
             "PullCountCalculatorCell09Skip"
         ]
     },
-    "PullCountCalculatorCell08TitleOCR": {
-        "desc": "识别贵重品库第 8 格右侧详情标题",
+    "PullCountCalculatorCell08CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 8 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -926,14 +1347,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 8
+            "stage": "record_voucher",
+            "cell": 8,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell08CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 8 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 8,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell09Click",
+            "PullCountCalculatorCell09Skip"
+        ]
+    },
+    "PullCountCalculatorCell08NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 8 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 8,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell09Click",
@@ -991,7 +1466,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell09QuantityOCR",
-            "PullCountCalculatorCell09TitleOCR",
+            "PullCountCalculatorCell09CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell09CarryToNextVoucherOCR",
+            "PullCountCalculatorCell09NextOnlyVoucherOCR",
             "PullCountCalculatorCell10Click",
             "PullCountCalculatorCell10Skip"
         ]
@@ -1016,13 +1493,15 @@
             "cell": 9
         },
         "next": [
-            "PullCountCalculatorCell09TitleOCR",
+            "PullCountCalculatorCell09CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell09CarryToNextVoucherOCR",
+            "PullCountCalculatorCell09NextOnlyVoucherOCR",
             "PullCountCalculatorCell10Click",
             "PullCountCalculatorCell10Skip"
         ]
     },
-    "PullCountCalculatorCell09TitleOCR": {
-        "desc": "识别贵重品库第 9 格右侧详情标题",
+    "PullCountCalculatorCell09CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 9 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1031,14 +1510,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 9
+            "stage": "record_voucher",
+            "cell": 9,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell09CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 9 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 9,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell10Click",
+            "PullCountCalculatorCell10Skip"
+        ]
+    },
+    "PullCountCalculatorCell09NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 9 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 9,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell10Click",
@@ -1096,7 +1629,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell10QuantityOCR",
-            "PullCountCalculatorCell10TitleOCR",
+            "PullCountCalculatorCell10CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell10CarryToNextVoucherOCR",
+            "PullCountCalculatorCell10NextOnlyVoucherOCR",
             "PullCountCalculatorCell11Click",
             "PullCountCalculatorCell11Skip"
         ]
@@ -1121,13 +1656,15 @@
             "cell": 10
         },
         "next": [
-            "PullCountCalculatorCell10TitleOCR",
+            "PullCountCalculatorCell10CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell10CarryToNextVoucherOCR",
+            "PullCountCalculatorCell10NextOnlyVoucherOCR",
             "PullCountCalculatorCell11Click",
             "PullCountCalculatorCell11Skip"
         ]
     },
-    "PullCountCalculatorCell10TitleOCR": {
-        "desc": "识别贵重品库第 10 格右侧详情标题",
+    "PullCountCalculatorCell10CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 10 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1136,14 +1673,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 10
+            "stage": "record_voucher",
+            "cell": 10,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell10CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 10 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 10,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell11Click",
+            "PullCountCalculatorCell11Skip"
+        ]
+    },
+    "PullCountCalculatorCell10NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 10 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 10,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell11Click",
@@ -1201,7 +1792,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell11QuantityOCR",
-            "PullCountCalculatorCell11TitleOCR",
+            "PullCountCalculatorCell11CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell11CarryToNextVoucherOCR",
+            "PullCountCalculatorCell11NextOnlyVoucherOCR",
             "PullCountCalculatorCell12Click",
             "PullCountCalculatorCell12Skip"
         ]
@@ -1226,13 +1819,15 @@
             "cell": 11
         },
         "next": [
-            "PullCountCalculatorCell11TitleOCR",
+            "PullCountCalculatorCell11CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell11CarryToNextVoucherOCR",
+            "PullCountCalculatorCell11NextOnlyVoucherOCR",
             "PullCountCalculatorCell12Click",
             "PullCountCalculatorCell12Skip"
         ]
     },
-    "PullCountCalculatorCell11TitleOCR": {
-        "desc": "识别贵重品库第 11 格右侧详情标题",
+    "PullCountCalculatorCell11CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 11 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1241,14 +1836,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 11
+            "stage": "record_voucher",
+            "cell": 11,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell11CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 11 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 11,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell12Click",
+            "PullCountCalculatorCell12Skip"
+        ]
+    },
+    "PullCountCalculatorCell11NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 11 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 11,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell12Click",
@@ -1306,7 +1955,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell12QuantityOCR",
-            "PullCountCalculatorCell12TitleOCR",
+            "PullCountCalculatorCell12CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell12CarryToNextVoucherOCR",
+            "PullCountCalculatorCell12NextOnlyVoucherOCR",
             "PullCountCalculatorCell13Click",
             "PullCountCalculatorCell13Skip"
         ]
@@ -1331,13 +1982,15 @@
             "cell": 12
         },
         "next": [
-            "PullCountCalculatorCell12TitleOCR",
+            "PullCountCalculatorCell12CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell12CarryToNextVoucherOCR",
+            "PullCountCalculatorCell12NextOnlyVoucherOCR",
             "PullCountCalculatorCell13Click",
             "PullCountCalculatorCell13Skip"
         ]
     },
-    "PullCountCalculatorCell12TitleOCR": {
-        "desc": "识别贵重品库第 12 格右侧详情标题",
+    "PullCountCalculatorCell12CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 12 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1346,14 +1999,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 12
+            "stage": "record_voucher",
+            "cell": 12,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell12CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 12 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 12,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell13Click",
+            "PullCountCalculatorCell13Skip"
+        ]
+    },
+    "PullCountCalculatorCell12NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 12 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 12,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell13Click",
@@ -1411,7 +2118,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell13QuantityOCR",
-            "PullCountCalculatorCell13TitleOCR",
+            "PullCountCalculatorCell13CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell13CarryToNextVoucherOCR",
+            "PullCountCalculatorCell13NextOnlyVoucherOCR",
             "PullCountCalculatorCell14Click",
             "PullCountCalculatorCell14Skip"
         ]
@@ -1436,13 +2145,15 @@
             "cell": 13
         },
         "next": [
-            "PullCountCalculatorCell13TitleOCR",
+            "PullCountCalculatorCell13CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell13CarryToNextVoucherOCR",
+            "PullCountCalculatorCell13NextOnlyVoucherOCR",
             "PullCountCalculatorCell14Click",
             "PullCountCalculatorCell14Skip"
         ]
     },
-    "PullCountCalculatorCell13TitleOCR": {
-        "desc": "识别贵重品库第 13 格右侧详情标题",
+    "PullCountCalculatorCell13CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 13 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1451,14 +2162,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 13
+            "stage": "record_voucher",
+            "cell": 13,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell13CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 13 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 13,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell14Click",
+            "PullCountCalculatorCell14Skip"
+        ]
+    },
+    "PullCountCalculatorCell13NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 13 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 13,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell14Click",
@@ -1516,7 +2281,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell14QuantityOCR",
-            "PullCountCalculatorCell14TitleOCR",
+            "PullCountCalculatorCell14CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell14CarryToNextVoucherOCR",
+            "PullCountCalculatorCell14NextOnlyVoucherOCR",
             "PullCountCalculatorCell15Click",
             "PullCountCalculatorCell15Skip"
         ]
@@ -1541,13 +2308,15 @@
             "cell": 14
         },
         "next": [
-            "PullCountCalculatorCell14TitleOCR",
+            "PullCountCalculatorCell14CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell14CarryToNextVoucherOCR",
+            "PullCountCalculatorCell14NextOnlyVoucherOCR",
             "PullCountCalculatorCell15Click",
             "PullCountCalculatorCell15Skip"
         ]
     },
-    "PullCountCalculatorCell14TitleOCR": {
-        "desc": "识别贵重品库第 14 格右侧详情标题",
+    "PullCountCalculatorCell14CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 14 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1556,14 +2325,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 14
+            "stage": "record_voucher",
+            "cell": 14,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell14CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 14 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 14,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell15Click",
+            "PullCountCalculatorCell15Skip"
+        ]
+    },
+    "PullCountCalculatorCell14NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 14 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 14,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell15Click",
@@ -1621,7 +2444,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell15QuantityOCR",
-            "PullCountCalculatorCell15TitleOCR",
+            "PullCountCalculatorCell15CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell15CarryToNextVoucherOCR",
+            "PullCountCalculatorCell15NextOnlyVoucherOCR",
             "PullCountCalculatorCell16Click",
             "PullCountCalculatorCell16Skip"
         ]
@@ -1646,13 +2471,15 @@
             "cell": 15
         },
         "next": [
-            "PullCountCalculatorCell15TitleOCR",
+            "PullCountCalculatorCell15CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell15CarryToNextVoucherOCR",
+            "PullCountCalculatorCell15NextOnlyVoucherOCR",
             "PullCountCalculatorCell16Click",
             "PullCountCalculatorCell16Skip"
         ]
     },
-    "PullCountCalculatorCell15TitleOCR": {
-        "desc": "识别贵重品库第 15 格右侧详情标题",
+    "PullCountCalculatorCell15CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 15 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1661,14 +2488,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 15
+            "stage": "record_voucher",
+            "cell": 15,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell15CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 15 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 15,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell16Click",
+            "PullCountCalculatorCell16Skip"
+        ]
+    },
+    "PullCountCalculatorCell15NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 15 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 15,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell16Click",
@@ -1726,7 +2607,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell16QuantityOCR",
-            "PullCountCalculatorCell16TitleOCR",
+            "PullCountCalculatorCell16CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell16CarryToNextVoucherOCR",
+            "PullCountCalculatorCell16NextOnlyVoucherOCR",
             "PullCountCalculatorCell17Click",
             "PullCountCalculatorCell17Skip"
         ]
@@ -1751,13 +2634,15 @@
             "cell": 16
         },
         "next": [
-            "PullCountCalculatorCell16TitleOCR",
+            "PullCountCalculatorCell16CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell16CarryToNextVoucherOCR",
+            "PullCountCalculatorCell16NextOnlyVoucherOCR",
             "PullCountCalculatorCell17Click",
             "PullCountCalculatorCell17Skip"
         ]
     },
-    "PullCountCalculatorCell16TitleOCR": {
-        "desc": "识别贵重品库第 16 格右侧详情标题",
+    "PullCountCalculatorCell16CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 16 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1766,14 +2651,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 16
+            "stage": "record_voucher",
+            "cell": 16,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell16CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 16 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 16,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell17Click",
+            "PullCountCalculatorCell17Skip"
+        ]
+    },
+    "PullCountCalculatorCell16NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 16 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 16,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell17Click",
@@ -1831,7 +2770,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell17QuantityOCR",
-            "PullCountCalculatorCell17TitleOCR",
+            "PullCountCalculatorCell17CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell17CarryToNextVoucherOCR",
+            "PullCountCalculatorCell17NextOnlyVoucherOCR",
             "PullCountCalculatorCell18Click",
             "PullCountCalculatorCell18Skip"
         ]
@@ -1856,13 +2797,15 @@
             "cell": 17
         },
         "next": [
-            "PullCountCalculatorCell17TitleOCR",
+            "PullCountCalculatorCell17CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell17CarryToNextVoucherOCR",
+            "PullCountCalculatorCell17NextOnlyVoucherOCR",
             "PullCountCalculatorCell18Click",
             "PullCountCalculatorCell18Skip"
         ]
     },
-    "PullCountCalculatorCell17TitleOCR": {
-        "desc": "识别贵重品库第 17 格右侧详情标题",
+    "PullCountCalculatorCell17CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 17 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1871,14 +2814,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 17
+            "stage": "record_voucher",
+            "cell": 17,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell17CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 17 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 17,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell18Click",
+            "PullCountCalculatorCell18Skip"
+        ]
+    },
+    "PullCountCalculatorCell17NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 17 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 17,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell18Click",
@@ -1936,7 +2933,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell18QuantityOCR",
-            "PullCountCalculatorCell18TitleOCR",
+            "PullCountCalculatorCell18CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell18CarryToNextVoucherOCR",
+            "PullCountCalculatorCell18NextOnlyVoucherOCR",
             "PullCountCalculatorCell19Click",
             "PullCountCalculatorCell19Skip"
         ]
@@ -1961,13 +2960,15 @@
             "cell": 18
         },
         "next": [
-            "PullCountCalculatorCell18TitleOCR",
+            "PullCountCalculatorCell18CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell18CarryToNextVoucherOCR",
+            "PullCountCalculatorCell18NextOnlyVoucherOCR",
             "PullCountCalculatorCell19Click",
             "PullCountCalculatorCell19Skip"
         ]
     },
-    "PullCountCalculatorCell18TitleOCR": {
-        "desc": "识别贵重品库第 18 格右侧详情标题",
+    "PullCountCalculatorCell18CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 18 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -1976,14 +2977,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 18
+            "stage": "record_voucher",
+            "cell": 18,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell18CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 18 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 18,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell19Click",
+            "PullCountCalculatorCell19Skip"
+        ]
+    },
+    "PullCountCalculatorCell18NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 18 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 18,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell19Click",
@@ -2041,7 +3096,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell19QuantityOCR",
-            "PullCountCalculatorCell19TitleOCR",
+            "PullCountCalculatorCell19CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell19CarryToNextVoucherOCR",
+            "PullCountCalculatorCell19NextOnlyVoucherOCR",
             "PullCountCalculatorCell20Click",
             "PullCountCalculatorCell20Skip"
         ]
@@ -2066,13 +3123,15 @@
             "cell": 19
         },
         "next": [
-            "PullCountCalculatorCell19TitleOCR",
+            "PullCountCalculatorCell19CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell19CarryToNextVoucherOCR",
+            "PullCountCalculatorCell19NextOnlyVoucherOCR",
             "PullCountCalculatorCell20Click",
             "PullCountCalculatorCell20Skip"
         ]
     },
-    "PullCountCalculatorCell19TitleOCR": {
-        "desc": "识别贵重品库第 19 格右侧详情标题",
+    "PullCountCalculatorCell19CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 19 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2081,14 +3140,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 19
+            "stage": "record_voucher",
+            "cell": 19,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell19CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 19 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 19,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell20Click",
+            "PullCountCalculatorCell20Skip"
+        ]
+    },
+    "PullCountCalculatorCell19NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 19 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 19,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell20Click",
@@ -2146,7 +3259,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell20QuantityOCR",
-            "PullCountCalculatorCell20TitleOCR",
+            "PullCountCalculatorCell20CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell20CarryToNextVoucherOCR",
+            "PullCountCalculatorCell20NextOnlyVoucherOCR",
             "PullCountCalculatorCell21Click",
             "PullCountCalculatorCell21Skip"
         ]
@@ -2171,13 +3286,15 @@
             "cell": 20
         },
         "next": [
-            "PullCountCalculatorCell20TitleOCR",
+            "PullCountCalculatorCell20CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell20CarryToNextVoucherOCR",
+            "PullCountCalculatorCell20NextOnlyVoucherOCR",
             "PullCountCalculatorCell21Click",
             "PullCountCalculatorCell21Skip"
         ]
     },
-    "PullCountCalculatorCell20TitleOCR": {
-        "desc": "识别贵重品库第 20 格右侧详情标题",
+    "PullCountCalculatorCell20CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 20 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2186,14 +3303,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 20
+            "stage": "record_voucher",
+            "cell": 20,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell20CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 20 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 20,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell21Click",
+            "PullCountCalculatorCell21Skip"
+        ]
+    },
+    "PullCountCalculatorCell20NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 20 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 20,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell21Click",
@@ -2251,7 +3422,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell21QuantityOCR",
-            "PullCountCalculatorCell21TitleOCR",
+            "PullCountCalculatorCell21CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell21CarryToNextVoucherOCR",
+            "PullCountCalculatorCell21NextOnlyVoucherOCR",
             "PullCountCalculatorCell22Click",
             "PullCountCalculatorCell22Skip"
         ]
@@ -2276,13 +3449,15 @@
             "cell": 21
         },
         "next": [
-            "PullCountCalculatorCell21TitleOCR",
+            "PullCountCalculatorCell21CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell21CarryToNextVoucherOCR",
+            "PullCountCalculatorCell21NextOnlyVoucherOCR",
             "PullCountCalculatorCell22Click",
             "PullCountCalculatorCell22Skip"
         ]
     },
-    "PullCountCalculatorCell21TitleOCR": {
-        "desc": "识别贵重品库第 21 格右侧详情标题",
+    "PullCountCalculatorCell21CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 21 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2291,14 +3466,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 21
+            "stage": "record_voucher",
+            "cell": 21,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell21CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 21 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 21,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell22Click",
+            "PullCountCalculatorCell22Skip"
+        ]
+    },
+    "PullCountCalculatorCell21NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 21 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 21,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell22Click",
@@ -2356,7 +3585,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell22QuantityOCR",
-            "PullCountCalculatorCell22TitleOCR",
+            "PullCountCalculatorCell22CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell22CarryToNextVoucherOCR",
+            "PullCountCalculatorCell22NextOnlyVoucherOCR",
             "PullCountCalculatorCell23Click",
             "PullCountCalculatorCell23Skip"
         ]
@@ -2381,13 +3612,15 @@
             "cell": 22
         },
         "next": [
-            "PullCountCalculatorCell22TitleOCR",
+            "PullCountCalculatorCell22CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell22CarryToNextVoucherOCR",
+            "PullCountCalculatorCell22NextOnlyVoucherOCR",
             "PullCountCalculatorCell23Click",
             "PullCountCalculatorCell23Skip"
         ]
     },
-    "PullCountCalculatorCell22TitleOCR": {
-        "desc": "识别贵重品库第 22 格右侧详情标题",
+    "PullCountCalculatorCell22CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 22 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2396,14 +3629,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 22
+            "stage": "record_voucher",
+            "cell": 22,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell22CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 22 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 22,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell23Click",
+            "PullCountCalculatorCell23Skip"
+        ]
+    },
+    "PullCountCalculatorCell22NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 22 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 22,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell23Click",
@@ -2461,7 +3748,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell23QuantityOCR",
-            "PullCountCalculatorCell23TitleOCR",
+            "PullCountCalculatorCell23CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell23CarryToNextVoucherOCR",
+            "PullCountCalculatorCell23NextOnlyVoucherOCR",
             "PullCountCalculatorCell24Click",
             "PullCountCalculatorCell24Skip"
         ]
@@ -2486,13 +3775,15 @@
             "cell": 23
         },
         "next": [
-            "PullCountCalculatorCell23TitleOCR",
+            "PullCountCalculatorCell23CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell23CarryToNextVoucherOCR",
+            "PullCountCalculatorCell23NextOnlyVoucherOCR",
             "PullCountCalculatorCell24Click",
             "PullCountCalculatorCell24Skip"
         ]
     },
-    "PullCountCalculatorCell23TitleOCR": {
-        "desc": "识别贵重品库第 23 格右侧详情标题",
+    "PullCountCalculatorCell23CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 23 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2501,14 +3792,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 23
+            "stage": "record_voucher",
+            "cell": 23,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell23CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 23 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 23,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell24Click",
+            "PullCountCalculatorCell24Skip"
+        ]
+    },
+    "PullCountCalculatorCell23NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 23 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 23,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell24Click",
@@ -2566,7 +3911,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell24QuantityOCR",
-            "PullCountCalculatorCell24TitleOCR",
+            "PullCountCalculatorCell24CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell24CarryToNextVoucherOCR",
+            "PullCountCalculatorCell24NextOnlyVoucherOCR",
             "PullCountCalculatorCell25Click",
             "PullCountCalculatorCell25Skip"
         ]
@@ -2591,13 +3938,15 @@
             "cell": 24
         },
         "next": [
-            "PullCountCalculatorCell24TitleOCR",
+            "PullCountCalculatorCell24CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell24CarryToNextVoucherOCR",
+            "PullCountCalculatorCell24NextOnlyVoucherOCR",
             "PullCountCalculatorCell25Click",
             "PullCountCalculatorCell25Skip"
         ]
     },
-    "PullCountCalculatorCell24TitleOCR": {
-        "desc": "识别贵重品库第 24 格右侧详情标题",
+    "PullCountCalculatorCell24CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 24 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2606,14 +3955,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 24
+            "stage": "record_voucher",
+            "cell": 24,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell24CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 24 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 24,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell25Click",
+            "PullCountCalculatorCell25Skip"
+        ]
+    },
+    "PullCountCalculatorCell24NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 24 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 24,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell25Click",
@@ -2671,7 +4074,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell25QuantityOCR",
-            "PullCountCalculatorCell25TitleOCR",
+            "PullCountCalculatorCell25CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell25CarryToNextVoucherOCR",
+            "PullCountCalculatorCell25NextOnlyVoucherOCR",
             "PullCountCalculatorCell26Click",
             "PullCountCalculatorCell26Skip"
         ]
@@ -2696,13 +4101,15 @@
             "cell": 25
         },
         "next": [
-            "PullCountCalculatorCell25TitleOCR",
+            "PullCountCalculatorCell25CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell25CarryToNextVoucherOCR",
+            "PullCountCalculatorCell25NextOnlyVoucherOCR",
             "PullCountCalculatorCell26Click",
             "PullCountCalculatorCell26Skip"
         ]
     },
-    "PullCountCalculatorCell25TitleOCR": {
-        "desc": "识别贵重品库第 25 格右侧详情标题",
+    "PullCountCalculatorCell25CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 25 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2711,14 +4118,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 25
+            "stage": "record_voucher",
+            "cell": 25,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell25CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 25 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 25,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell26Click",
+            "PullCountCalculatorCell26Skip"
+        ]
+    },
+    "PullCountCalculatorCell25NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 25 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 25,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell26Click",
@@ -2776,7 +4237,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell26QuantityOCR",
-            "PullCountCalculatorCell26TitleOCR",
+            "PullCountCalculatorCell26CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell26CarryToNextVoucherOCR",
+            "PullCountCalculatorCell26NextOnlyVoucherOCR",
             "PullCountCalculatorCell27Click",
             "PullCountCalculatorCell27Skip"
         ]
@@ -2801,13 +4264,15 @@
             "cell": 26
         },
         "next": [
-            "PullCountCalculatorCell26TitleOCR",
+            "PullCountCalculatorCell26CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell26CarryToNextVoucherOCR",
+            "PullCountCalculatorCell26NextOnlyVoucherOCR",
             "PullCountCalculatorCell27Click",
             "PullCountCalculatorCell27Skip"
         ]
     },
-    "PullCountCalculatorCell26TitleOCR": {
-        "desc": "识别贵重品库第 26 格右侧详情标题",
+    "PullCountCalculatorCell26CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 26 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2816,14 +4281,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 26
+            "stage": "record_voucher",
+            "cell": 26,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell26CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 26 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 26,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell27Click",
+            "PullCountCalculatorCell27Skip"
+        ]
+    },
+    "PullCountCalculatorCell26NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 26 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 26,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell27Click",
@@ -2881,7 +4400,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell27QuantityOCR",
-            "PullCountCalculatorCell27TitleOCR",
+            "PullCountCalculatorCell27CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell27CarryToNextVoucherOCR",
+            "PullCountCalculatorCell27NextOnlyVoucherOCR",
             "PullCountCalculatorCell28Click",
             "PullCountCalculatorCell28Skip"
         ]
@@ -2906,13 +4427,15 @@
             "cell": 27
         },
         "next": [
-            "PullCountCalculatorCell27TitleOCR",
+            "PullCountCalculatorCell27CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell27CarryToNextVoucherOCR",
+            "PullCountCalculatorCell27NextOnlyVoucherOCR",
             "PullCountCalculatorCell28Click",
             "PullCountCalculatorCell28Skip"
         ]
     },
-    "PullCountCalculatorCell27TitleOCR": {
-        "desc": "识别贵重品库第 27 格右侧详情标题",
+    "PullCountCalculatorCell27CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 27 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -2921,14 +4444,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 27
+            "stage": "record_voucher",
+            "cell": 27,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell27CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 27 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 27,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell28Click",
+            "PullCountCalculatorCell28Skip"
+        ]
+    },
+    "PullCountCalculatorCell27NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 27 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 27,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell28Click",
@@ -2986,7 +4563,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell28QuantityOCR",
-            "PullCountCalculatorCell28TitleOCR",
+            "PullCountCalculatorCell28CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell28CarryToNextVoucherOCR",
+            "PullCountCalculatorCell28NextOnlyVoucherOCR",
             "PullCountCalculatorCell29Click",
             "PullCountCalculatorCell29Skip"
         ]
@@ -3011,13 +4590,15 @@
             "cell": 28
         },
         "next": [
-            "PullCountCalculatorCell28TitleOCR",
+            "PullCountCalculatorCell28CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell28CarryToNextVoucherOCR",
+            "PullCountCalculatorCell28NextOnlyVoucherOCR",
             "PullCountCalculatorCell29Click",
             "PullCountCalculatorCell29Skip"
         ]
     },
-    "PullCountCalculatorCell28TitleOCR": {
-        "desc": "识别贵重品库第 28 格右侧详情标题",
+    "PullCountCalculatorCell28CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 28 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3026,14 +4607,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 28
+            "stage": "record_voucher",
+            "cell": 28,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell28CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 28 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 28,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell29Click",
+            "PullCountCalculatorCell29Skip"
+        ]
+    },
+    "PullCountCalculatorCell28NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 28 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 28,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell29Click",
@@ -3091,7 +4726,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell29QuantityOCR",
-            "PullCountCalculatorCell29TitleOCR",
+            "PullCountCalculatorCell29CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell29CarryToNextVoucherOCR",
+            "PullCountCalculatorCell29NextOnlyVoucherOCR",
             "PullCountCalculatorCell30Click",
             "PullCountCalculatorCell30Skip"
         ]
@@ -3116,13 +4753,15 @@
             "cell": 29
         },
         "next": [
-            "PullCountCalculatorCell29TitleOCR",
+            "PullCountCalculatorCell29CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell29CarryToNextVoucherOCR",
+            "PullCountCalculatorCell29NextOnlyVoucherOCR",
             "PullCountCalculatorCell30Click",
             "PullCountCalculatorCell30Skip"
         ]
     },
-    "PullCountCalculatorCell29TitleOCR": {
-        "desc": "识别贵重品库第 29 格右侧详情标题",
+    "PullCountCalculatorCell29CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 29 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3131,14 +4770,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 29
+            "stage": "record_voucher",
+            "cell": 29,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell29CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 29 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 29,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell30Click",
+            "PullCountCalculatorCell30Skip"
+        ]
+    },
+    "PullCountCalculatorCell29NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 29 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 29,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell30Click",
@@ -3196,7 +4889,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell30QuantityOCR",
-            "PullCountCalculatorCell30TitleOCR",
+            "PullCountCalculatorCell30CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell30CarryToNextVoucherOCR",
+            "PullCountCalculatorCell30NextOnlyVoucherOCR",
             "PullCountCalculatorCell31Click",
             "PullCountCalculatorCell31Skip"
         ]
@@ -3221,13 +4916,15 @@
             "cell": 30
         },
         "next": [
-            "PullCountCalculatorCell30TitleOCR",
+            "PullCountCalculatorCell30CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell30CarryToNextVoucherOCR",
+            "PullCountCalculatorCell30NextOnlyVoucherOCR",
             "PullCountCalculatorCell31Click",
             "PullCountCalculatorCell31Skip"
         ]
     },
-    "PullCountCalculatorCell30TitleOCR": {
-        "desc": "识别贵重品库第 30 格右侧详情标题",
+    "PullCountCalculatorCell30CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 30 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3236,14 +4933,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 30
+            "stage": "record_voucher",
+            "cell": 30,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell30CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 30 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 30,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell31Click",
+            "PullCountCalculatorCell31Skip"
+        ]
+    },
+    "PullCountCalculatorCell30NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 30 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 30,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell31Click",
@@ -3301,7 +5052,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell31QuantityOCR",
-            "PullCountCalculatorCell31TitleOCR",
+            "PullCountCalculatorCell31CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell31CarryToNextVoucherOCR",
+            "PullCountCalculatorCell31NextOnlyVoucherOCR",
             "PullCountCalculatorCell32Click",
             "PullCountCalculatorCell32Skip"
         ]
@@ -3326,13 +5079,15 @@
             "cell": 31
         },
         "next": [
-            "PullCountCalculatorCell31TitleOCR",
+            "PullCountCalculatorCell31CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell31CarryToNextVoucherOCR",
+            "PullCountCalculatorCell31NextOnlyVoucherOCR",
             "PullCountCalculatorCell32Click",
             "PullCountCalculatorCell32Skip"
         ]
     },
-    "PullCountCalculatorCell31TitleOCR": {
-        "desc": "识别贵重品库第 31 格右侧详情标题",
+    "PullCountCalculatorCell31CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 31 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3341,14 +5096,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 31
+            "stage": "record_voucher",
+            "cell": 31,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell31CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 31 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 31,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell32Click",
+            "PullCountCalculatorCell32Skip"
+        ]
+    },
+    "PullCountCalculatorCell31NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 31 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 31,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell32Click",
@@ -3406,7 +5215,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell32QuantityOCR",
-            "PullCountCalculatorCell32TitleOCR",
+            "PullCountCalculatorCell32CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell32CarryToNextVoucherOCR",
+            "PullCountCalculatorCell32NextOnlyVoucherOCR",
             "PullCountCalculatorCell33Click",
             "PullCountCalculatorCell33Skip"
         ]
@@ -3431,13 +5242,15 @@
             "cell": 32
         },
         "next": [
-            "PullCountCalculatorCell32TitleOCR",
+            "PullCountCalculatorCell32CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell32CarryToNextVoucherOCR",
+            "PullCountCalculatorCell32NextOnlyVoucherOCR",
             "PullCountCalculatorCell33Click",
             "PullCountCalculatorCell33Skip"
         ]
     },
-    "PullCountCalculatorCell32TitleOCR": {
-        "desc": "识别贵重品库第 32 格右侧详情标题",
+    "PullCountCalculatorCell32CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 32 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3446,14 +5259,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 32
+            "stage": "record_voucher",
+            "cell": 32,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell32CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 32 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 32,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell33Click",
+            "PullCountCalculatorCell33Skip"
+        ]
+    },
+    "PullCountCalculatorCell32NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 32 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 32,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell33Click",
@@ -3511,7 +5378,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell33QuantityOCR",
-            "PullCountCalculatorCell33TitleOCR",
+            "PullCountCalculatorCell33CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell33CarryToNextVoucherOCR",
+            "PullCountCalculatorCell33NextOnlyVoucherOCR",
             "PullCountCalculatorCell34Click",
             "PullCountCalculatorCell34Skip"
         ]
@@ -3536,13 +5405,15 @@
             "cell": 33
         },
         "next": [
-            "PullCountCalculatorCell33TitleOCR",
+            "PullCountCalculatorCell33CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell33CarryToNextVoucherOCR",
+            "PullCountCalculatorCell33NextOnlyVoucherOCR",
             "PullCountCalculatorCell34Click",
             "PullCountCalculatorCell34Skip"
         ]
     },
-    "PullCountCalculatorCell33TitleOCR": {
-        "desc": "识别贵重品库第 33 格右侧详情标题",
+    "PullCountCalculatorCell33CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 33 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3551,14 +5422,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 33
+            "stage": "record_voucher",
+            "cell": 33,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell33CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 33 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 33,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell34Click",
+            "PullCountCalculatorCell34Skip"
+        ]
+    },
+    "PullCountCalculatorCell33NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 33 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 33,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell34Click",
@@ -3616,7 +5541,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell34QuantityOCR",
-            "PullCountCalculatorCell34TitleOCR",
+            "PullCountCalculatorCell34CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell34CarryToNextVoucherOCR",
+            "PullCountCalculatorCell34NextOnlyVoucherOCR",
             "PullCountCalculatorCell35Click",
             "PullCountCalculatorCell35Skip"
         ]
@@ -3641,13 +5568,15 @@
             "cell": 34
         },
         "next": [
-            "PullCountCalculatorCell34TitleOCR",
+            "PullCountCalculatorCell34CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell34CarryToNextVoucherOCR",
+            "PullCountCalculatorCell34NextOnlyVoucherOCR",
             "PullCountCalculatorCell35Click",
             "PullCountCalculatorCell35Skip"
         ]
     },
-    "PullCountCalculatorCell34TitleOCR": {
-        "desc": "识别贵重品库第 34 格右侧详情标题",
+    "PullCountCalculatorCell34CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 34 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3656,14 +5585,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 34
+            "stage": "record_voucher",
+            "cell": 34,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell34CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 34 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 34,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell35Click",
+            "PullCountCalculatorCell35Skip"
+        ]
+    },
+    "PullCountCalculatorCell34NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 34 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 34,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell35Click",
@@ -3721,7 +5704,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell35QuantityOCR",
-            "PullCountCalculatorCell35TitleOCR",
+            "PullCountCalculatorCell35CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell35CarryToNextVoucherOCR",
+            "PullCountCalculatorCell35NextOnlyVoucherOCR",
             "PullCountCalculatorCell36Click",
             "PullCountCalculatorCell36Skip"
         ]
@@ -3746,13 +5731,15 @@
             "cell": 35
         },
         "next": [
-            "PullCountCalculatorCell35TitleOCR",
+            "PullCountCalculatorCell35CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell35CarryToNextVoucherOCR",
+            "PullCountCalculatorCell35NextOnlyVoucherOCR",
             "PullCountCalculatorCell36Click",
             "PullCountCalculatorCell36Skip"
         ]
     },
-    "PullCountCalculatorCell35TitleOCR": {
-        "desc": "识别贵重品库第 35 格右侧详情标题",
+    "PullCountCalculatorCell35CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 35 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3761,14 +5748,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 35
+            "stage": "record_voucher",
+            "cell": 35,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell35CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 35 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 35,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell36Click",
+            "PullCountCalculatorCell36Skip"
+        ]
+    },
+    "PullCountCalculatorCell35NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 35 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 35,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell36Click",
@@ -3826,7 +5867,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell36QuantityOCR",
-            "PullCountCalculatorCell36TitleOCR",
+            "PullCountCalculatorCell36CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell36CarryToNextVoucherOCR",
+            "PullCountCalculatorCell36NextOnlyVoucherOCR",
             "PullCountCalculatorCell37Click",
             "PullCountCalculatorCell37Skip"
         ]
@@ -3851,13 +5894,15 @@
             "cell": 36
         },
         "next": [
-            "PullCountCalculatorCell36TitleOCR",
+            "PullCountCalculatorCell36CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell36CarryToNextVoucherOCR",
+            "PullCountCalculatorCell36NextOnlyVoucherOCR",
             "PullCountCalculatorCell37Click",
             "PullCountCalculatorCell37Skip"
         ]
     },
-    "PullCountCalculatorCell36TitleOCR": {
-        "desc": "识别贵重品库第 36 格右侧详情标题",
+    "PullCountCalculatorCell36CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 36 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3866,14 +5911,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 36
+            "stage": "record_voucher",
+            "cell": 36,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell36CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 36 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 36,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell37Click",
+            "PullCountCalculatorCell37Skip"
+        ]
+    },
+    "PullCountCalculatorCell36NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 36 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 36,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell37Click",
@@ -3931,7 +6030,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell37QuantityOCR",
-            "PullCountCalculatorCell37TitleOCR",
+            "PullCountCalculatorCell37CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell37CarryToNextVoucherOCR",
+            "PullCountCalculatorCell37NextOnlyVoucherOCR",
             "PullCountCalculatorCell38Click",
             "PullCountCalculatorCell38Skip"
         ]
@@ -3956,13 +6057,15 @@
             "cell": 37
         },
         "next": [
-            "PullCountCalculatorCell37TitleOCR",
+            "PullCountCalculatorCell37CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell37CarryToNextVoucherOCR",
+            "PullCountCalculatorCell37NextOnlyVoucherOCR",
             "PullCountCalculatorCell38Click",
             "PullCountCalculatorCell38Skip"
         ]
     },
-    "PullCountCalculatorCell37TitleOCR": {
-        "desc": "识别贵重品库第 37 格右侧详情标题",
+    "PullCountCalculatorCell37CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 37 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -3971,14 +6074,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 37
+            "stage": "record_voucher",
+            "cell": 37,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell37CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 37 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 37,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell38Click",
+            "PullCountCalculatorCell38Skip"
+        ]
+    },
+    "PullCountCalculatorCell37NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 37 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 37,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell38Click",
@@ -4036,7 +6193,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell38QuantityOCR",
-            "PullCountCalculatorCell38TitleOCR",
+            "PullCountCalculatorCell38CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell38CarryToNextVoucherOCR",
+            "PullCountCalculatorCell38NextOnlyVoucherOCR",
             "PullCountCalculatorCell39Click",
             "PullCountCalculatorCell39Skip"
         ]
@@ -4061,13 +6220,15 @@
             "cell": 38
         },
         "next": [
-            "PullCountCalculatorCell38TitleOCR",
+            "PullCountCalculatorCell38CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell38CarryToNextVoucherOCR",
+            "PullCountCalculatorCell38NextOnlyVoucherOCR",
             "PullCountCalculatorCell39Click",
             "PullCountCalculatorCell39Skip"
         ]
     },
-    "PullCountCalculatorCell38TitleOCR": {
-        "desc": "识别贵重品库第 38 格右侧详情标题",
+    "PullCountCalculatorCell38CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 38 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4076,14 +6237,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 38
+            "stage": "record_voucher",
+            "cell": 38,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell38CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 38 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 38,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell39Click",
+            "PullCountCalculatorCell39Skip"
+        ]
+    },
+    "PullCountCalculatorCell38NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 38 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 38,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell39Click",
@@ -4141,7 +6356,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell39QuantityOCR",
-            "PullCountCalculatorCell39TitleOCR",
+            "PullCountCalculatorCell39CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell39CarryToNextVoucherOCR",
+            "PullCountCalculatorCell39NextOnlyVoucherOCR",
             "PullCountCalculatorCell40Click",
             "PullCountCalculatorCell40Skip"
         ]
@@ -4166,13 +6383,15 @@
             "cell": 39
         },
         "next": [
-            "PullCountCalculatorCell39TitleOCR",
+            "PullCountCalculatorCell39CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell39CarryToNextVoucherOCR",
+            "PullCountCalculatorCell39NextOnlyVoucherOCR",
             "PullCountCalculatorCell40Click",
             "PullCountCalculatorCell40Skip"
         ]
     },
-    "PullCountCalculatorCell39TitleOCR": {
-        "desc": "识别贵重品库第 39 格右侧详情标题",
+    "PullCountCalculatorCell39CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 39 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4181,14 +6400,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 39
+            "stage": "record_voucher",
+            "cell": 39,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell39CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 39 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 39,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell40Click",
+            "PullCountCalculatorCell40Skip"
+        ]
+    },
+    "PullCountCalculatorCell39NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 39 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 39,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell40Click",
@@ -4246,7 +6519,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell40QuantityOCR",
-            "PullCountCalculatorCell40TitleOCR",
+            "PullCountCalculatorCell40CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell40CarryToNextVoucherOCR",
+            "PullCountCalculatorCell40NextOnlyVoucherOCR",
             "PullCountCalculatorCell41Click",
             "PullCountCalculatorCell41Skip"
         ]
@@ -4271,13 +6546,15 @@
             "cell": 40
         },
         "next": [
-            "PullCountCalculatorCell40TitleOCR",
+            "PullCountCalculatorCell40CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell40CarryToNextVoucherOCR",
+            "PullCountCalculatorCell40NextOnlyVoucherOCR",
             "PullCountCalculatorCell41Click",
             "PullCountCalculatorCell41Skip"
         ]
     },
-    "PullCountCalculatorCell40TitleOCR": {
-        "desc": "识别贵重品库第 40 格右侧详情标题",
+    "PullCountCalculatorCell40CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 40 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4286,14 +6563,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 40
+            "stage": "record_voucher",
+            "cell": 40,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell40CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 40 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 40,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell41Click",
+            "PullCountCalculatorCell41Skip"
+        ]
+    },
+    "PullCountCalculatorCell40NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 40 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 40,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell41Click",
@@ -4351,7 +6682,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell41QuantityOCR",
-            "PullCountCalculatorCell41TitleOCR",
+            "PullCountCalculatorCell41CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell41CarryToNextVoucherOCR",
+            "PullCountCalculatorCell41NextOnlyVoucherOCR",
             "PullCountCalculatorCell42Click",
             "PullCountCalculatorCell42Skip"
         ]
@@ -4376,13 +6709,15 @@
             "cell": 41
         },
         "next": [
-            "PullCountCalculatorCell41TitleOCR",
+            "PullCountCalculatorCell41CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell41CarryToNextVoucherOCR",
+            "PullCountCalculatorCell41NextOnlyVoucherOCR",
             "PullCountCalculatorCell42Click",
             "PullCountCalculatorCell42Skip"
         ]
     },
-    "PullCountCalculatorCell41TitleOCR": {
-        "desc": "识别贵重品库第 41 格右侧详情标题",
+    "PullCountCalculatorCell41CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 41 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4391,14 +6726,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 41
+            "stage": "record_voucher",
+            "cell": 41,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell41CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 41 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 41,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell42Click",
+            "PullCountCalculatorCell42Skip"
+        ]
+    },
+    "PullCountCalculatorCell41NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 41 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 41,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell42Click",
@@ -4456,7 +6845,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell42QuantityOCR",
-            "PullCountCalculatorCell42TitleOCR",
+            "PullCountCalculatorCell42CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell42CarryToNextVoucherOCR",
+            "PullCountCalculatorCell42NextOnlyVoucherOCR",
             "PullCountCalculatorCell43Click",
             "PullCountCalculatorCell43Skip"
         ]
@@ -4481,13 +6872,15 @@
             "cell": 42
         },
         "next": [
-            "PullCountCalculatorCell42TitleOCR",
+            "PullCountCalculatorCell42CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell42CarryToNextVoucherOCR",
+            "PullCountCalculatorCell42NextOnlyVoucherOCR",
             "PullCountCalculatorCell43Click",
             "PullCountCalculatorCell43Skip"
         ]
     },
-    "PullCountCalculatorCell42TitleOCR": {
-        "desc": "识别贵重品库第 42 格右侧详情标题",
+    "PullCountCalculatorCell42CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 42 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4496,14 +6889,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 42
+            "stage": "record_voucher",
+            "cell": 42,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell42CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 42 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 42,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell43Click",
+            "PullCountCalculatorCell43Skip"
+        ]
+    },
+    "PullCountCalculatorCell42NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 42 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 42,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell43Click",
@@ -4561,7 +7008,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell43QuantityOCR",
-            "PullCountCalculatorCell43TitleOCR",
+            "PullCountCalculatorCell43CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell43CarryToNextVoucherOCR",
+            "PullCountCalculatorCell43NextOnlyVoucherOCR",
             "PullCountCalculatorCell44Click",
             "PullCountCalculatorCell44Skip"
         ]
@@ -4586,13 +7035,15 @@
             "cell": 43
         },
         "next": [
-            "PullCountCalculatorCell43TitleOCR",
+            "PullCountCalculatorCell43CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell43CarryToNextVoucherOCR",
+            "PullCountCalculatorCell43NextOnlyVoucherOCR",
             "PullCountCalculatorCell44Click",
             "PullCountCalculatorCell44Skip"
         ]
     },
-    "PullCountCalculatorCell43TitleOCR": {
-        "desc": "识别贵重品库第 43 格右侧详情标题",
+    "PullCountCalculatorCell43CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 43 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4601,14 +7052,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 43
+            "stage": "record_voucher",
+            "cell": 43,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell43CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 43 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 43,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell44Click",
+            "PullCountCalculatorCell44Skip"
+        ]
+    },
+    "PullCountCalculatorCell43NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 43 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 43,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell44Click",
@@ -4666,7 +7171,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell44QuantityOCR",
-            "PullCountCalculatorCell44TitleOCR",
+            "PullCountCalculatorCell44CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell44CarryToNextVoucherOCR",
+            "PullCountCalculatorCell44NextOnlyVoucherOCR",
             "PullCountCalculatorCell45Click",
             "PullCountCalculatorCell45Skip"
         ]
@@ -4691,13 +7198,15 @@
             "cell": 44
         },
         "next": [
-            "PullCountCalculatorCell44TitleOCR",
+            "PullCountCalculatorCell44CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell44CarryToNextVoucherOCR",
+            "PullCountCalculatorCell44NextOnlyVoucherOCR",
             "PullCountCalculatorCell45Click",
             "PullCountCalculatorCell45Skip"
         ]
     },
-    "PullCountCalculatorCell44TitleOCR": {
-        "desc": "识别贵重品库第 44 格右侧详情标题",
+    "PullCountCalculatorCell44CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 44 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4706,14 +7215,68 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 44
+            "stage": "record_voucher",
+            "cell": 44,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell44CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 44 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 44,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorCell45Click",
+            "PullCountCalculatorCell45Skip"
+        ]
+    },
+    "PullCountCalculatorCell44NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 44 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 44,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorCell45Click",
@@ -4771,7 +7334,9 @@
         "post_delay": 0,
         "next": [
             "PullCountCalculatorCell45QuantityOCR",
-            "PullCountCalculatorCell45TitleOCR",
+            "PullCountCalculatorCell45CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell45CarryToNextVoucherOCR",
+            "PullCountCalculatorCell45NextOnlyVoucherOCR",
             "PullCountCalculatorPageDone"
         ]
     },
@@ -4795,12 +7360,14 @@
             "cell": 45
         },
         "next": [
-            "PullCountCalculatorCell45TitleOCR",
+            "PullCountCalculatorCell45CurrentOnlyVoucherOCR",
+            "PullCountCalculatorCell45CarryToNextVoucherOCR",
+            "PullCountCalculatorCell45NextOnlyVoucherOCR",
             "PullCountCalculatorPageDone"
         ]
     },
-    "PullCountCalculatorCell45TitleOCR": {
-        "desc": "识别贵重品库第 45 格右侧详情标题",
+    "PullCountCalculatorCell45CurrentOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 45 格当前池限时寻访凭证",
         "recognition": "OCR",
         "roi": [
             980,
@@ -4809,14 +7376,66 @@
             48
         ],
         "expected": [
-            ".*(\\u5bfb\\u8bbf|\\u5c0b\\u8a2a|\\u51ed\\u8bc1|\\u6191\\u8b49|\\u60c5\\u62a5\\u4e66|\\u60c5\\u5831\\u66f8|recruit|voucher|ticket).*"
+            ".*(流光庆时寻访凭证|流光慶時尋訪憑證|行火留烬寻访凭证|行火留燼尋訪憑證).*"
         ],
         "only_rec": true,
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
-            "stage": "record_item",
-            "cell": 45
+            "stage": "record_voucher",
+            "cell": 45,
+            "pool_scope": "current_only",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorCell45CarryToNextVoucherOCR": {
+        "desc": "识别贵重品库第 45 格可留到下版本的特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(特许寻访凭证|特許尋訪憑證).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 45,
+            "pool_scope": "carry_to_next",
+            "pull_value": 1
+        },
+        "next": [
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorCell45NextOnlyVoucherOCR": {
+        "desc": "识别贵重品库第 45 格下版本专用寻访情报书",
+        "recognition": "OCR",
+        "roi": [
+            980,
+            82,
+            250,
+            48
+        ],
+        "expected": [
+            ".*(寻访情报书|尋訪情報書).*"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher",
+            "cell": 45,
+            "pool_scope": "next_only",
+            "pull_value": 10
         },
         "next": [
             "PullCountCalculatorPageDone"
