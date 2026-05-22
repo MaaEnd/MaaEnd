@@ -265,38 +265,7 @@
         "post_wait_freezes": 150,
         "post_delay": 0,
         "next": [
-            "PullCountCalculatorCarryToNextVoucherQuantityOCR",
-            "PullCountCalculatorCarryToNextVoucherTitleOCR",
-            "PullCountCalculatorFindNextOnlyVoucher"
-        ]
-    },
-    "PullCountCalculatorCarryToNextVoucherQuantityOCR": {
-        "desc": "识别可留到后续池子的特许寻访凭证堆叠数量",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "PullCountCalculatorFindCarryToNextVoucher",
-                "roi_offset": [
-                    16,
-                    60,
-                    20,
-                    -50
-                ],
-                "expected": [
-                    ".*\\d+.*"
-                ],
-                "only_rec": true
-            }
-        },
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_quantity",
-            "pool_scope": "carry_to_next"
-        },
-        "next": [
-            "PullCountCalculatorCarryToNextVoucherTitleOCR",
-            "PullCountCalculatorFindNextOnlyVoucher"
+            "PullCountCalculatorCarryToNextVoucherTitleOCR"
         ]
     },
     "PullCountCalculatorCarryToNextVoucherTitleOCR": {
@@ -306,9 +275,9 @@
             "param": {
                 "roi": [
                     980,
-                    82,
-                    250,
-                    48
+                    58,
+                    260,
+                    36
                 ],
                 "expected": [
                     ".*(特许寻访凭证|特許尋訪憑證).*"
@@ -325,7 +294,8 @@
         },
         "target": "PullCountCalculatorFindCarryToNextVoucher",
         "next": [
-            "PullCountCalculatorFindNextOnlyVoucher"
+            "PullCountCalculatorFindNextOnlyVoucher",
+            "PullCountCalculatorPageDone"
         ]
     },
     "PullCountCalculatorFindNextOnlyVoucher": {
