@@ -648,11 +648,41 @@
         "action": "Click",
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
-            "ProtocolSpaceEnterSpaceSuccess"
+            "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
         ],
         "focus": {
             "Node.Action.Succeeded": "继续行动"
         }
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+        "desc": "理智不足对话框检测，避免理智不足颜色检测失败",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    280,
+                    220,
+                    600,
+                    230
+                ],
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足",
+                    "Insufficient Sanity",
+                    "理性が不足しているため",
+                    "현재 이성이 부족해"
+                ]
+            },
+            "CancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
+        ]
     },
     "ProtocolSpaceRewardClaimSuccessSanityLow": {
         "desc": "使用理智消耗许可时理智不足",
@@ -683,8 +713,26 @@
         "desc": "协议空间奖励界面，结束任务",
         "recognition": "And",
         "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "expected": [
+                    "获得奖励",
+                    "獲得獎勵",
+                    "Rewards Acquired",
+                    "報酬一覧",
+                    "보상 획득"
+                ]
+            },
             "CancelButton"
         ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
             "ProtocolSpaceOperationExitToWorld",
