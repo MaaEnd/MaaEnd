@@ -1344,7 +1344,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
             LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
                     << VAR(globalResult->score);
-            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Cold-start collecting." };
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
         }
         LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
     }

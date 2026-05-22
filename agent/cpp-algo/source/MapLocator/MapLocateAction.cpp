@@ -428,12 +428,13 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
     LocateResult result;
     constexpr auto cold_start_retry_delay = std::chrono::milliseconds(300);
     for (int attempt = 0; attempt < kColdStartConsensusFrames; ++attempt) {
+        // Cold-start consensus needs distinct frames; reuse would only confirm the same screenshot.
         const MaaImageBuffer* attempt_image = attempt == 0 ? image : nullptr;
         if (!TryLocateOnMinimap(context, attempt_image, options, &result)) {
             return MAA_FALSE;
         }
         const bool is_cold_start_collecting =
-            result.status == LocateStatus::TrackingLost && result.debugMessage == "Cold-start collecting.";
+            result.status == LocateStatus::TrackingLost && result.debugMessage == kColdStartCollectingMessage;
         if (!is_cold_start_collecting || attempt + 1 >= kColdStartConsensusFrames) {
             break;
         }
