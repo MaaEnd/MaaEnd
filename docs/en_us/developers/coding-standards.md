@@ -35,6 +35,7 @@ For example:
 1. During UI navigation: recognize the navigation button → tap it → recognize that the screen has finished transitioning  
    _You cannot assume the screen stays the same after tapping a close button. In extreme cases the game may show a new banner pool notice; tapping the next node directly might hit the gacha screen._  
    _You cannot assume no background loading is needed during a screen transition—the screen may freeze; tapping the next node directly may do nothing._
+
 2. When tapping buttons that change account data: recognize the submit button → tap it → recognize that the tap succeeded  
    _You cannot assume every user has smooth network connectivity. If the button tap never reaches the server, the whole UI may freeze and ignore further taps._
 
@@ -48,8 +49,10 @@ For example:
 
 1. Tap again when the first tap had no effect  
    _Use `pre_wait_freezes` / `post_wait_freezes` to wait for a stable frame, or insert intermediate nodes so a button is confirmed clickable. A second tap may already apply to the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)._
+
 2. Re-run a sub-task after it failed  
    _Retries only slightly improve success rate; they do not fix the root issue and make the code hard to maintain—eventually you get “try B if A fails, try C if B fails, retry A 3 times, B 2 times,” and problems become hard to pinpoint._
+
 3. Add `max_hit` when a node loops forever  
    _Infinite loops are usually recognition or logic bugs; blindly adding `max_hit` just aborts the flow—like throwing an exception to exit the task—with unpredictable consequences._
 
