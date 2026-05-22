@@ -53,10 +53,6 @@ For example:
 3. Add `max_hit` when a node loops forever  
    _Infinite loops are usually recognition or logic bugs; blindly adding `max_hit` just aborts the flow—like throwing an exception to exit the task—with unpredictable consequences._
 
-### Do not repeat taps
-
-Use `pre_wait_freezes` / `post_wait_freezes` to wait for a stable frame, or insert intermediate nodes so a button is confirmed clickable. A second tap may already apply to the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816).
-
 ### Handle pop-ups and loading
 
 A good flow is not just “the main path runs”—it must handle the main path, pop-ups, loading waits, and automatically recover when not in the target scene.
