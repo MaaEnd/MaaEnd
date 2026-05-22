@@ -9,7 +9,7 @@
 #
 # Usage:
 #   python map_fetcher.py json -o/--output-dir <dir>
-#   python map_fetcher.py image -i/--input-dir <dir> -o/--output-dir <dir> [--match <kw>] [--scale <s>]
+#   python map_fetcher.py image -i/--input-dir <dir> -o/--output-dir <dir> [--match <kw>] [--no-tiers]
 
 import os
 import re

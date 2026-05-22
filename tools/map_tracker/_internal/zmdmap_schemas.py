@@ -163,9 +163,9 @@ class RegionLayoutTable:
 class GridTierData:
     """
     Properties:
-    - center: (x, y) center *gird-wise coordinates* of the grid cell.
-    - lb: (x, y) left-bottom *gird-wise coordinates* of the grid cell.
-    - rt: (x, y) right-top *gird-wise coordinates* of the grid cell.
+    - center: (x, y) center *grid-wise coordinates* of the grid cell.
+    - lb: (x, y) left-bottom *grid-wise coordinates* of the grid cell.
+    - rt: (x, y) right-top *grid-wise coordinates* of the grid cell.
     - pixel_lb: (x, y) left-bottom *unscaled coordinates* of the grid cell.
     - pixel_rt: (x, y) right-top *unscaled coordinates* of the grid cell.
     - items: mapping from item hash to tier grid name like `map01_lv001_{gx}_{gy}_tier_{id}`, where gy counts from bottom to top.

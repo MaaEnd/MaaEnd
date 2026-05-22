@@ -5,9 +5,8 @@
 # ]
 # ///
 
-# MapTracker - Merger Tool
-# Distinguishes level images from map_fetcher output into separate maps,
-# with island removal and manual overlap splitting.
+# MapGenerator - Generate map assets from map_fetcher output.
+# Subcommands: distinguish_levels, tidy_tiers, bbox.
 
 import os
 import re
@@ -267,7 +266,7 @@ class DistinMapPage:
         names_list: List[str],
         canvas: np.ndarray,
     ) -> None:
-        """Let the user draw barriers to split overlapping regions, then BFS.
+        """Let the user draw barriers to split overlapping regions, then propagate ownership.
 
         All logic works on binary land masks (gray > 1). Pixel colors are only
         used at the final export step.
