@@ -1,3 +1,7 @@
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <MaaUtils/Logger.h>
 
 #include "../MapLocator/MapLocateAction.h"
@@ -8,6 +12,7 @@
 #include "navi_controller.h"
 #include "navigation_session.h"
 #include "navigation_state_machine.h"
+#include "navmesh_path_expander.h"
 #include "position_provider.h"
 
 namespace mapnavigator
@@ -45,7 +50,7 @@ bool NaviController::Navigate(const NaviParam& param)
     LogInfo << "Waiting for first valid GPS signal...";
 
     NaviPosition pos;
-    const std::string initial_expected_zone = param.path.front().zone_id.empty() ? param.map_name : param.path.front().zone_id;
+    const std::string initial_expected_zone = InitialExpectedZone(param);
     if (!position_provider.WaitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
         || is_stopping()) {
         return false;
@@ -55,13 +60,32 @@ bool NaviController::Navigate(const NaviParam& param)
     const double position_y = pos.y;
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
-    NavigationSession session(param.path, pos);
+    std::vector<Waypoint> expanded_path;
+    if (!ExpandNavmeshWaypoints(param, pos, expanded_path)) {
+        return false;
+    }
+    if (expanded_path.empty()) {
+        return true;
+    }
+
+    NaviParam expanded_param = param;
+    expanded_param.path = std::move(expanded_path);
+
+    NavigationSession session(expanded_param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");
 
     MotionController motion_controller(&action_wrapper, param.enable_local_driver);
     ActionExecutor action_executor(&action_wrapper, &motion_controller, param.enable_local_driver);
-    NavigationStateMachine
-        state_machine(param, &action_wrapper, &position_provider, &session, &motion_controller, &action_executor, &pos, is_stopping, ctx_);
+    NavigationStateMachine state_machine(
+        expanded_param,
+        &action_wrapper,
+        &position_provider,
+        &session,
+        &motion_controller,
+        &action_executor,
+        &pos,
+        is_stopping,
+        ctx_);
 
     return state_machine.Run();
 }

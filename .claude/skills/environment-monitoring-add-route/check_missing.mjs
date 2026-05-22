@@ -1,9 +1,7 @@
 /**
- * 检测 kite_station.json 中尚未在 routes.json ROUTE_CONFIG 中配置的观察点。
- * 运行方式（在 tools/pipeline-generate/EnvironmentMonitoring/ 目录下）：
+ * 检测 zmdmap 缓存数据中尚未在 routes.json ROUTE_CONFIG 中配置的观察点。
+ * 运行方式（在仓库根目录）：
  *   node .claude/skills/environment-monitoring-add-route/check_missing.mjs
- * 或直接复制到该目录后运行：
- *   node check_missing.mjs
  */
 import {readFileSync} from "fs";
 import {fileURLToPath} from "url";
@@ -11,8 +9,9 @@ import {resolve, dirname} from "path";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const emDir = resolve(__dir, "../../../tools/pipeline-generate/EnvironmentMonitoring");
+const dataDir = resolve(__dir, "../../../tools/pipeline-generate/data");
 
-const kite = JSON.parse(readFileSync(resolve(emDir, "kite_station.json"), "utf8"));
+const kite = JSON.parse(readFileSync(resolve(dataDir, "kite_station_i18n.json"), "utf8"));
 const routes = JSON.parse(readFileSync(resolve(emDir, "routes.json"), "utf8"));
 
 const normalize = (s) => s.replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();

@@ -139,7 +139,7 @@ jobs:
         if: matrix.os == 'win'
         shell: bash
         run: |
-          python tools/3rdparty_download.py --webview2
+          python tools/dep_3rdparty.py --webview2
 
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1

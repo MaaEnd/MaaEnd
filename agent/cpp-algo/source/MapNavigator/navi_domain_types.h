@@ -16,6 +16,7 @@ namespace mapnavigator
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
+// NAVMESH  - 语义寻路节点，读取 .nav 并从当前定位位置自动规划到 target
 // ZONE     - 无坐标区域声明节点，要求后续定位稳定落在指定 zone 后再继续
 // COLLECT  - 精确抵达后停车，同步触发 AutoCollectClickStart pipeline 子任务
 //            （OCR + AutoAltClickAction），不退出 NaviController，避免每次采集
@@ -31,6 +32,7 @@ namespace mapnavigator
     X(TRANSFER)              \
     X(PORTAL)                \
     X(HEADING)               \
+    X(NAVMESH)               \
     X(ZONE)                  \
     X(COLLECT)               \
     X(DIG)
@@ -71,7 +73,7 @@ struct Waypoint
         }
         return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
                || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL
-               || action == ActionType::COLLECT || action == ActionType::DIG;
+               || action == ActionType::NAVMESH || action == ActionType::COLLECT || action == ActionType::DIG;
     }
 
     bool HasPosition() const { return has_position; }

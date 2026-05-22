@@ -71,6 +71,10 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         LogWarn << "HEADING action dispatched to ActionExecutor unexpectedly.";
         break;
 
+    case ActionType::NAVMESH:
+        LogWarn << "NAVMESH action dispatched to ActionExecutor unexpectedly.";
+        break;
+
     case ActionType::ZONE:
         LogWarn << "ZONE action dispatched to ActionExecutor unexpectedly.";
         break;

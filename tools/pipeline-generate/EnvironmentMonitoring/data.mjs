@@ -1,16 +1,28 @@
-import {createRequire} from "module";
+import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
+import {dataDir} from "../utils/paths.mjs";
 import {ROUTE_CONFIG, ROUTE_DEFAULTS} from "./routes.mjs";
 
-const require = createRequire(import.meta.url);
-const kiteStationData = require("./kite_station.json");
+function readKiteStationData() {
+    try {
+        return JSON.parse(readFileSync(resolve(dataDir, "kite_station_i18n.json"), "utf8"));
+    } catch {
+        console.error(
+            "[EnvironmentMonitoring] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:EnvironmentMonitoring 以获取最新数据",
+        );
+        process.exit(1);
+    }
+}
 
-// 监测终端 ID 列表直接从 kite_station.json 派生：凡是带有 entrustTasks 的条目都算。
+export const kiteStationData = readKiteStationData();
+
+// 监测终端 ID 列表直接从 zmdmap 缓存数据派生：凡是带有 entrustTasks 的条目都算。
 // 上游游戏数据若新增监测终端会自动包含；新终端要真正可用还需手动补 Pipeline 侧的联动节点
 // （Locations.json / EnvironmentMonitoringLoop.next 等），详见 docs 维护手册。
 export const MONITORING_TERMINAL_IDS = Object.keys(kiteStationData)
     .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
     .sort();
-// 与 kite_station.json 中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
+// 与 zmdmap 数据中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
 const LOCALES = [
     "zh-CN",
     "zh-TW",
@@ -142,10 +154,10 @@ const ROUTE_OVERRIDE_BY_NAME = new Map(
 function buildStationName(terminalId) {
     const stationEnglishName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
     if (!stationEnglishName) {
-        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 kite_station.json 主键脱节，
+        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 zmdmap 数据主键脱节，
         // 直接 PascalCase terminalId 容易得到中文/纯数字串这种诡异结果。打个 warn 让维护者尽早发现。
         console.warn(
-            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 kite_station.json 是否同步。`,
+            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 zmdmap 缓存数据是否同步。`,
         );
     }
     return toPascalCase(stationEnglishName || terminalId) || terminalId;
@@ -156,12 +168,11 @@ function buildGoToMonitoringTerminal(station) {
     return `EnvironmentMonitoringGoTo${station}`;
 }
 
-// 需要校验是否在 ROUTE_CONFIG 中显式配置的字段。CameraMaxHit 有合理默认值，未配置不视为缺失。
+// 需要校验是否在 ROUTE_CONFIG 中显式配置的公共字段。CameraMaxHit 有合理默认值，未配置不视为缺失。
 const REQUIRED_ROUTE_FIELDS = [
     "EnterMap",
     "MapName",
     "MapTarget",
-    "MapPath",
     "CameraSwipeDirection",
 ];
 
@@ -194,7 +205,18 @@ function buildRow(mission, usedIds) {
             resolved[key] = overrideValue;
         }
     }
-    const {EnterMap, MapName, MapTarget, MapPath, CameraSwipeDirection} = resolved;
+    const hasMapPath = !isFieldMissing(override?.MapPath);
+    const hasNavMeshTarget = !isFieldMissing(override?.NavMeshTarget);
+    if (!hasMapPath && !hasNavMeshTarget) {
+        missingFields.push("MapPath/NavMeshTarget");
+    }
+    if (hasMapPath && hasNavMeshTarget) {
+        missingFields.push("MapPath/NavMeshTarget 二选一");
+    }
+
+    const {EnterMap, MapName, MapTarget, CameraSwipeDirection} = resolved;
+    const MapPath = hasMapPath && !hasNavMeshTarget ? override.MapPath : ROUTE_DEFAULTS.MapPath;
+    const NavMeshTarget = hasNavMeshTarget && !hasMapPath ? override.NavMeshTarget : ROUTE_DEFAULTS.NavMeshTarget;
     const CameraMaxHit = override?.CameraMaxHit ?? ROUTE_DEFAULTS.CameraMaxHit;
     // Heading 是可选朝向（角度），未配置时不调整角色朝向，AdjustHeading 节点退化为透传。
     const HeadingRaw = override?.Heading;
@@ -238,13 +260,24 @@ function buildRow(mission, usedIds) {
     // 朝向节点：配置了 Heading 时调用 MapNavigateAction 的 HEADING 旋转角色，
     // 否则退化为透传节点（仅承担 next 桥接）。模板里以 "${AdjustHeadingNodeBody}" 整体注入。
 
-    // MapTrackerMove 参数：按需构建，仅在非默认时注入可选字段。
+    // 寻路参数：MapPath 使用旧 MapTrackerMove；NavMeshTarget 使用 MapNavigateAction 的 NAVMESH 语义点。
     const NoEnsureInitialMovementState = override?.NoEnsureInitialMovementState ?? false;
-    const MapTrackerMoveParam = {
-        map_name: MapName,
-        path: MapPath,
-        ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
-    };
+    const MapNavigationAction = hasNavMeshTarget && !hasMapPath ? "MapNavigateAction" : "MapTrackerMove";
+    const MapNavigationParam =
+        MapNavigationAction === "MapNavigateAction"
+            ? {
+                  path: [
+                      {
+                          action: "NAVMESH",
+                          target: NavMeshTarget,
+                      },
+                  ],
+              }
+            : {
+                  map_name: MapName,
+                  path: MapPath,
+                  ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+              };
     const AdjustHeadingNodeBody = HasHeading
         ? {
               desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
@@ -280,6 +313,7 @@ function buildRow(mission, usedIds) {
         MapName,
         MapTarget,
         MapPath,
+        NavMeshTarget,
         CameraSwipeDirection,
         CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
@@ -287,7 +321,8 @@ function buildRow(mission, usedIds) {
         TrackOrGoToNext,
         AfterTrackedNext,
         AdjustHeadingNodeBody,
-        MapTrackerMoveParam,
+        MapNavigationAction,
+        MapNavigationParam,
     };
 }
 

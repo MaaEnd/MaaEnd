@@ -1,8 +1,4 @@
-import {createRequire} from "module";
-import rows, {MONITORING_TERMINAL_IDS} from "./data.mjs";
-
-const require = createRequire(import.meta.url);
-const kiteStationData = require("./kite_station.json");
+import rows, {kiteStationData, MONITORING_TERMINAL_IDS} from "./data.mjs";
 
 function toPascalCase(str) {
     const cleaned = String(str || "")

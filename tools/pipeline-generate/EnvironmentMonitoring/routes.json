@@ -298,10 +298,10 @@
             [520.8, 196.3],
             [538.3, 195.1],
             [539.4, 178.7],
-            [555.8, 177.5],
-            [555.8, 178.8]
+            [555.8, 178.2]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 180
     },
     {
         "Name": "垂藤",
@@ -309,16 +309,16 @@
         "MapName": "map02_lv004",
         "MapTarget": [602.8, 325.0, 9.7, 8.1],
         "MapPath": [
-            [604.6, 307.8],
-            [587.6, 308.6],
-            [586.3, 302.6],
+            [609.8, 331.6],
+            [607.5, 321.2],
+            [605.1, 309.0],
+            [587.9, 309.2],
+            [586.9, 303.5],
             [578.8, 302.4],
             [576.7, 296.5],
-            [575.2, 280.9],
-            [546.2, 279.8],
-            [531.2, 279.7],
-            [528.8, 278.6],
-            [527.5, 278.6],
+            [575.0, 281.6],
+            [546.9, 281.7],
+            [526.9, 279.0],
             [527.5, 268.5],
             [534.5, 267.5],
             [543.3, 267.4],
@@ -332,7 +332,7 @@
             [579.5, 253.7]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 4
+        "CameraMaxHit": 3
     },
     {
         "Name": "植物观察点",
@@ -408,10 +408,10 @@
             [497.9, 592.8],
             [492.8, 603.9],
             [489.0, 606.4],
-            [476.6, 602.8],
-            [476.5, 603.9]
+            [477.1, 603.3]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 260
     },
     {
         "Name": "念念家的桃树",

@@ -10,7 +10,6 @@
 
 #include "MapNavigator.h"
 #include "navi_controller.h"
-
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
 #endif
@@ -183,7 +182,7 @@ bool TryReadAngleValue(const json::object& obj, double& angle)
     return false;
 }
 
-bool TryReadHeadingTargetValue(const json::object& obj, double& target_x, double& target_y, bool& has_target)
+bool TryReadTargetValue(const json::object& obj, double& target_x, double& target_y, bool& has_target)
 {
     has_target = obj.contains("target");
     if (!has_target) {
@@ -286,16 +285,16 @@ bool AppendObjectWaypoint(const json::object& obj, std::vector<Waypoint>& out_wa
 
     double angle = 0.0;
     const bool has_angle = TryReadAngleValue(obj, angle);
-    double heading_target_x = 0.0;
-    double heading_target_y = 0.0;
-    bool has_heading_target = false;
-    if (!TryReadHeadingTargetValue(obj, heading_target_x, heading_target_y, has_heading_target)) {
+    double target_x = 0.0;
+    double target_y = 0.0;
+    bool has_target = false;
+    if (!TryReadTargetValue(obj, target_x, target_y, has_target)) {
         return false;
     }
 
     if (primary_action == ActionType::HEADING) {
-        if (has_heading_target) {
-            Waypoint heading_waypoint = Waypoint::HeadingToTarget(heading_target_x, heading_target_y);
+        if (has_target) {
+            Waypoint heading_waypoint = Waypoint::HeadingToTarget(target_x, target_y);
             heading_waypoint.zone_id = zone_id;
             out_waypoints.push_back(std::move(heading_waypoint));
             return true;
@@ -306,6 +305,16 @@ bool AppendObjectWaypoint(const json::object& obj, std::vector<Waypoint>& out_wa
         Waypoint heading_waypoint = Waypoint::Heading(angle);
         heading_waypoint.zone_id = zone_id;
         out_waypoints.push_back(std::move(heading_waypoint));
+        return true;
+    }
+
+    if (primary_action == ActionType::NAVMESH) {
+        if (!has_target) {
+            return false;
+        }
+        Waypoint navmesh_waypoint(target_x, target_y, ActionType::NAVMESH);
+        navmesh_waypoint.strict_arrival = true;
+        out_waypoints.push_back(std::move(navmesh_waypoint));
         return true;
     }
 
@@ -375,6 +384,11 @@ MaaBool MAA_CALL MapNavigateActionRun(
         param.arrival_timeout = options.get("arrival_timeout", param.arrival_timeout);
         param.sprint_threshold = options.get("sprint_threshold", param.sprint_threshold);
         param.enable_local_driver = options.get("enable_local_driver", param.enable_local_driver);
+        param.navmesh_file = options.get("navmesh_file", param.navmesh_file);
+        param.navmesh_file = options.get("nav_file", param.navmesh_file);
+        param.navmesh_snap_radius = options.get("navmesh_snap_radius", param.navmesh_snap_radius);
+        param.navmesh_snap_radius = options.get("snap_radius", param.navmesh_snap_radius);
+        param.navmesh_max_cost = options.get("navmesh_max_cost", param.navmesh_max_cost);
 
         std::string zone_context = param.map_name;
         if (options.contains("path") && options.at("path").is_array()) {
@@ -390,8 +404,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
         else {
             const bool looks_like_single_waypoint = options.contains("x") || options.contains("y") || options.contains("action")
                                                     || options.contains("actions") || options.contains("angle")
-                                                    || options.contains("target")
-                                                    || options.contains("heading") || options.contains("yaw");
+                                                    || options.contains("target") || options.contains("heading") || options.contains("yaw");
             if (looks_like_single_waypoint && !AppendParsedWaypoints(*options_opt, param.path, zone_context)) {
                 LogError << "Failed to parse MapNavigator waypoint from custom_action_param object.";
                 return MAA_FALSE;
