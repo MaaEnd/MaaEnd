@@ -229,7 +229,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
