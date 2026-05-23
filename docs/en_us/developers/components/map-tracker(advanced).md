@@ -59,6 +59,16 @@ Currently, the map data and map images are sourced from zmdmap. You can update t
 
 ### Steps
 
+> [!TIP]
+>
+> Running these scripts requires Python and the `opencv-python` and `PyMaxflow` dependencies.
+>
+> ```bash
+> pip install opencv-python PyMaxflow
+> ```
+
+The complete steps for using the tool scripts are as follows:
+
 1. Pull the latest map data from zmdmap:
    ```bash
    python tools/map_tracker/map_fetcher.py json -o tools/map_tracker/data

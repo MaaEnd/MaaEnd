@@ -59,6 +59,16 @@ MapTracker 的日常维护主要涉及的是**地图图片的更新**。当游�
 
 ### 操作步骤
 
+> [!TIP]
+>
+> 运行脚本要求安装 Python 及 `opencv-python`、`PyMaxflow` 依赖库。
+>
+> ```bash
+> pip install opencv-python PyMaxflow
+> ```
+
+该工具脚本的完整操作步骤如下：
+
 1. 从 zmdmap 拉取最新的地图数据：
    ```bash
    python tools/map_tracker/map_fetcher.py json -o tools/map_tracker/data
