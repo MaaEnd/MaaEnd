@@ -58,10 +58,16 @@ def _load_maptracker_coordinate_transforms() -> dict[str, MapTrackerCoordinateTr
 
 MAP_TRACKER_COORDINATE_TRANSFORMS = _load_maptracker_coordinate_transforms()
 
+_zone_to_base_map_names: dict[str, set[str]] = {}
+for transform in MAP_TRACKER_COORDINATE_TRANSFORMS.values():
+    if transform.parent_map_name:
+        continue
+    _zone_to_base_map_names.setdefault(transform.zone_id, set()).add(transform.map_name)
+
 MAP_TRACKER_BASE_ZONE_TO_MAP_NAME = {
-    transform.zone_id: transform.map_name
-    for transform in MAP_TRACKER_COORDINATE_TRANSFORMS.values()
-    if not transform.parent_map_name
+    zone_id: next(iter(map_names))
+    for zone_id, map_names in _zone_to_base_map_names.items()
+    if len(map_names) == 1
 }
 
 

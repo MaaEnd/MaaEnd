@@ -43,6 +43,23 @@ bool looks_like_action_token(const std::string& text)
     return std::all_of(text.begin(), text.end(), [](char ch) { return std::isupper(static_cast<unsigned char>(ch)) || ch == '_'; });
 }
 
+bool is_action_keyword_case_insensitive(const std::string& text)
+{
+    std::string normalized;
+    normalized.reserve(text.size());
+    for (char ch : text) {
+        normalized.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
+    }
+
+#define NAVI_X_(name)          \
+    if (normalized == #name) { \
+        return true;           \
+    }
+    NAVI_ACTION_TYPES(NAVI_X_)
+#undef NAVI_X_
+    return false;
+}
+
 struct NaviActionListInput
 {
     std::vector<ActionType> actions_;
@@ -248,7 +265,7 @@ private:
             }
 
             if (const auto* zone_id = std::get_if<std::string>(&items[index])) {
-                if (looks_like_action_token(*zone_id)) {
+                if (looks_like_action_token(*zone_id) || is_action_keyword_case_insensitive(*zone_id)) {
                     return false;
                 }
                 zone_id_ = *zone_id;

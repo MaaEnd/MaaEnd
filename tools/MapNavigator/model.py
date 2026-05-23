@@ -295,8 +295,6 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             if actions != [int(ActionType.PORTAL)]:
                 set_point_actions(point, [int(ActionType.PORTAL)])
                 point["auto_portal"] = True
-            else:
-                point["auto_portal"] = True
             _sync_portal_flags(point)
             continue
 
