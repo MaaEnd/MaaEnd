@@ -123,7 +123,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `saturday: bool` — 周六是否执行。
     - `sunday: bool` — 周日是否执行。
 
-若当天不在调度范围内，该 Action 会发出一条”今日跳过”的本地化提示并返回成功（不执行子任务）。
+若当天不在调度范围内，该 Action 会发出一条“今日跳过”的本地化提示并返回成功（不执行子任务）。
 
 ### AutoAltClickAction
 
@@ -223,7 +223,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | ----------------------------- | ----------------------------- |
 | 按顺序跑一组子任务            | `SubTask`                     |
 | 清零某节点的命中计数          | `ClearHitCount`               |
-| 强制让 action 失败            | `FalseAction`                 |
++| 强制让 Action 失败            | `FalseAction`                 |
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
