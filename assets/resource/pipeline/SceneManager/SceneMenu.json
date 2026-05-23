@@ -240,6 +240,46 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "__ScenePrivateMenuListEnterMenuTeam": {
+        "desc": "从菜单列表进入队伍界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "编队",
+                            "編隊",
+                            "(?i)Team",
+                            "編成",
+                            "팀\\s*편성"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InTeam"
+        ]
+    },
     "__ScenePrivateWorldEnterMenuAICPlan": {
         "desc": "从大世界进入工业计划菜单",
         "recognition": {

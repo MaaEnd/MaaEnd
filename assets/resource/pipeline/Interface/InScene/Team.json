@@ -1,0 +1,30 @@
+{
+    "InTeam": {
+        "desc": "在队伍界面内",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": "AutoEcoFarm/autoecofarmTeamIcon.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
