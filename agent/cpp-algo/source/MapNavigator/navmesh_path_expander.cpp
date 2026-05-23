@@ -9,7 +9,6 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <stop_token>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -164,9 +163,48 @@ using NavmeshTask = std::packaged_task<std::shared_ptr<CachedNavmesh>()>;
 
 struct NavmeshTaskQueue
 {
+    NavmeshTaskQueue()
+        : worker([this] { Run(); })
+    {
+    }
+
+    ~NavmeshTaskQueue()
+    {
+        {
+            const std::lock_guard lock(mutex);
+            stopping = true;
+        }
+        cv.notify_one();
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
+
+    NavmeshTaskQueue(const NavmeshTaskQueue&) = delete;
+    NavmeshTaskQueue& operator=(const NavmeshTaskQueue&) = delete;
+
+    void Run()
+    {
+        while (true) {
+            NavmeshTask task;
+            {
+                std::unique_lock lock(mutex);
+                cv.wait(lock, [this] { return stopping || !tasks.empty(); });
+                if (stopping && tasks.empty()) {
+                    return;
+                }
+                task = std::move(tasks.front());
+                tasks.pop_front();
+            }
+            task();
+        }
+    }
+
     std::mutex mutex;
-    std::condition_variable_any cv;
+    std::condition_variable cv;
     std::deque<NavmeshTask> tasks;
+    std::thread worker;
+    bool stopping = false;
 };
 
 std::unordered_map<std::string, NavmeshFuture>& NavmeshFutureCache()
@@ -220,30 +258,6 @@ NavmeshTaskQueue& GetNavmeshTaskQueue()
     return queue;
 }
 
-void NavmeshLoadWorker(std::stop_token stop_token)
-{
-    auto& queue = GetNavmeshTaskQueue();
-    while (true) {
-        NavmeshTask task;
-        {
-            std::unique_lock lock(queue.mutex);
-            queue.cv.wait(lock, stop_token, [&queue] { return !queue.tasks.empty(); });
-            if (queue.tasks.empty()) {
-                return;
-            }
-            task = std::move(queue.tasks.front());
-            queue.tasks.pop_front();
-        }
-        task();
-    }
-}
-
-void EnsureNavmeshLoadWorker()
-{
-    (void)GetNavmeshTaskQueue();
-    static std::jthread worker(NavmeshLoadWorker);
-}
-
 NavmeshFuture EnqueueNavmeshLoad(std::filesystem::path navmesh_path, std::string navmesh_zone)
 {
     NavmeshTask task([navmesh_path = std::move(navmesh_path), navmesh_zone = std::move(navmesh_zone)] {
@@ -251,7 +265,6 @@ NavmeshFuture EnqueueNavmeshLoad(std::filesystem::path navmesh_path, std::string
     });
     NavmeshFuture future = task.get_future().share();
     auto& queue = GetNavmeshTaskQueue();
-    EnsureNavmeshLoadWorker();
     {
         const std::lock_guard lock(queue.mutex);
         queue.tasks.push_back(std::move(task));
