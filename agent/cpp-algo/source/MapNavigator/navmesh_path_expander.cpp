@@ -9,6 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <stop_token>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -61,8 +62,6 @@ constexpr std::array<BaseNavZoneAlias, 4> kBaseNavZoneAliases {{
     { "base01", { "base01", "OMVBase" } },
     { "dung01", { "dung01", "Dung" } },
 }};
-
-constexpr size_t kNavmeshLoaderWorkerCount = 1;
 
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
@@ -161,6 +160,14 @@ std::shared_ptr<CachedNavmesh> LoadNavmeshPack(const std::filesystem::path& navm
 }
 
 using NavmeshFuture = std::shared_future<std::shared_ptr<CachedNavmesh>>;
+using NavmeshTask = std::packaged_task<std::shared_ptr<CachedNavmesh>()>;
+
+struct NavmeshTaskQueue
+{
+    std::mutex mutex;
+    std::condition_variable_any cv;
+    std::deque<NavmeshTask> tasks;
+};
 
 std::unordered_map<std::string, NavmeshFuture>& NavmeshFutureCache()
 {
@@ -207,78 +214,50 @@ private:
     bool active_ = true;
 };
 
-class NavmeshLoadExecutor
+NavmeshTaskQueue& GetNavmeshTaskQueue()
 {
-public:
-    NavmeshLoadExecutor()
-    {
-        workers_.reserve(kNavmeshLoaderWorkerCount);
-        for (size_t index = 0; index < kNavmeshLoaderWorkerCount; ++index) {
-            workers_.emplace_back([this] { WorkerLoop(); });
-        }
-    }
+    static NavmeshTaskQueue queue;
+    return queue;
+}
 
-    ~NavmeshLoadExecutor()
-    {
-        {
-            const std::lock_guard lock(mutex_);
-            stopping_ = true;
-        }
-        cv_.notify_all();
-        for (std::thread& worker : workers_) {
-            if (worker.joinable()) {
-                worker.join();
-            }
-        }
-    }
-
-    NavmeshLoadExecutor(const NavmeshLoadExecutor&) = delete;
-    NavmeshLoadExecutor& operator=(const NavmeshLoadExecutor&) = delete;
-
-    NavmeshFuture Submit(std::filesystem::path navmesh_path, std::string navmesh_zone)
-    {
-        std::packaged_task<std::shared_ptr<CachedNavmesh>()> task(
-            [navmesh_path = std::move(navmesh_path), navmesh_zone = std::move(navmesh_zone)] {
-                return LoadNavmeshPack(navmesh_path, navmesh_zone);
-            });
-        NavmeshFuture future = task.get_future().share();
-        {
-            const std::lock_guard lock(mutex_);
-            tasks_.push_back(std::move(task));
-        }
-        cv_.notify_one();
-        return future;
-    }
-
-private:
-    void WorkerLoop()
-    {
-        while (true) {
-            std::packaged_task<std::shared_ptr<CachedNavmesh>()> task;
-            {
-                std::unique_lock lock(mutex_);
-                cv_.wait(lock, [this] { return stopping_ || !tasks_.empty(); });
-                if (stopping_ && tasks_.empty()) {
-                    return;
-                }
-                task = std::move(tasks_.front());
-                tasks_.pop_front();
-            }
-            task();
-        }
-    }
-
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    std::deque<std::packaged_task<std::shared_ptr<CachedNavmesh>()>> tasks_;
-    std::vector<std::thread> workers_;
-    bool stopping_ = false;
-};
-
-NavmeshLoadExecutor& GetNavmeshLoadExecutor()
+void NavmeshLoadWorker(std::stop_token stop_token)
 {
-    static NavmeshLoadExecutor executor;
-    return executor;
+    auto& queue = GetNavmeshTaskQueue();
+    while (true) {
+        NavmeshTask task;
+        {
+            std::unique_lock lock(queue.mutex);
+            queue.cv.wait(lock, stop_token, [&queue] { return !queue.tasks.empty(); });
+            if (queue.tasks.empty()) {
+                return;
+            }
+            task = std::move(queue.tasks.front());
+            queue.tasks.pop_front();
+        }
+        task();
+    }
+}
+
+void EnsureNavmeshLoadWorker()
+{
+    (void)GetNavmeshTaskQueue();
+    static std::jthread worker(NavmeshLoadWorker);
+}
+
+NavmeshFuture EnqueueNavmeshLoad(std::filesystem::path navmesh_path, std::string navmesh_zone)
+{
+    NavmeshTask task([navmesh_path = std::move(navmesh_path), navmesh_zone = std::move(navmesh_zone)] {
+        return LoadNavmeshPack(navmesh_path, navmesh_zone);
+    });
+    NavmeshFuture future = task.get_future().share();
+    auto& queue = GetNavmeshTaskQueue();
+    EnsureNavmeshLoadWorker();
+    {
+        const std::lock_guard lock(queue.mutex);
+        queue.tasks.push_back(std::move(task));
+    }
+    queue.cv.notify_one();
+    return future;
 }
 
 NavmeshFuture GetCachedFutureByKey(const std::string& cache_key, const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
@@ -289,7 +268,7 @@ NavmeshFuture GetCachedFutureByKey(const std::string& cache_key, const std::file
         return iter->second;
     }
 
-    auto future = GetNavmeshLoadExecutor().Submit(navmesh_path, navmesh_zone);
+    auto future = EnqueueNavmeshLoad(navmesh_path, navmesh_zone);
     cache.emplace(cache_key, future);
     return future;
 }
