@@ -12,7 +12,7 @@ import os
 import re
 import json
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, deque
 from typing import Dict, List, Tuple
 from _internal.core_utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
 from _internal.zmdmap_schemas import RegionLayoutTable, LevelLayoutMetaData
@@ -24,6 +24,9 @@ SCALE_MAP_FACTOR = 0.1625
 
 DISCARD_THRESHOLD = 2
 """Pixels with brightness < this value are discarded as non-land."""
+
+MAX_SEAM_SEARCH_NODES = 2_000_000
+"""Maximum number of pixels searched by the automatic seam splitter."""
 
 LAND_THRESHOLD = 48
 """Pixels with brightness < this value are filtered out of bounding boxes."""
@@ -197,8 +200,366 @@ class DistinMapPage:
         # Recomposite canvas after island removal
         canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
 
-        # --- Manual split: user draws barrier lines to separate maps ---
-        self._manual_split(group_key, maps, positions, names_list, canvas)
+        # --- Automatic split: finds low-brightness seams between overlapping maps ---
+        self._auto_split_group(group_key, maps, positions, names_list, canvas)
+
+    @staticmethod
+    def _brightness_weight(gray: np.ndarray) -> np.ndarray:
+        gray_f = gray.astype(np.float32)
+        weight = np.ones_like(gray_f, dtype=np.float32)
+
+        mask = gray_f < 32
+        weight[mask] = 0.0
+
+        mask = (gray_f >= 32) & (gray_f < 64)
+        weight[mask] = (gray_f[mask] - 32.0) / 32.0 * 0.5
+
+        mask = (gray_f >= 64) & (gray_f < 128)
+        weight[mask] = 0.5 + (gray_f[mask] - 64.0) / 64.0 * 0.5
+
+        return weight
+
+    @staticmethod
+    def _auto_split(first_rgb: np.ndarray, second_rgb: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        gray_first = cv2.cvtColor(first_rgb, cv2.COLOR_RGB2GRAY)
+        gray_second = cv2.cvtColor(second_rgb, cv2.COLOR_RGB2GRAY)
+        mask_first = gray_first >= DISCARD_THRESHOLD
+        mask_second = gray_second >= DISCARD_THRESHOLD
+        overlap = mask_first & mask_second
+
+        if not overlap.any():
+            return first_rgb.copy(), second_rgb.copy()
+
+        combined_gray = np.maximum(gray_first, gray_second)
+        weights = DistinMapPage._brightness_weight(combined_gray)
+        result_first = first_rgb.copy()
+        result_second = second_rgb.copy()
+
+        n_cc, cc_labels = cv2.connectedComponents(overlap.astype(np.uint8), connectivity=4)
+        cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+        exclusive_first = mask_first & ~mask_second
+        exclusive_second = mask_second & ~mask_first
+
+        for cc_id in range(1, n_cc):
+            cc_mask = cc_labels == cc_id
+            ring = cv2.dilate(cc_mask.astype(np.uint8), cross_kernel, iterations=1).astype(bool)
+            ring &= ~cc_mask
+            touches_first = ring & exclusive_first
+            touches_second = ring & exclusive_second
+
+            if not touches_first.any() and not touches_second.any():
+                first_dist = cv2.distanceTransform(
+                    (~mask_first).astype(np.uint8), cv2.DIST_L2, 3
+                )
+                second_dist = cv2.distanceTransform(
+                    (~mask_second).astype(np.uint8), cv2.DIST_L2, 3
+                )
+                first_side = cc_mask & (first_dist <= second_dist)
+                second_side = cc_mask & ~first_side
+                result_first[cc_mask & ~first_side] = 0
+                result_second[cc_mask & ~second_side] = 0
+                continue
+            if not touches_first.any():
+                result_first[cc_mask] = 0
+                continue
+            if not touches_second.any():
+                result_second[cc_mask] = 0
+                continue
+
+            seam = DistinMapPage._find_low_weight_seam(
+                cc_mask,
+                weights,
+                touches_first,
+                touches_second,
+            )
+            if seam is None:
+                first_dist = cv2.distanceTransform(
+                    (~exclusive_first).astype(np.uint8), cv2.DIST_L2, 3
+                )
+                second_dist = cv2.distanceTransform(
+                    (~exclusive_second).astype(np.uint8), cv2.DIST_L2, 3
+                )
+                first_side = cc_mask & (first_dist <= second_dist)
+                second_side = cc_mask & ~first_side
+            else:
+                first_side = DistinMapPage._side_after_seam(
+                    cc_mask,
+                    seam,
+                    touches_first,
+                    touches_second,
+                ) & ~seam
+                second_side = cc_mask & ~first_side & ~seam
+
+            result_first[cc_mask & ~first_side] = 0
+            result_second[cc_mask & ~second_side] = 0
+
+        return result_first, result_second
+
+    @staticmethod
+    def _find_low_weight_seam(
+        component: np.ndarray,
+        weights: np.ndarray,
+        touches_first: np.ndarray,
+        touches_second: np.ndarray,
+    ) -> np.ndarray | None:
+        ys, xs = np.nonzero(component)
+        if len(ys) == 0 or len(ys) > MAX_SEAM_SEARCH_NODES:
+            return None
+
+        y1, y2 = int(ys.min()), int(ys.max()) + 1
+        x1, x2 = int(xs.min()), int(xs.max()) + 1
+        comp = component[y1:y2, x1:x2]
+        cost = weights[y1:y2, x1:x2]
+        first_touch = touches_first[y1:y2, x1:x2]
+        second_touch = touches_second[y1:y2, x1:x2]
+        h, w = comp.shape
+
+        first_y, first_x = np.nonzero(first_touch)
+        second_y, second_x = np.nonzero(second_touch)
+        if len(first_y) == 0 or len(second_y) == 0:
+            return None
+
+        delta_y = abs(float(first_y.mean()) - float(second_y.mean()))
+        delta_x = abs(float(first_x.mean()) - float(second_x.mean()))
+        axis = 0 if delta_x >= delta_y else 1
+
+        coord = np.indices((h, w))[axis]
+        start_line = comp & (coord == 0)
+        end_line = comp & (coord == ((w - 1) if axis == 1 else (h - 1)))
+        if not start_line.any() or not end_line.any():
+            return None
+
+        dist = np.full((h, w), np.inf, dtype=np.float32)
+        prev_y = np.full((h, w), -1, dtype=np.int32)
+        prev_x = np.full((h, w), -1, dtype=np.int32)
+        pq: list[tuple[float, int, int]] = []
+        counter = 0
+
+        import heapq
+
+        for sy, sx in zip(*np.nonzero(start_line)):
+            dist[sy, sx] = float(cost[sy, sx])
+            heapq.heappush(pq, (float(dist[sy, sx]), counter, int(sy), int(sx)))
+            counter += 1
+
+        end: tuple[int, int] | None = None
+        directions = (
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),
+        )
+        while pq:
+            d, _, y, x = heapq.heappop(pq)
+            if d != dist[y, x]:
+                continue
+            if end_line[y, x]:
+                end = (y, x)
+                break
+            for dy, dx in directions:
+                ny, nx = y + dy, x + dx
+                if ny < 0 or ny >= h or nx < 0 or nx >= w or not comp[ny, nx]:
+                    continue
+                step = (float(cost[y, x]) + float(cost[ny, nx])) * 0.5
+                nd = d + step
+                if nd < dist[ny, nx]:
+                    dist[ny, nx] = nd
+                    prev_y[ny, nx] = y
+                    prev_x[ny, nx] = x
+                    heapq.heappush(pq, (nd, counter, ny, nx))
+                    counter += 1
+
+        if end is None:
+            return None
+
+        seam = np.zeros_like(component, dtype=bool)
+        y, x = end
+        while y >= 0 and x >= 0:
+            seam[y + y1, x + x1] = True
+            py, px = prev_y[y, x], prev_x[y, x]
+            y, x = int(py), int(px)
+        return seam
+
+    @staticmethod
+    def _side_after_seam(
+        component: np.ndarray,
+        seam: np.ndarray,
+        touches_first: np.ndarray,
+        touches_second: np.ndarray,
+    ) -> np.ndarray:
+        fillable = component & ~seam
+        first_seed = cv2.dilate(touches_first.astype(np.uint8), np.ones((3, 3), dtype=np.uint8), iterations=1).astype(bool)
+        second_seed = cv2.dilate(touches_second.astype(np.uint8), np.ones((3, 3), dtype=np.uint8), iterations=1).astype(bool)
+        first_seed &= fillable
+        second_seed &= fillable
+
+        first_side = np.zeros_like(component, dtype=bool)
+        q: deque[tuple[int, int]] = deque()
+        for y, x in zip(*np.nonzero(first_seed)):
+            first_side[y, x] = True
+            q.append((int(y), int(x)))
+
+        while q:
+            y, x = q.popleft()
+            for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                ny, nx = y + dy, x + dx
+                if (
+                    ny < 0
+                    or ny >= component.shape[0]
+                    or nx < 0
+                    or nx >= component.shape[1]
+                    or first_side[ny, nx]
+                    or not fillable[ny, nx]
+                ):
+                    continue
+                first_side[ny, nx] = True
+                q.append((ny, nx))
+
+        if (first_side & second_seed).any():
+            first_dist = cv2.distanceTransform((~first_seed).astype(np.uint8), cv2.DIST_L2, 3)
+            second_dist = cv2.distanceTransform((~second_seed).astype(np.uint8), cv2.DIST_L2, 3)
+            return component & (first_dist <= second_dist)
+
+        return first_side
+
+    def _auto_split_group(
+        self,
+        group_key: str,
+        maps: Dict[str, np.ndarray],
+        positions: Dict[str, Tuple[int, int]],
+        names_list: List[str],
+        canvas: np.ndarray,
+    ) -> None:
+        print(f"\n  {_G}Automatic split mode{_0}")
+
+        canvas_h, canvas_w = canvas.shape[:2]
+        n_maps = len(names_list)
+        land_masks: List[np.ndarray] = []
+        canvas_maps: List[np.ndarray] = []
+
+        for nm in names_list:
+            img = maps[nm]
+            px, py = positions[nm]
+            h, w = img.shape[:2]
+            ey = min(py + h, canvas_h)
+            ex = min(px + w, canvas_w)
+
+            canvas_img = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
+            canvas_img[py:ey, px:ex] = img[: ey - py, : ex - px]
+            canvas_maps.append(canvas_img)
+
+            mask = np.zeros((canvas_h, canvas_w), dtype=bool)
+            mask[py:ey, px:ex] = self._content_mask(img)[: ey - py, : ex - px]
+            land_masks.append(mask)
+
+        hit_count = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
+        for mask in land_masks:
+            hit_count += mask.astype(np.uint8)
+
+        owner = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
+        for i, mask in enumerate(land_masks):
+            owner[mask & (hit_count == 1)] = i
+        overlap = hit_count >= 2
+        owner[overlap] = -2
+
+        if not overlap.any():
+            print(f"    {_G}No overlaps — exporting maps as-is.{_0}")
+            self._export_split_maps(
+                group_key,
+                maps,
+                positions,
+                names_list,
+                [m.astype(np.uint8) for m in land_masks],
+                canvas,
+            )
+            return
+
+        combined_gray = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
+        for canvas_img, mask in zip(canvas_maps, land_masks):
+            gray = cv2.cvtColor(canvas_img, cv2.COLOR_RGB2GRAY)
+            combined_gray[mask] = np.maximum(combined_gray[mask], gray[mask])
+        weights = self._brightness_weight(combined_gray)
+
+        cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+        n_cc, cc_labels = cv2.connectedComponents(overlap.astype(np.uint8), connectivity=4)
+        exclusive_masks = [(owner == i) for i in range(n_maps)]
+
+        for cc_id in range(1, n_cc):
+            cc_mask = cc_labels == cc_id
+            involved = [i for i, mask in enumerate(land_masks) if (mask & cc_mask).any()]
+            if not involved:
+                continue
+
+            ring = cv2.dilate(cc_mask.astype(np.uint8), cross_kernel, iterations=1).astype(bool)
+            ring &= ~cc_mask
+            touching = [i for i in involved if (ring & exclusive_masks[i]).any()]
+
+            if len(touching) == 1:
+                owner[cc_mask] = touching[0]
+                continue
+
+            if len(touching) == 2:
+                first, second = touching
+                touches_first = ring & exclusive_masks[first]
+                touches_second = ring & exclusive_masks[second]
+                seam = self._find_low_weight_seam(
+                    cc_mask,
+                    weights,
+                    touches_first,
+                    touches_second,
+                )
+                if seam is not None:
+                    first_side = self._side_after_seam(
+                        cc_mask,
+                        seam,
+                        touches_first,
+                        touches_second,
+                    ) & ~seam
+                    second_side = cc_mask & ~first_side & ~seam
+                    owner[first_side] = first
+                    owner[second_side] = second
+                    owner[seam] = -1
+                    continue
+
+            best_dist = np.full((canvas_h, canvas_w), np.inf, dtype=np.float32)
+            best_owner = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
+            for i in involved:
+                if not exclusive_masks[i].any():
+                    continue
+                dist_map = cv2.distanceTransform(
+                    (~exclusive_masks[i]).astype(np.uint8), cv2.DIST_L2, 3
+                )
+                better = cc_mask & (dist_map < best_dist)
+                best_dist[better] = dist_map[better]
+                best_owner[better] = i
+            owner[cc_mask & (best_owner >= 0)] = best_owner[cc_mask & (best_owner >= 0)]
+
+        unresolved = (owner == -2) & overlap
+        if unresolved.any():
+            for i in sorted(range(n_maps), key=lambda idx: names_list[idx]):
+                assign = unresolved & land_masks[i]
+                owner[assign] = i
+                unresolved &= ~assign
+
+        ownership_masks = [(owner == i).astype(np.uint8) for i in range(n_maps)]
+        remaining_overlap = np.zeros((canvas_h, canvas_w), dtype=bool)
+        any_owned = np.zeros((canvas_h, canvas_w), dtype=bool)
+        for mask in ownership_masks:
+            mask_bool = mask.astype(bool)
+            remaining_overlap |= any_owned & mask_bool
+            any_owned |= mask_bool
+
+        print(
+            f"    {_G}Auto split complete. Remaining overlap pixels: "
+            f"{int(remaining_overlap.sum())}{_0}"
+        )
+        self._export_split_maps(
+            group_key, maps, positions, names_list, ownership_masks, canvas
+        )
 
     def _remove_islands(self, maps: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """Remove island pixels from each map.
