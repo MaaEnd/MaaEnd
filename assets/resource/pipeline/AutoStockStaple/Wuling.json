@@ -78,7 +78,7 @@
     },
     "AutoStockSwipeWuling": {
         "desc": "向下滑动寻找商品，直到找到商品或到达底部",
-        "max_hit": 20,
+        "max_hit": 25,
         "recognition": {
             "type": "And",
             "param": {
