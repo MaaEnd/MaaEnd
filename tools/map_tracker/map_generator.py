@@ -75,18 +75,18 @@ def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
 
 def ensure_output_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
-    gitignore_path = os.path.join(path, ".gitignore")
-    with open(gitignore_path, "w", encoding="utf-8") as f:
-        f.write("*\n")
 
 
 class DistinMapPage:
     """Distinguishes level maps into separate maps using layout data for positioning."""
 
-    def __init__(self, input_dir: str, output_dir: str, layout_dir: str):
+    def __init__(
+        self, input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
+    ):
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.layout_dir = layout_dir
+        self.ui = ui
         self.window_name = "MapTracker Level Distinguisher"
         self.window_w, self.window_h = 1280, 720
 
@@ -358,9 +358,13 @@ class DistinMapPage:
 
         center_factor = np.ones((canvas_h, canvas_w), dtype=np.float32)
         covered = center_factor_count > 0
-        center_factor[covered] = center_factor_sum[covered] / center_factor_count[covered]
-        combined_gray = cv2.GaussianBlur(combined_gray, (5, 5), 0)
-        weights = np.minimum((self._brightness_weight(combined_gray) + 1e-3) * center_factor, 1.0)
+        center_factor[covered] = (
+            center_factor_sum[covered] / center_factor_count[covered]
+        )
+        combined_gray = cv2.GaussianBlur(combined_gray, (7, 7), 0)
+        weights = np.minimum(
+            (self._brightness_weight(combined_gray) + 1e-3) * center_factor, 1.0
+        )
 
         cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
         exclusive_masks = [(owner == i) for i in range(n_maps)]
@@ -416,7 +420,9 @@ class DistinMapPage:
                     better = cc_mask & (dist_map < best_dist)
                     best_dist[better] = dist_map[better]
                     best_owner[better] = i
-                owner[cc_mask & (best_owner >= 0)] = best_owner[cc_mask & (best_owner >= 0)]
+                owner[cc_mask & (best_owner >= 0)] = best_owner[
+                    cc_mask & (best_owner >= 0)
+                ]
 
         unresolved = (owner == -2) & overlap
         if unresolved.any():
@@ -816,7 +822,9 @@ class DistinMapPage:
         for i, mask in enumerate(ownership_masks):
             owner_all[mask > 0] = i
         hsv_colors = np.zeros((len(names_list), 1, 3), dtype=np.uint8)
-        hsv_colors[:, 0, 0] = np.linspace(0, 180, len(names_list), endpoint=False, dtype=np.uint8)
+        hsv_colors[:, 0, 0] = np.linspace(
+            0, 180, len(names_list), endpoint=False, dtype=np.uint8
+        )
         hsv_colors[:, 0, 1] = 220
         hsv_colors[:, 0, 2] = 255
         colors = cv2.cvtColor(hsv_colors, cv2.COLOR_HSV2RGB)[:, 0, :]
@@ -853,6 +861,8 @@ class DistinMapPage:
                 )
 
         print(f"  {_G}Split maps saved to {self.output_dir}{_0}")
+        if not self.ui:
+            return
         if weights is not None:
             weight_value = np.clip(weights, 0.0, 1.0)
             weight_rgb = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
@@ -946,14 +956,16 @@ def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
             min_y, max_y = int(ys.min()), int(ys.max())
             results[map_name] = [min_x, min_y, max_x + 1, max_y + 1]
 
-    output_path = os.path.join(output_dir, "map_bbox.json")
+    output_path = os.path.join(output_dir, "map_bbox_data.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
     print(f"{_G}Saved map rectangles to {output_path}{_0}")
     return output_path
 
 
-def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> None:
+def cmd_distinguish_levels(
+    input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
+) -> None:
     """Distinguish level images into separate maps with island removal and automatic split."""
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
@@ -962,7 +974,7 @@ def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> 
         print(f"{_R}Layout directory not found: {layout_dir}{_0}")
         return
 
-    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir)
+    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir, ui)
     distinguisher.run()
 
 
@@ -981,7 +993,7 @@ _RE_TIER_FILE = re.compile(r"^(\w+_\w+)_(\d+)_(\d+)_tier_\d+\.png$")
 GRID_XY_SIZE = SCALE_MAP_FACTOR * 600
 """Scaled pixel size of one grid cell."""
 
-RING_RADIUS = 50
+RING_RADIUS = 40
 """Radius of the ring background around land areas."""
 
 
@@ -1132,6 +1144,9 @@ def main():
     p_distin.add_argument(
         "--layout-dir", required=True, help="Directory containing *_layout.json files"
     )
+    p_distin.add_argument(
+        "--ui", action="store_true", help="Show visual preview windows while exporting"
+    )
 
     # tidy_tiers subcommand
     p_tiers = sub.add_parser(
@@ -1162,7 +1177,9 @@ def main():
     args = parser.parse_args()
 
     if args.command == "distinguish_levels":
-        cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
+        cmd_distinguish_levels(
+            args.input_dir, args.output_dir, args.layout_dir, args.ui
+        )
     elif args.command == "tidy_tiers":
         cmd_tidy_tiers(args.input_dir, args.output_dir)
     elif args.command == "bbox":
