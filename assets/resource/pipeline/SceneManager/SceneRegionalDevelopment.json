@@ -251,6 +251,7 @@
             "WhiteConfirmButtonType1",
             "CheckChangeRegionConfirmText"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
