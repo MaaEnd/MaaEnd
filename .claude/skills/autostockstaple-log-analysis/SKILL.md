@@ -41,7 +41,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 - `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`
 - `assets/resource/pipeline/AutoStockStaple/Wuling.json`
 - `assets/resource/pipeline/AutoStockStaple/General/Item.json`
-- `docs/en_us/developers/custom.md`
+- `docs/zh_cn/developers/custom.md`
 
 ## 工作流
 
