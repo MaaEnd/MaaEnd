@@ -1,6 +1,6 @@
 {
     "AutoCollectRoute7GotoFindLine1": {
-        "desc": "寻路到升降梯门口",
+        "desc": "寻路到血菌",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
