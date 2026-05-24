@@ -354,7 +354,7 @@
             "time": 200
         },
         "next": [
-            "[JumpBack]_AutoEcoFarmIsMrarking",
+            "_AutoEcoFarmIsMrarking",
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
@@ -414,7 +414,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmJumpBack"
+            "_AutoEcoFarmFindFarmlandCustom"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
