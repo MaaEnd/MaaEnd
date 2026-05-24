@@ -7,7 +7,6 @@ import os
 import posixpath
 import re
 import shutil
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request

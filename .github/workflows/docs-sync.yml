@@ -145,7 +145,7 @@ jobs:
         id: changes
         run: |
           set -euo pipefail
-          if git diff --quiet; then
+          if [ -z "$(git status --porcelain -- docs/en_us)" ]; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
           else
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
@@ -154,19 +154,19 @@ jobs:
 
       - name: Commit and push translation branch
         if: steps.changes.outputs.has_changes == 'true'
-        uses: actions-js/push@master
-        with:
-          force: true
-          branch: ${{ needs.prepare.outputs.branch_name }}
-          message: |
-            docs: sync en_us mirror from zh_cn
-
-            The workflow selected files by comparing zh_cn source hashes with ${{ env.DOCS_SYNC_STATE_PATH }}.
-
-            Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            [skip changelog]
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+        env:
+          BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/en_us
+          git commit \
+            -m "docs: sync en_us mirror from zh_cn" \
+            -m "The workflow selected files by comparing zh_cn source hashes with ${{ env.DOCS_SYNC_STATE_PATH }}." \
+            -m "Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -m "[skip changelog]"
+          git push --force-with-lease origin "HEAD:$BRANCH_NAME"
 
       - name: Create or update PR
         if: steps.changes.outputs.has_changes == 'true'

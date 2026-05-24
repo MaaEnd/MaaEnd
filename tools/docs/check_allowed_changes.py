@@ -6,16 +6,13 @@ import subprocess
 from pathlib import Path
 
 
-def git_changed_files(base_ref: str) -> list[str]:
+def run_git(args: list[str]) -> str:
     repo_root = Path.cwd().resolve()
     command = [
         "git",
         "-c",
         f"safe.directory={repo_root.as_posix()}",
-        "diff",
-        "--name-only",
-        base_ref,
-        "--",
+        *args,
     ]
     completed = subprocess.run(
         command,
@@ -23,7 +20,19 @@ def git_changed_files(base_ref: str) -> list[str]:
         capture_output=True,
         text=True,
     )
-    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+    return completed.stdout
+
+
+def git_changed_files(base_ref: str) -> list[str]:
+    tracked = run_git(["diff", "--name-only", base_ref, "--"])
+    untracked = run_git(["ls-files", "--others", "--exclude-standard", "--"])
+    paths = {
+        line.strip()
+        for output in (tracked, untracked)
+        for line in output.splitlines()
+        if line.strip()
+    }
+    return sorted(paths)
 
 
 def parse_args() -> argparse.Namespace:
