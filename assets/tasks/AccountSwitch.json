@@ -5,6 +5,9 @@
             "label": "$task.AccountSwitch.label",
             "entry": "AccountSwitchStart",
             "description": "$task.AccountSwitch.description",
+            "controller": [
+                "Win32-Front"
+            ],
             "option": [
                 "AccountSwitchLastFourDigits"
             ],
@@ -29,16 +32,22 @@
             "pipeline_override": {
                 "__AccountSwitchOCRSelectAccount": {
                     "recognition": {
-                        "type": "OCR",
                         "param": {
-                            "roi": [
-                                0,
-                                0,
-                                400,
-                                400
-                            ],
                             "expected": [
-                                "{LastFourDigits}$"
+                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                "{LastFourDigits}"
+                            ]
+                        }
+                    }
+                },
+                "__AccountSwitchVerifySelected": {
+                    "recognition": {
+                        "param": {
+                            "expected": [
+                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                "{LastFourDigits}"
                             ]
                         }
                     }

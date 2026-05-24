@@ -1,15 +1,13 @@
 {
     "AccountSwitchStart": {
-        "desc": "账号切换入口：先到登录界面",
-        "pre_delay": 0,
-        "post_delay": 0,
+        "desc": "账号切换入口",
         "next": [
             "__AccountSwitchAtLoginScreen",
             "[JumpBack]SceneEnterMenuLogin"
         ]
     },
     "__AccountSwitchAtLoginScreen": {
-        "desc": "已在登录界面，寻找登出按钮",
+        "desc": "已在登录界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -24,12 +22,35 @@
                 ]
             }
         },
+        "post_wait_freezes": 400,
         "next": [
-            "__AccountSwitchClickLogout"
+            "__AccountSwitchCheckInitState"
+        ]
+    },
+    "__AccountSwitchCheckInitState": {
+        "desc": "中继节点：检查是否已退出",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -300,
+                    60,
+                    300,
+                    300
+                ],
+                "template": [
+                    "AccountSwitch/LogoutButton.png"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "next": [
+            "__AccountSwitchClickLogout",
+            "__AccountSwitchFocusFormBeforeDropdown"
         ]
     },
     "__AccountSwitchClickLogout": {
-        "desc": "点击登出按钮（占位）",
+        "desc": "点击登出按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -46,10 +67,10 @@
             }
         },
         "action": "Click",
-        "post_delay": 500,
+        "pre_wait_freezes": 100,
         "next": [
             "[JumpBack]__AccountSwitchLogoutConfirm",
-            "__AccountSwitchClickDropdown"
+            "__AccountSwitchCheckAccount"
         ]
     },
     "__AccountSwitchLogoutConfirm": {
@@ -65,11 +86,11 @@
                     202
                 ],
                 "expected": [
-                    "登出",
-                    "登出",
-                    "(?i)Log\\s*out",
-                    "ログアウト",
-                    "로그아웃"
+                    "确认退出",
+                    "確定登出",
+                    "(?i)Log out of",
+                    "ログアウトします",
+                    "로그아웃하시겠"
                 ]
             },
             {
@@ -91,28 +112,46 @@
             }
         ],
         "box_index": 1,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 500
+        "pre_wait_freezes": 200,
+        "action": "Click"
+    },
+    "__AccountSwitchFocusFormBeforeDropdown": {
+        "desc": "聚焦账号登录窗口后准备点击下拉",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "focus",
+            "window": "form",
+            "optional": false
+        },
+        "next": [
+            "__AccountSwitchClickDropdown"
+        ]
     },
     "__AccountSwitchClickDropdown": {
-        "desc": "点击账号下拉按钮（占位）",
+        "desc": "点击账号下拉按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
                     755,
                     325,
-                    60,
-                    50
+                    300,
+                    300
                 ],
                 "template": [
                     "AccountSwitch/DropdownButton.png"
                 ]
             }
         },
-        "action": "Click",
+        "post_wait_freezes": 500,
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "click",
+            "window": "form"
+        },
         "next": [
             "__AccountSwitchOCRSelectAccount"
         ]
@@ -123,17 +162,83 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    400,
-                    400
+                    475,
+                    364,
+                    300,
+                    300
                 ],
                 "expected": [
-                    "\\d{4}$"
+                    ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
+                    ".*\\d{4}\\s*(?:最近)?.*",
+                    "\\d{4}"
                 ]
             }
         },
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "click",
+            "window": "combo"
+        },
+        "post_wait_freezes": 300,
+        "next": [
+            "__AccountSwitchCloseCombo"
+        ]
+    },
+    "__AccountSwitchCloseCombo": {
+        "desc": "关闭账号下拉列表窗口",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "close",
+            "window": "combo",
+            "optional": true
+        },
+        "next": [
+            "__AccountSwitchFocusForm"
+        ]
+    },
+    "__AccountSwitchFocusForm": {
+        "desc": "聚焦账号登录窗口",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "focus",
+            "window": "form",
+            "optional": true
+        },
+        "next": [
+            "__AccountSwitchCheckAccount"
+        ]
+    },
+    "__AccountSwitchCheckAccount": {
+        "desc": "中继节点：路由检查",
+        "max_hit": 3,
+        "next": [
+            "__AccountSwitchVerifySelected",
+            "__AccountSwitchClickDropdown"
+        ]
+    },
+    "__AccountSwitchVerifySelected": {
+        "desc": "验证目标账号是否已选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    470,
+                    311,
+                    300,
+                    300
+                ],
+                "expected": [
+                    ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
+                    ".*\\d{4}\\s*(?:最近)?.*",
+                    "\\d{4}"
+                ]
+            }
+        },
         "next": [
             "__AccountSwitchClickLogin"
         ]
@@ -144,42 +249,49 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    400,
-                    200
+                    471,
+                    309,
+                    328,
+                    400
                 ],
                 "expected": [
-                    "登录",
-                    "登入",
-                    "(?i)Log\\s*in",
-                    "ログイン",
-                    "로그인"
+                    "^\\s*登录\\s*$",
+                    "^\\s*登入\\s*$",
+                    "(?i)^\\s*Log\\s*in\\s*$",
+                    "^\\s*ログイン\\s*$",
+                    "^\\s*로그인\\s*$"
                 ]
             }
         },
-        "action": "Click",
-        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "click",
+            "window": "form"
+        },
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
             "__AccountSwitchLoginSuccess"
         ]
     },
     "__AccountSwitchLoginSuccess": {
         "desc": "账号切换登录成功",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    -100,
-                    100,
-                    100
-                ],
-                "template": [
-                    "SceneManager/LoginExit.png"
-                ]
-            }
-        }
+        "recognition": "ColorMatch",
+        "roi": [
+            53,
+            315,
+            114,
+            61
+        ],
+        "method": 40,
+        "lower": [
+            18,
+            162,
+            242
+        ],
+        "upper": [
+            38,
+            245,
+            255
+        ]
     }
 }
