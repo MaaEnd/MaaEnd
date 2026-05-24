@@ -3,7 +3,14 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+
+
+def normalize_repo_path(path: str | Path) -> str:
+    normalized = str(path).replace("\\", "/")
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return PurePosixPath(normalized).as_posix()
 
 
 def run_git(args: list[str]) -> str:
@@ -54,14 +61,14 @@ def main() -> int:
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
 
     allowed_paths: set[str] = set()
-    allowed_paths.add(args.state_path.as_posix())
+    allowed_paths.add(normalize_repo_path(args.state_path))
     for task in manifest["tasks"]:
         mode = task["mode"]
         if mode in {"translate_file", "delete_target"}:
-            allowed_paths.add(task["target_path"])
+            allowed_paths.add(normalize_repo_path(task["target_path"]))
         elif mode == "rename_target":
-            allowed_paths.add(task["target_path_before"])
-            allowed_paths.add(task["target_path_after"])
+            allowed_paths.add(normalize_repo_path(task["target_path_before"]))
+            allowed_paths.add(normalize_repo_path(task["target_path_after"]))
 
     changed = git_changed_files(args.base_ref)
     disallowed = [path for path in changed if path not in allowed_paths]

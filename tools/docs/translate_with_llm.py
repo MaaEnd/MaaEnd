@@ -74,6 +74,38 @@ def write_sync_state(path: Path, manifest: dict[str, Any]) -> None:
     path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def repo_root() -> Path:
+    return Path.cwd().resolve()
+
+
+def safe_repo_path(path_value: Any, *, expected_prefix: str, must_exist: bool = False) -> Path:
+    if not isinstance(path_value, str) or not path_value:
+        raise RuntimeError(f"Invalid path value: {path_value!r}")
+
+    normalized = normalize_repo_path(path_value)
+    pure_path = PurePosixPath(normalized)
+    if pure_path.is_absolute() or any(part == ".." for part in pure_path.parts):
+        raise RuntimeError(f"Refusing unsafe path: {path_value}")
+    if not normalized.startswith(f"{expected_prefix}/"):
+        raise RuntimeError(f"Path must be under {expected_prefix}/: {path_value}")
+
+    candidate = Path(normalized)
+    resolved = candidate.resolve(strict=must_exist)
+    root = repo_root()
+    expected_root = (root / expected_prefix).resolve(strict=True)
+    if not resolved.is_relative_to(expected_root):
+        raise RuntimeError(f"Path escapes {expected_prefix}/: {path_value}")
+    return candidate
+
+
+def source_doc_path(path_value: Any) -> Path:
+    return safe_repo_path(path_value, expected_prefix=SOURCE_DOC_ROOT, must_exist=True)
+
+
+def target_doc_path(path_value: Any) -> Path:
+    return safe_repo_path(path_value, expected_prefix=TARGET_DOC_ROOT, must_exist=False)
+
+
 def unwrap_code_fence(text: str) -> str:
     stripped = text.strip()
     if not stripped.startswith("```"):
@@ -576,8 +608,8 @@ def translate_task(
     model: str,
     max_tokens: int,
 ) -> None:
-    source_path = Path(task["source_path"])
-    target_path = Path(task["target_path"])
+    source_path = source_doc_path(task["source_path"])
+    target_path = target_doc_path(task["target_path"])
     source_text = source_path.read_text(encoding="utf-8")
     protected_text, placeholders = protect_links(source_text, source_path, target_path)
     translated = translate_text(
@@ -595,7 +627,7 @@ def translate_task(
 
 
 def apply_delete(task: dict[str, Any]) -> None:
-    target_path = Path(task["target_path"])
+    target_path = target_doc_path(task["target_path"])
     if target_path.exists():
         target_path.unlink()
         print(f"Deleted {task['target_path']}")
@@ -604,8 +636,8 @@ def apply_delete(task: dict[str, Any]) -> None:
 
 
 def apply_rename(task: dict[str, Any]) -> None:
-    old_path = Path(task["target_path_before"])
-    new_path = Path(task["target_path_after"])
+    old_path = target_doc_path(task["target_path_before"])
+    new_path = target_doc_path(task["target_path_after"])
     ensure_parent(new_path)
     if old_path.exists():
         shutil.move(str(old_path), str(new_path))
