@@ -34,14 +34,13 @@ jobs:
 
       # Copilot 首选；失败时 fallback 到 Daydreamer114/ai-issue-analysis 的 Cursor 模式。
       # 分析质量仍依赖：.claude/skills/maaend-issue-log-analysis/SKILL.md
-      # [TEST] 故意使用无效 token 触发硬失败，验证 Cursor fallback；测完改回 secrets.COPILOT_GITHUB_TOKEN
       - name: Analyze issue with Copilot
         id: copilot
         continue-on-error: true
         uses: MistEO/ai-issue-analysis@main
         with:
           github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
-          copilot-github-token: invalid-token-for-cursor-fallback-test
+          copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
             🤖 **MaaEndBot 正在分析该 Issue...**
