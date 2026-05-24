@@ -56,6 +56,7 @@
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
                 "MapTrackerMove",
+                "MapTrackerMoveCompatible",
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",

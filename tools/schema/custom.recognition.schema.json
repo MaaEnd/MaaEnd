@@ -15,6 +15,7 @@
                 "ImageCheckNotPassedRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
+                "MapTrackerAssertLocationCompatible",
                 "MapTrackerBigMapInfer",
                 "MapTrackerInfer",
                 "PuzzleRecognition",
