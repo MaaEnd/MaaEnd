@@ -2,6 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "opencv-python>=4",
+#     "PyMaxflow>=1.3",
 # ]
 # ///
 
@@ -17,13 +18,14 @@ from typing import Dict, List, Tuple
 from _internal.core_utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
 from _internal.zmdmap_schemas import RegionLayoutTable, LevelLayoutMetaData
 
-MAP_FINAL_DIR = "assets/resource/image/MapTracker/map_final"
-
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
 
 DISCARD_THRESHOLD = 2
 """Pixels with brightness < this value are discarded as non-land."""
+
+MAX_GRAPH_CUT_NODES = 2_000_000
+"""Maximum number of pixels used by a single automatic graph cut."""
 
 LAND_THRESHOLD = 48
 """Pixels with brightness < this value are filtered out of bounding boxes."""
@@ -73,18 +75,18 @@ def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
 
 def ensure_output_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
-    gitignore_path = os.path.join(path, ".gitignore")
-    with open(gitignore_path, "w", encoding="utf-8") as f:
-        f.write("*\n")
 
 
 class DistinMapPage:
     """Distinguishes level maps into separate maps using layout data for positioning."""
 
-    def __init__(self, input_dir: str, output_dir: str, layout_dir: str):
+    def __init__(
+        self, input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
+    ):
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.layout_dir = layout_dir
+        self.ui = ui
         self.window_name = "MapTracker Level Distinguisher"
         self.window_w, self.window_h = 1280, 720
 
@@ -124,14 +126,6 @@ class DistinMapPage:
         """Binary mask of land pixels (gray >= DISCARD_THRESHOLD)."""
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         return gray >= DISCARD_THRESHOLD
-
-    @staticmethod
-    def _content_bbox(mask: np.ndarray) -> Tuple[int, int, int, int] | None:
-        """Return (x1, y1, x2, y2) bounding box of True pixels, or None."""
-        ys, xs = np.nonzero(mask)
-        if len(ys) == 0:
-            return None
-        return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
 
     @staticmethod
     def _map_group_key(name: str) -> str:
@@ -197,8 +191,257 @@ class DistinMapPage:
         # Recomposite canvas after island removal
         canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
 
-        # --- Manual split: user draws barrier lines to separate maps ---
-        self._manual_split(group_key, maps, positions, names_list, canvas)
+        # --- Automatic split: separates overlapping maps with graph cuts ---
+        self._auto_split(group_key, maps, positions, names_list, canvas)
+
+    @staticmethod
+    def _brightness_weight(gray: np.ndarray) -> np.ndarray:
+        gray_f = gray.astype(np.float32)
+        weight = np.ones_like(gray_f, dtype=np.float32)
+
+        mask = gray_f <= 64
+        weight[mask] = 0.0
+
+        mask = (gray_f > 64) & (gray_f < 128)
+        weight[mask] = (gray_f[mask] - 64.0) / 64.0 * 0.5
+
+        return weight
+
+    @staticmethod
+    def _graph_cut_component(
+        component: np.ndarray,
+        weights: np.ndarray,
+        touches_first: np.ndarray,
+        touches_second: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | None:
+        ys, xs = np.nonzero(component)
+        if len(ys) == 0 or len(ys) > MAX_GRAPH_CUT_NODES:
+            return None
+
+        y1, y2 = int(ys.min()), int(ys.max()) + 1
+        x1, x2 = int(xs.min()), int(xs.max()) + 1
+        comp = component[y1:y2, x1:x2]
+        cost = weights[y1:y2, x1:x2]
+        h, w = comp.shape
+
+        seed_kernel = np.ones((3, 3), dtype=np.uint8)
+        first_seed_full = cv2.dilate(
+            touches_first.astype(np.uint8), seed_kernel, iterations=1
+        ).astype(bool)
+        second_seed_full = cv2.dilate(
+            touches_second.astype(np.uint8), seed_kernel, iterations=1
+        ).astype(bool)
+        first_seed = first_seed_full[y1:y2, x1:x2] & comp
+        second_seed = second_seed_full[y1:y2, x1:x2] & comp
+
+        conflict = first_seed & second_seed
+        if conflict.any():
+            first_seed &= ~conflict
+            second_seed &= ~conflict
+        if not first_seed.any() or not second_seed.any():
+            return None
+
+        import maxflow
+
+        node_ids = np.full((h, w), -1, dtype=np.int32)
+        graph = maxflow.GraphFloat()
+        nodes = graph.add_nodes(int(comp.sum()))
+        node_ids[comp] = nodes
+
+        max_pairwise = float(np.max(cost[comp]))
+        inf_capacity = max(1_000_000.0, float(len(ys)) * max_pairwise * 20.0)
+
+        def edge_capacity(a: float, b: float) -> float:
+            return (a + b) * 0.5
+
+        for node in node_ids[first_seed]:
+            graph.add_tedge(int(node), inf_capacity, 0.0)
+        for node in node_ids[second_seed]:
+            graph.add_tedge(int(node), 0.0, inf_capacity)
+
+        for y in range(h):
+            for x in range(w):
+                if not comp[y, x]:
+                    continue
+                node = int(node_ids[y, x])
+                if x + 1 < w and comp[y, x + 1]:
+                    capacity = edge_capacity(float(cost[y, x]), float(cost[y, x + 1]))
+                    graph.add_edge(node, int(node_ids[y, x + 1]), capacity, capacity)
+                if y + 1 < h and comp[y + 1, x]:
+                    capacity = edge_capacity(float(cost[y, x]), float(cost[y + 1, x]))
+                    graph.add_edge(node, int(node_ids[y + 1, x]), capacity, capacity)
+
+        graph.maxflow()
+        segments = np.zeros((h, w), dtype=bool)
+        segments[comp] = [graph.get_segment(int(node)) for node in node_ids[comp]]
+
+        first_value = bool(segments[first_seed][0])
+        second_value = bool(segments[second_seed][0])
+        if first_value == second_value:
+            return None
+
+        first_side = np.zeros_like(component, dtype=bool)
+        second_side = np.zeros_like(component, dtype=bool)
+        first_side[y1:y2, x1:x2] = comp & (segments == first_value)
+        second_side[y1:y2, x1:x2] = comp & (segments == second_value)
+        return first_side, second_side
+
+    def _auto_split(
+        self,
+        group_key: str,
+        maps: Dict[str, np.ndarray],
+        positions: Dict[str, Tuple[int, int]],
+        names_list: List[str],
+        canvas: np.ndarray,
+    ) -> None:
+        print(f"\n  {_G}Automatic split mode{_0}")
+
+        canvas_h, canvas_w = canvas.shape[:2]
+        n_maps = len(names_list)
+        land_masks: List[np.ndarray] = []
+        canvas_maps: List[np.ndarray] = []
+
+        for nm in names_list:
+            img = maps[nm]
+            px, py = positions[nm]
+            h, w = img.shape[:2]
+            ey = min(py + h, canvas_h)
+            ex = min(px + w, canvas_w)
+
+            canvas_img = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
+            canvas_img[py:ey, px:ex] = img[: ey - py, : ex - px]
+            canvas_maps.append(canvas_img)
+
+            mask = np.zeros((canvas_h, canvas_w), dtype=bool)
+            mask[py:ey, px:ex] = self._content_mask(img)[: ey - py, : ex - px]
+            land_masks.append(mask)
+
+        hit_count = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
+        for mask in land_masks:
+            hit_count += mask.astype(np.uint8)
+
+        owner = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
+        for i, mask in enumerate(land_masks):
+            owner[mask & (hit_count == 1)] = i
+        overlap = hit_count >= 2
+        owner[overlap] = -2
+
+        if not overlap.any():
+            print(f"    {_G}No overlaps — exporting maps as-is.{_0}")
+            self._export_split_maps(
+                group_key,
+                maps,
+                positions,
+                names_list,
+                [m.astype(np.uint8) for m in land_masks],
+                canvas,
+            )
+            return
+
+        combined_gray = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
+        center_factor_sum = np.zeros((canvas_h, canvas_w), dtype=np.float32)
+        center_factor_count = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
+        yy, xx = np.indices((canvas_h, canvas_w), dtype=np.float32)
+        for nm, canvas_img, mask in zip(names_list, canvas_maps, land_masks):
+            gray = cv2.cvtColor(canvas_img, cv2.COLOR_RGB2GRAY)
+            combined_gray[mask] = np.maximum(combined_gray[mask], gray[mask])
+
+            px, py = positions[nm]
+            h, w = maps[nm].shape[:2]
+            cx = px + w * 0.5
+            cy = py + h * 0.5
+            radius = max((w * w + h * h) ** 0.5 * 0.5, 1.0)
+            distance_ratio = np.minimum(np.hypot(xx - cx, yy - cy) / radius, 1.0)
+            factor = 2.0 - distance_ratio * 1.5
+            center_factor_sum[mask] += factor[mask]
+            center_factor_count[mask] += 1
+
+        center_factor = np.ones((canvas_h, canvas_w), dtype=np.float32)
+        covered = center_factor_count > 0
+        center_factor[covered] = (
+            center_factor_sum[covered] / center_factor_count[covered]
+        )
+        combined_gray = cv2.GaussianBlur(combined_gray, (7, 7), 0)
+        weights = np.minimum(
+            (self._brightness_weight(combined_gray) + 1e-3) * center_factor, 1.0
+        )
+
+        cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+        exclusive_masks = [(owner == i) for i in range(n_maps)]
+
+        for first in range(n_maps):
+            for second in range(first + 1, n_maps):
+                pair_overlap = land_masks[first] & land_masks[second] & (hit_count == 2)
+                pair_overlap &= owner == -2
+                if not pair_overlap.any():
+                    continue
+
+                n_pair_cc, pair_cc_labels = cv2.connectedComponents(
+                    pair_overlap.astype(np.uint8), connectivity=4
+                )
+                for cc_id in range(1, n_pair_cc):
+                    cc_mask = pair_cc_labels == cc_id
+                    ring = cv2.dilate(
+                        cc_mask.astype(np.uint8), cross_kernel, iterations=1
+                    ).astype(bool)
+                    ring &= ~cc_mask
+                    touches_first = ring & exclusive_masks[first]
+                    touches_second = ring & exclusive_masks[second]
+
+                    cut = self._graph_cut_component(
+                        cc_mask,
+                        weights,
+                        touches_first,
+                        touches_second,
+                    )
+                    if cut is not None:
+                        first_side, second_side = cut
+                        owner[first_side] = first
+                        owner[second_side] = second
+
+        unresolved = (owner == -2) & overlap
+        if unresolved.any():
+            n_fb_cc, fb_cc_labels = cv2.connectedComponents(
+                unresolved.astype(np.uint8), connectivity=4
+            )
+            for cc_id in range(1, n_fb_cc):
+                cc_mask = fb_cc_labels == cc_id
+                involved = [
+                    i for i, mask in enumerate(land_masks) if (mask & cc_mask).any()
+                ]
+                best_dist = np.full((canvas_h, canvas_w), np.inf, dtype=np.float32)
+                best_owner = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
+                for i in involved:
+                    if not exclusive_masks[i].any():
+                        continue
+                    dist_map = cv2.distanceTransform(
+                        (~exclusive_masks[i]).astype(np.uint8), cv2.DIST_L2, 3
+                    )
+                    better = cc_mask & (dist_map < best_dist)
+                    best_dist[better] = dist_map[better]
+                    best_owner[better] = i
+                owner[cc_mask & (best_owner >= 0)] = best_owner[
+                    cc_mask & (best_owner >= 0)
+                ]
+
+        unresolved = (owner == -2) & overlap
+        if unresolved.any():
+            for i in sorted(range(n_maps), key=lambda idx: names_list[idx]):
+                assign = unresolved & land_masks[i]
+                owner[assign] = i
+                unresolved &= ~assign
+
+        ownership_masks = [(owner == i).astype(np.uint8) for i in range(n_maps)]
+        print(f"    {_G}Auto split complete.{_0}")
+        self._export_split_maps(
+            group_key,
+            maps,
+            positions,
+            names_list,
+            ownership_masks,
+            canvas,
+            weights,
+        )
 
     def _remove_islands(self, maps: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """Remove island pixels from each map.
@@ -504,14 +747,11 @@ class DistinMapPage:
         names_list: List[str],
         ownership_masks: List[np.ndarray],
         canvas: np.ndarray,
+        weights: np.ndarray | None = None,
     ) -> None:
-        """Export each map using its ownership mask.
-        After saving, shows each map's territory mask one by one.
-        """
+        """Export each map using its ownership mask."""
         canvas_h, canvas_w = canvas.shape[:2]
         canvas_rgb = canvas[:, :, :3]
-
-        dimmed_bg = (canvas_rgb.astype(np.float32) * 0.25).astype(np.uint8)
         box_kernel = np.ones((3, 3), dtype=np.uint8)
 
         def _show(frame_rgb: np.ndarray, title_text: str) -> None:
@@ -563,16 +803,12 @@ class DistinMapPage:
             y1, y2 = int(ys.min()), int(ys.max()) + 1
             x1, x2 = int(xs.min()), int(xs.max()) + 1
 
-            # Build this map's full-canvas image from its original data
             img = maps[nm]
             px, py = positions[nm]
             h, w = img.shape[:2]
-            per_map = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
             ey = min(py + h, canvas_h)
             ex = min(px + w, canvas_w)
-            per_map[py:ey, px:ex] = img[: ey - py, : ex - px]
 
-            # Save without cropping: keep original map size, only mask ownership.
             saved = img.copy()
             local_owned = mask[py:ey, px:ex]
             saved[: ey - py, : ex - px][local_owned == 0] = 0
@@ -580,41 +816,23 @@ class DistinMapPage:
             cv2.imwrite(out_path, cv2.cvtColor(saved, cv2.COLOR_RGB2BGR))
             print(f"    {_C}{nm}{_0}: bbox=[{x1},{y1}]-[{x2},{y2}]")
 
-            # ---- per-map territory display ----
-            # Layer 1: grayscale dimmed canvas as background
-            bg = dimmed_bg.copy()
-            # Layer 2: this map's actual pixels in its owned region (full brightness)
-            owned_bool = mask.astype(bool)
-            bg[owned_bool] = per_map[owned_bool]
-            # Layer 3: white border around the owned region
-            dilated = cv2.dilate(mask, box_kernel, iterations=2)
-            border = (dilated > 0) & ~owned_bool
-            bg[border] = (255, 255, 255)
-            # Layer 4: semi-transparent green tint over owned area
-            tint = bg.copy()
-            tint[owned_bool] = (
-                tint[owned_bool].astype(np.float32) * 0.7
-                + np.array([50, 200, 50], np.float32) * 0.3
-            ).astype(np.uint8)
-
-            _show(
-                tint,
-                f"[{i+1}/{len(names_list)}] {nm} | owned {int(owned_bool.sum())} px",
-            )
-
         # ---- final combined overview ----
-        overview = (canvas_rgb.astype(np.float32) * 0.35).astype(np.uint8)
-        rng = np.random.RandomState(42)
+        overview = (canvas_rgb.astype(np.float32) * 0.25).astype(np.uint8)
         owner_all = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
         for i, mask in enumerate(ownership_masks):
             owner_all[mask > 0] = i
-        colors = [tuple(int(c) for c in rng.randint(80, 220, 3)) for _ in names_list]
-        for i, nm in enumerate(names_list):
+        hsv_colors = np.zeros((len(names_list), 1, 3), dtype=np.uint8)
+        hsv_colors[:, 0, 0] = np.linspace(
+            0, 180, len(names_list), endpoint=False, dtype=np.uint8
+        )
+        hsv_colors[:, 0, 1] = 220
+        hsv_colors[:, 0, 2] = 255
+        colors = cv2.cvtColor(hsv_colors, cv2.COLOR_HSV2RGB)[:, 0, :]
+        for i in range(len(names_list)):
             owned_bool = ownership_masks[i].astype(bool)
-            r, g, b = colors[i]
             overview[owned_bool] = (
-                canvas_rgb[owned_bool].astype(np.float32) * 0.7
-                + np.array([r, g, b], np.float32) * 0.3
+                canvas_rgb[owned_bool].astype(np.float32) * 0.35
+                + colors[i].astype(np.float32) * 0.65
             ).astype(np.uint8)
         # White boundaries
         for i in range(len(names_list)):
@@ -643,6 +861,17 @@ class DistinMapPage:
                 )
 
         print(f"  {_G}Split maps saved to {self.output_dir}{_0}")
+        if not self.ui:
+            return
+        if weights is not None:
+            weight_value = np.clip(weights, 0.0, 1.0)
+            weight_rgb = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
+            weight_value[weight_value < 0.01] = 0.0
+            mid = (weight_value > 0.0) & (weight_value < 1.0)
+            weight_rgb[mid, 0] = ((1.0 - weight_value[mid]) * 255.0).astype(np.uint8)
+            weight_rgb[mid, 1] = (weight_value[mid] * 255.0).astype(np.uint8)
+            weight_rgb[weight_value >= 1.0] = (255, 255, 255)
+            _show(weight_rgb, "Brightness weight")
         _show(overview, f"Overview: {len(names_list)} level maps")
         if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) >= 1:
             cv2.destroyWindow(self.window_name)
@@ -727,15 +956,17 @@ def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
             min_y, max_y = int(ys.min()), int(ys.max())
             results[map_name] = [min_x, min_y, max_x + 1, max_y + 1]
 
-    output_path = os.path.join(output_dir, "map_bbox.json")
+    output_path = os.path.join(output_dir, "map_bbox_data.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
     print(f"{_G}Saved map rectangles to {output_path}{_0}")
     return output_path
 
 
-def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> None:
-    """Distinguish level images into separate maps with island removal and manual split."""
+def cmd_distinguish_levels(
+    input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
+) -> None:
+    """Distinguish level images into separate maps with island removal and automatic split."""
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
         return
@@ -743,7 +974,7 @@ def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> 
         print(f"{_R}Layout directory not found: {layout_dir}{_0}")
         return
 
-    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir)
+    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir, ui)
     distinguisher.run()
 
 
@@ -762,7 +993,7 @@ _RE_TIER_FILE = re.compile(r"^(\w+_\w+)_(\d+)_(\d+)_tier_\d+\.png$")
 GRID_XY_SIZE = SCALE_MAP_FACTOR * 600
 """Scaled pixel size of one grid cell."""
 
-RING_RADIUS = 50
+RING_RADIUS = 40
 """Radius of the ring background around land areas."""
 
 
@@ -913,6 +1144,9 @@ def main():
     p_distin.add_argument(
         "--layout-dir", required=True, help="Directory containing *_layout.json files"
     )
+    p_distin.add_argument(
+        "--ui", action="store_true", help="Show visual preview windows while exporting"
+    )
 
     # tidy_tiers subcommand
     p_tiers = sub.add_parser(
@@ -943,7 +1177,9 @@ def main():
     args = parser.parse_args()
 
     if args.command == "distinguish_levels":
-        cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
+        cmd_distinguish_levels(
+            args.input_dir, args.output_dir, args.layout_dir, args.ui
+        )
     elif args.command == "tidy_tiers":
         cmd_tidy_tiers(args.input_dir, args.output_dir)
     elif args.command == "bbox":

@@ -784,5 +784,10 @@
     "resource/image/WebEvent/202605/Heart": "f6d676c440268b7fa54a73a9d9888af7b29d0c096a08c310b237488d668fc211",
     "resource/image/WebEvent/202605/ClickToContinue2": "f42a16f5e74db74a6865646fd3cd2d676645dc644206d19f42e954a53c326ae9",
     "resource/image/DailyRewards/Event/EventDetailsIcon": "81ead3a67066f6a8d700c3214c5a97de19b1a196d4d6ef364b8a0940f34a8fcf",
-    "resource/image/AutoStockpile/Goods/Wuling/XiranHueFireworks.Tier2": "1f4726f9d5e7afe1cda189c03d7e9cd91a718d47e17b944194e549e685ac595e"
+    "resource/image/AutoStockpile/Goods/Wuling/XiranHueFireworks.Tier2": "1f4726f9d5e7afe1cda189c03d7e9cd91a718d47e17b944194e549e685ac595e",
+    "resource/image/ProtocolSpace/LevelCompletedChosenWhite": "1808a1639601d2b732fec634336c5f64c52368565406a225653882a49d3172d5",
+    "resource/image/ProtocolSpace/LevelCompleted": "6147b11ee1904ec01ba05f293529306d429b0e6a9fef18b70ecf03e615518c2b",
+    "resource/image/ProtocolSpace/LevelCommonParts": "a05f5806553675e786068b26796b4d36b5214413026d898018ca9122c47a68e1",
+    "resource/image/ProtocolSpace/LevelLocked": "fc3f5b465c28cae624c889d435918c57d3fc09c0b7151d9ca82d9cecff9db741",
+    "resource/image/ProtocolSpace/LevelUncompleted": "c542fb8c301d2475320000f075eb73915ab9549c7b75a0c877e832349eb82e88"
 }

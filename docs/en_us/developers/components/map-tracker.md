@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document describes how to use nodes related to MapTracker.
+This document describes how to use the common nodes related to **MapTracker**.
 
 **MapTracker** is a computer vision-based **minimap tracking system** that can infer the player's position based on the minimap in the game and control the player to move according to specified waypoints.
 
@@ -11,9 +11,13 @@ This document describes how to use nodes related to MapTracker.
 1. **Map Name**: Each large map has a unique name in the game, e.g., "map01_lv001", where "map01" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution). The `map_name` must **exactly match** the filename (without the `.png` extension) in that directory.
 2. **Coordinate System**: The coordinates used by MapTracker are the pixel coordinates $(x, y)$ of the above large map images, with the upper-left corner of the image as the origin $(0, 0)$.
 
+> [!TIP]
+>
+> For deeper technical details, please read [this advanced document](./map-tracker%28advanced%29.md). It introduces advanced programming nodes and maintenance guidance for MapTracker.
+
 ## Node Descriptions
 
-The following details the specific usage of the nodes provided by MapTracker. These nodes are all Custom type nodes and need to specify `custom_action` or `custom_recognition` in the pipeline to use.
+The following details the specific usage of the **common nodes** provided by MapTracker. These nodes are all Custom type nodes and need to specify `custom_action` or `custom_recognition` in the pipeline to use.
 
 ### Action: MapTrackerMove
 
@@ -43,7 +47,7 @@ Optional parameters:
     | --------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
     | `"FinalTarget"` | Enable fine-approach only for the final target point (default) | Most scenarios                                                             |
     | `"AllTargets"`  | Enable fine-approach for every target point                    | When waypoint precision is critical (e.g., passing through narrow bridges) |
-    | `"Never"`       | Disable fine-approach                                          | \                                                                          |
+    | `"Never"`       | Disable fine-approach                                          | /                                                                          |
 
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
@@ -171,9 +175,9 @@ Required parameters:
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 
-- `precision`: Same meaning as the `precision` parameter in the [MapTrackerInfer](#recognition-maptrackerinfer) node.
+- `precision`: Same meaning as the `precision` parameter in the [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) node.
 
-- `threshold`: Same meaning as the `threshold` parameter in the [MapTrackerInfer](#recognition-maptrackerinfer) node.
+- `threshold`: Same meaning as the `threshold` parameter in the [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) node.
 
 - `fast_mode`: Boolean value, default `false`. Controls whether to enable fast matching mode to further improve recognition speed. Unless encountering performance bottlenecks, it is not recommended to enable this mode.
 
@@ -204,60 +208,13 @@ Required parameters:
 }
 ```
 
-### Recognition: MapTrackerInfer
-
-📍Gets the player's current map name, position coordinates, and orientation.
-
-#### Node Parameters
-
-Required parameters: None
-
-Optional parameters:
-
-- `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
-    - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
-    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).
-    - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Fourth Valley).
-
-<details>
-<summary>Advanced Optional Parameters (Expand)</summary>
-
-- `precision`: Real number between $(0, 1]$, default `0.5`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
-
-- `threshold`: Real number between $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Matching results below this value will not hit the recognition.
-
-</details>
-
-<br>
-
-> [!TIP]
->
-> MapTracker uses an integer between $[0, 360)$ to represent the player's **orientation**, in degrees. 0° indicates facing due north, with clockwise rotation as the increasing direction.
-
-> [!WARNING]
->
-> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. If you need to judge whether the player's current position meets the conditions, please use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node.
-
-### Recognition: MapTrackerBigMapInfer
-
-🗺️ Infers the map coordinate of the current viewport region on the big map and the current map scale.
-
-> [!WARNING]
->
-> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. For the exact cropping rule of the "current viewport region", refer to the implementation details in code.
-
-#### Node Parameters
-
-Please refer to the `MapTrackerBigMapInferParam` type definition in code.
-
 ## Tool Instructions
 
 We provide a GUI tool script located at `/tools/map_tracker/map_tracker_editor.py`. It supports the following basic functions:
 
-1. **Create Move Node**: Visually draw [MapTrackerMove](#action-maptrackermove) path points on a map.
-2. **Create AssertLocation Node**: Draw a rectangle region on a map for [MapTrackerAssertLocation](#recognition-maptrackerassertlocation).
-3. **Import from Pipeline JSON**: Load either of the two node types above from an existing pipeline JSON file, edit them, and save directly back to the file.
+- **Create Move Node**: Visually draw [MapTrackerMove](#action-maptrackermove) path points on a map.
+- **Create AssertLocation Node**: Draw a rectangle region on a map for [MapTrackerAssertLocation](#recognition-maptrackerassertlocation).
+- **Import from Pipeline JSON**: Load the two node types above from an existing pipeline JSON file, edit them, and save directly back to the file.
 
 ### Environment Setup and Launch
 

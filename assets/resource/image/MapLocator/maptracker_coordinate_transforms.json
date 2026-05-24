@@ -1,0 +1,647 @@
+{
+    "transforms": [
+        {
+            "map_name": "base01_lv003",
+            "zone_id": "OMVBase01",
+            "offset_x": 0.0,
+            "offset_y": 0.0,
+            "scale_x": 0.984615384615,
+            "scale_y": 0.984615384615
+        },
+        {
+            "map_name": "map01_lv001",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 90.0,
+            "offset_y": 450.0,
+            "scale_x": 0.923076923077,
+            "scale_y": 0.923076923077
+        },
+        {
+            "map_name": "map01_lv001_tier_114",
+            "zone_id": "ValleyIV_L1_114",
+            "offset_x": -643.040816326531,
+            "offset_y": -354.969072164948,
+            "scale_x": 0.989795918367,
+            "scale_y": 0.989690721649,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                682.0,
+                391.0,
+                780.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_115",
+            "zone_id": "ValleyIV_L1_115",
+            "offset_x": -651.0,
+            "offset_y": -355.0,
+            "scale_x": 1.0,
+            "scale_y": 0.989743589744,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                682.0,
+                390.0,
+                780.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_171",
+            "zone_id": "ValleyIV_L1_171",
+            "offset_x": -559.969387755102,
+            "offset_y": -258.020408163265,
+            "scale_x": 1.010204081633,
+            "scale_y": 0.989795918367,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                585.0,
+                292.0,
+                683.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_172",
+            "zone_id": "ValleyIV_L1_172",
+            "offset_x": -559.969387755102,
+            "offset_y": -255.530612244898,
+            "scale_x": 1.010204081633,
+            "scale_y": 0.984693877551,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                585.0,
+                292.0,
+                683.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_173",
+            "zone_id": "ValleyIV_L1_173",
+            "offset_x": -101.0,
+            "offset_y": -362.0,
+            "scale_x": 1.0,
+            "scale_y": 1.005128205128,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                131.0,
+                390.0,
+                293.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_174",
+            "zone_id": "ValleyIV_L1_174",
+            "offset_x": -163.0,
+            "offset_y": -367.959183673469,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.020408163265,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                195.0,
+                390.0,
+                390.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv001_tier_189",
+            "zone_id": "ValleyIV_L1_189",
+            "offset_x": -551.0,
+            "offset_y": -357.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map01_lv001",
+            "source_bbox": [
+                585.0,
+                390.0,
+                780.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map01_lv002",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 0.0,
+            "offset_y": 360.0,
+            "scale_x": 0.924024640657,
+            "scale_y": 0.924024640657
+        },
+        {
+            "map_name": "map01_lv002_tier_120",
+            "zone_id": "ValleyIV_L2_120",
+            "offset_x": -64.628975265018,
+            "offset_y": -65.502564102564,
+            "scale_x": 0.985865724382,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map01_lv002",
+            "source_bbox": [
+                97.0,
+                97.0,
+                380.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map01_lv003",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 720.0,
+            "offset_y": 900.0,
+            "scale_x": 0.924024640657,
+            "scale_y": 0.924024640657
+        },
+        {
+            "map_name": "map01_lv003_tier_17",
+            "zone_id": "ValleyIV_L3_17",
+            "offset_x": -162.879310344828,
+            "offset_y": -67.0,
+            "scale_x": 0.994252873563,
+            "scale_y": 1.0,
+            "parent_map_name": "map01_lv003",
+            "source_bbox": [
+                195.0,
+                97.0,
+                369.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map01_lv003_tier_18",
+            "zone_id": "ValleyIV_L3_18",
+            "offset_x": -33.645833333333,
+            "offset_y": -169.020618556701,
+            "scale_x": 1.326388888889,
+            "scale_y": 1.020618556701,
+            "parent_map_name": "map01_lv003",
+            "source_bbox": [
+                51.0,
+                195.0,
+                195.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map01_lv003_tier_19",
+            "zone_id": "ValleyIV_L3_19",
+            "offset_x": -66.0,
+            "offset_y": -166.0,
+            "scale_x": 1.0,
+            "scale_y": 1.005128205128,
+            "parent_map_name": "map01_lv003",
+            "source_bbox": [
+                97.0,
+                195.0,
+                195.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map01_lv003_tier_31",
+            "zone_id": "ValleyIV_L3_31",
+            "offset_x": -162.879310344828,
+            "offset_y": -67.0,
+            "scale_x": 0.994252873563,
+            "scale_y": 1.0,
+            "parent_map_name": "map01_lv003",
+            "source_bbox": [
+                195.0,
+                97.0,
+                369.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map01_lv005",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 810.0,
+            "offset_y": 540.0,
+            "scale_x": 0.923753665689,
+            "scale_y": 0.923076923077
+        },
+        {
+            "map_name": "map01_lv005_tier_175",
+            "zone_id": "ValleyIV_L5_175",
+            "offset_x": -259.502564102564,
+            "offset_y": -166.989795918367,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.010204081633,
+            "parent_map_name": "map01_lv005",
+            "source_bbox": [
+                292.0,
+                195.0,
+                487.0,
+                293.0
+            ]
+        },
+        {
+            "map_name": "map01_lv005_tier_177",
+            "zone_id": "ValleyIV_L5_177",
+            "offset_x": -162.664383561644,
+            "offset_y": -65.337883959044,
+            "scale_x": 0.993150684932,
+            "scale_y": 0.993174061433,
+            "parent_map_name": "map01_lv005",
+            "source_bbox": [
+                195.0,
+                97.0,
+                487.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map01_lv006",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 720.0,
+            "offset_y": 0.0,
+            "scale_x": 0.923076923077,
+            "scale_y": 0.923076923077
+        },
+        {
+            "map_name": "map01_lv006_tier_86",
+            "zone_id": "ValleyIV_L6_86",
+            "offset_x": -359.0,
+            "offset_y": -359.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "parent_map_name": "map01_lv006",
+            "source_bbox": [
+                390.0,
+                390.0,
+                488.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv006_tier_87",
+            "zone_id": "ValleyIV_L6_87",
+            "offset_x": -357.0,
+            "offset_y": -357.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map01_lv006",
+            "source_bbox": [
+                390.0,
+                390.0,
+                585.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map01_lv006_tier_107",
+            "zone_id": "ValleyIV_L6_107",
+            "offset_x": -163.0,
+            "offset_y": -362.979591836735,
+            "scale_x": 1.0,
+            "scale_y": 1.010204081633,
+            "parent_map_name": "map01_lv006",
+            "source_bbox": [
+                195.0,
+                390.0,
+                293.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv006_tier_109",
+            "zone_id": "ValleyIV_L6_109",
+            "offset_x": -161.0,
+            "offset_y": -354.5,
+            "scale_x": 0.989743589744,
+            "scale_y": 0.988461538462,
+            "parent_map_name": "map01_lv006",
+            "source_bbox": [
+                195.0,
+                390.0,
+                390.0,
+                650.0
+            ]
+        },
+        {
+            "map_name": "map01_lv007",
+            "zone_id": "ValleyIV_Base",
+            "offset_x": 270.0,
+            "offset_y": 0.0,
+            "scale_x": 0.923076923077,
+            "scale_y": 0.923076923077
+        },
+        {
+            "map_name": "map01_lv007_tier_81",
+            "zone_id": "ValleyIV_L7_81",
+            "offset_x": -359.0,
+            "offset_y": -74.407608695652,
+            "scale_x": 1.0,
+            "scale_y": 0.994565217391,
+            "parent_map_name": "map01_lv007",
+            "source_bbox": [
+                390.0,
+                109.0,
+                488.0,
+                293.0
+            ]
+        },
+        {
+            "map_name": "map01_lv007_tier_130",
+            "zone_id": "ValleyIV_L7_130",
+            "offset_x": -110.013605442177,
+            "offset_y": -80.72625698324,
+            "scale_x": 0.986394557823,
+            "scale_y": 0.988826815642,
+            "parent_map_name": "map01_lv007",
+            "source_bbox": [
+                146.0,
+                114.0,
+                293.0,
+                293.0
+            ]
+        },
+        {
+            "map_name": "map01_lv007_tier_133",
+            "zone_id": "ValleyIV_L7_133",
+            "offset_x": -357.0,
+            "offset_y": -66.414507772021,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.984455958549,
+            "parent_map_name": "map01_lv007",
+            "source_bbox": [
+                390.0,
+                102.0,
+                585.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map01_lv007_tier_135",
+            "zone_id": "ValleyIV_L7_135",
+            "offset_x": -164.0,
+            "offset_y": -77.116666666667,
+            "scale_x": 1.0,
+            "scale_y": 0.983333333333,
+            "parent_map_name": "map01_lv007",
+            "source_bbox": [
+                195.0,
+                113.0,
+                390.0,
+                293.0
+            ]
+        },
+        {
+            "map_name": "map02_lv001",
+            "zone_id": "Wuling_Base",
+            "offset_x": 480.0,
+            "offset_y": 960.0,
+            "scale_x": 0.984615384615,
+            "scale_y": 0.985176738883
+        },
+        {
+            "map_name": "map02_lv002",
+            "zone_id": "Wuling_Base",
+            "offset_x": 288.0,
+            "offset_y": 0.0,
+            "scale_x": 0.985176738883,
+            "scale_y": 0.985074626866
+        },
+        {
+            "map_name": "map02_lv002_tier_254",
+            "zone_id": "Wuling_L2_254",
+            "offset_x": -560.030927835052,
+            "offset_y": -841.502564102564,
+            "scale_x": 1.010309278351,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                877.0,
+                682.0,
+                1072.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_255",
+            "zone_id": "Wuling_L2_255",
+            "offset_x": -551.0,
+            "offset_y": -841.502564102564,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                877.0,
+                780.0,
+                1072.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_257",
+            "zone_id": "Wuling_L2_257",
+            "offset_x": -560.030927835052,
+            "offset_y": -551.0,
+            "scale_x": 1.010309278351,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                585.0,
+                682.0,
+                780.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_258",
+            "zone_id": "Wuling_L2_258",
+            "offset_x": -560.030927835052,
+            "offset_y": -551.0,
+            "scale_x": 1.010309278351,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                585.0,
+                682.0,
+                780.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_259",
+            "zone_id": "Wuling_L2_259",
+            "offset_x": -560.030927835052,
+            "offset_y": -551.0,
+            "scale_x": 1.010309278351,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                585.0,
+                682.0,
+                780.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_275",
+            "zone_id": "Wuling_L2_275",
+            "offset_x": -551.0,
+            "offset_y": -841.502564102564,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                877.0,
+                780.0,
+                1072.0
+            ]
+        },
+        {
+            "map_name": "map02_lv002_tier_276",
+            "zone_id": "Wuling_L2_276",
+            "offset_x": -551.0,
+            "offset_y": -551.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv002",
+            "source_bbox": [
+                585.0,
+                585.0,
+                780.0,
+                780.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003",
+            "zone_id": "Wuling_Base",
+            "offset_x": 864.0,
+            "offset_y": 768.0,
+            "scale_x": 0.984615384615,
+            "scale_y": 0.985176738883
+        },
+        {
+            "map_name": "map02_lv003_tier_294",
+            "zone_id": "Wuling_L3_294",
+            "offset_x": -1093.641975308642,
+            "offset_y": -3369.739130434783,
+            "scale_x": 2.382716049383,
+            "scale_y": 6.260869565217,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                472.0,
+                551.0,
+                554.0,
+                575.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003_tier_295",
+            "zone_id": "Wuling_L3_295",
+            "offset_x": -261.0,
+            "offset_y": -417.451282051282,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.097435897436,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                390.0,
+                487.0,
+                585.0,
+                682.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003_tier_296",
+            "zone_id": "Wuling_L3_296",
+            "offset_x": -163.993150684931,
+            "offset_y": -168.478260869565,
+            "scale_x": 0.993150684932,
+            "scale_y": 1.021739130435,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                293.0,
+                206.0,
+                585.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003_tier_297",
+            "zone_id": "Wuling_L3_297",
+            "offset_x": -261.0,
+            "offset_y": -170.989743589744,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.020512820513,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                390.0,
+                292.0,
+                585.0,
+                487.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003_tier_298",
+            "zone_id": "Wuling_L3_298",
+            "offset_x": -261.0,
+            "offset_y": -296.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.071794871795,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                390.0,
+                390.0,
+                585.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map02_lv003_tier_299",
+            "zone_id": "Wuling_L3_299",
+            "offset_x": -75.0,
+            "offset_y": -286.0,
+            "scale_x": 1.035897435897,
+            "scale_y": 1.046153846154,
+            "parent_map_name": "map02_lv003",
+            "source_bbox": [
+                195.0,
+                390.0,
+                390.0,
+                585.0
+            ]
+        },
+        {
+            "map_name": "map02_lv004",
+            "zone_id": "Wuling_Base",
+            "offset_x": 0.0,
+            "offset_y": 864.0,
+            "scale_x": 0.984615384615,
+            "scale_y": 0.985176738883
+        },
+        {
+            "map_name": "map02_lv004_tier_328",
+            "zone_id": "Wuling_L4_328",
+            "offset_x": -260.065989847716,
+            "offset_y": -445.793103448276,
+            "scale_x": 0.994923857868,
+            "scale_y": 0.980295566502,
+            "parent_map_name": "map02_lv004",
+            "source_bbox": [
+                381.0,
+                518.0,
+                578.0,
+                721.0
+            ]
+        },
+        {
+            "map_name": "map02_lv004_tier_330",
+            "zone_id": "Wuling_L4_330",
+            "offset_x": -471.418032786885,
+            "offset_y": -76.4,
+            "scale_x": 1.024590163934,
+            "scale_y": 1.038095238095,
+            "parent_map_name": "map02_lv004",
+            "source_bbox": [
+                505.0,
+                168.0,
+                627.0,
+                273.0
+            ]
+        }
+    ]
+}

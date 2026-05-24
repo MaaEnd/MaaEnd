@@ -15,9 +15,11 @@ from json_import import (
     export_path_nodes,
     infer_missing_zones,
     list_available_zone_ids,
+    load_assert_location_from_json_file,
     load_points_from_json_file,
     split_route_into_segments,
 )
+from maptracker_compat import convert_maptracker_points_to_mapnavigator, maptracker_base_map_name_from_zone
 from basenav_preview import PreviewRoute, find_preview_route, load_basenav_field
 from model import (
     ACTION_COLORS,
@@ -1892,17 +1894,22 @@ class RouteEditorApp:
         try:
             imported = load_points_from_json_file(input_path, apply_zone_inference=False)
         except Exception as exc:
+            if self._try_import_assert_json(input_path):
+                return
             messagebox.showerror("导入失败", str(exc))
             return
 
         imported_points = imported.points
+        converted_count = imported.converted_maptracker_point_count
         if not imported.source_has_zone_info:
             assigned_points = self._prompt_zone_assignment_for_import(imported_points)
             if assigned_points is None:
                 return
-            imported_points = assigned_points
+            imported_points, assigned_converted_count = convert_maptracker_points_to_mapnavigator(assigned_points)
+            converted_count += assigned_converted_count
 
         imported_points = infer_missing_zones(imported_points)
+        imported_points = normalize_path_points(imported_points)
         if not self._validate_zone_assignments(imported_points, title="导入失败"):
             return
 
@@ -1917,7 +1924,35 @@ class RouteEditorApp:
         status = f"已导入 {len(self.points)} 个路径点"
         if imported.route_count > 1:
             status += f"（共找到 {imported.route_count} 条候选路径，已加载点数最多的一条）"
+        if converted_count > 0:
+            status += f"，已转换 {converted_count} 个 MapTracker 坐标"
         self._set_status(status, "#10b981")
+
+    def _try_import_assert_json(self, input_path: str) -> bool:
+        try:
+            imported_assert = load_assert_location_from_json_file(input_path)
+        except Exception:
+            return False
+
+        if resolve_zone_image(imported_assert.zone_id, MAP_IMAGE_DIR) is None:
+            messagebox.showerror("导入失败", f"Assert zone 无法映射到底图：{imported_assert.zone_id}")
+            return True
+
+        x, y, width, height = imported_assert.target
+        self.assert_mode_var.set(True)
+        self.assert_zone_var.set(imported_assert.zone_id)
+        self._set_assert_rect_world(x, y, x + width, y + height)
+        self._sync_assert_controls()
+        self._refresh_zone_label()
+        self.fit_view()
+
+        status = f"已导入 Assert: zone={imported_assert.zone_id} target=[{x:.1f}, {y:.1f}, {width:.1f}, {height:.1f}]"
+        if imported_assert.condition_count > 1:
+            status += f"（共找到 {imported_assert.condition_count} 个条件，已加载第一个）"
+        if imported_assert.converted_from_maptracker:
+            status += "，已转换 MapTracker 坐标"
+        self._set_status(status, "#10b981")
+        return True
 
     def _prompt_zone_assignment_for_import(self, points: list[PathPoint]) -> list[PathPoint] | None:
         segments = split_route_into_segments(points)
@@ -1989,6 +2024,7 @@ class RouteEditorApp:
                 if not zone_name:
                     messagebox.showwarning("区域未选择", "请先为每个片段选择对应地图。", parent=dialog)
                     return
+                zone_name = maptracker_base_map_name_from_zone(zone_name) or zone_name
                 selected_zone_names.append(zone_name)
                 for point_idx in range(start, end):
                     assigned_points[point_idx]["zone"] = zone_name
