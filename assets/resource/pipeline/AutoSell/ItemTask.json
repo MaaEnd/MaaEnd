@@ -346,8 +346,15 @@
                 "threshold": 0.9
             }
         ],
-        "box_index": 1,
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "target": [
+                460,
+                260,
+                610,
+                310
+            ],
+            "time": 100
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
