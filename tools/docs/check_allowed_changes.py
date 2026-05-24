@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from pathlib import Path
+
+
+def git_changed_files(base_ref: str) -> list[str]:
+    repo_root = Path.cwd().resolve()
+    command = [
+        "git",
+        "-c",
+        f"safe.directory={repo_root.as_posix()}",
+        "diff",
+        "--name-only",
+        base_ref,
+        "--",
+    ]
+    completed = subprocess.run(
+        command,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Verify that only allowed translated docs files were changed.",
+    )
+    parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--base-ref", required=True)
+    parser.add_argument(
+        "--state-path",
+        default=Path("docs/en_us/.docs-sync-state.json"),
+        type=Path,
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
+
+    allowed_paths: set[str] = set()
+    allowed_paths.add(args.state_path.as_posix())
+    for task in manifest["tasks"]:
+        mode = task["mode"]
+        if mode in {"translate_file", "delete_target"}:
+            allowed_paths.add(task["target_path"])
+        elif mode == "rename_target":
+            allowed_paths.add(task["target_path_before"])
+            allowed_paths.add(task["target_path_after"])
+
+    changed = git_changed_files(args.base_ref)
+    disallowed = [path for path in changed if path not in allowed_paths]
+
+    if disallowed:
+        print("Disallowed changes detected:")
+        for path in disallowed:
+            print(path)
+        return 1
+
+    source_side_changes = [path for path in changed if path.startswith("docs/zh_cn/")]
+    if source_side_changes:
+        print("Source-side docs were modified, which is forbidden:")
+        for path in source_side_changes:
+            print(path)
+        return 1
+
+    non_docs_changes = [path for path in changed if not path.startswith("docs/en_us/")]
+    if non_docs_changes:
+        print("Non-target files were modified, which is forbidden:")
+        for path in non_docs_changes:
+            print(path)
+        return 1
+
+    print("Allowed-changes check passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
