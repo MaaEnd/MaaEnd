@@ -726,7 +726,7 @@
         ]
     },
     "AutoCollectRoute7MoveLongPressW": {
-        "desc": "盲走按A",
+        "desc": "盲走按W",
         "action": {
             "type": "LongPressKey",
             "param": {
