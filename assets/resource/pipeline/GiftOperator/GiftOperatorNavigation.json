@@ -197,7 +197,7 @@
                         ],
                         [
                             186.0,
-                            177.4
+                            177.3
                         ]
                     ]
                 }
@@ -225,31 +225,8 @@
             }
         },
         "next": [
-            "GiftOperatorClickContact",
-            "[JumpBack]GiftOperatorGoAheadContact"
+            "GiftOperatorClickContact"
         ]
-    },
-    "GiftOperatorGoAheadContact": {
-        "desc": "向前移动尝试接触到干员联络台",
-        "max_hit": 3,
-        "post_wait_freezes": 150,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "target": [
-                                186.0,
-                                176.6
-                            ]
-                        }
-                    ]
-                }
-            }
-        }
     },
     "GiftOperatorShiftToRunMapTracker": {
         "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
