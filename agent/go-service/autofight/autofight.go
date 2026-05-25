@@ -39,6 +39,7 @@ type autoFightAttach struct {
 	SwitchOperatorKeymap2        string `json:"switch_operator_keymap2"`
 	SwitchOperatorKeymap3        string `json:"switch_operator_keymap3"`
 	SwitchOperatorKeymap4        string `json:"switch_operator_keymap4"`
+	EndAxisTimelineJSON          string `json:"end_axis_timeline_json"`
 }
 
 // keymapOverrides 是预先生成好的 pipeline override JSON，
@@ -141,6 +142,15 @@ func saveExitImage(img image.Image, reason string) {
 	log.Info().Str("component", "AutoFight").Str("path", path).Str("reason", reason).Msg("saved exit frame to disk")
 }
 
+type lockStage int
+
+const (
+	lockStageLocked  lockStage = -1
+	lockStageInitial lockStage = 0
+	lockStageRetry   lockStage = 1
+	lockStageRecover lockStage = 2
+)
+
 type ActionType int
 
 const (
@@ -226,6 +236,21 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		return false
 	}
 	params := nodeWithAttach.Attach
+
+	// 尝试加载 EndAxis 时间轴：成功则在循环里替换 endSkill / skill 决策，失败则回退到原逻辑。
+	var timeline *EndAxisTimeline
+	if params.EndAxisTimelineJSON != "" {
+		tl := NewEndAxisTimeline()
+		if tl.SetTimeline(params.EndAxisTimelineJSON) {
+			timeline = tl
+			log.Info().Str("component", "AutoFight").Msg("endaxis timeline enabled")
+			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_enabled"))
+		} else {
+			log.Info().Str("component", "AutoFight").Msg("endaxis timeline json invalid, fallback to default skill logic")
+			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_invalid_fallback"))
+		}
+	}
+
 	overrides := keymapOverrides{
 		combo: keyOverride("__AutoFightActionComboClick", params.ComboKeymap, "E"),
 		skill: [4]string{
@@ -251,7 +276,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var pauseStart time.Time
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
-	var lockTargetStage int
+	var lockTargetStage lockStage
 	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
@@ -352,7 +377,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
-		// 战斗决策
 		if params.EnableLockTarget {
 			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
 			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
@@ -365,46 +389,42 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			//   任意时刻检测到 EnemyLocked     -> 把 noLockStart 推回当前时刻、回到阶段 0，并重置首帧标记
 			if screenAnalyzer.GetEnemyLocked() {
 				noLockStart = time.Now()
-				lockTargetStage = -1
+				lockTargetStage = lockStageLocked
 				firstNoLockIteration = false
 			} else {
 				if noLockStart.IsZero() {
 					noLockStart = time.Now()
-					lockTargetStage = -1
+					lockTargetStage = lockStageLocked
 				}
 				if time.Since(noLockStart) >= 9*time.Second {
 					noLockStart = time.Now()
-					lockTargetStage = -1
+					lockTargetStage = lockStageLocked
 				}
 				elapsed := time.Since(noLockStart)
 
 				switch {
 				case elapsed < 3*time.Second:
 					if firstNoLockIteration {
-						if lockTargetStage < 0 {
+						if lockTargetStage < lockStageInitial {
 							maafocus.Print(ctx, i18n.T("autofight.start_combat_lock_target"))
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionLockTarget,
 							})
-							lockTargetStage = 0
+							lockTargetStage = lockStageInitial
 						}
-						drainActionQueue(ctx, overrides)
-						continue
 					}
 				case elapsed < 6*time.Second:
-					if lockTargetStage < 1 {
+					if lockTargetStage < lockStageRetry {
 						maafocus.Print(ctx, i18n.T("autofight.lock_target"))
 						enqueueAction(fightAction{
 							executeAt: time.Now().Add(time.Millisecond),
 							action:    ActionLockTarget,
 						})
-						lockTargetStage = 1
+						lockTargetStage = lockStageRetry
 					}
-					drainActionQueue(ctx, overrides)
-					continue
 				default:
-					if lockTargetStage < 2 {
+					if lockTargetStage < lockStageRecover {
 						facingBack := screenAnalyzer.GetEnemyFacingBack()
 						facingLeft := screenAnalyzer.GetEnemyFacingLeft()
 						facingRight := screenAnalyzer.GetEnemyFacingRight()
@@ -448,13 +468,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							executeAt: time.Now().Add(time.Millisecond),
 							action:    ActionLockTarget,
 						})
-						lockTargetStage = 2
+						lockTargetStage = lockStageRecover
 					}
-					drainActionQueue(ctx, overrides)
-					continue
 				}
 			}
+		} else {
+			lockTargetStage = lockStageLocked
 		}
+
 		if params.EnableHealthDangerousSwitch {
 			if charSelect > 0 && slices.Contains(healthDangerous, charSelect) && len(healthNormal) > 0 {
 				switchTo := healthNormal[0]
@@ -471,58 +492,112 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				action:    ActionDodge,
 			})
 		}
-		// } else if params.EnableAttack {
-		// 	enqueueAction(fightAction{
-		// 		executeAt: time.Now(),
-		// 		action:    ActionAttack,
-		// 	})
-		// }
-		if params.EnableCombo && screenAnalyzer.GetCharacterComboActive() {
-			enqueueAction(fightAction{
-				executeAt: time.Now(),
-				action:    ActionCombo,
-			})
-		} else if endSkillFull := screenAnalyzer.GetEndSkillFull(true); params.EnableEndSkill && len(endSkillFull) > 0 {
-			screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
-			for _, idx := range endSkillFull {
-				if idx >= 5-characterCount {
-					op := idx + characterCount - 4
+
+		endSkillFull := screenAnalyzer.GetEndSkillFull(true)
+		energyLevel := screenAnalyzer.GetEnergyLevel(true)
+		if timeline == nil {
+			if params.EnableCombo && screenAnalyzer.GetCharacterComboActive() {
+				enqueueAction(fightAction{
+					executeAt: time.Now(),
+					action:    ActionCombo,
+				})
+			}
+
+			if params.EnableEndSkill && lockTargetStage == lockStageLocked {
+				if len(endSkillFull) > 0 {
+					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+					for _, idx := range endSkillFull {
+						if idx >= 5-characterCount {
+							op := idx + characterCount - 4
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    endSkillAction(op),
+							})
+						}
+						break
+					}
+				}
+			}
+			if params.EnableSkill && energyLevel >= 1 && lockTargetStage == lockStageLocked {
+				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
+					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
+					op := skillCycleIndex
+					if characterCount > 0 {
+						op = ((op - 1) % characterCount) + 1
+					}
 					enqueueAction(fightAction{
 						executeAt: time.Now(),
-						action:    endSkillAction(op),
+						action:    skillAction(op),
 					})
+					skillCycleIndex++
+				} else if energyLevel > params.ReserveSkillLevel {
+					log.Debug().
+						Str("component", "AutoFight").
+						Int("energyLevel", energyLevel).
+						Int("reserveLevel", params.ReserveSkillLevel).
+						Msg("energy level above reserve, using skill")
+					op := skillCycleIndex
+					if characterCount > 0 {
+						op = ((op - 1) % characterCount) + 1
+					}
+					enqueueAction(fightAction{
+						executeAt: time.Now(),
+						action:    skillAction(op),
+					})
+					skillCycleIndex++
 				}
-				break
+				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
-		} else if params.EnableSkill && screenAnalyzer.GetEnergyLevel(true) >= 1 {
-			if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-				maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
-				op := skillCycleIndex
-				if characterCount > 0 {
-					op = ((op - 1) % characterCount) + 1
-				}
-				enqueueAction(fightAction{
-					executeAt: time.Now(),
-					action:    skillAction(op),
-				})
-				skillCycleIndex++
-			} else if screenAnalyzer.GetEnergyLevel(true) > params.ReserveSkillLevel {
-				log.Debug().
-					Str("component", "AutoFight").
-					Int("energyLevel", screenAnalyzer.GetEnergyLevel(true)).
-					Int("reserveLevel", params.ReserveSkillLevel).
-					Msg("energy level above reserve, using skill")
-				op := skillCycleIndex
-				if characterCount > 0 {
-					op = ((op - 1) % characterCount) + 1
-				}
-				enqueueAction(fightAction{
-					executeAt: time.Now(),
-					action:    skillAction(op),
-				})
-				skillCycleIndex++
+		} else {
+			if timeline.ActionFinish() {
+				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
 			}
-			screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+			action := timeline.FrontAction()
+			if action != nil {
+				op := action.TrackIdx + 1
+				if op < 1 || op > characterCount {
+					// timeline 设计的 track 在当前队伍里没有对应角色，直接丢弃这个动作
+					log.Warn().
+						Str("component", "AutoFight").
+						Str("step", "timelineDecision").
+						Int("trackIdx", action.TrackIdx).
+						Int("characterCount", characterCount).
+						Msg("timeline action targets non-existent character, skip")
+					timeline.PopFrontAction()
+				} else {
+					if screenAnalyzer.GetCharacterComboActive() {
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    ActionCombo,
+						})
+					}
+
+					screenSlot := op + 4 - characterCount
+
+					switch action.Type {
+					case "ultimate":
+						if slices.Contains(endSkillFull, screenSlot) && lockTargetStage == lockStageLocked {
+							// 终结技尚未充能完毕：保持暂停，等下一帧
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    endSkillAction(op),
+							})
+							screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+							timeline.PopFrontAction()
+						}
+					case "skill":
+						if energyLevel >= 1 && lockTargetStage == lockStageLocked {
+							// 能量不足，保持暂停
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    skillAction(op),
+							})
+							screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							timeline.PopFrontAction()
+						}
+					}
+				}
+			}
 		}
 
 		drainActionQueue(ctx, overrides)

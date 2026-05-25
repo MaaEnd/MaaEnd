@@ -61,6 +61,8 @@
     "autofight.skill": "Operator #%d skill triggered",
     "autofight.end_skill": "Operator #%d ultimate triggered",
     "autofight.switch_character": "Switching to operator #%d",
+    "autofight.endaxis.timeline_enabled": "Using timeline combat",
+    "autofight.endaxis.timeline_invalid_fallback": "Invalid timeline format, falling back to normal combat",
     "autofight.endaxis.scenario_selected": "Selected plan %s",
     "autofight.endaxis.scenario_skipped_endskill": "Skipping plan %s: ultimate not fully charged",
     "autofight.endaxis.scenario_skipped_no_action": "Skipping plan %s: no skill or ultimate",

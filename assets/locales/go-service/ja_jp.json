@@ -61,6 +61,8 @@
     "autofight.skill": "オペレーター %d 号のスキルを実行",
     "autofight.end_skill": "オペレーター %d 号の終技を実行",
     "autofight.switch_character": "オペレーター %d 号に切り替え",
+    "autofight.endaxis.timeline_enabled": "軸取り戦闘を使用",
+    "autofight.endaxis.timeline_invalid_fallback": "軸取り形式が不正のため、通常戦闘にフォールバック",
     "autofight.endaxis.scenario_selected": "プラン %s を選択",
     "autofight.endaxis.scenario_skipped_endskill": "プラン %s をスキップ：終結技が未充電",
     "autofight.endaxis.scenario_skipped_no_action": "プラン %s をスキップ：戦技も終結技もなし",

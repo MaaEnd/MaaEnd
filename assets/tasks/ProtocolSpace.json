@@ -125,10 +125,10 @@
                     "name": "Yes",
                     "option": [
                         "AutoFightKeymap",
-                        "AutoFightReserveSkillLevel",
                         "AutoFightHealthDangerousSwitch",
                         "AutoFightDodge",
-                        "AutoFightLockTarget"
+                        "AutoFightLockTarget",
+                        "AutoFightAxis"
                     ]
                 },
                 {

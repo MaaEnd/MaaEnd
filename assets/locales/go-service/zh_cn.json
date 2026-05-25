@@ -61,6 +61,8 @@
     "autofight.skill": "触发干员%d技能",
     "autofight.end_skill": "触发干员%d终结技",
     "autofight.switch_character": "切换到干员%d",
+    "autofight.endaxis.timeline_enabled": "使用排轴战斗",
+    "autofight.endaxis.timeline_invalid_fallback": "排轴格式不合法，回退普通战斗",
     "autofight.endaxis.scenario_selected": "选择方案 %s",
     "autofight.endaxis.scenario_skipped_endskill": "跳过方案 %s，终结技未充能完毕",
     "autofight.endaxis.scenario_skipped_no_action": "跳过方案 %s，没有战技或终结技",

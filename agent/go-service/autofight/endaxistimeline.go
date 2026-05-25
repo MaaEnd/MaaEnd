@@ -2,6 +2,7 @@ package autofight
 
 import (
 	"encoding/json"
+	"slices"
 	"sort"
 	"time"
 
@@ -117,40 +118,48 @@ func (t *EndAxisTimeline) SetTimeline(jsonStr string) bool {
 
 // SelectScenario 根据当前队伍状态挑选一个匹配的 scenario，并启动时间轴。
 //
+// 参数：
+//   - characterCount：当前队伍的角色数量（1..4）；track 0..characterCount-1 对应队伍里
+//     的 1..characterCount 号角色；
+//   - characterComboFull：连携已就绪的角色编号列表（1..characterCount 中的子集），
+//     例如 [1, 3] 表示 1 号、3 号角色连携满；
+//   - endSkillFull：终结技已充能完毕的角色编号列表（1..characterCount 中的子集）；
+//   - energyLevel：当前能量条等级，目前仅作为状态保留，未参与匹配。
+//
 // 匹配规则：
-//  1. characterComboFull 中任一项为 false，直接返回 false（不会进入 scenario 匹配）；
-//  2. 对每个 scenario，逐个 track（按 endSkillFull 长度）检查：若该 track 含 type==ultimate
-//     的 action，则对应的 endSkillFull[i] 必须为 true；任一项不满足则跳过该 scenario，
-//     并通过 maafocus 输出"终结技未充能完毕"的提示；
+//  1. 1..characterCount 任一角色不在 characterComboFull 中（即有人连携没满），直接返回
+//     false，不进入 scenario 匹配；
+//  2. 对每个 scenario，逐个 track i ∈ [0, characterCount) 检查：若该 track 含 type==ultimate
+//     的 action，则对应角色编号 i+1 必须在 endSkillFull 列表中；任一项不满足则跳过该
+//     scenario，并通过 maafocus.PrintThrottle（3s）输出"终结技未充能完毕"的提示；
 //  3. scenario 内若没有任何 type==ultimate / skill 的 action（即没有可派发的动作），
-//     也跳过该 scenario，并输出"没有战技或终结技"的提示；
+//     也跳过该 scenario，并通过 maafocus.PrintThrottle（3s）输出"没有战技或终结技"的提示；
 //  4. 所有 scenario 都不满足时返回 false。
 //
-// 选中或跳过 scenario 时通过 maafocus.Print 输出多语言提示，ctx 为 nil 时仅记录日志。
-// energyLevel 暂仅作为状态保留，未参与匹配。
-func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterComboFull, endSkillFull []bool, energyLevel int) bool {
+// 选中 scenario 时通过 maafocus.Print 输出多语言提示；跳过提示限频，ctx 为 nil 时仅记录日志。
+func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, characterComboFull, endSkillFull []int, energyLevel int) bool {
 	t.reset()
 
 	if t.root == nil {
 		return false
 	}
 
-	for _, full := range characterComboFull {
-		if !full {
+	for op := 1; op <= characterCount; op++ {
+		if !slices.Contains(characterComboFull, op) {
 			return false
 		}
 	}
 
 	for i := range t.root.ScenarioList {
 		sc := &t.root.ScenarioList[i]
-		if !scenarioMatchesEndSkill(sc, endSkillFull) {
+		if !scenarioMatchesEndSkill(sc, endSkillFull, characterCount) {
 			log.Debug().
 				Str("component", "EndAxisTimeline").
 				Str("step", "SelectScenario").
 				Str("scenarioId", sc.ID).
 				Str("scenarioName", sc.Name).
 				Msg("scenario skipped: ultimate gauge not full")
-			maafocus.Print(ctx, i18n.T("autofight.endaxis.scenario_skipped_endskill", sc.Name))
+			maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.scenario_skipped_endskill", sc.Name))
 			continue
 		}
 
@@ -162,7 +171,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterComboFull, e
 				Str("scenarioId", sc.ID).
 				Str("scenarioName", sc.Name).
 				Msg("scenario skipped: no skill/ultimate actions")
-			maafocus.Print(ctx, i18n.T("autofight.endaxis.scenario_skipped_no_action", sc.Name))
+			maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.scenario_skipped_no_action", sc.Name))
 			continue
 		}
 
@@ -197,17 +206,17 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterComboFull, e
 // FrontAction 返回当前帧应触发的队首 ultimate/skill 动作。
 // 命中时会自动暂停内部计时，直到 PopFrontAction 调用后再恢复。
 // 未到时间或队列为空时返回 nil, false。
-func (t *EndAxisTimeline) FrontAction() (*EndAxisAction, bool) {
+func (t *EndAxisTimeline) FrontAction() *EndAxisAction {
 	if !t.started || len(t.queue) == 0 {
-		return nil, false
+		return nil
 	}
 	if t.queue[0].StartTime > t.currentFrame() {
-		return nil, false
+		return nil
 	}
 
 	t.pause()
 	head := t.queue[0]
-	return &head, true
+	return &head
 }
 
 // PopFrontAction 删除当前队首动作并恢复计时。队列为空或时间轴未启动时为空操作。
@@ -279,18 +288,19 @@ func (t *EndAxisTimeline) resume() {
 	t.paused = false
 }
 
-// scenarioMatchesEndSkill 检查 scenario 的 track 与 endSkillFull 的对应关系：
-// 只要某条 track 内含 type==ultimate 的 action，对应位的 endSkillFull 就必须为 true。
-// 检查范围以 endSkillFull 长度为准（即只检查实际存在的角色对应的 track）。
-func scenarioMatchesEndSkill(sc *timelineScenarioRaw, endSkillFull []bool) bool {
-	for i := range endSkillFull {
+// scenarioMatchesEndSkill 检查 scenario 的 track 与终结技就绪情况的对应关系：
+// 只要 track i（i ∈ [0, characterCount)）内含 type==ultimate 的 action，
+// 对应的角色编号 i+1 就必须出现在 endSkillFull 列表中。
+// 超出 characterCount 的 track（队伍里没有对应角色）一律忽略。
+func scenarioMatchesEndSkill(sc *timelineScenarioRaw, endSkillFull []int, characterCount int) bool {
+	for i := 0; i < characterCount; i++ {
 		if i >= len(sc.Data.Tracks) {
 			continue
 		}
 		if !trackHasUltimate(&sc.Data.Tracks[i]) {
 			continue
 		}
-		if !endSkillFull[i] {
+		if !slices.Contains(endSkillFull, i+1) {
 			return false
 		}
 	}

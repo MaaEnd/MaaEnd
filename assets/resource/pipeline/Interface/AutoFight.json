@@ -28,7 +28,8 @@
             "switch_operator_keymap1": "F1",
             "switch_operator_keymap2": "F2",
             "switch_operator_keymap3": "F3",
-            "switch_operator_keymap4": "F4"
+            "switch_operator_keymap4": "F4",
+            "end_axis_timeline_json": ""
         }
     }
 }

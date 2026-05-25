@@ -61,6 +61,8 @@
     "autofight.skill": "%d번 오퍼레이터 스킬 실행",
     "autofight.end_skill": "%d번 오퍼레이터 필살기 실행",
     "autofight.switch_character": "%d번 오퍼레이터로 전환",
+    "autofight.endaxis.timeline_enabled": "타임라인 전투 사용",
+    "autofight.endaxis.timeline_invalid_fallback": "타임라인 형식이 올바르지 않아 일반 전투로 전환",
     "autofight.endaxis.scenario_selected": "방안 %s 선택",
     "autofight.endaxis.scenario_skipped_endskill": "방안 %s 건너뛰기: 종결기가 충전되지 않음",
     "autofight.endaxis.scenario_skipped_no_action": "방안 %s 건너뛰기: 전투기와 종결기가 없음",
