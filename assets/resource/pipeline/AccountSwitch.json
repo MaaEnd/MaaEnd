@@ -296,6 +296,18 @@
             38,
             245,
             255
+        ],
+        "next": [
+            "__AccountSwitchClearUidCache"
         ]
+    },
+    "__AccountSwitchClearUidCache": {
+        "desc": "清空UID缓存",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "custom_action_param": {
+            "clear_cache": true
+        }
     }
 }
