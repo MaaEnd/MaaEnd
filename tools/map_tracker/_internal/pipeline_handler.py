@@ -351,7 +351,12 @@ class PipelineHandler:
             formatted_path = "[\n"
             for i, p in enumerate(new_path):
                 comma = "," if i < len(new_path) - 1 else ""
-                formatted_path += f"{indent_lg}[{p[0]:.1f}, {p[1]:.1f}]{comma}\n"
+                formatted_path += (
+                    f"{indent_lg}[\n"
+                    f"{indent_lg}    {p[0]:.1f},\n"
+                    f"{indent_lg}    {p[1]:.1f}\n"
+                    f"{indent_lg}]{comma}\n"
+                )
             formatted_path += f"{indent_sm}]"
 
         new_body = (

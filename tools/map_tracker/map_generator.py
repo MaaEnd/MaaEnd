@@ -27,7 +27,7 @@ DISCARD_THRESHOLD = 2
 MAX_GRAPH_CUT_NODES = 2_000_000
 """Maximum number of pixels used by a single automatic graph cut."""
 
-LAND_THRESHOLD = 48
+LAND_THRESHOLD = 64
 """Pixels with brightness < this value are filtered out of bounding boxes."""
 
 _RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
@@ -199,11 +199,11 @@ class DistinMapPage:
         gray_f = gray.astype(np.float32)
         weight = np.ones_like(gray_f, dtype=np.float32)
 
-        mask = gray_f <= 64
+        mask = gray_f <= 32
         weight[mask] = 0.0
 
-        mask = (gray_f > 64) & (gray_f < 128)
-        weight[mask] = (gray_f[mask] - 64.0) / 64.0 * 0.5
+        mask = (gray_f > 32) & (gray_f < 96)
+        weight[mask] = (gray_f[mask] - 32.0) / 64.0 * 0.5
 
         return weight
 
@@ -361,7 +361,7 @@ class DistinMapPage:
         center_factor[covered] = (
             center_factor_sum[covered] / center_factor_count[covered]
         )
-        combined_gray = cv2.GaussianBlur(combined_gray, (7, 7), 0)
+        combined_gray = cv2.GaussianBlur(combined_gray, (5, 5), 0)
         weights = np.minimum(
             (self._brightness_weight(combined_gray) + 1e-3) * center_factor, 1.0
         )
@@ -947,7 +947,8 @@ def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
             else:
                 continue
 
-            brightness = np.mean(rgb, axis=2)
+            brightness = np.mean(rgb, axis=2).astype(np.uint8)
+            brightness = cv2.GaussianBlur(brightness, (5, 5), 0)
             ys, xs = np.where(brightness >= LAND_THRESHOLD)
             if len(ys) == 0 or len(xs) == 0:
                 continue
@@ -1086,6 +1087,7 @@ def cmd_tidy_tiers(input_dir: str, output_dir: str) -> None:
         # Land mask: brightness >= threshold and alpha > 0
         tier_rgb = tier_rgba[:, :, :3]
         gray = cv2.cvtColor(tier_rgb, cv2.COLOR_RGB2GRAY)
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)
         land_mask = (gray >= LAND_THRESHOLD) & (tier_rgba[:, :, 3] > 0)
         land_crop = land_mask[ty1:ty2, tx1:tx2]
 
