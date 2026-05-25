@@ -325,7 +325,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				result = true
 				break
 			}
-			continue
 		}
 
 		// 退出判定
@@ -377,7 +376,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
-		if params.EnableLockTarget {
+		if params.EnableLockTarget && inFightSpace {
 			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
 			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
 			//   阶段 0 [0, 3s)    -> 宽限期，不特殊处理，正常进入战斗决策
@@ -549,7 +548,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
 		} else {
-			if timeline.ActionFinish() {
+			if lockTargetStage == lockStageLocked && timeline.ActionFinish() {
 				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
 			}
 			action := timeline.FrontAction()
@@ -577,7 +576,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					switch action.Type {
 					case "ultimate":
 						if slices.Contains(endSkillFull, screenSlot) && lockTargetStage == lockStageLocked {
-							// 终结技尚未充能完毕：保持暂停，等下一帧
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
@@ -587,7 +585,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						}
 					case "skill":
 						if energyLevel >= 1 && lockTargetStage == lockStageLocked {
-							// 能量不足，保持暂停
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),
