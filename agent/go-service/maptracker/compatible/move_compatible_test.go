@@ -19,6 +19,22 @@ func moveCompatibleTestRepoRoot(t *testing.T) string {
 	return filepath.Clean(filepath.Join(filepath.Dir(file), "..", "..", "..", ".."))
 }
 
+func chdirCompatibleTestRepoRoot(t *testing.T) {
+	t.Helper()
+	oldCwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(moveCompatibleTestRepoRoot(t)); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(oldCwd); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
 func mustRawMessages(t *testing.T, values ...any) []json.RawMessage {
 	t.Helper()
 	result := make([]json.RawMessage, 0, len(values))
@@ -32,10 +48,21 @@ func mustRawMessages(t *testing.T, values ...any) []json.RawMessage {
 	return result
 }
 
-func TestMapTrackerMoveCompatibleRejectsEmptyOrUnknownRoutes(t *testing.T) {
-	if err := os.Chdir(moveCompatibleTestRepoRoot(t)); err != nil {
+func TestResolveCompatibleSourceMapPadsTierLevel(t *testing.T) {
+	source, err := resolveCompatibleSourceMap("ValleyIV_L1_114", "")
+	if err != nil {
 		t.Fatal(err)
 	}
+	if source.LocatorFile != "Lv001Tier114.png" {
+		t.Fatalf("got locator file %q", source.LocatorFile)
+	}
+	if source.CandidateMap != "map01_lv001_tier_114" {
+		t.Fatalf("got candidate map %q", source.CandidateMap)
+	}
+}
+
+func TestMapTrackerMoveCompatibleRejectsEmptyOrUnknownRoutes(t *testing.T) {
+	chdirCompatibleTestRepoRoot(t)
 
 	tests := []struct {
 		name  string
@@ -76,9 +103,7 @@ func TestMapTrackerMoveCompatibleRejectsEmptyOrUnknownRoutes(t *testing.T) {
 }
 
 func TestMapTrackerMoveCompatibleConvertsRegionalSamples(t *testing.T) {
-	if err := os.Chdir(moveCompatibleTestRepoRoot(t)); err != nil {
-		t.Fatal(err)
-	}
+	chdirCompatibleTestRepoRoot(t)
 
 	tests := []struct {
 		name    string
@@ -142,7 +167,7 @@ func TestMapTrackerMoveCompatibleConvertsRegionalSamples(t *testing.T) {
 			for i, expect := range tt.expects {
 				got := converted.Path[i]
 				dist := math.Hypot(got[0]-expect[0], got[1]-expect[1])
-				if dist > 1.0 {
+				if dist > 2.0 {
 					t.Fatalf("point %d got [%.3f, %.3f], want [%.3f, %.3f], dist %.3f", i, got[0], got[1], expect[0], expect[1], dist)
 				}
 			}

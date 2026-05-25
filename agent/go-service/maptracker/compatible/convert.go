@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -247,13 +248,16 @@ func resolveCompatibleSourceMap(sourceName string, preferredMapName string) (com
 		if !ok {
 			return compatibleLocatorSource{}, fmt.Errorf("unsupported MapNavigator region: %s", region)
 		}
-		level := matches[2]
+		level, err := strconv.Atoi(matches[2])
+		if err != nil {
+			return compatibleLocatorSource{}, fmt.Errorf("invalid MapNavigator level: %s", matches[2])
+		}
 		tier := matches[3]
 		return compatibleLocatorSource{
 			Region:       region,
 			MapPrefix:    prefix,
-			LocatorFile:  fmt.Sprintf("Lv%03sTier%s.png", level, tier),
-			CandidateMap: fmt.Sprintf("%s_lv%03s_tier_%s", prefix, level, tier),
+			LocatorFile:  fmt.Sprintf("Lv%03dTier%s.png", level, tier),
+			CandidateMap: fmt.Sprintf("%s_lv%03d_tier_%s", prefix, level, tier),
 		}, nil
 	}
 	return compatibleLocatorSource{}, fmt.Errorf("unsupported MapNavigator map name: %s", sourceName)

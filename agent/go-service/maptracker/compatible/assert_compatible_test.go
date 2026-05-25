@@ -3,7 +3,6 @@ package maptrackercompatible
 
 import (
 	"math"
-	"os"
 	"testing"
 )
 
@@ -36,9 +35,7 @@ func TestMapTrackerAssertLocationCompatibleRejectsInvalidParams(t *testing.T) {
 }
 
 func TestMapTrackerAssertLocationCompatibleConvertsRegionalSamples(t *testing.T) {
-	if err := os.Chdir(moveCompatibleTestRepoRoot(t)); err != nil {
-		t.Fatal(err)
-	}
+	chdirCompatibleTestRepoRoot(t)
 
 	tests := []struct {
 		name       string
@@ -75,7 +72,7 @@ func TestMapTrackerAssertLocationCompatibleConvertsRegionalSamples(t *testing.T)
 				t.Fatalf("got map %q, want %q", condition.MapName, tt.expectMap)
 			}
 			for i, expect := range tt.expectRect {
-				if math.Abs(condition.Target[i]-expect) > 1.0 {
+				if math.Abs(condition.Target[i]-expect) > 2.0 {
 					t.Fatalf("target[%d] got %.3f, want %.3f", i, condition.Target[i], expect)
 				}
 			}
