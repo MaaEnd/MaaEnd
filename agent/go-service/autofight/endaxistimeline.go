@@ -107,6 +107,32 @@ func (t *EndAxisTimeline) SetTimeline(jsonStr string) bool {
 		t.reset()
 		return false
 	}
+	if len(root.ScenarioList) == 0 {
+		log.Warn().
+			Str("component", "EndAxisTimeline").
+			Str("step", "SetTimeline").
+			Msg("timeline json has empty scenarioList, treating as invalid")
+		t.root = nil
+		t.reset()
+		return false
+	}
+	hasAnyAction := false
+	for i := range root.ScenarioList {
+		if len(collectTimelineActions(&root.ScenarioList[i])) > 0 {
+			hasAnyAction = true
+			break
+		}
+	}
+	if !hasAnyAction {
+		log.Warn().
+			Str("component", "EndAxisTimeline").
+			Str("step", "SetTimeline").
+			Int("scenarioCount", len(root.ScenarioList)).
+			Msg("timeline json has no dispatchable actions in any scenario, treating as invalid")
+		t.root = nil
+		t.reset()
+		return false
+	}
 	t.root = &root
 	t.reset()
 	log.Info().
