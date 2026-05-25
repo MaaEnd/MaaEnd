@@ -8,7 +8,6 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
@@ -120,9 +119,6 @@ func main() {
 
 	// Wait for the server to finish
 	maa.AgentServerJoin()
-
-	// Restoring any window state we changed during the session.
-	aspectratio.Cleanup()
 
 	// Shutdown
 	maa.AgentServerShutDown()

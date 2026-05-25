@@ -428,7 +428,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley4Top.png",
@@ -1204,7 +1204,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/MapWuling/MarkerStone4Top.png",
@@ -1242,7 +1242,7 @@
                     100,
                     100,
                     1080,
-                    520
+                    420
                 ],
                 "template": [
                     "SceneManager/MapWuling/MarkerStoneCoreTop.png"

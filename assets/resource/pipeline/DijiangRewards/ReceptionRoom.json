@@ -35,8 +35,8 @@
             "type": "Or",
             "param": {
                 "any_of": [
-                    "ReceptionRoomExchangeEnd1",
-                    "ReceptionRoomExchangeEnd2"
+                    "ReceptionRoomExchangeEnd1"
+                    // "ReceptionRoomExchangeEnd2" //原本识别到信用点增加也会判断命中情报交流结束,为了防止误伤先关闭
                 ]
             }
         },
@@ -46,10 +46,10 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomClueExchangeConfirm"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
-        }
+        ]
+        //"focus": {
+        //    "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
+        //}
     },
     "ReceptionRoomExchangeEnd2": {
         "desc": "[会客室·线索] 识别到信用点增加,且在会客室界面，确认情报交流结束",
@@ -186,6 +186,7 @@
             "[JumpBack]ReceptionRoomReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
             "[JumpBack]ReceptionRoomStartExchange",
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomExit"
         ],
         "focus": {
@@ -213,6 +214,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomSendCluesClueCollectionOpen"
         ]
     },
@@ -387,6 +389,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "SceneNoticeRewardsConfirm"
         ]
     },
@@ -411,6 +414,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomReceiveCluesOpen"
         ]
     },
@@ -887,6 +891,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomSetCluesChooseClues"
         ]
     },
@@ -1083,6 +1088,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "InDijiangControlNexus"
         ]
     }

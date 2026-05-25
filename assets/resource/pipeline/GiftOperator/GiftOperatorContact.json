@@ -105,7 +105,15 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
         },
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"

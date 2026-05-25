@@ -634,6 +634,12 @@
     "option.CrisisDrills.AdvancedProgression3.label": "고급 양성 Ⅲ (타키온 차폐 구조체)",
     "option.CrisisDrills.AdvancedProgression4.label": "고급 양성 Ⅳ (정합용 유체)",
     "option.CrisisDrills.AdvancedProgression5.label": "고급 양성 Ⅴ (3상 나노 플레이크 칩)",
+    "option.ProtocolSpaceLevel.label": "선택 프로토콜 공간 등급",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label": "1레벨",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label": "2레벨",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label": "3레벨",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel04.label": "4레벨",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel05.label": "5레벨",
     "option.OperatorEXPRewardsSetOption.cases.AdvancedCombatRecord.label": "A. 고급 작전 기록",
     "option.OperatorEXPRewardsSetOption.cases.CognitiveCarriers.label": "B. 고급 인지 매개체, 초급 인지 매개체",
     "option.PromotionsRewardsSetOption.cases.Protodisk.label": "A. 프로토콜 디스크",
@@ -942,5 +948,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중",
     "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중",
     "task.ResourceRecycleStation.focus.Found": "자원 재활용 스테이션 발견",
-    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다"
+    "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
+    "task.AccountSwitch.label": "자동 계정 전환",
+    "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 마지막 4자리 계정으로 전환합니다",
+    "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력"
 }

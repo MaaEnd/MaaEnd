@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <string_view>
@@ -299,7 +300,7 @@ bool TryLocateOnMinimap(
 
     const MaaImageBuffer* actual_image = image;
     ScopedImageBuffer captured_image;
-    if (MaaImageBufferIsEmpty(actual_image)) {
+    if (actual_image == nullptr || MaaImageBufferIsEmpty(actual_image)) {
         auto controller = MaaTaskerGetController(MaaContextGetTasker(context));
         const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
         MaaControllerWait(controller, screencap_id);
@@ -310,7 +311,7 @@ bool TryLocateOnMinimap(
         actual_image = captured_image.Get();
     }
 
-    if (MaaImageBufferIsEmpty(actual_image)) {
+    if (actual_image == nullptr || MaaImageBufferIsEmpty(actual_image)) {
         LogError << "MapLocateRecognition: Image buffer is empty";
         return false;
     }
@@ -423,9 +424,23 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         return MAA_FALSE;
     }
 
+    const LocateOptions options = BuildAssertLocateOptions(param);
     LocateResult result;
-    if (!TryLocateOnMinimap(context, image, BuildAssertLocateOptions(param), &result)) {
-        return MAA_FALSE;
+    constexpr auto cold_start_retry_delay = std::chrono::milliseconds(300);
+    for (int attempt = 0; attempt < kColdStartConsensusFrames; ++attempt) {
+        // Cold-start consensus needs distinct frames; reuse would only confirm the same screenshot.
+        const MaaImageBuffer* attempt_image = attempt == 0 ? image : nullptr;
+        if (!TryLocateOnMinimap(context, attempt_image, options, &result)) {
+            return MAA_FALSE;
+        }
+        const bool is_cold_start_collecting =
+            result.status == LocateStatus::TrackingLost && result.debugMessage == kColdStartCollectingMessage;
+        if (!is_cold_start_collecting || attempt + 1 >= kColdStartConsensusFrames) {
+            break;
+        }
+
+        LogInfo << "MapLocateAssertLocation cold-start pending" << VAR(attempt) << VAR(param.zone_id);
+        std::this_thread::sleep_for(cold_start_retry_delay);
     }
 
     const bool matched = result.status == LocateStatus::Success && result.position.has_value()

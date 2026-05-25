@@ -12,7 +12,8 @@
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
                 "ProtocolSpaceUsePermit",
-                "ProtocolSpaceTab"
+                "ProtocolSpaceTab",
+                "ProtocolSpaceLevel"
             ],
             "controller": [
                 "Win32-Front",
@@ -415,6 +416,76 @@
                     "option": [
                         "CrisisDrills"
                     ]
+                }
+            ]
+        },
+        "ProtocolSpaceLevel": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceLevel.label",
+            "default_case": "ProtocolSpaceLevel05",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceLevel01",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 0}
+                            },
+                            "next": [
+                                "ProtocolSpacePrepareLock",
+                                "ProtocolSpaceEnterSpace"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel02",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 1}
+                            },
+                            "next": [
+                                "ProtocolSpacePrepareLock",
+                                "ProtocolSpaceEnterSpace"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel03",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 2}
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel04",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel04.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 3}
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel05",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel05.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {"index": 4}
+                            }
+                        }
+                    }
                 }
             ]
         },

@@ -173,6 +173,10 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			hasError = true
 			break
 		}
+		if !detail.Status.Success() {
+			hasError = true
+			break
+		}
 	}
 	if hasError {
 		return false

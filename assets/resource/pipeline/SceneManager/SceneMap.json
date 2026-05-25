@@ -247,7 +247,8 @@
                     200
                 ],
                 "template": [
-                    "SceneManager/MapOverviewEnter.png"
+                    "SceneManager/MapOverviewEnter.png",
+                    "SceneManager/MapOverviewEnterHover.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.9
