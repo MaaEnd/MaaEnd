@@ -218,6 +218,24 @@
     },
     "__AccountSwitchCheckAccount": {
         "desc": "中继节点：路由检查",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    470,
+                    311,
+                    300,
+                    300
+                ],
+                "expected": [
+                    // @i18n-skip
+                    ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
+                    ".*\\d{4}\\s*(?:最近)?.*",
+                    "\\d{4}",
+                    "\\d{4}$"
+                ]
+            }
+        },
         "max_hit": 3,
         "next": [
             "__AccountSwitchVerifySelected",
