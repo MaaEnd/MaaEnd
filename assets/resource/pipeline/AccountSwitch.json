@@ -221,7 +221,7 @@
         "max_hit": 3,
         "next": [
             "__AccountSwitchVerifySelected",
-            "__AccountSwitchClickDropdown"
+            "__AccountSwitchFocusFormBeforeDropdown"
         ]
     },
     "__AccountSwitchVerifySelected": {
