@@ -71,7 +71,9 @@ def write_sync_state(path: Path, manifest: dict[str, Any]) -> None:
         "updated_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }
     ensure_parent(path)
-    path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(state, ensure_ascii=False, indent=4))
+        handle.write("\n")
 
 
 def repo_root() -> Path:
@@ -197,7 +199,8 @@ def rewrite_doc_link(destination: str, source_path: Path, target_path: Path) -> 
         output_path += "/"
     if keep_dot_prefix and not output_path.startswith(("./", "../")):
         output_path = f"./{output_path}"
-    rewritten_core = urllib.parse.urlunsplit(("", "", output_path, parsed.query, parsed.fragment))
+    encoded_output_path = urllib.parse.quote(output_path, safe="/-._~")
+    rewritten_core = urllib.parse.urlunsplit(("", "", encoded_output_path, parsed.query, parsed.fragment))
     return join_link_destination(prefix, rewritten_core, quote, suffix)
 
 

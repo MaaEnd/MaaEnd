@@ -199,7 +199,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')"
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty')"
           pr_body="$(cat <<EOF
           ## Summary
           - Translate changed \`docs/zh_cn/**\` files into the mirrored \`docs/en_us/**\` files.
