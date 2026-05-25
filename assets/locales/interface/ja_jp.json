@@ -949,7 +949,7 @@
     "task.ResourceRecycleStation.focus.LimitReached": "希少資源が上限に達しました、スクロール中",
     "task.ResourceRecycleStation.focus.Found": "資源回収ステーションを発見",
     "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
-    "task.AccountSwitch.label": "🔁 自動アカウント切替",
+    "task.AccountSwitch.label": "自動アカウント切替",
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力"

@@ -130,7 +130,6 @@
         ]
     },
     "__AccountSwitchClickDropdown": {
-        "max_hit": 3,
         "desc": "点击账号下拉按钮",
         "recognition": {
             "type": "TemplateMatch",
@@ -154,8 +153,7 @@
         },
         "post_wait_freezes": 500,
         "next": [
-            "__AccountSwitchOCRSelectAccount",
-            "__AccountSwitchClickDropdown"
+            "__AccountSwitchOCRSelectAccount"
         ]
     },
     "__AccountSwitchOCRSelectAccount": {

@@ -949,7 +949,7 @@
     "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
-    "task.AccountSwitch.label": "🔁 Auto Account Switch",
+    "task.AccountSwitch.label": "Auto Account Switch",
     "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits"

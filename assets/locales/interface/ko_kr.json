@@ -949,7 +949,7 @@
     "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중",
     "task.ResourceRecycleStation.focus.Found": "자원 재활용 스테이션 발견",
     "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
-    "task.AccountSwitch.label": "🔁 자동 계정 전환",
+    "task.AccountSwitch.label": "자동 계정 전환",
     "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 마지막 4자리 계정으로 전환합니다",
     "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력"

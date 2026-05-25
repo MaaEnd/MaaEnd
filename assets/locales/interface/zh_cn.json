@@ -949,7 +949,7 @@
     "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看",
     "task.ResourceRecycleStation.focus.Found": "发现资源回收站",
     "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源",
-    "task.AccountSwitch.label": "🔁 自动切换账号",
+    "task.AccountSwitch.label": "自动切换账号",
     "task.AccountSwitch.description": "自动登出当前账号并切换到指定账号的后四位",
     "option.AccountSwitchLastFourDigits.label": "目标账号后四位",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "输入账号后四位"
