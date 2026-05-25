@@ -28,35 +28,32 @@
     },
     "__AccountSwitchCheckInitState": {
         "desc": "中继节点：检查是否已退出",
+        "recognition": "Or",
         "any_of": [
             {
                 "recognition": "TemplateMatch",
-                "param": {
-                    "roi": [
-                        -300,
-                        60,
-                        300,
-                        300
-                    ],
-                    "template": [
-                        "AccountSwitch/LogoutButton.png"
-                    ],
-                    "threshold": 0.6
-                }
+                "roi": [
+                    -300,
+                    60,
+                    300,
+                    300
+                ],
+                "template": [
+                    "AccountSwitch/LogoutButton.png"
+                ],
+                "threshold": 0.6
             },
             {
                 "recognition": "TemplateMatch",
-                "param": {
-                    "roi": [
-                        651,
-                        130,
-                        466,
-                        495
-                    ],
-                    "template": [
-                        "AccountSwitch/DropdownButton.png"
-                    ]
-                }
+                "roi": [
+                    651,
+                    130,
+                    466,
+                    495
+                ],
+                "template": [
+                    "AccountSwitch/DropdownButton.png"
+                ]
             }
         ],
         "next": [
