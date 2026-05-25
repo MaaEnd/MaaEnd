@@ -136,10 +136,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    755,
-                    325,
-                    300,
-                    300
+                    651,
+                    130,
+                    466,
+                    495
                 ],
                 "template": [
                     "AccountSwitch/DropdownButton.png"
