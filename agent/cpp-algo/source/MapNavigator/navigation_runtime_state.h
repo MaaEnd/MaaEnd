@@ -3,7 +3,6 @@
 #include <chrono>
 #include <cstddef>
 #include <limits>
-#include <optional>
 #include <string>
 
 #include "navi_domain_types.h"
@@ -72,19 +71,23 @@ struct SemanticState
     }
 };
 
-struct RecoveryState
+struct DynamicRecoveryState
 {
-    std::chrono::steady_clock::time_point stuck_start_time {};
-    NaviPosition stuck_anchor_pos {};
-    std::chrono::steady_clock::time_point next_action_time {};
-
-    bool IsActive() const { return stuck_start_time.time_since_epoch().count() > 0; }
+    NaviPosition anchor_pos {};
+    std::chrono::steady_clock::time_point started_at {};
+    std::chrono::steady_clock::time_point last_replan_at {};
+    size_t anchor_index = std::numeric_limits<size_t>::max();
+    int attempt_count = 0;
+    bool active = false;
 
     void Reset()
     {
-        stuck_start_time = {};
-        stuck_anchor_pos = {};
-        next_action_time = {};
+        anchor_pos = {};
+        started_at = {};
+        last_replan_at = {};
+        anchor_index = std::numeric_limits<size_t>::max();
+        attempt_count = 0;
+        active = false;
     }
 };
 
@@ -93,19 +96,22 @@ struct NavigationRuntimeState
     RouteTrackerState route;
     FlowState flow;
     SemanticState semantic;
-    RecoveryState recovery;
+    DynamicRecoveryState recovery;
+    bool dynamic_replan_requested = false;
 
     void ResetNavigationAssistState()
     {
         route.ResetTracking();
         recovery.Reset();
+        dynamic_replan_requested = false;
     }
 
     void BeginNavigation(const std::chrono::steady_clock::time_point& now)
     {
         route.Reset();
-        recovery.Reset();
         semantic.ResetTransient();
+        recovery.Reset();
+        dynamic_replan_requested = false;
         flow.navigate_started_at = now;
         flow.last_auto_sprint_time = {};
     }
@@ -114,6 +120,7 @@ struct NavigationRuntimeState
     {
         route.ResetTracking();
         recovery.Reset();
+        dynamic_replan_requested = false;
         flow.last_auto_sprint_time = {};
     }
 };

@@ -212,6 +212,12 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
     std::vector<double> g_score(triangles.size(), std::numeric_limits<double>::infinity());
     std::vector<int32_t> parents(triangles.size(), -1);
     std::vector<uint8_t> closed(triangles.size(), 0);
+    std::vector<uint8_t> blocked(triangles.size(), 0);
+    for (uint32_t triangle : request.blocked_triangles) {
+        if (triangle < blocked.size() && triangle != start->triangle && triangle != goal->triangle) {
+            blocked[triangle] = 1;
+        }
+    }
     g_score[start->triangle] = 0.0;
     open.push(
         { .triangle = start->triangle, .priority = detail::TriangleHeuristic(triangles[start->triangle], triangles[goal->triangle]) });
@@ -236,6 +242,9 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
         for (uint32_t adjacency_index = adjacency_offsets_[current]; adjacency_index < adjacency_offsets_[current + 1]; ++adjacency_index) {
             const uint32_t next = adjacency_links_[adjacency_index];
             if (next >= triangles.size() || triangle_zones_[next] != zone->zone_id) {
+                continue;
+            }
+            if (blocked[next] != 0) {
                 continue;
             }
             const double tentative = g_score[current] + transitionCost(current, next);

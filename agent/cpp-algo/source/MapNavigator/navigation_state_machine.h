@@ -35,6 +35,14 @@ private:
     bool TickNavigate();
     bool TickPhase(NaviPhase phase);
     bool CaptureCurrentPosition(bool force_global_search = false);
+    bool TryApplyDynamicOverlayToAnchor(
+        const char* reason,
+        size_t continue_index,
+        const Waypoint& anchor,
+        bool use_detour,
+        double route_heading = 0.0);
+    bool TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading = 0.0);
+    bool HandleDynamicReplanRequest(const char* reason);
     void SelectPhaseForCurrentWaypoint(const char* reason);
     void StopMotion();
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);

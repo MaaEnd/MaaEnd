@@ -73,12 +73,10 @@ constexpr double kSerialRouteDeviationFailThreshold = 3.0;
 constexpr double kSerialRouteCompensationMinDistance = 1.0;
 constexpr double kWaypointArrivalSlack = 0.5;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
-constexpr int32_t kObstacleRecoveryJumpGraceMs = 450;
-constexpr int32_t kObstacleRecoveryTurnGraceMs = 260;
-constexpr int32_t kObstacleRecoveryBackwardJumpGraceMs = 550;
-constexpr double kObstacleRecoveryProgressDistance = 0.35;
-constexpr double kObstacleRecoveryMinDistance = 3.0;
-constexpr double kObstacleRecoveryTurnNudgeDegrees = 16.0;
+constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
+constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
+constexpr int32_t kDynamicRecoveryMaxAttemptsPerAnchor = 3;
+constexpr double kDynamicRecoveryResetDistance = 2.0;
 
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
@@ -88,9 +86,6 @@ constexpr int32_t kRelocationRetryIntervalMs = 120;
 constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
 constexpr double kRelocationResumeMinDistance = 3.0;
-constexpr int32_t kZoneBlindRecoveryStartMs = 700;
-constexpr int32_t kZoneBlindRecoveryIntervalMs = 900;
-constexpr int32_t kZoneBlindStrafePulseMs = 220;
 
 constexpr double kNoProgressDistanceEpsilon = 0.5;
 constexpr double kRouteProgressEpsilon = 0.5;

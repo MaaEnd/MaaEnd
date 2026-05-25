@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,8 @@ struct NavigationSession
     bool HasCurrentWaypoint() const;
     const Waypoint& CurrentWaypoint() const;
     const Waypoint& CurrentPathAt(size_t index) const;
+    std::optional<size_t> CanonicalIndexAtCurrent() const;
+    std::optional<size_t> CanonicalIndexAtCurrentPath(size_t index) const;
 
     const std::string& current_zone_id() const;
     void UpdateCurrentZone(const std::string& zone_id);
@@ -56,6 +59,7 @@ struct NavigationSession
 
     size_t FindRejoinSliceStart(size_t continue_index) const;
     void ApplyRejoinSlice(size_t slice_start, const NaviPosition& pos);
+    void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
 
     NaviPhase phase() const;
     void UpdatePhase(NaviPhase next_phase, const char* reason);
@@ -64,6 +68,7 @@ private:
     std::vector<Waypoint> original_path_;
     std::vector<Waypoint> current_path_;
     size_t path_origin_index_ = 0;
+    size_t generated_prefix_size_ = 0;
     size_t current_node_idx_ = 0;
     std::string current_zone_id_;
     NaviPhase phase_ = NaviPhase::Bootstrap;

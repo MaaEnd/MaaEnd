@@ -28,6 +28,7 @@ struct BaseNavRouteRequest
     WorldPoint goal;
     double snap_radius = 5.0;
     double max_cost = 0.0;
+    std::vector<uint32_t> blocked_triangles;
 };
 
 enum class BaseNavRouteStatus

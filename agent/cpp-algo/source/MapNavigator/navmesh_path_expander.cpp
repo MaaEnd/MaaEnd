@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <condition_variable>
 #include <cstddef>
 #include <deque>
 #include <exception>
 #include <filesystem>
 #include <future>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -22,6 +24,7 @@
 #include "../Navmesh/BaseNavReader.h"
 #include "navi_config.h"
 #include "navi_controller.h"
+#include "navi_math.h"
 #include "navmesh_path_expander.h"
 
 namespace mapnavigator
@@ -61,6 +64,15 @@ constexpr std::array<BaseNavZoneAlias, 4> kBaseNavZoneAliases {{
     { "base01", { "base01", "OMVBase" } },
     { "dung01", { "dung01", "Dung" } },
 }};
+
+constexpr std::array<double, 4> kDetourRadii { 4.0, 7.0, 10.0, 14.0 };
+constexpr std::array<double, 12> kDetourHeadingOffsets { 45.0, -45.0, 75.0, -75.0, 110.0, -110.0,
+                                                         140.0, -140.0, 25.0, -25.0, 170.0, -170.0 };
+constexpr double kDetourSnapRadius = 4.0;
+constexpr double kDetourBlockedForwardDistance = 10.0;
+constexpr size_t kDetourBlockedTriangleCount = 6;
+constexpr double kDetourBacktrackPenalty = 8.0;
+constexpr double kDetourSnapPenalty = 3.0;
 
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
@@ -326,40 +338,26 @@ void UpdateStateFromRegularWaypoint(const Waypoint& waypoint, NavmeshExpansionSt
     }
 }
 
-bool AppendPlannedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path)
+navmesh::BaseNavRouteRequest BuildRouteRequest(
+    const NaviParam& param,
+    const std::string& navmesh_zone,
+    const navmesh::WorldPoint& start,
+    const navmesh::WorldPoint& goal,
+    const std::vector<uint32_t>& blocked_triangles = {})
 {
-    if (world_path.points.empty()) {
-        return false;
-    }
-
-    const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
-    for (size_t index = 0; index < world_path.points.size(); ++index) {
-        const navmesh::WorldPoint& point = world_path.points[index];
-        if (segment_breaks.contains(index) && !out_path.empty()) {
-            out_path.back().strict_arrival = true;
-        }
-        if (index == 0) {
-            continue;
-        }
-        Waypoint waypoint(point.x, point.y, ActionType::RUN);
-        out_path.push_back(std::move(waypoint));
-    }
-
-    if (!out_path.empty() && out_path.back().HasPosition()) {
-        out_path.back().strict_arrival = true;
-    }
-    return true;
+    navmesh::BaseNavRouteRequest request;
+    request.zone_name = navmesh_zone;
+    request.start = start;
+    request.goal = goal;
+    request.snap_radius = param.navmesh_snap_radius;
+    request.max_cost = param.navmesh_max_cost;
+    request.blocked_triangles = blocked_triangles;
+    return request;
 }
 
 navmesh::BaseNavRouteRequest BuildRouteRequest(const NaviParam& param, const NavmeshExpansionState& state, const Waypoint& waypoint)
 {
-    navmesh::BaseNavRouteRequest request;
-    request.zone_name = state.navmesh_zone;
-    request.start = state.route_start;
-    request.goal = { .x = waypoint.x, .y = waypoint.y };
-    request.snap_radius = param.navmesh_snap_radius;
-    request.max_cost = param.navmesh_max_cost;
-    return request;
+    return BuildRouteRequest(param, state.navmesh_zone, state.route_start, { .x = waypoint.x, .y = waypoint.y });
 }
 
 void LogGeneratedNavmeshPath(
@@ -394,7 +392,7 @@ bool AppendNavmeshWaypoint(
     }
 
     LogGeneratedNavmeshPath(state, request, route_result);
-    if (!AppendPlannedNavmeshWaypoints(route_result.path, out_path)) {
+    if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
         return false;
     }
@@ -440,6 +438,12 @@ std::optional<std::string> InferPreloadNavmeshZone(const NaviParam& param)
         }
     }
     return std::nullopt;
+}
+
+navmesh::WorldPoint OffsetPoint(const NaviPosition& position, double heading, double distance)
+{
+    const double radians = NaviMath::NormalizeHeading(heading) * kPi / 180.0;
+    return { .x = position.x + std::sin(radians) * distance, .y = position.y - std::cos(radians) * distance };
 }
 
 } // namespace
@@ -499,6 +503,141 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
         }
     }
     return true;
+}
+
+std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const navmesh::WorldPoint& start,
+    const navmesh::WorldPoint& goal,
+    const std::vector<uint32_t>& blocked_triangles)
+{
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        LogError << "Failed to infer NAVMESH base zone." << VAR(locator_zone) << VAR(param.map_name);
+        return std::nullopt;
+    }
+
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return std::nullopt;
+    }
+
+    const auto request = BuildRouteRequest(param, navmesh_zone, start, goal, blocked_triangles);
+    const auto route_result = navmesh->planner.findPath(request);
+    if (!route_result.ok()) {
+        if (blocked_triangles.empty()) {
+            LogError << "Failed to plan NAVMESH route." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(start.x) << VAR(start.y)
+                     << VAR(goal.x) << VAR(goal.y) << VAR(navmesh::ToString(route_result.status)) << VAR(blocked_triangles.size());
+        }
+        return std::nullopt;
+    }
+
+    if (blocked_triangles.empty()) {
+        LogInfo << "NAVMESH route planned." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(route_result.cost)
+                << VAR(route_result.triangles.size()) << VAR(route_result.path.points.size()) << VAR(blocked_triangles.size());
+    }
+    return route_result;
+}
+
+std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
+    const NaviParam& param,
+    const NaviPosition& position,
+    const Waypoint& anchor,
+    double route_heading)
+{
+    if (!anchor.HasPosition()) {
+        return std::nullopt;
+    }
+
+    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    const auto direct_route = PlanNavmeshRoute(param, position.zone_id, start, goal);
+    if (!direct_route) {
+        return std::nullopt;
+    }
+
+    std::vector<uint32_t> blocked;
+    const size_t blocked_end = std::min(direct_route->triangles.size(), kDetourBlockedTriangleCount + 1);
+    for (size_t index = 1; index < blocked_end; ++index) {
+        blocked.push_back(direct_route->triangles[index]);
+    }
+    std::optional<navmesh::BaseNavRouteResult> best;
+    double best_score = std::numeric_limits<double>::infinity();
+    navmesh::WorldPoint best_detour;
+    for (double radius : kDetourRadii) {
+        for (double heading_offset : kDetourHeadingOffsets) {
+            const navmesh::WorldPoint candidate = OffsetPoint(position, route_heading + heading_offset, radius);
+            const navmesh::WorldPoint forward_probe = OffsetPoint(position, route_heading, kDetourBlockedForwardDistance);
+            if (std::hypot(candidate.x - forward_probe.x, candidate.y - forward_probe.y) <= radius * 0.35) {
+                continue;
+            }
+
+            NaviParam detour_param = param;
+            detour_param.navmesh_snap_radius = std::max(detour_param.navmesh_snap_radius, kDetourSnapRadius);
+            const auto route_to_detour = PlanNavmeshRoute(detour_param, position.zone_id, start, candidate, blocked);
+            const auto route_to_goal = PlanNavmeshRoute(detour_param, position.zone_id, candidate, goal, blocked);
+            if (!route_to_detour || !route_to_goal) {
+                continue;
+            }
+
+            const double snap_distance = std::hypot(route_to_detour->path.points.back().x - candidate.x,
+                route_to_detour->path.points.back().y - candidate.y);
+            const double backtrack_penalty = std::max(0.0, std::abs(heading_offset) - 120.0) / 60.0 * kDetourBacktrackPenalty;
+            const double score = route_to_detour->cost + route_to_goal->cost + backtrack_penalty + snap_distance * kDetourSnapPenalty;
+            if (score < best_score) {
+                best = *route_to_detour;
+                const size_t point_offset = best->path.points.size();
+                if (route_to_goal->path.points.size() > 1) {
+                    best->path.points.insert(best->path.points.end(), route_to_goal->path.points.begin() + 1, route_to_goal->path.points.end());
+                }
+                for (size_t break_index : route_to_goal->path.segment_breaks) {
+                    if (break_index != 0) {
+                        best->path.segment_breaks.push_back(point_offset + break_index - 1);
+                    }
+                }
+                if (route_to_goal->triangles.size() > 1) {
+                    best->triangles.insert(best->triangles.end(), route_to_goal->triangles.begin() + 1, route_to_goal->triangles.end());
+                }
+                best->cost += route_to_goal->cost;
+                best_score = score;
+                best_detour = candidate;
+            }
+        }
+    }
+
+    if (!best) {
+        LogError << "NAVMESH detour failed to find a reachable bypass." << VAR(position.x) << VAR(position.y) << VAR(position.zone_id)
+                 << VAR(anchor.x) << VAR(anchor.y) << VAR(blocked.size());
+        return std::nullopt;
+    }
+
+    LogInfo << "NAVMESH detour selected." << VAR(best_detour.x) << VAR(best_detour.y) << VAR(best_score) << VAR(best->cost)
+            << VAR(best->triangles.size()) << VAR(best->path.points.size());
+    return best;
+}
+
+bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal)
+{
+    if (world_path.points.empty()) {
+        return false;
+    }
+
+    const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
+    const size_t end = include_goal ? world_path.points.size() : world_path.points.size() - 1;
+    for (size_t index = 1; index < end; ++index) {
+        if (segment_breaks.contains(index) && !out_path.empty()) {
+            out_path.back().strict_arrival = true;
+        }
+        const navmesh::WorldPoint& point = world_path.points[index];
+        out_path.emplace_back(point.x, point.y, ActionType::RUN);
+    }
+
+    if (include_goal && !out_path.empty() && out_path.back().HasPosition()) {
+        out_path.back().strict_arrival = true;
+    }
+    return include_goal || world_path.points.size() <= 2 || !out_path.empty();
 }
 
 } // namespace mapnavigator

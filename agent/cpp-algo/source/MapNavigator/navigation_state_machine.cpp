@@ -3,7 +3,9 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <string>
 #include <thread>
+#include <utility>
 
 #include <MaaUtils/Logger.h>
 
@@ -13,8 +15,8 @@
 #include "navi_config.h"
 #include "navi_math.h"
 #include "navigation_state_machine.h"
+#include "navmesh_path_expander.h"
 #include "position_provider.h"
-#include "recovery_manager.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
 #include "steering_controller.h"
@@ -38,15 +40,72 @@ struct BootstrapContinueCandidate
     const char* reason = "";
 };
 
+using DynamicAnchor = std::pair<size_t, Waypoint>;
+
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id)
 {
     if (!waypoint.HasPosition()) {
         return false;
     }
-    if (current_zone_id.empty() || waypoint.zone_id.empty()) {
-        return true;
+    return current_zone_id.empty() || waypoint.zone_id.empty() || waypoint.zone_id == current_zone_id;
+}
+
+bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
+{
+    if (!waypoint.HasPosition()) {
+        return waypoint.IsHeadingOnly() || waypoint.IsZoneDeclaration();
     }
-    return waypoint.zone_id == current_zone_id;
+    return waypoint.action != ActionType::RUN || waypoint.RequiresStrictArrival();
+}
+
+double ArrivalBandForStartupBypass(const Waypoint& waypoint)
+{
+    double arrival_band = waypoint.RequiresStrictArrival() ? waypoint.GetLookahead() + kMeasurementDefaultPositionQuantum
+                                                           : waypoint.GetLookahead() + kWaypointArrivalSlack
+                                                                 + kMeasurementDefaultPositionQuantum;
+    if (waypoint.action == ActionType::PORTAL) {
+        arrival_band = std::max(arrival_band, kPortalCommitDistance);
+    }
+    return arrival_band;
+}
+
+std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
+{
+    std::optional<DynamicAnchor> fallback;
+    const size_t path_size = session->current_path().size();
+    for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
+        const Waypoint& waypoint = session->CurrentPathAt(index);
+        const std::optional<size_t> canonical_index = session->CanonicalIndexAtCurrentPath(index);
+        if (!canonical_index) {
+            continue;
+        }
+        if (waypoint.IsZoneDeclaration()) {
+            if (!waypoint.zone_id.empty() && !position.zone_id.empty() && waypoint.zone_id != position.zone_id) {
+                return fallback;
+            }
+            continue;
+        }
+        if (!waypoint.HasPosition()) {
+            if (IsRequiredSemanticAnchor(waypoint)) {
+                return fallback;
+            }
+            continue;
+        }
+        if (!IsZoneCompatible(waypoint, position.zone_id)) {
+            continue;
+        }
+
+        fallback = { *canonical_index, waypoint };
+        if (IsRequiredSemanticAnchor(waypoint)) {
+            return fallback;
+        }
+    }
+    return fallback;
+}
+
+std::optional<DynamicAnchor> ResolveCurrentAnchor(NavigationSession* session, const NaviPosition& position)
+{
+    return ResolveCurrentAnchorFrom(session, position, session->current_node_idx());
 }
 
 std::optional<BootstrapContinueCandidate> FindProjectedContinueCandidate(const std::vector<Waypoint>& path, const NaviPosition& position)
@@ -116,7 +175,7 @@ std::optional<BootstrapWaypointCandidate> FindNearestReachableWaypoint(const std
         }
 
         const double distance = std::hypot(position.x - waypoint.x, position.y - waypoint.y);
-        if (distance > kBootstrapOwnershipProjectionCorridor) {
+        if (distance > kBootstrapOwnershipMaxDistance) {
             continue;
         }
 
@@ -130,21 +189,94 @@ std::optional<BootstrapWaypointCandidate> FindNearestReachableWaypoint(const std
 std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
     const std::optional<BootstrapContinueCandidate> projected = FindProjectedContinueCandidate(path, position);
-    const std::optional<BootstrapWaypointCandidate> nearest_waypoint = FindNearestReachableWaypoint(path, position);
-    if (!nearest_waypoint.has_value()) {
+    if (projected.has_value()) {
         return projected;
     }
 
-    BootstrapContinueCandidate fallback {
+    const std::optional<BootstrapWaypointCandidate> nearest_waypoint = FindNearestReachableWaypoint(path, position);
+    if (!nearest_waypoint.has_value()) {
+        return std::nullopt;
+    }
+
+    return BootstrapContinueCandidate {
         .continue_index = nearest_waypoint->index,
         .route_distance = nearest_waypoint->distance,
         .reason = "nearest_waypoint",
     };
+}
 
-    if (!projected.has_value() || fallback.route_distance + 0.75 < projected->route_distance) {
-        return fallback;
+std::optional<DynamicAnchor> ResolveBootstrapNavmeshAnchor(
+    const NaviParam& param,
+    NavigationSession* session,
+    const NaviPosition& position,
+    size_t start_index)
+{
+    const size_t path_size = session->current_path().size();
+    std::optional<DynamicAnchor> best_anchor;
+    double best_cost = std::numeric_limits<double>::infinity();
+    int planned_count = 0;
+
+    for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
+        const Waypoint& waypoint = session->CurrentPathAt(index);
+        const std::optional<size_t> canonical_index = session->CanonicalIndexAtCurrentPath(index);
+        if (!canonical_index) {
+            continue;
+        }
+        if (waypoint.IsZoneDeclaration()) {
+            if (!waypoint.zone_id.empty() && !position.zone_id.empty() && waypoint.zone_id != position.zone_id) {
+                break;
+            }
+            continue;
+        }
+        if (!waypoint.HasPosition()) {
+            if (IsRequiredSemanticAnchor(waypoint)) {
+                break;
+            }
+            continue;
+        }
+        if (!IsZoneCompatible(waypoint, position.zone_id)) {
+            continue;
+        }
+
+        const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+        const navmesh::WorldPoint goal { .x = waypoint.x, .y = waypoint.y };
+        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
+        if (route) {
+            ++planned_count;
+            if (route->cost < best_cost) {
+                best_cost = route->cost;
+                best_anchor = { *canonical_index, waypoint };
+            }
+        }
+        if (IsRequiredSemanticAnchor(waypoint)) {
+            break;
+        }
     }
-    return projected;
+
+    if (best_anchor) {
+        LogInfo << "Bootstrap navmesh anchor selected." << VAR(best_anchor->first) << VAR(best_cost) << VAR(planned_count)
+                << VAR(start_index);
+    }
+    return best_anchor;
+}
+
+std::optional<DynamicAnchor> ResolveBootstrapAnchor(
+    const NaviParam& param,
+    NavigationSession* session,
+    const NaviPosition& position)
+{
+    size_t start_index = 0;
+    const std::optional<BootstrapContinueCandidate> continue_candidate =
+        ResolveBootstrapContinueCandidate(session->original_path(), position);
+    if (continue_candidate.has_value()) {
+        start_index = continue_candidate->continue_index;
+        LogInfo << "Bootstrap dynamic anchor scan adjusted." << VAR(continue_candidate->reason) << VAR(start_index)
+                << VAR(continue_candidate->route_distance);
+    }
+    if (std::optional<DynamicAnchor> navmesh_anchor = ResolveBootstrapNavmeshAnchor(param, session, position, start_index)) {
+        return navmesh_anchor;
+    }
+    return ResolveCurrentAnchorFrom(session, position, start_index);
 }
 
 semantic_nodes::Context BuildSemanticContext(
@@ -218,24 +350,14 @@ bool NavigationStateMachine::Run()
 
 bool NavigationStateMachine::Bootstrap()
 {
-    const std::optional<BootstrapContinueCandidate> continue_candidate =
-        ResolveBootstrapContinueCandidate(session_->original_path(), *position_);
-    if (continue_candidate.has_value()) {
-        const size_t slice_start = session_->FindRejoinSliceStart(continue_candidate->continue_index);
-        if (slice_start < session_->original_path().size()) {
-            motion_controller_->SetForwardState(false);
-            session_->ApplyRejoinSlice(slice_start, *position_);
-            session_->ResetProgress();
-            runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
-            LogInfo << "Bootstrap route ownership applied." << VAR(continue_candidate->reason) << VAR(continue_candidate->continue_index)
-                    << VAR(slice_start);
-            SelectPhaseForCurrentWaypoint(continue_candidate->reason);
-            return true;
-        }
+    runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+    const std::optional<DynamicAnchor> anchor = ResolveBootstrapAnchor(param_, session_, *position_);
+    if (anchor && TryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
+        SelectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
+        return true;
     }
 
     LogWarn << "Bootstrap ownership fallback to route head." << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
-    runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
     SelectPhaseForCurrentWaypoint("bootstrap_ready");
     return true;
 }
@@ -277,6 +399,76 @@ bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
     return position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
 }
 
+bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
+    const char* reason,
+    size_t continue_index,
+    const Waypoint& anchor,
+    bool use_detour,
+    double route_heading)
+{
+    if (!anchor.HasPosition()) {
+        LogWarn << "Dynamic navmesh overlay skipped: anchor has no position." << VAR(reason) << VAR(continue_index);
+        return false;
+    }
+
+    const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
+    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    const auto route = use_detour ? PlanNavmeshDetourRoute(param_, *position_, anchor, route_heading)
+                                  : PlanNavmeshRoute(param_, position_->zone_id, start, goal);
+    if (!route) {
+        return false;
+    }
+
+    std::vector<Waypoint> generated_prefix;
+    if (!AppendGeneratedNavmeshWaypoints(route->path, generated_prefix, false)) {
+        LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
+                << VAR(route->path.points.size());
+        return false;
+    }
+    const size_t generated_count = generated_prefix.size();
+    session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
+    runtime_state_.route.Reset();
+    if (generated_count == 0 && std::hypot(anchor.x - position_->x, anchor.y - position_->y) <= ArrivalBandForStartupBypass(anchor)) {
+        runtime_state_.route.startup_anchor_pos = *position_;
+        runtime_state_.route.startup_anchor_initialized = true;
+        runtime_state_.route.startup_motion_confirmed = true;
+    }
+    runtime_state_.dynamic_replan_requested = false;
+    LogInfo << "Dynamic navmesh overlay selected." << VAR(reason) << VAR(use_detour) << VAR(continue_index)
+            << VAR(generated_count);
+    return true;
+}
+
+bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading)
+{
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    if (!anchor) {
+        runtime_state_.dynamic_replan_requested = false;
+        LogInfo << "Dynamic navmesh overlay skipped: no future anchor." << VAR(reason) << VAR(position_->x) << VAR(position_->y)
+                << VAR(position_->zone_id);
+        return false;
+    }
+    return TryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second, use_detour, route_heading);
+}
+
+bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
+{
+    if (TryApplyDynamicOverlayToNextAnchor(reason, false)) {
+        return true;
+    }
+    if (session_->HasCurrentWaypoint() && session_->CurrentWaypoint().action == ActionType::NAVMESH) {
+        return FailNavigation("dynamic_replan_failed", "Dynamic navmesh replan failed on required NAVMESH waypoint.", 0.0, 0.0, 0);
+    }
+
+    runtime_state_.dynamic_replan_requested = false;
+    runtime_state_.route.Reset();
+    session_->ResetProgress();
+    LogWarn << "Dynamic navmesh replan unavailable; falling back to current route." << VAR(reason) << VAR(position_->x)
+            << VAR(position_->y) << VAR(position_->zone_id);
+    SelectPhaseForCurrentWaypoint("dynamic_replan_fallback");
+    return true;
+}
+
 bool NavigationStateMachine::TickNavigate()
 {
     if (!session_->HasCurrentWaypoint()) {
@@ -297,6 +489,9 @@ bool NavigationStateMachine::TickNavigate()
     if (active_semantic_result.request_failure) {
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
+    if (runtime_state_.dynamic_replan_requested) {
+        return HandleDynamicReplanRequest("dynamic_replan");
+    }
     if (active_semantic_result.stay_in_current_tick) {
         return true;
     }
@@ -309,6 +504,9 @@ bool NavigationStateMachine::TickNavigate()
     const semantic_nodes::Result inline_semantic_result = semantic_nodes::ConsumeInlineSemantics(semantic_ctx);
     if (inline_semantic_result.request_failure) {
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
+    }
+    if (runtime_state_.dynamic_replan_requested) {
+        return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (inline_semantic_result.stay_in_current_tick) {
         return true;
@@ -337,86 +535,23 @@ bool NavigationStateMachine::TickNavigate()
     const bool degraded_fix =
         position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
 
+    const size_t node_idx_before_tracking = session_->current_node_idx();
     const RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
+    if (session_->current_node_idx() != node_idx_before_tracking) {
+        runtime_state_.recovery.Reset();
+    }
 
     if (route.valid) {
         session_->ObserveProgress(session_->current_node_idx(), route.progress_distance, now);
     }
     const int64_t stalled_ms = session_->StalledMs(now);
-
-    if (session_->phase() == NaviPhase::Navigate) {
-        RecoveryStatus recovery_status =
-            RecoveryManager::Tick(motion_controller_, session_, &runtime_state_, *position_, route, stalled_ms);
-
-        if (recovery_status == RecoveryStatus::TimeoutFailed) {
-            return FailNavigation(
-                "recovery_timeout",
-                "Obstacle recovery failed after 60 seconds.",
-                route.progress_distance,
-                NaviMath::NormalizeAngle(route.route_heading - current_heading),
-                60000);
-        }
-
-        if (recovery_status == RecoveryStatus::Recovered) {
-            LogInfo << "Successfully recovered from stuck. Returning control to main loop.";
-            session_->ResetProgress();
-        }
-
-        if (recovery_status == RecoveryStatus::RequestRejoin) {
-            motion_controller_->SetForwardState(false);
-            CaptureCurrentPosition(true);
-
-            size_t best_idx = 0;
-            double best_dist = std::numeric_limits<double>::infinity();
-            for (size_t i = 0; i < session_->original_path().size(); ++i) {
-                const Waypoint& wp = session_->original_path()[i];
-                if (!IsZoneCompatible(wp, position_->zone_id)) {
-                    continue;
-                }
-                const double d = std::hypot(position_->x - wp.x, position_->y - wp.y);
-                if (d < best_dist) {
-                    best_dist = d;
-                    best_idx = i;
-                }
-            }
-
-            const size_t slice_start = session_->FindRejoinSliceStart(best_idx);
-            LogInfo << "Recovery rejoin: nearest waypoint found, re-slicing route." << VAR(position_->x) << VAR(position_->y)
-                    << VAR(position_->zone_id) << VAR(best_idx) << VAR(best_dist) << VAR(slice_start);
-
-            session_->ApplyRejoinSlice(slice_start, *position_);
-            session_->ResetProgress();
-            runtime_state_.route.Reset();
-            runtime_state_.semantic.ResetTransient();
-            runtime_state_.flow.navigate_started_at = std::chrono::steady_clock::now();
-            runtime_state_.flow.last_auto_sprint_time = {};
-
-            utils::SleepFor(kStopWaitMs);
-
-            if (session_->HasCurrentWaypoint()) {
-                const Waypoint& target_wp = session_->CurrentWaypoint();
-                if (target_wp.HasPosition()) {
-                    const double rejoin_heading = NaviMath::NormalizeAngle(position_->angle);
-                    const double target_heading = NaviMath::CalcTargetRotation(position_->x, position_->y, target_wp.x, target_wp.y);
-                    const double heading_error = NaviMath::NormalizeAngle(target_heading - rejoin_heading);
-
-                    LogInfo << "Recovery rejoin: aligning heading to first waypoint." << VAR(target_heading) << VAR(rejoin_heading)
-                            << VAR(heading_error);
-
-                    if (std::abs(heading_error) > 3.0) {
-                        motion_controller_->ApplySteering(heading_error);
-                        utils::SleepFor(kWaitAfterFirstTurnMs);
-                    }
-                }
-            }
-
-            SelectPhaseForCurrentWaypoint("recovery_rejoin");
-            return true;
-        }
-
-        if (recovery_status == RecoveryStatus::InProgress) {
-            utils::SleepFor(kTargetTickMs);
-            return true;
+    if (runtime_state_.recovery.active) {
+        const bool recovery_zone_changed = !runtime_state_.recovery.anchor_pos.zone_id.empty() && !position_->zone_id.empty()
+                                           && runtime_state_.recovery.anchor_pos.zone_id != position_->zone_id;
+        const double recovery_displacement =
+            std::hypot(position_->x - runtime_state_.recovery.anchor_pos.x, position_->y - runtime_state_.recovery.anchor_pos.y);
+        if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {
+            runtime_state_.recovery.Reset();
         }
     }
 
@@ -470,6 +605,95 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
+    const bool should_try_recovery = session_->phase() == NaviPhase::Navigate && stalled_ms >= kObstacleRecoveryMinTriggerMs
+                                     && (route.progress_distance > kNoProgressMinDistance || waypoint.RequiresStrictArrival());
+    if (should_try_recovery) {
+        const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+        if (anchor) {
+            DynamicRecoveryState& recovery = runtime_state_.recovery;
+            if (!recovery.active || recovery.anchor_index != anchor->first) {
+                recovery.Reset();
+                recovery.active = true;
+                recovery.anchor_pos = *position_;
+                recovery.started_at = now;
+                recovery.anchor_index = anchor->first;
+            }
+
+            const int64_t recovery_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.started_at).count();
+            if (recovery_elapsed_ms > kDynamicRecoveryTotalTimeoutMs) {
+                return FailNavigation(
+                    "dynamic_recovery_timeout",
+                    "Dynamic recovery timeout reached and navigation was terminated.",
+                    route.progress_distance,
+                    NaviMath::NormalizeAngle(route.route_heading - current_heading),
+                    stalled_ms);
+            }
+
+            const bool retry_cooling_down = recovery.last_replan_at.time_since_epoch().count() > 0
+                                            && std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.last_replan_at).count()
+                                                   < kDynamicRecoveryRetryIntervalMs;
+            if (!retry_cooling_down) {
+                if (recovery.attempt_count >= kDynamicRecoveryMaxAttemptsPerAnchor) {
+                    return FailNavigation(
+                        "dynamic_recovery_exhausted",
+                        "Dynamic recovery attempts were exhausted and navigation was terminated.",
+                        route.progress_distance,
+                        NaviMath::NormalizeAngle(route.route_heading - current_heading),
+                        stalled_ms);
+                }
+
+                motion_controller_->SetForwardState(false);
+                if (!CaptureCurrentPosition(true) || position_provider_->LastCaptureWasHeld()
+                    || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
+                    LogWarn << "Dynamic recovery waiting for a fresh localization fix." << VAR(stalled_ms)
+                            << VAR(recovery.attempt_count);
+                    utils::SleepFor(kTargetTickMs);
+                    return true;
+                }
+
+                const std::optional<DynamicAnchor> fresh_anchor = ResolveCurrentAnchor(session_, *position_);
+                if (!fresh_anchor) {
+                    LogWarn << "Dynamic recovery skipped: no future anchor after relocalization." << VAR(position_->x)
+                            << VAR(position_->y) << VAR(position_->zone_id);
+                    utils::SleepFor(kTargetTickMs);
+                    return true;
+                }
+                if (fresh_anchor->first != recovery.anchor_index) {
+                    recovery.Reset();
+                    recovery.active = true;
+                    recovery.anchor_pos = *position_;
+                    recovery.started_at = now;
+                    recovery.anchor_index = fresh_anchor->first;
+                }
+
+                ++recovery.attempt_count;
+                recovery.last_replan_at = now;
+                if (TryApplyDynamicOverlayToAnchor(
+                        "recovery_navmesh_detour",
+                        fresh_anchor->first,
+                        fresh_anchor->second,
+                        true,
+                        route.route_heading)) {
+                    SelectPhaseForCurrentWaypoint("recovery_navmesh_detour");
+                    return true;
+                }
+
+                LogWarn << "Dynamic recovery detour attempt failed." << VAR(recovery.attempt_count) << VAR(fresh_anchor->first)
+                        << VAR(route.progress_distance) << VAR(stalled_ms);
+                if (recovery.attempt_count >= kDynamicRecoveryMaxAttemptsPerAnchor) {
+                    return FailNavigation(
+                        "dynamic_recovery_exhausted",
+                        "Dynamic recovery attempts were exhausted and navigation was terminated.",
+                        route.progress_distance,
+                        NaviMath::NormalizeAngle(route.route_heading - current_heading),
+                        stalled_ms);
+                }
+                utils::SleepFor(kTargetTickMs);
+                return true;
+            }
+        }
+    }
+
     const double heading_error = NaviMath::NormalizeAngle(route.route_heading - current_heading);
     const SteeringCommand steering = SteeringController::Update(heading_error, motion_controller_->IsMovingForward());
 
@@ -500,7 +724,7 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    if (param_.arrival_timeout > 0 && stalled_ms > param_.arrival_timeout && route.progress_distance > kNoProgressMinDistance) {
+    if (param_.arrival_timeout > 0 && stalled_ms > param_.arrival_timeout) {
         return FailNavigation(
             "no_progress_timeout",
             "No progress timeout reached and navigation was terminated.",

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <optional>
 
 #include <MaaUtils/Logger.h>
 
@@ -72,7 +73,10 @@ size_t NavigationSession::current_node_idx() const
 
 size_t NavigationSession::CurrentAbsoluteNodeIndex() const
 {
-    return path_origin_index_ + std::min(current_node_idx_, current_path_.size());
+    if (current_node_idx_ < generated_prefix_size_) {
+        return std::numeric_limits<size_t>::max();
+    }
+    return path_origin_index_ + current_node_idx_ - generated_prefix_size_;
 }
 
 bool NavigationSession::HasCanonicalFinalGoal() const
@@ -195,6 +199,21 @@ const Waypoint& NavigationSession::CurrentPathAt(size_t index) const
     return current_path_[index];
 }
 
+std::optional<size_t> NavigationSession::CanonicalIndexAtCurrent() const
+{
+    RequireCurrentWaypoint("CanonicalIndexAtCurrent");
+    return CanonicalIndexAtCurrentPath(current_node_idx_);
+}
+
+std::optional<size_t> NavigationSession::CanonicalIndexAtCurrentPath(size_t index) const
+{
+    RequireWaypointIndex(index, "CanonicalIndexAtCurrentPath");
+    if (index < generated_prefix_size_) {
+        return std::nullopt;
+    }
+    return path_origin_index_ + index - generated_prefix_size_;
+}
+
 const std::string& NavigationSession::current_zone_id() const
 {
     return current_zone_id_;
@@ -279,9 +298,26 @@ void NavigationSession::ApplyRejoinSlice(size_t slice_start, const NaviPosition&
 {
     current_path_.assign(original_path_.begin() + static_cast<std::ptrdiff_t>(slice_start), original_path_.end());
     path_origin_index_ = slice_start;
+    generated_prefix_size_ = 0;
     current_node_idx_ = 0;
     current_zone_id_ = pos.zone_id;
     ResetProgress();
+}
+
+void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
+{
+    assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
+    current_path_ = std::move(generated_prefix);
+    const size_t generated_count = current_path_.size();
+    current_path_.insert(current_path_.end(), original_path_.begin() + static_cast<std::ptrdiff_t>(continue_index), original_path_.end());
+
+    path_origin_index_ = continue_index;
+    generated_prefix_size_ = generated_count;
+    current_node_idx_ = 0;
+    current_zone_id_ = pos.zone_id;
+    ResetProgress();
+    LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size())
+            << VAR(pos.x) << VAR(pos.y) << VAR(pos.zone_id);
 }
 
 NaviPhase NavigationSession::phase() const
