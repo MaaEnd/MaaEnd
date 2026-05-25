@@ -22,28 +22,43 @@
                 ]
             }
         },
-        "post_wait_freezes": 400,
         "next": [
             "__AccountSwitchCheckInitState"
         ]
     },
     "__AccountSwitchCheckInitState": {
         "desc": "中继节点：检查是否已退出",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -300,
-                    60,
-                    300,
-                    300
-                ],
-                "template": [
-                    "AccountSwitch/LogoutButton.png"
-                ],
-                "threshold": 0.6
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "param": {
+                    "roi": [
+                        -300,
+                        60,
+                        300,
+                        300
+                    ],
+                    "template": [
+                        "AccountSwitch/LogoutButton.png"
+                    ],
+                    "threshold": 0.6
+                }
+            },
+            {
+                "recognition": "TemplateMatch",
+                "param": {
+                    "roi": [
+                        651,
+                        130,
+                        466,
+                        495
+                    ],
+                    "template": [
+                        "AccountSwitch/DropdownButton.png"
+                    ]
+                }
             }
-        },
+        ],
         "next": [
             "__AccountSwitchClickLogout",
             "__AccountSwitchFocusFormBeforeDropdown"
@@ -146,12 +161,7 @@
                 ]
             }
         },
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "click",
-            "window": "form"
-        },
+        "action": "Click",
         "post_wait_freezes": 500,
         "next": [
             "__AccountSwitchOCRSelectAccount",
@@ -287,12 +297,7 @@
                 ]
             }
         },
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "click",
-            "window": "form"
-        },
+        "action": "Click",
         "next": [
             "__AccountSwitchLoginSuccess"
         ]

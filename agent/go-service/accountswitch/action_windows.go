@@ -17,14 +17,12 @@ import (
 const (
 	swRestore = 9
 
-	wmClose       = 0x0010
-	wmMouseMove   = 0x0200
-	wmLButtonDown = 0x0201
-	wmLButtonUp   = 0x0202
+	wmClose = 0x0010
 
-	mkLButton           = 0x0001
 	mouseEventFLeftDown = 0x0002
 	mouseEventFLeftUp   = 0x0004
+
+	awarenessContextPerMonitorAwareV2 = ^uintptr(3) // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
 )
 
 var (
@@ -38,10 +36,10 @@ var (
 	procSetCursorPos        = user32.NewProc("SetCursorPos")
 	procMouseEvent          = user32.NewProc("mouse_event")
 	procSendMessageW        = user32.NewProc("SendMessageW")
-	procPostMessageW        = user32.NewProc("PostMessageW")
-	procClientToScreen      = user32.NewProc("ClientToScreen")
-	procScreenToClient      = user32.NewProc("ScreenToClient")
 	procGetClientRect       = user32.NewProc("GetClientRect")
+	procGetWindowRect       = user32.NewProc("GetWindowRect")
+	procClientToScreen      = user32.NewProc("ClientToScreen")
+	procSetThreadDpiCtx     = user32.NewProc("SetThreadDpiAwarenessContext")
 )
 
 type WindowAction struct{}
@@ -149,6 +147,12 @@ func clickWindow(ctx *maa.Context, arg *maa.CustomActionArg, targetHwnd uintptr,
 			Msg("missing recognition box for account switch window click")
 		return false
 	}
+	if ctx == nil || ctx.GetTasker() == nil || ctx.GetTasker().GetController() == nil {
+		log.Error().
+			Str("component", componentName).
+			Msg("nil controller for account switch window click")
+		return false
+	}
 
 	mainHwnd := controllerHwnd(ctx)
 	if mainHwnd == 0 || !isWindow(mainHwnd) {
@@ -170,16 +174,21 @@ func clickWindow(ctx *maa.Context, arg *maa.CustomActionArg, targetHwnd uintptr,
 		return false
 	}
 
-	ctrlWidth, ctrlHeight, err := controllerResolution(ctx)
-	if err != nil {
+	restoreDpiCtx := setDPIAware()
+	defer restoreDpiCtx()
+
+	sourceWidth, sourceHeight, err := sourceImageSize(ctx)
+	if err != nil || sourceWidth <= 0 || sourceHeight <= 0 {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
-			Msg("failed to get controller resolution")
+			Int("source_width", sourceWidth).
+			Int("source_height", sourceHeight).
+			Msg("failed to get source image size for account switch click")
 		return false
 	}
 
-	mainRect, ok := getClientRect(mainHwnd)
+	mainClientRect, ok := getClientRect(mainHwnd)
 	if !ok {
 		log.Error().
 			Str("component", componentName).
@@ -187,130 +196,93 @@ func clickWindow(ctx *maa.Context, arg *maa.CustomActionArg, targetHwnd uintptr,
 			Msg("failed to get main window client rect")
 		return false
 	}
-	targetRect, ok := getClientRect(targetHwnd)
+	mainClientOrigin := winPoint{}
+	if !clientToScreen(mainHwnd, &mainClientOrigin) {
+		log.Error().
+			Str("component", componentName).
+			Uint64("main_hwnd", uint64(mainHwnd)).
+			Msg("failed to get main window client origin")
+		return false
+	}
+	targetRect, ok := getWindowRect(targetHwnd)
 	if !ok {
 		log.Error().
 			Str("component", componentName).
 			Uint64("target_hwnd", uint64(targetHwnd)).
-			Msg("failed to get target window client rect")
+			Msg("failed to get target window rect")
 		return false
 	}
 
-	mainWidth := mainRect.Right - mainRect.Left
-	mainHeight := mainRect.Bottom - mainRect.Top
-	targetWidth := targetRect.Right - targetRect.Left
-	targetHeight := targetRect.Bottom - targetRect.Top
-	if mainWidth <= 0 || mainHeight <= 0 || targetWidth <= 0 || targetHeight <= 0 {
+	mainWidth := mainClientRect.Right - mainClientRect.Left
+	mainHeight := mainClientRect.Bottom - mainClientRect.Top
+	if mainWidth <= 0 || mainHeight <= 0 {
 		log.Error().
 			Str("component", componentName).
 			Int32("main_width", mainWidth).
 			Int32("main_height", mainHeight).
-			Int32("target_width", targetWidth).
-			Int32("target_height", targetHeight).
-			Msg("invalid client rect for account switch window click")
+			Msg("invalid main client rect for account switch click")
 		return false
 	}
 
 	boxCenterX := box.X() + box.Width()/2
 	boxCenterY := box.Y() + box.Height()/2
-	mainClient := winPoint{
-		X: scaleCoord(boxCenterX, int(ctrlWidth), mainWidth),
-		Y: scaleCoord(boxCenterY, int(ctrlHeight), mainHeight),
-	}
-	screenPoint := mainClient
-	if !clientToScreen(mainHwnd, &screenPoint) {
-		log.Error().
-			Str("component", componentName).
-			Uint64("main_hwnd", uint64(mainHwnd)).
-			Msg("failed to convert main client point to screen point")
-		return false
-	}
-	targetClient := screenPoint
-	if !screenToClient(targetHwnd, &targetClient) {
-		log.Error().
-			Str("component", componentName).
-			Uint64("target_hwnd", uint64(targetHwnd)).
-			Msg("failed to convert screen point to target client point")
-		return false
-	}
-
-	if targetClient.X < 0 || targetClient.Y < 0 || targetClient.X >= targetWidth || targetClient.Y >= targetHeight {
-		log.Error().
+	screenX := mainClientOrigin.X + scaleCoord(boxCenterX, sourceWidth, mainWidth)
+	screenY := mainClientOrigin.Y + scaleCoord(boxCenterY, sourceHeight, mainHeight)
+	if screenX < targetRect.Left || screenY < targetRect.Top || screenX >= targetRect.Right || screenY >= targetRect.Bottom {
+		log.Warn().
 			Str("component", componentName).
 			Str("window", param.Window).
 			Uint64("target_hwnd", uint64(targetHwnd)).
-			Int32("target_x", targetClient.X).
-			Int32("target_y", targetClient.Y).
-			Int32("target_width", targetWidth).
-			Int32("target_height", targetHeight).
-			Msg("mapped click point is outside target window client rect")
-		return false
+			Int32("screen_x", screenX).
+			Int32("screen_y", screenY).
+			Int32("target_left", targetRect.Left).
+			Int32("target_top", targetRect.Top).
+			Int32("target_right", targetRect.Right).
+			Int32("target_bottom", targetRect.Bottom).
+			Msg("mapped click point is outside target window rect")
 	}
 
-	clickMode := "message"
-	if param.Window == windowCombo {
-		clickMode = "cursor"
-		if !cursorClick(screenPoint) {
-			return false
-		}
-	} else if !messageClick(targetHwnd, targetClient, screenPoint) {
+	if !cursorClick(screenX, screenY) {
 		return false
 	}
 
 	log.Debug().
 		Str("component", componentName).
 		Str("window", param.Window).
-		Str("click_method", clickMode).
+		Uint64("main_hwnd", uint64(mainHwnd)).
 		Uint64("target_hwnd", uint64(targetHwnd)).
 		Int("box_x", box.X()).
 		Int("box_y", box.Y()).
 		Int("box_w", box.Width()).
 		Int("box_h", box.Height()).
-		Int32("target_x", targetClient.X).
-		Int32("target_y", targetClient.Y).
-		Msg("posted account switch window click")
+		Int("source_width", sourceWidth).
+		Int("source_height", sourceHeight).
+		Int32("main_client_left", mainClientOrigin.X).
+		Int32("main_client_top", mainClientOrigin.Y).
+		Int32("main_client_width", mainWidth).
+		Int32("main_client_height", mainHeight).
+		Int32("screen_x", screenX).
+		Int32("screen_y", screenY).
+		Msg("clicked account switch window by physical cursor")
 	return true
 }
 
-func messageClick(hwnd uintptr, clientPoint winPoint, screenPoint winPoint) bool {
-	focusWindow(hwnd)
-	// Keep the real cursor position in sync with Qt's cursor-position based hit testing.
-	if !setCursorPos(screenPoint.X, screenPoint.Y) {
-		log.Warn().
-			Str("component", componentName).
-			Int32("screen_x", screenPoint.X).
-			Int32("screen_y", screenPoint.Y).
-			Msg("failed to sync cursor position before post message click")
+func sourceImageSize(ctx *maa.Context) (int, int, error) {
+	if ctx == nil || ctx.GetTasker() == nil || ctx.GetTasker().GetController() == nil {
+		return 0, 0, fmt.Errorf("nil controller")
 	}
-
-	lparam := makeLParam(clientPoint.X, clientPoint.Y)
-	if !postMessage(hwnd, wmMouseMove, 0, lparam) {
-		return logPostMessageFailure(hwnd, wmMouseMove)
+	ctrl := ctx.GetTasker().GetController()
+	if img, err := ctrl.CacheImage(); err == nil && img != nil {
+		bounds := img.Bounds()
+		if bounds.Dx() > 0 && bounds.Dy() > 0 {
+			return bounds.Dx(), bounds.Dy(), nil
+		}
 	}
-	if !postMessage(hwnd, wmLButtonDown, mkLButton, lparam) {
-		return logPostMessageFailure(hwnd, wmLButtonDown)
+	width, height, err := ctrl.GetResolution()
+	if err != nil {
+		return 0, 0, err
 	}
-	time.Sleep(50 * time.Millisecond)
-	if !postMessage(hwnd, wmLButtonUp, 0, lparam) {
-		return logPostMessageFailure(hwnd, wmLButtonUp)
-	}
-	return true
-}
-
-func cursorClick(screenPoint winPoint) bool {
-	if !setCursorPos(screenPoint.X, screenPoint.Y) {
-		log.Error().
-			Str("component", componentName).
-			Int32("screen_x", screenPoint.X).
-			Int32("screen_y", screenPoint.Y).
-			Msg("failed to move cursor for no-focus click")
-		return false
-	}
-	time.Sleep(30 * time.Millisecond)
-	mouseEvent(mouseEventFLeftDown, 0, 0, 0, 0)
-	time.Sleep(50 * time.Millisecond)
-	mouseEvent(mouseEventFLeftUp, 0, 0, 0, 0)
-	return true
+	return int(width), int(height), nil
 }
 
 func recognitionBox(arg *maa.CustomActionArg) (maa.Rect, bool) {
@@ -339,20 +311,6 @@ func controllerHwnd(ctx *maa.Context) uintptr {
 		return 0
 	}
 	return uintptr(info.HWnd)
-}
-
-func controllerResolution(ctx *maa.Context) (int32, int32, error) {
-	if ctx == nil || ctx.GetTasker() == nil || ctx.GetTasker().GetController() == nil {
-		return 0, 0, fmt.Errorf("nil controller")
-	}
-	width, height, err := ctx.GetTasker().GetController().GetResolution()
-	if err != nil {
-		return 0, 0, err
-	}
-	if width <= 0 || height <= 0 {
-		return 0, 0, fmt.Errorf("invalid controller resolution: %dx%d", width, height)
-	}
-	return width, height, nil
 }
 
 func findWindow(className, windowName string) (uintptr, error) {
@@ -401,23 +359,9 @@ func focusWindow(hwnd uintptr) bool {
 	return ret != 0
 }
 
-func setCursorPos(x, y int32) bool {
-	ret, _, _ := procSetCursorPos.Call(uintptr(x), uintptr(y))
-	return ret != 0
-}
-
-func mouseEvent(flags, dx, dy, data, extraInfo uintptr) {
-	procMouseEvent.Call(flags, dx, dy, data, extraInfo)
-}
-
 func sendMessage(hwnd, msg, wparam, lparam uintptr) uintptr {
 	ret, _, _ := procSendMessageW.Call(hwnd, msg, wparam, lparam)
 	return ret
-}
-
-func postMessage(hwnd, msg, wparam, lparam uintptr) bool {
-	ret, _, _ := procPostMessageW.Call(hwnd, msg, wparam, lparam)
-	return ret != 0
 }
 
 func getClientRect(hwnd uintptr) (winRect, bool) {
@@ -426,14 +370,27 @@ func getClientRect(hwnd uintptr) (winRect, bool) {
 	return rect, ret != 0
 }
 
+func getWindowRect(hwnd uintptr) (winRect, bool) {
+	var rect winRect
+	ret, _, _ := procGetWindowRect.Call(hwnd, uintptr(unsafe.Pointer(&rect)))
+	return rect, ret != 0
+}
+
 func clientToScreen(hwnd uintptr, point *winPoint) bool {
 	ret, _, _ := procClientToScreen.Call(hwnd, uintptr(unsafe.Pointer(point)))
 	return ret != 0
 }
 
-func screenToClient(hwnd uintptr, point *winPoint) bool {
-	ret, _, _ := procScreenToClient.Call(hwnd, uintptr(unsafe.Pointer(point)))
-	return ret != 0
+func setDPIAware() func() {
+	if err := procSetThreadDpiCtx.Find(); err != nil {
+		return func() {}
+	}
+	oldCtx, _, _ := procSetThreadDpiCtx.Call(awarenessContextPerMonitorAwareV2)
+	return func() {
+		if oldCtx != 0 {
+			procSetThreadDpiCtx.Call(oldCtx)
+		}
+	}
 }
 
 func scaleCoord(value int, sourceSize int, targetSize int32) int32 {
@@ -443,8 +400,29 @@ func scaleCoord(value int, sourceSize int, targetSize int32) int32 {
 	return int32((int64(value)*int64(targetSize) + int64(sourceSize)/2) / int64(sourceSize))
 }
 
-func makeLParam(x, y int32) uintptr {
-	return uintptr(uint32(uint16(x)) | uint32(uint16(y))<<16)
+func cursorClick(screenX, screenY int32) bool {
+	if !setCursorPos(screenX, screenY) {
+		log.Error().
+			Str("component", componentName).
+			Int32("screen_x", screenX).
+			Int32("screen_y", screenY).
+			Msg("failed to move cursor for account switch click")
+		return false
+	}
+	time.Sleep(30 * time.Millisecond)
+	mouseEvent(mouseEventFLeftDown, 0, 0, 0, 0)
+	time.Sleep(50 * time.Millisecond)
+	mouseEvent(mouseEventFLeftUp, 0, 0, 0, 0)
+	return true
+}
+
+func setCursorPos(x, y int32) bool {
+	ret, _, _ := procSetCursorPos.Call(uintptr(x), uintptr(y))
+	return ret != 0
+}
+
+func mouseEvent(flags, dx, dy, data, extraInfo uintptr) {
+	procMouseEvent.Call(flags, dx, dy, data, extraInfo)
 }
 
 func describeWindowSelector(param windowActionParam) string {
@@ -453,13 +431,4 @@ func describeWindowSelector(param windowActionParam) string {
 		return fmt.Sprintf("window=%q", param.Window)
 	}
 	return fmt.Sprintf("window=%q class_name=%q window_name=%q", param.Window, selector.ClassName, selector.WindowName)
-}
-
-func logPostMessageFailure(hwnd uintptr, msg uintptr) bool {
-	log.Error().
-		Str("component", componentName).
-		Uint64("target_hwnd", uint64(hwnd)).
-		Uint("message", uint(msg)).
-		Msg("failed to post account switch mouse message")
-	return false
 }
