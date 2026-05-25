@@ -1,8 +1,14 @@
 {
     "source_lang": "zh_cn",
     "target_lang": "en_us",
-    "source_count": 23,
+    "source_count": 24,
     "sources": {
+        "docs/zh_cn/developers/README.md": {
+            "source_path": "docs/zh_cn/developers/README.md",
+            "relative_path": "developers/README.md",
+            "target_path": "docs/en_us/developers/README.md",
+            "source_sha256": "9a3b28061aa8bc451e7f6cc7f083ce1d18b4e865cf55cbd9c1b4801131d88c45"
+        },
         "docs/zh_cn/developers/coding-standards.md": {
             "source_path": "docs/zh_cn/developers/coding-standards.md",
             "relative_path": "developers/coding-standards.md",
@@ -49,7 +55,7 @@
             "source_path": "docs/zh_cn/developers/components/map-tracker(advanced).md",
             "relative_path": "developers/components/map-tracker(advanced).md",
             "target_path": "docs/en_us/developers/components/map-tracker(advanced).md",
-            "source_sha256": "77f1bb4a048d3cfd3af04e24531b31cae8d4e9ecc1cfa3f9219fcdcefd565451"
+            "source_sha256": "21e682c3a0015a8abf74d6ce7cba28623ef9d1c736832e9fbc7f549037c00ab3"
         },
         "docs/zh_cn/developers/components/map-tracker.md": {
             "source_path": "docs/zh_cn/developers/components/map-tracker.md",
@@ -142,5 +148,5 @@
             "source_sha256": "e17e54999a8fdeef557b11bfc3592638cee395b40b79e53c172ce28a735947b5"
         }
     },
-    "updated_at_utc": "2026-05-24T16:22:53.135930+00:00"
+    "updated_at_utc": "2026-05-25T15:05:32.296655+00:00"
 }

@@ -1,27 +1,27 @@
-# Development Guide - MapTracker Advanced Reference Document
+# Developer Manual - MapTracker Advanced Reference Document
 
 ## Introduction
 
-This document describes **advanced content** related to MapTracker. It is intended for readers who:
+This document introduces **advanced content** related to **MapTracker** components. It is suitable for the following types of readers:
 
-- Want to call the MapTracker library at the code level to implement more complex features.
-- Are maintainers of MapTracker and want to learn the daily maintenance workflow.
+- You want to call the MapTracker library at the code level to implement more complex functions;
+- You are a maintainer of MapTracker and wish to learn about its daily maintenance methods.
 
 > [!WARNING]
 >
-> If you only want to use MapTracker nodes in the pipeline with low-code, you do not need to read this advanced document. Please read [this document](./map-tracker.md) instead.
+> If you only wish to call the relevant nodes of MapTracker in a low-code manner within a pipeline, you do not need to read this advanced document. Please directly read [this document](./map-tracker.md).
 
-## Programming Node Descriptions
+## Programming Nodes Explanation
 
-The following describes programming-only nodes in MapTracker. These nodes are designed for code-level usage and are not suitable for pipeline use.
+The following will detail the programming nodes in MapTracker that cannot be used for low-code calls. These nodes are only suitable for code-level calls and should not be used in pipelines.
 
 ### Recognition: MapTrackerInfer
 
-📍Gets the player's current map name, position coordinates, and orientation.
+📍 Obtain the player's current map name, position coordinates, and orientation.
 
 > [!TIP]
 >
-> MapTracker uses an integer between $[0, 360)$ to represent the player's **orientation**, in degrees. 0° indicates facing due north, with clockwise rotation as the increasing direction.
+> MapTracker uses an integer between $[0, 360)$ to represent the player's **orientation**, in degrees. 0° indicates facing north, with clockwise rotation as the increasing direction.
 
 #### Node Parameters
 
@@ -31,63 +31,63 @@ Optional parameters:
 
 - `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
     - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
-    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).
-    - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Fourth Valley).
+    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tier maps (Tier).
+    - `^map01_lv001$`: Matches only "map01_lv001" (Valley 4 - Hub Area).
+    - `^map01_lv\\d+$`: Matches all sub-areas of "map01" (Valley 4).
 
-- `precision`: Real number between $(0, 1]$, default `0.5`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
+- `precision`: A real number between $(0, 1]$, default `0.5`. Controls the matching precision. Larger values will match map features more strictly, but may lead to slower matching; smaller values will greatly improve matching speed, but may result in incorrect results. When the number of maps to match is small (e.g., matching only one map), it is recommended to use a larger value for more accurate results.
 
-- `threshold`: Real number between $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Matching results below this value will not hit the recognition.
+- `threshold`: A real number between $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Matching results below this value will not be recognized.
 
 ### Recognition: MapTrackerBigMapInfer
 
-🗺️ Infers the map coordinate of the current viewport region on the big map and the current map scale.
+🗺️ Infer the coordinates and map zoom of the current view area in the map within the large map interface.
 
 > [!TIP]
 >
-> For the exact cropping rule of the "current viewport region", refer to the implementation details in code.
+> For the cropping rules of the 'current view area', please refer to the definition in the specific code.
 
 #### Node Parameters
 
-Please refer to the `MapTrackerBigMapInferParam` type definition in code.
+Please refer to the type definition of `MapTrackerBigMapInferParam` in the specific code.
 
-## Maintenance Guide
+## Maintenance Methods
 
-MapTracker maintenance is mainly about **updating map images**. When the game ships a new version, you need to sync the latest maps into the MapTracker image library.
+The daily maintenance of MapTracker mainly involves **updating map images**. When a new version of the game is released, the latest maps need to be synchronized to MapTracker's map image library.
 
-Currently, the map data and map images are sourced from zmdmap. You can update the map image library by running the **map fetch and generation scripts** below.
+Currently, the source of map data and map images is zmdmap. You can easily complete the map image update by running the **map fetching and generation script**.
 
-### Steps
+### Operation Steps
 
 > [!TIP]
 >
-> Running these scripts requires Python and the `opencv-python` and `PyMaxflow` dependencies.
+> Running the script requires installing Python and the `opencv-python`, `PyMaxflow` dependency libraries.
 >
 > ```bash
 > pip install opencv-python PyMaxflow
 > ```
 
-The complete steps for using the tool scripts are as follows:
+The complete operation steps of this tool script are as follows:
 
-1. Pull the latest map data from zmdmap:
+1. Fetch the latest map data from zmdmap:
 
     ```bash
     python tools/map_tracker/map_fetcher.py json -o tools/map_tracker/data
     ```
 
-2. Pull the latest Region map raw images from zmdmap (and slice them into Level images), and pull the latest Tier map raw images:
+2. Fetch the latest original images of Region maps (and cut them into several Level map images), while also fetching the latest original images of Tier maps:
 
     ```bash
     python tools/map_tracker/map_fetcher.py image -i tools/map_tracker/data -o tools/map_tracker/images
     ```
 
-3. Re-assign overlapping regions for all Level images:
+3. Perform overlap area redistribution for all Level map images:
 
     ```bash
     python tools/map_tracker/map_generator.py distinguish_levels -i tools/map_tracker/images -o tools/map_tracker/final --layout-dir tools/map_tracker/data
     ```
 
-4. Expand the canvas and overlay backgrounds for all Tier images:
+4. Perform canvas extension and background overlay for all Tier map images:
 
     ```bash
     python tools/map_tracker/map_generator.py tidy_tiers -i tools/map_tracker/images -o tools/map_tracker/final
@@ -99,34 +99,34 @@ The complete steps for using the tool scripts are as follows:
     python tools/map_tracker/map_generator.py bbox -i tools/map_tracker/final -o tools/map_tracker/final
     ```
 
-6. The images and BBox data under `tools/map_tracker/final` are the latest map image library.
+6. The images and BBox data in the resulting `tools/map_tracker/final` directory are the latest map image library.
 
-### Glossary
+### Nomenclature
 
-- Region map: A large map of a region in the game (merged from multiple Level maps).
+- Region map: Refers to the large map of an area in the game (a map formed by merging multiple Levels);
 
-- Level map: A sub-region map within a region in the game.
+- Level map: Refers to the sub-area map of an area in the game;
 
-- Tier map: A layered map used in the game.
+- Tier map: Refers to the tiered map in the game;
 
-- Overlap reassignment: To ensure the same location does not appear in two Level maps simultaneously, a max-flow/min-cut algorithm is used to allocate overlapping areas to the proper Level map.
+- Overlap area redistribution: To ensure that the same location does not appear in two Level maps simultaneously, an algorithm based on max-flow cut is used to assign the overlapping areas of multiple Levels to the appropriate Levels.
 
-- Canvas expansion: To ease coordinate computation, a Tier map canvas is expanded to the same size as its corresponding Level map.
+- Canvas extension: For ease of coordinate calculation, the canvas of the Tier map is extended to the same size as the corresponding Level map.
 
-- Background overlay: Since a Tier map is displayed on top of its corresponding Level map in the game, the Level map image is also overlaid onto the Tier map as a background to improve recognition accuracy.
+- Background overlay: Since Tier maps in the game are displayed overlaid on the corresponding Level maps, when generating Tier maps, the image content of the corresponding Level map is also overlaid onto the Tier map as a background to improve recognition accuracy.
 
-- BBox data: The bounding-box coordinates for each map image, used to reduce matching computation.
+- BBox data: Records the bounding box coordinate data of each map image, used to reduce computational load during matching.
 
-### Alternative Plan
+### Alternative Solutions
 
-If zmdmap becomes unavailable, map image updates are still possible as long as you have the following data:
+If zmdmap stops providing services due to force majeure, as long as the following data is available, the map image update can be achieved:
 
-1. Map data: Names and geometry data for all Regions and Levels.
+1. Map data: Names and geometric coordinate data of all Regions and Levels.
 
-2. Region map unpacked images: The game stores maps using a 600\*600 tile grid (original size). You may need to stitch these tiles to obtain a full Region map image.
+2. Unpacked images of Region maps: In fact, the game uses a 600\*600 grid to store map images (original size), and it may be necessary to stitch these images yourself to obtain the complete Region map images.
 
     > [!TIP]
     >
-    > In the 720P PC game, the minimap scale is 0.1625 of the original map size.
+    > In 720P PC games, the scaling factor of the mini-map is 0.1625 times the original map size.
 
-3. Tier map unpacked images and Tier ownership metadata.
+3. Unpacked images of Tier maps and Tier attribution information.
