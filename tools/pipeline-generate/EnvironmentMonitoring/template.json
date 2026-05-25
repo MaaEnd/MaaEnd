@@ -263,8 +263,8 @@
     "GoTo${Id}MapTrackerMove": {
         "desc": "前往${Name}",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": "${MapTrackerMoveParam}",
+        "custom_action": "${MapNavigationAction}",
+        "custom_action_param": "${MapNavigationParam}",
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"

@@ -12,7 +12,7 @@
             "AutoSell/SellTicketItemValleyIV.png",
             "AutoSell/SellTicketItemWuling.png"
         ],
-        "threshold": 0.9
+        "threshold": 0.8
     },
     "AutoSellStockRedistributionItemNameAreaRecognition": {
         "desc": "识别物资调度界面中的item",

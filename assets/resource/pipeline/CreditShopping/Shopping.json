@@ -512,22 +512,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    885,
-                                    535,
-                                    395,
-                                    185
-                                ],
-                                "expected": [
-                                    "今日刷新次数已用尽"
-                                ]
-                            }
-                        }
-                    },
+                    "RefreshUsedUp",
                     {
                         "recognition": {
                             "type": "And",

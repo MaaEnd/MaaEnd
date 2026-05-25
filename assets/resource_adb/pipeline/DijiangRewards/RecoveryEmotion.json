@@ -1,10 +1,22 @@
 {
-    "RecoveryEmotionBar": {
-        "roi_offset": [
-            22,
-            8,
-            59,
-            -16
+    "RecoveryEmotionTrustIcon": {
+        "roi": [
+            499,
+            203,
+            700,
+            365
         ]
+    },
+    "RecoveryEmotionNotSelect": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    56,
+                    -103,
+                    -24,
+                    0
+                ]
+            }
+        }
     }
 }

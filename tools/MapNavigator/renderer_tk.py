@@ -29,6 +29,7 @@ class MapRenderer:
 
         self.executor = ThreadPoolExecutor(max_workers=1)
         self._last_request_time = 0.0
+        self._last_request_seq = 0
         self._hq_timer: str | None = None
 
         self.view_offset_x = 0.0
@@ -47,6 +48,15 @@ class MapRenderer:
         self.view_scale = scale
         self.view_offset_x = off_x
         self.view_offset_y = off_y
+
+    def reset_view(self, clear_cache: bool = False) -> None:
+        if self._hq_timer:
+            self.root.after_cancel(self._hq_timer)
+            self._hq_timer = None
+        self._last_request_seq += 1
+        if clear_cache:
+            self.full_map_cache.clear()
+        self._clear_bg()
 
     def world_to_canvas(self, world_x: float, world_y: float) -> tuple[float, float]:
         canvas_x = (world_x + self.view_offset_x) * self.view_scale
@@ -88,6 +98,8 @@ class MapRenderer:
 
         request_time = time.time()
         self._last_request_time = request_time
+        self._last_request_seq += 1
+        request_seq = self._last_request_seq
 
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
@@ -95,10 +107,15 @@ class MapRenderer:
             return
 
         params = (zone_id, self.view_scale, self.view_offset_x, self.view_offset_y, fast)
+        rendered_view = self.last_params[:4]
+        requested_view = params[:4]
+        if self.bg_image_id is not None and rendered_view != requested_view:
+            self._clear_bg()
         if params == self.last_params:
             return
 
-        self.executor.submit(self._async_render, zone_id, canvas_width, canvas_height, fast, request_time)
+        viewport = (self.view_scale, self.view_offset_x, self.view_offset_y)
+        self.executor.submit(self._async_render, zone_id, canvas_width, canvas_height, fast, request_time, request_seq, viewport)
         if fast:
             self._hq_timer = self.root.after(150, lambda: self.request_render(zone_id, fast=False))
 
@@ -109,17 +126,22 @@ class MapRenderer:
         canvas_height: int,
         fast: bool,
         request_time: float,
+        request_seq: int,
+        viewport: tuple[float, float, float],
     ) -> None:
-        if request_time < self._last_request_time and fast:
+        if request_seq != self._last_request_seq:
             return
 
         image = self._get_map_pil(zone_id)
         if not image:
-            self.root.after(0, self._clear_bg)
+            self.root.after(0, self._clear_bg_if_current, request_seq, request_time, viewport)
             return
 
-        x0, y0 = self.canvas_to_world(0, 0)
-        x1, y1 = self.canvas_to_world(canvas_width, canvas_height)
+        view_scale, view_offset_x, view_offset_y = viewport
+        x0 = 0 / view_scale - view_offset_x
+        y0 = 0 / view_scale - view_offset_y
+        x1 = canvas_width / view_scale - view_offset_x
+        y1 = canvas_height / view_scale - view_offset_y
 
         image_width, image_height = image.size
         left = max(0, int(x0))
@@ -127,18 +149,19 @@ class MapRenderer:
         right = min(image_width, int(x1) + 1)
         bottom = min(image_height, int(y1) + 1)
         if right <= left or bottom <= top:
-            self.root.after(0, self._clear_bg)
+            self.root.after(0, self._clear_bg_if_current, request_seq, request_time, viewport)
             return
 
         cropped = image.crop((left, top, right, bottom))
-        target_width = int((right - left) * self.view_scale)
-        target_height = int((bottom - top) * self.view_scale)
+        target_width = int((right - left) * view_scale)
+        target_height = int((bottom - top) * view_scale)
         if target_width <= 0 or target_height <= 0:
             return
 
         resample = Image.Resampling.NEAREST if fast else Image.Resampling.LANCZOS
         resized = cropped.resize((target_width, target_height), resample)
-        canvas_x, canvas_y = self.world_to_canvas(left, top)
+        canvas_x = (left + view_offset_x) * view_scale
+        canvas_y = (top + view_offset_y) * view_scale
 
         self.root.after(
             0,
@@ -148,6 +171,8 @@ class MapRenderer:
             canvas_y,
             zone_id,
             request_time,
+            request_seq,
+            viewport,
             fast,
         )
 
@@ -158,9 +183,13 @@ class MapRenderer:
         canvas_y: float,
         zone_id: str,
         request_time: float,
+        request_seq: int,
+        viewport: tuple[float, float, float],
         fast: bool,
     ) -> None:
-        if request_time < self._last_request_time and fast:
+        if request_seq != self._last_request_seq or request_time < self._last_request_time:
+            return
+        if viewport != (self.view_scale, self.view_offset_x, self.view_offset_y):
             return
 
         self.render_photo = ImageTk.PhotoImage(pil_image)
@@ -171,7 +200,7 @@ class MapRenderer:
             self.canvas.coords(self.bg_image_id, canvas_x, canvas_y)
 
         self.canvas.tag_lower(self.bg_image_id)
-        self.last_params = (zone_id, self.view_scale, self.view_offset_x, self.view_offset_y, fast)
+        self.last_params = (zone_id, viewport[0], viewport[1], viewport[2], fast)
 
     def _clear_bg(self) -> None:
         if self.bg_image_id is not None:
@@ -179,3 +208,15 @@ class MapRenderer:
             self.bg_image_id = None
         self.render_photo = None
         self.last_params = (None, None, None, None, None)
+
+    def _clear_bg_if_current(
+        self,
+        request_seq: int,
+        request_time: float,
+        viewport: tuple[float, float, float],
+    ) -> None:
+        if request_seq != self._last_request_seq or request_time < self._last_request_time:
+            return
+        if viewport != (self.view_scale, self.view_offset_x, self.view_offset_y):
+            return
+        self._clear_bg()

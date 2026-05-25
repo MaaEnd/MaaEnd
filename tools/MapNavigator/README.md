@@ -7,6 +7,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 通过统一的录制连接层在 `Win32` 与 `ADB` 之间切换。
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
+- 导入 `MapTrackerMove` / `MapTrackerAssertLocation` 时自动按兼容表转换到 `MapNavigator` / `MapLocateAssertLocation` 的 Base 坐标系。
 - 导入时严格校验动作语义；未知动作会被拒绝，而不是静默降级。
 - 在跨区域边界自动将前一区域的最后一个点和后一区域的第一个点标记为 `PORTAL`。
 - GUI 动作编辑主要面向坐标点动作：`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
@@ -14,6 +15,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
+- 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线。
 
 当前需要注意：
 
@@ -122,6 +124,57 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - `target`: `[x, y, w, h]`，表示矩形判定区域。
 - 该节点是纯判定 recognition，不负责移动。
 
+## A\* 模式
+
+该模式用于直接查看 BaseNav `.nav` 路线结果，不会修改当前录制路径。
+
+### 使用方式
+
+1. 打开工具。
+2. 点击顶部 `加载 BaseNav`，工具会优先加载默认 `base.nav.gz`，缺失时回退 `base.nav`。
+3. 勾选 `A* 模式`。
+4. 选择用于显示的底图和 BaseNav zone。
+5. 在底图或红色三角面区域上左键点击起点，再点击终点。
+6. 查看绿色连线与标点结果。
+
+`Delete` 或 `清除预览` 会清空当前 A\* 预览。
+
+BaseNav 用于直接从 GLB 三角面生成寻路数据。它不是展示图，而是可直接做 A\* 的三角拓扑图，内部 magic 为 `BNAV`。
+
+默认读取：
+
+```text
+assets/resource/model/map/navmesh/base.nav.gz
+assets/resource/model/map/navmesh/base.nav      # optional local fallback
+```
+
+可选 zone：
+
+```text
+map01base
+map02base
+base01
+dung01
+```
+
+四个 zone 都会直接落到对应底图：`ValleyIV/Base.png`、`Wuling/Base.png`、`OMVBase/OMVBase01.png`、`Dung/Dung01Base.png`。
+
+在 A\* 模式点击目标点后，可以点击 `复制 NAVMESH` 复制目标式 `MapNavigateAction` 参数。该参数使用语义动作 `NAVMESH`，运行时会从当前定位位置自动寻路到 `target`，不需要手工维护 `path`：
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        720,
+        630
+    ]
+}
+```
+
+`NAVMESH` 的 `.nav` 区域由运行时根据当前定位自动推断；复制结果不需要填写 `zone_id` / `navmesh_zone`。
+
+`.nav` 只连接 GLB 自身共享/重叠边，以及同高度的小距离 component bridge；不会为了跨 level 自动补 portal 或 drop link。游戏本身分离的 level 暂保持不可达。
+
 ## 运行方式
 
 ### 1) 标准 Python
@@ -169,5 +222,6 @@ uv run main.py
 - `history_store.py`: 撤销/重做快照栈。
 - `recording_service.py`: Maa Agent 录制线程与数据采集，不再直接耦合具体 controller 类型。
 - `renderer_tk.py`: 地图底图异步渲染。
-- `model.py`: 路径数据结构、动作类型与轨迹简化算法。
+- `basenav_preview.py`: BaseNav `.nav` 路线预览读取与 GUI 预览计算。
+- `model.py`: 路径数据结构、动作类型与路径规范化工具。
 - `runtime.py`: 项目路径定位与 maafw 运行时加载。

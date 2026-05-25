@@ -13,6 +13,7 @@ from pathlib import Path
 import time
 
 from cli_support import Console, init_localization
+import dep_3rdparty
 
 
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
@@ -177,16 +178,36 @@ def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
     return run_command([sys.executable, str(script_path)])
 
 
-def bootstrap_3rdparty(update: bool = False) -> bool:
-    """委托给 tools/3rdparty_download.py，统一拉取 3rdparty 二进制 SDK（目前仅 WebView2）。
+_dep_3rdparty_inited = False
 
-    具体下载逻辑、缓存策略、平台判断都在 3rdparty_download.py 内部，本函数仅做编排。
+
+def bootstrap_3rdparty(update: bool = False) -> bool:
+    """委托给 tools/dep_3rdparty.py，统一拉取 3rdparty 二进制 SDK（目前仅 WebView2）。
+
+    直接 in-process 调用，跳过情形下不再启动 Python 子进程；当依赖已经齐备时只产出
+    一行日志，体感上对齐 maafw/mxu 那条路径。具体下载逻辑、缓存策略、平台判断仍在
+    dep_3rdparty.py 内部，本函数只做编排。
     """
-    script_path = PROJECT_BASE / "tools" / "3rdparty_download.py"
-    cmd = [sys.executable, str(script_path), "--all"]
-    if update:
-        cmd.append("--update")
-    return run_command(cmd)
+    global _dep_3rdparty_inited
+    try:
+        if not _dep_3rdparty_inited:
+            # 常规 import 不会触发 dep_3rdparty 自身的 `if __name__ == '__main__'` 引导，
+            # 需要手动给它初始化一次 locale，否则 t() 拿到的还是 raw key。
+            dep_3rdparty.init_local()
+            _dep_3rdparty_inited = True
+        return dep_3rdparty.download_all(skip_if_exist=not update)
+    except Exception as exc:
+        traceback.print_exc()
+        print(
+            Console.err(
+                t(
+                    "err_bootstrap_3rdparty_failed",
+                    exc_type=type(exc).__name__,
+                    error=exc,
+                )
+            )
+        )
+        return False
 
 
 def run_build_script() -> bool:

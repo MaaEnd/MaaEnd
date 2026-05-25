@@ -23,7 +23,7 @@
             "__SceneImageCheckDialogIn"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "正在检查画面"
+            "Node.Recognition.Succeeded": "正在检查画面，提示登出账号是正常现象，会自动取消"
         }
     },
     "__SceneImageCheckDialogIn": {

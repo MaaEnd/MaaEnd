@@ -105,6 +105,9 @@ constexpr int32_t kSevereDivergenceStallMs = 800;
 constexpr int32_t kPostTurnForwardCommitMs = 500;
 constexpr double kPostTurnForwardCommitMinDegrees = 15.0;
 
+constexpr const char* kDefaultNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav";
+constexpr const char* kDefaultCompressedNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav.gz";
+
 constexpr const char* kDefaultCollectEntry = "AutoCollectClickStart";
 constexpr const char* kCollectPipelineOverride = R"({"AutoCollectClickEnd":{"next":[]}})";
 constexpr int32_t kCollectPostSleepMs = 80;

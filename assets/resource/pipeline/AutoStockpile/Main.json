@@ -5,6 +5,24 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockpileEnterRegionalDevelopment",
+            "AutoStockpileStart"
+        ]
+    },
+    "AutoStockpileEnterRegionalDevelopment": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopment"
+                    ]
+                }
+            }
+        },
+        "next": [
             "AutoStockpileGetUid"
         ]
     },
@@ -69,29 +87,23 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockpileGetUid": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    60,
-                    690,
-                    120,
-                    25
-                ],
-                "order_by": "Length"
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoStockpile.CaptureUid"
-            }
-        },
+    "AutoStockpileStart": {
         "next": [
             "[JumpBack]AutoStockpileElasticValleyIV",
             "[JumpBack]AutoStockpileElasticWuling",
             "AutoStockpileDone"
+        ]
+    },
+    "AutoStockpileGetUid": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid",
+                "custom_action_param": {}
+            }
+        },
+        "next": [
+            "AutoStockpileStart"
         ]
     }
 }

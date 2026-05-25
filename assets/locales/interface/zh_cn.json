@@ -634,6 +634,12 @@
     "option.CrisisDrills.AdvancedProgression3.label": "高阶培养Ⅲ（快子遴捡晶格）",
     "option.CrisisDrills.AdvancedProgression4.label": "高阶培养Ⅳ（象限拟合液）",
     "option.CrisisDrills.AdvancedProgression5.label": "高阶培养Ⅴ（三相纳米片）",
+    "option.ProtocolSpaceLevel.label": "选择协议空间等级",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label": "一级",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label": "二级",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label": "三级",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel04.label": "四级",
+    "option.ProtocolSpaceLevel.case.ProtocolSpaceLevel05.label": "五级",
     "option.OperatorEXPRewardsSetOption.cases.AdvancedCombatRecord.label": "A.高级作战记录",
     "option.OperatorEXPRewardsSetOption.cases.CognitiveCarriers.label": "B.高级认知载体、初级认知载体",
     "option.PromotionsRewardsSetOption.cases.Protodisk.label": "A.协议圆盘",
@@ -942,5 +948,9 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站",
     "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看",
     "task.ResourceRecycleStation.focus.Found": "发现资源回收站",
-    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源"
+    "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源",
+    "task.AccountSwitch.label": "自动切换账号",
+    "task.AccountSwitch.description": "自动登出当前账号并切换到指定账号的后四位",
+    "option.AccountSwitchLastFourDigits.label": "目标账号后四位",
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "输入账号后四位"
 }

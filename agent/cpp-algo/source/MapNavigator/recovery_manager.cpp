@@ -1,8 +1,9 @@
 #include <cmath>
 
+#include <MaaUtils/Logger.h>
+
 #include "navi_config.h"
 #include "recovery_manager.h"
-#include <MaaUtils/Logger.h>
 
 namespace mapnavigator
 {

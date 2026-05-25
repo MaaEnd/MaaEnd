@@ -248,70 +248,91 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 		return fmt.Errorf("failed to load zoom-out template: %w", err)
 	}
 
-	ctrl.PostScreencap().Wait()
-	img, err := ctrl.CacheImage()
-	if err != nil {
-		return fmt.Errorf("failed to get cached image for auto zoom: %w", err)
-	}
-	if img == nil {
-		return fmt.Errorf("cached image is nil for auto zoom")
-	}
+	const zoomLevelTarget = 0.7
+	triedAgain := false
+	for {
+		ctrl.PostScreencap().Wait()
+		img, err := ctrl.CacheImage()
+		if err != nil {
+			return fmt.Errorf("failed to get cached image for auto zoom: %w", err)
+		}
+		if img == nil {
+			return fmt.Errorf("cached image is nil for auto zoom")
+		}
 
-	screen := minicv.ImageConvertRGBA(img)
-	searchArea := [4]int{
-		int(math.Round(ZOOM_BUTTON_AREA_X)),
-		int(math.Round(ZOOM_BUTTON_AREA_Y)),
-		int(math.Round(ZOOM_BUTTON_AREA_W)),
-		int(math.Round(ZOOM_BUTTON_AREA_H)),
-	}
-	screenIntegral := minicv.GetIntegralArray(screen)
+		screen := minicv.ImageConvertRGBA(img)
+		searchArea := [4]int{
+			int(math.Round(ZOOM_BUTTON_AREA_X)),
+			int(math.Round(ZOOM_BUTTON_AREA_Y)),
+			int(math.Round(ZOOM_BUTTON_AREA_W)),
+			int(math.Round(ZOOM_BUTTON_AREA_H)),
+		}
+		screenIntegral := minicv.GetIntegralArray(screen)
 
-	zoomOutX, zoomOutY, outVal := minicv.MatchTemplateInArea(
-		screen,
-		screenIntegral,
-		zoomOutTemplate.Image,
-		zoomOutTemplate.Stats,
-		searchArea,
-	)
-	zoomInX, zoomInY, inVal := minicv.MatchTemplateInArea(
-		screen,
-		screenIntegral,
-		zoomInTemplate.Image,
-		zoomInTemplate.Stats,
-		searchArea,
-	)
+		zoomOutX, zoomOutY, outVal := minicv.MatchTemplateInArea(
+			screen,
+			screenIntegral,
+			zoomOutTemplate.Image,
+			zoomOutTemplate.Stats,
+			searchArea,
+		)
+		zoomInX, zoomInY, inVal := minicv.MatchTemplateInArea(
+			screen,
+			screenIntegral,
+			zoomInTemplate.Image,
+			zoomInTemplate.Stats,
+			searchArea,
+		)
 
-	outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
-	inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
+		outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
+		inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
 
-	if outMatched && inMatched {
-		cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
-		cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*0.7))
-		ca.TouchClick(0, cx, cy, 100, 0)
-		time.Sleep(333 * time.Millisecond) // Wait for UI response
-		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
-		return nil
-	}
-	if !outMatched && !inMatched {
-		log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("No zoom button matched for auto zoom")
-		return nil
-	}
+		if outMatched && inMatched {
+			// Good case: both zoom-out and zoom-in buttons are detected, likely showing the zoom slider,
+			// we can click the slider area to adjust zoom level precisely.
+			cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
+			cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*zoomLevelTarget))
+			ca.TouchClick(0, cx, cy, 100, 250)
+			time.Sleep(250 * time.Millisecond) // Wait for UI response
 
-	pressZoomButton := func(matchX, matchY float64, tpl *image.RGBA) {
-		cx := int(math.Round(matchX + float64(tpl.Rect.Dx())/2.0))
-		cy := int(math.Round(matchY + float64(tpl.Rect.Dy())/2.0))
-		ca.TouchClick(0, cx, cy, 200, 0)
-		time.Sleep(333 * time.Millisecond) // Wait for UI response
-	}
+			log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
+			return nil // Finished auto zoom
 
-	if outMatched {
-		pressZoomButton(zoomOutX, zoomOutY, zoomOutTemplate.Image)
-		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-out button")
-	} else {
-		pressZoomButton(zoomInX, zoomInY, zoomInTemplate.Image)
-		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-in button")
+		} else if !outMatched && !inMatched {
+			// Worst case: neither zoom-out nor zoom-in button is detected,
+			// just skip auto zoom to avoid wrong operation.
+			log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("No zoom button matched for auto zoom")
+			return nil // Skipped auto zoom
+
+		} else {
+			// Not good case: only one of the two buttons is detected, due to the current zoom level hit the limit,
+			// we can press the detected button to adjust zoom blindly, then start another round of detection.
+
+			pressZoomButton := func(matchX, matchY float64, tpl *image.RGBA) {
+				cx := int(math.Round(matchX + float64(tpl.Rect.Dx())/2.0))
+				cy := int(math.Round(matchY + float64(tpl.Rect.Dy())/2.0))
+				ca.TouchClick(0, cx, cy, 100, 250)
+				ctrl.PostTouchMove(0, 1, 1, 0).Wait() // Move mouse to the corner to avoid blocking the button
+				time.Sleep(250 * time.Millisecond)    // Wait for UI response
+			}
+
+			if outMatched {
+				pressZoomButton(zoomOutX, zoomOutY, zoomOutTemplate.Image)
+				log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-out button")
+			} else {
+				pressZoomButton(zoomInX, zoomInY, zoomInTemplate.Image)
+				log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-in button")
+			}
+
+			if triedAgain {
+				log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Still only one button appeared, giving up auto zoom")
+				return nil // Avoid infinite loop, give up after trying again
+			} else {
+				triedAgain = true
+				continue
+			}
+		}
 	}
-	return nil
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {

@@ -3,6 +3,7 @@ package creditshopping
 import (
 	"image"
 	"sort"
+	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -161,20 +162,24 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 	start := slotStartForMode(mode)
 	out := make([]SlotRecord, 0, len(picked))
 	for i, hit := range picked {
-		itemID, ok := matchCreditItemID(hit.Text)
-		if !ok {
+		name := strings.TrimSpace(hit.Text)
+		itemID, matched := matchCreditItemID(name)
+		if !matched {
 			log.Warn().
 				Str("component", component).
 				Int("slot", start+i).
-				Str("ocr_text", hit.Text).
-				Msg("shelf scan: unmatched item name, skip slot")
-			continue
+				Str("name", name).
+				Msg("shelf scan: unmatched item name, record without id")
 		}
-		out = append(out, SlotRecord{
+		rec := SlotRecord{
 			Slot:     start + i,
-			ItemID:   itemID,
+			Name:     name,
 			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
-		})
+		}
+		if matched {
+			rec.ID = itemID
+		}
+		out = append(out, rec)
 	}
 	return out
 }

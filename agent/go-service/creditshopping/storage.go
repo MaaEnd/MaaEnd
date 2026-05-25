@@ -12,7 +12,7 @@ import (
 const (
 	shelfSnapshotFileName = "CreditShoppingShelfSnapshots.json"
 	maxSnapshotRecords    = 400
-	schemaVersion         = 1
+	schemaVersion         = 2
 )
 
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
@@ -106,7 +106,32 @@ func readSnapshotFile(path string) (snapshotFile, error) {
 	if err := json.Unmarshal(b, &s); err != nil {
 		return snapshotFile{}, fmt.Errorf("parse snapshot file: %w", err)
 	}
+	migrateSnapshotFile(&s)
 	return s, nil
+}
+
+// migrateSnapshotFile 将 schema_version<2 的记录就地升级为 v2（补 name、提升版本号）。
+func migrateSnapshotFile(s *snapshotFile) {
+	if s == nil || s.SchemaVersion >= schemaVersion {
+		return
+	}
+	oldVersion := s.SchemaVersion
+	namesFilled := 0
+	for i := range s.Records {
+		for j := range s.Records[i].Slots {
+			if migrateSlotRecord(&s.Records[i].Slots[j]) {
+				namesFilled++
+			}
+		}
+	}
+	s.SchemaVersion = schemaVersion
+	log.Info().
+		Str("component", component).
+		Int("from_schema_version", oldVersion).
+		Int("to_schema_version", schemaVersion).
+		Int("records", len(s.Records)).
+		Int("names_filled", namesFilled).
+		Msg("credit shopping shelf snapshots migrated")
 }
 
 func writeFileAtomic(path string, content []byte, perm os.FileMode) error {

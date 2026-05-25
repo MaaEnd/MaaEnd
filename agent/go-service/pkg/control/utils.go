@@ -67,34 +67,6 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 	return "", fmt.Errorf("unsupported controller type: %s", info.Type)
 }
 
-// GetWin32HWnd returns the HWND that a Win32 controller is attached to.
-//
-// See MaaFramework's Win32ControlUnitMgr::get_info, which serializes `{"type":"win32","hwnd":<uint64>,...}`.
-func GetWin32HWnd(ctrl *maa.Controller) (uintptr, error) {
-	if ctrl == nil {
-		return 0, fmt.Errorf("nil controller")
-	}
-	infoStr, err := ctrl.GetInfo()
-	if err != nil {
-		return 0, fmt.Errorf("failed to get controller info: %w", err)
-	}
-	if infoStr == "" {
-		return 0, fmt.Errorf("empty controller info")
-	}
-
-	var info maaControllerInfoDto
-	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
-		return 0, fmt.Errorf("failed to parse controller info: %w", err)
-	}
-	if info.Type != CONTROL_TYPE_WIN32 {
-		return 0, fmt.Errorf("controller type is %q, not win32", info.Type)
-	}
-	if info.HWnd == 0 {
-		return 0, fmt.Errorf("controller info has no hwnd field or hwnd is zero")
-	}
-	return uintptr(info.HWnd), nil
-}
-
 /* ******** Screen Diagonal Size ******** */
 
 // GetScreenDiagonalSize calculates the diagonal size of the screen based on the controller's raw resolution,

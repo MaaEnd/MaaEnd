@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
@@ -9,6 +10,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoaltclick"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
@@ -58,6 +60,8 @@ func registerAll() {
 	schedule.Register()
 
 	// Business Custom
+	accountswitch.Register()
+	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
 	puzzle.Register()

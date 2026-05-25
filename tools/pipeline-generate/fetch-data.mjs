@@ -12,7 +12,10 @@ import {dataDir} from "./utils/paths.mjs";
 const VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version";
 const DATA_BASE_URL = "https://assets.zmdmap.com/data/entity";
 
-const DATA_FILES = ["settlement_trade.json"];
+const DATA_FILES = [
+    "settlement_trade.json",
+    "kite_station_i18n.json",
+];
 
 const VERSION_FILE = "version.txt";
 const force = process.argv.includes("--force");
@@ -92,7 +95,7 @@ async function main() {
         console.log("[fetch-data] 本地无缓存，开始下载...");
     }
 
-    const version = latestVersion ?? await fetchLatestVersion();
+    const version = latestVersion ?? (await fetchLatestVersion());
     await fetchAndCache(version);
     console.log(`[fetch-data] 完成，当前版本: v${version}`);
 }

@@ -10,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from maptracker_compat import convert_maptracker_points_to_mapnavigator, convert_maptracker_rect
 from model import (
     ACTION_NAME_LOOKUP,
     ActionType,
@@ -41,9 +42,22 @@ class ImportedRoute:
     points: list[PathPoint]
     route_count: int
     source_has_zone_info: bool
+    converted_maptracker_point_count: int = 0
 
 
-def load_points_from_json_file(file_path: str | Path, apply_zone_inference: bool = True) -> ImportedRoute:
+@dataclass(frozen=True)
+class ImportedAssertLocation:
+    zone_id: str
+    target: tuple[float, float, float, float]
+    condition_count: int
+    converted_from_maptracker: bool = False
+
+
+def load_points_from_json_file(
+    file_path: str | Path,
+    apply_zone_inference: bool = True,
+    apply_maptracker_compat: bool = True,
+) -> ImportedRoute:
     data = load_jsonc(file_path)
     routes = discover_path_routes(data)
     if not routes:
@@ -51,13 +65,25 @@ def load_points_from_json_file(file_path: str | Path, apply_zone_inference: bool
 
     selected_route = max(routes, key=len)
     source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
+    converted_count = 0
+    if apply_maptracker_compat:
+        selected_route, converted_count = convert_maptracker_points_to_mapnavigator(selected_route)
     if apply_zone_inference:
         selected_route = infer_missing_zones(selected_route)
     return ImportedRoute(
         points=normalize_path_points(selected_route),
         route_count=len(routes),
         source_has_zone_info=source_has_zone_info,
+        converted_maptracker_point_count=converted_count,
     )
+
+
+def load_assert_location_from_json_file(file_path: str | Path) -> ImportedAssertLocation:
+    data = load_jsonc(file_path)
+    assert_locations = discover_assert_locations(data)
+    if not assert_locations:
+        raise ValueError("未找到可识别的 AssertLocation 数据")
+    return assert_locations[0]
 
 
 def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int | float | str | bool]]:
@@ -124,6 +150,12 @@ def discover_path_routes(data: Any) -> list[list[PathPoint]]:
     routes: list[list[PathPoint]] = []
     _walk_json_node(data, routes, zone_hint="")
     return routes
+
+
+def discover_assert_locations(data: Any) -> list[ImportedAssertLocation]:
+    assert_locations: list[ImportedAssertLocation] = []
+    _walk_assert_location_node(data, assert_locations)
+    return assert_locations
 
 
 def infer_missing_zones(points: list[PathPoint]) -> list[PathPoint]:
@@ -248,6 +280,88 @@ def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) ->
 
         for item in node:
             _walk_json_node(item, routes, zone_hint)
+
+
+def _walk_assert_location_node(node: Any, assert_locations: list[ImportedAssertLocation]) -> None:
+    if isinstance(node, dict):
+        parsed = _parse_assert_location_node(node)
+        if parsed is not None:
+            assert_locations.append(parsed)
+
+        for value in node.values():
+            _walk_assert_location_node(value, assert_locations)
+        return
+
+    if isinstance(node, list):
+        for item in node:
+            _walk_assert_location_node(item, assert_locations)
+
+
+def _parse_assert_location_node(node: dict[str, Any]) -> ImportedAssertLocation | None:
+    custom_recognition = node.get("custom_recognition")
+    if custom_recognition == "MapTrackerAssertLocation":
+        param = node.get("custom_recognition_param")
+        if not isinstance(param, dict):
+            return None
+        return _parse_maptracker_assert_param(param)
+
+    if custom_recognition == "MapLocateAssertLocation":
+        param = node.get("custom_recognition_param")
+        if not isinstance(param, dict):
+            return None
+        return _parse_maplocate_assert_param(param)
+
+    if node.get("recognition") == "Custom":
+        return None
+
+    return _parse_maptracker_assert_param(node)
+
+
+def _parse_maptracker_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
+    expected = param.get("expected")
+    if not isinstance(expected, list) or not expected:
+        return None
+
+    for condition in expected:
+        if not isinstance(condition, dict):
+            continue
+
+        map_name = normalize_zone_id(condition.get("map_name", ""))
+        target = _parse_rect(condition.get("target"))
+        if not map_name or target is None:
+            continue
+
+        converted = convert_maptracker_rect(map_name, target)
+        if converted is None:
+            return ImportedAssertLocation(map_name, target, len(expected), converted_from_maptracker=False)
+
+        zone_id, converted_target = converted
+        return ImportedAssertLocation(zone_id, converted_target, len(expected), converted_from_maptracker=True)
+
+    return None
+
+
+def _parse_maplocate_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
+    zone_id = normalize_zone_id(param.get("zone_id", ""))
+    target = _parse_rect(param.get("target"))
+    if not zone_id or target is None:
+        return None
+    return ImportedAssertLocation(zone_id, target, 1, converted_from_maptracker=False)
+
+
+def _parse_rect(value: Any) -> tuple[float, float, float, float] | None:
+    if not isinstance(value, list) or len(value) != 4:
+        return None
+
+    numbers: list[float] = []
+    for item in value:
+        number = _as_float(item)
+        if number is None:
+            return None
+        numbers.append(number)
+    if numbers[2] <= 0.0 or numbers[3] <= 0.0:
+        return None
+    return numbers[0], numbers[1], numbers[2], numbers[3]
 
 
 def _parse_route(node: Any, zone_hint: str) -> list[PathPoint] | None:

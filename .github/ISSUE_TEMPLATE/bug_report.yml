@@ -37,7 +37,9 @@ body:
     id: screenshot
     attributes:
       label: 软件画面截图
-      description: 请提供出现问题时完整的 MaaEnd 软件画面截图。
+      description: |
+        请提供出现问题时完整的 MaaEnd 软件画面截图。
+        ❌ 不要留空。
     validations:
       required: true
 
@@ -45,38 +47,8 @@ body:
     id: game_screenshot
     attributes:
       label: 游戏画面截图
-      description: 请提供出现问题时的游戏画面截图，以便定位识别或操作相关问题。
+      description: |
+        请提供出现问题时的游戏画面截图，以便定位识别或操作相关问题。
+        ❌ 不要留空。
     validations:
       required: true
-
-  - type: textarea
-    id: version
-    attributes:
-      label: 版本信息截图
-      description: 请提供 MaaEnd - 设置 - 调试 - 版本信息 截图。
-    validations:
-      required: true
-
-  - type: textarea
-    id: draw_images
-    attributes:
-      label: 调试图片 (仅识别问题)
-      description: 上传 `debug/vision/` 目录下对应的调试图片。
-    validations:
-      required: false
-
-  - type: textarea
-    id: crash_dumps
-    attributes:
-      label: dmp 文件 (仅崩溃闪退问题)
-      description: 上传 `C:\Users\<用户名>\AppData\Local\CrashDumps\` 和 `C:\CrashDumps` 目录下最近生成的 `.dmp` 文件。
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: 其他信息
-      description: 其他可能有帮助的信息，如运行环境、原始截图等。
-    validations:
-      required: false

@@ -13,14 +13,25 @@
             "EnterMap",
             "MapName",
             "MapTarget",
-            "MapPath",
             "CameraSwipeDirection"
+        ],
+        "oneOf": [
+            {
+                "required": [
+                    "MapPath"
+                ]
+            },
+            {
+                "required": [
+                    "NavMeshTarget"
+                ]
+            }
         ],
         "properties": {
             "Name": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点中文名，用于在 data.mjs 中匹配 kite_station.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
+                "description": "观察点中文名，用于在 data.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
             },
             "EnterMap": {
                 "type": "string",
@@ -55,7 +66,7 @@
             },
             "MapPath": {
                 "type": "array",
-                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 NavMeshTarget 二选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
                 "minItems": 1,
                 "items": {
                     "type": "array",
@@ -66,6 +77,15 @@
                     "minItems": 2,
                     "maxItems": 2
                 }
+            },
+            "NavMeshTarget": {
+                "type": "array",
+                "description": "Navmesh 目标点 [x, y]，由 MapNavigateAction 的 NAVMESH 语义节点自动规划路线。与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。",
+                "items": {
+                    "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
             },
             "CameraSwipeDirection": {
                 "type": "string",
@@ -91,7 +111,7 @@
             "Id": {
                 "type": "string",
                 "pattern": "^[A-Za-z][A-Za-z0-9]*$",
-                "description": "可选；默认从 kite_station.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
+                "description": "可选；默认从 zmdmap 缓存数据 kite_station_i18n.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
             },
             "NoEnsureInitialMovementState": {
                 "type": "boolean",

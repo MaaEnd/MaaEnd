@@ -5,6 +5,7 @@
 
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
+#include "MapNavigator/MapNavigatorCompatible.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "Test/test.h"
@@ -33,7 +34,12 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "MapNavigatorAssertLocationCompatible",
+        mapnavigator::MapNavigatorAssertLocationCompatibleRun,
+        nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];

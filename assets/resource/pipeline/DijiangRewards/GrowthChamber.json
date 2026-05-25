@@ -116,7 +116,15 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    9,
+                    9,
+                    -17,
+                    -15
+                ]
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,

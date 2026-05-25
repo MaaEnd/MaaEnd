@@ -1,5 +1,21 @@
 # Coding standards
 
+## AI programming standards
+
+### Do not use AI blindly for development
+
+- Giving AI vague instructions such as “implement feature X and open a PR” or “fix this bug and open a PR” without understanding the work.
+- Using AI to generate large amounts of unmaintainable, opaque “black box” code in critical modules—for example pointless over-abstraction, or thousands of lines of Go/C++ for a simple feature.
+- Submitting code in critical modules that you do not understand and cannot control.
+
+_Custom code is usually maintainable only by the author who wrote it. If the author cannot read it, nobody can extend it—let alone fix bugs. Do not mindlessly let AI take full responsibility for fixes without reviewing or understanding the changes; moreover, fully offloading work to AI still has a low success rate in this project._
+
+### Recommended way to use AI
+
+- Learn this project’s coding standards first; do your own architecture, or use AI suggestions as a reference.
+- Use AI for targeted, incremental development, and review generated code yourself to ensure it matches intent.
+- Submit a PR only after you are confident the changes are correct.
+
 ## Pipeline low-code standards
 
 ### Naming: PascalCase
@@ -30,15 +46,35 @@ Every action must be grounded in recognition.
 
 **Bad:** recognize once → tap A → tap B → tap C
 
-_You cannot assume the screen stays the same after A—e.g. a gacha banner might appear and the next tap hits the wrong UI._
+For example:
 
-### Do not double-tap blindly
+1. During UI navigation: recognize the navigation button → tap it → recognize that the screen has finished transitioning.  
+   _You cannot assume the screen stays the same after tapping a close button. In extreme cases the game may show a new banner pool notice; tapping the next node directly might hit the gacha screen._  
+   _You cannot assume no background loading is needed during a screen transition—the screen may freeze; tapping the next node directly may do nothing._
 
-Use `pre_wait_freezes` / `post_wait_freezes` to wait for a stable frame, or insert intermediate nodes so a button is confirmed clickable. A second tap may already apply to the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816).
+2. When tapping buttons that change account data: recognize the submit button → tap it → recognize that the tap succeeded.  
+   _You cannot assume every user has smooth network connectivity. If the button tap never reaches the server, the whole UI may freeze and ignore further taps._
+
+### Do not blindly retry or add limits
+
+**Recommended:** When you hit a bug, find the root cause—down to which node failed, which recognition missed, what in-game trigger caused a mis-tap or no response—and fix recognition or action on that node.
+
+**Forbidden:** Retry the same operation, or blindly add `max_hit`.
+
+For example:
+
+1. Tap again when the first tap had no effect.  
+   _Use `pre_wait_freezes` / `post_wait_freezes` to wait for a stable frame, or insert intermediate nodes so a button is confirmed clickable. A second tap may already apply to the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)._
+
+2. Re-run a sub-task after it failed.  
+   _Retries only slightly improve success rate; they do not fix the root issue and make the code hard to maintain—eventually you get “try B if A fails, try C if B fails, retry A 3 times, B 2 times,” and problems become hard to pinpoint._
+
+3. Add `max_hit` when a node loops forever.  
+   _Infinite loops are usually recognition or logic bugs; blindly adding `max_hit` just aborts the flow—like throwing an exception to exit the task—with unpredictable consequences._
 
 ### Handle pop-ups and loading
 
-A solid flow handles the happy path **and** pop-ups, loading, and “wrong scene” recovery.
+A good flow is not just “the main path runs”—it must handle the main path, pop-ups, loading waits, and automatically recover when not in the target scene.
 
 Common `next` hooks:
 
@@ -50,10 +86,6 @@ Common `next` hooks:
 
 Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. For fragments or hand-written regex, use `// @i18n-skip`. See [OCR & i18n](#ocr--i18n) below.
 
-### Color matching: prefer HSV / grayscale
-
-Different GPUs render slightly differently; raw RGB is unstable across devices. See [Color matching: HSV first](#color-matching-hsv-first) under Resource standards.
-
 ### Reuse before adding
 
 Before writing a new node, check the [components guide](./components-guide.md) for existing capabilities.
@@ -64,13 +96,14 @@ Go Service is for recognition or interaction that Pipeline cannot express well.*
 
 Example: in a shopping task, Go may compare prices or iterate items; opening details, tapping buy, and returning to the list stay in Pipeline.
 
-**Pipeline owns the flow; Go owns the hard parts.**
+**Pipeline owns the flow; Go owns the hard parts.**  
+_Unnecessary Go logic greatly increases complexity, makes debugging very hard for the next developer, and cross-platform adaptation much harder._
 
 ## Cpp Algo standards
 
 Cpp Algo can use OpenCV and ONNX Runtime, but only for single recognition algorithms. Prefer Go Service for operations and business glue.
 
-Other rules: [MaaFramework AGENTS.md](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md).
+Other rules: [MaaFramework development standards](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83).
 
 ## Pre-submit checks
 
@@ -142,12 +175,6 @@ python tools/build_and_install.py --cpp-algo
 ### Resolution: 720p baseline
 
 All images and coordinates (`roi`, `target`, `box`) use **1280×720** as the design resolution. MaaFramework scales at runtime. Use dev tools for screenshots and coordinate conversion.
-
-<a id="color-matching-hsv-first"></a>
-
-### Color matching: HSV first
-
-Vendor GPUs (NVIDIA, AMD, Intel) differ; raw RGB is unstable across devices. Prefer fixing hue in HSV and tuning saturation/brightness.
 
 ### HDR / color management
 

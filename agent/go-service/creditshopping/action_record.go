@@ -4,6 +4,7 @@ import (
 	"image"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -11,7 +12,7 @@ import (
 const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
 
 // RecordShelfSnapshotsAction 信用点商店货架库存快照：
-//  1. OCR UID 与 RefreshCost，推断本地游戏日（04:00 切日）与第几次刷新；
+//  1. 经 captureuid 获取 UID 与 RefreshCost，推断本地游戏日（04:00 切日）与第几次刷新；
 //  2. PC 一屏 7+3；ADB 两屏各一排（首屏 slot 0–5 含折扣，滑动后 slot 6–9 含折扣）；
 //  3. 以 uid + game_date + refresh_index 为键写入 JSON，键冲突则覆盖。
 type RecordShelfSnapshotsAction struct{}
@@ -52,7 +53,11 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		slots = ScanShelfSlotsPC(ctx, first)
 	}
 
-	uid := uidFromImage(ctx, imgForMeta)
+	uid, err := captureuid.Capture(ctx, ctrl, true, true, true)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("record shelf: uid capture failed")
+		return false
+	}
 	refreshIndex, refreshCost := resolveRefreshIndex(ctx, imgForMeta)
 	entry := snapshotEntry{
 		UID:          uid,

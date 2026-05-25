@@ -50,7 +50,7 @@
                 "template": "Valuables/EmergencySpBooster.png",
                 "green_mask": true,
                 "threshold": 0.84,
-                "order_by": "Score"
+                "order_by": "Vertical"
             }
         },
         "action": "Click",
@@ -98,7 +98,7 @@
                 "template": "Valuables/EmergencySpBoosterExpireSoon.png",
                 "green_mask": true,
                 "threshold": 0.84,
-                "order_by": "Score"
+                "order_by": "Vertical"
             }
         }
     },
