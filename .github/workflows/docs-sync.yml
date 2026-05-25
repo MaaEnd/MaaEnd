@@ -45,6 +45,7 @@ jobs:
     outputs:
       has_tasks: ${{ steps.collect.outputs.has_tasks }}
       branch_name: ${{ steps.branch.outputs.branch_name }}
+      repo_sha: ${{ steps.snapshot.outputs.repo_sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -58,13 +59,34 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Record repository snapshot
+        id: snapshot
+        run: |
+          set -euo pipefail
+          echo "repo_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Resolve branch name
         id: branch
         env:
           INPUT_BRANCH: ${{ github.event.inputs.pr_branch }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           branch_name="${INPUT_BRANCH:-chore/docs-auto-sync}"
+          case "$branch_name" in
+            chore/docs-auto-sync*)
+              ;;
+            *)
+              echo "Invalid branch name: $branch_name"
+              echo "Branch name must start with chore/docs-auto-sync."
+              exit 1
+              ;;
+          esac
+          if [ "$branch_name" = "$BASE_BRANCH" ]; then
+            echo "Invalid branch name: $branch_name"
+            echo "Branch name must not equal the base branch."
+            exit 1
+          fi
           echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
 
       - name: Build translation manifest
@@ -100,7 +122,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.repository.default_branch }}
+          ref: ${{ needs.prepare.outputs.repo_sha }}
           fetch-depth: 0
 
       - name: Download docs sync artifacts
@@ -116,11 +138,11 @@ jobs:
 
       - name: Prepare translation branch
         env:
-          BASE_BRANCH: ${{ github.event.repository.default_branch }}
           BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
+          REPO_SHA: ${{ needs.prepare.outputs.repo_sha }}
         run: |
           set -euo pipefail
-          git checkout -B "$BRANCH_NAME" "origin/$BASE_BRANCH"
+          git checkout -B "$BRANCH_NAME" "$REPO_SHA"
 
       - name: Run translation script
         env:

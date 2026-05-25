@@ -59,10 +59,14 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
+    tasks = manifest.get("tasks")
+    if not isinstance(tasks, list):
+        print("Invalid manifest: expected a 'tasks' list.")
+        return 1
 
     allowed_paths: set[str] = set()
     allowed_paths.add(normalize_repo_path(args.state_path))
-    for task in manifest["tasks"]:
+    for task in tasks:
         mode = task["mode"]
         if mode in {"translate_file", "delete_target"}:
             allowed_paths.add(normalize_repo_path(task["target_path"]))
