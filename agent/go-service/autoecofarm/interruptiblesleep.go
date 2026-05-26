@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// 单次休眠粒度，便于在两次 sleep 之间检查 Stopping，避免长 post_delay 无法停止任务。
-const interruptibleSleepChunkMs = 250
+const (
+	interruptibleSleepChunkMs = 250
+	progressIntervalMs        = 5000
+	minReportDurationMs       = 5000
+)
 
 type interruptibleSleepParams struct {
 	DurationMs int `json:"durationMs"`
@@ -19,7 +24,6 @@ type autoEcoFarmInterruptibleSleep struct{}
 
 var _ maa.CustomActionRunner = &autoEcoFarmInterruptibleSleep{}
 
-// Run 在约 durationMs 毫秒内分片休眠；若收到停止任务信号则提前结束并返回 true。
 func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Str("component", "AutoEcoFarm").Msg("interruptible sleep: nil arg")
@@ -37,12 +41,29 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 	if params.DurationMs <= 0 {
 		return true
 	}
+
 	remaining := params.DurationMs
+	lastReport := remaining
+
 	for remaining > 0 {
 		if ctx.GetTasker().Stopping() {
 			log.Info().Str("component", "AutoEcoFarm").Msg("interruptible sleep: task stopping, exit early")
+			maafocus.PrintLargeContentTrimNewline(
+				i18n.RenderHTML("autoecofarm.interruptible_sleep_done", map[string]any{}),
+			)
 			return true
 		}
+
+		if params.DurationMs >= minReportDurationMs && lastReport-remaining >= progressIntervalMs {
+			seconds := (remaining + 999) / 1000
+			maafocus.PrintLargeContentTrimNewline(
+				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
+					"RemainingSeconds": seconds,
+				}),
+			)
+			lastReport = remaining
+		}
+
 		chunk := interruptibleSleepChunkMs
 		if remaining < chunk {
 			chunk = remaining
@@ -50,5 +71,9 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		time.Sleep(time.Duration(chunk) * time.Millisecond)
 		remaining -= chunk
 	}
+
+	maafocus.PrintLargeContentTrimNewline(
+		i18n.RenderHTML("autoecofarm.interruptible_sleep_done", map[string]any{}),
+	)
 	return true
 }
