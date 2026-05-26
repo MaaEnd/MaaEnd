@@ -325,6 +325,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				result = true
 				break
 			}
+			continue
 		}
 
 		// 退出判定
@@ -376,7 +377,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
-		if params.EnableLockTarget && inFightSpace {
+		if params.EnableDodge && screenAnalyzer.GetEnemyDodge() {
+			enqueueAction(fightAction{
+				executeAt: time.Now().Add(time.Millisecond),
+				action:    ActionDodge,
+			})
+		}
+
+		if params.EnableLockTarget {
 			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
 			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
 			//   阶段 0 [0, 3s)    -> 宽限期，不特殊处理，正常进入战斗决策
@@ -485,12 +493,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				})
 			}
 		}
-		if params.EnableDodge && screenAnalyzer.GetEnemyDodge() {
-			enqueueAction(fightAction{
-				executeAt: time.Now().Add(time.Millisecond),
-				action:    ActionDodge,
-			})
-		}
 
 		endSkillFull := screenAnalyzer.GetEndSkillFull(true)
 		energyLevel := screenAnalyzer.GetEnergyLevel(true)
@@ -548,6 +550,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
 		} else {
+			if screenAnalyzer.GetCharacterComboActive() {
+				enqueueAction(fightAction{
+					executeAt: time.Now(),
+					action:    ActionCombo,
+				})
+			}
+
 			if lockTargetStage == lockStageLocked && timeline.ActionFinish() {
 				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
 			}
@@ -564,13 +573,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						Msg("timeline action targets non-existent character, skip")
 					timeline.PopFrontAction()
 				} else {
-					if screenAnalyzer.GetCharacterComboActive() {
-						enqueueAction(fightAction{
-							executeAt: time.Now(),
-							action:    ActionCombo,
-						})
-					}
-
 					screenSlot := op + 4 - characterCount
 
 					switch action.Type {
