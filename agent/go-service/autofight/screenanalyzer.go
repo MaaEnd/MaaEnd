@@ -226,7 +226,7 @@ func (sa *ScreenAnalyzer) GetEnemyTarget() bool {
 }
 
 func (sa *ScreenAnalyzer) GetEnemyLocked() bool {
-	return sa.hasLabelInFrames(LabelEnemyLocked, 3, false)
+	return sa.hasLabelInFrames(LabelEnemyLocked, 1, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyBossHealth() bool {

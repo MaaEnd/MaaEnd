@@ -39,7 +39,7 @@ type autoFightAttach struct {
 	SwitchOperatorKeymap2        string `json:"switch_operator_keymap2"`
 	SwitchOperatorKeymap3        string `json:"switch_operator_keymap3"`
 	SwitchOperatorKeymap4        string `json:"switch_operator_keymap4"`
-	EndAxisTimelineJSON          string `json:"end_axis_timeline_json"`
+	EndAxisTimelineCode          string `json:"end_axis_timeline_code"`
 }
 
 // keymapOverrides 是预先生成好的 pipeline override JSON，
@@ -239,14 +239,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 	// 尝试加载 EndAxis 时间轴：成功则在循环里替换 endSkill / skill 决策，失败则回退到原逻辑。
 	var timeline *EndAxisTimeline
-	if params.EndAxisTimelineJSON != "" {
+	if params.EndAxisTimelineCode != "" {
 		tl := NewEndAxisTimeline()
-		if tl.SetTimeline(params.EndAxisTimelineJSON) {
+		if tl.SetTimelineCode(params.EndAxisTimelineCode) {
 			timeline = tl
 			log.Info().Str("component", "AutoFight").Msg("endaxis timeline enabled")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_enabled"))
 		} else {
-			log.Info().Str("component", "AutoFight").Msg("endaxis timeline json invalid, fallback to default skill logic")
+			log.Info().Str("component", "AutoFight").Msg("endaxis timeline code invalid, fallback to default skill logic")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_invalid_fallback"))
 		}
 	}
@@ -504,7 +504,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				})
 			}
 
-			if params.EnableEndSkill && lockTargetStage == lockStageLocked {
+			if params.EnableEndSkill && screenAnalyzer.GetEnemyLocked() {
 				if len(endSkillFull) > 0 {
 					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
 					for _, idx := range endSkillFull {
@@ -519,7 +519,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					}
 				}
 			}
-			if params.EnableSkill && energyLevel >= 1 && lockTargetStage == lockStageLocked {
+			if params.EnableSkill && energyLevel >= 1 {
 				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
 					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
 					op := skillCycleIndex
@@ -531,7 +531,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						action:    skillAction(op),
 					})
 					skillCycleIndex++
-				} else if energyLevel > params.ReserveSkillLevel {
+				} else if energyLevel > params.ReserveSkillLevel && screenAnalyzer.GetEnemyLocked() {
 					log.Debug().
 						Str("component", "AutoFight").
 						Int("energyLevel", energyLevel).
@@ -550,16 +550,20 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
 		} else {
-			if screenAnalyzer.GetCharacterComboActive() {
-				enqueueAction(fightAction{
-					executeAt: time.Now(),
-					action:    ActionCombo,
-				})
-			}
-
-			if lockTargetStage == lockStageLocked && timeline.ActionFinish() {
+			if screenAnalyzer.GetEnemyLocked() && timeline.ActionFinish() {
+				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.retry_timeline"))
 				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
 			}
+
+			if screenAnalyzer.GetCharacterComboActive() && !timeline.ActionFinish() {
+				if screenAnalyzer.GetCharacterComboActive() {
+					enqueueAction(fightAction{
+						executeAt: time.Now(),
+						action:    ActionCombo,
+					})
+				}
+			}
+
 			action := timeline.FrontAction()
 			if action != nil {
 				op := action.TrackIdx + 1
@@ -577,7 +581,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 					switch action.Type {
 					case "ultimate":
-						if slices.Contains(endSkillFull, screenSlot) && lockTargetStage == lockStageLocked {
+						if slices.Contains(endSkillFull, screenSlot) && screenAnalyzer.GetEnemyLocked() {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
@@ -586,7 +590,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							timeline.PopFrontAction()
 						}
 					case "skill":
-						if energyLevel >= 1 && lockTargetStage == lockStageLocked {
+						if energyLevel >= 1 && screenAnalyzer.GetEnemyLocked() {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),

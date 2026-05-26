@@ -676,9 +676,9 @@
             "type": "input",
             "inputs": [
                 {
-                    "name": "AutoFightAxisDataString",
-                    "label": "$option.AutoFightAxisDataString.label",
-                    "description": "$option.AutoFightAxisDataString.description",
+                    "name": "AutoFightAxisCodeString",
+                    "label": "$option.AutoFightAxisCodeString.label",
+                    "description": "$option.AutoFightAxisCodeString.description",
                     "pipeline_type": "string",
                     "default": ""
                 }
@@ -686,7 +686,7 @@
             "pipeline_override": {
                 "AutoFight": {
                     "attach": {
-                        "end_axis_timeline_json": "{AutoFightAxisDataString}"
+                        "end_axis_timeline_code": "{AutoFightAxisCodeString}"
                     }
                 }
             }
