@@ -67,6 +67,7 @@
     "autofight.endaxis.scenario_skipped_endskill": "방안 %s 건너뛰기: 종결기가 충전되지 않음",
     "autofight.endaxis.scenario_skipped_no_action": "방안 %s 건너뛰기: 전투기와 종결기가 없음",
     "autofight.endaxis.waiting_combo_cooldown": "연계기 쿨다운 완료 대기 중",
+    "autofight.endaxis.retry_timeline": "새 타임라인 회차를 시도합니다",
     "autofight.endaxis.no_matching_scenario": "현재 종결기 상태에 사용 가능한 타임라인 방안이 없습니다. 더 많은 방안을 추가하세요",
     "autoecofarm.invalid_params": "잘못된 매개변수입니다",
     "autoecofarm.no_results": "인식된 결과가 없습니다",
