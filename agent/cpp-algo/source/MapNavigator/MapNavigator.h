@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MaaFramework/MaaAPI.h"
+#include <MaaFramework/MaaAPI.h>
 
 namespace mapnavigator
 {

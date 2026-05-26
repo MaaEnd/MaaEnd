@@ -80,6 +80,8 @@ const char* ToString(BaseNavLoadStatus status)
         return "duplicate_zone";
     case BaseNavLoadStatus::HashMismatch:
         return "hash_mismatch";
+    case BaseNavLoadStatus::ZoneNotFound:
+        return "zone_not_found";
     }
     return "unknown";
 }

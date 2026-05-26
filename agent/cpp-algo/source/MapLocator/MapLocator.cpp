@@ -1019,6 +1019,9 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     if (options.force_global_search) {
         return std::nullopt;
     }
+    if (!motionTracker) {
+        return std::nullopt;
+    }
 
     refreshAsyncYoloState(minimap, now);
 
@@ -1040,23 +1043,27 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, &rawPrimaryPos);
     const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
 
-    if (trackingResult) {
+    if (trackingResult && !trackingHeld) {
         return LocateResult {
             .status = LocateStatus::Success,
             .position = trackingResult,
-            .debugMessage = trackingHeld ? "Tracking Hold" : "Tracking Success",
+            .debugMessage = "Tracking Success",
         };
     }
 
-    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && !trackingResult;
+    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
     if (shouldTryDualTracking) {
         auto fallbackStrategy =
             MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
         auto fallbackTmpl = fallbackStrategy->extractTemplateFeature(minimap);
 
         MapPosition rawFallbackPos {};
-        auto fallbackResult = tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
-        const bool fallbackHeld = fallbackResult.has_value() && fallbackResult->isHeld;
+        // fallback 只作为 dual 互证的第二路信号；试算后立即恢复状态，避免两策略不一致时单独推进或 hold tracker
+        auto savedMotionTracker = *motionTracker;
+        const auto savedStablePosition = stablePosition;
+        tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
+        *motionTracker = savedMotionTracker;
+        stablePosition = savedStablePosition;
         const double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
 
         // 双策略互证：两者分数均需满足最低要求，且坐标差在容差内，才视为结果可信
@@ -1073,14 +1080,15 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 .debugMessage = "Dual-Mode Tracking Success",
             };
         }
-
-        if (fallbackResult && !fallbackHeld) {
-            LogInfo << "Dual-Mode Tracking: accepted fallback strategy result independently. Dist was " << dist;
-            return LocateResult { .status = LocateStatus::Success, .position = fallbackResult, .debugMessage = "Tracking Success" };
-        }
+        LogInfo << "Dual-Mode Tracking rejected" << VAR(rawPrimaryPos.score) << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
+                << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
 
-    return std::nullopt;
+    if (!trackingHeld) {
+        return std::nullopt;
+    }
+
+    return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Hold" };
 }
 
 SearchConstraint MapLocator::Impl::buildSearchConstraint(
@@ -1336,7 +1344,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
             LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
                     << VAR(globalResult->score);
-            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Cold-start collecting." };
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
         }
         LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
     }

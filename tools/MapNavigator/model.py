@@ -4,7 +4,14 @@ import math
 import re
 from enum import IntEnum
 from pathlib import Path
-from typing import NotRequired, TypedDict
+from typing import TypedDict
+
+try:
+    from typing import NotRequired
+except ImportError:
+    class NotRequired:  # type: ignore[no-redef]
+        def __class_getitem__(cls, item):
+            return item
 
 
 BASE_NAV_ZONE_IMAGE_PARTS = {
@@ -285,11 +292,9 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
                 _sync_portal_flags(point)
                 continue
 
-            if actions == [int(ActionType.RUN)]:
+            if actions != [int(ActionType.PORTAL)]:
                 set_point_actions(point, [int(ActionType.PORTAL)])
                 point["auto_portal"] = True
-            elif actions != [int(ActionType.PORTAL)]:
-                point.pop("auto_portal", None)
             _sync_portal_flags(point)
             continue
 

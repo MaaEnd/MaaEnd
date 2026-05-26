@@ -22,6 +22,7 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       issues: write
@@ -31,38 +32,107 @@ jobs:
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
           cargo binstall -y minidump-stackwalk dump_syms
 
-      # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
-      # 详细使用文档：https://github.com/MistEO/ai-issue-analysis
-      # 最佳实践参考：
-      # - https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
-      # - https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev-v2/.claude/skills/maa-issue-log-analysis/SKILL.md
-      - name: Analyze issue with AI
-        id: analysis
-        uses: Misteo/ai-issue-analysis@main
+      # Copilot 首选；失败时 fallback 到 Daydreamer114/ai-issue-analysis 的 Cursor 模式。
+      # 分析质量仍依赖：.claude/skills/maaend-issue-log-analysis/SKILL.md
+      - name: Analyze issue with Copilot
+        id: copilot
+        continue-on-error: true
+        uses: MistEO/ai-issue-analysis@main
         with:
           github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
           copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
-            🤖 **MaaEndBot 正在分析该 Issue...**  
-            
+            🤖 **MaaEndBot 正在分析该 Issue...**
+
             感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
+          prompt-template: |
+            分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
+
+      - name: Check if Cursor fallback is needed
+        id: fallback
+        if: always()
+        env:
+          COPILOT_OUTCOME: ${{ steps.copilot.outcome }}
+          FINAL_CONCLUSION: ${{ steps.copilot.outputs.final-conclusion }}
+          COMMENT_ID: ${{ steps.copilot.outputs.comment-id }}
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          needed=false
+          SOFT_FAIL_MSG="分析结果出现错误，请重试。"
+
+          # 硬失败：action 步骤本身报错（token、CLI 崩溃等）
+          if [ "$COPILOT_OUTCOME" != "success" ]; then
+            needed=true
+            echo "Copilot step outcome: $COPILOT_OUTCOME"
+          fi
+
+          # 软失败：未生成 copilot_answer.md（final-conclusion 为英文占位符）
+          if [ "$needed" != "true" ] && printf '%s' "$FINAL_CONCLUSION" | grep -Fq "Copilot answer file not found"; then
+            needed=true
+            echo "Copilot did not produce an answer file"
+          fi
+
+          # 软失败：评论正文含 action 的 result-error-message（Copilot 常见失败形态）
+          # 该文案写在 Issue 评论里，不会出现在 final-conclusion output 中，需拉评论检测
+          if [ "$needed" != "true" ] && [ -n "$COMMENT_ID" ]; then
+            COMMENT_BODY=$(gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" --jq .body 2>/dev/null || true)
+            if printf '%s' "$COMMENT_BODY" | grep -Fq "$SOFT_FAIL_MSG"; then
+              needed=true
+              echo "Copilot issue comment contains: $SOFT_FAIL_MSG"
+            fi
+          fi
+
+          if [ "$needed" = "true" ] && [ -z "$CURSOR_API_KEY" ]; then
+            echo "CURSOR_API_KEY is not configured, skipping Cursor fallback"
+            needed=false
+          fi
+
+          echo "needed=$needed" >> "$GITHUB_OUTPUT"
+
+      - name: Analyze issue with Cursor (fallback)
+        id: cursor
+        if: always() && steps.fallback.outputs.needed == 'true'
+        uses: Daydreamer114/ai-issue-analysis@main
+        with:
+          ai-provider: cursor
+          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          cursor-api-key: ${{ secrets.CURSOR_API_KEY }}
+          comment-id: ${{ steps.copilot.outputs.comment-id }}
+          bot-name: '@MaaEndBot'
+          initial-comment-body: |
+            🤖 **MaaEndBot 正在分析该 Issue...**
+
+            Copilot 分析未成功，正在使用 Cursor 重试，预计耗时约 10 分钟。
           prompt-template: |
             分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
 
       - name: 查看完整输入输出
         if: always()
         env:
-          ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
-          ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
-          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
-          COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
-          COPILOT_OUTPUT: ${{ steps.analysis.outputs.copilot-output }}
-          FINAL_CONCLUSION: ${{ steps.analysis.outputs.final-conclusion }}
+          COPILOT_ANALYSIS_PROMPT: ${{ steps.copilot.outputs.analysis-prompt }}
+          COPILOT_ISSUE_NUMBER: ${{ steps.copilot.outputs.issue-number }}
+          COPILOT_COMMENT_ID: ${{ steps.copilot.outputs.comment-id }}
+          COPILOT_COMMENT_URL: ${{ steps.copilot.outputs.comment-url }}
+          COPILOT_OUTPUT: ${{ steps.copilot.outputs.copilot-output }}
+          COPILOT_FINAL_CONCLUSION: ${{ steps.copilot.outputs.final-conclusion }}
+          CURSOR_ANALYSIS_PROMPT: ${{ steps.cursor.outputs.analysis-prompt }}
+          CURSOR_COMMENT_ID: ${{ steps.cursor.outputs.comment-id }}
+          CURSOR_OUTPUT: ${{ steps.cursor.outputs.copilot-output }}
+          CURSOR_FINAL_CONCLUSION: ${{ steps.cursor.outputs.final-conclusion }}
+          FALLBACK_NEEDED: ${{ steps.fallback.outputs.needed }}
         run: |
-          printf '%s\n' "$ANALYSIS_PROMPT"
-          echo "issue_number=$ISSUE_NUMBER"
-          echo "comment_id=$COMMENT_ID"
-          echo "comment_url=$COMMENT_URL"
+          echo "fallback_needed=$FALLBACK_NEEDED"
+          echo "--- copilot ---"
+          echo "issue_number=$COPILOT_ISSUE_NUMBER"
+          echo "comment_id=$COPILOT_COMMENT_ID"
+          echo "comment_url=$COPILOT_COMMENT_URL"
+          printf '%s\n' "$COPILOT_ANALYSIS_PROMPT"
           printf '%s\n' "$COPILOT_OUTPUT"
-          printf '%s\n' "$FINAL_CONCLUSION"
+          printf '%s\n' "$COPILOT_FINAL_CONCLUSION"
+          echo "--- cursor ---"
+          echo "comment_id=$CURSOR_COMMENT_ID"
+          printf '%s\n' "$CURSOR_ANALYSIS_PROMPT"
+          printf '%s\n' "$CURSOR_OUTPUT"
+          printf '%s\n' "$CURSOR_FINAL_CONCLUSION"

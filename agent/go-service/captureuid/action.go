@@ -11,6 +11,7 @@ type captureUidParam struct {
 	UseCache            *bool `json:"use_cache,omitempty"`
 	StayOnCurrentScreen *bool `json:"stay_on_current_screen,omitempty"`
 	AllowUnknown        *bool `json:"allow_unknown,omitempty"`
+	ClearCache          *bool `json:"clear_cache,omitempty"`
 }
 
 type CaptureUidAction struct{}
@@ -32,6 +33,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	useCache := true
 	stayOnCurrentScreen := true
 	allowUnknown := true
+	clearCache := false
 
 	if arg != nil && arg.CustomActionParam != "" {
 		var params captureUidParam
@@ -49,6 +51,14 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		if params.AllowUnknown != nil {
 			allowUnknown = *params.AllowUnknown
 		}
+		if params.ClearCache != nil {
+			clearCache = *params.ClearCache
+		}
+	}
+
+	if clearCache {
+		ClearCache()
+		return true
 	}
 
 	uid, err := Capture(ctx, ctrl, useCache, stayOnCurrentScreen, allowUnknown)

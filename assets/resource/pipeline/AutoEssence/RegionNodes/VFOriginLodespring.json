@@ -174,8 +174,8 @@
                     "map_name": "map01_lv006_tier_109",
                     "path": [
                         [
-                            262.0,
-                            541.1
+                            262.2,
+                            541.2
                         ]
                     ]
                 }
@@ -197,8 +197,8 @@
                     "map_name": "map01_lv006_tier_109",
                     "path": [
                         [
-                            252,
-                            532
+                            252.2,
+                            532.1
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,
@@ -224,8 +224,8 @@
                     "map_name": "map01_lv006_tier_109",
                     "path": [
                         [
-                            271,
-                            552
+                            271.2,
+                            552.1
                         ]
                     ],
                     "rotation_lower_threshold": 12.0,

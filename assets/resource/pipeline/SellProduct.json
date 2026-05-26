@@ -1,4 +1,23 @@
 {
+    "SellProductSchedule": {
+        "desc": "售卖产品计划任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ScheduleAction",
+        "custom_action_param": {
+            "task": "SellProductMain"
+        },
+        "post_delay": 0,
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
     "SellProductMain": {
         "desc": "脚本入口",
         "pre_delay": 0,

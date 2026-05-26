@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "BaseNavPack.h"
@@ -59,29 +58,14 @@ public:
     std::optional<BaseNavSnapResult> snap(uint16_t zone_id, const WorldPoint& point, double radius) const;
 
 private:
-    struct BinKey
-    {
-        uint16_t zone_id = 0;
-        int32_t x = 0;
-        int32_t y = 0;
-
-        bool operator==(const BinKey& rhs) const { return zone_id == rhs.zone_id && x == rhs.x && y == rhs.y; }
-    };
-
-    struct BinKeyHash
-    {
-        size_t operator()(const BinKey& key) const;
-    };
-
     const BaseNavPack& pack_;
     std::vector<uint16_t> triangle_zones_;
-    std::vector<std::vector<uint32_t>> adjacency_;
-    std::vector<std::array<double, 4>> triangle_bounds_;
+    std::vector<uint32_t> adjacency_offsets_;
+    std::vector<uint32_t> adjacency_links_;
     std::vector<double> triangle_heights_;
-    std::unordered_map<BinKey, std::vector<uint32_t>, BinKeyHash> bins_;
 
     void buildIndex();
-    std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
+    void computeTriangleHeights();
     double triangleAverageHeight(uint32_t triangle_index) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> sharedEdgePortal(uint32_t lhs, uint32_t rhs) const;

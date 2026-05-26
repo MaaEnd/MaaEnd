@@ -431,12 +431,10 @@
                     "option": [
                         "AutoFightKeymap",
                         "AutoFightAttack",
-                        "AutoFightCombo",
                         "AutoFightDodge",
-                        "AutoFightSkill",
-                        "AutoFightEndSkill",
                         "AutoFightLockTarget",
-                        "AutoFightHealthDangerousSwitch"
+                        "AutoFightHealthDangerousSwitch",
+                        "AutoFightRealtimeAxis"
                     ]
                 },
                 {
@@ -631,6 +629,67 @@
                     }
                 }
             ]
+        },
+        "AutoFightAxis": {
+            "label": "$option.AutoFightAxis.label",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightAxisData"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "AutoFightReserveSkillLevel"
+                    ]
+                }
+            ]
+        },
+        "AutoFightRealtimeAxis": {
+            "label": "$option.AutoFightAxis.label",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightAxisData"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "AutoFightCombo",
+                        "AutoFightSkill",
+                        "AutoFightEndSkill"
+                    ]
+                }
+            ]
+        },
+        "AutoFightAxisData": {
+            "label": "$option.AutoFightAxisData.label",
+            "description": "$option.AutoFightAxisData.description",
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "AutoFightAxisCodeString",
+                    "label": "$option.AutoFightAxisCodeString.label",
+                    "description": "$option.AutoFightAxisCodeString.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "AutoFight": {
+                    "attach": {
+                        "end_axis_timeline_code": "{AutoFightAxisCodeString}"
+                    }
+                }
+            }
         },
         "AutoFightSkill": {
             "label": "$option.AutoFightSkill.label",

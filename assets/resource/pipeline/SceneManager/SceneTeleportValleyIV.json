@@ -391,7 +391,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/OriginiumSciencePark3Top.png"
@@ -523,7 +523,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/OriginiumSciencePark4Top.png"
@@ -787,7 +787,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/OriginLodespring1Top.png"
@@ -1084,7 +1084,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/OriginLodespring4Top.png"
@@ -1282,7 +1282,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/PowerPlateau1Top.png"
@@ -1381,7 +1381,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/PowerPlateau2Top.png"
@@ -1480,7 +1480,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/ValleyIV/PowerPlateau3Top.png"

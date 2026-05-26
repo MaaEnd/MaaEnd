@@ -47,6 +47,7 @@ bool NaviController::Navigate(const NaviParam& param)
 
     const size_t target_count = param.path.size();
     LogInfo << "Starting navigation to targets." << VAR(target_count);
+    PreloadNavmeshWaypoints(param);
     LogInfo << "Waiting for first valid GPS signal...";
 
     NaviPosition pos;
