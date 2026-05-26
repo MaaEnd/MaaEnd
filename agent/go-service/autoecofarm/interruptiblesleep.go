@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// interruptibleSleepChunkMs 单次休眠粒度，便于在两次 sleep 之间检查
+// Stopping，避免长 post_delay 无法停止任务。
 const interruptibleSleepChunkMs = 250
 
 type interruptibleSleepParams struct {
@@ -21,6 +23,8 @@ type autoEcoFarmInterruptibleSleep struct{}
 
 var _ maa.CustomActionRunner = &autoEcoFarmInterruptibleSleep{}
 
+// Run 在约 durationMs 毫秒内分片休眠；期间每 reportIntervalMs 输出一次剩
+// 余秒数（HTML stdout，客户端只展示最新一条），收到停止信号则提前结束。
 func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Str("component", "AutoEcoFarm").Msg("interruptible sleep: nil arg")
@@ -35,18 +39,22 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 			Msg("interruptible sleep: parse param failed")
 		return false
 	}
+	// 无等待时间，直接返回
 	if params.DurationMs <= 0 {
 		return true
 	}
 
+	// 未指定报告间隔时默认 5 秒
 	if params.ReportIntervalMs <= 0 {
 		params.ReportIntervalMs = 5000
 	}
 
+	// 下次触发输出时的剩余毫秒阈值
 	remaining := params.DurationMs
 	nextReportRemaining := remaining - params.ReportIntervalMs
 
 	for remaining > 0 {
+		// 收到停止信号 → 提前结束
 		if ctx.GetTasker().Stopping() {
 			log.Info().Str("component", "AutoEcoFarm").Msg("interruptible sleep: task stopping, exit early")
 			maafocus.PrintLargeContentTrimNewline(
@@ -55,6 +63,7 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 			return true
 		}
 
+		// 分片休眠（250ms 粒度）
 		chunk := interruptibleSleepChunkMs
 		if remaining < chunk {
 			chunk = remaining
@@ -62,6 +71,7 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		time.Sleep(time.Duration(chunk) * time.Millisecond)
 		remaining -= chunk
 
+		// 剩余时间跨过下一次报告阈值 → 输出 HTML 倒计时
 		if params.ReportIntervalMs > 0 && remaining < nextReportRemaining {
 			seconds := (remaining + 999) / 1000
 			maafocus.PrintLargeContentTrimNewline(
@@ -72,6 +82,8 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 			nextReportRemaining -= params.ReportIntervalMs
 		}
 	}
+
+	// 休眠自然结束 → 输出完成
 
 	maafocus.PrintLargeContentTrimNewline(
 		i18n.RenderHTML("autoecofarm.interruptible_sleep_done", map[string]any{}),
