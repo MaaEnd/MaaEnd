@@ -67,6 +67,7 @@
     "autofight.endaxis.scenario_skipped_endskill": "プラン %s をスキップ：終結技が未充電",
     "autofight.endaxis.scenario_skipped_no_action": "プラン %s をスキップ：戦技も終結技もなし",
     "autofight.endaxis.waiting_combo_cooldown": "連携技のクールダウン完了を待機中",
+    "autofight.endaxis.retry_timeline": "新しい軸取りラウンドを試みます",
     "autofight.endaxis.no_matching_scenario": "現在の終結技状態に使用可能な軸取りがありません。プランを追加してください",
     "autoecofarm.invalid_params": "パラメータが不正です",
     "autoecofarm.no_results": "結果を認識できませんでした",
