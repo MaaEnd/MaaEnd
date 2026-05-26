@@ -194,10 +194,8 @@
             }
         },
         "action": "Click",
-        "post_wait_freezes": 300,
-        "timeout": 4000,
         "next": [
-            "CloseRewardsButton"
+            "SceneNoticeRewardsConfirm"
         ]
     },
     "AutoUseSpMedicationQuickUseError": {
