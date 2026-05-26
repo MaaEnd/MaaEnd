@@ -2,6 +2,7 @@ package autoecofarm
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -58,9 +59,22 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		if ctx.GetTasker().Stopping() {
 			log.Info().Str("component", "AutoEcoFarm").Msg("interruptible sleep: task stopping, exit early")
 			maafocus.PrintLargeContentTrimNewline(
-				i18n.RenderHTML("autoecofarm.interruptible_sleep_done", map[string]any{}),
+				i18n.RenderHTML("autoecofarm.interruptible_sleep_stopped", map[string]any{}),
 			)
 			return true
+		}
+
+		// 剩余时间到达或跨过阈值 → 在 sleep 前输出 mm:ss 倒计时
+		if remaining <= nextReportRemaining {
+			m := remaining / 60000
+			s := (remaining % 60000) / 1000
+			formatted := fmt.Sprintf("%02d:%02d", m, s)
+			maafocus.PrintLargeContentTrimNewline(
+				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
+					"Formatted": formatted,
+				}),
+			)
+			nextReportRemaining -= params.ReportIntervalMs
 		}
 
 		// 分片休眠（250ms 粒度）
@@ -70,17 +84,6 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		}
 		time.Sleep(time.Duration(chunk) * time.Millisecond)
 		remaining -= chunk
-
-		// 剩余时间跨过下一次报告阈值 → 输出 HTML 倒计时
-		if params.ReportIntervalMs > 0 && remaining < nextReportRemaining {
-			seconds := (remaining + 999) / 1000
-			maafocus.PrintLargeContentTrimNewline(
-				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
-					"RemainingSeconds": seconds,
-				}),
-			)
-			nextReportRemaining -= params.ReportIntervalMs
-		}
 	}
 
 	// 休眠自然结束 → 输出完成
