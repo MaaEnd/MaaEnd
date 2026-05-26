@@ -10,14 +10,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	interruptibleSleepChunkMs = 250
-	progressIntervalMs        = 5000
-	minReportDurationMs       = 5000
-)
+const interruptibleSleepChunkMs = 250
 
 type interruptibleSleepParams struct {
-	DurationMs int `json:"durationMs"`
+	DurationMs       int `json:"durationMs"`
+	ReportIntervalMs int `json:"reportIntervalMs,omitempty"`
 }
 
 type autoEcoFarmInterruptibleSleep struct{}
@@ -42,8 +39,12 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		return true
 	}
 
+	if params.ReportIntervalMs <= 0 {
+		params.ReportIntervalMs = 5000
+	}
+
 	remaining := params.DurationMs
-	lastReport := remaining
+	nextReportRemaining := remaining - params.ReportIntervalMs
 
 	for remaining > 0 {
 		if ctx.GetTasker().Stopping() {
@@ -54,22 +55,22 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 			return true
 		}
 
-		if params.DurationMs >= minReportDurationMs && lastReport-remaining >= progressIntervalMs {
-			seconds := (remaining + 999) / 1000
-			maafocus.PrintLargeContentTrimNewline(
-				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
-					"RemainingSeconds": seconds,
-				}),
-			)
-			lastReport = remaining
-		}
-
 		chunk := interruptibleSleepChunkMs
 		if remaining < chunk {
 			chunk = remaining
 		}
 		time.Sleep(time.Duration(chunk) * time.Millisecond)
 		remaining -= chunk
+
+		if params.ReportIntervalMs > 0 && remaining < nextReportRemaining {
+			seconds := (remaining + 999) / 1000
+			maafocus.PrintLargeContentTrimNewline(
+				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
+					"RemainingSeconds": seconds,
+				}),
+			)
+			nextReportRemaining -= params.ReportIntervalMs
+		}
 	}
 
 	maafocus.PrintLargeContentTrimNewline(
