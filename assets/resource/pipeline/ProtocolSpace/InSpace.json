@@ -151,9 +151,9 @@
         ],
         "pre_wait_freezes": 400,
         "action": "Click",
+        "post_delay": 0,
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
-            "ProtocolSpaceEnterSpaceSuccess"
+            "ProtocolSpaceBackgroundSessionSetup"
         ],
         "focus": {
             "Node.Action.Succeeded": "确认进入协议空间"
@@ -174,6 +174,29 @@
         "focus": {
             "Node.Recognition.Succeeded": "进入协议空间成功"
         }
+    },
+    "ProtocolSpaceBackgroundSessionSetup": {
+        "desc": "开启协议空间后台控制会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerBackgroundSessionAction",
+        "custom_action_param": {
+            "mouse_lock_follow": true,
+            "managed_keys": [
+                87,
+                65,
+                83,
+                68
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
+        ]
     },
     "ProtocolSpaceEnterSpaceMove1": {
         "desc": "尝试第一次移动（技能提升界面起始位置，在全低画质下与光球重叠无法识别）",
@@ -391,6 +414,10 @@
         "box_index": 1,
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
+        "custom_action_param": {
+            "toggle_mouse_lock": true,
+            "restore_mouse_lock": true
+        },
         "next": [
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
@@ -474,6 +501,10 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
+        "custom_action_param": {
+            "toggle_mouse_lock": true,
+            "restore_mouse_lock": false
+        },
         "post_delay": 0,
         "next": [
             "ProtocolSpaceReward"
@@ -646,10 +677,9 @@
             "WhiteConfirmButtonType1"
         ],
         "action": "Click",
+        "post_delay": 0,
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
-            "ProtocolSpaceEnterSpaceSuccess",
-            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
+            "ProtocolSpaceBackgroundSessionSetup"
         ],
         "focus": {
             "Node.Action.Succeeded": "继续行动"
@@ -736,8 +766,7 @@
         "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationExitToWorld",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ProtocolSpaceBackgroundSessionCleanup"
         ],
         "focus": {
             "Node.Action.Succeeded": "理智不足，结束任务"
@@ -751,8 +780,7 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationExitToWorld",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ProtocolSpaceBackgroundSessionCleanup"
         ],
         "focus": {
             "Node.Action.Succeeded": "行动成功次数已满，结束任务"
@@ -795,9 +823,9 @@
             "WhiteConfirmButtonType1"
         ],
         "action": "Click",
+        "post_delay": 0,
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
-            "ProtocolSpaceEnterSpaceSuccess"
+            "ProtocolSpaceBackgroundSessionSetup"
         ],
         "focus": {
             "Node.Action.Succeeded": "继续行动"
@@ -811,12 +839,27 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationExitToWorld",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ProtocolSpaceBackgroundSessionCleanup"
         ],
         "focus": {
             "Node.Action.Succeeded": "行动失败次数已满，结束任务"
         }
+    },
+    "ProtocolSpaceBackgroundSessionCleanup": {
+        "desc": "关闭协议空间后台控制会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerBackgroundSessionAction",
+        "custom_action_param": {
+            "mouse_lock_follow": false,
+            "managed_keys": []
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
     },
     "ProtocolSpaceOperationExitToWorld": {
         "desc": "行动结束，回到大世界",

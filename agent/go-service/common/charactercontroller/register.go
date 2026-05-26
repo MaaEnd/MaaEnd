@@ -8,6 +8,7 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("CharacterControllerPitchDeltaAction", &CharacterControllerPitchDeltaAction{})
 	maa.AgentServerRegisterCustomAction("CharacterControllerForwardAxisAction", &CharacterControllerForwardAxisAction{})
 	maa.AgentServerRegisterCustomAction("CharacterControllerRelativeMoveAction", &CharacterControllerRelativeMoveAction{})
+	maa.AgentServerRegisterCustomAction("CharacterControllerBackgroundSessionAction", &CharacterControllerBackgroundSessionAction{})
 	maa.AgentServerRegisterCustomAction("CharacterMoveToTargetAction", &CharacterMoveToTargetAction{})
 	maa.AgentServerRegisterCustomAction("CharacterMoveToTargetNotFoundAction", &CharacterMoveToTargetNotFoundAction{})
 }

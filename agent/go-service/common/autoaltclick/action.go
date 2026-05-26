@@ -2,7 +2,9 @@ package autoaltclick
 
 import (
 	"encoding/json"
+	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -11,16 +13,45 @@ type autoAltLongPressParam struct {
 	Duration int64 `json:"duration"`
 }
 
+type autoAltClickParam struct {
+	ToggleMouseLock  bool `json:"toggle_mouse_lock"`
+	RestoreMouseLock bool `json:"restore_mouse_lock"`
+}
+
+const autoAltClickMouseLockDelay = 200 * time.Millisecond
+
 type AutoAltClickAction struct{}
 
 // Compile-time interface check
 var _ maa.CustomActionRunner = &AutoAltClickAction{}
 
 func (a *AutoAltClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var p autoAltClickParam
+	if arg.CustomActionParam != "" {
+		if err := json.Unmarshal([]byte(arg.CustomActionParam), &p); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "AutoAltClickAction").
+				Str("custom_action_param", arg.CustomActionParam).
+				Msg("failed to parse custom action param")
+			return false
+		}
+	}
+
+	ctrl := ctx.GetTasker().GetController()
+	toggleMouseLock := p.ToggleMouseLock && control.IsMessageInputWin32(ctrl)
+	if toggleMouseLock {
+		control.TrySetMouseLockFollow(ctrl, false)
+		time.Sleep(autoAltClickMouseLockDelay)
+	}
 	ctx.RunAction("__AutoAltClickAltKeyDownAction",
 		maa.Rect{0, 0, 0, 0}, "", nil)
 	ctx.RunAction("__AutoAltClickMouseClickAction",
 		arg.Box, "", nil)
+	if toggleMouseLock && p.RestoreMouseLock {
+		control.TrySetMouseLockFollow(ctrl, true)
+		time.Sleep(autoAltClickMouseLockDelay)
+	}
 	ctx.RunAction("__AutoAltClickAltKeyUpAction",
 		maa.Rect{0, 0, 0, 0}, "", nil)
 	return true

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -51,9 +52,7 @@ type keymapOverrides struct {
 	switchCharacter [4]string
 }
 
-// keyOverride 解析 attach 中的按键字符串，失败或为空时回退到 fallback，
-// 然后生成形如 {"<entry>":{"key":<code>}} 的 pipeline override JSON。
-func keyOverride(entry, raw, fallback string) string {
+func resolveKeyCode(entry, raw, fallback string) int {
 	s := strings.TrimSpace(raw)
 	if s == "" {
 		s = fallback
@@ -68,7 +67,24 @@ func keyOverride(entry, raw, fallback string) string {
 			Msg("invalid keymap, fallback to default")
 		code, _ = VirtualKeyCode(fallback)
 	}
+	return code
+}
+
+func keyOverride(entry string, code int) string {
 	return fmt.Sprintf(`{%q:{"key":%d}}`, entry, code)
+}
+
+func defaultAutoFightManagedKeys() []int32 {
+	return []int32{87, 65, 83, 68}
+}
+
+func rotateFightCamera(ctx *maa.Context, dx, dy int) {
+	adaptor, err := control.NewControlAdaptor(ctx, ctx.GetTasker().GetController(), 1280, 720)
+	if err != nil {
+		log.Warn().Err(err).Str("component", "AutoFight").Msg("failed to create control adaptor")
+		return
+	}
+	adaptor.RotateCamera(dx, dy)
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -175,6 +191,9 @@ const (
 	ActionMoveForward
 	ActionMoveLeft
 	ActionMoveRight
+	ActionTurnBack
+	ActionTurnLeft
+	ActionTurnRight
 )
 
 func skillAction(idx int) ActionType {
@@ -251,26 +270,34 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 	}
 
+	managedKeys := defaultAutoFightManagedKeys()
+	buildKeyOverride := func(entry, raw, fallback string) string {
+		code := resolveKeyCode(entry, raw, fallback)
+		return keyOverride(entry, code)
+	}
 	overrides := keymapOverrides{
-		combo: keyOverride("__AutoFightActionComboClick", params.ComboKeymap, "E"),
+		combo: buildKeyOverride("__AutoFightActionComboClick", params.ComboKeymap, "E"),
 		skill: [4]string{
-			keyOverride("__AutoFightActionSkillOperators1", params.SkillKeymap1, "1"),
-			keyOverride("__AutoFightActionSkillOperators2", params.SkillKeymap2, "2"),
-			keyOverride("__AutoFightActionSkillOperators3", params.SkillKeymap3, "3"),
-			keyOverride("__AutoFightActionSkillOperators4", params.SkillKeymap4, "4"),
+			buildKeyOverride("__AutoFightActionSkillOperators1", params.SkillKeymap1, "1"),
+			buildKeyOverride("__AutoFightActionSkillOperators2", params.SkillKeymap2, "2"),
+			buildKeyOverride("__AutoFightActionSkillOperators3", params.SkillKeymap3, "3"),
+			buildKeyOverride("__AutoFightActionSkillOperators4", params.SkillKeymap4, "4"),
 		},
 		endSkill: [4]string{
-			keyOverride("__AutoFightActionEndSkillOperators1", params.SkillKeymap1, "1"),
-			keyOverride("__AutoFightActionEndSkillOperators2", params.SkillKeymap2, "2"),
-			keyOverride("__AutoFightActionEndSkillOperators3", params.SkillKeymap3, "3"),
-			keyOverride("__AutoFightActionEndSkillOperators4", params.SkillKeymap4, "4"),
+			buildKeyOverride("__AutoFightActionEndSkillOperators1", params.SkillKeymap1, "1"),
+			buildKeyOverride("__AutoFightActionEndSkillOperators2", params.SkillKeymap2, "2"),
+			buildKeyOverride("__AutoFightActionEndSkillOperators3", params.SkillKeymap3, "3"),
+			buildKeyOverride("__AutoFightActionEndSkillOperators4", params.SkillKeymap4, "4"),
 		},
 		switchCharacter: [4]string{
-			keyOverride("__AutoFightActionSwitchCharacterOperators1", params.SwitchOperatorKeymap1, "F1"),
-			keyOverride("__AutoFightActionSwitchCharacterOperators2", params.SwitchOperatorKeymap2, "F2"),
-			keyOverride("__AutoFightActionSwitchCharacterOperators3", params.SwitchOperatorKeymap3, "F3"),
-			keyOverride("__AutoFightActionSwitchCharacterOperators4", params.SwitchOperatorKeymap4, "F4"),
+			buildKeyOverride("__AutoFightActionSwitchCharacterOperators1", params.SwitchOperatorKeymap1, "F1"),
+			buildKeyOverride("__AutoFightActionSwitchCharacterOperators2", params.SwitchOperatorKeymap2, "F2"),
+			buildKeyOverride("__AutoFightActionSwitchCharacterOperators3", params.SwitchOperatorKeymap3, "F3"),
+			buildKeyOverride("__AutoFightActionSwitchCharacterOperators4", params.SwitchOperatorKeymap4, "F4"),
 		},
+	}
+	if control.IsMessageInputWin32(ctx.GetTasker().GetController()) {
+		control.TrySetBackgroundManagedKeys(ctx.GetTasker().GetController(), managedKeys)
 	}
 	log.Debug().Str("component", "AutoFight").Interface("params", params).Interface("overrides", overrides).Msg("parsed action attach parameters and built keymap overrides")
 	var pauseStart time.Time
@@ -432,16 +459,28 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							maafocus.Print(ctx, i18n.T("autofight.move_back"))
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionTurnBack,
+							})
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveBack,
 							})
 						case facingLeft:
 							maafocus.Print(ctx, i18n.T("autofight.move_left"))
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionTurnLeft,
+							})
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveLeft,
 							})
 						case facingRight:
 							maafocus.Print(ctx, i18n.T("autofight.move_right"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionTurnRight,
+							})
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveRight,
@@ -665,6 +704,12 @@ func drainActionQueue(ctx *maa.Context, overrides keymapOverrides) {
 		case ActionSwitchCharacter4:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 4))
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[3])
+		case ActionTurnBack:
+			rotateFightCamera(ctx, 480, 0)
+		case ActionTurnLeft:
+			rotateFightCamera(ctx, -240, 0)
+		case ActionTurnRight:
+			rotateFightCamera(ctx, 240, 0)
 		case ActionMoveBack:
 			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)

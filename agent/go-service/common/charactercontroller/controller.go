@@ -10,6 +10,20 @@ import (
 )
 
 func rotateView(ctx *maa.Context, dx, dy int) {
+	ctrl := ctx.GetTasker().GetController()
+	controlType, _ := control.GetControlType(ctrl)
+	if controlType == control.CONTROL_TYPE_WLROOTS || control.IsMessageInputWin32(ctrl) {
+		scaledDX := int32(dx)
+		scaledDY := int32(dy)
+		if controlType == control.CONTROL_TYPE_WLROOTS {
+			scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
+			scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))
+		}
+		if control.TryPostRelativeMove(ctrl, scaledDX, scaledDY) {
+			return
+		}
+	}
+
 	cx, cy := 1280/2, 720/2
 	override := map[string]any{
 		"__CharacterControllerDeltaSwipeAction": map[string]any{
@@ -75,7 +89,45 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 		scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
 		scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))
 	}
-	ctx.GetTasker().GetController().PostRelativeMove(scaledDX, scaledDY).Wait()
+	return control.TryPostRelativeMove(ctx.GetTasker().GetController(), scaledDX, scaledDY)
+}
+
+type characterControllerBackgroundSessionParam struct {
+	MouseLockFollow *bool `json:"mouse_lock_follow"`
+	ManagedKeys     []int `json:"managed_keys"`
+}
+
+type CharacterControllerBackgroundSessionAction struct{}
+
+func (a *CharacterControllerBackgroundSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params characterControllerBackgroundSessionParam
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "CharacterController").
+			Str("action", "CharacterControllerBackgroundSession").
+			Msg("failed to parse CustomActionParam")
+		return false
+	}
+
+	ctrl := ctx.GetTasker().GetController()
+	if !control.IsMessageInputWin32(ctrl) {
+		return true
+	}
+
+	if params.MouseLockFollow != nil && *params.MouseLockFollow {
+		control.TrySetMouseLockFollow(ctrl, true)
+	}
+	if params.MouseLockFollow != nil && !*params.MouseLockFollow {
+		control.TrySetMouseLockFollow(ctrl, false)
+	}
+	if params.ManagedKeys != nil {
+		keys := make([]int32, 0, len(params.ManagedKeys))
+		for _, key := range params.ManagedKeys {
+			keys = append(keys, int32(key))
+		}
+		control.TrySetBackgroundManagedKeys(ctrl, keys)
+	}
 	return true
 }
 
@@ -221,6 +273,7 @@ var (
 	_ maa.CustomActionRunner = &CharacterControllerPitchDeltaAction{}
 	_ maa.CustomActionRunner = &CharacterControllerForwardAxisAction{}
 	_ maa.CustomActionRunner = &CharacterControllerRelativeMoveAction{}
+	_ maa.CustomActionRunner = &CharacterControllerBackgroundSessionAction{}
 	_ maa.CustomActionRunner = &CharacterMoveToTargetAction{}
 	_ maa.CustomActionRunner = &CharacterMoveToTargetNotFoundAction{}
 )

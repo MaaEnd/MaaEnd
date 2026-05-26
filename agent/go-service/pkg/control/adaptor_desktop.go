@@ -24,9 +24,10 @@ type desktopControlAdaptor struct {
 	w    int
 	h    int
 
-	keys             desktopKeyBindings
-	pm               PlayerMovement
-	lastMotionIsWalk bool
+	keys                       desktopKeyBindings
+	pm                         PlayerMovement
+	lastMotionIsWalk           bool
+	lastCameraRotationRelative bool
 }
 
 func newDesktopControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int, keys desktopKeyBindings) *desktopControlAdaptor {
@@ -87,6 +88,13 @@ func (dca *desktopControlAdaptor) KeyType(keyCode int, delayMillis int) {
 }
 
 func (dca *desktopControlAdaptor) RotateCamera(dx, dy int) {
+	if IsMessageInputWin32(dca.ctrl) && TryPostRelativeMove(dca.ctrl, int32(dx), int32(dy)) {
+		dca.lastCameraRotationRelative = true
+		time.Sleep(time.Duration(defaultDesktopKeyActionDelayMillis*4) * time.Millisecond)
+		return
+	}
+
+	dca.lastCameraRotationRelative = false
 	cx, cy := dca.w/2, dca.h/2
 	dca.SwipeHover(0, cx, cy, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
 }
@@ -155,7 +163,10 @@ func (dca *desktopControlAdaptor) PlayerJump() {
 }
 
 func (dca *desktopControlAdaptor) AggressivelyResetCamera() {
-	// Policy: use ALT key to release mouse cursor and reset its position using a click, then release ALT key
+	if dca.lastCameraRotationRelative {
+		return
+	}
+
 	cx, cy := dca.w/2, dca.h/2
 	stepDelayMillis := defaultDesktopKeyActionDelayMillis / 3
 	dca.KeyDown(dca.keys.Alt, stepDelayMillis)
