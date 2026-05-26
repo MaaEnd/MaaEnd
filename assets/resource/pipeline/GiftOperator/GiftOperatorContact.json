@@ -168,7 +168,8 @@
                 ],
                 "template": [
                     "GiftOperator/Operators/Perlica.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "action": {
