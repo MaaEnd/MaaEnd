@@ -18,6 +18,15 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
+        },
         "next": [
             "[JumpBack]GiftOperatorContacSortOrder",
             "[JumpBack]GiftOperatorContacSortBy",
