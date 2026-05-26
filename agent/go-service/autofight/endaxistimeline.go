@@ -160,9 +160,14 @@ func decodeEndAxisShareCode(code string) ([]byte, error) {
 	}
 	defer gr.Close()
 
-	plain, err := io.ReadAll(gr)
+	const maxPlainSize = 5 << 20 // 5 MiB
+	lr := io.LimitReader(gr, maxPlainSize+1)
+	plain, err := io.ReadAll(lr)
 	if err != nil {
 		return nil, fmt.Errorf("gzip read: %w", err)
+	}
+	if len(plain) > maxPlainSize {
+		return nil, fmt.Errorf("share code payload too large (>%d bytes)", maxPlainSize)
 	}
 	return plain, nil
 }
