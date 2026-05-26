@@ -67,6 +67,7 @@
     "autofight.endaxis.scenario_skipped_endskill": "Skipping plan %s: ultimate not fully charged",
     "autofight.endaxis.scenario_skipped_no_action": "Skipping plan %s: no skill or ultimate",
     "autofight.endaxis.waiting_combo_cooldown": "Waiting for link skill cooldown",
+    "autofight.endaxis.retry_timeline": "Trying a new timeline round",
     "autofight.endaxis.no_matching_scenario": "No timeline plan available for current ultimate state; add more plans",
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
