@@ -61,6 +61,7 @@
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",
+                "PullCountCalculatorAction",
                 "PuzzleAction",
                 "RealTimeTaskAction",
                 "SceneManagerMenuListClickItemAction",

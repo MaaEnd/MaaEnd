@@ -821,17 +821,11 @@
                         "GiftOperatorSelectOp1": {
                             "enabled": false
                         },
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": true
+                        },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
-                            "template": [
-                                "GiftOperator/Gift.png"
-                            ],
-                            "target_offset": [
-                                40,
-                                0,
-                                0,
-                                0
-                            ]
+                            "enabled": false
                         },
                         "GiftOperatorName": {
                             "expected": [
