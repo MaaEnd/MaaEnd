@@ -104,7 +104,7 @@ class MapViewportPage(BasePage):
         window_w: int = 1280,
         window_h: int = 720,
         *,
-        image: cv2.typing.MatLike = None,
+        image: cv2.typing.MatLike,
         zoom: float = 1.0,
         min_zoom: float = 0.5,
         max_zoom: float = 10.0,
@@ -117,7 +117,7 @@ class MapViewportPage(BasePage):
             min_zoom=min_zoom,
             max_zoom=max_zoom,
         )
-        self._map_layer = MapImageLayer(self.view, image) if image is not None else None
+        self._map_layer = MapImageLayer(self.view, image)
         self.panning = False
         self.pan_start = (0, 0)
 

@@ -53,21 +53,18 @@ class Button:
         if border_color != -1:
             drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
 
-        icon = (
-            get_sprite_image(self.icon_name, (y2 - y1 - 20, y2 - y1 - 20))
-            if self.icon_name
-            else None
-        )
-        if icon is not None:
+        icon = None
+        icon_size = None
+        if self.icon_name:
             bh = y2 - y1
             icon_size = max(14, min(28, bh - 20))
+            icon = get_sprite_image(self.icon_name, (icon_size, icon_size))
+        if icon is not None and icon_size is not None:
             ix = x1 + 16
             iy = y1 + (bh - icon_size) // 2
             drawer.paste(
                 icon,
                 (ix, iy),
-                scale_w=icon_size,
-                scale_h=icon_size,
                 with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
             )
 
@@ -485,22 +482,17 @@ class ScrollableListWidget:
             )
             label_x = x1 + 12
 
-            icon = (
-                get_sprite_image(
-                    item.get("icon_name"), (iy2 - iy1 - 20, iy2 - iy1 - 20)
-                )
-                if item.get("icon_name")
-                else None
-            )
-            if icon is not None:
+            icon = None
+            icon_size = None
+            if item.get("icon_name"):
                 icon_size = max(14, min(20, self.item_height - 10))
+                icon = get_sprite_image(item.get("icon_name"), (icon_size, icon_size))
+            if icon is not None and icon_size is not None:
                 icon_x = x1 + 8
                 icon_y = iy1 + (self.item_height - icon_size) // 2
                 drawer.paste(
                     icon,
                     (icon_x, icon_y),
-                    scale_w=icon_size,
-                    scale_h=icon_size,
                     with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
                 )
                 label_x = icon_x + icon_size + 8

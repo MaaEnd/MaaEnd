@@ -982,8 +982,6 @@ class PathEditPage(MapViewportPage):
                 drawer.paste(
                     sprite,
                     (ix, iy),
-                    scale_w=16,
-                    scale_h=16,
                     with_alpha=(sprite.ndim == 3 and sprite.shape[2] == 4),
                 )
             drawer.text_centered(
