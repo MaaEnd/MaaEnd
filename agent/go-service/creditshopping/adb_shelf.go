@@ -24,14 +24,14 @@ func isADBController(ctrl *maa.Controller) bool {
 	return err == nil && t == control.CONTROL_TYPE_ADB
 }
 
-func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller) bool {
+func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller, beginY, endY int) bool {
 	ca, err := control.NewControlAdaptor(ctx, ctrl, 1280, 720)
 	if err != nil {
 		log.Warn().Err(err).Str("component", component).Msg("record shelf adb: swipe adaptor failed")
 		return false
 	}
-	dy := adbShelfSwipeEndY - adbShelfSwipeBeginY
-	ca.Swipe(0, adbShelfSwipeBeginX, adbShelfSwipeBeginY, 0, dy, adbShelfSwipeDurMs, adbShelfSwipeWaitMs)
+	dy := endY - beginY
+	ca.Swipe(0, adbShelfSwipeBeginX, beginY, 0, dy, adbShelfSwipeDurMs, adbShelfSwipeWaitMs)
 	return true
 }
 
@@ -39,13 +39,20 @@ func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller) bool {
 func scanShelfSlotsADB(ctx *maa.Context, ctrl *maa.Controller, first image.Image) []SlotRecord {
 	slotsTop := buildSlotRecords(ctx, first, scanShelfNameHits(ctx, first), slotAssignADBTop)
 
-	swipeShelfForADB(ctx, ctrl)
+	// 先小幅上滑采集第二屏，采集结束后再滑回原位，避免后续购买节点仍停留在第二屏。
+	swiped := swipeShelfForADB(ctx, ctrl, adbShelfSwipeBeginY, adbShelfSwipeEndY)
 	second, err := screencap(ctrl)
 	if err != nil {
+		if swiped {
+			swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY)
+		}
 		log.Warn().Err(err).Str("component", component).Int("top_slots", len(slotsTop)).Msg("record shelf adb: second screencap failed, keep first row only")
 		return slotsTop
 	}
 	slotsBottom := buildSlotRecords(ctx, second, scanShelfNameHits(ctx, second), slotAssignADBBottom)
+	if swiped && !swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY) {
+		log.Warn().Str("component", component).Msg("record shelf adb: failed to swipe back after shelf scan")
+	}
 
 	merged := mergeSlotRecordsByPosition(slotsTop, slotsBottom)
 	log.Info().
@@ -53,6 +60,7 @@ func scanShelfSlotsADB(ctx *maa.Context, ctrl *maa.Controller, first image.Image
 		Int("slots_row1", len(slotsTop)).
 		Int("slots_row2", len(slotsBottom)).
 		Int("slots_merged", len(merged)).
+		Bool("restored", swiped).
 		Msg("record shelf adb: row1 screen + swipe + row2 screen merged by slot")
 	return merged
 }
