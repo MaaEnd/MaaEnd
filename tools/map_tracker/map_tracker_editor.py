@@ -43,8 +43,9 @@ from _internal.gui_widgets import (
     ScrollableListWidget,
     TextInputWidget,
     RadioSelectWidget,
+    UndoRedoHistory,
+    UndoRedoWidget,
 )
-from _internal.sprite_utils import get_sprite_image
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
     PipelineHandler,
@@ -181,8 +182,18 @@ class PathEditPage(MapViewportPage):
         self._drag_history_pushed = False
 
         self.location_service = LocationService()
-        self._undo_stack: list[dict] = []
-        self._redo_stack: list[dict] = []
+        self._point_history = UndoRedoHistory(
+            self._capture_point_state,
+            self._restore_point_state,
+            limit=self.HISTORY_LIMIT,
+            on_changed=self.render_request,
+        )
+        self._history_widget = UndoRedoWidget(
+            on_undo=self._undo_points_change,
+            on_redo=self._redo_points_change,
+            can_undo=lambda: self._point_history.can_undo,
+            can_redo=lambda: self._point_history.can_redo,
+        )
         self._realtime_last_point_ts: float | None = None
         self._realtime_segment_has_checkpoint = False
 
@@ -193,8 +204,6 @@ class PathEditPage(MapViewportPage):
         self._btn_finish_rect: tuple | None = None
         self._btn_delete_rect: tuple | None = None
         self._btn_copy_rect: tuple | None = None
-        self._btn_undo_rect: tuple | None = None
-        self._btn_redo_rect: tuple | None = None
 
         # Tier map selector in sidebar (shown only when tier maps exist)
         self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
@@ -263,6 +272,7 @@ class PathEditPage(MapViewportPage):
                 self._finish_button,
                 self._delete_button,
                 self._copy_button,
+                *self._history_widget.buttons,
             ]
         )
 
@@ -360,45 +370,25 @@ class PathEditPage(MapViewportPage):
             return False
         if push_history:
             self._reset_realtime_undo_collection()
-            self._push_current_state_to_undo()
+            self._point_history.push_current()
         self._restore_point_state(next_state)
         return True
 
-    def _push_current_state_to_undo(self) -> None:
-        current_state = self._capture_point_state()
-        if not self._undo_stack or self._undo_stack[-1] != current_state:
-            self._undo_stack.append(current_state)
-            if len(self._undo_stack) > self.HISTORY_LIMIT:
-                self._undo_stack.pop(0)
-        self._redo_stack.clear()
-
     def _undo_points_change(self) -> None:
-        if not self._undo_stack:
+        if not self._point_history.can_undo:
             return
         self._reset_realtime_undo_collection()
-        current_state = self._capture_point_state()
-        previous_state = self._undo_stack.pop()
-        if not self._redo_stack or self._redo_stack[-1] != current_state:
-            self._redo_stack.append(current_state)
-            if len(self._redo_stack) > self.HISTORY_LIMIT:
-                self._redo_stack.pop(0)
-        self._restore_point_state(previous_state)
-        self._update_status(0xD2D200, "Reverted the previous point change.")
-        self.render_request()
+        if self._point_history.undo():
+            self._update_status(0xD2D200, "Reverted the previous point change.")
+            self.render_request()
 
     def _redo_points_change(self) -> None:
-        if not self._redo_stack:
+        if not self._point_history.can_redo:
             return
         self._reset_realtime_undo_collection()
-        current_state = self._capture_point_state()
-        next_state = self._redo_stack.pop()
-        if not self._undo_stack or self._undo_stack[-1] != current_state:
-            self._undo_stack.append(current_state)
-            if len(self._undo_stack) > self.HISTORY_LIMIT:
-                self._undo_stack.pop(0)
-        self._restore_point_state(next_state)
-        self._update_status(0x78DCFF, "Reapplied the reverted point change.")
-        self.render_request()
+        if self._point_history.redo():
+            self._update_status(0x78DCFF, "Reapplied the reverted point change.")
+            self.render_request()
 
     def _append_realtime_point(self, x: float, y: float) -> bool:
         ts = time.time()
@@ -432,7 +422,7 @@ class PathEditPage(MapViewportPage):
                 self._realtime_segment_has_checkpoint = True
 
         if should_push_checkpoint:
-            self._push_current_state_to_undo()
+            self._point_history.push_current()
 
         if not self._replace_points(
             next_points,
@@ -862,8 +852,6 @@ class PathEditPage(MapViewportPage):
         self._finish_button.rect = hidden_rect
         self._delete_button.rect = hidden_rect
         self._copy_button.rect = hidden_rect
-        self._btn_undo_rect = None
-        self._btn_redo_rect = None
 
         self._btn_save_rect = None
 
@@ -944,8 +932,6 @@ class PathEditPage(MapViewportPage):
         history_btn_h = 22
         history_btn_y0 = h - 32
         history_btn_y1 = history_btn_y0 + history_btn_h
-        history_btn_gap = 8
-        history_btn_w = (btn_w - history_btn_gap) // 2
 
         drawer.text(
             f"Zoom: {self.view.zoom:.2f}x", (pad, status_zoom_y), 0.45, color=0xD2D200
@@ -958,67 +944,7 @@ class PathEditPage(MapViewportPage):
         else:
             line = f"Points: {len(self.points)}"
         drawer.text(line, (pad, status_point_y), 0.45, color=0xFFFFFF)
-
-        def _render_history_button(
-            label: str,
-            rect: tuple[int, int, int, int],
-            *,
-            enabled: bool,
-            color: int,
-            sprite_name: str,
-        ) -> None:
-            bx1, by1, bx2, by2 = rect
-            drawer.rect(
-                (bx1, by1),
-                (bx2, by2),
-                color=color if enabled else 0x303030,
-                thickness=-1,
-            )
-            drawer.rect((bx1, by1), (bx2, by2), color=0xB4B4B4, thickness=1)
-            sprite = get_sprite_image(sprite_name, (16, 16))
-            if sprite is not None:
-                ix = bx1 + 6
-                iy = by1 + (by2 - by1 - 16) // 2
-                drawer.paste(
-                    sprite,
-                    (ix, iy),
-                    with_alpha=(sprite.ndim == 3 and sprite.shape[2] == 4),
-                )
-            drawer.text_centered(
-                label,
-                ((bx1 + bx2) // 2, by2 - 5),
-                0.38,
-                color=0xFFFFFF if enabled else 0x707070,
-            )
-
-        self._btn_undo_rect = (
-            pad,
-            history_btn_y0,
-            pad + history_btn_w,
-            history_btn_y1,
-        )
-        _render_history_button(
-            "[Z] Undo",
-            self._btn_undo_rect,
-            enabled=bool(self._undo_stack),
-            color=0xB44022,
-            sprite_name="Undo",
-        )
-
-        redo_x0 = pad + history_btn_w + history_btn_gap
-        self._btn_redo_rect = (
-            redo_x0,
-            history_btn_y0,
-            redo_x0 + history_btn_w,
-            history_btn_y1,
-        )
-        _render_history_button(
-            "[Y] Redo",
-            self._btn_redo_rect,
-            enabled=bool(self._redo_stack),
-            color=0x2E6FD1,
-            sprite_name="Redo",
-        )
+        self._history_widget.place((pad, history_btn_y0, pad + btn_w, history_btn_y1))
 
     # ------------------------------------------------------------------
     # Mouse / keyboard / idle
@@ -1098,15 +1024,6 @@ class PathEditPage(MapViewportPage):
             self.render_request()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
-            if self._hit_button(x, y, self._btn_undo_rect):
-                self._undo_points_change()
-                self.render_request()
-                return
-            if self._hit_button(x, y, self._btn_redo_rect):
-                self._redo_points_change()
-                self.render_request()
-                return
-
             # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
                 if (

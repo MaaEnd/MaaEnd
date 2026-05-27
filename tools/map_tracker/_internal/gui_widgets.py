@@ -1,5 +1,5 @@
 import time
-from typing import Callable
+from typing import Callable, Generic, TypeVar
 
 import numpy as np
 
@@ -19,6 +19,7 @@ class Button:
         thickness: int = -1,
         font_scale: float = 0.5,
         icon_name: str | None = None,
+        icon_offset_x: int = 0,
     ):
         self.rect = rect
         self.text = text
@@ -31,6 +32,7 @@ class Button:
         self.thickness = thickness
         self.font_scale = font_scale
         self.icon_name = icon_name
+        self.icon_offset_x = icon_offset_x
 
         self.hovered = False
         self.needs_render = True
@@ -60,7 +62,7 @@ class Button:
             icon_size = max(14, min(28, bh - 20))
             icon = get_sprite_image(self.icon_name, (icon_size, icon_size))
         if icon is not None and icon_size is not None:
-            ix = x1 + 16
+            ix = x1 + 16 + self.icon_offset_x
             iy = y1 + (bh - icon_size) // 2
             drawer.paste(
                 icon,
@@ -559,3 +561,151 @@ class ScrollableListWidget:
                 scale_h=nh,
                 with_alpha=(img.ndim == 3 and img.shape[2] == 4),
             )
+
+
+T = TypeVar("T")
+
+
+class UndoRedoHistory(Generic[T]):
+    def __init__(
+        self,
+        capture: Callable[[], T],
+        restore: Callable[[T], None],
+        *,
+        limit: int = 100,
+        on_changed: Callable[[], None] | None = None,
+    ) -> None:
+        self._capture = capture
+        self._restore = restore
+        self._limit = limit
+        self._on_changed = on_changed
+        self._undo_stack: list[T] = []
+        self._redo_stack: list[T] = []
+
+    @property
+    def can_undo(self) -> bool:
+        return bool(self._undo_stack)
+
+    @property
+    def can_redo(self) -> bool:
+        return bool(self._redo_stack)
+
+    def push_current(self) -> None:
+        self.push_state(self._capture())
+
+    def push_state(self, state: T) -> None:
+        if self._undo_stack and self._undo_stack[-1] == state:
+            return
+        self._undo_stack.append(state)
+        if len(self._undo_stack) > self._limit:
+            self._undo_stack.pop(0)
+        self._redo_stack.clear()
+        self._notify_changed()
+
+    def undo(self) -> bool:
+        if not self._undo_stack:
+            return False
+        current = self._capture()
+        previous = self._undo_stack.pop()
+        if not self._redo_stack or self._redo_stack[-1] != current:
+            self._redo_stack.append(current)
+            if len(self._redo_stack) > self._limit:
+                self._redo_stack.pop(0)
+        self._restore(previous)
+        self._notify_changed()
+        return True
+
+    def redo(self) -> bool:
+        if not self._redo_stack:
+            return False
+        current = self._capture()
+        next_state = self._redo_stack.pop()
+        if not self._undo_stack or self._undo_stack[-1] != current:
+            self._undo_stack.append(current)
+            if len(self._undo_stack) > self._limit:
+                self._undo_stack.pop(0)
+        self._restore(next_state)
+        self._notify_changed()
+        return True
+
+    def clear(self) -> None:
+        self._undo_stack.clear()
+        self._redo_stack.clear()
+        self._notify_changed()
+
+    def _notify_changed(self) -> None:
+        if self._on_changed is not None:
+            self._on_changed()
+
+
+class UndoRedoWidget:
+    def __init__(
+        self,
+        *,
+        on_undo: Callable[[], None],
+        on_redo: Callable[[], None],
+        can_undo: Callable[[], bool],
+        can_redo: Callable[[], bool],
+    ) -> None:
+        self._on_undo = on_undo
+        self._on_redo = on_redo
+        self._can_undo = can_undo
+        self._can_redo = can_redo
+        self._undo_button = Button(
+            (-100, -100, -90, -90),
+            "[Z] Undo",
+            base_color=0xB44022,
+            hotkey=(ord("z"), ord("Z")),
+            on_click=self._handle_undo,
+            font_scale=0.38,
+            icon_name="Undo",
+            icon_offset_x=-10,
+        )
+        self._redo_button = Button(
+            (-100, -100, -90, -90),
+            "[Y] Redo",
+            base_color=0x2E6FD1,
+            hotkey=(ord("y"), ord("Y")),
+            on_click=self._handle_redo,
+            font_scale=0.38,
+            icon_name="Redo",
+            icon_offset_x=-10,
+        )
+
+    @property
+    def buttons(self) -> tuple[Button, Button]:
+        return (self._undo_button, self._redo_button)
+
+    def place(
+        self,
+        rect: tuple[int, int, int, int],
+        *,
+        gap: int = 8,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        btn_w = max(1, (x2 - x1 - gap) // 2)
+        self._undo_button.rect = (x1, y1, x1 + btn_w, y2)
+        self._redo_button.rect = (x1 + btn_w + gap, y1, x2, y2)
+        self.sync_enabled()
+
+    def hide(self) -> None:
+        hidden_rect = (-100, -100, -90, -90)
+        self._undo_button.rect = hidden_rect
+        self._redo_button.rect = hidden_rect
+
+    def sync_enabled(self) -> None:
+        self._sync_button(self._undo_button, self._can_undo(), 0xB44022)
+        self._sync_button(self._redo_button, self._can_redo(), 0x2E6FD1)
+
+    @staticmethod
+    def _sync_button(button: Button, enabled: bool, color: int) -> None:
+        button.base_color = color if enabled else 0x303030
+        button.text_color = 0xFFFFFF if enabled else 0x707070
+
+    def _handle_undo(self) -> None:
+        if self._can_undo():
+            self._on_undo()
+
+    def _handle_redo(self) -> None:
+        if self._can_redo():
+            self._on_redo()
