@@ -8,9 +8,14 @@ import cv2
 SPRITE_PATH: Final[str] = os.path.join(os.path.dirname(__file__), "sprite_sheet.png")
 
 SPRITE_LAYOUT: Final[dict[str, tuple[int, int, int, int]]] = {
-    "AssertLocation": (0, 0, 32, 32),
-    "Import": (34, 0, 32, 32),
-    "Move": (68, 0, 32, 32),
+    "Move": (0, 0, 64, 64),
+    "AssertLocation": (64, 0, 64, 64),
+    "Upload": (0, 64, 64, 64),
+    "JSON": (64, 64, 64, 64),
+    "Map": (128, 0, 64, 64),
+    "Layer": (0, 128, 64, 64),
+    "Undo": (128, 64, 64, 64),
+    "Redo": (64, 128, 64, 64),
 }
 
 _SPRITE_CACHE: cv2.typing.MatLike | None = None

@@ -288,7 +288,15 @@ class MapImageSelectStep(StepPage):
                 if f.lower().endswith((".png", ".jpg"))
             ]
             map_files.sort(key=lambda name: (len(name), name.lower()))
-            items = [{"label": m, "sub_label": "", "data": m} for m in map_files]
+            items = [
+                {
+                    "label": m,
+                    "sub_label": "",
+                    "icon_name": "Layer" if "_tier_" in m.lower() else "Map",
+                    "data": m,
+                }
+                for m in map_files
+            ]
         self.map_list.set_items(items)
 
         if enable_preview:

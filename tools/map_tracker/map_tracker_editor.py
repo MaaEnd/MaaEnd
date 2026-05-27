@@ -44,6 +44,7 @@ from _internal.gui_widgets import (
     TextInputWidget,
     RadioSelectWidget,
 )
+from _internal.sprite_utils import get_sprite_image
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
     PipelineHandler,
@@ -153,7 +154,9 @@ class PathEditPage(MapViewportPage):
         if self.img is None:
             raise ValueError(f"Cannot load map: {self.map_name}")
 
-        super().__init__(window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0)
+        super().__init__(
+            window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0
+        )
         self._main_img = self.img.copy()
         self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
         self._status = StatusRecord(
@@ -872,9 +875,7 @@ class PathEditPage(MapViewportPage):
             is_recording = self.location_service.is_recording
             self._record_button.base_color = 0xB44022 if is_recording else 0x1A40B8
             self._record_button.text = (
-                "[Enter] Stop Recording"
-                if is_recording
-                else "[Enter] Start Recording"
+                "[Enter] Stop Recording" if is_recording else "[Enter] Start Recording"
             )
         else:
             self._record_button.base_color = 0x1A40B8
@@ -964,6 +965,7 @@ class PathEditPage(MapViewportPage):
             *,
             enabled: bool,
             color: int,
+            sprite_name: str,
         ) -> None:
             bx1, by1, bx2, by2 = rect
             drawer.rect(
@@ -973,6 +975,17 @@ class PathEditPage(MapViewportPage):
                 thickness=-1,
             )
             drawer.rect((bx1, by1), (bx2, by2), color=0xB4B4B4, thickness=1)
+            sprite = get_sprite_image(sprite_name, (16, 16))
+            if sprite is not None:
+                ix = bx1 + 6
+                iy = by1 + (by2 - by1 - 16) // 2
+                drawer.paste(
+                    sprite,
+                    (ix, iy),
+                    scale_w=16,
+                    scale_h=16,
+                    with_alpha=(sprite.ndim == 3 and sprite.shape[2] == 4),
+                )
             drawer.text_centered(
                 label,
                 ((bx1 + bx2) // 2, by2 - 5),
@@ -991,6 +1004,7 @@ class PathEditPage(MapViewportPage):
             self._btn_undo_rect,
             enabled=bool(self._undo_stack),
             color=0xB44022,
+            sprite_name="Undo",
         )
 
         redo_x0 = pad + history_btn_w + history_btn_gap
@@ -1005,6 +1019,7 @@ class PathEditPage(MapViewportPage):
             self._btn_redo_rect,
             enabled=bool(self._redo_stack),
             color=0x2E6FD1,
+            sprite_name="Redo",
         )
 
     # ------------------------------------------------------------------
@@ -1242,7 +1257,9 @@ class AreaEditPage(MapViewportPage):
         if self.img is None:
             raise ValueError(f"Cannot load map: {self.map_name}")
 
-        super().__init__(window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0)
+        super().__init__(
+            window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0
+        )
         self._status = StatusRecord(time.time(), 0xFFFFFF, "Welcome to Area Editor!")
 
         self.pipeline_context = pipeline_context
@@ -1571,7 +1588,7 @@ class ModeSelectStep(StepPage):
                     "Import from Pipeline JSON (I)",
                     base_color=0x554433,
                     hotkey=(ord("i"), ord("I")),
-                    icon_name="Import",
+                    icon_name="Upload",
                     on_click=lambda: self.stepper.push_step(FileSelectStep()),
                 )
             )
@@ -1599,6 +1616,7 @@ class FileSelectStep(StepPage):
                                     ).replace(os.path.sep, "/")
                                     or "."
                                 ),
+                                "icon_name": "JSON",
                                 "data": path,
                                 "disabled": not enabled,
                             }
@@ -1668,9 +1686,7 @@ class FileSelectStep(StepPage):
 
 class NodeSelectStep(StepPage):
     def __init__(self, file_path):
-        super().__init__(
-            StepData(f"Select Node from {os.path.basename(file_path)}")
-        )
+        super().__init__(StepData(f"Select Node from {os.path.basename(file_path)}"))
         self.file_path = file_path
         self.node_list = ScrollableListWidget(item_height=40)
         self.handler = PipelineHandler(file_path)
