@@ -210,7 +210,7 @@
     },
     "GiftOperatorGoAheadContact": {
         "desc": "继续向前走尝试接触联络台",
-        "max_hit": 3,
+        "max_hit": 6,
         "action": {
             "type": "Custom",
             "param": {
@@ -220,8 +220,8 @@
                         {
                             "action": "HEADING",
                             "target": [
-                                180.4,
-                                171.4
+                                183,
+                                174
                             ]
                         }
                     ]
