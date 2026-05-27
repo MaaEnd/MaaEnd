@@ -39,11 +39,11 @@ ICON_DATA = {
     "Move": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACCElEQVR4AeyVoVIDMRCGKYo66pDlDXiE4sAhi8O1DguKoqBPAChwgAJXUCBx4MC1EkcduPJt22W2171e0rsZhhmY/ye7m2T3Ty5JFxd++e/vCxgMBkdQcRC7obl2gKobFNyDihaxmjohbS4BFPBW7MUY6iOvgFsn7ZUTSw3lElAqldpk/oKKPrEzdULaXAKkAAXLUFGRWAznEsBBq8IuVER9dyswSgDVGnBAgi6sQoWcfrkR6ge3QQIoegml8OmMzJ0ZfaldmQLGheupGUwHYx+MG2RmCkhkqctpS8SsW0NE1KeIEfBC8WsKLNuKjt1hzIkTd0MxAjRBQ41E2zJ+ExECEbOFsWT6Jsx5BDQnMoycN3bnEHMTWsjnuCGwAl3MI8BeP006fP0QcQdLBO0PFG46QgSsMl2YXB3hH0xcT0S04RCMkJeyR+siUwBZemO+uxlGwddRM/2fufa3YmpApgA7g8O0Y31jD59m4webUQLIugsVcsDUllZEfIoRwykBrFKeXXnzvfu+psnZ2nsoB85ucep103nJdkoAA+TZlUP1gRjFM4a7/YgoM6cP54InwEskKz83HckDWZwAViTbKtfumIJpiS/oKwTuDiBCrt4+bQUOQTUrSl49QvnhCvDSosKKsgfPGx4cCxYQnDFy4L+AonbgiZ1/HJMmHIUI4IBuw3VhsnSW/w0AAP//0JOdfAAAAAZJREFUAwAJJaxB9oUiDAAAAABJRU5ErkJggg==",
 }
 
-_GLOBAL_ICON_CACHE: dict[str, np.ndarray | None] = {}
+_GLOBAL_ICON_CACHE: dict[str, cv2.typing.MatLike | None] = {}
 _TK: tk.Tk | None = None
 
 
-def get_icon_image(icon_name: str | None) -> np.ndarray | None:
+def get_icon_image(icon_name: str | None) -> cv2.typing.MatLike | None:
     if not icon_name:
         return None
     if icon_name in _GLOBAL_ICON_CACHE:
@@ -325,7 +325,7 @@ class Drawer:
 
     def paste(
         self,
-        img: np.ndarray,
+        img: cv2.typing.MatLike,
         pos: Point,
         *,
         scale_w: int | None = None,
@@ -560,11 +560,11 @@ class Layer:
 class MapImageLayer(Layer):
     """Renders a background map image with viewport zoom/pan support."""
 
-    def __init__(self, view: ViewportManager, img: np.ndarray):
+    def __init__(self, view: ViewportManager, img: cv2.typing.MatLike):
         super().__init__(view)
         self._img = img
         self._cache_key: tuple | None = None
-        self._cache_scaled: np.ndarray | None = None
+        self._cache_scaled: cv2.typing.MatLike | None = None
 
     def render(self, drawer: Drawer) -> None:
         zoom = self.view.zoom

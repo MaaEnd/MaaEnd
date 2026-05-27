@@ -27,19 +27,21 @@ from _internal.core_utils import (
     MapName,
     ViewportManager,
     Layer,
-    MapImageLayer,
     clipboard_copy_text,
 )
-from _internal.gui_widgets import (
+from _internal.gui_pages import (
     BasePage,
+    MapViewportPage,
     StepData,
     StepPage,
     PageStepper,
+    MapImageSelectStep,
+)
+from _internal.gui_widgets import (
     Button,
     SwitchWidget,
     ScrollableListWidget,
     TextInputWidget,
-    MapImageSelectStep,
     RadioSelectWidget,
 )
 from _internal.location_service import LocationService, unique_map_key
@@ -61,43 +63,6 @@ def _resolve_editor_map_name(map_name: str, map_dir: str) -> str:
             return raw_name
         return find_map_file(raw_name, map_dir) or raw_name
     return find_map_file(raw_name, map_dir) or raw_name
-
-
-def _handle_view_mouse(
-    page: "PathEditPage | AreaEditPage",
-    event: int,
-    x: int,
-    y: int,
-    flags: int,
-    mx: float,
-    my: float,
-) -> bool:
-    # Mouse wheel: zoom around cursor focus point.
-    if event == cv2.EVENT_MOUSEWHEEL:
-        if flags > 0:
-            page.view.zoom_in()
-        else:
-            page.view.zoom_out()
-        page.view.set_view_origin(mx - x / page.view.zoom, my - y / page.view.zoom)
-        page.render_request()
-        return True
-
-    # Right-drag panning.
-    if event == cv2.EVENT_RBUTTONDOWN:
-        page.panning = True
-        page.pan_start = (x, y)
-        return True
-    if event == cv2.EVENT_RBUTTONUP:
-        page.panning = False
-        return True
-    if event == cv2.EVENT_MOUSEMOVE and page.panning:
-        dx = (x - page.pan_start[0]) / page.view.zoom
-        dy = (y - page.pan_start[1]) / page.view.zoom
-        page.view.pan_by(-dx, -dy)
-        page.pan_start = (x, y)
-        page.render_request()
-        return True
-    return False
 
 
 class _PathLayer(Layer):
@@ -154,7 +119,7 @@ class StatusRecord(NamedTuple):
     message: str
 
 
-class PathEditPage(BasePage):
+class PathEditPage(MapViewportPage):
     """Path editing page"""
 
     SIDEBAR_W: int = 240
@@ -178,7 +143,6 @@ class PathEditPage(BasePage):
         pipeline_context: dict | None = None,
         window_name: str = "MapTracker Tool - Path Editor",
     ):
-        super().__init__(window_name, 1280, 720)
         self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
         self._main_map_name = self.map_name
@@ -189,14 +153,9 @@ class PathEditPage(BasePage):
         if self.img is None:
             raise ValueError(f"Cannot load map: {self.map_name}")
 
+        super().__init__(window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0)
         self._main_img = self.img.copy()
         self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
-        self.view = ViewportManager(
-            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
-        )
-        self._map_layer = MapImageLayer(self.view, self.img)
-        self.panning = False
-        self.pan_start = (0, 0)
         self._status = StatusRecord(
             time.time(), 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
@@ -574,7 +533,7 @@ class PathEditPage(BasePage):
         self._active_map_name = map_name
         self.map_path = target_path
         self.img = img
-        self._map_layer = MapImageLayer(self.view, self.img)
+        self.set_map_image(self.img)
         self.render_request()
 
     def _sync_tier_by_log_map(self, log_map_name: str) -> None:
@@ -735,7 +694,7 @@ class PathEditPage(BasePage):
     # ------------------------------------------------------------------
 
     def _render_once(self, drawer: Drawer) -> None:
-        self._map_layer.render(drawer)
+        self._render_map_layer(drawer)
         self._render_content(drawer)
 
         # Crosshair
@@ -1063,7 +1022,7 @@ class PathEditPage(BasePage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if _handle_view_mouse(self, event, x, y, flags, mx, my):
+        if self.handle_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_MOUSEMOVE:
@@ -1260,7 +1219,7 @@ class PathEditPage(BasePage):
         return [list(p) for p in self.points]
 
 
-class AreaEditPage(BasePage):
+class AreaEditPage(MapViewportPage):
     SIDEBAR_W: int = 240
     STATUS_BAR_H: int = 32
 
@@ -1277,19 +1236,13 @@ class AreaEditPage(BasePage):
         pipeline_context: dict | None = None,
         window_name: str = "MapTracker Tool - Area Editor",
     ):
-        super().__init__(window_name, 1280, 720)
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
         if self.img is None:
             raise ValueError(f"Cannot load map: {self.map_name}")
 
-        self.view = ViewportManager(
-            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
-        )
-        self._map_layer = MapImageLayer(self.view, self.img)
-        self.panning = False
-        self.pan_start = (0, 0)
+        super().__init__(window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0)
         self._status = StatusRecord(time.time(), 0xFFFFFF, "Welcome to Area Editor!")
 
         self.pipeline_context = pipeline_context
@@ -1451,7 +1404,7 @@ class AreaEditPage(BasePage):
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
 
     def _render_once(self, drawer: Drawer) -> None:
-        self._map_layer.render(drawer)
+        self._render_map_layer(drawer)
         if self.target is not None:
             x, y, w, h = self.target
             p1 = self._get_screen_coords(x, y)
@@ -1498,7 +1451,7 @@ class AreaEditPage(BasePage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if _handle_view_mouse(self, event, x, y, flags, mx, my):
+        if self.handle_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -1557,7 +1510,7 @@ def find_map_file(name: str, map_dir: str = MAP_DIR) -> str | None:
 
 class ModeSelectStep(StepPage):
     def __init__(self):
-        super().__init__(StepData("mode", "Select Mode", can_go_back=False))
+        super().__init__(StepData("Select Mode", can_go_back=False))
 
     def _render_content(self, drawer):
         drawer.text_centered(
@@ -1580,7 +1533,6 @@ class ModeSelectStep(StepPage):
                     icon_name="Move",
                     on_click=lambda: self.stepper.push_step(
                         MapImageSelectStep(
-                            step_id="map_select",
                             title="Select Map for Path",
                             map_dir=MAP_DIR,
                             on_select=lambda map_name: self.stepper.push_step(
@@ -1604,7 +1556,6 @@ class ModeSelectStep(StepPage):
                     icon_name="AssertLocation",
                     on_click=lambda: self.stepper.push_step(
                         MapImageSelectStep(
-                            step_id="map_select",
                             title="Select Map for Assert Area",
                             map_dir=MAP_DIR,
                             on_select=lambda map_name: self.stepper.push_step(
@@ -1628,7 +1579,7 @@ class ModeSelectStep(StepPage):
 
 class FileSelectStep(StepPage):
     def __init__(self):
-        super().__init__(StepData("file_select", "Select Pipeline JSON"))
+        super().__init__(StepData("Select Pipeline JSON"))
         self.file_list = ScrollableListWidget(item_height=40)
         self.search_input = TextInputWidget("Search JSON files...")
         self._all_files = []
@@ -1718,7 +1669,7 @@ class FileSelectStep(StepPage):
 class NodeSelectStep(StepPage):
     def __init__(self, file_path):
         super().__init__(
-            StepData("node_select", f"Select Node from {os.path.basename(file_path)}")
+            StepData(f"Select Node from {os.path.basename(file_path)}")
         )
         self.file_path = file_path
         self.node_list = ScrollableListWidget(item_height=40)
@@ -1872,7 +1823,7 @@ class ExportStep(StepPage):
     def __init__(
         self, points, import_context, map_name, *, node_type: str = NODE_TYPE_MOVE
     ):
-        super().__init__(StepData("export", "Export / Save Result"))
+        super().__init__(StepData("Export / Save Result"))
         self.points = points
         self.import_context = import_context
         self.map_name = map_name
