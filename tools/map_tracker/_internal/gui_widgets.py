@@ -3,7 +3,8 @@ from typing import Callable
 
 import numpy as np
 
-from .core_utils import Drawer, cv2, get_icon_image
+from .core_utils import Drawer, cv2
+from .sprite_utils import get_sprite_image
 
 
 class Button:
@@ -34,9 +35,6 @@ class Button:
         self.hovered = False
         self.needs_render = True
 
-    def _get_icon(self) -> np.ndarray | None:
-        return get_icon_image(self.icon_name)
-
     def _get_draw_color(self) -> int:
         if not self.hovered:
             return self.base_color
@@ -55,7 +53,11 @@ class Button:
         if border_color != -1:
             drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
 
-        icon = self._get_icon()
+        icon = (
+            get_sprite_image(self.icon_name, (y2 - y1 - 20, y2 - y1 - 20))
+            if self.icon_name
+            else None
+        )
         if icon is not None:
             bh = y2 - y1
             icon_size = max(14, min(28, bh - 20))
@@ -371,14 +373,8 @@ class ScrollableListWidget:
                     self.selected_idx = i
                     break
 
-    def _enabled_indices(self) -> list[int]:
-        return [i for i, item in enumerate(self.items) if not item.get("disabled")]
-
-    def _get_icon(self, icon_name: str | None) -> np.ndarray | None:
-        return get_icon_image(icon_name)
-
     def navigate(self, direction: int) -> None:
-        enabled = self._enabled_indices()
+        enabled = [i for i, item in enumerate(self.items) if not item.get("disabled")]
         if not enabled:
             return
         if self.selected_idx not in enabled:
@@ -488,7 +484,14 @@ class ScrollableListWidget:
                 0x666677 if disabled else (0xFFFFFF if not priority else 0xAADDFF)
             )
             label_x = x1 + 12
-            icon = self._get_icon(item.get("icon_name"))
+
+            icon = (
+                get_sprite_image(
+                    item.get("icon_name"), (iy2 - iy1 - 20, iy2 - iy1 - 20)
+                )
+                if item.get("icon_name")
+                else None
+            )
             if icon is not None:
                 icon_size = max(14, min(20, self.item_height - 10))
                 icon_x = x1 + 8
