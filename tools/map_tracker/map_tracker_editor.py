@@ -1060,7 +1060,7 @@ class PathEditPage(MapViewportPage):
                 dy = y - self.action_down_pos[1]
                 if dx * dx + dy * dy > 25:
                     self.action_moved = True
-                    if self.action_down_idx != -1:
+                    if self.action_down_idx != -1 and x >= self.SIDEBAR_W:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
                         next_points = [list(p) for p in self.points]
@@ -1078,7 +1078,11 @@ class PathEditPage(MapViewportPage):
                         self.render_request()
                         return
 
-            if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
+            if (
+                (flags & cv2.EVENT_FLAG_LBUTTON)
+                and self.action_dragging
+                and self.drag_idx != -1
+            ):
                 next_points = [list(p) for p in self.points]
                 next_points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                 changed = self._replace_points(
@@ -1142,7 +1146,6 @@ class PathEditPage(MapViewportPage):
             self.action_dragging = False
             self._drag_history_pushed = False
             if self.action_down_idx != -1:
-                self.drag_idx = self.action_down_idx
                 self.selected_idx = self.action_down_idx
                 self.render_request()
 
