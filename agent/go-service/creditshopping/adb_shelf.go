@@ -39,20 +39,21 @@ func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller, beginY, endY int) 
 func scanShelfSlotsADB(ctx *maa.Context, ctrl *maa.Controller, first image.Image) []SlotRecord {
 	slotsTop := buildSlotRecords(ctx, first, scanShelfNameHits(ctx, first), slotAssignADBTop)
 
-	// 先小幅上滑采集第二屏，采集结束后再滑回原位，避免后续购买节点仍停留在第二屏。
+	// 先小幅上滑采集第二屏；defer 保证任意返回路径都会滑回第一屏，避免后续购买节点仍停留在第二屏。
 	swiped := swipeShelfForADB(ctx, ctrl, adbShelfSwipeBeginY, adbShelfSwipeEndY)
+	if swiped {
+		defer func() {
+			if !swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY) {
+				log.Warn().Str("component", component).Msg("record shelf adb: failed to swipe back after shelf scan")
+			}
+		}()
+	}
 	second, err := screencap(ctrl)
 	if err != nil {
-		if swiped {
-			swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY)
-		}
 		log.Warn().Err(err).Str("component", component).Int("top_slots", len(slotsTop)).Msg("record shelf adb: second screencap failed, keep first row only")
 		return slotsTop
 	}
 	slotsBottom := buildSlotRecords(ctx, second, scanShelfNameHits(ctx, second), slotAssignADBBottom)
-	if swiped && !swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY) {
-		log.Warn().Str("component", component).Msg("record shelf adb: failed to swipe back after shelf scan")
-	}
 
 	merged := mergeSlotRecordsByPosition(slotsTop, slotsBottom)
 	log.Info().
