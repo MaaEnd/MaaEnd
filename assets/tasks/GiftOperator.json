@@ -14,7 +14,8 @@
             ],
             "controller": [
                 "Win32-Front",
-                "Wlroots"
+                "Wlroots",
+                "ADB"
             ]
         }
     ],
