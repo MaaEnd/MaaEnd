@@ -204,8 +204,30 @@
             }
         },
         "next": [
-            "GiftOperatorClickContact"
+            "GiftOperatorClickContact",
+            "[JumpBack]GiftOperatorGoAheadContact"
         ]
+    },
+    "GiftOperatorGoAheadContact": {
+        "desc": "继续向前走尝试接触联络台",
+        "max_hit": 6,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "target": [
+                                183,
+                                174
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
     },
     "GiftOperatorMoveMapTrackerSC": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",

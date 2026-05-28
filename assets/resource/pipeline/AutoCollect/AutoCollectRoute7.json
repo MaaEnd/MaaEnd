@@ -73,7 +73,7 @@
         ]
     },
     "AutoCollectRoute7GotoFindLine1": {
-        "desc": "寻路到升降梯门口",
+        "desc": "寻路到血菌",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -178,6 +178,38 @@
                 [
                     228.4,
                     383.7
+                ],
+                [
+                    235.5,
+                    383.6
+                ],
+                [
+                    243.5,
+                    383.6
+                ],
+                [
+                    250.6,
+                    383.6
+                ],
+                [
+                    276.3,
+                    383.7
+                ],
+                [
+                    277.6,
+                    383.6
+                ],
+                [
+                    278.7,
+                    382.4
+                ],
+                [
+                    278.8,
+                    355.0
+                ],
+                [
+                    270.0,
+                    353.8
                 ]
             ]
         }
@@ -563,6 +595,51 @@
             ]
         }
     },
+    "AutoCollectRoute7GotoFindLine5Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine5"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5",
+            "AutoCollectRoute7AssertLocation6"
+        ]
+    },
+    "AutoCollectRoute7GotoFindLine7Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7GotoFindLine7"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation7"
+        ]
+    },
+    "AutoCollectRoute7ErrorGoto": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute7FindButtonUsing",
+                "AutoCollectRoute7GotoFindLine5"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectRoute7AssertLocation5",
+            "AutoCollectRoute7AssertLocation6"
+        ]
+    },
     "AutoCollectRoute7FindButtonUsing": {
         "desc": "点击使用按钮",
         "recognition": {
@@ -591,36 +668,6 @@
         "focus": {
             "Node.Recognition.Succeeded": "使用升降索"
         }
-    },
-    "AutoCollectRoute7GotoFindLine5Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute7MoveLongPressA",
-                "AutoCollectRoute7GotoFindLine5"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation5",
-            "AutoCollectRoute7AssertLocation6"
-        ]
-    },
-    "AutoCollectRoute7GotoFindLine7Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute7GotoFindLine7"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation7"
-        ]
     },
     "AutoCollectRoute7AssertLocation5": {
         "desc": "滑索后定位",
@@ -651,23 +698,6 @@
         "pre_wait_freezes": 300,
         "next": [
             "AutoCollectRoute7ErrorGoto"
-        ]
-    },
-    "AutoCollectRoute7ErrorGoto": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute7FindButtonUsing",
-                "AutoCollectRoute7MoveLongPressA",
-                "AutoCollectRoute7GotoFindLine5"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation5",
-            "AutoCollectRoute7AssertLocation6"
         ]
     },
     "AutoCollectRoute7AssertLocation6": {
@@ -711,29 +741,6 @@
         "on_error": [
             "AutoCollectError"
         ]
-    },
-    "AutoCollectRoute7MoveLongPressA": {
-        "desc": "盲走按A",
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 1000,
-                "key": 65
-            }
-        },
-        "next": [
-            "AutoCollectRoute7MoveLongPressW"
-        ]
-    },
-    "AutoCollectRoute7MoveLongPressW": {
-        "desc": "盲走按A",
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 1000,
-                "key": 87
-            }
-        }
     },
     "AutoCollectRoute7MoveWait": {
         "pre_delay": 0,

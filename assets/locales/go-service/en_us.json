@@ -78,6 +78,8 @@
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
     "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
+    "autoecofarm.interruptible_sleep_done.completed": "Wait completed",
+    "autoecofarm.interruptible_sleep_stopped.message": "Manually stopped by user",
     "essencefilter.no_locked": "No target essences locked this run.",
     "essencefilter.loot_summary.title": "Loot Summary:",
     "essencefilter.loot_summary.weapon_col": "Weapon",

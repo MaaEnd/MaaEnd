@@ -78,6 +78,8 @@
     "autoecofarm.invalid_params": "パラメータが不正です",
     "autoecofarm.no_results": "結果を認識できませんでした",
     "autoecofarm.crossed_center": "行き過ぎを検知、ステップ比率を低減します",
+    "autoecofarm.interruptible_sleep_done.completed": "待機完了",
+    "autoecofarm.interruptible_sleep_stopped.message": "ユーザーが手動停止",
     "essencefilter.no_locked": "今回ロックした対象基質はありません。",
     "essencefilter.loot_summary.title": "戦利品サマリー：",
     "essencefilter.loot_summary.weapon_col": "武器",

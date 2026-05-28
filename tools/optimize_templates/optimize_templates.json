@@ -805,5 +805,6 @@
     "resource/image/MapTracker/map/map02_lv005_tier_314": "a14620f8775aed606e32467bed67f233dcd1eacda3774e8ce0a69b6992949754",
     "resource/image/MapTracker/map/map02_lv005_tier_324": "770d1b010599ef5592bcf6944a2fb3a609e61aa7ff7048d68d0507f10508b900",
     "resource/image/MapTracker/map/map02_lv005": "976c396264e93648bef2f767a4381a8a10c2f7a31a7583c76bf53a133d7b0c08",
-    "resource/image/PullCountCalculator/CarryToNextVoucher.Template": "63462b59efaed4ad514546c3ad75162de94cb34e206d6e0b985004a1e12819e8"
+    "resource/image/PullCountCalculator/CarryToNextVoucher.Template": "63462b59efaed4ad514546c3ad75162de94cb34e206d6e0b985004a1e12819e8",
+    "resource/image/SceneManager/LoginDialogConfirm": "7d415ed58e2fcbdf08d086050320a733cd0d578e5e633e0e9ccd15c7ab8ed194"
 }

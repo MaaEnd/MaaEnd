@@ -6,7 +6,6 @@ import (
 	"math"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -88,7 +87,7 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		}
 
 		if crossedCenter {
-			maafocus.Print(ctx, i18n.T("autoecofarm.crossed_center"))
+			log.Debug().Str("component", "AutoEcoFarm").Msg(i18n.T("autoecofarm.crossed_center"))
 		}
 	}
 
