@@ -216,7 +216,7 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 
 	a.exceeded = false
 	if a.ExceedingOverrideEnable != "" {
-		if upperOverflow || lowerOverflow {
+		if upperOverflow || lowerOverflow || a.maxQuantity == 0 {
 			a.exceeded = true
 			if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 				logEvent := a.logger.Error().
@@ -233,12 +233,16 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 				return false
 			}
 
-			a.logger.Warn().
+			logEvent := a.logger.Warn().
 				Int("original_target", a.OriginalTarget).
 				Int("resolved_target", a.Target).
 				Int("max_quantity", a.maxQuantity).
-				Str("override_node", a.ExceedingOverrideEnable).
-				Msg("target out of range: exceeding override scheduled, branching to done")
+				Str("override_node", a.ExceedingOverrideEnable)
+			if a.maxQuantity == 0 {
+				logEvent.Msg("max quantity is zero, skipping via exceeding override")
+			} else {
+				logEvent.Msg("target out of range: exceeding override scheduled, branching to done")
+			}
 			return true
 		}
 
@@ -664,6 +668,9 @@ func (a *BetterSlidingAction) resetState() {
 }
 
 func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
+	if maxQuantity == target {
+		return nodeBetterSlidingDone, nil
+	}
 	if maxQuantity < target {
 		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
 	}
