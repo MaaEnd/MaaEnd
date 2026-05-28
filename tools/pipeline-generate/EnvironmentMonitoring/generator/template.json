@@ -188,15 +188,8 @@
     "GoTo${Id}StartPos": {
         "desc": "在${Name}任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "${MapName}",
-                    "target": "${MapTarget}"
-                }
-            ]
-        },
+        "custom_recognition": "${MapAssertRecognition}",
+        "custom_recognition_param": "${MapAssertParam}",
         "next": [
             "GoTo${Id}MapTrackerMove"
         ]
@@ -218,15 +211,8 @@
     "GoTo${Id}RecheckStartPos": {
         "desc": "传送后再次检查是否已在${Name}任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "${MapName}",
-                    "target": "${MapTarget}"
-                }
-            ]
-        },
+        "custom_recognition": "${MapAssertRecognition}",
+        "custom_recognition_param": "${MapAssertParam}",
         "next": [
             "GoTo${Id}MapTrackerMove"
         ]
@@ -247,15 +233,8 @@
     "GoTo${Id}FinalCheckStartPos": {
         "desc": "二次传送后再次检查是否已在${Name}任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "${MapName}",
-                    "target": "${MapTarget}"
-                }
-            ]
-        },
+        "custom_recognition": "${MapAssertRecognition}",
+        "custom_recognition_param": "${MapAssertParam}",
         "next": [
             "GoTo${Id}MapTrackerMove"
         ]

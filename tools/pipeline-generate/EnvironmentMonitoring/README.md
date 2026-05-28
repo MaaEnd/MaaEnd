@@ -11,7 +11,9 @@ pnpm generate:EnvironmentMonitoring
 # 仅更新 zmdmap 缓存数据
 pnpm fetch:zmdmap
 
-# 如果已经更新过 zmdmap 缓存，也可以在当前目录单独渲染
+# 如果已经更新过 zmdmap 缓存，也可以在生成器目录单独渲染
+cd tools/pipeline-generate/EnvironmentMonitoring/generator
+node sync-routes.mjs
 npx @joebao/maa-pipeline-generate
 npx @joebao/maa-pipeline-generate --config terminals-config.json
 ```
@@ -23,33 +25,38 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 3. **重新生成 Pipeline**：运行上方两条命令，分别生成观察点节点文件与终端分组文件。
 4. **提交**：将 `routes.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下重新生成的文件一并提交。
 
-> `routes.mjs` 现在只是 `routes.json` 的薄壳并导出 `ROUTE_DEFAULTS`，常规情况下不需要修改它。
+> `pnpm generate:EnvironmentMonitoring` 会在渲染前显式运行 `generator/sync-routes.mjs`：按 zmdmap 数据补齐/刷新 `MissionId`、`Name`、`Id`，并按 `MissionId` 排序。单独渲染时也请先运行 `node sync-routes.mjs`。
 
 ### `routes.json` 条目字段说明
 
 ```jsonc
 {
+    "MissionId": "m1m30",
+        // 用于匹配 kite_station_i18n.json 中对应 mission 的 missionId，是 routes.json 的主键。
     "Name": "我的观察点",
-        // 用于匹配 kite_station_i18n.json 中对应 mission 的 name["zh-CN"]（去符号小写对比）。
-        // 匹配失败时 data.mjs 会 console.warn，并按未适配处理。
+        // 中文名，仅供人工阅读和搜索；不作为主键。
+    "Id": "MyObservationPoint",
+        // 最终模板使用的节点 ID，用于搜索生成节点/文件名；不作为主键。
     "EnterMap": "SceneEnterWorldWulingXxx",
         // 传送节点名，必须已在 assets/resource/pipeline/SceneManager/ 中存在。
         // 暂无合适传送点时，直接不要加这个 routes.json 条目（生成器会按未适配处理，仅接取并追踪），
         // 不要写 "SceneAnyEnterWorld" 等占位值。
     "MapName": "map02_lv001",
-        // MapTracker 小地图标识，支持正则（如 "^map\\d+_lv\\d+$"）。
-    "MapTarget": [x, y, w, h],
-        // 目标矩形（小地图坐标），用于 MapTrackerAssertLocation 判断是否已就位。
+        // 地图标识：使用 MapPath 时填 MapTracker 的 map_name（支持正则）；
+        // 使用 MapTarget 时填 MapLocate 的 zone_id。必须与录制工具保持一致。
+    "MapAssert": [x, y, w, h],
+        // 目标矩形；MapPath 使用 MapTrackerAssertLocation 判断，MapTarget 使用 MapLocateAssertLocation 判断。
     "MapPath": [[x1, y1], [x2, y2]],
         // 寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。
-        // 与 NavMeshTarget 二选一，用 tools/MapNavigator/ 的 GUI 工具录制。
-    // "NavMeshTarget": [x, y],
-    //     Navmesh 目标点，由 MapNavigateAction 的 NAVMESH 语义自动规划路线。
+        // 与 MapTarget 二选一，用 tools/MapNavigator/ 的 GUI 工具录制。
+    // "MapTarget": [x, y],
+    //     MapNavigateAction 目标点。生成时会在 path 前置 ZONE 声明，再追加该坐标点：
+    //     [{ "action": "ZONE", "zone_id": "Wuling_Base" }, [x, y]]
     //     与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         // 摄像头朝向调整方向，四选一：Up / Down / Left / Right。
     "CameraMaxHit": 2,
-        // 可选；调整摄像头时的最大滑屏命中次数，默认值见 routes.mjs 的 ROUTE_DEFAULTS。
+        // 可选；调整摄像头时的最大滑屏命中次数，默认值为 2。
         // 拍照目标较难对准时可适当调大。
     "NoEnsureInitialMovementState": true,
         // 可选；默认 false。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，
@@ -58,13 +65,12 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
         // 可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把
         // 角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整。
         // 仅影响角色朝向（决定进入拍照模式时的初始视角），与摄像头滑屏（CameraSwipeDirection）相互独立。
-    // "Id": "ExistingObservationPoint"
-    //     可选；默认从 kite_station_i18n.json 的 name["en-US"] 自动转换。
-    //     只有需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时才显式指定，新增观察点通常不要加。
 }
 ```
 
-> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。`MapPath` 与 `NavMeshTarget` 必须且只能填写其中一个。
+> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。`MapPath` 与 `MapTarget` 必须且只能填写其中一个。
+
+> 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增条目时必须填写 `MissionId`；如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 > 编辑 `routes.json` 时 VS Code 会自动应用 `tools/schema/environment_monitoring_routes.schema.json`（通过 `.vscode/settings.json` 注册），提供字段补全、枚举值（`CameraSwipeDirection`）和必填项校验。
 

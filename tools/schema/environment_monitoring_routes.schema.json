@@ -2,36 +2,105 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/MaaEnd/MaaEnd/blob/v2/tools/schema/environment_monitoring_routes.schema.json",
     "title": "EnvironmentMonitoring routes.json",
-    "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/data.mjs 读取并装配为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
+    "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/generator/data.mjs 读取并装配为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
     "type": "array",
     "items": {
         "type": "object",
         "title": "ObservationPointRoute",
         "additionalProperties": false,
         "required": [
+            "MissionId",
             "Name",
-            "EnterMap",
-            "MapName",
-            "MapTarget",
-            "CameraSwipeDirection"
+            "Id"
         ],
-        "oneOf": [
+        "allOf": [
             {
-                "required": [
-                    "MapPath"
-                ]
-            },
-            {
-                "required": [
-                    "NavMeshTarget"
-                ]
+                "if": {
+                    "anyOf": [
+                        {
+                            "required": [
+                                "EnterMap"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapName"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapAssert"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapPath"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapTarget"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "CameraSwipeDirection"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "CameraMaxHit"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "Heading"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "NoEnsureInitialMovementState"
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "required": [
+                        "EnterMap",
+                        "MapName",
+                        "MapAssert",
+                        "CameraSwipeDirection"
+                    ],
+                    "oneOf": [
+                        {
+                            "required": [
+                                "MapPath"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapTarget"
+                            ]
+                        }
+                    ]
+                }
             }
         ],
         "properties": {
+            "MissionId": {
+                "type": "string",
+                "minLength": 1,
+                "description": "观察点任务 ID，用于在 data.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 missionId。该字段是 routes.json 的主键。"
+            },
             "Name": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点中文名，用于在 data.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 mission.name['zh-CN']（去符号小写对比）。匹配失败时该条目不生效，观察点会按未适配处理。"
+                "description": "观察点中文名，仅供人工阅读。生成器以 MissionId 匹配；Name 与 zmdmap 当前中文名不一致时会自动刷新。"
+            },
+            "Id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                "description": "最终模板使用的观察点节点 ID，用于拼接节点名和输出文件名（${Station}/${Id}.json）。生成器会按 zmdmap 英文名自动刷新，方便人工搜索对应节点。"
             },
             "EnterMap": {
                 "type": "string",
@@ -45,19 +114,20 @@
             "MapName": {
                 "type": "string",
                 "minLength": 1,
-                "description": "MapTracker 小地图标识，支持正则。",
+                "description": "地图标识。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapTarget 时填写 MapLocate 的 zone_id。必须与录制 MapAssert/MapPath/MapTarget 时使用的工具保持一致。",
                 "examples": [
                     "map02_lv001",
                     "map02_lv002",
                     "map02_lv003",
                     "map02_lv004",
                     "map02_lv004_tier_328",
-                    "^map\\d+_lv\\d+$"
+                    "^map\\d+_lv\\d+$",
+                    "Wuling_Base"
                 ]
             },
-            "MapTarget": {
+            "MapAssert": {
                 "type": "array",
-                "description": "目标矩形 [x, y, w, h]（小地图坐标），用于 MapTrackerAssertLocation 判断是否已就位。",
+                "description": "目标矩形 [x, y, w, h]。使用 MapPath 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。",
                 "items": {
                     "type": "number"
                 },
@@ -66,7 +136,7 @@
             },
             "MapPath": {
                 "type": "array",
-                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 NavMeshTarget 二选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 MapTarget 二选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
                 "minItems": 1,
                 "items": {
                     "type": "array",
@@ -78,9 +148,9 @@
                     "maxItems": 2
                 }
             },
-            "NavMeshTarget": {
+            "MapTarget": {
                 "type": "array",
-                "description": "Navmesh 目标点 [x, y]，由 MapNavigateAction 的 NAVMESH 语义节点自动规划路线。与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。",
+                "description": "MapNavigateAction 目标点 [x, y]。生成器会在 path 前置 { action: \"ZONE\", zone_id: MapName }，再追加该坐标点。与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。",
                 "items": {
                     "type": "number"
                 },
@@ -99,7 +169,7 @@
             },
             "CameraMaxHit": {
                 "type": "integer",
-                "description": "调整摄像头时的最大滑屏命中次数。可选；默认值见 routes.mjs 的 ROUTE_DEFAULTS（当前为 2）。拍照目标较难对准时可适当调大。",
+                "description": "调整摄像头时的最大滑屏命中次数。可选；默认值为 2。拍照目标较难对准时可适当调大。",
                 "minimum": 1
             },
             "Heading": {
@@ -107,11 +177,6 @@
                 "description": "可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整角色朝向。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
                 "minimum": 0,
                 "exclusiveMaximum": 360
-            },
-            "Id": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9]*$",
-                "description": "可选；默认从 zmdmap 缓存数据 kite_station_i18n.json 的 name['en-US'] 自动 PascalCase 生成。仅在需要锁定旧节点名/输出文件名（${Station}/${Id}.json）时显式指定，新增观察点通常不要加。"
             },
             "NoEnsureInitialMovementState": {
                 "type": "boolean",

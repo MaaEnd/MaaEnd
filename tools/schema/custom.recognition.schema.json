@@ -30,32 +30,77 @@
             ]
         }
     },
-    "if": {
-        "type": "object",
-        "required": [ "custom_recognition" ],
-        "properties": { "custom_recognition": { "const": "MapTrackerAssertLocation" } }
-    },
-    "then": {
-        "type": "object",
-        "required": [ "custom_recognition_param" ],
-        "properties": {
-            "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam" }
-        }
-    },
-    "else": {
-        "if": {
-            "type": "object",
-            "required": [ "custom_recognition" ],
-            "properties": { "custom_recognition": { "const": "MapTrackerInfer" } }
-        },
-        "then": {
-            "type": "object",
-            "required": [ "custom_recognition_param" ],
-            "properties": {
-                "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam" }
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapTrackerAssertLocation" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam" }
+                }
             }
         },
-        "else": {
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapLocateAssertLocation" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "zone_id", "target" ],
+                        "properties": {
+                            "zone_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "target": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                },
+                                "minItems": 4,
+                                "maxItems": 4
+                            },
+                            "loc_threshold": {
+                                "type": "number"
+                            },
+                            "yolo_threshold": {
+                                "type": "number"
+                            },
+                            "force_global_search": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapTrackerInfer" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam" }
+                }
+            }
+        },
+        {
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
@@ -69,5 +114,5 @@
                 }
             }
         }
-    }
+    ]
 }
