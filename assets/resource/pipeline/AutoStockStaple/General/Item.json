@@ -78,8 +78,12 @@
             "param": {
                 "roi": "AutoStockInStapleItemNameLabelColor",
                 "method": 6,
-                "lower": [150],
-                "upper": [250],
+                "lower": [
+                    180
+                ],
+                "upper": [
+                    255
+                ],
                 "count": 10
             }
         }
