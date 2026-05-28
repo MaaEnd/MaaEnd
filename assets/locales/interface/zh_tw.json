@@ -511,8 +511,6 @@
     "group.other_menu.label": "其他選單",
     "group.realtime.label": "即時輔助",
     "resource.CN.label": "通用資源（目前僅簡中支援較好）",
-    "controller.Win32-Window.label": "電腦端-預設",
-    "controller.Win32-Window.description": "相容性最佳，適合日常使用。支援遊戲最小化，會間接性搶占滑鼠",
     "controller.Win32-Window-Background.label": "電腦端-後台",
     "controller.Win32-Window-Background.description": "純後台控制器。支援遊戲最小化，不搶占滑鼠。但可能導致遊戲視窗亂飛，不影響使用，建議將遊戲最小化以避免干擾",
     "controller.Win32-Front.label": "電腦端-前台",
