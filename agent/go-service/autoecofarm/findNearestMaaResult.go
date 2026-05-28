@@ -71,7 +71,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	results := detail.Results.Filtered
 
 	if len(results) == 0 {
-		maafocus.Print(ctx, i18n.T("autoecofarm.no_results"))
+		log.Debug().Str("component", "AutoEcoFarm").Msg(i18n.T("autoecofarm.no_results"))
 		return nil, false
 	}
 

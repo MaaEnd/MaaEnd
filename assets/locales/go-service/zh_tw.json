@@ -78,6 +78,8 @@
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",
     "autoecofarm.crossed_center": "偵測到拉過頭，自動降低拉近比例",
+    "autoecofarm.interruptible_sleep_done.completed": "等待完成",
+    "autoecofarm.interruptible_sleep_stopped.message": "用戶手動終止",
     "essencefilter.no_locked": "本次未鎖定任何目標基質。",
     "essencefilter.loot_summary.title": "戰利品摘要：",
     "essencefilter.loot_summary.weapon_col": "武器",

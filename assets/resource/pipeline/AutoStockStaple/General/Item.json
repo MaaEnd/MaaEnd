@@ -123,10 +123,10 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    39,
-                    -212,
-                    25,
-                    63
+                    107,
+                    -168,
+                    -119,
+                    -18
                 ],
                 "expected": [
                     "95",
@@ -148,10 +148,10 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    39,
-                    -212,
-                    25,
-                    63
+                    107,
+                    -168,
+                    -119,
+                    -18
                 ],
                 "expected": [
                     "95",
