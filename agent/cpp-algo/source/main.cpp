@@ -3,6 +3,7 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/ParentProcessWatcher.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
@@ -24,6 +25,9 @@ int main(int argc, char** argv)
         std::cerr << "socket_id is provided by AgentIdentifier." << std::endl;
         return -1;
     }
+
+    // 父进程一旦退出立刻结束自己，避免 MXU/MFAA 崩溃后 cpp-algo 残留。
+    common::StartParentProcessWatcher();
 
     Test();
 

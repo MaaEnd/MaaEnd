@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/parentwatch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
@@ -60,6 +61,9 @@ func main() {
 	log.Info().
 		Str("version", Version).
 		Msg("MaaEnd Agent Service")
+
+	// 父进程一旦退出立刻结束自己，避免 MXU/MFAA 崩溃后 go-service 残留。
+	parentwatch.Start()
 
 	pienv.Init()
 	i18n.Init()
