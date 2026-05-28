@@ -148,10 +148,8 @@ def main() -> int:
             print(f"SKIP {name}: no PNG files found in {directory}")
             continue
 
-        sample_regions = compute_paint_regions(
-            Image.open(png_paths[0]).size,
-            reference_box,
-        )
+        with Image.open(png_paths[0]) as sample_img:
+            sample_regions = compute_paint_regions(sample_img.size, reference_box)
         print(f"[{name}] reference_box={reference_box} regions={sample_regions}")
 
         for png_path in png_paths:
