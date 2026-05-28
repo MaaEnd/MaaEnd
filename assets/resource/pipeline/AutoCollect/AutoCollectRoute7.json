@@ -58,7 +58,7 @@
         ]
     },
     "AutoCollectRoute7GotoFindLine1Sub": {
-        "desc": "寻路到升降梯门口",
+        "desc": "寻路到血菌",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -215,103 +215,6 @@
         }
     },
     "AutoCollectRoute7AssertLocation2": {
-        "desc": "升降梯门口定位",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        217.8,
-                        379.0,
-                        11.2,
-                        9.7
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "AutoCollectRoute7GotoFindLine2Sub"
-        ]
-    },
-    "AutoCollectRoute7GotoFindLine2Sub": {
-        "desc": "过升降机并前往血菌收集点",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute7GotoFindLine2",
-                "AutoCollectRoute7GotoFindLine3"
-            ],
-            "continue": true,
-            "strict": false
-        },
-        "next": [
-            "AutoCollectRoute7AssertLocation3"
-        ]
-    },
-    "AutoCollectRoute7GotoFindLine2": {
-        "desc": "过升降机",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "path": [
-                [
-                    227.4,
-                    383.5
-                ],
-                [
-                    236.5,
-                    383.6
-                ],
-                [
-                    244.5,
-                    383.6
-                ],
-                [
-                    251.6,
-                    383.6
-                ]
-            ]
-        }
-    },
-    "AutoCollectRoute7GotoFindLine3": {
-        "desc": "寻路至血菌",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "path": [
-                [
-                    251.1,
-                    383.9
-                ],
-                [
-                    277.3,
-                    383.7
-                ],
-                [
-                    278.6,
-                    383.6
-                ],
-                [
-                    279.7,
-                    382.4
-                ],
-                [
-                    279.8,
-                    355.0
-                ],
-                [
-                    271.0,
-                    353.8
-                ]
-            ]
-        }
-    },
-    "AutoCollectRoute7AssertLocation3": {
         "desc": "血菌定位",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
