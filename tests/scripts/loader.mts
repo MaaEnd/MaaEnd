@@ -118,7 +118,6 @@ export async function fetchCases(): Promise<TestCases[]> {
     // Global: '',
   }
   const controllerMap: Record<string, string> = {
-    'Win32-Window': 'Win32',
     'Win32-Window-Background': 'Win32',
     Win32: 'Win32',
     'Win32-Front': 'Win32',
