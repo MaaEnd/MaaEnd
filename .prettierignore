@@ -10,10 +10,8 @@ tests/MaaEndTestset
 # 跳过 schema 目录，避免与 sync_schema_files 冲突
 tools/schema/
 
-# pipeline-generate 数据文件含大量坐标嵌套数组，跳过自动格式化以保留可读性
+# 从 zmdmap 获取的数据不需要格式化
 tools/pipeline-generate/data/*.json
-tools/pipeline-generate/EnvironmentMonitoring/routes.json
-tools/pipeline-generate/EnvironmentMonitoring/kite_station.json
 
 # pipeline-generate 模板 jsonc 不能被 prettier 加 trailing comma：模板会被原样渲染到 assets/resource/pipeline/ 下，加了逗号生成产物就不是 strict JSON
 tools/pipeline-generate/**/*.jsonc
