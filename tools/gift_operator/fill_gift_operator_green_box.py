@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-这个工具用于将赠送礼物的干员头像的礼物图标区域涂成绿色
+将赠送礼物干员头像模板格式化为 green_mask 可用形态：
+- 上、左、右三边各 2px 绿色描边
+- 右上角绿色遮罩，尺寸为左侧靠上礼物图标参考区域的 1.5 倍
 """
 from __future__ import annotations
 
@@ -17,15 +19,18 @@ RESOURCE_DIRECTORY = (
 ADB_DIRECTORY = (
     PROJECT_ROOT / "assets" / "resource_adb" / "image" / "GiftOperator" / "Operators"
 )
+# 左侧靠上礼物图标参考区域（半开区间 left, top, right, bottom）
 TARGETS = (
-    ("resource", RESOURCE_DIRECTORY, (0, 16, 18, 35)),
+    ("win32", RESOURCE_DIRECTORY, (0, 16, 18, 35)),
     ("adb", ADB_DIRECTORY, (0, 20, 20, 40)),
 )
+BORDER_WIDTH = 2
+MASK_SCALE = 1.5
 
 
 def build_parser() -> ArgumentParser:
     parser = ArgumentParser(
-        description="Fill hardcoded GiftOperator PNG regions with green."
+        description="Format GiftOperator operator PNGs for green_mask template matching."
     )
     parser.add_argument(
         "--color",
@@ -70,8 +75,43 @@ def validate_color(color: tuple[int, int, int]) -> tuple[int, int, int]:
     return color
 
 
+def box_size(box: tuple[int, int, int, int]) -> tuple[int, int]:
+    left, top, right, bottom = box
+    return right - left, bottom - top
+
+
+def scaled_size(width: int, height: int, scale: float) -> tuple[int, int]:
+    return round(width * scale), round(height * scale)
+
+
+def compute_paint_regions(
+    image_size: tuple[int, int],
+    reference_box: tuple[int, int, int, int],
+    *,
+    border_width: int = BORDER_WIDTH,
+    mask_scale: float = MASK_SCALE,
+) -> tuple[tuple[int, int, int, int], ...]:
+    image_width, image_height = image_size
+    ref_width, ref_height = box_size(reference_box)
+    mask_width, mask_height = scaled_size(ref_width, ref_height, mask_scale)
+
+    top_border = (0, 0, image_width, border_width)
+    left_border = (0, 0, border_width, image_height)
+    right_border = (image_width - border_width, 0, image_width, image_height)
+    top_right_mask = (
+        image_width - mask_width,
+        0,
+        image_width,
+        mask_height,
+    )
+
+    return (top_border, left_border, right_border, top_right_mask)
+
+
 def paint_png(
-    png_path: Path, box: tuple[int, int, int, int], color: tuple[int, int, int]
+    png_path: Path,
+    reference_box: tuple[int, int, int, int],
+    color: tuple[int, int, int],
 ) -> bool:
     with Image.open(png_path) as img:
         original_mode = img.mode
@@ -84,8 +124,9 @@ def paint_png(
 
         draw = ImageDraw.Draw(img)
         fill_color = color if original_mode == "RGB" else (*color, 255)
-        # Pillow includes the bottom-right pixel, so subtract 1 to match a half-open box.
-        draw.rectangle((box[0], box[1], box[2] - 1, box[3] - 1), fill=fill_color)
+        for box in compute_paint_regions(img.size, reference_box):
+            # Pillow includes the bottom-right pixel, so subtract 1 to match a half-open box.
+            draw.rectangle((box[0], box[1], box[2] - 1, box[3] - 1), fill=fill_color)
         img.save(png_path)
 
     return True
@@ -101,19 +142,25 @@ def main() -> int:
     targets = validate_targets()
     total_png_count = 0
 
-    for name, directory, box in targets:
+    for name, directory, reference_box in targets:
         png_paths = collect_pngs(directory)
         if not png_paths:
             print(f"SKIP {name}: no PNG files found in {directory}")
             continue
 
+        sample_regions = compute_paint_regions(
+            Image.open(png_paths[0]).size,
+            reference_box,
+        )
+        print(f"[{name}] reference_box={reference_box} regions={sample_regions}")
+
         for png_path in png_paths:
             print(
                 f"{'DRY-RUN' if args.dry_run else 'PROCESS'} "
-                f"[{name}] box={box}: {png_path}"
+                f"[{name}] {png_path}"
             )
             if not args.dry_run:
-                paint_png(png_path, box, color)
+                paint_png(png_path, reference_box, color)
 
         total_png_count += len(png_paths)
 
@@ -121,7 +168,10 @@ def main() -> int:
         print("No PNG files found.")
         return 0
 
-    print(f"{'DRY-RUN COMPLETE' if args.dry_run else 'DONE'}: {total_png_count} PNG files, color={color}")
+    print(
+        f"{'DRY-RUN COMPLETE' if args.dry_run else 'DONE'}: "
+        f"{total_png_count} PNG files, color={color}"
+    )
     return 0
 
 
