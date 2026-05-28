@@ -70,12 +70,11 @@ EnvironmentMonitoringMain
                       ├─ GoTo{Id}StartPos （MapTrackerAssertLocation / MapLocateAssertLocation 已就位 → MapTrackerMove / MapNavigateAction）
                       └─ GoTo{Id}NotAtStartPos
                            └─ SubTask: ${EnterMap}            （传送）
-                                ├─ GoTo{Id}RecheckStartPos    （传送后复核）
-                                └─ GoTo{Id}ReEnterMap         （二次传送 → FinalCheck）
-                                └─ GoTo{Id}MapTrackerMove
-                                     ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-                                     ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
-                                     └─ next:   EnvironmentMonitoringTakePhoto
+                                └─ GoTo{Id}StartPos           （检查是否已到任务开始位置附近）
+                                     └─ GoTo{Id}MapTrackerMove
+                                          ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+                                          ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
+                                          └─ next:   EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal

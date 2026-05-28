@@ -226,7 +226,7 @@
         ]
     },
     "GoToAnnularWaterfallNotAtStartPos": {
-        "desc": "不在环形瀑布任务开始位置附近，先传送再复核落点",
+        "desc": "不在环形瀑布任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToAnnularWaterfallRecheckStartPos",
-            "GoToAnnularWaterfallReEnterMap"
-        ]
-    },
-    "GoToAnnularWaterfallRecheckStartPos": {
-        "desc": "传送后再次检查是否已在环形瀑布任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        496.1,
-                        360.1,
-                        19.3,
-                        14.3
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToAnnularWaterfallMapTrackerMove"
-        ]
-    },
-    "GoToAnnularWaterfallReEnterMap": {
-        "desc": "传送后仍未到达环形瀑布任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingQingboStockade3"
-            ]
-        },
-        "next": [
-            "GoToAnnularWaterfallFinalCheckStartPos"
-        ]
-    },
-    "GoToAnnularWaterfallFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在环形瀑布任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        496.1,
-                        360.1,
-                        19.3,
-                        14.3
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToAnnularWaterfallMapTrackerMove"
+            "GoToAnnularWaterfallStartPos"
         ]
     },
     "GoToAnnularWaterfallMapTrackerMove": {

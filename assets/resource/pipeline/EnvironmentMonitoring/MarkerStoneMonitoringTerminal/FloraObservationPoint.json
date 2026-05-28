@@ -226,7 +226,7 @@
         ]
     },
     "GoToFloraObservationPointNotAtStartPos": {
-        "desc": "不在植物观察点任务开始位置附近，先传送再复核落点",
+        "desc": "不在植物观察点任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToFloraObservationPointRecheckStartPos",
-            "GoToFloraObservationPointReEnterMap"
-        ]
-    },
-    "GoToFloraObservationPointRecheckStartPos": {
-        "desc": "传送后再次检查是否已在植物观察点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointMapTrackerMove"
-        ]
-    },
-    "GoToFloraObservationPointReEnterMap": {
-        "desc": "传送后仍未到达植物观察点任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointFinalCheckStartPos"
-        ]
-    },
-    "GoToFloraObservationPointFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在植物观察点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointMapTrackerMove"
+            "GoToFloraObservationPointStartPos"
         ]
     },
     "GoToFloraObservationPointMapTrackerMove": {

@@ -226,7 +226,7 @@
         ]
     },
     "GoToTreeOfTheOldCourtyardNotAtStartPos": {
-        "desc": "不在旧庭树任务开始位置附近，先传送再复核落点",
+        "desc": "不在旧庭树任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToTreeOfTheOldCourtyardRecheckStartPos",
-            "GoToTreeOfTheOldCourtyardReEnterMap"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardRecheckStartPos": {
-        "desc": "传送后再次检查是否已在旧庭树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardMapTrackerMove"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardReEnterMap": {
-        "desc": "传送后仍未到达旧庭树任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone1"
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardFinalCheckStartPos"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在旧庭树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardMapTrackerMove"
+            "GoToTreeOfTheOldCourtyardStartPos"
         ]
     },
     "GoToTreeOfTheOldCourtyardMapTrackerMove": {

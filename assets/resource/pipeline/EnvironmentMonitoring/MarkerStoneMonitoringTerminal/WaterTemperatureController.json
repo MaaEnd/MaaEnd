@@ -226,7 +226,7 @@
         ]
     },
     "GoToWaterTemperatureControllerNotAtStartPos": {
-        "desc": "不在净水温控装置任务开始位置附近，先传送再复核落点",
+        "desc": "不在净水温控装置任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToWaterTemperatureControllerRecheckStartPos",
-            "GoToWaterTemperatureControllerReEnterMap"
-        ]
-    },
-    "GoToWaterTemperatureControllerRecheckStartPos": {
-        "desc": "传送后再次检查是否已在净水温控装置任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        408.5,
-                        312.7,
-                        16.8,
-                        18.2
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
-        ]
-    },
-    "GoToWaterTemperatureControllerReEnterMap": {
-        "desc": "传送后仍未到达净水温控装置任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone2"
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerFinalCheckStartPos"
-        ]
-    },
-    "GoToWaterTemperatureControllerFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在净水温控装置任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        408.5,
-                        312.7,
-                        16.8,
-                        18.2
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
+            "GoToWaterTemperatureControllerStartPos"
         ]
     },
     "GoToWaterTemperatureControllerMapTrackerMove": {

@@ -226,7 +226,7 @@
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastNotAtStartPos": {
-        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再复核落点",
+        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos",
-            "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos": {
-        "desc": "传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        416.7,
-                        844.3,
-                        11.4,
-                        10.6
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap": {
-        "desc": "传送后仍未到达肚子鼓气后发光的吐虫长股兽任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity7"
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        416.7,
-                        844.3,
-                        11.4,
-                        10.6
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
+            "GoToInflatedAndGlowingBugspittingLankybeastStartPos"
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove": {

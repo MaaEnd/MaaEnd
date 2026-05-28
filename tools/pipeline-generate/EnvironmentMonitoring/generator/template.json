@@ -195,7 +195,7 @@
         ]
     },
     "GoTo${Id}NotAtStartPos": {
-        "desc": "不在${Name}任务开始位置附近，先传送再复核落点",
+        "desc": "不在${Name}任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -204,39 +204,7 @@
             ]
         },
         "next": [
-            "GoTo${Id}RecheckStartPos",
-            "GoTo${Id}ReEnterMap"
-        ]
-    },
-    "GoTo${Id}RecheckStartPos": {
-        "desc": "传送后再次检查是否已在${Name}任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "${MapAssertRecognition}",
-        "custom_recognition_param": "${MapAssertParam}",
-        "next": [
-            "GoTo${Id}MapTrackerMove"
-        ]
-    },
-    "GoTo${Id}ReEnterMap": {
-        "desc": "传送后仍未到达${Name}任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "${EnterMap}"
-            ]
-        },
-        "next": [
-            "GoTo${Id}FinalCheckStartPos"
-        ]
-    },
-    "GoTo${Id}FinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在${Name}任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "${MapAssertRecognition}",
-        "custom_recognition_param": "${MapAssertParam}",
-        "next": [
-            "GoTo${Id}MapTrackerMove"
+            "GoTo${Id}StartPos"
         ]
     },
     "GoTo${Id}MapTrackerMove": {
