@@ -377,7 +377,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
-		if params.EnableDodge && screenAnalyzer.GetEnemyDodge() {
+		if params.EnableDodge && (screenAnalyzer.GetEnemyDodge() || screenAnalyzer.GetEnemyAttackGroundDodge()) {
 			enqueueAction(fightAction{
 				executeAt: time.Now().Add(time.Millisecond),
 				action:    ActionDodge,
