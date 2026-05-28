@@ -269,7 +269,7 @@ In `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
 >
 > `MissionId` is the matching key used by `data.mjs`; it is matched exactly against `missionId` in `kite_station_i18n.json`. `Name` is only for human reading, and `Id` is only for searching generated nodes/files; if they differ from the current zmdmap data, the generator refreshes them to the current correct values and matching is unaffected.
 
-> When EnvironmentMonitoring is regenerated, `sync-routes.mjs` first refreshes `MissionId` / `Name` / `Id` from zmdmap data and sorts entries by `MissionId`. For a hand-written legacy entry, if `Name` or a legacy `NameEn` uniquely matches a mission name in any language, `MissionId` is filled automatically; otherwise you must fill `MissionId` manually. If zmdmap has a new mission but `routes.json` has no entry for it, the generator appends a `MissionId` / `Name` / `Id` only not-adapted placeholder entry so maintainers can see which routes still need data.
+> When EnvironmentMonitoring is regenerated, `sync-routes.mjs` first refreshes `MissionId` / `Name` / `Id` from zmdmap data and sorts entries by `MissionId`. Hand-written entries must include `MissionId`. If zmdmap has a new mission but `routes.json` has no entry for it, the generator appends a `MissionId` / `Name` / `Id` only not-adapted placeholder entry so maintainers can see which routes still need data.
 
 ### 4. Record coordinates and path
 

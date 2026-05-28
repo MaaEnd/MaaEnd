@@ -269,7 +269,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 >
 > `MissionId` 是 `data.mjs` 的匹配键，会与 `kite_station_i18n.json` 中的 `missionId` 精确匹配。`Name` 只供人工阅读，`Id` 只供人工搜索生成节点/文件名；如果与 zmdmap 当前数据不一致，生成器会直接刷新为当前正确值，不影响匹配。
 
-> 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按 zmdmap 数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写旧格式条目时，只要 `Name` 或旧有 `NameEn` 能唯一匹配任意语言任务名，`MissionId` 会被自动补齐；无法唯一匹配时需要手动填写 `MissionId`。如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
+> 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按 zmdmap 数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写条目时必须填写 `MissionId`；如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 ### 4. 录制坐标和路径
 

@@ -70,7 +70,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。`MapPath` 与 `MapTarget` 必须且只能填写其中一个。
 
-> 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增旧格式条目时，只要 `Name` 或旧有 `NameEn` 能唯一匹配 zmdmap 的任意语言任务名，`MissionId` 会被自动补上；无法唯一匹配时需要手动填写 `MissionId`。如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
+> 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增条目时必须填写 `MissionId`；如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 > 编辑 `routes.json` 时 VS Code 会自动应用 `tools/schema/environment_monitoring_routes.schema.json`（通过 `.vscode/settings.json` 注册），提供字段补全、枚举值（`CameraSwipeDirection`）和必填项校验。
 

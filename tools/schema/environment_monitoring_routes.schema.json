@@ -99,7 +99,7 @@
             },
             "Id": {
                 "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
                 "description": "最终模板使用的观察点节点 ID，用于拼接节点名和输出文件名（${Station}/${Id}.json）。生成器会按 zmdmap 英文名自动刷新，方便人工搜索对应节点。"
             },
             "EnterMap": {

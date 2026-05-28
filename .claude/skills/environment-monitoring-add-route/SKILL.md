@@ -1,6 +1,6 @@
 ---
 name: environment-monitoring-add-route
-description: "向 routes.json 添加环境监测（EnvironmentMonitoring）新观察点条目。使用时：新增 zmdmap / kite_station_i18n 观察点路线配置、适配新版本的环境监测任务、补全缺失的 EnterMap、MapPath 或 MapTarget 数据。会自动检测缺失任务，逐字段询问路线数据后写入 ROUTE_CONFIG。"
+description: "向 routes.json 添加环境监测（EnvironmentMonitoring）新观察点条目。使用时：新增 zmdmap / kite_station_i18n 观察点路线配置、适配新版本的环境监测任务、补全缺失的 EnterMap、MapPath 或 MapTarget 数据。会自动检测缺失任务，逐字段询问路线数据后写入 routes.json。"
 argument-hint: "可选：直接说明要适配哪个观察点名称，否则自动列出所有缺失条目"
 ---
 

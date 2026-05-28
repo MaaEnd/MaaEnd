@@ -13,7 +13,6 @@ const ROUTE_METADATA_KEYS = new Set([
     "MissionId",
     "Name",
     "Id",
-    "NameEn",
 ]);
 
 function normalizeSearchText(text) {
@@ -67,7 +66,6 @@ function findMissionForRoute(route, index) {
 
     for (const value of [
         route.Name,
-        route.NameEn,
         route.Id,
     ]) {
         const key = normalizeSearchText(value);
