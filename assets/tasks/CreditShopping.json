@@ -2081,7 +2081,7 @@
         "CreditShoppingForce": {
             "type": "select",
             "label": "$option.CreditShoppingForce.label",
-            "default_case": "Exit",
+            "default_case": "Refresh",
             "cases": [
                 {
                     "name": "Exit",
