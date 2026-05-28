@@ -70,12 +70,11 @@ The chain inside each observation-point `{Id}Job` (rendered from `template.json`
                       ├─ GoTo{Id}StartPos  (MapTrackerAssertLocation / MapLocateAssertLocation confirms position → MapTrackerMove / MapNavigateAction)
                       └─ GoTo{Id}NotAtStartPos
                            └─ SubTask: ${EnterMap}             (teleport)
-                                ├─ GoTo{Id}RecheckStartPos     (re-check position after teleport)
-                                └─ GoTo{Id}ReEnterMap          (second teleport → FinalCheck)
-                                └─ GoTo{Id}MapTrackerMove
-                                     ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-                                     ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
-                                     └─ next:   EnvironmentMonitoringTakePhoto
+                                └─ GoTo{Id}StartPos            (check whether the task start position has been reached)
+                                     └─ GoTo{Id}MapTrackerMove
+                                          ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+                                          ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
+                                          └─ next:   EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto        (enters photo mode → adjusts facing → takes photo)
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
