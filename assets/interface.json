@@ -19,16 +19,16 @@
     },
     "controller": [
         {
-            "name": "Win32-Window",
-            "label": "$controller.Win32-Window.label",
-            "description": "$controller.Win32-Window.description",
+            "name": "Win32-Front",
+            "label": "$controller.Win32-Front.label",
+            "description": "$controller.Win32-Front.description",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
-                "screencap": "Background",
-                "mouse": "SendMessageWithCursorPos",
-                "keyboard": "PostMessage"
+                "screencap": "ScreenDC",
+                "mouse": "Seize",
+                "keyboard": "Seize"
             },
             "permission_required": true
         },
@@ -43,20 +43,6 @@
                 "screencap": "PrintWindow",
                 "mouse": "SendMessageWithWindowPos",
                 "keyboard": "PostMessage"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32-Front",
-            "label": "$controller.Win32-Front.label",
-            "description": "$controller.Win32-Front.description",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "ScreenDC",
-                "mouse": "Seize",
-                "keyboard": "Seize"
             },
             "permission_required": true
         },
