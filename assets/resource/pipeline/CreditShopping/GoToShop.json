@@ -22,10 +22,10 @@
         "post_wait_freezes": {
             "time": 100,
             "target": [
-                0,
-                554,
-                301,
-                166
+                412,
+                328,
+                127,
+                140
             ]
         },
         "post_delay": 0,
