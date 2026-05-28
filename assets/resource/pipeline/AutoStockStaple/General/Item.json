@@ -77,17 +77,9 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "AutoStockInStapleItemNameLabelColor",
-                "method": 40,
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    0,
-                    2,
-                    255
-                ],
+                "method": 6,
+                "lower": [150],
+                "upper": [250],
                 "count": 10
             }
         }
@@ -131,10 +123,10 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    107,
-                    -168,
-                    -119,
-                    -18
+                    39,
+                    -212,
+                    25,
+                    63
                 ],
                 "expected": [
                     "95",
@@ -156,10 +148,10 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    107,
-                    -168,
-                    -119,
-                    -18
+                    39,
+                    -212,
+                    25,
+                    63
                 ],
                 "expected": [
                     "95",
