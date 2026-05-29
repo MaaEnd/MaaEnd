@@ -559,7 +559,12 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     }
 
     std::vector<uint32_t> blocked;
-    const size_t blocked_end = std::min(direct_route->triangles.size(), kDetourBlockedTriangleCount + 1);
+    // Block the obstacle triangles just ahead of the agent, but never the goal triangle (the last one
+    // in the route). At short range the fixed block budget can otherwise reach the destination triangle,
+    // leaving the detour planner unable to route to the anchor — recovery then fails even when a clean
+    // short bypass exists. For routes longer than the budget this leaves the blocked set unchanged.
+    const size_t blockable = direct_route->triangles.size() > 1 ? direct_route->triangles.size() - 1 : 0;
+    const size_t blocked_end = std::min(blockable, kDetourBlockedTriangleCount + 1);
     for (size_t index = 1; index < blocked_end; ++index) {
         blocked.push_back(direct_route->triangles[index]);
     }
@@ -625,19 +630,29 @@ bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::
     }
 
     const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
-    const size_t end = include_goal ? world_path.points.size() : world_path.points.size() - 1;
-    for (size_t index = 1; index < end; ++index) {
-        if (segment_breaks.contains(index) && !out_path.empty()) {
-            out_path.back().strict_arrival = true;
-        }
-        const navmesh::WorldPoint& point = world_path.points[index];
-        out_path.emplace_back(point.x, point.y, ActionType::RUN);
-    }
+    const size_t total = world_path.points.size();
+    const size_t loop_end = include_goal ? total : (total > 0 ? total - 1 : 0);
 
-    if (include_goal && !out_path.empty() && out_path.back().HasPosition()) {
+    for (size_t index = 1; index < loop_end; ++index) {
+        if (!segment_breaks.contains(index)) {
+            continue;
+        }
+        const size_t emit_idx = index - 1;
+        if (emit_idx == 0) {
+            continue;
+        }
+        const navmesh::WorldPoint& point = world_path.points[emit_idx];
+        out_path.emplace_back(point.x, point.y, ActionType::RUN);
         out_path.back().strict_arrival = true;
     }
-    return include_goal || world_path.points.size() <= 2 || !out_path.empty();
+
+    if (include_goal && total >= 2) {
+        const navmesh::WorldPoint& goal = world_path.points[total - 1];
+        out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
+        out_path.back().strict_arrival = true;
+    }
+
+    return true;
 }
 
 } // namespace mapnavigator

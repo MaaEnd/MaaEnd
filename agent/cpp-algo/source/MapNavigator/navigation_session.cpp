@@ -285,25 +285,6 @@ double NavigationSession::best_distance_to_target() const
     return best_distance_to_target_;
 }
 
-size_t NavigationSession::FindRejoinSliceStart(size_t continue_index) const
-{
-    size_t slice_start = continue_index;
-    while (slice_start > 0 && original_path_[slice_start - 1].IsZoneDeclaration()) {
-        --slice_start;
-    }
-    return slice_start;
-}
-
-void NavigationSession::ApplyRejoinSlice(size_t slice_start, const NaviPosition& pos)
-{
-    current_path_.assign(original_path_.begin() + static_cast<std::ptrdiff_t>(slice_start), original_path_.end());
-    path_origin_index_ = slice_start;
-    generated_prefix_size_ = 0;
-    current_node_idx_ = 0;
-    current_zone_id_ = pos.zone_id;
-    ResetProgress();
-}
-
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
     assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");

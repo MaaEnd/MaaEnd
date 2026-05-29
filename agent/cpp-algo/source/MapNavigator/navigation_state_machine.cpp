@@ -428,6 +428,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     const size_t generated_count = generated_prefix.size();
     session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
     runtime_state_.route.Reset();
+    runtime_state_.nav_run_dirty = true;
     if (generated_count == 0 && std::hypot(anchor.x - position_->x, anchor.y - position_->y) <= ArrivalBandForStartupBypass(anchor)) {
         runtime_state_.route.startup_anchor_pos = *position_;
         runtime_state_.route.startup_anchor_initialized = true;
@@ -536,13 +537,77 @@ bool NavigationStateMachine::TickNavigate()
         position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
 
     const size_t node_idx_before_tracking = session_->current_node_idx();
-    const RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
+    RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
     if (session_->current_node_idx() != node_idx_before_tracking) {
         runtime_state_.recovery.Reset();
     }
 
+    NavRunTickResult nav_run_result;
+    if (route.valid && session_->HasCurrentWaypoint()) {
+        const Waypoint& current_waypoint = session_->CurrentWaypoint();
+        if (current_waypoint.HasPosition() && current_waypoint.action == ActionType::RUN) {
+            // Strict RUN must be hit precisely, so its corridor anchor is the waypoint itself;
+            // continuous RUN can lookahead through to the next semantic anchor.
+            std::optional<DynamicAnchor> nav_run_anchor;
+            if (current_waypoint.RequiresStrictArrival()) {
+                nav_run_anchor = DynamicAnchor { session_->current_node_idx(), current_waypoint };
+            }
+            else {
+                nav_run_anchor = ResolveCurrentAnchor(session_, *position_);
+            }
+            if (nav_run_anchor) {
+                const bool sprint_proxy = route.startup_motion_confirmed && param_.sprint_threshold > 0.0
+                                          && route.along_track_remaining > param_.sprint_threshold;
+                nav_run_result = nav_run_controller_.tick(
+                    session_, &runtime_state_, *position_, route, param_, nav_run_anchor->first, nav_run_anchor->second,
+                    sprint_proxy, now);
+            }
+        }
+    }
+
+    // NavMesh corridor steering can legitimately carry the agent far off the original serial
+    // waypoint line — far enough that serial cross-track exceeds the deviation-fail gate and
+    // RouteTracker stops advancing the index. Left alone, the session latches the stale waypoint
+    // while NavRun keeps steering toward a distant anchor, and the fallback heading points back
+    // at that stale waypoint: the detour "circling". Consume the continuous-RUN waypoints the
+    // corridor has already carried us past so the serial index — and the arrival gate, fallback
+    // heading, and recovery anchor that all key off it — tracks real progress. This runs after
+    // the tick because it depends on this tick's corridor projection.
+    if (nav_run_result.passed_run_waypoints > 0) {
+        size_t remaining_to_consume = nav_run_result.passed_run_waypoints;
+        bool consumed_any = false;
+        while (remaining_to_consume > 0 && session_->HasCurrentWaypoint()) {
+            const Waypoint& corridor_passed = session_->CurrentWaypoint();
+            if (!corridor_passed.HasPosition() || corridor_passed.action != ActionType::RUN
+                || corridor_passed.RequiresStrictArrival()) {
+                break;
+            }
+            session_->AdvanceToNextWaypoint(ActionType::RUN, "navmesh_corridor_passed_run_waypoint");
+            consumed_any = true;
+            --remaining_to_consume;
+        }
+        if (consumed_any) {
+            // The corridor is unchanged (same anchor) — only the serial bookkeeping moved — so
+            // leave nav_run_dirty clear and just recompute the serial projection for the new
+            // current waypoint, keeping the arrival gate below consistent within this tick.
+            runtime_state_.recovery.Reset();
+            route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
+        }
+    }
+
+    // When NavRun is steering, corridor remaining is the true progress signal — chasing
+    // route.progress_distance would fire spurious stalls while the agent legitimately
+    // detours around obstacles.
     if (route.valid) {
-        session_->ObserveProgress(session_->current_node_idx(), route.progress_distance, now);
+        const double effective_progress = nav_run_result.has_corridor_heading
+                                              ? nav_run_result.remaining_to_anchor
+                                              : route.progress_distance;
+        session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
+    }
+    // A replan likely lengthens the corridor; reset so a longer-but-correct detour
+    // doesn't inherit the pre-replan stall counter.
+    if (nav_run_result.replanned_with != NavRunReplanReason::None) {
+        session_->ResetProgress();
     }
     const int64_t stalled_ms = session_->StalledMs(now);
     if (runtime_state_.recovery.active) {
@@ -694,7 +759,10 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    const double heading_error = NaviMath::NormalizeAngle(route.route_heading - current_heading);
+    const double effective_route_heading =
+        nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
+
+    const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
     const SteeringCommand steering = SteeringController::Update(heading_error, motion_controller_->IsMovingForward());
 
     motion_controller_->SetForwardState(true);
@@ -707,8 +775,10 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(heading_error)
-             << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
+    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading)
+             << VAR(effective_route_heading) << VAR(nav_run_result.has_corridor_heading)
+             << VAR(nav_run_result.cross_track) << VAR(heading_error) << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg)
+             << VAR(route.waypoint_distance) << VAR(route.on_route);
 
     const bool turn_calm = !steering.issued || std::abs(steering.yaw_delta_deg) < 30.0;
     const bool target_requires_strict_arrival = waypoint.RequiresStrictArrival();

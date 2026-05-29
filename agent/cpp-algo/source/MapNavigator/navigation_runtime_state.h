@@ -98,12 +98,14 @@ struct NavigationRuntimeState
     SemanticState semantic;
     DynamicRecoveryState recovery;
     bool dynamic_replan_requested = false;
+    bool nav_run_dirty = true;
 
     void ResetNavigationAssistState()
     {
         route.ResetTracking();
         recovery.Reset();
         dynamic_replan_requested = false;
+        nav_run_dirty = true;
     }
 
     void BeginNavigation(const std::chrono::steady_clock::time_point& now)
@@ -112,6 +114,7 @@ struct NavigationRuntimeState
         semantic.ResetTransient();
         recovery.Reset();
         dynamic_replan_requested = false;
+        nav_run_dirty = true;
         flow.navigate_started_at = now;
         flow.last_auto_sprint_time = {};
     }
@@ -121,6 +124,7 @@ struct NavigationRuntimeState
         route.ResetTracking();
         recovery.Reset();
         dynamic_replan_requested = false;
+        nav_run_dirty = true;
         flow.last_auto_sprint_time = {};
     }
 };

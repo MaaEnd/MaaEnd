@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "nav_run_controller.h"
 #include "navi_controller.h"
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
@@ -57,6 +58,7 @@ private:
     std::function<bool()> should_stop_;
     MaaContext* maa_context_;
     NavigationRuntimeState runtime_state_ {};
+    NavRunController nav_run_controller_ {};
 };
 
 } // namespace mapnavigator

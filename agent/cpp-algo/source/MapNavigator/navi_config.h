@@ -78,6 +78,18 @@ constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
 constexpr int32_t kDynamicRecoveryMaxAttemptsPerAnchor = 3;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 
+// --- NavRunController (RUN corridor follower) ---
+constexpr double kNavRunLookaheadLowSpeedM = 2.5;
+constexpr double kNavRunLookaheadWalkM = 4.0;
+constexpr double kNavRunLookaheadSprintM = 5.5;
+constexpr double kNavRunLookaheadSharpTurnM = 2.0;
+constexpr double kNavRunSharpTurnDeg = 55.0;
+constexpr double kNavRunCrossTrackWarnM = 2.2;
+constexpr double kNavRunCrossTrackFailM = 4.0;
+constexpr int32_t kNavRunSoftReplanCooldownMs = 1200;
+constexpr int32_t kNavRunSoftReplanMaxPerAnchor = 3;
+constexpr int32_t kNavRunProgressRegressionMs = 800;
+
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;

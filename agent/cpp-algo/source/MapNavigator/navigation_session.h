@@ -57,8 +57,6 @@ struct NavigationSession
     int64_t StalledMs(const std::chrono::steady_clock::time_point& now) const;
     double best_distance_to_target() const;
 
-    size_t FindRejoinSliceStart(size_t continue_index) const;
-    void ApplyRejoinSlice(size_t slice_start, const NaviPosition& pos);
     void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
 
     NaviPhase phase() const;
