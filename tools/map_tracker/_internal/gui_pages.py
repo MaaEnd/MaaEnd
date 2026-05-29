@@ -3,8 +3,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from .core_utils import Drawer, MapImageLayer, ViewportManager, cv2
-from .gui_widgets import Button, ScrollableListWidget, WidgetGroup
+from .core_utils import Drawer, MapImageLayer, MapName, ViewportManager, cv2
+from .gui_widgets import Button, DropdownSelectWidget, ScrollableListWidget, WidgetGroup
+from .sprite_utils import get_sprite_image
 
 
 class BasePage:
@@ -133,12 +134,226 @@ class MapViewportPage(BasePage):
             min_zoom=min_zoom,
             max_zoom=max_zoom,
         )
+        self.displayed_map_image = image
+        self.displayed_map_name: str | None = None
+        self.displayed_map_path: str | None = None
         self._map_layer = MapImageLayer(self.view, image)
+        self._layer_map_dir: str | None = None
+        self._logical_map_name: str | None = None
+        self._base_layer_map_name: str | None = None
+        self._base_layer_image = image.copy()
+        self._base_layer_dim_image = cv2.convertScaleAbs(self._base_layer_image, alpha=0.25)
+        self._layer_items: list[dict] = []
+        self._layer_selector: DropdownSelectWidget | None = None
+        self._layer_selector_rect: tuple[int, int, int, int] | None = None
+        self._layer_overlay_group: WidgetGroup | None = None
         self.panning = False
         self.pan_start = (0, 0)
 
     def set_map_image(self, image) -> None:
+        self.displayed_map_image = image
         self._map_layer = MapImageLayer(self.view, image)
+
+    def configure_map_layer_switching(
+        self,
+        *,
+        logical_map_name: str,
+        map_dir: str,
+        base_image: cv2.typing.MatLike,
+    ) -> None:
+        self._layer_map_dir = map_dir
+        self._logical_map_name = logical_map_name
+        self._base_layer_map_name = self._get_base_layer_map_name(logical_map_name)
+        base_path = os.path.join(map_dir, self._base_layer_map_name)
+        loaded_base_image = cv2.imread(base_path)
+        self._base_layer_image = loaded_base_image if loaded_base_image is not None else base_image.copy()
+        self._base_layer_dim_image = cv2.convertScaleAbs(self._base_layer_image, alpha=0.25)
+        self.displayed_map_name = self._base_layer_map_name
+        self.displayed_map_path = os.path.join(map_dir, self._base_layer_map_name)
+        self.set_map_image(self._base_layer_image)
+        self._layer_items = self._collect_map_layer_items(self._base_layer_map_name)
+        self._layer_selector = DropdownSelectWidget(item_height=24)
+        if len(self._layer_items) > 1:
+            selected_data = self._resolve_layer_item_data(logical_map_name) or self._base_layer_map_name
+            self._layer_selector.set_items(
+                self._layer_items,
+                selected_data=selected_data,
+            )
+            self.switch_displayed_layer(selected_data)
+        if self._layer_overlay_group is None:
+            self._layer_overlay_group = WidgetGroup((0, 0, self.window_w, self.window_h))
+            self.groups.append(self._layer_overlay_group)
+
+    def _get_base_layer_map_name(self, map_name: str) -> str:
+        base_name = os.path.basename(str(map_name).replace("\\", "/"))
+        try:
+            parsed = MapName.parse(base_name)
+        except ValueError:
+            return base_name
+        if parsed.map_type != "tier":
+            return base_name
+        return f"{parsed.map_id}_{parsed.map_level_id}.png"
+
+    def _collect_map_layer_items(self, main_map_name: str) -> list[dict]:
+        main_base = os.path.basename(main_map_name)
+        try:
+            main_parsed = MapName.parse(main_base)
+        except ValueError:
+            return [{"label": "main", "data": main_base}]
+
+        tiers: list[dict] = [{"label": "main", "data": main_base}]
+        if self._layer_map_dir is None or not os.path.isdir(self._layer_map_dir):
+            return tiers
+
+        for file_name in sorted(os.listdir(self._layer_map_dir), key=lambda n: n.lower()):
+            try:
+                parsed = MapName.parse(file_name)
+            except ValueError:
+                continue
+            if (
+                parsed.map_type != "tier"
+                or parsed.map_id != main_parsed.map_id
+                or parsed.map_level_id != main_parsed.map_level_id
+            ):
+                continue
+            tiers.append({"label": f"tier_{parsed.tier_suffix}", "data": file_name})
+        return tiers
+
+    def switch_displayed_layer(self, map_name: str) -> bool:
+        if self._layer_map_dir is None or self._base_layer_map_name is None:
+            return False
+        if map_name == self.displayed_map_name:
+            return False
+
+        available = {str(item.get("data", "")) for item in self._layer_items}
+        if map_name not in available:
+            return False
+
+        if map_name == self._base_layer_map_name:
+            target_path = os.path.join(self._layer_map_dir, self._base_layer_map_name)
+            img = self._base_layer_image
+        else:
+            target_path = os.path.join(self._layer_map_dir, map_name)
+            tier_img = cv2.imread(target_path)
+            if tier_img is None:
+                return False
+            img = self._base_layer_dim_image.copy()
+            tier_mask = (
+                (tier_img[:, :, 0] > 2)
+                | (tier_img[:, :, 1] > 2)
+                | (tier_img[:, :, 2] > 2)
+            )
+            img[tier_mask] = tier_img[tier_mask]
+
+        self.displayed_map_name = map_name
+        self.displayed_map_path = target_path
+        self.set_map_image(img)
+        self.render_request()
+        return True
+
+    def sync_displayed_layer_from_map_name(self, map_name: str) -> bool:
+        if self._layer_selector is None or len(self._layer_items) <= 1:
+            return False
+        resolved = self._resolve_layer_item_data(map_name)
+        if resolved is None:
+            return False
+        self._layer_selector.select_by_data(resolved)
+        self.switch_displayed_layer(resolved)
+        return True
+
+    def _resolve_layer_item_data(self, map_name: str) -> str | None:
+        target_base = os.path.basename(str(map_name).replace("\\", "/"))
+        target_stem, _ = os.path.splitext(target_base)
+        for item in self._layer_items:
+            data = str(item.get("data", ""))
+            data_stem, _ = os.path.splitext(os.path.basename(data))
+            if target_base == data or target_stem == data_stem:
+                return data
+
+        try:
+            target = MapName.parse(map_name)
+        except ValueError:
+            return None
+        for item in self._layer_items:
+            data = str(item.get("data", ""))
+            try:
+                parsed = MapName.parse(data)
+            except ValueError:
+                continue
+            if (
+                parsed.map_id == target.map_id
+                and parsed.map_level_id == target.map_level_id
+                and parsed.map_type == target.map_type
+                and parsed.tier_suffix == target.tier_suffix
+            ):
+                return data
+        return None
+
+    def render_map_layer_selector(
+        self,
+        drawer: Drawer,
+        *,
+        sidebar_width: int = 0,
+        margin: int = 0,
+    ) -> None:
+        if (
+            self._layer_selector is None
+            or self._layer_overlay_group is None
+            or len(self._layer_items) <= 1
+        ):
+            return
+        self._layer_overlay_group.set_rect((0, 0, self.window_w, self.window_h))
+        self._layer_overlay_group.clear()
+
+        dropdown_w = 220
+        header_h = 54
+        x2 = self.window_w - margin
+        x1 = max(sidebar_width + margin, x2 - dropdown_w)
+        y1 = margin
+        y2 = y1 + header_h
+        self._layer_selector_rect = (x1, y1, x2, y2)
+        self._render_map_layer_selector_header(drawer, self._layer_selector_rect)
+        self._layer_overlay_group.add_dropdown(
+            self._layer_selector,
+            self._layer_selector_rect,
+            font_scale=0.4,
+            on_consumed=self._on_layer_selector_consumed,
+        )
+
+    def _render_map_layer_selector_header(
+        self,
+        drawer: Drawer,
+        rect: tuple[int, int, int, int],
+    ) -> None:
+        if self._layer_selector is None:
+            return
+        x1, y1, x2, y2 = rect
+        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+        drawer.text("[ Select Tier ]", (x1 + 8, y1 + 16), 0.45, color=0x40FFFF)
+
+        item_y1 = y1 + 22
+        item_y2 = y2 - 8
+        icon_size = 18
+        icon_y = item_y1 + (item_y2 - item_y1 - icon_size) // 2
+        icon = get_sprite_image("Layer", (icon_size, icon_size))
+        if icon is not None:
+            drawer.paste(icon, (x1 + 8, icon_y), with_alpha=True)
+        drawer.text(
+            self._layer_selector.get_selected_label(),
+            (x1 + 32, item_y2 - 7),
+            0.4,
+            color=0xFFFFFF,
+        )
+
+    def _on_layer_selector_consumed(self) -> None:
+        if self._layer_selector is None:
+            return
+        if not self._layer_selector.consume_selection_changed():
+            return
+        selected_map = self._layer_selector.get_selected_data()
+        if isinstance(selected_map, str) and selected_map:
+            self.switch_displayed_layer(selected_map)
 
     def _get_map_coords(self, screen_x: int, screen_y: int) -> tuple[float, float]:
         return self.view.get_real_coords(screen_x, screen_y)

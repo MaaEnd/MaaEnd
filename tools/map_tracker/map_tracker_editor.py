@@ -24,7 +24,6 @@ from _internal.core_utils import (
     Color,
     Drawer,
     cv2,
-    MapName,
     ViewportManager,
     Layer,
     clipboard_copy_text,
@@ -42,7 +41,6 @@ from _internal.gui_widgets import (
     SwitchWidget,
     ScrollableListWidget,
     TextInputWidget,
-    RadioSelectWidget,
     UndoRedoHistory,
     UndoRedoWidget,
     WidgetGroup,
@@ -148,8 +146,6 @@ class PathEditPage(MapViewportPage):
     ):
         self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
-        self._main_map_name = self.map_name
-        self._active_map_name = self.map_name
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
 
@@ -159,8 +155,6 @@ class PathEditPage(MapViewportPage):
         super().__init__(
             window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0
         )
-        self._main_img = self.img.copy()
-        self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
         self._status = StatusRecord(
             time.time(), 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
@@ -198,12 +192,6 @@ class PathEditPage(MapViewportPage):
         self._realtime_last_point_ts: float | None = None
         self._realtime_segment_has_checkpoint = False
 
-        # Tier map selector in sidebar (shown only when tier maps exist)
-        self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
-        self._tier_selector_rect: tuple[int, int, int, int] | None = None
-        self._tier_maps = self._collect_tier_maps(self._main_map_name)
-        if len(self._tier_maps) > 1:
-            self._tier_selector.set_items(self._tier_maps, selected_data=self.map_name)
         self._recorder_mode_switch = SwitchWidget(
             "Loop",
             "Once",
@@ -259,6 +247,11 @@ class PathEditPage(MapViewportPage):
         )
         self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
         self.groups.append(self._sidebar_group)
+        self.configure_map_layer_switching(
+            logical_map_name=self.map_name,
+            map_dir=self._map_dir,
+            base_image=self.img,
+        )
         self.buttons.extend(self._history_widget.buttons)
 
     def hook_idle(self) -> None:
@@ -307,7 +300,7 @@ class PathEditPage(MapViewportPage):
             result = self.location_service.infer_once(self.map_name)
             map_name, x, y = result["map_name"], result["x"], result["y"]
             if map_name:
-                self._sync_tier_by_log_map(map_name)
+                self.sync_displayed_layer_from_map_name(map_name)
             updated = self._append_realtime_point(x, y)
             self._update_status(
                 0x50DC50 if updated else 0xD2D200,
@@ -464,74 +457,6 @@ class PathEditPage(MapViewportPage):
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
 
-    def _collect_tier_maps(self, main_map_name: str) -> list[dict]:
-        main_base = os.path.basename(main_map_name)
-        try:
-            main_parsed = MapName.parse(main_base)
-        except ValueError:
-            return [{"label": "main", "data": main_base}]
-
-        tiers: list[dict] = [{"label": "main", "data": main_base}]
-        if not os.path.isdir(self._map_dir):
-            return tiers
-
-        for file_name in sorted(os.listdir(self._map_dir), key=lambda n: n.lower()):
-            try:
-                parsed = MapName.parse(file_name)
-            except ValueError:
-                continue
-            if (
-                parsed.map_type != "tier"
-                or parsed.map_id != main_parsed.map_id
-                or parsed.map_level_id != main_parsed.map_level_id
-            ):
-                continue
-            tiers.append({"label": f"tier_{parsed.tier_suffix}", "data": file_name})
-        return tiers
-
-    def _switch_active_map(self, map_name: str) -> None:
-        if map_name == self._active_map_name:
-            return
-        if map_name == self._main_map_name:
-            target_path = os.path.join(self._map_dir, self._main_map_name)
-            img = self._main_img
-        else:
-            target_path = os.path.join(self._map_dir, map_name)
-            tier_img = cv2.imread(target_path)
-            if tier_img is None:
-                return
-            # Compose once: dimmed main as base, tier non-black pixels as overlay.
-            img = self._main_dim_img.copy()
-            tier_mask = (
-                (tier_img[:, :, 0] > 2)
-                | (tier_img[:, :, 1] > 2)
-                | (tier_img[:, :, 2] > 2)
-            )
-            img[tier_mask] = tier_img[tier_mask]
-        self._active_map_name = map_name
-        self.map_path = target_path
-        self.img = img
-        self.set_map_image(self.img)
-        self.render_request()
-
-    def _sync_tier_by_log_map(self, log_map_name: str) -> None:
-        if len(self._tier_maps) <= 1:
-            return
-        resolved = find_map_file(log_map_name, self._map_dir)
-        if not resolved:
-            return
-        available = {str(item.get("data", "")) for item in self._tier_maps}
-        if resolved not in available:
-            return
-        self._tier_selector.select_by_data(resolved)
-        if resolved != self._active_map_name:
-            self._switch_active_map(resolved)
-
-    def _on_tier_selector_consumed(self) -> None:
-        selected_map = self._tier_selector.get_selected_data()
-        if isinstance(selected_map, str) and selected_map:
-            self._switch_active_map(selected_map)
-
     def _do_save(self):
         if self.pipeline_context is None:
             return
@@ -613,7 +538,7 @@ class PathEditPage(MapViewportPage):
                 map_name, x, y = result["map_name"], result["x"], result["y"]
 
                 if map_name:
-                    self._sync_tier_by_log_map(map_name)
+                    self.sync_displayed_layer_from_map_name(map_name)
 
                 updated = self._append_realtime_point(x, y) or updated
             except queue.Empty:
@@ -712,6 +637,7 @@ class PathEditPage(MapViewportPage):
         self._render_status_bar(drawer)
         self._render_sidebar_bg(drawer)
         self._render_sidebar(drawer)
+        self.render_map_layer_selector(drawer, sidebar_width=self.SIDEBAR_W)
 
     def _render_attribute_panel(
         self,
@@ -842,7 +768,6 @@ class PathEditPage(MapViewportPage):
         cy = record_y1 + 12
         cy = _draw_section_divider(cy, gap_after=14)
 
-        self._tier_selector_rect = None
         rendered_info_panel = False
         if self._get_selected_point() is not None:
             cy = self._render_attribute_panel(
@@ -851,17 +776,6 @@ class PathEditPage(MapViewportPage):
                 y0=cy,
                 panel_w=btn_w,
             )
-            rendered_info_panel = True
-        elif len(self._tier_maps) > 1:
-            tier_h = self._tier_selector.get_height()
-            self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
-            self._sidebar_group.add_radio(
-                self._tier_selector,
-                self._tier_selector_rect,
-                font_scale=0.4,
-                on_consumed=self._on_tier_selector_consumed,
-            )
-            cy += tier_h + 12
             rendered_info_panel = True
         if rendered_info_panel:
             cy = _draw_section_divider(cy, gap_after=12)
@@ -1119,6 +1033,7 @@ class AreaEditPage(MapViewportPage):
         pipeline_context: dict | None = None,
         window_name: str = "MapTracker Tool - Area Editor",
     ):
+        self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
@@ -1164,6 +1079,11 @@ class AreaEditPage(MapViewportPage):
         )
         self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
         self.groups.append(self._sidebar_group)
+        self.configure_map_layer_switching(
+            logical_map_name=self.map_name,
+            map_dir=self._map_dir,
+            base_image=self.img,
+        )
 
     @property
     def is_dirty(self) -> bool:
@@ -1289,6 +1209,7 @@ class AreaEditPage(MapViewportPage):
         self._sidebar_group.add_button(self._finish_button, finish_rect)
 
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
+        self.render_map_layer_selector(drawer, sidebar_width=self.SIDEBAR_W)
 
     def _render_once(self, drawer: Drawer) -> None:
         self._render_map_layer(drawer)
@@ -1690,15 +1611,15 @@ class EditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def _on_mouse(self, event, x, y, flags, param):
+    def consume_mouse(self, event, x, y, flags, param) -> bool:
         if self.editor is None:
-            return
-        self.editor.consume_mouse(event, x, y, flags, param)
+            return False
+        return self.editor.consume_mouse(event, x, y, flags, param)
 
-    def _on_key(self, key):
+    def consume_key(self, key: int) -> bool:
         if self.editor is None:
-            return
-        self.editor.consume_key(key)
+            return False
+        return self.editor.consume_key(key)
 
 
 class ExportStep(StepPage):
@@ -1928,15 +1849,15 @@ class RegionEditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def _on_mouse(self, event, x, y, flags, param):
+    def consume_mouse(self, event, x, y, flags, param) -> bool:
         if self.editor is None:
-            return
-        self.editor.consume_mouse(event, x, y, flags, param)
+            return False
+        return self.editor.consume_mouse(event, x, y, flags, param)
 
-    def _on_key(self, key):
+    def consume_key(self, key: int) -> bool:
         if self.editor is None:
-            return
-        self.editor.consume_key(key)
+            return False
+        return self.editor.consume_key(key)
 
 
 class App(PageStepper):

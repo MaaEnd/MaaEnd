@@ -156,66 +156,141 @@ class TextInputWidget:
             drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
 
 
-class RadioSelectWidget:
-    """Simple vertical radio selector widget."""
+class DropdownSelectWidget:
+    """Hover-expanded single-select dropdown body widget."""
 
-    def __init__(self, title: str = "", item_height: int = 24):
-        self.title = title
+    def __init__(self, item_height: int = 24):
         self.item_height = item_height
         self.items: list[dict] = []
         self.selected_idx: int = -1
         self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
+        self.expanded = False
+        self.selection_changed = False
+        self.needs_render = True
 
     def set_items(self, items: list[dict], selected_data: object | None = None) -> None:
         self.items = items
         self.selected_idx = -1
         if not items:
+            self.needs_render = True
             return
         if selected_data is not None:
             for i, item in enumerate(items):
                 if item.get("data") == selected_data:
                     self.selected_idx = i
+                    self.needs_render = True
                     return
         self.selected_idx = 0
+        self.needs_render = True
 
     def get_selected_data(self) -> object | None:
         if 0 <= self.selected_idx < len(self.items):
             return self.items[self.selected_idx].get("data")
         return None
 
+    def get_selected_label(self) -> str:
+        if 0 <= self.selected_idx < len(self.items):
+            return str(self.items[self.selected_idx].get("label", ""))
+        return ""
+
     def select_by_data(self, data: object) -> bool:
         for i, item in enumerate(self.items):
             if item.get("data") == data:
                 changed = self.selected_idx != i
-                self.selected_idx = i
+                if changed:
+                    self.selected_idx = i
+                    self.needs_render = True
                 return changed
         return False
 
-    def get_height(self) -> int:
-        title_h = 22 if self.title else 0
-        return title_h + max(0, len(self.items)) * self.item_height + 8
+    def get_body_height(self) -> int:
+        return max(0, len(self.items)) * self.item_height + 4
 
     def contains(self, x: int, y: int) -> bool:
         x1, y1, x2, y2 = self.rect
         return x1 <= x <= x2 and y1 <= y <= y2
 
+    def _expanded_rect(self) -> tuple[int, int, int, int]:
+        x1, y1, x2, y2 = self.rect
+        return (x1, y1, x2, y2 + self.get_body_height())
+
+    def _body_rect(self) -> tuple[int, int, int, int]:
+        x1, _, x2, y2 = self.rect
+        return (x1, y2 + 4, x2, y2 + self.get_body_height())
+
+    def _contains_expanded(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self._expanded_rect()
+        return x1 <= x <= x2 and y1 <= y <= y2
+
     def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
-        return event == cv2.EVENT_LBUTTONDOWN and self._select_at(x, y) >= 0
+        if event == cv2.EVENT_MOUSEMOVE:
+            if self.expanded:
+                if not self._contains_expanded(x, y):
+                    self.expanded = False
+                    self.needs_render = True
+                    return True
+                return False
+            if self.contains(x, y):
+                self.expanded = True
+                self.needs_render = True
+                return True
+            return False
+
+        if event != cv2.EVENT_LBUTTONDOWN:
+            return False
+
+        if self.expanded and self._contains_expanded(x, y):
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.selection_changed = True
+            return True
+
+        if self.contains(x, y):
+            if not self.expanded:
+                self.expanded = True
+                self.needs_render = True
+            return True
+
+        return False
+
+    def consume_selection_changed(self) -> bool:
+        changed = self.selection_changed
+        self.selection_changed = False
+        return changed
 
     def _select_at(self, x: int, y: int) -> int:
-        x1, y1, x2, y2 = self.rect
-        if not (x1 <= x <= x2 and y1 <= y <= y2):
+        x1, y1, x2, _ = self._body_rect()
+        if not (x1 <= x <= x2 and y >= y1):
             return -1
-        title_h = 22 if self.title else 0
-        list_y1 = y1 + title_h
-        if y < list_y1:
-            return -1
-        idx = (y - list_y1) // self.item_height
-        if 0 <= idx < len(self.items):
-            if self.selected_idx != idx:
-                self.selected_idx = idx
-                return idx
+        idx = (y - y1) // self.item_height
+        if 0 <= idx < len(self.items) and self.selected_idx != idx:
+            self.selected_idx = idx
+            self.needs_render = True
+            return idx
         return -1
+
+    def _render_item(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        item: dict,
+        *,
+        selected: bool,
+        font_scale: float,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        if selected:
+            drawer.rect((x1 + 2, y1), (x2 - 2, y2), color=0x132B4F, thickness=-1)
+        label = str(item.get("label", ""))
+        color = 0xFFFFFF if selected else 0xC8C8C8
+        cy_mark = y1 + self.item_height // 2
+        mark_x = x1 + 14
+        if selected:
+            drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
+            drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
+        else:
+            drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
+        drawer.text(label, (x1 + 26, y2 - 7), font_scale, color=color)
 
     def render(
         self,
@@ -225,31 +300,21 @@ class RadioSelectWidget:
         font_scale: float = 0.4,
     ) -> None:
         self.rect = rect
-        x1, y1, x2, y2 = rect
-        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
-        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+        if self.expanded:
+            x1, y1, x2, y2 = self._body_rect()
+            drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+            drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+            for i, item in enumerate(self.items):
+                iy1 = y1 + i * self.item_height
+                self._render_item(
+                    drawer,
+                    (x1, iy1, x2, iy1 + self.item_height),
+                    item,
+                    selected=i == self.selected_idx,
+                    font_scale=font_scale,
+                )
 
-        cy = y1
-        if self.title:
-            drawer.text(f"[ {self.title} ]", (x1 + 8, cy + 16), 0.45, color=0x40FFFF)
-            cy += 22
-
-        for i, item in enumerate(self.items):
-            iy1 = cy + i * self.item_height
-            iy2 = iy1 + self.item_height
-            selected = i == self.selected_idx
-            if selected:
-                drawer.rect((x1 + 2, iy1), (x2 - 2, iy2), color=0x132B4F, thickness=-1)
-            label = str(item.get("label", ""))
-            color = 0xFFFFFF if selected else 0xC8C8C8
-            cy_mark = iy1 + self.item_height // 2
-            mark_x = x1 + 14
-            if selected:
-                drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
-                drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
-            else:
-                drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
-            drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
+        self.needs_render = False
 
 
 class SwitchWidget:
@@ -779,20 +844,20 @@ class WidgetGroup:
         self._needs_render = True
         return widget
 
-    def add_radio(
+    def add_dropdown(
         self,
-        widget: RadioSelectWidget,
+        widget: DropdownSelectWidget,
         rect: tuple[int, int, int, int],
         *,
         font_scale: float = 0.4,
         on_consumed: Callable[[], None] | None = None,
-    ) -> RadioSelectWidget:
+    ) -> DropdownSelectWidget:
         widget.rect = rect
         self._items.append(
             {
                 "widget": widget,
                 "rect": rect,
-                "kind": "radio",
+                "kind": "dropdown",
                 "render_kwargs": {"font_scale": font_scale},
                 "on_consumed": on_consumed,
             }
