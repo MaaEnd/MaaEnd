@@ -705,7 +705,7 @@
     "resource.CN.label": "General Resources (currently best supported in Simplified Chinese)",
     "controller.Win32-Window.label": "PC-Background 1",
     "controller.Win32-Window.description": "Supports game minimization; may indirectly grab the mouse. The game window will not move.",
-    "controller.Win32-Window-Background.label": "Background 2",
+    "controller.Win32-Window-Background.label": "PC-Background 2",
     "controller.Win32-Window-Background.description": "Supports game minimization; generally does not grab the mouse. Avoid large mouse movements while in use. May cause the game window to move around erratically; this does not affect usage. It is recommended to minimize the game to avoid distraction.",
     "controller.Win32-Front.label": "PC-Foreground",
     "controller.Win32-Front.description": "Best stability. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
