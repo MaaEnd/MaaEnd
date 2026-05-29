@@ -77,7 +77,7 @@ class BasePage:
     def consume_mouse(self, event, x: int, y: int, flags, param) -> bool:
         """Dispatches mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
-        for group in self.groups:
+        for group in reversed(self.groups):
             if group.consume_mouse(event, x, y, flags):
                 self.render_request()
                 return True
@@ -98,7 +98,7 @@ class BasePage:
 
     def consume_key(self, key: int) -> bool:
         """Dispatches key input to buttons first, then page handler."""
-        for group in self.groups:
+        for group in reversed(self.groups):
             if group.consume_key(key):
                 self.render_request()
                 return True
@@ -142,7 +142,9 @@ class MapViewportPage(BasePage):
         self._logical_map_name: str | None = None
         self._base_layer_map_name: str | None = None
         self._base_layer_image = image.copy()
-        self._base_layer_dim_image = cv2.convertScaleAbs(self._base_layer_image, alpha=0.25)
+        self._base_layer_dim_image = cv2.convertScaleAbs(
+            self._base_layer_image, alpha=0.25
+        )
         self._layer_items: list[dict] = []
         self._layer_selector: DropdownSelectWidget | None = None
         self._layer_selector_rect: tuple[int, int, int, int] | None = None
@@ -166,22 +168,31 @@ class MapViewportPage(BasePage):
         self._base_layer_map_name = self._get_base_layer_map_name(logical_map_name)
         base_path = os.path.join(map_dir, self._base_layer_map_name)
         loaded_base_image = cv2.imread(base_path)
-        self._base_layer_image = loaded_base_image if loaded_base_image is not None else base_image.copy()
-        self._base_layer_dim_image = cv2.convertScaleAbs(self._base_layer_image, alpha=0.25)
+        self._base_layer_image = (
+            loaded_base_image if loaded_base_image is not None else base_image.copy()
+        )
+        self._base_layer_dim_image = cv2.convertScaleAbs(
+            self._base_layer_image, alpha=0.25
+        )
         self.displayed_map_name = self._base_layer_map_name
         self.displayed_map_path = os.path.join(map_dir, self._base_layer_map_name)
         self.set_map_image(self._base_layer_image)
         self._layer_items = self._collect_map_layer_items(self._base_layer_map_name)
         self._layer_selector = DropdownSelectWidget(item_height=24)
         if len(self._layer_items) > 1:
-            selected_data = self._resolve_layer_item_data(logical_map_name) or self._base_layer_map_name
+            selected_data = (
+                self._resolve_layer_item_data(logical_map_name)
+                or self._base_layer_map_name
+            )
             self._layer_selector.set_items(
                 self._layer_items,
                 selected_data=selected_data,
             )
             self.switch_displayed_layer(selected_data)
         if self._layer_overlay_group is None:
-            self._layer_overlay_group = WidgetGroup((0, 0, self.window_w, self.window_h))
+            self._layer_overlay_group = WidgetGroup(
+                (0, 0, self.window_w, self.window_h)
+            )
             self.groups.append(self._layer_overlay_group)
 
     def _get_base_layer_map_name(self, map_name: str) -> str:
@@ -205,7 +216,9 @@ class MapViewportPage(BasePage):
         if self._layer_map_dir is None or not os.path.isdir(self._layer_map_dir):
             return tiers
 
-        for file_name in sorted(os.listdir(self._layer_map_dir), key=lambda n: n.lower()):
+        for file_name in sorted(
+            os.listdir(self._layer_map_dir), key=lambda n: n.lower()
+        ):
             try:
                 parsed = MapName.parse(file_name)
             except ValueError:

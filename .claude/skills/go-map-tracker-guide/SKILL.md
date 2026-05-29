@@ -46,7 +46,7 @@ description: MaaEnd MapTracker 相关组件编写指南。为 agent/go-service/m
 - \_internal 包：
     - core_utils.py：常用工具函数；
     - gui_pages.py：提供了 GUI 页面实现；
-    - gui_widget.py：提供了可复用的 GUI 组件；
+    - gui_widgets.py：提供了可复用的 GUI 组件；
     - http_utils.py：下载相关；
     - location_service.py：依赖于 maa_interface.py 提供工具内调用 MapTracker 定位的功能；
     - maa_interface.py：提供了与游戏交互的接口；
