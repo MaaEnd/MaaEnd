@@ -1,0 +1,369 @@
+{
+    "TheHubWestMissingRobotStart": {
+        "desc": "枢纽区西侧寻机启事任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AssertLocationTheHubWestMissingRobotStart",
+            "[JumpBack]SceneEnterWorldValleyIVTheHub3"
+        ]
+    },
+    "AssertLocationTheHubWestMissingRobotStart": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv001",
+                    "target": [
+                        302.0,
+                        568.3,
+                        12.8,
+                        13.3
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot1"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    308.9,
+                    580.1
+                ],
+                [
+                    306.0,
+                    561.1
+                ],
+                [
+                    284.1,
+                    549.3
+                ],
+                [
+                    263.5,
+                    511.3
+                ]
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot1_P2"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot1_P2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    263.5,
+                    511.3
+                ],
+                [
+                    246.6,
+                    507.2
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksFightStart"
+        ],
+        "anchor": {
+            "DailyTasksFightEnd": "LoopAssertLocationTheHubWestMissingRobot1"
+        }
+    },
+    "LoopAssertLocationTheHubWestMissingRobot1": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AssertLocationTheHubWestMissingRobot1",
+            "[JumpBack]MoveToTheHubWestMissingRobot1_TryMove"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot1_TryMove": {
+        "action": "Custom",
+        "max_hit": 3,
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    249.8,
+                    507.5
+                ],
+                [
+                    244.5,
+                    505.5
+                ]
+            ]
+        }
+    },
+    "AssertLocationTheHubWestMissingRobot1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv001",
+                    "target": [
+                        241.6,
+                        504.4,
+                        5.8,
+                        4.8
+                    ]
+                }
+            ]
+        },
+        "anchor": {
+            "DailyTasksClickEnd": "MoveToTheHubWestMissingRobot2"
+        },
+        "next": [
+            "DailyTasksMoveSearchClick1"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    241.9,
+                    509.1
+                ],
+                [
+                    226.4,
+                    497.8
+                ],
+                [
+                    217.4,
+                    517.7
+                ]
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot2_P2"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot2_P2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    217.2,
+                    517.4
+                ],
+                [
+                    196.1,
+                    509.4
+                ],
+                [
+                    195.4,
+                    509.0
+                ]
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot2_P3"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot2_P3": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    195.4,
+                    509.0
+                ],
+                [
+                    190.7,
+                    507.0
+                ],
+                [
+                    189.3,
+                    504.9
+                ],
+                [
+                    188.0,
+                    503.5
+                ],
+                [
+                    187.7,
+                    501.1
+                ],
+                [
+                    187.2,
+                    498.7
+                ]
+            ]
+        },
+        "next": [
+            "AssertLocationTheHubWestMissingRobot2",
+            "[JumpBack]MoveToTheHubWestMissingRobot2_TryAgain"
+        ]
+    },
+    "Testsetsa" :{
+         "next": [
+            "AssertLocationTheHubWestMissingRobot2",
+            "[JumpBack]MoveToTheHubWestMissingRobot2_TryAgain"
+        ]
+    },
+    "AssertLocationTheHubWestMissingRobot2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv001",
+                    "target": [
+                        185.3,
+                        495.1,
+                        8.2,
+                        5.5
+                    ]
+                }
+            ]
+        },
+        "anchor": {
+            "DailyTasksClickEnd": "MoveToTheHubWestMissingRobot3"
+        },
+        "next": [
+            "DailyTasksMoveSearchClick2"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot2_TryAgain": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "max_hit": 3,
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    169.2,
+                    488.4
+                ],
+                [
+                    180.3,
+                    490.0
+                ],
+                [
+                    187.4,
+                    496.4
+                ]
+            ]
+        }
+    },
+    "MoveToTheHubWestMissingRobot3": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    187.5,
+                    498.5
+                ],
+                [
+                    192.7,
+                    495.9
+                ],
+                [
+                    197.9,
+                    498.1
+                ]
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot3_P1"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot3_P1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    197.9,
+                    498.1
+                ],
+                [
+                    204.0,
+                    503.9
+                ],
+                [
+                    209.6,
+                    510.0
+                ],
+                [
+                    219.4,
+                    523.6
+                ]
+            ]
+        },
+        "next": [
+            "MoveToTheHubWestMissingRobot3_P2"
+        ]
+    },
+    "MoveToTheHubWestMissingRobot3_P2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "path": [
+                [
+                    220.9,
+                    525.6
+                ],
+                [
+                    223.3,
+                    529.6
+                ],
+                [
+                    224.3,
+                    530.4
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick3"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "DailyTasksEnd"
+        }
+    },
+    "AssertLocationTheHubWestMissingRobot3": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv001",
+                    "target": [
+                        222.4,
+                        527.4,
+                        5.1,
+                        4.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksClick"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "DailyTasksEnd"
+        }
+    }
+}

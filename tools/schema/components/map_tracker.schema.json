@@ -7,8 +7,12 @@
             "type": "array",
             "description": "A 2D coordinate [x, y].",
             "prefixItems": [
-                { "type": "number" },
-                { "type": "number" }
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "number"
+                }
             ],
             "minItems": 2,
             "maxItems": 2,
@@ -18,10 +22,18 @@
             "type": "array",
             "description": "A rectangle [x, y, w, h].",
             "prefixItems": [
-                { "type": "number" },
-                { "type": "number" },
-                { "type": "number" },
-                { "type": "number" }
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "number"
+                }
             ],
             "minItems": 4,
             "maxItems": 4,
@@ -31,7 +43,10 @@
             "type": "object",
             "description": "A single map location condition: map_name + bounding box.",
             "additionalProperties": false,
-            "required": [ "map_name", "target" ],
+            "required": [
+                "map_name",
+                "target"
+            ],
             "properties": {
                 "map_name": {
                     "title": "Map Name",
@@ -45,11 +60,50 @@
                 }
             }
         },
+        "ColorFilterConfig": {
+            "type": "object",
+            "description": "Configuration for filtering out a specific color overlay that interferes with map recognition.",
+            "additionalProperties": false,
+            "properties": {
+                "r": {
+                    "title": "Red",
+                    "description": "Red component of the color to filter (0-255).",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "g": {
+                    "title": "Green",
+                    "description": "Green component of the color to filter (0-255).",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "b": {
+                    "title": "Blue",
+                    "description": "Blue component of the color to filter (0-255).",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Color difference threshold for detecting the overlay. Lower values are more strict.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255,
+                    "default": 30
+                }
+            }
+        },
         "MapTrackerMoveParam": {
             "type": "object",
             "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
             "additionalProperties": false,
-            "required": [ "map_name", "path" ],
+            "required": [
+                "map_name",
+                "path"
+            ],
             "properties": {
                 "map_name": {
                     "title": "Map Name",
@@ -61,7 +115,9 @@
                     "description": "Sequence of [x, y] coordinate waypoints to follow in order.",
                     "type": "array",
                     "minItems": 1,
-                    "items": { "$ref": "#/$defs/Coordinate2D" }
+                    "items": {
+                        "$ref": "#/$defs/Coordinate2D"
+                    }
                 },
                 "no_print": {
                     "title": "No Print",
@@ -79,7 +135,11 @@
                     "title": "Fine Approach",
                     "description": "When to enable fine approaching (precise arrival).",
                     "type": "string",
-                    "enum": [ "FinalTarget", "AllTargets", "Never" ],
+                    "enum": [
+                        "FinalTarget",
+                        "AllTargets",
+                        "Never"
+                    ],
                     "default": "FinalTarget"
                 },
                 "no_ensure_initial_movement_state": {
@@ -151,9 +211,15 @@
                     "type": "array",
                     "items": {
                         "type": "string",
-                        "enum": [ "Jump", "MoveOrDeleteDevice" ]
+                        "enum": [
+                            "Jump",
+                            "MoveOrDeleteDevice"
+                        ]
                     },
-                    "default": [ "MoveOrDeleteDevice", "Jump" ]
+                    "default": [
+                        "MoveOrDeleteDevice",
+                        "Jump"
+                    ]
                 },
                 "map_name_match_rule": {
                     "title": "Map Name Match Rule",
@@ -167,7 +233,10 @@
             "type": "object",
             "description": "Parameters for MapTrackerBigMapPick: pan big map view to find and interact with a target coordinate.",
             "additionalProperties": false,
-            "required": [ "map_name", "target" ],
+            "required": [
+                "map_name",
+                "target"
+            ],
             "properties": {
                 "map_name": {
                     "title": "Map Name",
@@ -183,7 +252,11 @@
                     "title": "On Find",
                     "description": "Action when target enters viewport.",
                     "type": "string",
-                    "enum": [ "Click", "Teleport", "DoNothing" ],
+                    "enum": [
+                        "Click",
+                        "Teleport",
+                        "DoNothing"
+                    ],
                     "default": "Click"
                 },
                 "auto_open_map_scene": {
@@ -204,14 +277,18 @@
             "type": "object",
             "description": "Parameters for MapTrackerAssertLocation: assert player is within expected map region(s).",
             "additionalProperties": false,
-            "required": [ "expected" ],
+            "required": [
+                "expected"
+            ],
             "properties": {
                 "expected": {
                     "title": "Expected",
                     "description": "List of location conditions (OR logic). Player must satisfy at least one.",
                     "type": "array",
                     "minItems": 1,
-                    "items": { "$ref": "#/$defs/LocationCondition" }
+                    "items": {
+                        "$ref": "#/$defs/LocationCondition"
+                    }
                 },
                 "precision": {
                     "title": "Precision",
@@ -284,6 +361,43 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.5
+                },
+                "color_filter": {
+                    "title": "Color Filter",
+                    "description": "Configuration for filtering out a specific color overlay that interferes with map recognition. If not set, no color correction will be applied.",
+                    "$ref": "#/$defs/ColorFilterConfig"
+                }
+            }
+        },
+        "MapTrackerBigMapAssertLocationParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapAssertLocation: assert screen center is within expected map region(s) on big map.",
+            "additionalProperties": false,
+            "required": [
+                "expected"
+            ],
+            "properties": {
+                "expected": {
+                    "title": "Expected",
+                    "description": "List of location conditions (OR logic). Screen center must satisfy at least one.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/LocationCondition"
+                    }
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum confidence to consider inference successful.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "color_filter": {
+                    "title": "Color Filter",
+                    "description": "Configuration for filtering out a specific color overlay that interferes with map recognition. If not set, default golden overlay removal (RGB: [72, 65, 7]) will be applied.",
+                    "$ref": "#/$defs/ColorFilterConfig"
                 }
             }
         }

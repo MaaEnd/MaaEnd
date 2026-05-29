@@ -1,0 +1,46 @@
+{
+    "task": [
+        {
+            "name": "DailyTasks",
+            "label": "$task.DailyTasks.label",
+            "entry": "DailyTasksEntry",
+            "description": "$task.DailyTasks.description",
+            "option": ["DailyTasksAutoPuzzleSolving"],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "DailyTasksAutoPuzzleSolving": {
+            "type": "switch",
+            "label": "$option.AutoPuzzleSolving.label",
+            "description": "$option.AutoPuzzleSolving.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

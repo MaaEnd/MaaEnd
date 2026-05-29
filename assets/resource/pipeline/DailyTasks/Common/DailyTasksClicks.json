@@ -1,0 +1,36 @@
+{
+    "DailyTasksClicksStart": {
+        "next": [
+            "DailyTasksClick"
+        ]
+    },
+    "DailyTasksClick": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ],
+                "expected": [ //TODO: i18n
+                    "修复",
+                    "放置定位信标"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "点击修复或放置定位信标"
+        },
+        "next": [
+            "[Anchor]DailyTasksClickEnd"
+        ]
+    }
+}

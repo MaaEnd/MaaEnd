@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"math"
 	"regexp"
@@ -24,10 +25,21 @@ type MapTrackerBigMapInferResult struct {
 	InferTimeMs int64          `json:"inferTimeMs"`
 }
 
+// ColorFilterConfig represents the configuration for filtering out a specific color overlay.
+type ColorFilterConfig struct {
+	// R, G, B are the RGB values of the color to filter out.
+	R int `json:"r,omitempty"`
+	G int `json:"g,omitempty"`
+	B int `json:"b,omitempty"`
+	// Threshold is the color difference threshold for detecting the color.
+	Threshold int `json:"threshold,omitempty"`
+}
+
 // MapTrackerBigMapInferParam represents the custom_recognition_param for MapTrackerBigMapInfer.
 type MapTrackerBigMapInferParam struct {
-	MapNameRegex string  `json:"map_name_regex,omitempty"`
-	Threshold    float64 `json:"threshold,omitempty"`
+	MapNameRegex string            `json:"map_name_regex,omitempty"`
+	Threshold    float64           `json:"threshold,omitempty"`
+	ColorFilter  ColorFilterConfig `json:"color_filter,omitempty"`
 }
 
 var mapTrackerBigMapInferDefaultParam = MapTrackerBigMapInferParam{
@@ -81,6 +93,11 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	if !ok {
 		log.Warn().Msg("Big-map sample crop area is invalid")
 		return nil, false
+	}
+
+	// Apply color filter to remove color overlay if configured
+	if param.ColorFilter.R != 0 || param.ColorFilter.G != 0 || param.ColorFilter.B != 0 {
+		sampleTemplate = applyColorFilter(sampleTemplate, param.ColorFilter)
 	}
 
 	fastTpl := minicv.ImageScale(sampleTemplate, WIRE_MATCH_PRECISION)
@@ -347,6 +364,52 @@ func cropBigMapSample(fullTemplate *image.RGBA, fullLeft, fullTop, screenW, scre
 	draw.Draw(dst, dst.Bounds(), fullTemplate, region.Min, draw.Src)
 
 	return dst, leftRel, topRel, true
+}
+
+// applyColorFilter removes a specific color overlay from the image by converting matching pixels to grayscale.
+// This is useful for removing UI overlays that interfere with map recognition.
+func applyColorFilter(img *image.RGBA, config ColorFilterConfig) *image.RGBA {
+	bounds := img.Bounds()
+	dst := image.NewRGBA(bounds)
+
+	// Use configured color or defaults
+	targetR, targetG, targetB := config.R, config.G, config.B
+	threshold := config.Threshold
+	if threshold == 0 {
+		threshold = 30 // Default threshold
+	}
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, a := img.At(x, y).RGBA()
+
+			// Convert to 8-bit values
+			r8, g8, b8 := uint8(r>>8), uint8(g>>8), uint8(b>>8)
+			a8 := uint8(a >> 8)
+
+			// Check if this pixel matches the target color
+			dr := absInt(int(r8) - targetR)
+			dg := absInt(int(g8) - targetG)
+			db := absInt(int(b8) - targetB)
+
+			if dr+dg+db < threshold*3 {
+				// This pixel matches the target color, convert to grayscale
+				gray := (int(r8) + int(g8) + int(b8)) / 3
+				r8, g8, b8 = uint8(gray), uint8(gray), uint8(gray)
+			}
+
+			dst.SetRGBA(x, y, color.RGBA{R: r8, G: g8, B: b8, A: a8})
+		}
+	}
+
+	return dst
+}
+
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
 func roundTo1Decimal(value float64) float64 {

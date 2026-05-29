@@ -1,0 +1,215 @@
+{
+    "OriginiumScienceParkMissingRobotStart": {
+        "desc": "源石研究园寻机启事",
+        "pre_delay": 0,
+        "next": [
+            "OriginiumScienceParkMissingRobotLocationAssert",
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark3"
+        ]
+        
+    },
+    "OriginiumScienceParkMissingRobotLocationAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        166.8,
+                        309.3,
+                        9.0,
+                        9.5
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "MoveToOriginiumScienceParkMissingRobot1"
+        ]
+    },
+    "MoveToOriginiumScienceParkMissingRobot1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    174.3,
+                    312.4
+                ],
+                [
+                    181.9,
+                    298.2
+                ],
+                [
+                    193.8,
+                    296.0
+                ],
+                [
+                    206.3,
+                    298.7
+                ],
+                [
+                    210.4,
+                    302.1
+                ],
+                [
+                    214.9,
+                    308.5
+                ],
+                [
+                    215.7,
+                    314.8
+                ],
+                [
+                    214.6,
+                    322.7
+                ],
+                [
+                    211.5,
+                    330.2
+                ],
+                [
+                    212.0,
+                    345.4
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick1"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "MoveToOriginiumScienceParkMissingRobot2"
+        }
+    },
+    "MoveToOriginiumScienceParkMissingRobot2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    212.3,
+                    346.1
+                ],
+                [
+                    218.3,
+                    356.7
+                ],
+                [
+                    226.2,
+                    362.9
+                ],
+                [
+                    237.0,
+                    373.2
+                ],
+                [
+                    241.6,
+                    381.2
+                ],
+                [
+                    243.6,
+                    388.2
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksFightStart"
+        ],
+        "anchor": {
+            "DailyTasksFightEnd": "MoveToOriginiumScienceParkMissingRobot2AfterFight"
+        }
+    },
+    "MoveToOriginiumScienceParkMissingRobot2AfterFight": {
+        "next": [
+            "OriginiumScienceParkMissingRobot2Assert",
+            "[JumpBack]OriginiumScienceParkMissingRobot2_TryMoveTo"
+        ]
+    },
+    "OriginiumScienceParkMissingRobot2Assert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        244.1,
+                        387.8,
+                        5.0,
+                        4.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick2"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "MoveToOriginiumScienceParkMissingRobot3"
+        }
+    },
+     "OriginiumScienceParkMissingRobot2_TryMoveTo": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "max_hit": 3,
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    241.3,
+                    392.1
+                ],
+                [
+                    245.4,
+                    393.5
+                ],
+                [
+                    245.4,
+                    390.0
+                ]
+            ]
+        }
+    },
+    "MoveToOriginiumScienceParkMissingRobot3": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    243.6,
+                    390.2
+                ],
+                [
+                    237.4,
+                    380.3
+                ],
+                [
+                    235.9,
+                    370.0
+                ],
+                [
+                    237.4,
+                    362.8
+                ],
+                [
+                    247.0,
+                    360.1
+                ],
+                [
+                    246.2,
+                    357.6
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick3"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "DailyTasksEnd"
+        }
+    }
+}

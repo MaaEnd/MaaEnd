@@ -51,6 +51,7 @@ from _internal.pipeline_handler import (
     PipelineHandler,
     NODE_TYPE_MOVE,
     NODE_TYPE_ASSERT_LOCATION,
+    NODE_TYPE_BIG_MAP_ASSERT_LOCATION,
 )
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
@@ -1556,7 +1557,7 @@ class FileSelectStep(StepPage):
                 return False
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
-            return NODE_TYPE_MOVE in content or NODE_TYPE_ASSERT_LOCATION in content
+            return NODE_TYPE_MOVE in content or NODE_TYPE_ASSERT_LOCATION in content or NODE_TYPE_BIG_MAP_ASSERT_LOCATION in content
         except Exception:
             return False
 
@@ -1617,7 +1618,7 @@ class NodeSelectStep(StepPage):
                     "sub_label": self._build_node_sub_label(n),
                     "icon_name": (
                         "AssertLocation"
-                        if n.get("node_type") == NODE_TYPE_ASSERT_LOCATION
+                        if n.get("node_type") in (NODE_TYPE_ASSERT_LOCATION, NODE_TYPE_BIG_MAP_ASSERT_LOCATION)
                         else "Move"
                     ),
                     "data": n["node_name"],
@@ -1630,8 +1631,8 @@ class NodeSelectStep(StepPage):
     def _build_node_sub_label(node: dict) -> str:
         node_type = node.get("node_type", NODE_TYPE_MOVE)
         map_name = node.get("map_name", "Unknown")
-        if node_type == NODE_TYPE_ASSERT_LOCATION:
-            return f"Type: {NODE_TYPE_ASSERT_LOCATION} | Map: {map_name}"
+        if node_type in (NODE_TYPE_ASSERT_LOCATION, NODE_TYPE_BIG_MAP_ASSERT_LOCATION):
+            return f"Type: {node_type} | Map: {map_name}"
         path = node.get("path", [])
         return f"Type: {NODE_TYPE_MOVE} | Map: {map_name} | Pts: {len(path)}"
 
@@ -1669,7 +1670,7 @@ class NodeSelectStep(StepPage):
             "is_new_structure": selected.get("is_new_structure", False),
             "node_type": selected.get("node_type", NODE_TYPE_MOVE),
         }
-        if selected.get("node_type") == NODE_TYPE_ASSERT_LOCATION:
+        if selected.get("node_type") in (NODE_TYPE_ASSERT_LOCATION, NODE_TYPE_BIG_MAP_ASSERT_LOCATION):
             self.stepper.push_step(
                 RegionEditorAdapterStep(
                     selected["map_name"],
@@ -1840,7 +1841,7 @@ class ExportStep(StepPage):
                 else self.map_name
             )
             map_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            if self.node_type in (NODE_TYPE_ASSERT_LOCATION, NODE_TYPE_BIG_MAP_ASSERT_LOCATION):
                 param_data = {
                     "expected": [
                         {
@@ -1851,7 +1852,7 @@ class ExportStep(StepPage):
                 }
                 node_data = {
                     "recognition": "Custom",
-                    "custom_recognition": NODE_TYPE_ASSERT_LOCATION,
+                    "custom_recognition": self.node_type,
                     "custom_recognition_param": param_data,
                     "action": "DoNothing",
                 }
@@ -1966,12 +1967,17 @@ class RegionEditorAdapterStep(BasePage):
                 if self.editor.target is not None
                 else [0.0, 0.0, 0.0, 0.0]
             )
+            node_type = (
+                self.import_context.get("node_type", NODE_TYPE_ASSERT_LOCATION)
+                if self.import_context
+                else NODE_TYPE_ASSERT_LOCATION
+            )
             self.editor.stepper.push_step(
                 ExportStep(
                     target,
                     self.import_context,
                     self.map_name,
-                    node_type=NODE_TYPE_ASSERT_LOCATION,
+                    node_type=node_type,
                 )
             )
             return None

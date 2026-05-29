@@ -53,6 +53,33 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
+    "__ScenePrivateMapValleyIVEnterValleyIVTheHub3": {
+        "desc": "在地图界面找锚点 (枢纽区-源石副产物中心)",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVTheHub"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map01_lv001",
+            "target": [
+                307.7,
+                578.3
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
     // 下方所有节点是基于目标匹配的旧版实现
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1": {
         "desc": "在地图界面找锚点",

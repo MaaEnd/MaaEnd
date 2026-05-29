@@ -1,0 +1,84 @@
+{
+    "DailyTasksEntry": {
+        "desc": "日常委派任务入口节点",
+        "next": [
+            "DailyTasksCheckInDiJiang",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "DailyTasksCheckInDiJiang": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "base01_lv003",
+                    "target": [
+                        148.2,
+                        182.9,
+                        101.2,
+                        26.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksOpenTasksList"
+        ]
+    },
+    "DailyTasksEnterWorld": {
+        "desc": "日常任务进入大世界界面",
+        "next": [
+            "DailyTasksCheckTaskInWorld", //识别到界面后进入业务流程
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "DailyTasksCheckTaskInWorld": {
+        "desc": "日常任务检查任务列表节点",
+        "recognition": "And",
+        "all_of": [
+            "InWorld" //识别在大世界界面
+        ],
+        "next": [
+            "[Anchor]DailyTasksCheckTaskInWorldFinish"
+        ]
+    },
+    "DailyTasksOpenTasksList": {
+        //TODO: 在万能转跳中实现
+        "desc": "打开任务列表节点",
+        "pre_delay": 0,
+        "post_delay": 1000,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 74
+            }
+        },
+        "next": [
+            "DailyTasksHasTaskOcr",
+            "[JumpBack]DailyTaskListScroll"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "没有找到日常任务"
+        }
+    },
+    "DailyTaskListScroll": {
+        "desc": "任务列表滚动节点",
+        "pre_delay": 0,
+        "post_delay": 1000,
+        "max_hit": 10,
+        "action": "Swipe",
+        "begin": [
+            214,
+            470
+        ],
+        "end": [
+            214,
+            150
+        ],
+        "end_hold": 600
+    },
+    "DailyTasksEnd" : {
+        "desc": "日常任务结束节点"
+    }
+}

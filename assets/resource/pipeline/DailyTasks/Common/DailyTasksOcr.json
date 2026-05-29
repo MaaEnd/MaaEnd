@@ -1,0 +1,180 @@
+{
+    "DailyTasksHasTaskOcr": {
+        "desc": "日常任务是否存在",
+        "recognition": "OCR",
+        "roi": [
+            29,
+            33,
+            386,
+            646
+        ],
+        "expected": [
+            "日常"
+        ],
+        "action": "Click",
+        "next": [
+            "TrackTheDailyTask",
+            "DailyTasksEnterWorld"
+        ],
+        "anchor": {
+            "DailyTasksCheckTaskInWorldFinish": "TrackTheDailyTaskOpenMap"
+        }
+    },
+    "TrackTheDailyTask": {
+        "desc": "跟踪日常任务",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "TrackTheDailyTaskOpenMap"
+        ]
+    },
+    "TrackTheDailyTaskOpenMap": {
+        "desc": "跟踪日常任务打开地图",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 86
+            }
+        },
+        "next": [
+            "TheHubWestMissingRobotTaskAssert",
+            "OriginLodespringMissingRobotTaskAssert",
+            "OriginiumScienceParkRepairRobotTaskAssert",
+            "OriginiumScienceParkMissingRobotTaskAssert",
+            "JinYuValleyStragglersGroveSkyPoleTaskAssert"
+        ],
+        "focus": {
+            "Node.NextList.Failed": "当前日常任务可能不适配"
+        }
+    },
+    "TheHubWestMissingRobotTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv001",
+                    "target": [
+                        203.1,
+                        493.4,
+                        38.2,
+                        37.2
+                    ]
+                }
+            ],
+            "color_filter": {
+                "r": 72,
+                "g": 65,
+                "b": 7,
+                "threshold": 30
+            }
+        },
+        "next": [
+            "TheHubWestMissingRobotStart"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "枢纽区西侧寻机启事任务"
+        }
+    },
+    "OriginLodespringMissingRobotTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv006",
+                    "target": [
+                        345.9,
+                        512.3,
+                        38.4,
+                        50.3
+                    ]
+                }
+            ],
+            "color_filter": {
+                "r": 72,
+                "g": 65,
+                "b": 7,
+                "threshold": 30
+            }
+        },
+        "next": [
+            "OriginLodespringMissingRobotStart"
+        ]
+    },
+    "OriginiumScienceParkRepairRobotTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        432.7,
+                        194.8,
+                        13.7,
+                        12.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "OriginiumScienceParkRepairRobotStart"
+        ]
+    },
+    "OriginiumScienceParkMissingRobotTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        220.5,
+                        343.2,
+                        19.7,
+                        22.7
+                    ]
+                }
+            ],
+            "color_filter": {
+                "r": 72,
+                "g": 65,
+                "b": 7,
+                "threshold": 30
+            }
+        },
+        "next": [
+            "OriginiumScienceParkMissingRobotStart"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "源石研究园寻机启事"
+        }
+    },
+    "JinYuValleyStragglersGroveSkyPoleTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        277.1,
+                        544.8,
+                        26.3,
+                        27.5
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "JinYuValleyStragglersGroveSkyPoleStart"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "景玉谷-迷踪林天桩追踪"
+        }
+    }
+}

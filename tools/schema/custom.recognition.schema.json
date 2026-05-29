@@ -17,6 +17,7 @@
                 "MapTrackerAssertLocation",
                 "MapTrackerAssertLocationCompatible",
                 "MapTrackerBigMapInfer",
+                "MapTrackerBigMapAssertLocation",
                 "MapTrackerInfer",
                 "PuzzleRecognition",
                 "SellProductNormalizedItemMatch",
@@ -34,31 +35,52 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerAssertLocation" } }
+                "required": [
+                    "custom_recognition"
+                ],
+                "properties": {
+                    "custom_recognition": {
+                        "const": "MapTrackerAssertLocation"
+                    }
+                }
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": [
+                    "custom_recognition_param"
+                ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam"
+                    }
                 }
             }
         },
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapLocateAssertLocation" } }
+                "required": [
+                    "custom_recognition"
+                ],
+                "properties": {
+                    "custom_recognition": {
+                        "const": "MapLocateAssertLocation"
+                    }
+                }
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": [
+                    "custom_recognition_param"
+                ],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "zone_id", "target" ],
+                        "required": [
+                            "zone_id",
+                            "target"
+                        ],
                         "properties": {
                             "zone_id": {
                                 "type": "string",
@@ -89,14 +111,24 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerInfer" } }
+                "required": [
+                    "custom_recognition"
+                ],
+                "properties": {
+                    "custom_recognition": {
+                        "const": "MapTrackerInfer"
+                    }
+                }
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": [
+                    "custom_recognition_param"
+                ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam"
+                    }
                 }
             }
         },
@@ -111,6 +143,20 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapInferParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapTrackerBigMapAssertLocation" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapAssertLocationParam" }
                 }
             }
         }

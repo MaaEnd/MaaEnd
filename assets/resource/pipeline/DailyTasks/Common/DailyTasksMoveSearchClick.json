@@ -1,0 +1,121 @@
+{
+    "DailyTasksMoveSearchClick1": {
+        "next": [
+            "DailyTasksClick",
+            "[JumpBack]DailyTasksMove1",
+            "DailyTasksMoveSearchEnd"
+        ]
+    },
+    "DailyTasksMove1": {
+        "max_hit": 10,
+        "pre_delay": 500,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "DailyTasksMoveAction",
+                "custom_action_param": {
+                    "queue": [
+                        "w",
+                        "w",
+                        "w",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a"
+                    ],
+                    "queue_key": "DailyTasksMove1"
+                }
+            }
+        }
+    },
+    "DailyTasksMoveSearchClick2": {
+        "next": [
+            "DailyTasksClick",
+            "[JumpBack]DailyTasksMove2",
+            "DailyTasksMoveSearchEnd"
+        ]
+    },
+    "DailyTasksMove2": {
+        "max_hit": 10,
+        "pre_delay": 500,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "DailyTasksMoveAction",
+                "custom_action_param": {
+                    "queue": [
+                        "w",
+                        "w",
+                        "w",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a"
+                    ],
+                    "queue_key": "DailyTasksMove2"
+                }
+            }
+        }
+    },
+    "DailyTasksMoveSearchClick3": {
+        "next": [
+            "DailyTasksClick",
+            "[JumpBack]DailyTasksMove3",
+            "DailyTasksMoveSearchEnd"
+        ]
+    },
+    "DailyTasksMove3": {
+        "max_hit": 10,
+        "pre_delay": 500,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "DailyTasksMoveAction",
+                "custom_action_param": {
+                    "queue": [
+                        "w",
+                        "w",
+                        "w",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a",
+                        "d",
+                        "d",
+                        "s",
+                        "s",
+                        "a",
+                        "a"
+                    ],
+                    "queue_key": "DailyTasksMove3"
+                }
+            }
+        }
+    },
+    "DailyTasksMoveSearchEnd": {
+        "next": [
+            "[Anchor]DailyTasksClickEnd"
+        ],
+        "focus": {
+            "Node.NextList.Success": "没有找到任务交互按钮"
+        }
+    }
+}

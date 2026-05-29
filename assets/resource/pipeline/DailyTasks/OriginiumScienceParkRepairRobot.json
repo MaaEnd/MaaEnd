@@ -1,0 +1,89 @@
+{
+    "OriginiumScienceParkRepairRobotStart": {
+        "desc": "源石研究园维修故障机器人任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AssertLocationOriginiumScienceParkRepairRobotStart",
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2"
+        ]
+    },
+    "AssertLocationOriginiumScienceParkRepairRobotStart": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        519.3,
+                        233.3,
+                        9.6,
+                        11.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "MoveToOriginiumScienceParkRepairRobot"
+        ]
+    },
+    "MoveToOriginiumScienceParkRepairRobot": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    523.7,
+                    241.4
+                ],
+                [
+                    509.1,
+                    239.6
+                ],
+                [
+                    473.6,
+                    229.3
+                ],
+                [
+                    453.3,
+                    216.2
+                ],
+                [
+                    446.5,
+                    209.1
+                ],
+                [
+                    443.8,
+                    202.9
+                ],
+                [
+                    441.5,
+                    201.1
+                ],
+                [
+                    440.8,
+                    200.2
+                ],
+                [
+                    440.6,
+                    199.9
+                ]
+            ]
+        },
+        "anchor": {
+            "DailyTasksClickEnd": "OriginiumScienceParkRepairRobotDelayPuzzleSolver"
+        },
+        "next": [
+            "DailyTasksMoveSearchClick1"
+        ]
+    },
+    "OriginiumScienceParkRepairRobotDelayPuzzleSolver": {
+        "pre_delay": 5000,
+        "post_delay": 0,
+        "next": [
+            "PuzzleSolverMain"
+        ]
+    }
+}

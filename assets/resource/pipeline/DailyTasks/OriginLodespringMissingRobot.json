@@ -1,0 +1,315 @@
+{
+    "OriginLodespringMissingRobotStart": {
+        "desc": "矿脉源区寻机启事任务",
+        "next": [
+            "AssetLodespringMissingRobotLocationStart",
+            "[JumpBack]SceneEnterWorldValleyIVOriginLodespring3"
+        ]
+    },
+    "AssetLodespringMissingRobotLocationStart": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv006",
+                    "target": [
+                        407.2,
+                        488.6,
+                        9.1,
+                        7.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "OriginLodespringCommonMove1"
+        ]
+    },
+    "OriginLodespringCommonMove1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    412.0,
+                    487.9
+                ],
+                [
+                    420.8,
+                    494.9
+                ],
+                [
+                    425.8,
+                    506.1
+                ],
+                [
+                    428.0,
+                    516.8
+                ],
+                [
+                    430.9,
+                    528.5
+                ],
+                [
+                    436.9,
+                    540.8
+                ],
+                [
+                    442.6,
+                    546.2
+                ],
+                [
+                    455.9,
+                    550.7
+                ],
+                [
+                    467.1,
+                    560.2
+                ],
+                [
+                    472.1,
+                    568.0
+                ],
+                [
+                    471.1,
+                    577.3
+                ],
+                [
+                    463.9,
+                    582.0
+                ],
+                [
+                    455.5,
+                    584.0
+                ]
+            ]
+        },
+        "next": [
+            "OriginLodespringMissingRobot1Move_P1"
+        ]
+    },
+    "OriginLodespringMissingRobot1Move_P1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    451.6,
+                    584.5
+                ],
+                [
+                    431.8,
+                    595.9
+                ],
+                [
+                    413.5,
+                    589.0
+                ],
+                [
+                    410.1,
+                    571.4
+                ],
+                [
+                    408.1,
+                    568.7
+                ],
+                [
+                    399.8,
+                    558.8
+                ],
+                [
+                    378.9,
+                    542.2
+                ],
+                [
+                    350.9,
+                    528.9
+                ]
+            ]
+        },
+        "next": [
+            "OriginLodespringMissingRobot1Move_P2"
+        ]
+    },
+    "OriginLodespringMissingRobot1Move_P2": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    350.9,
+                    528.9
+                ],
+                [
+                    343.3,
+                    524.8
+                ],
+                [
+                    348.8,
+                    519.0
+                ]
+            ]
+        },
+        "next": [
+            "AssetLodespringMissingRobotLocation1",
+            "[JumpBack]OriginLodespringMissingRobot1_TryMove"
+        ]
+    },
+    "OriginLodespringMissingRobot1_TryMove": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    341.6,
+                    524.4
+                ],
+                [
+                    343.2,
+                    519.2
+                ],
+                [
+                    345.3,
+                    515.3
+                ],
+                [
+                    349.6,
+                    517.6
+                ]
+            ]
+        }
+    },
+    "AssetLodespringMissingRobotLocation1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv006",
+                    "target": [
+                        347.6,
+                        515.8,
+                        4.2,
+                        4.4
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick1"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "OriginLodespringMissingRobot2Move"
+        }
+    },
+    "OriginLodespringMissingRobot2Move": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    347.8,
+                    520.1
+                ],
+                [
+                    351.9,
+                    541.1
+                ],
+                [
+                    354.6,
+                    557.1
+                ],
+                [
+                    367.5,
+                    558.8
+                ],
+                [
+                    369.3,
+                    553.3
+                ]
+            ]
+        },
+        "next": [
+            "AssetLodespringMissingRobotLocation2"
+        ]
+    },
+    "AssetLodespringMissingRobotLocation2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv006",
+                    "target": [
+                        366.2,
+                        550.4,
+                        6.2,
+                        4.7
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick2"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "OriginLodespringMissingRobot3Move"
+        }
+    },
+    "OriginLodespringMissingRobot3Move": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    369.5,
+                    553.5
+                ],
+                [
+                    353.0,
+                    562.2
+                ],
+                [
+                    349.9,
+                    573.7
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksFightStart"
+        ],
+        "anchor": {
+            "DailyTasksFightEnd": "OriginLodespringMissingRobot3Move_P1"
+        }
+    },
+    "OriginLodespringMissingRobot3Move_P1": {
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv006",
+            "path": [
+                [
+                    349.9,
+                    573.7
+                ],
+                [
+                    348.5,
+                    578.8
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksMoveSearchClick2"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "DailyTasksEnd"
+        }
+    }
+}

@@ -1,0 +1,49 @@
+{
+    "DailyTasksFightStart": {
+        "next": [
+            "[JumpBack]DailyTasksFight",
+            "DailyTasksFightOver"
+        ]
+    },
+    "DailyTasksFight": {
+        "desc": "自动战斗",
+        "recognition": "Custom",
+        "max_hit": 5,
+        "custom_recognition": "AutoFightEntryRecognition",
+        "pre_delay": 500,
+        "action": "Custom",
+        "custom_action": "AutoFightMainAction",
+        "post_delay": 2000,
+        "focus": {
+            "Node.Recognition.Succeeded": "进入战斗场景"
+        },
+        "attach": {
+            "enable_attack": true,
+            "enable_combo": true,
+            "enable_dodge": true,
+            "enable_break_accumulating_power": false,
+            "enable_skill": true,
+            "enable_health_dangerous_switch": false,
+            "reserve_skill_level": 1,
+            "enable_end_skill": true,
+            "enable_lock_target": true,
+            "combo_keymap": "E",
+            "skill_keymap1": "1",
+            "skill_keymap2": "2",
+            "skill_keymap3": "3",
+            "skill_keymap4": "4",
+            "switch_operator_keymap1": "F1",
+            "switch_operator_keymap2": "F2",
+            "switch_operator_keymap3": "F3",
+            "switch_operator_keymap4": "F4"
+        },
+        "next": [
+            "DailyTasksFightOver"
+        ]
+    },
+    "DailyTasksFightOver": {
+        "next": [
+            "[Anchor]DailyTasksFightEnd"
+        ]
+    }
+}

@@ -5,6 +5,7 @@ from .core_utils import _R, _0
 
 NODE_TYPE_MOVE = "MapTrackerMove"
 NODE_TYPE_ASSERT_LOCATION = "MapTrackerAssertLocation"
+NODE_TYPE_BIG_MAP_ASSERT_LOCATION = "MapTrackerBigMapAssertLocation"
 
 
 class PipelineHandler:
@@ -226,7 +227,7 @@ class PipelineHandler:
 
     @staticmethod
     def _parse_assert_location_fields(node_content: str) -> dict | None:
-        if f'"custom_recognition": "{NODE_TYPE_ASSERT_LOCATION}"' not in node_content:
+        if f'"custom_recognition": "{NODE_TYPE_ASSERT_LOCATION}"' not in node_content and f'"custom_recognition": "{NODE_TYPE_BIG_MAP_ASSERT_LOCATION}"' not in node_content:
             return None
 
         expected_range = PipelineHandler._extract_json_array(node_content, "expected")
@@ -250,8 +251,10 @@ class PipelineHandler:
         ):
             return None
 
+        node_type = NODE_TYPE_ASSERT_LOCATION if f'"custom_recognition": "{NODE_TYPE_ASSERT_LOCATION}"' in node_content else NODE_TYPE_BIG_MAP_ASSERT_LOCATION
+        
         return {
-            "node_type": NODE_TYPE_ASSERT_LOCATION,
+            "node_type": node_type,
             "map_name": map_name,
             "target": [float(v) for v in target],
             "expected": expected,
