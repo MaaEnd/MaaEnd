@@ -37,6 +37,10 @@ class Button:
         self.hovered = False
         self.needs_render = True
 
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
     def _get_draw_color(self) -> int:
         if not self.hovered:
             return self.base_color
@@ -76,9 +80,8 @@ class Button:
         )
         self.needs_render = False
 
-    def handle_mouse(self, event, x: int, y: int) -> bool:
-        x1, y1, x2, y2 = self.rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def consume_mouse(self, event, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
 
         if self.hovered != in_rect:
             self.hovered = in_rect
@@ -91,7 +94,7 @@ class Button:
             return True
         return False
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key in self.hotkey:
             if self.on_click:
                 self.on_click()
@@ -113,7 +116,7 @@ class TextInputWidget:
         self.text = ""
         self._cursor_blink_start = time.time()
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key == 8 or key == 127:  # Backspace / Del
             if self.text:
                 self.text = self.text[:-1]
@@ -161,6 +164,7 @@ class RadioSelectWidget:
         self.item_height = item_height
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
 
     def set_items(self, items: list[dict], selected_data: object | None = None) -> None:
         self.items = items
@@ -191,8 +195,15 @@ class RadioSelectWidget:
         title_h = 22 if self.title else 0
         return title_h + max(0, len(self.items)) * self.item_height + 8
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        return event == cv2.EVENT_LBUTTONDOWN and self._select_at(x, y) >= 0
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, y2 = self.rect
         if not (x1 <= x <= x2 and y1 <= y <= y2):
             return -1
         title_h = 22 if self.title else 0
@@ -213,6 +224,7 @@ class RadioSelectWidget:
         *,
         font_scale: float = 0.4,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
         drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
@@ -256,6 +268,7 @@ class SwitchWidget:
         self.is_left_selected = is_left_selected
         self.on_changed = on_changed
         self.hovered = False
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
 
     def get_value(self) -> bool:
         return self.is_left_selected
@@ -270,11 +283,14 @@ class SwitchWidget:
     def toggle(self) -> bool:
         return self.set_value(not self.is_left_selected)
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> bool:
-        x1, y1, x2, y2 = rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
         self.hovered = in_rect
-        if not in_rect:
+        if event != cv2.EVENT_LBUTTONDOWN or not in_rect:
             return False
         self.toggle()
         return True
@@ -286,6 +302,7 @@ class SwitchWidget:
         *,
         font_scale: float = 0.42,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         w = max(2, x2 - x1)
         mid_x = x1 + w // 2
@@ -341,8 +358,10 @@ class ScrollableListWidget:
     def __init__(self, item_height: int = 38):
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.submitted_idx: int = -1
         self.scroll_offset: int = 0
         self.item_height = item_height
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
         self._preview_generator: Callable[[dict], np.ndarray | None] | None = None
         self._last_list_x2: int | None = None
 
@@ -357,6 +376,7 @@ class ScrollableListWidget:
             prev_selected_data = self.items[self.selected_idx].get("data")
 
         self.items = items
+        self.submitted_idx = -1
         self.scroll_offset = 0
         self.selected_idx = -1
 
@@ -384,8 +404,36 @@ class ScrollableListWidget:
         if 0 <= new_pos < len(enabled):
             self.selected_idx = enabled[new_pos]
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        self.submitted_idx = -1
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.submitted_idx = idx
+            return self.contains(x, y)
+        if event == cv2.EVENT_MOUSEWHEEL:
+            return self._scroll_at(x, y, flags)
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        self.submitted_idx = -1
+        if key in (82, 0x260000, 65362):
+            self.navigate(-1)
+            return True
+        if key in (84, 0x280000, 65364):
+            self.navigate(1)
+            return True
+        if key in (10, 13) and self.selected_idx >= 0:
+            self.submitted_idx = self.selected_idx
+            return True
+        return False
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, y2 = self.rect
         list_x2 = self._last_list_x2 if self._last_list_x2 is not None else x2
         content_x2 = max(x1, list_x2 - 6)
         if not (x1 <= x <= content_x2 and y1 <= y <= y2):
@@ -399,10 +447,8 @@ class ScrollableListWidget:
             return -1
         return -1
 
-    def handle_wheel(
-        self, x: int, y: int, flags: int, rect: tuple[int, int, int, int]
-    ) -> bool:
-        x1, y1, x2, y2 = rect
+    def _scroll_at(self, x: int, y: int, flags: int) -> bool:
+        x1, y1, x2, y2 = self.rect
         if not (x1 <= x <= x2 and y1 <= y <= y2):
             return False
 
@@ -441,6 +487,7 @@ class ScrollableListWidget:
         *,
         font_scale: float = 0.45,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         preview_img: np.ndarray | None = None
         if self._preview_generator is not None and 0 <= self.selected_idx < len(

@@ -248,6 +248,13 @@ class Drawer:
     def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
         cv2.circle(self._img, center, radius, self._to_bgr(color), thickness)
 
+    def polygon(self, points: list[Point], *, color: Color, thickness: int):
+        pts = np.array(points, dtype=np.int32)
+        if thickness < 0:
+            cv2.fillPoly(self._img, [pts], self._to_bgr(color))
+        else:
+            cv2.polylines(self._img, [pts], True, self._to_bgr(color), thickness)
+
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
 

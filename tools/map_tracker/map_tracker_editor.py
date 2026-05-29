@@ -961,7 +961,7 @@ class PathEditPage(MapViewportPage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if self.handle_view_mouse(event, x, y, flags, mx, my):
+        if self.consume_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_MOUSEMOVE:
@@ -1026,14 +1026,7 @@ class PathEditPage(MapViewportPage):
         elif event == cv2.EVENT_LBUTTONDOWN:
             # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
-                if (
-                    self._recorder_switch_rect is not None
-                    and self._recorder_mode_switch.handle_click(
-                        x,
-                        y,
-                        self._recorder_switch_rect,
-                    )
-                ):
+                if self._recorder_mode_switch.consume_mouse(event, x, y, flags):
                     self.render_request()
                     return
                 if self._get_selected_point() is not None:
@@ -1041,16 +1034,11 @@ class PathEditPage(MapViewportPage):
                     self._update_status(0xD2D200, "Cleared point selection.")
                     self.render_request()
                     return
-                if self._tier_selector_rect is not None:
-                    idx = self._tier_selector.handle_click(
-                        x,
-                        y,
-                        self._tier_selector_rect,
-                    )
-                    if idx >= 0:
-                        selected_map = self._tier_selector.get_selected_data()
-                        if isinstance(selected_map, str) and selected_map:
-                            self._switch_active_map(selected_map)
+                if self._tier_selector.consume_mouse(event, x, y, flags):
+                    selected_map = self._tier_selector.get_selected_data()
+                    if isinstance(selected_map, str) and selected_map:
+                        self._switch_active_map(selected_map)
+                    return
                 return
 
             # ── Map area clicks ─────────────────────────────────
@@ -1386,7 +1374,7 @@ class AreaEditPage(MapViewportPage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if self.handle_view_mouse(event, x, y, flags, mx, my):
+        if self.consume_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -1567,19 +1555,19 @@ class FileSelectStep(StepPage):
         )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 160, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.file_list.handle_click(x, y, rect)
-            if idx >= 0:
+        if self.file_list.consume_mouse(event, x, y, flags):
+            if self.file_list.submitted_idx >= 0:
                 self.stepper.push_step(
-                    NodeSelectStep(self.file_list.items[idx]["data"])
+                    NodeSelectStep(
+                        self.file_list.items[self.file_list.submitted_idx]["data"]
+                    )
                 )
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.file_list.handle_wheel(x, y, flags, rect):
+            else:
                 self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        if self.search_input.handle_key(key):
+        if self.search_input.consume_key(key):
             q = self.search_input.text.lower()
             filtered = [
                 f
@@ -1589,17 +1577,16 @@ class FileSelectStep(StepPage):
             self.file_list.set_items(filtered)
             self.stepper.request_render()
             return
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.file_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.file_list.selected_idx >= 0:
-            self.stepper.push_step(
-                NodeSelectStep(
-                    self.file_list.items[self.file_list.selected_idx]["data"]
+        if self.file_list.consume_key(key):
+            if self.file_list.submitted_idx >= 0:
+                self.stepper.push_step(
+                    NodeSelectStep(
+                        self.file_list.items[self.file_list.submitted_idx]["data"]
+                    )
                 )
-            )
+            else:
+                self.stepper.request_render()
+            return
 
 
 class NodeSelectStep(StepPage):
@@ -1641,23 +1628,20 @@ class NodeSelectStep(StepPage):
         )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.node_list.handle_click(x, y, rect)
-            if idx >= 0:
-                self._submit(idx)
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.node_list.handle_wheel(x, y, flags, rect):
+        if self.node_list.consume_mouse(event, x, y, flags):
+            if self.node_list.submitted_idx >= 0:
+                self._submit(self.node_list.submitted_idx)
+            else:
                 self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.node_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.node_list.selected_idx >= 0:
-            self._submit(self.node_list.selected_idx)
+        if self.node_list.consume_key(key):
+            if self.node_list.submitted_idx >= 0:
+                self._submit(self.node_list.submitted_idx)
+            else:
+                self.stepper.request_render()
+            return
 
     def _submit(self, idx):
         selected = self.candidates[idx]
@@ -1745,12 +1729,12 @@ class EditorAdapterStep(BasePage):
     def _on_mouse(self, event, x, y, flags, param):
         if self.editor is None:
             return
-        self.editor.handle_mouse(event, x, y, flags, param)
+        self.editor.consume_mouse(event, x, y, flags, param)
 
     def _on_key(self, key):
         if self.editor is None:
             return
-        self.editor.handle_key(key)
+        self.editor.consume_key(key)
 
 
 class ExportStep(StepPage):
@@ -1796,21 +1780,24 @@ class ExportStep(StepPage):
             )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (100, 150, self.WINDOW_W - 100, 350)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.list_widget.handle_click(x, y, rect)
-            if idx >= 0:
-                self._submit(self.list_widget.items[idx]["data"])
+        if self.list_widget.consume_mouse(event, x, y, flags):
+            if self.list_widget.submitted_idx >= 0:
+                self._submit(
+                    self.list_widget.items[self.list_widget.submitted_idx]["data"]
+                )
+            else:
+                self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        if key in (10, 13) and self.list_widget.selected_idx >= 0:
-            self._submit(self.list_widget.items[self.list_widget.selected_idx]["data"])
-        elif key in (82, 0x260000, 65362):
-            self.list_widget.navigate(-1)
-            self.stepper.request_render()
-        elif key in (84, 0x280000, 65364):
-            self.list_widget.navigate(1)
-            self.stepper.request_render()
+        if self.list_widget.consume_key(key):
+            if self.list_widget.submitted_idx >= 0:
+                self._submit(
+                    self.list_widget.items[self.list_widget.submitted_idx]["data"]
+                )
+            else:
+                self.stepper.request_render()
+            return
 
     def _submit(self, mode):
         if mode == "S":
@@ -1980,12 +1967,12 @@ class RegionEditorAdapterStep(BasePage):
     def _on_mouse(self, event, x, y, flags, param):
         if self.editor is None:
             return
-        self.editor.handle_mouse(event, x, y, flags, param)
+        self.editor.consume_mouse(event, x, y, flags, param)
 
     def _on_key(self, key):
         if self.editor is None:
             return
-        self.editor.handle_key(key)
+        self.editor.consume_key(key)
 
 
 class App(PageStepper):

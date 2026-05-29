@@ -67,14 +67,15 @@ class BasePage:
             return drawer.get_image()
         return None
 
-    def handle_mouse(self, event, x: int, y: int, flags, param):
+    def consume_mouse(self, event, x: int, y: int, flags, param) -> bool:
         """Dispatches mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
         for btn in self.buttons:
-            if btn.handle_mouse(event, x, y):
+            if btn.consume_mouse(event, x, y, flags):
                 self.render_request()
-                return
+                return True
         self._on_mouse(event, x, y, flags, param)
+        return False
 
     def _on_mouse(self, event, x: int, y: int, flags, param) -> None:
         """Subclasses can override this method to handle mouse events not consumed by buttons."""
@@ -84,13 +85,14 @@ class BasePage:
         """Returns true when the page consumes ESC instead of leaving the step."""
         return False
 
-    def handle_key(self, key: int):
+    def consume_key(self, key: int) -> bool:
         """Dispatches key input to buttons first, then page handler."""
         for btn in self.buttons:
-            if btn.handle_key(key):
+            if btn.consume_key(key):
                 self.render_request()
-                return
+                return True
         self._on_key(key)
+        return False
 
     def _on_key(self, key: int) -> None:
         """Subclasses can override this method to handle key events not consumed by buttons."""
@@ -130,7 +132,7 @@ class MapViewportPage(BasePage):
     def _get_screen_coords(self, map_x: float, map_y: float) -> tuple[int, int]:
         return self.view.get_view_coords(map_x, map_y)
 
-    def handle_view_mouse(
+    def consume_view_mouse(
         self,
         event: int,
         x: int,
@@ -320,25 +322,24 @@ class MapImageSelectStep(StepPage):
         )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.map_list.handle_click(x, y, rect)
-            if idx >= 0:
-                self.on_map_selected(str(self.map_list.items[idx]["data"]))
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.map_list.handle_wheel(x, y, flags, rect):
+        if self.map_list.consume_mouse(event, x, y, flags):
+            if self.map_list.submitted_idx >= 0:
+                self.on_map_selected(
+                    str(self.map_list.items[self.map_list.submitted_idx]["data"])
+                )
+            else:
                 self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.map_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.map_list.selected_idx >= 0:
-            self.on_map_selected(
-                str(self.map_list.items[self.map_list.selected_idx]["data"])
-            )
+        if self.map_list.consume_key(key):
+            if self.map_list.submitted_idx >= 0:
+                self.on_map_selected(
+                    str(self.map_list.items[self.map_list.submitted_idx]["data"])
+                )
+            else:
+                self.stepper.request_render()
+            return
 
     def on_map_selected(self, map_name: str) -> None:
         if self._on_select is None:
@@ -393,7 +394,7 @@ class PageStepper:
 
     def _handle_mouse(self, event, x, y, flags, param):
         if self.current_step:
-            self.current_step.handle_mouse(event, x, y, flags, param)
+            self.current_step.consume_mouse(event, x, y, flags, param)
 
     def run(self) -> Any:
         """Run the main event loop until finished or window closed."""
@@ -425,7 +426,7 @@ class PageStepper:
                 else:
                     break
             elif key != -1:
-                page.handle_key(key)
+                page.consume_key(key)
 
         cv2.destroyAllWindows()
         return self.result
