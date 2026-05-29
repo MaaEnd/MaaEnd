@@ -479,8 +479,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					}
 				}
 			}
-		} else {
-			lockTargetStage = lockStageLocked
+		}
+
+		hasEnemyTarget := false
+		if params.EnableLockTarget && screenAnalyzer.GetEnemyLocked() {
+			hasEnemyTarget = true
+		} else if !params.EnableLockTarget {
+			hasEnemyTarget = true
 		}
 
 		if params.EnableHealthDangerousSwitch {
@@ -504,7 +509,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				})
 			}
 
-			if params.EnableEndSkill && screenAnalyzer.GetEnemyLocked() {
+			if params.EnableEndSkill && hasEnemyTarget {
 				if len(endSkillFull) > 0 {
 					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
 					for _, idx := range endSkillFull {
@@ -531,7 +536,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						action:    skillAction(op),
 					})
 					skillCycleIndex++
-				} else if energyLevel > params.ReserveSkillLevel && screenAnalyzer.GetEnemyLocked() {
+				} else if energyLevel > params.ReserveSkillLevel && hasEnemyTarget {
 					log.Debug().
 						Str("component", "AutoFight").
 						Int("energyLevel", energyLevel).
@@ -550,7 +555,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
 		} else {
-			if screenAnalyzer.GetEnemyLocked() && timeline.ActionFinish() {
+			if hasEnemyTarget && timeline.ActionFinish() {
 				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.retry_timeline"))
 				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
 			}
@@ -581,7 +586,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 					switch action.Type {
 					case "ultimate":
-						if slices.Contains(endSkillFull, screenSlot) && screenAnalyzer.GetEnemyLocked() {
+						if slices.Contains(endSkillFull, screenSlot) && hasEnemyTarget {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
@@ -590,7 +595,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							timeline.PopFrontAction()
 						}
 					case "skill":
-						if energyLevel >= 1 && screenAnalyzer.GetEnemyLocked() {
+						if energyLevel >= 1 && hasEnemyTarget {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),
