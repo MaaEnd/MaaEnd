@@ -1055,7 +1055,6 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     std::string targetZoneId = expectedZoneId;
     const YoloCoarseResult coarse = angleGuardCoarse.value_or(predictCoarse(minimap));
     if (coarse.valid && coarse.is_none) {
-        LogInfo << "YOLO predicted None; waiting for a valid zone before global search." << VAR(expectedZoneSelector);
         return LocateResult {
             .status = LocateStatus::TrackingLost,
             .debugMessage = kColdStartCollectingMessage,
