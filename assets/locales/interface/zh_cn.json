@@ -702,7 +702,7 @@
     "group.other_menu.label": "其他菜单",
     "group.realtime.label": "实时辅助",
     "resource.CN.label": "通用资源（目前仅简中支持较好）",
-    "controller.Win32-Window.label": "后台1",
+    "controller.Win32-Window.label": "电脑端-后台1",
     "controller.Win32-Window.description": "支持游戏最小化，会间接性抢占鼠标",
     "controller.Win32-Window-Background.label": "后台2",
     "controller.Win32-Window-Background.description": "支持游戏最小化，基本上不抢占鼠标，使用时不建议大浮动移动鼠标。会导致游戏窗口乱飞，不影响使用，建议将游戏最小化以避免干扰",
