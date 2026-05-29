@@ -53,7 +53,7 @@ flowchart TD
 
 | 文档                              | 说明                                             |
 | --------------------------------- | ------------------------------------------------ |
-| [编码规范](./coding-standards.md) | Pipeline / Go / Cpp 编码规则、提交前检查、常见坑 |
+| [编码规范(必看)](./coding-standards.md) | Pipeline / Go / Cpp 编码规则、提交前检查、常见坑 |
 
 ### Pipeline 基础组件
 

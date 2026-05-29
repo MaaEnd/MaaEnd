@@ -53,7 +53,7 @@ It is recommended to read in the following order:
 
 | Document                                  | Description                                                          |
 | ----------------------------------------- | -------------------------------------------------------------------- |
-| [Coding Standards](./coding-standards.md) | Pipeline / Go / Cpp coding rules, pre-commit checks, common pitfalls |
+| [Coding Standards (Must-read)](./coding-standards.md) | Pipeline / Go / Cpp coding rules, pre-commit checks, common pitfalls |
 
 ### Pipeline Basic Components
 
