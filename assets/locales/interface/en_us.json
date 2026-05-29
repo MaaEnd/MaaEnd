@@ -60,6 +60,7 @@
     "option.AutoFightCombo.label": "Auto Trigger Link Skills",
     "option.AutoFightDodge.label": "Auto Dodge",
     "option.AutoFightLockTarget.label": "Auto Lock Target",
+    "option.AutoFightLockTarget.description": "Automatically searches for and approaches enemies when they are outside the field of view; combat skills and ultimates are only used when enemies are visible.",
     "option.AutoFightSaveDamage.label": "Auto Save Damage Images (Test)",
     "option.AutoFightReserveSkillLevel.label": "Reserve Skill Energy",
     "option.AutoFightBreakAccumulatingPower.label": "Auto Break Enemy Charge",

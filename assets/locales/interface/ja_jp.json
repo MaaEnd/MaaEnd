@@ -58,6 +58,7 @@
     "option.AutoFightCombo.label": "連携スキル自動発動",
     "option.AutoFightDodge.label": "自動回避",
     "option.AutoFightLockTarget.label": "ターゲット自動ロック",
+    "option.AutoFightLockTarget.description": "敵が視界外のときは自動で敵を探索し接近し、視界内に敵がいる場合のみ戦技・必殺技を使用します。",
     "option.AutoFightSaveDamage.label": "被ダメージ画像を自動保存（テスト用）",
     "option.AutoFightReserveSkillLevel.label": "スキルエネルギーを保留",
     "option.AutoFightBreakAccumulatingPower.label": "敵のチャージを自動中断",

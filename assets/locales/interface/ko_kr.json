@@ -58,6 +58,7 @@
     "option.AutoFightCombo.label": "연계 스킬 자동 발동",
     "option.AutoFightDodge.label": "자동 회피",
     "option.AutoFightLockTarget.label": "타깃 자동 고정",
+    "option.AutoFightLockTarget.description": "적이 시야 밖에 있으면 자동으로 적을 찾아 가까이 다가가며, 적이 시야 안에 있을 때만 전투 스킬과 궁극기를 사용합니다.",
     "option.AutoFightSaveDamage.label": "피해 이미지 자동 저장(테스트용)",
     "option.AutoFightReserveSkillLevel.label": "스킬 에너지 보존",
     "option.AutoFightBreakAccumulatingPower.label": "적 차지 자동 중단",
