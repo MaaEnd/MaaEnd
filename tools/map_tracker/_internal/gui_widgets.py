@@ -610,6 +610,248 @@ class ScrollableListWidget:
             )
 
 
+class _OffsetDrawer:
+    def __init__(self, drawer: "Drawer", offset: tuple[int, int]):
+        self._drawer = drawer
+        self._dx, self._dy = offset
+
+    @property
+    def w(self):
+        return self._drawer.w
+
+    @property
+    def h(self):
+        return self._drawer.h
+
+    def _pt(self, pt: tuple[int, int]) -> tuple[int, int]:
+        return (pt[0] + self._dx, pt[1] + self._dy)
+
+    def get_image(self):
+        return self._drawer.get_image()
+
+    def get_text_size(self, text: str, font_scale: float):
+        return self._drawer.get_text_size(text, font_scale)
+
+    def text(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+        bg_color: int | None = None,
+        bg_padding: int = 5,
+    ):
+        self._drawer.text(
+            text,
+            self._pt(pos),
+            font_scale,
+            color=color,
+            bg_color=bg_color,
+            bg_padding=bg_padding,
+        )
+
+    def text_centered(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+    ):
+        self._drawer.text_centered(text, self._pt(pos), font_scale, color=color)
+
+    def rect(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.rect(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def circle(
+        self,
+        center: tuple[int, int],
+        radius: int,
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.circle(self._pt(center), radius, color=color, thickness=thickness)
+
+    def line(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.line(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def paste(
+        self,
+        img: cv2.typing.MatLike,
+        pos: tuple[int, int],
+        *,
+        scale_w: int | None = None,
+        scale_h: int | None = None,
+        with_alpha: bool = False,
+    ) -> None:
+        self._drawer.paste(
+            img,
+            self._pt(pos),
+            scale_w=scale_w,
+            scale_h=scale_h,
+            with_alpha=with_alpha,
+        )
+
+
+class WidgetGroup:
+    def __init__(
+        self,
+        rect: tuple[int, int, int, int],
+        *,
+        visible: bool = True,
+    ) -> None:
+        self.rect = rect
+        self.visible = visible
+        self._items: list[dict] = []
+        self._needs_render = True
+
+    @property
+    def needs_render(self) -> bool:
+        return self._needs_render or any(
+            getattr(item["widget"], "needs_render", False) for item in self._items
+        )
+
+    def set_rect(self, rect: tuple[int, int, int, int]) -> None:
+        if self.rect != rect:
+            self.rect = rect
+            self._needs_render = True
+
+    def clear(self) -> None:
+        if self._items:
+            self._items.clear()
+            self._needs_render = True
+
+    def add_button(
+        self,
+        button: Button,
+        rect: tuple[int, int, int, int],
+    ) -> Button:
+        button.rect = rect
+        self._items.append(
+            {
+                "widget": button,
+                "rect": rect,
+                "kind": "button",
+                "render_kwargs": {},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return button
+
+    def add_switch(
+        self,
+        widget: SwitchWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.42,
+    ) -> SwitchWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "switch",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def add_radio(
+        self,
+        widget: RadioSelectWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.4,
+        on_consumed: Callable[[], None] | None = None,
+    ) -> RadioSelectWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "radio",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": on_consumed,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def render(self, drawer: "Drawer") -> None:
+        if not self.visible:
+            self._needs_render = False
+            return
+        x1, y1, _, _ = self.rect
+        local_drawer = _OffsetDrawer(drawer, (x1, y1))
+        for item in self._items:
+            widget = item["widget"]
+            rect = item["rect"]
+            kind = item["kind"]
+            render_kwargs = item["render_kwargs"]
+            if kind == "button":
+                widget.rect = rect
+                widget.render(local_drawer)
+            else:
+                widget.render(local_drawer, rect, **render_kwargs)
+        self._needs_render = False
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        if not self.visible:
+            return False
+        x1, y1, x2, y2 = self.rect
+        in_group = x1 <= x <= x2 and y1 <= y <= y2
+        if event != cv2.EVENT_MOUSEMOVE and not in_group:
+            return False
+        lx = x - x1
+        ly = y - y1
+        for item in reversed(self._items):
+            widget = item["widget"]
+            if widget.consume_mouse(event, lx, ly, flags):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        if not self.visible:
+            return False
+        for item in self._items:
+            widget = item["widget"]
+            consume_key = getattr(widget, "consume_key", None)
+            if consume_key is not None and consume_key(key):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
+
+
 T = TypeVar("T")
 
 

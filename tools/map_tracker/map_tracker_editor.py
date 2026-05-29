@@ -45,6 +45,7 @@ from _internal.gui_widgets import (
     RadioSelectWidget,
     UndoRedoHistory,
     UndoRedoWidget,
+    WidgetGroup,
 )
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
@@ -197,14 +198,6 @@ class PathEditPage(MapViewportPage):
         self._realtime_last_point_ts: float | None = None
         self._realtime_segment_has_checkpoint = False
 
-        # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
-        self._btn_save_rect: tuple | None = None
-        self._btn_record_rect: tuple | None = None
-        self._btn_back_rect: tuple | None = None
-        self._btn_finish_rect: tuple | None = None
-        self._btn_delete_rect: tuple | None = None
-        self._btn_copy_rect: tuple | None = None
-
         # Tier map selector in sidebar (shown only when tier maps exist)
         self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
         self._tier_selector_rect: tuple[int, int, int, int] | None = None
@@ -264,17 +257,9 @@ class PathEditPage(MapViewportPage):
             on_click=self._copy_selected_point,
             font_scale=0.42,
         )
-        self.buttons.extend(
-            [
-                self._save_button,
-                self._record_button,
-                self._back_button,
-                self._finish_button,
-                self._delete_button,
-                self._copy_button,
-                *self._history_widget.buttons,
-            ]
-        )
+        self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
+        self.groups.append(self._sidebar_group)
+        self.buttons.extend(self._history_widget.buttons)
 
     def hook_idle(self) -> None:
         self._update_recording()
@@ -542,6 +527,11 @@ class PathEditPage(MapViewportPage):
         if resolved != self._active_map_name:
             self._switch_active_map(resolved)
 
+    def _on_tier_selector_consumed(self) -> None:
+        selected_map = self._tier_selector.get_selected_data()
+        if isinstance(selected_map, str) and selected_map:
+            self._switch_active_map(selected_map)
+
     def _do_save(self):
         if self.pipeline_context is None:
             return
@@ -723,13 +713,6 @@ class PathEditPage(MapViewportPage):
         self._render_sidebar_bg(drawer)
         self._render_sidebar(drawer)
 
-    @staticmethod
-    def _hit_button(x: int, y: int, rect: tuple[int, int, int, int] | None) -> bool:
-        if rect is None:
-            return False
-        x1, y1, x2, y2 = rect
-        return x1 <= x <= x2 and y1 <= y <= y2
-
     def _render_attribute_panel(
         self,
         drawer: "Drawer",
@@ -739,11 +722,6 @@ class PathEditPage(MapViewportPage):
         panel_w: int,
     ) -> int:
         selected = self._get_selected_point()
-        hidden_rect = (-100, -100, -90, -90)
-        self._delete_button.rect = hidden_rect
-        self._copy_button.rect = hidden_rect
-        self._btn_delete_rect = None
-        self._btn_copy_rect = None
 
         if selected is None:
             return y0
@@ -777,21 +755,23 @@ class PathEditPage(MapViewportPage):
         btn_y1 = btn_y0 + btn_h
         btn_w = (panel_w - btn_gap) // 2
 
-        self._btn_delete_rect = (x0, btn_y0, x0 + btn_w, btn_y1)
-        self._delete_button.rect = self._btn_delete_rect
+        delete_rect = (x0, btn_y0, x0 + btn_w, btn_y1)
         self._delete_button.text = "[Del] Delete"
         self._delete_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._delete_button, delete_rect)
 
         copy_x0 = x0 + btn_w + btn_gap
-        self._btn_copy_rect = (copy_x0, btn_y0, copy_x0 + btn_w, btn_y1)
-        self._copy_button.rect = self._btn_copy_rect
+        copy_rect = (copy_x0, btn_y0, copy_x0 + btn_w, btn_y1)
         self._copy_button.text = "[C] Copy"
         self._copy_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._copy_button, copy_rect)
 
         return y2 + 12
 
     def _render_sidebar(self, drawer: "Drawer"):
         self._render_sidebar_bg(drawer)
+        self._sidebar_group.set_rect((0, 0, self.SIDEBAR_W, self.window_h))
+        self._sidebar_group.clear()
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
@@ -831,8 +811,8 @@ class PathEditPage(MapViewportPage):
         cy += 12
         switch_h = 26
         self._recorder_switch_rect = (pad, cy, sw - pad, cy + switch_h)
-        self._recorder_mode_switch.render(
-            drawer,
+        self._sidebar_group.add_switch(
+            self._recorder_mode_switch,
             self._recorder_switch_rect,
             font_scale=0.4,
         )
@@ -845,20 +825,9 @@ class PathEditPage(MapViewportPage):
         has_pipeline = self.pipeline_context is not None
         dirty = self.is_dirty
 
-        hidden_rect = (-100, -100, -90, -90)
-        self._save_button.rect = hidden_rect
-        self._record_button.rect = hidden_rect
-        self._back_button.rect = hidden_rect
-        self._finish_button.rect = hidden_rect
-        self._delete_button.rect = hidden_rect
-        self._copy_button.rect = hidden_rect
-
-        self._btn_save_rect = None
-
         record_y0 = cy
         record_y1 = cy + btn_h
-        self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
-        self._record_button.rect = self._btn_record_rect
+        record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
         if self.is_loop_record_mode:
             is_recording = self.location_service.is_recording
             self._record_button.base_color = 0xB44022 if is_recording else 0x1A40B8
@@ -869,6 +838,7 @@ class PathEditPage(MapViewportPage):
             self._record_button.base_color = 0x1A40B8
             self._record_button.text = "[Enter] Get Location"
         self._record_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._record_button, record_rect)
         cy = record_y1 + 12
         cy = _draw_section_divider(cy, gap_after=14)
 
@@ -885,10 +855,11 @@ class PathEditPage(MapViewportPage):
         elif len(self._tier_maps) > 1:
             tier_h = self._tier_selector.get_height()
             self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
-            self._tier_selector.render(
-                drawer,
+            self._sidebar_group.add_radio(
+                self._tier_selector,
                 self._tier_selector_rect,
                 font_scale=0.4,
+                on_consumed=self._on_tier_selector_consumed,
             )
             cy += tier_h + 12
             rendered_info_panel = True
@@ -897,30 +868,30 @@ class PathEditPage(MapViewportPage):
 
         back_y0 = cy
         back_y1 = cy + btn_h
-        self._btn_back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
-        self._back_button.rect = self._btn_back_rect
+        back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
         self._back_button.text = "Back"
         self._back_button.base_color = 0x4C4C64
         self._back_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._back_button, back_rect)
         cy = back_y1 + 8
 
         if has_pipeline:
             save_y0 = cy
             save_y1 = cy + btn_h
-            self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
-            self._save_button.rect = self._btn_save_rect
+            save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
             self._save_button.text = "[S] Save"
             self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
             self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
+            self._sidebar_group.add_button(self._save_button, save_rect)
             cy = save_y1 + 8
 
         finish_y0 = cy
         finish_y1 = cy + btn_h
-        self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
-        self._finish_button.rect = self._btn_finish_rect
+        finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
         self._finish_button.text = "Finish"
         self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._finish_button, finish_rect)
         cy = finish_y1 + 12
         cy = _draw_section_divider(cy, gap_after=8)
 
@@ -1024,20 +995,11 @@ class PathEditPage(MapViewportPage):
             self.render_request()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
-            # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
-                if self._recorder_mode_switch.consume_mouse(event, x, y, flags):
-                    self.render_request()
-                    return
                 if self._get_selected_point() is not None:
                     self.selected_idx = -1
                     self._update_status(0xD2D200, "Cleared point selection.")
                     self.render_request()
-                    return
-                if self._tier_selector.consume_mouse(event, x, y, flags):
-                    selected_map = self._tier_selector.get_selected_data()
-                    if isinstance(selected_map, str) and selected_map:
-                        self._switch_active_map(selected_map)
                     return
                 return
 
@@ -1200,7 +1162,8 @@ class AreaEditPage(MapViewportPage):
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
-        self.buttons.extend([self._save_button, self._back_button, self._finish_button])
+        self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
+        self.groups.append(self._sidebar_group)
 
     @property
     def is_dirty(self) -> bool:
@@ -1284,6 +1247,8 @@ class AreaEditPage(MapViewportPage):
     def _render_ui(self, drawer: Drawer) -> None:
         self._render_status_bar(drawer)
         self._render_sidebar_bg(drawer)
+        self._sidebar_group.set_rect((0, 0, self.SIDEBAR_W, self.window_h))
+        self._sidebar_group.clear()
 
         sw = self.SIDEBAR_W
         h = self.window_h
@@ -1303,26 +1268,25 @@ class AreaEditPage(MapViewportPage):
         btn_h = 30
         btn_w = sw - pad * 2
         btn_x0 = pad
-        hidden_rect = (-100, -100, -90, -90)
-        self._save_button.rect = hidden_rect
-        self._back_button.rect = hidden_rect
-        self._finish_button.rect = hidden_rect
 
-        self._back_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        back_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
         self._back_button.base_color = 0x4C4C64
         self._back_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._back_button, back_rect)
         cy += btn_h + 8
 
         has_pipeline = self.pipeline_context is not None
         if has_pipeline:
-            self._save_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+            save_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
             self._save_button.base_color = 0x64C800 if self.is_dirty else 0x3C643C
             self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
+            self._sidebar_group.add_button(self._save_button, save_rect)
             cy += btn_h + 8
 
-        self._finish_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        finish_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
         self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._finish_button, finish_rect)
 
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
 

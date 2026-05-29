@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .core_utils import Drawer, MapImageLayer, ViewportManager, cv2
-from .gui_widgets import Button, ScrollableListWidget
+from .gui_widgets import Button, ScrollableListWidget, WidgetGroup
 
 
 class BasePage:
@@ -20,6 +20,7 @@ class BasePage:
         self._needs_render = True
         self.done = False
         self.stepper: Any = None
+        self.groups: list[WidgetGroup] = []
         self.buttons: list[Button] = []
 
     def hook_enter(self, stepper: Any):
@@ -49,9 +50,11 @@ class BasePage:
     def render(self) -> Any:
         """Renders the page if needed and return the image to be displayed."""
         now = time.monotonic()
+        group_needs_render = any(g.needs_render for g in self.groups)
         btn_needs_render = any(b.needs_render for b in self.buttons)
         if (
             self._needs_render
+            or group_needs_render
             or btn_needs_render
             or (now - self._last_render_ts >= self._frame_interval)
         ):
@@ -60,6 +63,9 @@ class BasePage:
             drawer = Drawer.new(self.window_w, self.window_h)
 
             self._render_once(drawer)
+
+            for group in self.groups:
+                group.render(drawer)
 
             for btn in self.buttons:
                 btn.render(drawer)
@@ -70,6 +76,10 @@ class BasePage:
     def consume_mouse(self, event, x: int, y: int, flags, param) -> bool:
         """Dispatches mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
+        for group in self.groups:
+            if group.consume_mouse(event, x, y, flags):
+                self.render_request()
+                return True
         for btn in self.buttons:
             if btn.consume_mouse(event, x, y, flags):
                 self.render_request()
@@ -87,6 +97,10 @@ class BasePage:
 
     def consume_key(self, key: int) -> bool:
         """Dispatches key input to buttons first, then page handler."""
+        for group in self.groups:
+            if group.consume_key(key):
+                self.render_request()
+                return True
         for btn in self.buttons:
             if btn.consume_key(key):
                 self.render_request()
