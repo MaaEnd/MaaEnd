@@ -220,7 +220,8 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 	params := nodeWithAttach.Attach
 
 	if !params.ControlNexusAssist && !params.MFGCabinAssist && !params.GrowthChamberAssist {
-		log.Error().Str("component", "VisitFriends").Str("step", "open_item").Msg("no assist enabled, skip open item action")
+		log.Warn().Str("component", "VisitFriends").Str("step", "open_item").Msg("no assist enabled, skip open item action")
+		maafocus.Print(ctx, i18n.T("visitfriends.no_assist_enabled"))
 		return false
 	}
 
