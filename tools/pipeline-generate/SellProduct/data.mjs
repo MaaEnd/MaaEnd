@@ -54,6 +54,13 @@ function buildItemLocaleKeyByCNName() {
 // 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
 
+// TODO(SellProduct): 活动结束后，临时排除以下活动物品，避免继续生成到可售卖列表。
+// 当 settlement_trade.json 数据更新并确认活动物品已移除后，删除该常量与下方过滤判断。
+const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
+    "息壤玉葫芦",
+    "息壤葫芦",
+]);
+
 // 单次遍历 settlements，同时构建：
 //   - ITEMS：物品字典（key → {name, label, candidates}）。candidates 是 CN/TC/JP/EN 候选名，
 //     由 Go 侧 SellProductNormalizedItemMatch 做抗噪声匹配（不含 `^...$` 锚定符）。
@@ -70,6 +77,9 @@ for (const [
     const stats = new Map();
     for (const level of Object.values(settlement.byProsperityLevel)) {
         for (const item of level.tradeItems) {
+            if (TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.name.CN)) {
+                continue;
+            }
             let key = ITEM_KEY_BY_ID.get(item.itemId);
             if (!key) {
                 const localeKey = ITEM_LOCALE_KEY_BY_CN_NAME.get(item.name.CN);
