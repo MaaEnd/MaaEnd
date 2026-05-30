@@ -294,6 +294,39 @@ def write_versions_file(path: Path, versions: dict[str, str]) -> None:
         print(Console.warn(t("wrn_write_version_failed", error=e)))
 
 
+def _retry_on_permission(operation, *, error_key: str = "", **fmt_args) -> bool:
+    """执行 operation()，遇 PermissionError 提示重试/退出。
+
+    Returns True 表示成功，False 表示用户选择退出。
+    非 PermissionError 异常直接上抛。
+    """
+    while True:
+        try:
+            operation()
+            return True
+        except PermissionError as e:
+            print(Console.err(t("err_permission_denied", error=e)))
+            if error_key:
+                print(Console.err(t(error_key, **fmt_args)))
+            cmd = input(t("prompt_retry_or_quit")).strip().lower()
+            if cmd == "q":
+                return False
+
+
+def _update_component_version(
+    install_root: Path,
+    component_key: str,
+    version: str,
+) -> None:
+    """更新 version.json 中单个组件的版本号"""
+    if not version:
+        return
+    version_file = install_root / VERSION_FILE_NAME
+    versions = read_versions_file(version_file)
+    versions[component_key] = version
+    write_versions_file(version_file, versions)
+
+
 def parse_semver(version: str) -> tuple[list[int], list[str]]:
     """Parse a semver string into (core_numbers, prerelease_identifiers).
 
@@ -469,8 +502,6 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
         s = sec % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
 
-    _retried_416 = False
-
     try:
         print(Console.info(t("inf_start_download", url=url)))
 
@@ -488,30 +519,27 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
                     if dest_path.exists():
                         resume = False
 
-        while True:
-            existing_size = 0
-            if resume and not _retried_416 and dest_path.exists():
-                existing_size = dest_path.stat().st_size
-                if existing_size > 0:
-                    print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
-
-            req = urllib.request.Request(url)
-            req.add_header("User-Agent", "MaaEnd-setup")
+        existing_size = 0
+        if resume and dest_path.exists():
+            existing_size = dest_path.stat().st_size
             if existing_size > 0:
-                req.add_header("Range", f"bytes={existing_size}-")
+                print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
 
-            print(Console.info(t("inf_connecting")), end="", flush=True)
-            try:
-                res = urllib.request.urlopen(req, timeout=TIMEOUT)
-            except urllib.error.HTTPError as he:
-                if he.code == 416 and existing_size > 0 and not _retried_416:
-                    print()
-                    _retried_416 = True
-                    cleanup_cache_file(dest_path)
-                    continue
-                raise
+        req = urllib.request.Request(url)
+        req.add_header("User-Agent", "MaaEnd-setup")
+        if existing_size > 0:
+            req.add_header("Range", f"bytes={existing_size}-")
 
-            break
+        print(Console.info(t("inf_connecting")), end="", flush=True)
+        try:
+            res = urllib.request.urlopen(req, timeout=TIMEOUT)
+        except urllib.error.HTTPError as he:
+            if he.code == 416 and existing_size > 0:
+                # 416 means cached file is already complete — no need to re-download
+                print()
+                print(Console.ok(t("inf_cache_file_complete", path=dest_path)))
+                return True
+            raise
 
         with res:
             status_code = res.getcode()
@@ -634,20 +662,15 @@ def install_maafw(
             print(Console.ok(t("inf_link_already_exists", path=maafw_dest)))
         elif maafw_dest.exists():
             if maafw_dest.is_dir():
-                while True:
-                    try:
-                        print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
-                        shutil.rmtree(maafw_dest)
-                        break
-                    except PermissionError as e:
-                        print(Console.err(t("err_permission_denied", error=e)))
-                        print(Console.err(t("err_cannot_delete_maafw", path=maafw_dest)))
-                        cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                        if cmd == "q":
-                            return False, local_version, False
-                    except Exception as e:
-                        print(Console.err(t("err_unknown_error_delete", error=e)))
+                def _delete_maafw_dest():
+                    print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
+                    shutil.rmtree(maafw_dest)
+                try:
+                    if not _retry_on_permission(_delete_maafw_dest, error_key="err_cannot_delete_maafw", path=maafw_dest):
                         return False, local_version, False
+                except Exception as e:
+                    print(Console.err(t("err_unknown_error_delete", error=e)))
+                    return False, local_version, False
             else:
                 maafw_dest.unlink(missing_ok=True)
 
@@ -673,9 +696,12 @@ def install_maafw(
             # 先将完整 SDK 复制到项目根目录 deps/
             maafw_deps = PROJECT_BASE / "deps"
             print(Console.info(t("inf_copying_sdk", dest=maafw_deps)))
-            if maafw_deps.exists():
-                shutil.rmtree(maafw_deps)
-            shutil.copytree(sdk_root, maafw_deps)
+            def _copy_sdk():
+                if maafw_deps.exists():
+                    shutil.rmtree(maafw_deps)
+                shutil.copytree(sdk_root, maafw_deps)
+            if not _retry_on_permission(_copy_sdk, error_key="err_cannot_delete_maafw", path=maafw_deps):
+                return False, local_version, False
             print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
 
             if not maafw_dest_is_link:
@@ -688,7 +714,10 @@ def install_maafw(
 
             print(Console.ok(t("inf_maafw_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "maafw", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             print(Console.err(t("err_maafw_install_failed", error=e)))
             return False, local_version, False
@@ -735,20 +764,15 @@ def install_mxu(
         tmp_path = Path(tmp_dir)
 
         if mxu_path.exists():
-            while True:
-                try:
-                    print(Console.info(t("inf_delete_old_file", path=mxu_path)))
-                    mxu_path.unlink()
-                    break
-                except PermissionError as e:
-                    print(Console.err(t("err_permission_denied", error=e)))
-                    print(Console.err(t("err_cannot_delete_mxu", name=MXU_DIST_NAME)))
-                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                    if cmd == "q":
-                        return False, local_version, False
-                except Exception as e:
-                    print(Console.err(t("err_unknown_error_delete_file", error=e)))
+            def _delete_mxu():
+                print(Console.info(t("inf_delete_old_file", path=mxu_path)))
+                mxu_path.unlink()
+            try:
+                if not _retry_on_permission(_delete_mxu, error_key="err_cannot_delete_mxu", name=MXU_DIST_NAME):
                     return False, local_version, False
+            except Exception as e:
+                print(Console.err(t("err_unknown_error_delete_file", error=e)))
+                return False, local_version, False
 
         print(Console.info(t("inf_extract_install_mxu")))
         try:
@@ -777,7 +801,10 @@ def install_mxu(
                 return False, local_version, False
             print(Console.ok(t("inf_mxu_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "mxu", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             print(Console.err(t("err_mxu_install_failed", error=e)))
             return False, local_version, False
@@ -819,21 +846,15 @@ def find_cpp_algo_binary(search_root: Path) -> Path | None:
 
 def _replace_file_with_retry(src_path: Path, target_path: Path) -> None:
     tmp_target = target_path.with_name(f".{target_path.name}.tmp")
-    while True:
-        try:
-            tmp_target.unlink(missing_ok=True)
-            shutil.copy2(src_path, tmp_target)
-            os.replace(tmp_target, target_path)
-            return
-        except PermissionError as e:
-            tmp_target.unlink(missing_ok=True)
-            print(Console.err(t("err_permission_denied", error=e)))
-            cmd = input(t("prompt_retry_or_quit")).strip().lower()
-            if cmd == "q":
-                raise
-        except Exception:
-            tmp_target.unlink(missing_ok=True)
-            raise
+    def _do_replace():
+        tmp_target.unlink(missing_ok=True)
+        shutil.copy2(src_path, tmp_target)
+        os.replace(tmp_target, target_path)
+    try:
+        if not _retry_on_permission(_do_replace):
+            raise PermissionError(t("err_user_declined_replace", path=target_path))
+    finally:
+        tmp_target.unlink(missing_ok=True)
 
 
 def _is_supported_archive(path: Path) -> bool:
@@ -978,7 +999,10 @@ def install_cpp_algo(
 
             print(Console.ok(t("inf_cpp_algo_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "cpp_algo", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             traceback.print_exc()
             error_with_type = f"{type(e).__name__}: {e}"
@@ -1008,7 +1032,6 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
-    parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
     parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
     args = parser.parse_args()
 
@@ -1037,9 +1060,7 @@ def main() -> None:
         print(Console.err(t("fatal_build_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_download_deps")))
-    versions: dict[str, str] = dict(local_versions)
-    any_downloaded = False
-    maafw_ok, maafw_version, maafw_downloaded = install_maafw(
+    maafw_ok, _, _ = install_maafw(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1048,11 +1069,8 @@ def main() -> None:
     if not maafw_ok:
         print(Console.err(t("fatal_maafw_failed")))
         sys.exit(1)
-    if maafw_version:
-        versions["maafw"] = maafw_version
-    any_downloaded = any_downloaded or maafw_downloaded
 
-    mxu_ok, mxu_version, mxu_downloaded = install_mxu(
+    mxu_ok, _, _ = install_mxu(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1061,11 +1079,8 @@ def main() -> None:
     if not mxu_ok:
         print(Console.err(t("fatal_mxu_failed")))
         sys.exit(1)
-    if mxu_version:
-        versions["mxu"] = mxu_version
-    any_downloaded = any_downloaded or mxu_downloaded
 
-    cpp_algo_ok, cpp_algo_version, cpp_algo_downloaded = install_cpp_algo(
+    cpp_algo_ok, _, _ = install_cpp_algo(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1074,12 +1089,7 @@ def main() -> None:
     if not cpp_algo_ok:
         print(Console.err(t("fatal_cpp_algo_failed")))
         sys.exit(1)
-    if cpp_algo_version:
-        versions["cpp_algo"] = cpp_algo_version
-    any_downloaded = any_downloaded or cpp_algo_downloaded
 
-    if not args.ci and any_downloaded:
-        write_versions_file(version_file, versions)
     print(Console.ok(t("header_setup_complete")))
     print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))
     print(Console.info(t("inf_install_dir_hint", install_dir=install_dir)))
