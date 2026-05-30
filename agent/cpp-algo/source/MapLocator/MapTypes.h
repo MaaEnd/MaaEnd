@@ -65,14 +65,13 @@ struct LocateResult
 
 enum class GlobalSearchMode
 {
-    LegacyCoarse,
     FullMapFine,
     RoiFine,
 };
 
 struct SearchConstraint
 {
-    GlobalSearchMode mode = GlobalSearchMode::LegacyCoarse;
+    GlobalSearchMode mode = GlobalSearchMode::FullMapFine;
     bool yolo_validated = false;
     cv::Rect roi {};
 };
@@ -206,7 +205,6 @@ struct TrackingConfig
 struct MatchConfig
 {
     int blurSize = 7;
-    double coarseScale = 0.5;
     int fineSearchRadius = 40;   // 精搜半径(px)
     double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
     double yoloConfThreshold = 0.60;
