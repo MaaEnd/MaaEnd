@@ -115,8 +115,55 @@ std::vector<size_t> RdpKeepIndices(const std::vector<WorldPoint>& points, size_t
     return result;
 }
 
-std::vector<size_t>
-    ThinContinuousSegment(const std::vector<WorldPoint>& points, size_t start, size_t end, double min_distance, double simplify_epsilon)
+// Re-inserts the worst-deviation corner into any kept pair whose straight segment is unwalkable.
+// `points` is walkable as a polyline by construction, so this converges; it only ADDS points.
+void RepairKeptWalkability(
+    const std::vector<WorldPoint>& points,
+    std::vector<size_t>& kept,
+    const SegmentWalkableFn& is_segment_walkable)
+{
+    if (!is_segment_walkable || kept.size() < 2) {
+        return;
+    }
+    // Each iteration inserts one index; the guard is a hard backstop.
+    const size_t guard_limit = points.size() + kept.size() + 4;
+    for (size_t guard = 0; guard < guard_limit; ++guard) {
+        bool inserted = false;
+        for (size_t pair = 0; pair + 1 < kept.size(); ++pair) {
+            const size_t lo = kept[pair];
+            const size_t hi = kept[pair + 1];
+            if (hi <= lo + 1) {
+                continue; // adjacent corners
+            }
+            if (is_segment_walkable(points[lo], points[hi])) {
+                continue;
+            }
+            double worst_distance = -1.0;
+            size_t worst_index = lo + 1;
+            for (size_t index = lo + 1; index < hi; ++index) {
+                const double distance = PointLineDistance(points[index], points[lo], points[hi]);
+                if (distance > worst_distance) {
+                    worst_distance = distance;
+                    worst_index = index;
+                }
+            }
+            kept.insert(kept.begin() + static_cast<std::ptrdiff_t>(pair + 1), worst_index);
+            inserted = true;
+            break;
+        }
+        if (!inserted) {
+            return;
+        }
+    }
+}
+
+std::vector<size_t> ThinContinuousSegment(
+    const std::vector<WorldPoint>& points,
+    size_t start,
+    size_t end,
+    double min_distance,
+    double simplify_epsilon,
+    const SegmentWalkableFn& is_segment_walkable)
 {
     if (end - start <= 2) {
         std::vector<size_t> result;
@@ -138,10 +185,14 @@ std::vector<size_t>
         }
     }
     kept.push_back(end - 1);
+    RepairKeptWalkability(points, kept, is_segment_walkable);
     return kept;
 }
 
-RoutePointsWithBreaks ThinRoutePointsWithBreaks(const std::vector<WorldPoint>& points, const std::vector<size_t>& segment_breaks)
+RoutePointsWithBreaks ThinRoutePointsWithBreaks(
+    const std::vector<WorldPoint>& points,
+    const std::vector<size_t>& segment_breaks,
+    const SegmentWalkableFn& is_segment_walkable)
 {
     if (points.size() <= 2) {
         return RoutePointsWithBreaks { .points = points, .segment_breaks = segment_breaks };
@@ -170,7 +221,8 @@ RoutePointsWithBreaks ThinRoutePointsWithBreaks(const std::vector<WorldPoint>& p
             segment_starts[segment_index],
             segment_ends[segment_index],
             kRouteMinPointDistance,
-            kRouteSimplifyEpsilon);
+            kRouteSimplifyEpsilon,
+            is_segment_walkable);
         for (size_t index : kept_indices) {
             result.points.push_back(points[index]);
         }
@@ -241,11 +293,14 @@ RoutePointsWithBreaks DensifyRoutePointsWithBreaks(const std::vector<WorldPoint>
 
 }
 
-RoutePointsWithBreaks PostProcessRoutePoints(const std::vector<WorldPoint>& points, const std::vector<size_t>& segment_breaks)
+RoutePointsWithBreaks PostProcessRoutePoints(
+    const std::vector<WorldPoint>& points,
+    const std::vector<size_t>& segment_breaks,
+    const SegmentWalkableFn& is_segment_walkable)
 {
     const auto deduped = DedupePointsWithBreaks(points, segment_breaks);
     auto simplified = RemoveCollinearWithBreaks(deduped.points, deduped.segment_breaks);
-    auto thinned = ThinRoutePointsWithBreaks(simplified.points, simplified.segment_breaks);
+    auto thinned = ThinRoutePointsWithBreaks(simplified.points, simplified.segment_breaks, is_segment_walkable);
     return DensifyRoutePointsWithBreaks(thinned.points, thinned.segment_breaks);
 }
 

@@ -21,6 +21,9 @@ SMALL_BRIDGE_MAX_GAP = 4.0
 ROUTE_MIN_POINT_DISTANCE = 6.0
 ROUTE_SIMPLIFY_EPSILON = 3.0
 ROUTE_MAX_POINT_DISTANCE = 4.0
+SEGMENT_WALK_SNAP_RADIUS = 1.0
+SEGMENT_WALK_EPSILON = 1e-6
+SEGMENT_PARALLEL_EPSILON = 1e-12
 INDEX_BIN_SIZE = 96.0
 
 HEADER_STRUCT = struct.Struct("<4sHHIIIIQQQQQ")
@@ -209,6 +212,57 @@ class BaseNavField:
             if best is None or distance < best.distance:
                 best = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
         return best
+
+    def is_segment_walkable(self, zone_id: int, a: tuple[float, float], b: tuple[float, float]) -> bool:
+        # Navmesh raycast: True when the straight segment a->b stays on walkable mesh within zone_id.
+        # Marches across shared triangle edges; fails closed on any ambiguity. Mirrors the C++
+        # BaseNavPlanner::isSegmentWalkable so preview matches runtime route simplification.
+        if self.zone_by_id.get(zone_id) is None:
+            return False
+        if math.hypot(b[0] - a[0], b[1] - a[1]) < SEGMENT_WALK_EPSILON:
+            return True
+        start = self.snap(zone_id, a, SEGMENT_WALK_SNAP_RADIUS)
+        if start is None:
+            return False  # origin not on the mesh; fail closed
+        triangles = self.triangles
+        current = start.triangle
+        max_steps = len(triangles) + 4
+        for _step in range(max_steps):
+            points = self._triangle_points(current)
+            if _point_in_triangle(b, points[0], points[1], points[2]):
+                return True
+            triangle = triangles[current]
+            best_t = -1.0
+            exit_va = 0
+            exit_vb = 0
+            has_exit = False
+            for edge in range(3):
+                ok, t, s = _segment_intersect_params(a, b, points[edge], points[(edge + 1) % 3])
+                if not ok:
+                    continue
+                if t <= SEGMENT_WALK_EPSILON or t > 1.0 + SEGMENT_WALK_EPSILON:
+                    continue
+                if s < -SEGMENT_WALK_EPSILON or s > 1.0 + SEGMENT_WALK_EPSILON:
+                    continue
+                if t > best_t:
+                    best_t = t
+                    exit_va = triangle.vertices[edge]
+                    exit_vb = triangle.vertices[(edge + 1) % 3]
+                    has_exit = True
+            if not has_exit:
+                return False  # numeric edge case; fail closed
+            next_triangle = -1
+            for neighbor in triangle.neighbors:
+                if neighbor < 0:
+                    continue
+                candidate = triangles[neighbor].vertices
+                if exit_va in candidate and exit_vb in candidate:
+                    next_triangle = neighbor
+                    break
+            if next_triangle < 0 or next_triangle >= len(triangles) or self.triangle_zone[next_triangle] != zone_id:
+                return False  # wall edge or zone boundary
+            current = next_triangle
+        return False
 
     def _build_index(self) -> None:
         zone_ranges = []
@@ -405,9 +459,15 @@ class BaseNavField:
                 segment_breaks.append(len(points))
                 points.append(bridge_points[1])
         points.append(goal)
+        # The corridor is single-zone (A* never crosses zones), so the first triangle's zone drives
+        # the walkability check that keeps simplification from cutting a corner through a wall.
+        zone_id = self.triangle_zone[triangle_path[0]] if triangle_path else 0
+        validator = lambda segment_a, segment_b: self.is_segment_walkable(zone_id, segment_a, segment_b)
         deduped_points, deduped_breaks = _dedupe_points_with_breaks(points, segment_breaks)
         simplified_points, simplified_breaks = _remove_collinear_with_breaks(deduped_points, deduped_breaks)
-        thinned_points, thinned_breaks = _thin_route_points_with_breaks(simplified_points, simplified_breaks)
+        thinned_points, thinned_breaks = _thin_route_points_with_breaks(
+            simplified_points, simplified_breaks, is_segment_walkable=validator
+        )
         return _densify_route_points_with_breaks(thinned_points, thinned_breaks)
 
     def _shared_edge_portal(self, lhs: int, rhs: int) -> tuple[tuple[float, float], tuple[float, float]] | None:
@@ -736,6 +796,7 @@ def _thin_route_points_with_breaks(
     segment_breaks: list[int],
     min_distance: float = ROUTE_MIN_POINT_DISTANCE,
     simplify_epsilon: float = ROUTE_SIMPLIFY_EPSILON,
+    is_segment_walkable=None,
 ) -> tuple[list[tuple[float, float]], list[int]]:
     if len(points) <= 2:
         return points, segment_breaks
@@ -747,7 +808,7 @@ def _thin_route_points_with_breaks(
     for segment_index, (start, end) in enumerate(zip(segment_starts, segment_ends)):
         if segment_index > 0:
             mapped_breaks.append(len(result))
-        kept_indices = _thin_continuous_segment(points, start, end, min_distance, simplify_epsilon)
+        kept_indices = _thin_continuous_segment(points, start, end, min_distance, simplify_epsilon, is_segment_walkable)
         result.extend(points[index] for index in kept_indices)
     return result, sorted(set(mapped_breaks))
 
@@ -806,6 +867,7 @@ def _thin_continuous_segment(
     end: int,
     min_distance: float,
     simplify_epsilon: float,
+    is_segment_walkable=None,
 ) -> list[int]:
     if end - start <= 2:
         return list(range(start, end))
@@ -818,7 +880,63 @@ def _thin_continuous_segment(
             kept.append(index)
             distance_since_kept = 0.0
     kept.append(end - 1)
+    _repair_kept_walkability(points, kept, is_segment_walkable)
     return kept
+
+
+def _segment_intersect_params(
+    a: tuple[float, float],
+    b: tuple[float, float],
+    c: tuple[float, float],
+    d: tuple[float, float],
+) -> tuple[bool, float, float]:
+    # Intersection params of a->b with c->d; (False, ...) if (near) parallel. t is the fraction
+    # along a->b, s along c->d.
+    rx = b[0] - a[0]
+    ry = b[1] - a[1]
+    sx = d[0] - c[0]
+    sy = d[1] - c[1]
+    denom = rx * sy - ry * sx
+    if abs(denom) < SEGMENT_PARALLEL_EPSILON:
+        return False, 0.0, 0.0
+    qpx = c[0] - a[0]
+    qpy = c[1] - a[1]
+    t = (qpx * sy - qpy * sx) / denom
+    s = (qpx * ry - qpy * rx) / denom
+    return True, t, s
+
+
+def _repair_kept_walkability(
+    points: list[tuple[float, float]],
+    kept: list[int],
+    is_segment_walkable,
+) -> None:
+    # Re-inserts the worst-deviation corner into any kept pair whose straight segment is unwalkable.
+    # points is walkable as a polyline by construction, so this converges; it only ADDS points.
+    if is_segment_walkable is None or len(kept) < 2:
+        return
+    guard_limit = len(points) + len(kept) + 4
+    for _guard in range(guard_limit):
+        inserted = False
+        for pair in range(len(kept) - 1):
+            lo = kept[pair]
+            hi = kept[pair + 1]
+            if hi <= lo + 1:
+                continue  # adjacent corners
+            if is_segment_walkable(points[lo], points[hi]):
+                continue
+            worst_distance = -1.0
+            worst_index = lo + 1
+            for index in range(lo + 1, hi):
+                distance = _point_line_distance(points[index], points[lo], points[hi])
+                if distance > worst_distance:
+                    worst_distance = distance
+                    worst_index = index
+            kept.insert(pair + 1, worst_index)
+            inserted = True
+            break
+        if not inserted:
+            return
 
 
 def _rdp_keep_indices(

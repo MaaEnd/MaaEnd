@@ -63,6 +63,36 @@ struct DisjointSet
     }
 };
 
+constexpr uint32_t kInvalidTriangle = std::numeric_limits<uint32_t>::max();
+constexpr double kSegmentWalkSnapRadius = 1.0;     // snap radius for locating the segment origin on the mesh
+constexpr double kSegmentWalkEpsilon = 1e-6;       // tolerance on the t/s intersection fractions
+constexpr double kSegmentParallelEpsilon = 1e-12;  // |determinant| below this => segments treated as parallel
+
+// Intersection parameters of segment a->b with c->d; false if (near) parallel. `t` is the fraction
+// along a->b, `s` along c->d.
+bool SegmentIntersectParams(
+    const WorldPoint& a,
+    const WorldPoint& b,
+    const WorldPoint& c,
+    const WorldPoint& d,
+    double& t,
+    double& s)
+{
+    const double rx = b.x - a.x;
+    const double ry = b.y - a.y;
+    const double sx = d.x - c.x;
+    const double sy = d.y - c.y;
+    const double denom = rx * sy - ry * sx;
+    if (std::abs(denom) < kSegmentParallelEpsilon) {
+        return false;
+    }
+    const double qpx = c.x - a.x;
+    const double qpy = c.y - a.y;
+    t = (qpx * sy - qpy * sx) / denom;
+    s = (qpx * ry - qpy * rx) / denom;
+    return true;
+}
+
 }
 
 BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
@@ -302,6 +332,83 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     return best;
 }
 
+bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+{
+    if (pack_.findZone(zone_id) == nullptr) {
+        return false;
+    }
+    if (detail::Distance(a, b) < kSegmentWalkEpsilon) {
+        return true;
+    }
+
+    const auto start = snap(zone_id, a, kSegmentWalkSnapRadius);
+    if (!start) {
+        return false; // origin not on the mesh; fail closed
+    }
+
+    const auto& triangles = pack_.triangles();
+    uint32_t current = start->triangle;
+    // March from `a` toward `b` across shared edges, bounded by the triangle count.
+    const size_t max_steps = triangles.size() + 4;
+    for (size_t step = 0; step < max_steps; ++step) {
+        const auto points = trianglePoints(current);
+        if (detail::PointInTriangle(b, points)) {
+            return true;
+        }
+
+        // Exit edge = forward-most crossing (largest t in (0, 1]).
+        const BaseNavTriangle& triangle = triangles[current];
+        double best_t = -1.0;
+        uint32_t exit_va = 0;
+        uint32_t exit_vb = 0;
+        bool has_exit = false;
+        for (int edge = 0; edge < 3; ++edge) {
+            const WorldPoint& p0 = points[edge];
+            const WorldPoint& p1 = points[(edge + 1) % 3];
+            double t = 0.0;
+            double s = 0.0;
+            if (!SegmentIntersectParams(a, b, p0, p1, t, s)) {
+                continue;
+            }
+            if (t <= kSegmentWalkEpsilon || t > 1.0 + kSegmentWalkEpsilon) {
+                continue;
+            }
+            if (s < -kSegmentWalkEpsilon || s > 1.0 + kSegmentWalkEpsilon) {
+                continue;
+            }
+            if (t > best_t) {
+                best_t = t;
+                exit_va = triangle.vertices[edge];
+                exit_vb = triangle.vertices[(edge + 1) % 3];
+                has_exit = true;
+            }
+        }
+        if (!has_exit) {
+            return false; // numeric edge case; fail closed
+        }
+
+        // Neighbour sharing the exit edge's two vertices; absence => wall.
+        uint32_t next = kInvalidTriangle;
+        for (int32_t neighbor : triangle.neighbors) {
+            if (neighbor < 0) {
+                continue;
+            }
+            const auto& candidate = triangles[static_cast<uint32_t>(neighbor)].vertices;
+            const bool has_va = candidate[0] == exit_va || candidate[1] == exit_va || candidate[2] == exit_va;
+            const bool has_vb = candidate[0] == exit_vb || candidate[1] == exit_vb || candidate[2] == exit_vb;
+            if (has_va && has_vb) {
+                next = static_cast<uint32_t>(neighbor);
+                break;
+            }
+        }
+        if (next == kInvalidTriangle || next >= triangles.size() || triangle_zones_[next] != zone_id) {
+            return false; // wall edge or zone boundary
+        }
+        current = next;
+    }
+    return false;
+}
+
 std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index) const
 {
     const BaseNavTriangle& triangle = pack_.triangles()[triangle_index];
@@ -462,7 +569,14 @@ std::vector<WorldPoint> BaseNavPlanner::buildWaypoints(
         }
     }
     points.push_back(goal);
-    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks);
+
+    // Keep simplification from straightening a corner into a wall-crossing shortcut.
+    // The corridor is single-zone, so the first triangle's zone drives the check.
+    const uint16_t zone_id = triangles.empty() ? 0 : triangle_zones_[triangles.front()];
+    const detail::SegmentWalkableFn validator = [this, zone_id](const WorldPoint& a, const WorldPoint& b) {
+        return isSegmentWalkable(zone_id, a, b);
+    };
+    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks, validator);
     segment_breaks = std::move(route.segment_breaks);
     return std::move(route.points);
 }

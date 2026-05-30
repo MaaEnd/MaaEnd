@@ -58,6 +58,10 @@ public:
     BaseNavRouteResult findPath(const BaseNavRouteRequest& request) const;
     std::optional<BaseNavSnapResult> snap(uint16_t zone_id, const WorldPoint& point, double radius) const;
 
+    // Navmesh raycast: true when the straight segment a->b stays on walkable mesh within `zone_id`.
+    // Fails closed on any ambiguity.
+    bool isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+
 private:
     const BaseNavPack& pack_;
     std::vector<uint16_t> triangle_zones_;
