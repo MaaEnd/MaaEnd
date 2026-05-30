@@ -41,6 +41,7 @@
     "GiftOperatorMoveLocation1": {
         "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -60,6 +61,7 @@
     "GiftOperatorMoveLocation1Move": {
         "desc": "移动尝试接触到干员(预设位置1)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -90,6 +92,7 @@
     "GiftOperatorMoveLocation2": {
         "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -109,6 +112,7 @@
     "GiftOperatorMoveLocation2Move": {
         "desc": "移动尝试接触到干员(预设位置2)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -139,6 +143,7 @@
     "GiftOperatorMoveLocation3": {
         "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -158,6 +163,7 @@
     "GiftOperatorMoveLocation3Move": {
         "desc": "移动尝试接触到干员(预设位置3)",
         "max_hit": 1,
+        "post_delay": 1000, //需要等待角色彻底停下
         "action": {
             "type": "Custom",
             "param": {
@@ -199,6 +205,10 @@
                             195.4
                         ],
                         [
+                            189.8,
+                            183.2
+                        ],
+                        [
                             186.0,
                             177.3
                         ]
@@ -213,6 +223,7 @@
     },
     "GiftOperatorGoAheadContact": {
         "desc": "继续向前走尝试接触联络台",
+        "post_delay": 1000, //需要等待角色彻底停下
         "max_hit": 6,
         "action": {
             "type": "Custom",
