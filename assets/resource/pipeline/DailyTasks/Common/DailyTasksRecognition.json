@@ -1,6 +1,6 @@
 {
-    "DailyTasksHasTaskOcr": {
-        "desc": "日常任务是否存在",
+    "DailyTasksRecognition": {
+        "desc": "日常任务匹配",
         "recognition": "OCR",
         "roi": [
             29,
@@ -44,11 +44,16 @@
             "OriginLodespringMissingRobotTaskAssert",
             "OriginiumScienceParkRepairRobotTaskAssert",
             "OriginiumScienceParkMissingRobotTaskAssert",
-            "JinYuValleyStragglersGroveSkyPoleTaskAssert"
+            "JinYuValleyStragglersGroveSkyPoleTaskAssert",
+            "JinYuVellyTianWangSkyPoleTaskAssert"
         ],
         "focus": {
-            "Node.NextList.Failed": "当前日常任务可能不适配"
+            "Node.PipelineNode.Failed": "当前日常任务可能不适配"
         }
+    },
+    "DailyTasksSwitchTaskToDefault": {
+        "desc": "切换任务到自由开拓，防止搜索范围的黄圈干扰识别"
+        //TODO: 
     },
     "TheHubWestMissingRobotTaskAssert": {
         "recognition": "Custom",
@@ -176,5 +181,25 @@
         "focus": {
             "Node.Recognition.Succeeded": "景玉谷-迷踪林天桩追踪"
         }
+    },
+    "JinYuVellyTianWangSkyPoleTaskAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        394.4,
+                        248.3,
+                        23.9,
+                        20.6
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "JinYuVellyTianWangSkyPoleStart"
+        ]
     }
 }

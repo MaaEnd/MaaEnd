@@ -55,7 +55,7 @@
             }
         },
         "next": [
-            "DailyTasksHasTaskOcr",
+            "DailyTasksRecognition",
             "[JumpBack]DailyTaskListScroll"
         ],
         "focus": {

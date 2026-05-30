@@ -1,0 +1,407 @@
+{
+    "JinYuVellyTianWangSkyPoleStart": {
+        "next": [
+            "JinYuVellyTianWangSkyPoleAssertLocation",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley5"
+        ]
+    },
+    "JinYuVellyTianWangSkyPoleAssertLocation": {
+        "recognition": "Custom",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        487.5,
+                        408.0,
+                        10.3,
+                        8.8
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "JinYuVellyTianWangSkyPoleMoveTo1Alt"
+        ]
+    },
+    "JinYuVellyTianWangSkyPoleMoveTo1Alt": {
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    959.84,
+                    1368.1
+                ],
+                [
+                    959.38,
+                    1365.97
+                ],
+                [
+                    958.89,
+                    1363.15
+                ],
+                [
+                    960.19,
+                    1361.11
+                ],
+                [
+                    962.35,
+                    1358.27
+                ],
+                [
+                    964.01,
+                    1355.98
+                ],
+                [
+                    965.57,
+                    1353.8
+                ],
+                [
+                    966.67,
+                    1351.26
+                ],
+                [
+                    967.99,
+                    1349.15
+                ],
+                [
+                    968.75,
+                    1346.31
+                ],
+                [
+                    968.71,
+                    1343.52
+                ],
+                [
+                    968.19,
+                    1340.71
+                ],
+                [
+                    967.42,
+                    1338.07
+                ],
+                [
+                    965.95,
+                    1335.51
+                ],
+                [
+                    964.31,
+                    1333.53
+                ],
+                [
+                    962.72,
+                    1331.28
+                ],
+                [
+                    960.88,
+                    1329.34
+                ],
+                [
+                    958.34,
+                    1326.9
+                ],
+                [
+                    956.16,
+                    1324.57
+                ],
+                [
+                    954.26,
+                    1322.59
+                ],
+                [
+                    952.5,
+                    1320.57
+                ],
+                [
+                    950.13,
+                    1317.72
+                ],
+                [
+                    948.26,
+                    1315.24
+                ],
+                [
+                    945.78,
+                    1311.83
+                ],
+                [
+                    944.02,
+                    1309.52
+                ],
+                [
+                    941.87,
+                    1306.51
+                ],
+                [
+                    939.98,
+                    1304.45
+                ],
+                [
+                    937.38,
+                    1303.67
+                ],
+                [
+                    934.66,
+                    1302.86
+                ],
+                [
+                    932.07,
+                    1302.27
+                ],
+                [
+                    929.18,
+                    1301.67
+                ],
+                [
+                    926.44,
+                    1301.32
+                ],
+                [
+                    923.66,
+                    1301.05
+                ],
+                [
+                    920.99,
+                    1300.79
+                ],
+                [
+                    918.43,
+                    1300.51
+                ],
+                [
+                    916.53,
+                    1299.05
+                ],
+                [
+                    916.26,
+                    1296.55
+                ],
+                [
+                    916.06,
+                    1292.76
+                ],
+                [
+                    916.02,
+                    1289.94
+                ],
+                [
+                    916.2,
+                    1286.25
+                ],
+                [
+                    916.36,
+                    1283.69
+                ],
+                [
+                    916.5,
+                    1280.96
+                ],
+                [
+                    916.71,
+                    1278.13
+                ],
+                [
+                    916.78,
+                    1275.44
+                ],
+                [
+                    916.72,
+                    1272.58
+                ],
+                [
+                    916.77,
+                    1269.86
+                ],
+                [
+                    916.74,
+                    1267
+                ],
+                [
+                    916.84,
+                    1264.46
+                ],
+                [
+                    916.67,
+                    1261.56
+                ],
+                [
+                    916.46,
+                    1257.61
+                ],
+                [
+                    916.29,
+                    1254.77
+                ],
+                [
+                    916.14,
+                    1251.93
+                ],
+                [
+                    916.11,
+                    1249.08
+                ],
+                [
+                    916.06,
+                    1246.33
+                ],
+                [
+                    915.78,
+                    1243.53
+                ],
+                [
+                    915.75,
+                    1240.87
+                ],
+                [
+                    915.81,
+                    1238.28
+                ],
+                [
+                    916.23,
+                    1235.8
+                ],
+                [
+                    917.39,
+                    1233.48
+                ],
+                [
+                    918.33,
+                    1231.17
+                ],
+                [
+                    919.28,
+                    1228.82
+                ],
+                [
+                    920.39,
+                    1226.24
+                ],
+                [
+                    921.19,
+                    1223.53
+                ],
+                [
+                    922.12,
+                    1221.18
+                ],
+                [
+                    922.72,
+                    1218.34
+                ],
+                [
+                    922.81,
+                    1215.64
+                ],
+                [
+                    922.08,
+                    1212.93
+                ],
+                [
+                    920.93,
+                    1210.55
+                ],
+                [
+                    919.87,
+                    1208.26
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksClick",
+            "JinYuVellyTianWangSkyPoleMoveTo1MoveOutTmp"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "JinYuVellyTianWangSkyPoleMoveTo1MoveOutTmp"
+        }
+    },
+    "JinYuVellyTianWangSkyPoleMoveTo1MoveOutTmp": {
+        "desc": "解决navmesh失败的临时移动",
+        "action": "Custom",
+        "custom_action": "MapNavigatorCompatible",
+        // "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    446.9,
+                    252.1
+                ],
+                [
+                    443.0,
+                    269.8
+                ]
+            ]
+        },
+        "next": [
+            "JinYuVellyTianWangSkyPoleMoveTo2"
+        ]
+    },
+    "JinYuVellyTianWangSkyPoleMoveTo2": {
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        867.69,
+                        1236.61
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "DailyTasksClick",
+            "JinYuVellyTianWangSkyPoleMoveTo3"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "JinYuVellyTianWangSkyPoleMoveTo3"
+        }
+    },
+    "JinYuVellyTianWangSkyPoleMoveTo3": {
+        "action": "Custom",
+        "custom_action": "MapNavigatorCompatible",
+        // "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    394.5,
+                    280.1
+                ],
+                [
+                    404.4,
+                    267.0
+                ],
+                [
+                    398.3,
+                    260.4
+                ],
+                [
+                    393.4,
+                    251.0
+                ]
+            ]
+        },
+        "next": [
+            "DailyTasksClick"
+        ],
+        "anchor": {
+            "DailyTasksClickEnd": "DailyTasksEnd"
+        }
+    }
+}
