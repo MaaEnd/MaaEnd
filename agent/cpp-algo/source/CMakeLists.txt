@@ -50,5 +50,7 @@ install(TARGETS cpp-algo
 )
 
 if(WIN32)
+    # cpp-algo imports zlib on Windows; install the app-local runtime beside the exe.
+    install(FILES "$<TARGET_FILE_DIR:cpp-algo>/z.dll" DESTINATION agent OPTIONAL)
     install(FILES $<TARGET_PDB_FILE:cpp-algo> DESTINATION agent OPTIONAL)
 endif()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CellMask.h"
+
 #include <opencv2/core.hpp>
 
 #include <cstddef>
@@ -21,17 +23,22 @@ struct Candidate
 
 Hash ComputeHash(const cv::Mat& image);
 int HammingDistance(Hash lhs, Hash rhs);
-std::vector<Hash> ComputeCellHashes(const cv::Mat& roi, const std::vector<cv::Rect>& cells);
-Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size);
+std::vector<Hash> ComputeCellHashes(
+    const cv::Mat& roi,
+    const std::vector<cv::Rect>& cells,
+    const CellMaskRatios& maskRatios = {});
+Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size, const CellMaskRatios& maskRatios = {});
 std::vector<Candidate> FilterCandidates(
     const cv::Mat& roi,
     const std::vector<cv::Rect>& cells,
     Hash targetHash,
-    int maxDistance);
+    int maxDistance,
+    const CellMaskRatios& maskRatios = {});
 std::vector<Candidate> FilterCandidates(
     const cv::Mat& roi,
     const std::vector<cv::Rect>& cells,
     const cv::Mat& target,
-    int maxDistance);
+    int maxDistance,
+    const CellMaskRatios& maskRatios = {});
 
 } // namespace recogrid

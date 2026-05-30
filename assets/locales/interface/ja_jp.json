@@ -960,5 +960,7 @@
     "task.AccountSwitch.label": "自動アカウント切替",
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
-    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力"
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力",
+    "task.RecoGridTest.label": "RecoGrid テスト",
+    "task.RecoGridTest.description": "現在のゲーム画面で RecoGrid カスタム認識をテストします。認識結果のみを出力し、クリックは行いません。"
 }

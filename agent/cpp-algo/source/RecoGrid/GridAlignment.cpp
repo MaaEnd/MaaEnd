@@ -16,7 +16,7 @@ std::size_t CellIndex(int row, int col, int cols)
 
 } // namespace
 
-Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options)
+Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options, const CellMaskRatios& maskRatios)
 {
     if (image.empty()) {
         throw std::invalid_argument("Cannot build grid snapshot for empty image");
@@ -25,7 +25,7 @@ Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options)
     Snapshot snapshot;
     snapshot.grid = DetectGrid(image, options);
     snapshot.roi = snapshot.grid.roi;
-    snapshot.hashes = ComputeCellHashes(snapshot.roi, snapshot.grid.cells);
+    snapshot.hashes = ComputeCellHashes(snapshot.roi, snapshot.grid.cells, maskRatios);
     return snapshot;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CellMask.h"
 #include "GridDetector.h"
 #include "PHashFilter.h"
 
@@ -27,7 +28,10 @@ struct AlignmentResult
     double score = 0.0;
 };
 
-Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options = {});
+Snapshot BuildSnapshot(
+    const cv::Mat& image,
+    const GridDetectOptions& options = {},
+    const CellMaskRatios& maskRatios = {});
 AlignmentResult EstimateRowOffset(const Snapshot& first, const Snapshot& second, int matchDistanceThreshold = 12);
 
 } // namespace recogrid

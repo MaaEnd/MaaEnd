@@ -113,7 +113,10 @@ int HammingDistance(Hash lhs, Hash rhs)
     return distance;
 }
 
-std::vector<Hash> ComputeCellHashes(const cv::Mat& roi, const std::vector<cv::Rect>& cells)
+std::vector<Hash> ComputeCellHashes(
+    const cv::Mat& roi,
+    const std::vector<cv::Rect>& cells,
+    const CellMaskRatios& maskRatios)
 {
     std::vector<Hash> hashes;
     hashes.reserve(cells.size());
@@ -124,13 +127,13 @@ std::vector<Hash> ComputeCellHashes(const cv::Mat& roi, const std::vector<cv::Re
             hashes.push_back(0);
             continue;
         }
-        hashes.push_back(ComputeHash(roi(clipped)));
+        hashes.push_back(ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios)));
     }
 
     return hashes;
 }
 
-Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size)
+Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size, const CellMaskRatios& maskRatios)
 {
     if (image.empty()) {
         throw std::invalid_argument("Cannot resize an empty image for pHash");
@@ -142,14 +145,15 @@ Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size)
     cv::Mat resized;
     const int interpolation = image.cols > size.width || image.rows > size.height ? cv::INTER_AREA : cv::INTER_CUBIC;
     cv::resize(image, resized, size, 0, 0, interpolation);
-    return ComputeHash(resized);
+    return ComputeHash(ApplyIgnoreMask(resized, maskRatios));
 }
 
 std::vector<Candidate> FilterCandidates(
     const cv::Mat& roi,
     const std::vector<cv::Rect>& cells,
     Hash targetHash,
-    int maxDistance)
+    int maxDistance,
+    const CellMaskRatios& maskRatios)
 {
     std::vector<Candidate> candidates;
     candidates.reserve(cells.size());
@@ -160,7 +164,7 @@ std::vector<Candidate> FilterCandidates(
             continue;
         }
 
-        const Hash cellHash = ComputeHash(roi(clipped));
+        const Hash cellHash = ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios));
         const int distance = HammingDistance(cellHash, targetHash);
         if (distance <= maxDistance) {
             candidates.push_back({ i, cells[i], cellHash, distance });
@@ -181,7 +185,8 @@ std::vector<Candidate> FilterCandidates(
     const cv::Mat& roi,
     const std::vector<cv::Rect>& cells,
     const cv::Mat& target,
-    int maxDistance)
+    int maxDistance,
+    const CellMaskRatios& maskRatios)
 {
     std::vector<Candidate> candidates;
     candidates.reserve(cells.size());
@@ -192,8 +197,8 @@ std::vector<Candidate> FilterCandidates(
             continue;
         }
 
-        const Hash targetHash = ComputeHashResizedTo(target, clipped.size());
-        const Hash cellHash = ComputeHash(roi(clipped));
+        const Hash targetHash = ComputeHashResizedTo(target, clipped.size(), maskRatios);
+        const Hash cellHash = ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios));
         const int distance = HammingDistance(cellHash, targetHash);
         if (distance <= maxDistance) {
             candidates.push_back({ i, cells[i], cellHash, distance });

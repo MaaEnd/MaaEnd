@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CellMask.h"
 #include "PHashFilter.h"
 
 #include <opencv2/core.hpp>
@@ -21,6 +22,7 @@ struct TemplateMatchResult
 std::vector<TemplateMatchResult> RankTemplateMatches(
     const cv::Mat& roi,
     const cv::Mat& target,
-    const std::vector<Candidate>& candidates);
+    const std::vector<Candidate>& candidates,
+    const CellMaskRatios& maskRatios = {});
 
 } // namespace recogrid

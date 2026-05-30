@@ -39,27 +39,34 @@ cv::Rect VisibleAlphaBounds(const cv::Mat& image)
     return cv::boundingRect(points);
 }
 
-void PrepareTemplateSource(const cv::Mat& target, cv::Mat& templateBgr, cv::Mat& alphaMask)
+void PrepareTemplateSource(
+    const cv::Mat& target,
+    const CellMaskRatios& maskRatios,
+    cv::Mat& templateBgr,
+    cv::Mat& matchMask)
 {
     if (target.empty()) {
         throw std::invalid_argument("Cannot match an empty template");
     }
 
-    const cv::Rect visible = VisibleAlphaBounds(target);
-    const cv::Mat cropped = target(visible).clone();
+    const cv::Mat maskedTarget = ApplyTemplateMask(target, maskRatios);
+    const cv::Rect visible = VisibleAlphaBounds(maskedTarget);
+    const cv::Mat cropped = maskedTarget(visible).clone();
 
-    alphaMask.release();
+    matchMask.release();
     if (cropped.channels() == 4) {
         std::vector<cv::Mat> bgra;
         cv::split(cropped, bgra);
-        cv::threshold(bgra[3], alphaMask, 10, 255, cv::THRESH_BINARY);
+        cv::threshold(bgra[3], matchMask, 10, 255, cv::THRESH_BINARY);
         cv::cvtColor(cropped, templateBgr, cv::COLOR_BGRA2BGR);
     }
     else if (cropped.channels() == 3) {
         templateBgr = cropped;
+        matchMask = BuildIgnoreMask(cropped.size(), maskRatios);
     }
     else if (cropped.channels() == 1) {
         cv::cvtColor(cropped, templateBgr, cv::COLOR_GRAY2BGR);
+        matchMask = BuildIgnoreMask(cropped.size(), maskRatios);
     }
     else {
         throw std::invalid_argument("Unsupported template channel count");
@@ -90,7 +97,8 @@ cv::Mat ToBgr(const cv::Mat& image)
 std::vector<TemplateMatchResult> RankTemplateMatches(
     const cv::Mat& roi,
     const cv::Mat& target,
-    const std::vector<Candidate>& candidates)
+    const std::vector<Candidate>& candidates,
+    const CellMaskRatios& maskRatios)
 {
     if (roi.empty()) {
         throw std::invalid_argument("Cannot match template in an empty ROI");
@@ -101,7 +109,7 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
 
     cv::Mat sourceTemplateBgr;
     cv::Mat sourceMask;
-    PrepareTemplateSource(target, sourceTemplateBgr, sourceMask);
+    PrepareTemplateSource(target, maskRatios, sourceTemplateBgr, sourceMask);
 
     static const std::vector<double> scaleMultipliers {
         1.00,

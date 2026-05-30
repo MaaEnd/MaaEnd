@@ -960,5 +960,7 @@
     "task.AccountSwitch.label": "自動切換帳號",
     "task.AccountSwitch.description": "自動登出當前帳號並切換到指定帳號的後四位",
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",
-    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位"
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位",
+    "task.RecoGridTest.label": "RecoGrid 測試",
+    "task.RecoGridTest.description": "測試 RecoGrid 自訂識別：從目前遊戲截圖偵測網格，只輸出識別結果，不執行點擊。"
 }
