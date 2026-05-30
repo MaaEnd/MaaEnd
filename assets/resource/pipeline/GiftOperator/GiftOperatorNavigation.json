@@ -49,7 +49,8 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 270
+                            "angle": 270,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
@@ -97,7 +98,8 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 0
+                            "angle": 0,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
@@ -145,7 +147,8 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 90
+                            "angle": 90,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
@@ -222,7 +225,8 @@
                             "target": [
                                 183,
                                 174
-                            ]
+                            ],
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
