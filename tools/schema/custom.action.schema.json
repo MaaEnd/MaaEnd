@@ -6,6 +6,7 @@
         "custom_action": {
             "enum": [
                 "325",
+                "AccountSwitchWindowAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoFightMainAction",
@@ -56,9 +57,11 @@
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
                 "MapTrackerMove",
+                "MapTrackerMoveCompatible",
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",
+                "PullCountCalculatorAction",
                 "PuzzleAction",
                 "RealTimeTaskAction",
                 "SceneManagerMenuListClickItemAction",

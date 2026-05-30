@@ -58,17 +58,17 @@
                     22
                 ],
                 "lower": [
-                    65,
-                    65,
-                    65
+                    50,
+                    50,
+                    50
                 ],
                 "upper": [
-                    75,
-                    75,
-                    75
+                    130,
+                    130,
+                    130
                 ],
                 "connected": true,
-                "count": 10
+                "count": 1500
             }
         }
     },
@@ -77,15 +77,11 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "AutoStockInStapleItemNameLabelColor",
-                "method": 40,
+                "method": 6,
                 "lower": [
-                    0,
-                    0,
-                    0
+                    180
                 ],
                 "upper": [
-                    0,
-                    2,
                     255
                 ],
                 "count": 10

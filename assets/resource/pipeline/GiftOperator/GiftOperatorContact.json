@@ -18,11 +18,21 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
+        },
         "next": [
             "[JumpBack]GiftOperatorContacSortOrder",
             "[JumpBack]GiftOperatorContacSortBy",
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
+            "GiftOperatorSelectGiftOp",
             "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
             "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
         ]
@@ -87,6 +97,63 @@
             }
         }
     },
+    "GiftOperatorSelectGiftOp": {
+        "desc": "选择有礼物的干员",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ],
+                "template": [
+                    "GiftOperator/Gift.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    40,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            //每一个节点命中后,将GiftOperatorName覆盖为对应干员名字
+            "GiftOperatorSelect_Perlica",
+            "GiftOperatorSelect_Yvonne",
+            "GiftOperatorSelect_Ardelia",
+            "GiftOperatorSelect_Gilberta",
+            "GiftOperatorSelect_ChenQianyu",
+            "GiftOperatorSelect_Wulfgard",
+            "GiftOperatorSelect_Antal",
+            "GiftOperatorSelect_Xaihi",
+            "GiftOperatorSelect_Lifeng",
+            "GiftOperatorSelect_Catcher",
+            "GiftOperatorSelect_Arclight",
+            "GiftOperatorSelect_Avywenna",
+            "GiftOperatorSelect_Laevatain",
+            "GiftOperatorSelect_Alesh",
+            "GiftOperatorSelect_Pogranichnik",
+            "GiftOperatorSelect_LastRite",
+            "GiftOperatorSelect_Ember",
+            "GiftOperatorSelect_Snowshine",
+            "GiftOperatorSelect_DaPan",
+            "GiftOperatorSelect_Fluorite",
+            "GiftOperatorSelect_Akekuri",
+            "GiftOperatorSelect_Estella",
+            "GiftOperatorSelect_Rossi",
+            "GiftOperatorSelect_Tangtang",
+            "GiftOperatorSelect_ZhuangFangyi"
+        ]
+    },
     "GiftOperatorSelectSpecifiedOp": {
         "desc": "选择指定干员",
         "enabled": false,
@@ -101,7 +168,8 @@
                 ],
                 "template": [
                     "GiftOperator/Operators/Perlica.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "action": {
@@ -237,9 +305,9 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    50,
-                    50,
-                    50
+                    40,
+                    40,
+                    40
                 ],
                 "upper": [
                     55,
@@ -360,7 +428,7 @@
     },
     "GiftOperatorClickContact": {
         "desc": "点击干员联络台",
-        "max_hit": 3,
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {

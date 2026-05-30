@@ -1,23 +1,12 @@
 import rows, {kiteStationData, MONITORING_TERMINAL_IDS} from "./data.mjs";
-
-function toPascalCase(str) {
-    const cleaned = String(str || "")
-        .replace(/[^a-zA-Z0-9]+/g, " ")
-        .trim();
-    if (!cleaned) return "";
-    return cleaned
-        .split(/\s+/)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join("");
-}
+import {buildStationDisplayName, buildStationId} from "./common.mjs";
 
 function buildTerminalId(terminalId) {
-    const enName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
-    return toPascalCase(enName || terminalId) || terminalId;
+    return buildStationId(kiteStationData, terminalId);
 }
 
 function buildTerminalName(terminalId) {
-    return kiteStationData?.[terminalId]?.level?.name?.["zh-CN"] || terminalId;
+    return buildStationDisplayName(kiteStationData, terminalId);
 }
 
 // 当一个任务名是另一个任务名的子串时（如 "蓄水源石虫" ⊂ "充满活力的蓄水源石虫"），

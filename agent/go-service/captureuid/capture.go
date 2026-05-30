@@ -83,6 +83,14 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	return uid, nil
 }
 
+// ClearCache clears the cached UID (thread-safe).
+func ClearCache() {
+	capturedUidMu.Lock()
+	capturedUid = ""
+	capturedUidMu.Unlock()
+	log.Info().Str("component", component).Msg("uid cache cleared")
+}
+
 // GetCachedUID returns the most recently captured UID (thread-safe).
 func GetCachedUID() string {
 	capturedUidMu.Lock()

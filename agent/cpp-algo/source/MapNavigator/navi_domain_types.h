@@ -3,6 +3,8 @@
 #include <chrono>
 #include <string>
 
+#include <meojson/json.hpp>
+
 #include "navi_config.h"
 
 namespace mapnavigator
@@ -42,6 +44,7 @@ enum class ActionType
 #define NAVI_X_(name) name,
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_
+    MEOJSON_ENUM_RANGE(RUN, DIG)
 };
 
 struct Waypoint

@@ -226,7 +226,7 @@
         ]
     },
     "GoToPierWaterwheelNotAtStartPos": {
-        "desc": "不在码头水车任务开始位置附近，先传送再复核落点",
+        "desc": "不在码头水车任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToPierWaterwheelRecheckStartPos",
-            "GoToPierWaterwheelReEnterMap"
-        ]
-    },
-    "GoToPierWaterwheelRecheckStartPos": {
-        "desc": "传送后再次检查是否已在码头水车任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        492.5,
-                        178,
-                        13.2,
-                        13
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelMapTrackerMove"
-        ]
-    },
-    "GoToPierWaterwheelReEnterMap": {
-        "desc": "传送后仍未到达码头水车任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley1"
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelFinalCheckStartPos"
-        ]
-    },
-    "GoToPierWaterwheelFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在码头水车任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        492.5,
-                        178,
-                        13.2,
-                        13
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelMapTrackerMove"
+            "GoToPierWaterwheelStartPos"
         ]
     },
     "GoToPierWaterwheelMapTrackerMove": {

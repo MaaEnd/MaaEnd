@@ -21,6 +21,7 @@ const (
 	LabelEnemyAccumPower          = "EnemyAccumulatingPower"
 	LabelEnemyBossHealth          = "EnemyBossHealth"
 	LabelEnemyDodge               = "EnemyDodge"
+	LabelEnemyAttackGroundDodge   = "EnemyAttackGroundDodge"
 	LabelEnemyTarget              = "EnemyTarget"
 	LabelEnemyFacing              = "EnemyFacing"
 	LabelEnemyLocked              = "EnemyLocked"
@@ -226,7 +227,7 @@ func (sa *ScreenAnalyzer) GetEnemyTarget() bool {
 }
 
 func (sa *ScreenAnalyzer) GetEnemyLocked() bool {
-	return sa.hasLabelInFrames(LabelEnemyLocked, 3, false)
+	return sa.hasLabelInFrames(LabelEnemyLocked, 1, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyBossHealth() bool {
@@ -241,6 +242,10 @@ func (sa *ScreenAnalyzer) GetEnemyTargetCenter() bool {
 
 func (sa *ScreenAnalyzer) GetEnemyDodge() bool {
 	return sa.hasLabelInFrames(LabelEnemyDodge, 1, false)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyAttackGroundDodge() bool {
+	return sa.hasLabelInFrames(LabelEnemyAttackGroundDodge, 1, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyAccumulatingPower(unused bool) bool {

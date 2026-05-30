@@ -186,6 +186,7 @@
             "[JumpBack]ReceptionRoomReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
             "[JumpBack]ReceptionRoomStartExchange",
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomExit"
         ],
         "focus": {

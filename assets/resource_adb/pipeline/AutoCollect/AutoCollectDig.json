@@ -1,0 +1,16 @@
+{
+    "AutoCollectDig": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1000,
+                    550,
+                    1,
+                    1
+                ]
+            }
+        }
+    }
+}

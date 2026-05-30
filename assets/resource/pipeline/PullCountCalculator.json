@@ -1,0 +1,219 @@
+{
+    "PullCountCalculatorMain": {
+        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "init"
+        },
+        "next": [
+            "PullCountCalculatorOriginiumOCR"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.PullCountCalculator.focus.start",
+            "Node.Action.Failed": "$task.PullCountCalculator.focus.failed"
+        }
+    },
+    "PullCountCalculatorOriginiumOCR": {
+        "desc": "识别顶部衍质源石换算嵌晶玉数量",
+        "recognition": "OCR",
+        "roi": [
+            982,
+            8,
+            68,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_originium"
+        },
+        "next": [
+            "PullCountCalculatorOroberylOCR"
+        ]
+    },
+    "PullCountCalculatorOroberylOCR": {
+        "desc": "识别顶部嵌晶玉数量",
+        "recognition": "OCR",
+        "roi": [
+            1084,
+            8,
+            78,
+            40
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_oroberyl"
+        },
+        "next": [
+            "PullCountCalculatorEnterValuables"
+        ]
+    },
+    "PullCountCalculatorEnterValuables": {
+        "desc": "进入贵重品库珍贵物品页，界面跳转交由 SceneManager Pipeline 处理",
+        "next": [
+            "PullCountCalculatorInStashValuablesTab",
+            "[JumpBack]SceneStashValuablesTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "即将进入贵重品库珍贵物品页"
+        }
+    },
+    "PullCountCalculatorInStashValuablesTab": {
+        "desc": "确认当前已经在贵重品库珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "next": [
+            "PullCountCalculatorScanPage"
+        ]
+    },
+    "PullCountCalculatorScanPage": {
+        "desc": "开始扫描当前页的寻访相关券图标",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "PullCountCalculatorFindCarryToNextVoucher"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "PullCountCalculatorFindCarryToNextVoucher",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorFindCarryToNextVoucher": {
+        "desc": "查找可留到后续池子的特许寻访凭证图标",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    950,
+                    560
+                ],
+                "template": "PullCountCalculator/CarryToNextVoucher.Template.png",
+                "green_mask": true,
+                "threshold": 0.78,
+                "order_by": "Vertical"
+            }
+        },
+        "action": "DoNothing",
+        "next": [
+            "PullCountCalculatorClickCarryToNextVoucher",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorClickCarryToNextVoucher": {
+        "desc": "点击可留到后续池子的特许寻访凭证图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab",
+                    "PullCountCalculatorFindCarryToNextVoucher"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "PullCountCalculatorFindCarryToNextVoucher"
+            }
+        },
+        "post_wait_freezes": 150,
+        "next": [
+            "PullCountCalculatorCarryToNextVoucherTitleOCR"
+        ]
+    },
+    "PullCountCalculatorCarryToNextVoucherTitleOCR": {
+        "desc": "确认选中的券是特许寻访凭证，排除基础寻访凭证",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    980,
+                    58,
+                    260,
+                    36
+                ],
+                "expected": [
+                    ".*(特许寻访凭证|特許尋訪憑證).*"
+                ],
+                "only_rec": true
+            }
+        },
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher"
+        },
+        "target": "PullCountCalculatorFindCarryToNextVoucher",
+        "next": [
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorPageDone": {
+        "desc": "记录本页图标扫描结果并判断继续滚动或完成",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "PullCountCalculatorWarehouseScrollDown",
+            "PullCountCalculatorFinish"
+        ]
+    },
+    "PullCountCalculatorWarehouseScrollDown": {
+        "desc": "向下滚动贵重品库列表，继续扫描下一页",
+        "max_hit": 4,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": -360,
+        "post_wait_freezes": 650,
+        "next": [
+            "PullCountCalculatorScanPage"
+        ]
+    },
+    "PullCountCalculatorFinish": {
+        "desc": "汇总资源与仓库券并输出抽数计算结果",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "finish"
+        }
+    }
+}

@@ -226,7 +226,7 @@
         ]
     },
     "GoToMysteriousCryptidGraffitiNotAtStartPos": {
-        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再复核落点",
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToMysteriousCryptidGraffitiRecheckStartPos",
-            "GoToMysteriousCryptidGraffitiReEnterMap"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiRecheckStartPos": {
-        "desc": "传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiReEnterMap": {
-        "desc": "传送后仍未到达谜之生物的涂鸦任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingQingboStockade2"
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiFinalCheckStartPos"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+            "GoToMysteriousCryptidGraffitiStartPos"
         ]
     },
     "GoToMysteriousCryptidGraffitiMapTrackerMove": {

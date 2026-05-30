@@ -151,7 +151,6 @@ private:
         IMatchStrategy* strategy,
         const std::string& targetZoneId);
     std::optional<MapPosition> tryConstrainedFineSearch(const SearchExecutionContext& ctx);
-    std::optional<MapPosition> tryLegacyCoarseSearch(const SearchExecutionContext& ctx);
 
     void refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
     std::optional<LocateResult>
@@ -713,223 +712,6 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const Sear
     return directResult;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(const SearchExecutionContext& ctx)
-{
-    const cv::Rect mapBounds(0, 0, ctx.bigMap.cols, ctx.bigMap.rows);
-
-    // 图像金字塔：全图匹配耗时极高，因此粗搜先固定在 coarseScale (约 0.2~0.3) 的降采样级别寻找可能的高分岛
-    double coarseScale = matchCfg.coarseScale;
-
-    cv::Mat constrainedMap = ctx.bigMap(ctx.constrainedRect);
-    cv::Mat smallMap;
-    cv::resize(constrainedMap, smallMap, cv::Size(), coarseScale, coarseScale, cv::INTER_AREA);
-
-    auto coarseSearchFeat = ctx.strategy->extractSearchFeature(smallMap);
-    cv::Mat mapToUse;
-    if (coarseSearchFeat.image.channels() == 3) {
-        cv::cvtColor(coarseSearchFeat.image, mapToUse, cv::COLOR_BGR2GRAY);
-    }
-    else if (coarseSearchFeat.image.channels() == 4) {
-        cv::cvtColor(coarseSearchFeat.image, mapToUse, cv::COLOR_BGRA2GRAY);
-    }
-    else {
-        mapToUse = coarseSearchFeat.image.clone();
-    }
-
-    if (matchCfg.blurSize > 0 && !ctx.strategy->needsChamferCompensation()) {
-        cv::GaussianBlur(mapToUse, mapToUse, cv::Size(matchCfg.blurSize, matchCfg.blurSize), 0);
-    }
-
-    cv::Mat tmplGrayToUse;
-    if (ctx.tmplFeat.image.channels() == 3) {
-        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGR2GRAY);
-    }
-    else if (ctx.tmplFeat.image.channels() == 4) {
-        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGRA2GRAY);
-    }
-    else {
-        tmplGrayToUse = ctx.tmplFeat.image.clone();
-    }
-
-    struct CoarseCand
-    {
-        double s;
-        double score;
-        cv::Point loc;
-    };
-
-    std::vector<CoarseCand> cands;
-    int topNPerScale = 3;
-    int topK = 8;
-    double coarseMin = 0.20;
-
-    for (double s = 0.90; s <= 1.101; s += 0.02) {
-        double currentScale = coarseScale * s;
-        cv::Mat smallTempl, smallWeightMask;
-        cv::resize(tmplGrayToUse, smallTempl, cv::Size(), currentScale, currentScale, cv::INTER_LINEAR);
-        cv::resize(ctx.tmplFeat.mask, smallWeightMask, cv::Size(), currentScale, currentScale, cv::INTER_NEAREST);
-
-        if (cv::countNonZero(smallWeightMask) < 5) {
-            continue;
-        }
-
-        cv::Mat smallResult;
-        cv::matchTemplate(mapToUse, smallTempl, smallResult, cv::TM_CCOEFF_NORMED, smallWeightMask);
-        cv::patchNaNs(smallResult, -1.0f);
-
-        // NMS 非极大值抑制的变体：
-        // 在同一尺度下，同一位置附近极容易出现多个连块的高分点。
-        // 我们用当前小模板尺寸的一半做为排异屏蔽半径 sr，取出一个最高分后便将其原位“挖去” (设为 -2)，再取下一个。
-        // 这能保证获取的一批候选点分别位于不同的地形特征块中，增加后续回大图细搜抗错抓的鲁棒度。
-        int sr = std::max(4, std::min(smallTempl.cols, smallTempl.rows) / 2);
-
-        for (int i = 0; i < topNPerScale; ++i) {
-            double mv;
-            cv::Point ml;
-            cv::minMaxLoc(smallResult, nullptr, &mv, nullptr, &ml);
-            if (!std::isfinite(mv) || mv < coarseMin) {
-                break;
-            }
-
-            cands.push_back({ s, mv, ml });
-
-            cv::Rect sup(ml.x - sr, ml.y - sr, sr * 2 + 1, sr * 2 + 1);
-            sup &= cv::Rect(0, 0, smallResult.cols, smallResult.rows);
-            smallResult(sup).setTo(-2.0f);
-        }
-    }
-
-    if (cands.empty()) {
-        return std::nullopt;
-    }
-
-    std::stable_sort(cands.begin(), cands.end(), [](const auto& a, const auto& b) {
-        if (a.score != b.score) {
-            return a.score > b.score;
-        }
-        if (a.s != b.s) {
-            return a.s < b.s;
-        }
-        if (a.loc.y != b.loc.y) {
-            return a.loc.y < b.loc.y;
-        }
-        return a.loc.x < b.loc.x;
-    });
-    if ((int)cands.size() > topK) {
-        cands.resize(topK);
-    }
-
-    double bestFine = -1.0;
-    double bestScale = 1.0;
-    MatchResultRaw bestFineRes;
-    cv::Rect bestValidFineRect;
-    cv::Mat bestScaledTempl, bestScaledMask;
-
-    double fallbackScore = -1.0;
-    double fallbackScale = 1.0;
-    MatchResultRaw fallbackFineRes;
-    cv::Rect fallbackValidFineRect;
-    cv::Mat fallbackScaledTempl, fallbackScaledMask;
-
-    int searchRadius = matchCfg.fineSearchRadius;
-
-    for (auto& cand : cands) {
-        double s = cand.s;
-        int coarseX = static_cast<int>(cand.loc.x / coarseScale) + ctx.constrainedRect.x;
-        int coarseY = static_cast<int>(cand.loc.y / coarseScale) + ctx.constrainedRect.y;
-
-        cv::Mat scaledTempl, scaledWeightMask;
-        if (std::abs(s - 1.0) > 0.001) {
-            cv::resize(ctx.tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
-            cv::resize(ctx.tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
-        }
-        else {
-            scaledTempl = ctx.tmplFeat.image;
-            scaledWeightMask = ctx.tmplFeat.mask;
-        }
-
-        cv::Rect fineRect(
-            coarseX - searchRadius,
-            coarseY - searchRadius,
-            scaledTempl.cols + searchRadius * 2,
-            scaledTempl.rows + searchRadius * 2);
-        cv::Rect validFineRect = fineRect & mapBounds;
-
-        if (validFineRect.empty()) {
-            continue;
-        }
-
-        cv::Mat fineMap = ctx.bigMap(validFineRect);
-
-        auto fineSearchFeat = ctx.strategy->extractSearchFeature(fineMap);
-        auto fineRes = CoreMatch(fineSearchFeat.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
-
-        if (!fineRes) {
-            continue;
-        }
-
-        if (fineRes->score > fallbackScore) {
-            fallbackScore = fineRes->score;
-            fallbackScale = s;
-            fallbackFineRes = *fineRes;
-            fallbackValidFineRect = validFineRect;
-            fallbackScaledTempl = scaledTempl;
-            fallbackScaledMask = scaledWeightMask;
-        }
-
-        bool ambiguous = false;
-        if (ctx.strategy->needsChamferCompensation()) { // i.e. PathHeatmap
-            ambiguous = (fineRes->psr < 6.0) || (fineRes->delta < 0.04);
-            if (fineRes->score < 0.45 && ambiguous) {
-                continue;
-            }
-        }
-        else {
-            double lowScoreCut = (ctx.targetZoneId.find("Base") != std::string::npos) ? 0.85 : 0.75;
-            ambiguous = (fineRes->score < lowScoreCut) && (fineRes->psr < 6.0 || fineRes->delta < 0.02);
-            if (ambiguous) {
-                continue;
-            }
-        }
-
-        if (fineRes->score > bestFine) {
-            bestFine = fineRes->score;
-            bestScale = s;
-            bestFineRes = *fineRes;
-            bestValidFineRect = validFineRect;
-            bestScaledTempl = scaledTempl;
-            bestScaledMask = scaledWeightMask;
-        }
-    }
-
-    if (bestFine < 0) {
-        if (fallbackScore < 0) {
-            return std::nullopt;
-        }
-        bestFine = fallbackScore;
-        bestScale = fallbackScale;
-        bestFineRes = fallbackFineRes;
-        bestValidFineRect = fallbackValidFineRect;
-        bestScaledTempl = fallbackScaledTempl;
-        bestScaledMask = fallbackScaledMask;
-        LogInfo << "Global Search: All candidates ambiguous, using fallback (score " << fallbackScore << ")";
-    }
-
-    if (ctx.outRawPos && bestFine >= 0.0) {
-        ctx.outRawPos->zoneId = ctx.targetZoneId;
-        ctx.outRawPos->x = bestValidFineRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
-        ctx.outRawPos->y = bestValidFineRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
-        ctx.outRawPos->score = bestFine;
-        ctx.outRawPos->scale = bestScale;
-    }
-
-    auto res = evaluateAndAcceptResult(bestFineRes, bestValidFineRect, bestScaledTempl, ctx.strategy, ctx.targetZoneId);
-    if (res) {
-        res->scale = bestScale;
-    }
-    return res;
-}
-
 std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
     const MatchFeature& tmplFeat,
     IMatchStrategy* strategy,
@@ -963,7 +745,8 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
         return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
     }
 
-    return tryLegacyCoarseSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
+    LogInfo << "Global Search Aborted: no validated YOLO constraint." << VAR(targetZoneId);
+    return std::nullopt;
 }
 
 YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
@@ -1271,6 +1054,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     std::string targetZoneId = expectedZoneId;
     const YoloCoarseResult coarse = angleGuardCoarse.value_or(predictCoarse(minimap));
+    if (coarse.valid && coarse.is_none) {
+        return LocateResult {
+            .status = LocateStatus::TrackingLost,
+            .debugMessage = kColdStartCollectingMessage,
+        };
+    }
+
     if (targetZoneId.empty() && coarse.valid) {
         targetZoneId = coarse.zone_id;
     }

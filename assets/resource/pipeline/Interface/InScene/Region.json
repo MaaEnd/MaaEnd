@@ -331,34 +331,36 @@
     },
     "InRegionalDevelopmentView2": {
         "desc": "在地区建设二级界面",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            400,
-            70
-        ],
-        "expected": [
-            "据点",
-            "據點",
-            "(?i)Outpost",
-            "拠点",
-            "物资调度",
-            "物資調度",
-            "(?i)Stock\\s*Redistribution",
-            "商品取引",
-            "仓储节点",
-            "倉儲節點",
-            "(?i)Depot\\s*Node",
-            "保管ボックス",
-            "环境监测",
-            "環境監測",
-            "(?i)Environment\\s*Monitoring",
-            "環境観測",
-            "거점",
-            "물자 관리",
-            "저장고 노드",
-            "환경 관측"
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    70
+                ],
+                "expected": [
+                    "据点",
+                    "據點",
+                    "(?i)Outpost",
+                    "拠点",
+                    "物资调度",
+                    "物資調度",
+                    "(?i)Stock\\s*Redistribution",
+                    "商品取引",
+                    "环境监测",
+                    "環境監測",
+                    "(?i)Environment\\s*Monitoring",
+                    "環境観測",
+                    "거점",
+                    "물자 관리",
+                    "저장고 노드",
+                    "환경 관측"
+                ]
+            },
+            "CheckLocalDepotNodeText"
         ]
     },
     "InWorld": {

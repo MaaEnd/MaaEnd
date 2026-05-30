@@ -225,9 +225,9 @@
             "param": {
                 "roi": "GiftOperatorGiftSelectedLabelColor",
                 "lower": [
-                    72,
-                    72,
-                    66
+                    60,
+                    60,
+                    60
                 ],
                 "upper": [
                     114,

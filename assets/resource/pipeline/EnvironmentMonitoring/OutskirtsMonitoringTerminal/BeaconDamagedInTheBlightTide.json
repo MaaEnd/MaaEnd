@@ -226,7 +226,7 @@
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
-        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再复核落点",
+        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInTheBlightTideRecheckStartPos",
-            "GoToBeaconDamagedInTheBlightTideReEnterMap"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideRecheckStartPos": {
-        "desc": "传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideReEnterMap": {
-        "desc": "传送后仍未到达侵蚀潮中损坏的信标任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity0"
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideFinalCheckStartPos"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
+            "GoToBeaconDamagedInTheBlightTideStartPos"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideMapTrackerMove": {
@@ -302,47 +246,47 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    641,
+                    642,
                     272
                 ],
                 [
-                    639,
+                    640,
                     299
                 ],
                 [
-                    628,
+                    629,
                     301
                 ],
                 [
-                    623,
+                    624,
                     302
                 ],
                 [
-                    641,
+                    642,
                     317
                 ],
                 [
-                    648,
+                    649,
                     317
-                ],
-                [
-                    685,
-                    318
                 ],
                 [
                     686,
+                    318
+                ],
+                [
+                    687,
                     329
                 ],
                 [
-                    680,
+                    681,
                     333
                 ],
                 [
-                    691,
+                    692,
                     344
                 ],
                 [
-                    701,
+                    702,
                     345
                 ]
             ]

@@ -1,0 +1,228 @@
+name: docs-sync
+
+on:
+  # push:
+  #   paths:
+  #     - 'docs/zh_cn/**'
+  #     - '.github/workflows/docs-sync.yml'
+  #     - 'tools/docs/**'
+  #     - 'package.json'
+  #     - 'pnpm-lock.yaml'
+  #     - '.prettierrc.mjs'
+  workflow_dispatch:
+    inputs:
+      pr_branch:
+        description: 'Branch name used for the translation PR'
+        required: false
+        default: 'chore/docs-auto-sync'
+      translator:
+        description: 'Translation backend: config uses DOCS_TRANSLATION_CONFIG, copilot uses COPILOT_GITHUB_TOKEN'
+        required: false
+        default: 'config'
+        type: choice
+        options:
+          - config
+          - copilot
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  DOCS_SYNC_PR_TITLE: 'docs: sync en_us mirror from zh_cn'
+  DOCS_SYNC_STATE_PATH: 'docs/en_us/.docs-sync-state.json'
+  PYTHON_VERSION: '3.12'
+
+concurrency:
+  group: docs-sync-manual
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'MaaEnd/MaaEnd'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      has_tasks: ${{ steps.collect.outputs.has_tasks }}
+      branch_name: ${{ steps.branch.outputs.branch_name }}
+      repo_sha: ${{ steps.snapshot.outputs.repo_sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Record repository snapshot
+        id: snapshot
+        run: |
+          set -euo pipefail
+          echo "repo_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve branch name
+        id: branch
+        env:
+          INPUT_BRANCH: ${{ github.event.inputs.pr_branch }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          branch_name="${INPUT_BRANCH:-chore/docs-auto-sync}"
+          case "$branch_name" in
+            chore/docs-auto-sync*)
+              ;;
+            *)
+              echo "Invalid branch name: $branch_name"
+              echo "Branch name must start with chore/docs-auto-sync."
+              exit 1
+              ;;
+          esac
+          if [ "$branch_name" = "$BASE_BRANCH" ]; then
+            echo "Invalid branch name: $branch_name"
+            echo "Branch name must not equal the base branch."
+            exit 1
+          fi
+          echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
+
+      - name: Build translation manifest
+        id: collect
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python tools/docs/build_translation_manifest.py \
+            --state-path "${{ env.DOCS_SYNC_STATE_PATH }}" \
+            --output-manifest artifacts/docs-sync-manifest.json \
+            --output-summary artifacts/docs-sync-summary.txt
+
+          task_count="$(python -c "import json;print(json.load(open('artifacts/docs-sync-manifest.json', encoding='utf-8'))['task_count'])")"
+          if [ "$task_count" -gt 0 ]; then
+            echo "has_tasks=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_tasks=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload docs sync artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-sync-artifacts
+          path: artifacts/
+
+  sync:
+    needs: prepare
+    if: needs.prepare.outputs.has_tasks == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.prepare.outputs.repo_sha }}
+          fetch-depth: 0
+
+      - name: Download docs sync artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-sync-artifacts
+          path: artifacts
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Prepare translation branch
+        env:
+          BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
+          REPO_SHA: ${{ needs.prepare.outputs.repo_sha }}
+        run: |
+          set -euo pipefail
+          git checkout -B "$BRANCH_NAME" "$REPO_SHA"
+
+      - name: Run translation script
+        env:
+          DOCS_TRANSLATION_CONFIG: ${{ secrets.DOCS_TRANSLATION_CONFIG }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python tools/docs/translate_with_llm.py \
+            --manifest artifacts/docs-sync-manifest.json \
+            --state-path "${{ env.DOCS_SYNC_STATE_PATH }}" \
+            --translator "${{ github.event.inputs.translator || 'config' }}"
+
+      - name: Verify changed files are allowed
+        run: |
+          set -euo pipefail
+          python tools/docs/check_allowed_changes.py \
+            --manifest artifacts/docs-sync-manifest.json \
+            --base-ref HEAD \
+            --state-path "${{ env.DOCS_SYNC_STATE_PATH }}"
+
+      - name: Check translation changes
+        id: changes
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- docs/en_us)" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            git status --short
+          fi
+
+      - name: Commit and push translation branch
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/en_us
+          git commit \
+            -m "docs: sync en_us mirror from zh_cn" \
+            -m "The workflow selected files by comparing zh_cn source hashes with ${{ env.DOCS_SYNC_STATE_PATH }}." \
+            -m "Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -m "[skip changelog]"
+          git push --force-with-lease origin "HEAD:$BRANCH_NAME"
+
+      - name: Create or update PR
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
+        run: |
+          set -euo pipefail
+
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty')"
+          pr_body="$(cat <<EOF
+          ## Summary
+          - Translate changed \`docs/zh_cn/**\` files into the mirrored \`docs/en_us/**\` files.
+          - This workflow uses the LLM only as a per-file translator. Diff collection, docs-link rewriting, file writes, file scope limits, branch push, and PR creation are scripted.
+          - File selection is based on zh_cn source hashes recorded in \`${{ env.DOCS_SYNC_STATE_PATH }}\`, so manual runs do not need base/head inputs.
+
+          ## Safety
+          - Only \`docs/en_us/**\` files are allowed to change.
+          - \`docs/zh_cn/**\` remains read-only in this workflow.
+          EOF
+          )"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --title "$DOCS_SYNC_PR_TITLE" --body "$pr_body"
+          else
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$BRANCH_NAME" \
+              --title "$DOCS_SYNC_PR_TITLE" \
+              --body "$pr_body"
+          fi
+
+      - name: Show no-op result
+        if: steps.changes.outputs.has_changes != 'true'
+        run: |
+          echo "No translation changes were produced."

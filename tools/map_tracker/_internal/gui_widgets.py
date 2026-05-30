@@ -1,356 +1,10 @@
-import os
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Callable, Generic, TypeVar
 
 import numpy as np
 
-from .core_utils import Drawer, cv2, get_icon_image
-
-
-class BasePage:
-    def __init__(
-        self, window_name: str = "App", window_w: int = 1280, window_h: int = 720
-    ):
-        self.window_name = window_name
-        self.window_w = window_w
-        self.window_h = window_h
-        self.mouse_pos: tuple[int, int] = (-1, -1)
-        self._frame_interval = 1.0 / 120.0
-        self._last_render_ts = 0.0
-        self._needs_render = True
-        self.done = False
-        self.stepper: Any = None
-        self.buttons: list[Button] = []
-
-    def hook_enter(self, stepper: Any):
-        """Attaches to stepper and prepare the page for rendering."""
-        self.stepper = stepper
-        # PageStepper owns the real cv2 window; use its name to avoid resizing
-        # a non-existent page-local window.
-        if hasattr(stepper, "window_name"):
-            self.window_name = stepper.window_name
-        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
-        self.render_request()
-
-    def hook_idle(self):
-        """Execute idle hook for background updates."""
-        pass
-
-    def hook_exit(self):
-        """Lifecycle hook called when page leaves the stack."""
-        pass
-
-    def render_request(self) -> None:
-        """Requests the page to be re-rendered on next loop tick."""
-        self._needs_render = True
-
-    def _render_once(self, drawer: Drawer) -> None:
-        """Subclasses should implement this method to render a single frame without handling buttons."""
-        pass
-
-    def render(self) -> Any:
-        """Renders the page if needed and return the image to be displayed."""
-        now = time.monotonic()
-        btn_needs_render = any(b.needs_render for b in self.buttons)
-        if (
-            self._needs_render
-            or btn_needs_render
-            or (now - self._last_render_ts >= self._frame_interval)
-        ):
-            self._last_render_ts = now
-            self._needs_render = False
-            drawer = Drawer.new(self.window_w, self.window_h)
-
-            self._render_once(drawer)
-
-            for btn in self.buttons:
-                btn.render(drawer)
-
-            return drawer.get_image()
-        return None
-
-    def handle_mouse(self, event, x: int, y: int, flags, param):
-        """Dispatches mouse input to buttons first, then page handler."""
-        self.mouse_pos = (x, y)
-        for btn in self.buttons:
-            if btn.handle_mouse(event, x, y):
-                self.render_request()
-                return
-        self._on_mouse(event, x, y, flags, param)
-
-    def _on_mouse(self, event, x: int, y: int, flags, param) -> None:
-        """Subclasses can override this method to handle mouse events not consumed by buttons."""
-        pass
-
-    def handle_key(self, key: int):
-        """Dispatches key input to buttons first, then page handler."""
-        for btn in self.buttons:
-            if btn.handle_key(key):
-                self.render_request()
-                return
-        self._on_key(key)
-
-    def _on_key(self, key: int) -> None:
-        """Subclasses can override this method to handle key events not consumed by buttons."""
-        pass
-
-
-@dataclass
-class StepData:
-    """Data for a simplified wizard-style step."""
-
-    step_id: str
-    title: str
-    data: dict[str, Any] = field(default_factory=dict)
-    can_go_back: bool = True
-
-
-class StepPage(BasePage):
-    """A generic BasePage that provides standard Wizard UI (header/footer)."""
-
-    WINDOW_W = 1280
-    WINDOW_H = 720
-    HEADER_H = 80
-    FOOTER_H = 50
-
-    @staticmethod
-    def is_up_key(key: int) -> bool:
-        return key in (82, 0x260000, 65362)
-
-    @staticmethod
-    def is_down_key(key: int) -> bool:
-        return key in (84, 0x280000, 65364)
-
-    def __init__(self, step_data: StepData):
-        super().__init__("WizardStep", self.WINDOW_W, self.WINDOW_H)
-        self.step_data = step_data
-
-        if self.step_data.can_go_back:
-            btn_w, btn_h = 120, 36
-            btn_x1 = 20
-            btn_y1 = self.WINDOW_H - self.FOOTER_H + (self.FOOTER_H - btn_h) // 2
-            btn_x2, btn_y2 = btn_x1 + btn_w, btn_y1 + btn_h
-
-            def on_back():
-                if len(self.stepper.step_history) > 1:
-                    self.stepper.pop_step()
-
-            self.buttons.append(
-                Button(
-                    rect=(btn_x1, btn_y1, btn_x2, btn_y2),
-                    text="< Back",
-                    base_color=0x555566,
-                    text_color=0xFFFFFF,
-                    on_click=on_back,
-                )
-            )
-
-    def hook_enter(self, stepper: "PageStepper"):
-        super().hook_enter(stepper)
-
-    def _render_header(self, drawer: Drawer) -> None:
-        h = self.HEADER_H
-        drawer.rect((0, 0), (self.WINDOW_W, h), color=0x0A0A14, thickness=-1)
-        step_num = len(
-            [p for p in self.stepper.step_history if isinstance(p, StepPage)]
-        )
-        drawer.text(f"Step {step_num}", (30, h - 35), 0.6, color=0x6688AA)
-        drawer.text_centered(
-            self.step_data.title, (self.WINDOW_W // 2, h - 20), 0.9, color=0xFFFFFF
-        )
-        drawer.line((0, h - 1), (self.WINDOW_W, h - 1), color=0x444455, thickness=2)
-
-    def _render_footer(self, drawer: Drawer) -> None:
-        y1 = self.WINDOW_H - self.FOOTER_H
-        y2 = self.WINDOW_H
-        drawer.rect((0, y1), (self.WINDOW_W, y2), color=0x0A0A14, thickness=-1)
-        drawer.line((0, y1), (self.WINDOW_W, y1), color=0x444455, thickness=2)
-
-    def _render_once(self, drawer: Drawer):
-        drawer.rect(
-            (0, 0),
-            (self.WINDOW_W, self.WINDOW_H),
-            color=0x14141E,
-            thickness=-1,
-        )
-        self._render_header(drawer)
-        self._render_content(drawer)
-        self._render_footer(drawer)
-
-    def _on_mouse(self, event, x, y, flags, param):
-        self._handle_content_mouse(event, x, y, flags, param)
-
-    def _on_key(self, key):
-        self._handle_content_key(key)
-
-    def _render_content(self, drawer: Drawer):
-        pass
-
-    def _handle_content_mouse(self, event, x, y, flags, param):
-        pass
-
-    def _handle_content_key(self, key):
-        pass
-
-
-class MapImageSelectStep(StepPage):
-    """Reusable map image selection step with optional preview support."""
-
-    def __init__(
-        self,
-        *,
-        step_id: str,
-        title: str,
-        map_dir: str,
-        enable_preview: bool = True,
-        on_select: Callable[[str], None] | None = None,
-    ):
-        super().__init__(StepData(step_id, title))
-        self.map_dir = map_dir
-        self.map_list = ScrollableListWidget(item_height=40)
-        self._map_preview_cache: dict[str, object] = {}
-        self._on_select = on_select
-
-        items = []
-        if os.path.isdir(self.map_dir):
-            map_files = [
-                f
-                for f in os.listdir(self.map_dir)
-                if f.lower().endswith((".png", ".jpg"))
-            ]
-            map_files.sort(key=lambda name: (len(name), name.lower()))
-            items = [{"label": m, "sub_label": "", "data": m} for m in map_files]
-        self.map_list.set_items(items)
-
-        if enable_preview:
-            self.map_list.set_preview_generator(self._generate_map_preview)
-
-    def _generate_map_preview(self, item: dict):
-        map_name = str(item.get("data") or "")
-        if map_name == "":
-            return None
-        if map_name in self._map_preview_cache:
-            return self._map_preview_cache[map_name]
-
-        map_path = os.path.join(self.map_dir, map_name)
-        img = cv2.imread(map_path, cv2.IMREAD_UNCHANGED)
-        self._map_preview_cache[map_name] = img
-        return img
-
-    def _render_content(self, drawer):
-        self.map_list.render(
-            drawer, (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        )
-
-    def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.map_list.handle_click(x, y, rect)
-            if idx >= 0:
-                self.on_map_selected(str(self.map_list.items[idx]["data"]))
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.map_list.handle_wheel(x, y, flags, rect):
-                self.stepper.request_render()
-
-    def _handle_content_key(self, key):
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.map_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.map_list.selected_idx >= 0:
-            self.on_map_selected(
-                str(self.map_list.items[self.map_list.selected_idx]["data"])
-            )
-
-    def on_map_selected(self, map_name: str) -> None:
-        if self._on_select is None:
-            raise NotImplementedError()
-        self._on_select(map_name)
-
-
-class PageStepper:
-    """Main application loop managing a stack of pages."""
-
-    def __init__(self, window_name: str = "App"):
-        self.window_name = window_name
-        self.step_history: list[BasePage] = []
-        self.done = False
-        self.result: Any = None
-        cv2.namedWindow(self.window_name)
-        cv2.setMouseCallback(self.window_name, self._handle_mouse)
-
-    @property
-    def current_step(self) -> BasePage | None:
-        """Return the active page on top of the stack."""
-        return self.step_history[-1] if self.step_history else None
-
-    def push_step(self, page: BasePage) -> None:
-        """Push a new page and enter it."""
-        if self.current_step:
-            self.current_step.hook_exit()
-        self.step_history.append(page)
-        page.hook_enter(self)
-        self.request_render()
-
-    def pop_step(self) -> BasePage | None:
-        """Pop current page when history allows and restore previous page."""
-        if len(self.step_history) > 1:
-            popped = self.step_history.pop()
-            popped.hook_exit()
-            if self.current_step:
-                self.current_step.hook_enter(self)
-            self.request_render()
-            return popped
-        return None
-
-    def finish(self, result: Any = None) -> None:
-        """Stop the loop and store final result."""
-        self.result = result
-        self.done = True
-
-    def request_render(self):
-        """Request current step to render on next loop tick."""
-        if self.current_step:
-            self.current_step.render_request()
-
-    def _handle_mouse(self, event, x, y, flags, param):
-        if self.current_step:
-            self.current_step.handle_mouse(event, x, y, flags, param)
-
-    def run(self) -> Any:
-        """Run the main event loop until finished or window closed."""
-        if not self.step_history:
-            raise RuntimeError("No initial step provided.")
-
-        self.request_render()
-
-        while not self.done:
-            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
-                break
-
-            page = self.current_step
-            if not page:
-                break
-
-            page.hook_idle()
-
-            rendered_img = page.render()
-            if rendered_img is not None:
-                cv2.imshow(self.window_name, rendered_img)
-
-            key = cv2.waitKeyEx(1)
-            if key == 27:  # ESC
-                if len(self.step_history) > 1:
-                    self.pop_step()
-                else:
-                    break
-            elif key != -1:
-                page.handle_key(key)
-
-        cv2.destroyAllWindows()
-        return self.result
+from .core_utils import Drawer, cv2
+from .sprite_utils import get_sprite_image
 
 
 class Button:
@@ -365,6 +19,7 @@ class Button:
         thickness: int = -1,
         font_scale: float = 0.5,
         icon_name: str | None = None,
+        icon_offset_x: int = 0,
     ):
         self.rect = rect
         self.text = text
@@ -377,12 +32,14 @@ class Button:
         self.thickness = thickness
         self.font_scale = font_scale
         self.icon_name = icon_name
+        self.icon_offset_x = icon_offset_x
 
         self.hovered = False
         self.needs_render = True
 
-    def _get_icon(self) -> np.ndarray | None:
-        return get_icon_image(self.icon_name)
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
 
     def _get_draw_color(self) -> int:
         if not self.hovered:
@@ -402,17 +59,18 @@ class Button:
         if border_color != -1:
             drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
 
-        icon = self._get_icon()
-        if icon is not None:
+        icon = None
+        icon_size = None
+        if self.icon_name:
             bh = y2 - y1
             icon_size = max(14, min(28, bh - 20))
-            ix = x1 + 16
+            icon = get_sprite_image(self.icon_name, (icon_size, icon_size))
+        if icon is not None and icon_size is not None:
+            ix = x1 + 16 + self.icon_offset_x
             iy = y1 + (bh - icon_size) // 2
             drawer.paste(
                 icon,
                 (ix, iy),
-                scale_w=icon_size,
-                scale_h=icon_size,
                 with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
             )
 
@@ -422,9 +80,8 @@ class Button:
         )
         self.needs_render = False
 
-    def handle_mouse(self, event, x: int, y: int) -> bool:
-        x1, y1, x2, y2 = self.rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def consume_mouse(self, event, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
 
         if self.hovered != in_rect:
             self.hovered = in_rect
@@ -437,7 +94,7 @@ class Button:
             return True
         return False
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key in self.hotkey:
             if self.on_click:
                 self.on_click()
@@ -459,7 +116,7 @@ class TextInputWidget:
         self.text = ""
         self._cursor_blink_start = time.time()
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key == 8 or key == 127:  # Backspace / Del
             if self.text:
                 self.text = self.text[:-1]
@@ -499,58 +156,141 @@ class TextInputWidget:
             drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
 
 
-class RadioSelectWidget:
-    """Simple vertical radio selector widget."""
+class DropdownSelectWidget:
+    """Hover-expanded single-select dropdown body widget."""
 
-    def __init__(self, title: str = "", item_height: int = 24):
-        self.title = title
+    def __init__(self, item_height: int = 24):
         self.item_height = item_height
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
+        self.expanded = False
+        self.selection_changed = False
+        self.needs_render = True
 
     def set_items(self, items: list[dict], selected_data: object | None = None) -> None:
         self.items = items
         self.selected_idx = -1
         if not items:
+            self.needs_render = True
             return
         if selected_data is not None:
             for i, item in enumerate(items):
                 if item.get("data") == selected_data:
                     self.selected_idx = i
+                    self.needs_render = True
                     return
         self.selected_idx = 0
+        self.needs_render = True
 
     def get_selected_data(self) -> object | None:
         if 0 <= self.selected_idx < len(self.items):
             return self.items[self.selected_idx].get("data")
         return None
 
+    def get_selected_label(self) -> str:
+        if 0 <= self.selected_idx < len(self.items):
+            return str(self.items[self.selected_idx].get("label", ""))
+        return ""
+
     def select_by_data(self, data: object) -> bool:
         for i, item in enumerate(self.items):
             if item.get("data") == data:
                 changed = self.selected_idx != i
-                self.selected_idx = i
+                if changed:
+                    self.selected_idx = i
+                    self.needs_render = True
                 return changed
         return False
 
-    def get_height(self) -> int:
-        title_h = 22 if self.title else 0
-        return title_h + max(0, len(self.items)) * self.item_height + 8
+    def get_body_height(self) -> int:
+        return max(0, len(self.items)) * self.item_height + 4
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
-        if not (x1 <= x <= x2 and y1 <= y <= y2):
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def _expanded_rect(self) -> tuple[int, int, int, int]:
+        x1, y1, x2, y2 = self.rect
+        return (x1, y1, x2, y2 + self.get_body_height())
+
+    def _body_rect(self) -> tuple[int, int, int, int]:
+        x1, _, x2, y2 = self.rect
+        return (x1, y2 + 4, x2, y2 + self.get_body_height())
+
+    def _contains_expanded(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self._expanded_rect()
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        if event == cv2.EVENT_MOUSEMOVE:
+            if self.expanded:
+                if not self._contains_expanded(x, y):
+                    self.expanded = False
+                    self.needs_render = True
+                    return True
+                return False
+            if self.contains(x, y):
+                self.expanded = True
+                self.needs_render = True
+                return True
+            return False
+
+        if event != cv2.EVENT_LBUTTONDOWN:
+            return False
+
+        if self.expanded and self._contains_expanded(x, y):
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.selection_changed = True
+            return True
+
+        if self.contains(x, y):
+            if not self.expanded:
+                self.expanded = True
+                self.needs_render = True
+            return True
+
+        return False
+
+    def consume_selection_changed(self) -> bool:
+        changed = self.selection_changed
+        self.selection_changed = False
+        return changed
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, _ = self._body_rect()
+        if not (x1 <= x <= x2 and y >= y1):
             return -1
-        title_h = 22 if self.title else 0
-        list_y1 = y1 + title_h
-        if y < list_y1:
-            return -1
-        idx = (y - list_y1) // self.item_height
-        if 0 <= idx < len(self.items):
-            if self.selected_idx != idx:
-                self.selected_idx = idx
-                return idx
+        idx = (y - y1) // self.item_height
+        if 0 <= idx < len(self.items) and self.selected_idx != idx:
+            self.selected_idx = idx
+            self.needs_render = True
+            return idx
         return -1
+
+    def _render_item(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        item: dict,
+        *,
+        selected: bool,
+        font_scale: float,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        if selected:
+            drawer.rect((x1 + 2, y1), (x2 - 2, y2), color=0x132B4F, thickness=-1)
+        label = str(item.get("label", ""))
+        color = 0xFFFFFF if selected else 0xC8C8C8
+        cy_mark = y1 + self.item_height // 2
+        mark_x = x1 + 14
+        if selected:
+            drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
+            drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
+        else:
+            drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
+        drawer.text(label, (x1 + 26, y2 - 7), font_scale, color=color)
 
     def render(
         self,
@@ -559,31 +299,22 @@ class RadioSelectWidget:
         *,
         font_scale: float = 0.4,
     ) -> None:
-        x1, y1, x2, y2 = rect
-        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
-        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+        self.rect = rect
+        if self.expanded:
+            x1, y1, x2, y2 = self._body_rect()
+            drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+            drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+            for i, item in enumerate(self.items):
+                iy1 = y1 + i * self.item_height
+                self._render_item(
+                    drawer,
+                    (x1, iy1, x2, iy1 + self.item_height),
+                    item,
+                    selected=i == self.selected_idx,
+                    font_scale=font_scale,
+                )
 
-        cy = y1
-        if self.title:
-            drawer.text(f"[ {self.title} ]", (x1 + 8, cy + 16), 0.45, color=0x40FFFF)
-            cy += 22
-
-        for i, item in enumerate(self.items):
-            iy1 = cy + i * self.item_height
-            iy2 = iy1 + self.item_height
-            selected = i == self.selected_idx
-            if selected:
-                drawer.rect((x1 + 2, iy1), (x2 - 2, iy2), color=0x132B4F, thickness=-1)
-            label = str(item.get("label", ""))
-            color = 0xFFFFFF if selected else 0xC8C8C8
-            cy_mark = iy1 + self.item_height // 2
-            mark_x = x1 + 14
-            if selected:
-                drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
-                drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
-            else:
-                drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
-            drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
+        self.needs_render = False
 
 
 class SwitchWidget:
@@ -602,6 +333,7 @@ class SwitchWidget:
         self.is_left_selected = is_left_selected
         self.on_changed = on_changed
         self.hovered = False
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
 
     def get_value(self) -> bool:
         return self.is_left_selected
@@ -616,11 +348,14 @@ class SwitchWidget:
     def toggle(self) -> bool:
         return self.set_value(not self.is_left_selected)
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> bool:
-        x1, y1, x2, y2 = rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
         self.hovered = in_rect
-        if not in_rect:
+        if event != cv2.EVENT_LBUTTONDOWN or not in_rect:
             return False
         self.toggle()
         return True
@@ -632,6 +367,7 @@ class SwitchWidget:
         *,
         font_scale: float = 0.42,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         w = max(2, x2 - x1)
         mid_x = x1 + w // 2
@@ -687,8 +423,10 @@ class ScrollableListWidget:
     def __init__(self, item_height: int = 38):
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.submitted_idx: int = -1
         self.scroll_offset: int = 0
         self.item_height = item_height
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
         self._preview_generator: Callable[[dict], np.ndarray | None] | None = None
         self._last_list_x2: int | None = None
 
@@ -703,6 +441,7 @@ class ScrollableListWidget:
             prev_selected_data = self.items[self.selected_idx].get("data")
 
         self.items = items
+        self.submitted_idx = -1
         self.scroll_offset = 0
         self.selected_idx = -1
 
@@ -718,14 +457,8 @@ class ScrollableListWidget:
                     self.selected_idx = i
                     break
 
-    def _enabled_indices(self) -> list[int]:
-        return [i for i, item in enumerate(self.items) if not item.get("disabled")]
-
-    def _get_icon(self, icon_name: str | None) -> np.ndarray | None:
-        return get_icon_image(icon_name)
-
     def navigate(self, direction: int) -> None:
-        enabled = self._enabled_indices()
+        enabled = [i for i, item in enumerate(self.items) if not item.get("disabled")]
         if not enabled:
             return
         if self.selected_idx not in enabled:
@@ -736,8 +469,36 @@ class ScrollableListWidget:
         if 0 <= new_pos < len(enabled):
             self.selected_idx = enabled[new_pos]
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        self.submitted_idx = -1
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.submitted_idx = idx
+            return self.contains(x, y)
+        if event == cv2.EVENT_MOUSEWHEEL:
+            return self._scroll_at(x, y, flags)
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        self.submitted_idx = -1
+        if key in (82, 0x260000, 65362):
+            self.navigate(-1)
+            return True
+        if key in (84, 0x280000, 65364):
+            self.navigate(1)
+            return True
+        if key in (10, 13) and self.selected_idx >= 0:
+            self.submitted_idx = self.selected_idx
+            return True
+        return False
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, y2 = self.rect
         list_x2 = self._last_list_x2 if self._last_list_x2 is not None else x2
         content_x2 = max(x1, list_x2 - 6)
         if not (x1 <= x <= content_x2 and y1 <= y <= y2):
@@ -751,10 +512,8 @@ class ScrollableListWidget:
             return -1
         return -1
 
-    def handle_wheel(
-        self, x: int, y: int, flags: int, rect: tuple[int, int, int, int]
-    ) -> bool:
-        x1, y1, x2, y2 = rect
+    def _scroll_at(self, x: int, y: int, flags: int) -> bool:
+        x1, y1, x2, y2 = self.rect
         if not (x1 <= x <= x2 and y1 <= y <= y2):
             return False
 
@@ -793,6 +552,7 @@ class ScrollableListWidget:
         *,
         font_scale: float = 0.45,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         preview_img: np.ndarray | None = None
         if self._preview_generator is not None and 0 <= self.selected_idx < len(
@@ -835,16 +595,18 @@ class ScrollableListWidget:
                 0x666677 if disabled else (0xFFFFFF if not priority else 0xAADDFF)
             )
             label_x = x1 + 12
-            icon = self._get_icon(item.get("icon_name"))
-            if icon is not None:
+
+            icon = None
+            icon_size = None
+            if item.get("icon_name"):
                 icon_size = max(14, min(20, self.item_height - 10))
+                icon = get_sprite_image(item.get("icon_name"), (icon_size, icon_size))
+            if icon is not None and icon_size is not None:
                 icon_x = x1 + 8
                 icon_y = iy1 + (self.item_height - icon_size) // 2
                 drawer.paste(
                     icon,
                     (icon_x, icon_y),
-                    scale_w=icon_size,
-                    scale_h=icon_size,
                     with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
                 )
                 label_x = icon_x + icon_size + 8
@@ -911,3 +673,393 @@ class ScrollableListWidget:
                 scale_h=nh,
                 with_alpha=(img.ndim == 3 and img.shape[2] == 4),
             )
+
+
+class _OffsetDrawer:
+    def __init__(self, drawer: "Drawer", offset: tuple[int, int]):
+        self._drawer = drawer
+        self._dx, self._dy = offset
+
+    @property
+    def w(self):
+        return self._drawer.w
+
+    @property
+    def h(self):
+        return self._drawer.h
+
+    def _pt(self, pt: tuple[int, int]) -> tuple[int, int]:
+        return (pt[0] + self._dx, pt[1] + self._dy)
+
+    def get_image(self):
+        return self._drawer.get_image()
+
+    def get_text_size(self, text: str, font_scale: float):
+        return self._drawer.get_text_size(text, font_scale)
+
+    def text(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+        bg_color: int | None = None,
+        bg_padding: int = 5,
+    ):
+        self._drawer.text(
+            text,
+            self._pt(pos),
+            font_scale,
+            color=color,
+            bg_color=bg_color,
+            bg_padding=bg_padding,
+        )
+
+    def text_centered(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+    ):
+        self._drawer.text_centered(text, self._pt(pos), font_scale, color=color)
+
+    def rect(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.rect(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def circle(
+        self,
+        center: tuple[int, int],
+        radius: int,
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.circle(self._pt(center), radius, color=color, thickness=thickness)
+
+    def line(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.line(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def paste(
+        self,
+        img: cv2.typing.MatLike,
+        pos: tuple[int, int],
+        *,
+        scale_w: int | None = None,
+        scale_h: int | None = None,
+        with_alpha: bool = False,
+    ) -> None:
+        self._drawer.paste(
+            img,
+            self._pt(pos),
+            scale_w=scale_w,
+            scale_h=scale_h,
+            with_alpha=with_alpha,
+        )
+
+
+class WidgetGroup:
+    def __init__(
+        self,
+        rect: tuple[int, int, int, int],
+        *,
+        visible: bool = True,
+    ) -> None:
+        self.rect = rect
+        self.visible = visible
+        self._items: list[dict] = []
+        self._needs_render = True
+
+    @property
+    def needs_render(self) -> bool:
+        return self._needs_render or any(
+            getattr(item["widget"], "needs_render", False) for item in self._items
+        )
+
+    def set_rect(self, rect: tuple[int, int, int, int]) -> None:
+        if self.rect != rect:
+            self.rect = rect
+            self._needs_render = True
+
+    def clear(self) -> None:
+        if self._items:
+            self._items.clear()
+            self._needs_render = True
+
+    def add_button(
+        self,
+        button: Button,
+        rect: tuple[int, int, int, int],
+    ) -> Button:
+        button.rect = rect
+        self._items.append(
+            {
+                "widget": button,
+                "rect": rect,
+                "kind": "button",
+                "render_kwargs": {},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return button
+
+    def add_switch(
+        self,
+        widget: SwitchWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.42,
+    ) -> SwitchWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "switch",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def add_dropdown(
+        self,
+        widget: DropdownSelectWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.4,
+        on_consumed: Callable[[], None] | None = None,
+    ) -> DropdownSelectWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "dropdown",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": on_consumed,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def render(self, drawer: "Drawer") -> None:
+        if not self.visible:
+            self._needs_render = False
+            return
+        x1, y1, _, _ = self.rect
+        local_drawer = _OffsetDrawer(drawer, (x1, y1))
+        for item in self._items:
+            widget = item["widget"]
+            rect = item["rect"]
+            kind = item["kind"]
+            render_kwargs = item["render_kwargs"]
+            if kind == "button":
+                widget.rect = rect
+                widget.render(local_drawer)
+            else:
+                widget.render(local_drawer, rect, **render_kwargs)
+        self._needs_render = False
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        if not self.visible:
+            return False
+        x1, y1, x2, y2 = self.rect
+        in_group = x1 <= x <= x2 and y1 <= y <= y2
+        if event != cv2.EVENT_MOUSEMOVE and not in_group:
+            return False
+        lx = x - x1
+        ly = y - y1
+        for item in reversed(self._items):
+            widget = item["widget"]
+            if widget.consume_mouse(event, lx, ly, flags):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        if not self.visible:
+            return False
+        for item in self._items:
+            widget = item["widget"]
+            consume_key = getattr(widget, "consume_key", None)
+            if consume_key is not None and consume_key(key):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
+
+
+T = TypeVar("T")
+
+
+class UndoRedoHistory(Generic[T]):
+    def __init__(
+        self,
+        capture: Callable[[], T],
+        restore: Callable[[T], None],
+        *,
+        limit: int = 100,
+        on_changed: Callable[[], None] | None = None,
+    ) -> None:
+        self._capture = capture
+        self._restore = restore
+        self._limit = limit
+        self._on_changed = on_changed
+        self._undo_stack: list[T] = []
+        self._redo_stack: list[T] = []
+
+    @property
+    def can_undo(self) -> bool:
+        return bool(self._undo_stack)
+
+    @property
+    def can_redo(self) -> bool:
+        return bool(self._redo_stack)
+
+    def push_current(self) -> None:
+        self.push_state(self._capture())
+
+    def push_state(self, state: T) -> None:
+        if self._undo_stack and self._undo_stack[-1] == state:
+            return
+        self._undo_stack.append(state)
+        if len(self._undo_stack) > self._limit:
+            self._undo_stack.pop(0)
+        self._redo_stack.clear()
+        self._notify_changed()
+
+    def undo(self) -> bool:
+        if not self._undo_stack:
+            return False
+        current = self._capture()
+        previous = self._undo_stack.pop()
+        if not self._redo_stack or self._redo_stack[-1] != current:
+            self._redo_stack.append(current)
+            if len(self._redo_stack) > self._limit:
+                self._redo_stack.pop(0)
+        self._restore(previous)
+        self._notify_changed()
+        return True
+
+    def redo(self) -> bool:
+        if not self._redo_stack:
+            return False
+        current = self._capture()
+        next_state = self._redo_stack.pop()
+        if not self._undo_stack or self._undo_stack[-1] != current:
+            self._undo_stack.append(current)
+            if len(self._undo_stack) > self._limit:
+                self._undo_stack.pop(0)
+        self._restore(next_state)
+        self._notify_changed()
+        return True
+
+    def clear(self) -> None:
+        self._undo_stack.clear()
+        self._redo_stack.clear()
+        self._notify_changed()
+
+    def _notify_changed(self) -> None:
+        if self._on_changed is not None:
+            self._on_changed()
+
+
+class UndoRedoWidget:
+    def __init__(
+        self,
+        *,
+        on_undo: Callable[[], None],
+        on_redo: Callable[[], None],
+        can_undo: Callable[[], bool],
+        can_redo: Callable[[], bool],
+    ) -> None:
+        self._on_undo = on_undo
+        self._on_redo = on_redo
+        self._can_undo = can_undo
+        self._can_redo = can_redo
+        self._undo_button = Button(
+            (-100, -100, -90, -90),
+            "[Z] Undo",
+            base_color=0xB44022,
+            hotkey=(ord("z"), ord("Z")),
+            on_click=self._handle_undo,
+            font_scale=0.38,
+            icon_name="Undo",
+            icon_offset_x=-10,
+        )
+        self._redo_button = Button(
+            (-100, -100, -90, -90),
+            "[Y] Redo",
+            base_color=0x2E6FD1,
+            hotkey=(ord("y"), ord("Y")),
+            on_click=self._handle_redo,
+            font_scale=0.38,
+            icon_name="Redo",
+            icon_offset_x=-10,
+        )
+
+    @property
+    def buttons(self) -> tuple[Button, Button]:
+        return (self._undo_button, self._redo_button)
+
+    def place(
+        self,
+        rect: tuple[int, int, int, int],
+        *,
+        gap: int = 8,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        btn_w = max(1, (x2 - x1 - gap) // 2)
+        self._undo_button.rect = (x1, y1, x1 + btn_w, y2)
+        self._redo_button.rect = (x1 + btn_w + gap, y1, x2, y2)
+        self.sync_enabled()
+
+    def hide(self) -> None:
+        hidden_rect = (-100, -100, -90, -90)
+        self._undo_button.rect = hidden_rect
+        self._redo_button.rect = hidden_rect
+
+    def sync_enabled(self) -> None:
+        self._sync_button(self._undo_button, self._can_undo(), 0xB44022)
+        self._sync_button(self._redo_button, self._can_redo(), 0x2E6FD1)
+
+    @staticmethod
+    def _sync_button(button: Button, enabled: bool, color: int) -> None:
+        button.base_color = color if enabled else 0x303030
+        button.text_color = 0xFFFFFF if enabled else 0x707070
+
+    def _handle_undo(self) -> None:
+        if self._can_undo():
+            self._on_undo()
+
+    def _handle_redo(self) -> None:
+        if self._can_redo():
+            self._on_redo()

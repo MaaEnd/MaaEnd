@@ -226,7 +226,7 @@
         ]
     },
     "GoToEternalSunsetNotAtStartPos": {
-        "desc": "不在栖霞驻影任务开始位置附近，先传送再复核落点",
+        "desc": "不在栖霞驻影任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToEternalSunsetRecheckStartPos",
-            "GoToEternalSunsetReEnterMap"
-        ]
-    },
-    "GoToEternalSunsetRecheckStartPos": {
-        "desc": "传送后再次检查是否已在栖霞驻影任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        315,
-                        305,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetMapTrackerMove"
-        ]
-    },
-    "GoToEternalSunsetReEnterMap": {
-        "desc": "传送后仍未到达栖霞驻影任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley2"
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetFinalCheckStartPos"
-        ]
-    },
-    "GoToEternalSunsetFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在栖霞驻影任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        315,
-                        305,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetMapTrackerMove"
+            "GoToEternalSunsetStartPos"
         ]
     },
     "GoToEternalSunsetMapTrackerMove": {

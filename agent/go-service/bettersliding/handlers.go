@@ -668,7 +668,7 @@ func (a *BetterSlidingAction) resetState() {
 }
 
 func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
-	if maxQuantity == 0 && target == 0 {
+	if maxQuantity == target {
 		return nodeBetterSlidingDone, nil
 	}
 	if maxQuantity < target {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
@@ -25,6 +26,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct"
@@ -59,6 +61,7 @@ func registerAll() {
 	schedule.Register()
 
 	// Business Custom
+	accountswitch.Register()
 	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
@@ -78,6 +81,7 @@ func registerAll() {
 	sellproduct.Register()
 	creditshopping.Register()
 	webevent202605.Register()
+	pullcount.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

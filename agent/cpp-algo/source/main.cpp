@@ -3,8 +3,10 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/ParentProcessWatcher.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
+#include "MapNavigator/MapNavigatorCompatible.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "Test/test.h"
@@ -24,6 +26,9 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    // 父进程一旦退出立刻结束自己，避免 MXU/MFAA 崩溃后 cpp-algo 残留。
+    common::StartParentProcessWatcher();
+
     Test();
 
     // std::cout << "Hello, cpp-algo!" << std::endl;
@@ -33,7 +38,12 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "MapNavigatorAssertLocationCompatible",
+        mapnavigator::MapNavigatorAssertLocationCompatibleRun,
+        nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];

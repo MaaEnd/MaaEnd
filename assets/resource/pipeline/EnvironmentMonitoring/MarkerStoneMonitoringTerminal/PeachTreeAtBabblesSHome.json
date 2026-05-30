@@ -226,7 +226,7 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "不在念念家的桃树任务开始位置附近，先传送再复核落点",
+        "desc": "不在念念家的桃树任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToPeachTreeAtBabblesSHomeRecheckStartPos",
-            "GoToPeachTreeAtBabblesSHomeReEnterMap"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在念念家的桃树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004_tier_328",
-                    "target": [
-                        514,
-                        666,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeReEnterMap": {
-        "desc": "传送后仍未到达念念家的桃树任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone4"
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在念念家的桃树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004_tier_328",
-                    "target": [
-                        514,
-                        666,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
+            "GoToPeachTreeAtBabblesSHomeStartPos"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMapTrackerMove": {

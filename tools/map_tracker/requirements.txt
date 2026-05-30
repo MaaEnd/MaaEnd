@@ -1,2 +1,3 @@
 maafw>=5
 opencv-python>=4
+PyMaxflow>=1.3

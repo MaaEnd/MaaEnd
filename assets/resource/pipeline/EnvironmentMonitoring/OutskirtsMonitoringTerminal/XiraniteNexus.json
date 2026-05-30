@@ -226,7 +226,7 @@
         ]
     },
     "GoToXiraniteNexusNotAtStartPos": {
-        "desc": "不在枢壤仪任务开始位置附近，先传送再复核落点",
+        "desc": "不在枢壤仪任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,63 +235,7 @@
             ]
         },
         "next": [
-            "GoToXiraniteNexusRecheckStartPos",
-            "GoToXiraniteNexusReEnterMap"
-        ]
-    },
-    "GoToXiraniteNexusRecheckStartPos": {
-        "desc": "传送后再次检查是否已在枢壤仪任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToXiraniteNexusMapTrackerMove"
-        ]
-    },
-    "GoToXiraniteNexusReEnterMap": {
-        "desc": "传送后仍未到达枢壤仪任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity4"
-            ]
-        },
-        "next": [
-            "GoToXiraniteNexusFinalCheckStartPos"
-        ]
-    },
-    "GoToXiraniteNexusFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在枢壤仪任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToXiraniteNexusMapTrackerMove"
+            "GoToXiraniteNexusStartPos"
         ]
     },
     "GoToXiraniteNexusMapTrackerMove": {
@@ -302,31 +246,31 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    241.3,
+                    242.3,
                     703.6
                 ],
                 [
-                    215.2,
+                    216.2,
                     703.7
                 ],
                 [
-                    213.6,
+                    214.6,
                     693.7
                 ],
                 [
-                    195.1,
+                    196.1,
                     680.2
                 ],
                 [
-                    183.7,
+                    184.7,
                     680.2
                 ],
                 [
-                    177.6,
+                    178.6,
                     675.2
                 ],
                 [
-                    170.8,
+                    171.8,
                     674.6
                 ]
             ]
