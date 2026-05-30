@@ -41,6 +41,7 @@
     "inf_delete_old_dir": "[INF] 正在尝试删除旧目录: {path}",
     "err_permission_denied": "\n[ERR] 访问被拒绝 (PermissionError): {error}",
     "err_cannot_delete_maafw": "[!] 无法删除 {path}，请确保该程序已完全退出。",
+    "err_cannot_access_deps": "[!] 无法操作 deps 目录 ({path})，请确保该目录下的文件未被占用。",
     "prompt_retry_or_quit": "[?] 请手动处理后按 Enter 重试，或输入 'q' 退出: ",
     "err_unknown_error_delete": "[ERR] 清理目录时发生未知错误: {error}",
     "inf_extract_maafw": "[INF] 解压 MaaFramework...",

@@ -41,6 +41,7 @@
     "inf_delete_old_dir": "[INF] Attempting to delete old directory: {path}",
     "err_permission_denied": "\n[ERR] Access denied (PermissionError): {error}",
     "err_cannot_delete_maafw": "[!] Cannot delete {path}, please ensure the program has exited completely.",
+    "err_cannot_access_deps": "[!] Cannot access deps directory ({path}), please ensure files inside are not in use.",
     "prompt_retry_or_quit": "[?] Please handle manually then press Enter to retry, or type 'q' to quit: ",
     "err_unknown_error_delete": "[ERR] Unknown error occurred while cleaning directory: {error}",
     "inf_extract_maafw": "[INF] Extracting MaaFramework...",

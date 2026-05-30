@@ -699,7 +699,7 @@ def install_maafw(
                 if maafw_deps.exists():
                     shutil.rmtree(maafw_deps)
                 shutil.copytree(sdk_root, maafw_deps)
-            if not _retry_on_permission(_copy_sdk, error_key="err_cannot_delete_maafw", path=maafw_deps):
+            if not _retry_on_permission(_copy_sdk, error_key="err_cannot_access_deps", path=maafw_deps):
                 return False, local_version, False
             print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
 
