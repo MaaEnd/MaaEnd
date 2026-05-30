@@ -1,10 +1,12 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <exception>
 #include <filesystem>
 #include <format>
 #include <future>
 #include <mutex>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -34,6 +36,16 @@ std::string TrimLeadingZeros(std::string value)
 {
     value.erase(0, std::min(value.find_first_not_of('0'), value.size() - 1));
     return value;
+}
+
+bool IsSupportedMapImage(const fs::path& path)
+{
+    static constexpr std::array<std::string_view, 5> kMapImageExtensions {
+        ".png", ".jpg", ".jpeg", ".webp", ".bmp"
+    };
+    std::string ext = path.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    return std::ranges::any_of(kMapImageExtensions, [&ext](std::string_view candidate) { return candidate == ext; });
 }
 
 bool MatchesExpectedZoneSelector(const std::string& expected_zone_selector, const YoloCoarseResult& coarse)
@@ -259,7 +271,9 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
 
         cv::Mat img = MAA_NS::imread(entryPath, cv::IMREAD_UNCHANGED);
         if (img.empty()) {
-            LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entryPath);
+            if (IsSupportedMapImage(entryPath)) {
+                LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entryPath);
+            }
             continue;
         }
         if (img.channels() == 3) {
