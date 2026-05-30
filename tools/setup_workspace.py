@@ -694,7 +694,6 @@ def install_maafw(
                 return False, local_version, False
 
             # 先将完整 SDK 复制到项目根目录 deps/
-            maafw_deps = PROJECT_BASE / "deps"
             print(Console.info(t("inf_copying_sdk", dest=maafw_deps)))
             def _copy_sdk():
                 if maafw_deps.exists():
