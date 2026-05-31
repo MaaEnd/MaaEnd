@@ -7,7 +7,7 @@
             "source_path": "docs/zh_cn/developers/README.md",
             "relative_path": "developers/README.md",
             "target_path": "docs/en_us/developers/README.md",
-            "source_sha256": "9a3b28061aa8bc451e7f6cc7f083ce1d18b4e865cf55cbd9c1b4801131d88c45"
+            "source_sha256": "03c06e6928c033f04afaaffcbb860451255be41dea42ab936166aa7da08aab55"
         },
         "docs/zh_cn/developers/coding-standards.md": {
             "source_path": "docs/zh_cn/developers/coding-standards.md",
@@ -127,7 +127,7 @@
             "source_path": "docs/zh_cn/developers/tasks/environment-monitoring-maintain.md",
             "relative_path": "developers/tasks/environment-monitoring-maintain.md",
             "target_path": "docs/en_us/developers/tasks/environment-monitoring-maintain.md",
-            "source_sha256": "de478fb2e0cfb0b04f7a9e941f13141f5a5d829258a5c28f56522dce780ddd93"
+            "source_sha256": "6f6c51afcbd7825b18704b416d74a701f259f955d7112016aa6a2c2658c9e6c7"
         },
         "docs/zh_cn/developers/tools-and-debug.md": {
             "source_path": "docs/zh_cn/developers/tools-and-debug.md",
@@ -148,5 +148,5 @@
             "source_sha256": "e17e54999a8fdeef557b11bfc3592638cee395b40b79e53c172ce28a735947b5"
         }
     },
-    "updated_at_utc": "2026-05-25T15:05:32.296655+00:00"
+    "updated_at_utc": "2026-05-31T05:03:00.320993+00:00"
 }
