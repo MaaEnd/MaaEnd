@@ -25,6 +25,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileDevSkipSwipe",
+            "AutoStockpileCheckSliding",
             "AutoStockpileSwipeSpecificQuantity",
             "AutoStockpileSwipeMax"
         ]
@@ -182,8 +183,7 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -204,8 +204,7 @@
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -226,11 +225,45 @@
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoStockpileCheckSliding": {
+        "desc": "检查滑条是否存在，当购买数量为1时滑条会隐藏",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    450,
+                    485,
+                    325,
+                    40
+                ],
+                "lower": [
+                    [
+                        80,
+                        80,
+                        80
+                    ]
+                ],
+                "upper": [
+                    [
+                        100,
+                        100,
+                        100
+                    ]
+                ],
+                "connected": true,
+                "count": 10086
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoStockpileRelayNodeSwipe"
+        ]
     }
 }
