@@ -12,6 +12,7 @@
 #include "my_reco_1/my_reco_1.h"
 #include "Test/test.h"
 #include "utils.h"
+#include "WeaponInventoryScan/WeaponInventoryScan.h"
 
 int main(int argc, char** argv)
 {
@@ -44,9 +45,25 @@ int main(int argc, char** argv)
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
         nullptr);
     MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "WeaponInventoryScanRecognition",
+        weaponinventoryscan::WeaponInventoryScanRecognitionRun,
+        nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction(
+        "WeaponInventoryScanInitAction",
+        weaponinventoryscan::WeaponInventoryScanInitActionRun,
+        nullptr);
+    MaaAgentServerRegisterCustomAction(
+        "WeaponInventoryScanRecordAction",
+        weaponinventoryscan::WeaponInventoryScanRecordActionRun,
+        nullptr);
+    MaaAgentServerRegisterCustomAction(
+        "WeaponInventoryScanFinishAction",
+        weaponinventoryscan::WeaponInventoryScanFinishActionRun,
+        nullptr);
 
     const char* identifier = argv[argc - 1];
 

@@ -962,5 +962,7 @@
     "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력",
     "task.RecoGridTest.label": "RecoGrid 테스트",
-    "task.RecoGridTest.description": "현재 게임 화면에서 RecoGrid 사용자 정의 인식을 테스트합니다. 인식 결과만 출력하며 클릭은 수행하지 않습니다."
+    "task.RecoGridTest.description": "현재 게임 화면에서 RecoGrid 사용자 정의 인식을 테스트합니다. 인식 결과만 출력하며 클릭은 수행하지 않습니다.",
+    "task.WeaponInventoryScan.label": "무기 인벤토리 스캔",
+    "task.WeaponInventoryScan.description": "무기 인벤토리 ID를 스캔하고 debug/record/WeaponInventoryScan.json에 기록합니다."
 }

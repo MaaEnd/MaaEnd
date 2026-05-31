@@ -962,5 +962,7 @@
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
     "task.RecoGridTest.label": "RecoGrid Test",
-    "task.RecoGridTest.description": "Tests the RecoGrid custom recognition on the current screenshot. It only reports recognition output and does not click."
+    "task.RecoGridTest.description": "Tests the RecoGrid custom recognition on the current screenshot. It only reports recognition output and does not click.",
+    "task.WeaponInventoryScan.label": "Weapon Inventory Scan",
+    "task.WeaponInventoryScan.description": "Scans weapon inventory IDs and writes them to debug/record/WeaponInventoryScan.json."
 }

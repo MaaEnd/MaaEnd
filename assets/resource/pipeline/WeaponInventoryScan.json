@@ -1,0 +1,165 @@
+{
+    "WeaponInventoryScan": {
+        "desc": "Scan weapon inventory IDs",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "WeaponInventoryScanInitAction",
+                "custom_action_param": {
+                    "template_paths": [
+                        "data/WeaponIcon/iconbig",
+                        "assets/data/WeaponIcon/iconbig"
+                    ],
+                    "output_path": "debug/record/WeaponInventoryScan.json",
+                    "same_cell_distance": 4,
+                    "unchanged_ratio": 0.9,
+                    "roi": [
+                        20,
+                        70,
+                        960,
+                        600
+                    ],
+                    "normalized_size": [
+                        1280,
+                        720
+                    ],
+                    "row_threshold_ratio": 0.4,
+                    "col_threshold_ratio": 0.4,
+                    "min_raw_segment_length": 10,
+                    "min_kept_segment_ratio": 0.7,
+                    "max_phash_distance": 10,
+                    "max_returned_matches": 3,
+                    "min_score": 0.6,
+                    "mask_ratios": {
+                        "left_header_width": 0.20833333333333334,
+                        "left_header_height": 0.20833333333333334,
+                        "right_header_width": 0.3125,
+                        "right_header_height": 0.3125,
+                        "bottom_height": 0.20833333333333334
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanListReady",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "WeaponInventoryScanListReady": {
+        "desc": "Confirm weapon inventory list page",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    155,
+                    85
+                ],
+                "expected": [
+                    "武器",
+                    "武器",
+                    "(?i)Weapon"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                400,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanRecognizePage"
+        ]
+    },
+    "WeaponInventoryScanRecognizePage": {
+        "desc": "Recognize current weapon inventory page",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "WeaponInventoryScanRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                20,
+                70,
+                960,
+                600
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "WeaponInventoryScanRecordAction",
+                "custom_action_param": {
+                    "same_cell_distance": 4,
+                    "unchanged_ratio": 0.9
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanSwipeNext"
+        ],
+        "on_error": [
+            "WeaponInventoryScanFinish"
+        ]
+    },
+    "WeaponInventoryScanSwipeNext": {
+        "desc": "Swipe to next weapon inventory page",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    135,
+                    300
+                ],
+                "end": [
+                    135,
+                    76
+                ],
+                "end_hold": 400,
+                "duration": 100
+            }
+        },
+        "post_delay": 200,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanRecognizePage"
+        ]
+    },
+    "WeaponInventoryScanFinish": {
+        "desc": "Write weapon inventory scan result",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "WeaponInventoryScanFinishAction",
+                "custom_action_param": {
+                    "output_path": "debug/record/WeaponInventoryScan.json"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

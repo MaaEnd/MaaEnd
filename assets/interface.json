@@ -149,6 +149,7 @@
         // group: valuables_vault
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
+        "tasks/WeaponInventoryScan.json",
         "tasks/BatchUseDetector.json",
         "tasks/AutoUseSpMedication.json",
         "tasks/EssenceFilter.json",

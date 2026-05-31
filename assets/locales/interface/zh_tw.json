@@ -962,5 +962,7 @@
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位",
     "task.RecoGridTest.label": "RecoGrid 測試",
-    "task.RecoGridTest.description": "測試 RecoGrid 自訂識別：從目前遊戲截圖偵測網格，只輸出識別結果，不執行點擊。"
+    "task.RecoGridTest.description": "測試 RecoGrid 自訂識別：從目前遊戲截圖偵測網格，只輸出識別結果，不執行點擊。",
+    "task.WeaponInventoryScan.label": "武器庫存掃描",
+    "task.WeaponInventoryScan.description": "掃描武器庫存 ID，並寫入 debug/record/WeaponInventoryScan.json。"
 }

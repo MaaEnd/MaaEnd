@@ -115,10 +115,6 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
         1.00,
         0.90,
         0.80,
-        0.70,
-        0.60,
-        0.50,
-        0.40,
     };
 
     for (const auto& candidate : candidates) {
