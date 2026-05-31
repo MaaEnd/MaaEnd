@@ -162,7 +162,7 @@
     "maptracker.navigation_moving.target": "目標：",
     "maptracker.navigation_finished.complete": "ナビゲーション完了",
     "maptracker.navigation_finished.current": "現在：",
-    "schedule.skip_today": "今日は%s、実行周期に従いタスクをスキップします",
+    "schedule.skip_today": "現在のゲーム時間は%s、実行周期に従いタスクをスキップします",
     "schedule.weekday_monday": "月曜日",
     "schedule.weekday_tuesday": "火曜日",
     "schedule.weekday_wednesday": "水曜日",

@@ -162,7 +162,7 @@
     "maptracker.navigation_moving.target": "목표:",
     "maptracker.navigation_finished.complete": "내비게이션 완료",
     "maptracker.navigation_finished.current": "현재:",
-    "schedule.skip_today": "오늘은 %s, 실행 주기에 따라 작업을 건너뜁니다",
+    "schedule.skip_today": "현재 게임 시간은 %s, 실행 주기에 따라 작업을 건너뜁니다",
     "schedule.weekday_monday": "월요일",
     "schedule.weekday_tuesday": "화요일",
     "schedule.weekday_wednesday": "수요일",

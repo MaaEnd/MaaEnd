@@ -162,7 +162,7 @@
     "maptracker.navigation_moving.target": "目标：",
     "maptracker.navigation_finished.complete": "导航完成",
     "maptracker.navigation_finished.current": "当前：",
-    "schedule.skip_today": "今天是%s，根据执行周期跳过任务",
+    "schedule.skip_today": "现在游戏时间是%s，根据执行周期跳过任务",
     "schedule.weekday_monday": "周一",
     "schedule.weekday_tuesday": "周二",
     "schedule.weekday_wednesday": "周三",

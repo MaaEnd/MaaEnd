@@ -27,6 +27,17 @@ type weekdayFlags struct {
 	Sunday    bool `json:"sunday"`
 }
 
+const gameDayBoundaryHour = 4
+
+// gameWeekday returns the weekday by game-day rules: each day starts at 04:00 local time.
+func gameWeekday(now time.Time) time.Weekday {
+	t := now.Local()
+	if t.Hour() < gameDayBoundaryHour {
+		t = t.AddDate(0, 0, -1)
+	}
+	return t.Weekday()
+}
+
 // ScheduleAction runs the configured entry task only on weekdays where the
 // matching flag is enabled, and emits a localized notice on skipped days.
 type ScheduleAction struct{}
@@ -75,7 +86,7 @@ func (a *ScheduleAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	weekday := time.Now().Weekday()
+	weekday := gameWeekday(time.Now())
 	weekdayName := i18n.T(weekdayKey(weekday))
 
 	if !isEnabledOn(&flags, weekday) {

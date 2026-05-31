@@ -162,7 +162,7 @@
     "maptracker.navigation_moving.target": "Target: ",
     "maptracker.navigation_finished.complete": "Navigation complete",
     "maptracker.navigation_finished.current": "Current: ",
-    "schedule.skip_today": "Today is %s, skipping the task per execution cycle",
+    "schedule.skip_today": "Current game time is %s, skipping the task per execution schedule",
     "schedule.weekday_monday": "Monday",
     "schedule.weekday_tuesday": "Tuesday",
     "schedule.weekday_wednesday": "Wednesday",
