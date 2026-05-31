@@ -87,6 +87,21 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	return detail.Hit
 }
 
+// captureAndUpdateScreenDetail 因 DirectHit 耗时 50ms，在 action 里直接截图并更新屏幕分析状态。
+func captureAndUpdateScreenDetail(ctx *maa.Context) (image.Image, bool) {
+	ctx.GetTasker().GetController().PostScreencap().Wait()
+	img, err := ctx.GetTasker().GetController().CacheImage()
+	if err != nil {
+		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
+		return nil, false
+	}
+	if !screenAnalyzer.UpdateScreenDetail(ctx, img) {
+		log.Error().Str("component", "AutoFight").Msg("failed to update screen detail")
+		return nil, false
+	}
+	return img, true
+}
+
 type AutoFightEntryRecognition struct{}
 
 func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -295,16 +310,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		// 因DirectHit耗时50ms，因此在action里直接截图
-		ctx.GetTasker().GetController().PostScreencap().Wait()
-		img, err := ctx.GetTasker().GetController().CacheImage()
-		if err != nil {
-			log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
-			result = false
-			break
-		}
-
-		if !screenAnalyzer.UpdateScreenDetail(ctx, img) {
-			log.Error().Str("component", "AutoFight").Msg("failed to update screen detail")
+		img, ok := captureAndUpdateScreenDetail(ctx)
+		if !ok {
 			result = false
 			break
 		}
@@ -613,9 +620,25 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
-	if !ctx.GetTasker().Stopping() {
-		// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
-		time.Sleep(3 * time.Second)
+
+	// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
+	waitStart := time.Now()
+	for time.Since(waitStart) < 3*time.Second {
+		if ctx.GetTasker().Stopping() {
+			break
+		}
+		_, ok := captureAndUpdateScreenDetail(ctx)
+		if !ok {
+			break
+		}
+	}
+
+	if !ctx.GetTasker().Stopping() && screenAnalyzer.GetEnemyLockedReliable() {
+		enqueueAction(fightAction{
+			executeAt: time.Now().Add(time.Millisecond),
+			action:    ActionLockTarget,
+		})
+		drainActionQueue(ctx, overrides)
 	}
 	return result
 }
