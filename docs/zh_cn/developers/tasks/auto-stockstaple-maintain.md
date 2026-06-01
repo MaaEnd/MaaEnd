@@ -82,7 +82,7 @@ AutoStockTargetCanNotBuyValleyIV
 
 - `AutoStockCurrentStockBill`：右上角调度券 OCR（`CurrentStockBillColor` + `CurrentStockBillText`）。
 - `{ReserveValleyIV}`：用户在 `AutoStockReserveValleyIV` 输入的保留阈值，默认 `240000`。
-- 表达式成立表示“剩余调度券仍 **高于** 保留阈值，可以继续买”；不成立则命中 `AutoStockTargetCanNotBuyValleyIV`，本地区扫描结束。
+- 表达式成立表示“剩余调度券已 **低于** 保留阈值，需要停止继续购买”，因此会命中 `AutoStockTargetCanNotBuyValleyIV` 结束本地区扫描；不成立则表示仍可继续买。
 
 ## 商品识别链（是否有物品可以购买）
 
