@@ -242,16 +242,41 @@
     },
     "InMenuList": {
         "desc": "在菜单列表界面",
-        "recognition": "OCR",
-        "roi": [
-            420,
-            -100,
-            450,
-            100
-        ],
-        "expected": [
-            "FIELD",
-            "ENDFIELD"
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "FIELD",
+                    "ENDFIELD"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    -200,
+                    200,
+                    200
+                ],
+                "lower": [
+                    150,
+                    40,
+                    40
+                ],
+                "upper": [
+                    191,
+                    83,
+                    85
+                ],
+                "count": 100
+            }
         ]
     },
     "InNoticeRewards": {
