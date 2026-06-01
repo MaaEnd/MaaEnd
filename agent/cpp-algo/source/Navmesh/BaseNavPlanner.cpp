@@ -25,6 +25,7 @@ constexpr double kBridgeHeightCostFactor = 40.0;
 constexpr double kBridgeMaxHeightDelta = 3.0;
 constexpr uint32_t kSmallBridgeComponentMaxTriangles = 512;
 constexpr double kSmallBridgeMaxGap = 4.0;
+constexpr double kRoutePullSampleStep = 0.5;       // 拉直判据沿捷径采样的步长(像素),与 Python ROUTE_PULL_SAMPLE_STEP 对齐
 
 struct QueueNode
 {
@@ -64,6 +65,16 @@ struct DisjointSet
 };
 
 constexpr uint32_t kInvalidTriangle = std::numeric_limits<uint32_t>::max();
+constexpr double kIndexBinSize = 8.0;              // 空间分箱的格边长(px),与 Python basenav_lib INDEX_BIN_SIZE 对齐
+
+uint64_t PackBinKey(uint16_t zone_id, int32_t bin_x, int32_t bin_y)
+{
+    const uint64_t zone = static_cast<uint64_t>(zone_id);
+    const uint64_t packed_x = static_cast<uint64_t>(static_cast<uint32_t>(bin_x)) & 0xFFFFFFu;
+    const uint64_t packed_y = static_cast<uint64_t>(static_cast<uint32_t>(bin_y)) & 0xFFFFFFu;
+    return (zone << 48) | (packed_x << 24) | packed_y;
+}
+
 constexpr double kSegmentWalkSnapRadius = 1.0;     // snap radius for locating the segment origin on the mesh
 constexpr double kSegmentWalkEpsilon = 1e-6;       // tolerance on the t/s intersection fractions
 constexpr double kSegmentParallelEpsilon = 1e-12;  // |determinant| below this => segments treated as parallel
@@ -102,6 +113,7 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     , triangle_heights_(pack.triangles().size(), 0.0)
 {
     buildIndex();
+    buildSpatialIndex();
     computeTriangleHeights();
 }
 
@@ -167,6 +179,67 @@ void BaseNavPlanner::buildNaturalComponents()
     }
 }
 
+void BaseNavPlanner::buildSpatialIndex()
+{
+    const auto& triangles = pack_.triangles();
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        const uint16_t zone_id = triangle_index < triangle_zones_.size() ? triangle_zones_[triangle_index] : 0;
+        if (zone_id == 0) {
+            continue; // 区外三角形不入索引(与 Python _build_index 一致)
+        }
+        const auto points = trianglePoints(triangle_index);
+        const double left = std::min({ points[0].x, points[1].x, points[2].x });
+        const double right = std::max({ points[0].x, points[1].x, points[2].x });
+        const double top = std::min({ points[0].y, points[1].y, points[2].y });
+        const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
+        const int32_t bin_x0 = static_cast<int32_t>(std::floor(left / kIndexBinSize));
+        const int32_t bin_x1 = static_cast<int32_t>(std::floor(right / kIndexBinSize));
+        const int32_t bin_y0 = static_cast<int32_t>(std::floor(top / kIndexBinSize));
+        const int32_t bin_y1 = static_cast<int32_t>(std::floor(bottom / kIndexBinSize));
+        for (int32_t bin_x = bin_x0; bin_x <= bin_x1; ++bin_x) {
+            for (int32_t bin_y = bin_y0; bin_y <= bin_y1; ++bin_y) {
+                spatial_bins_[PackBinKey(zone_id, bin_x, bin_y)].push_back(triangle_index);
+            }
+        }
+    }
+}
+
+std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const
+{
+    std::vector<uint32_t> result;
+    const double query_radius = std::max(0.0, radius);
+    const int32_t bin_x0 = static_cast<int32_t>(std::floor((point.x - query_radius) / kIndexBinSize));
+    const int32_t bin_x1 = static_cast<int32_t>(std::floor((point.x + query_radius) / kIndexBinSize));
+    const int32_t bin_y0 = static_cast<int32_t>(std::floor((point.y - query_radius) / kIndexBinSize));
+    const int32_t bin_y1 = static_cast<int32_t>(std::floor((point.y + query_radius) / kIndexBinSize));
+    for (int32_t bin_x = bin_x0; bin_x <= bin_x1; ++bin_x) {
+        for (int32_t bin_y = bin_y0; bin_y <= bin_y1; ++bin_y) {
+            const auto found = spatial_bins_.find(PackBinKey(zone_id, bin_x, bin_y));
+            if (found == spatial_bins_.end()) {
+                continue;
+            }
+            result.insert(result.end(), found->second.begin(), found->second.end());
+        }
+    }
+    return result;
+}
+
+bool BaseNavPlanner::pointOnMesh(uint16_t zone_id, const WorldPoint& point) const
+{
+    if (pack_.findZone(zone_id) == nullptr) {
+        return false;
+    }
+    for (const uint32_t triangle_index : candidateTriangles(zone_id, point, kSegmentWalkSnapRadius)) {
+        if (triangle_zones_[triangle_index] != zone_id) {
+            continue;
+        }
+        if (detail::PointInTriangle(point, trianglePoints(triangle_index))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void BaseNavPlanner::computeTriangleHeights()
 {
     const auto& triangles = pack_.triangles();
@@ -183,6 +256,71 @@ void BaseNavPlanner::computeTriangleHeights()
 double BaseNavPlanner::triangleAverageHeight(uint32_t triangle_index) const
 {
     return triangle_heights_[triangle_index];
+}
+
+std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
+    uint16_t zone_id,
+    const WorldPoint& point,
+    std::optional<double> reference,
+    uint32_t& out_triangle) const
+{
+    std::optional<double> best;
+    out_triangle = kInvalidTriangle;
+    for (const uint32_t triangle_index : candidateTriangles(zone_id, point, kSegmentWalkSnapRadius)) {
+        if (triangle_zones_[triangle_index] != zone_id) {
+            continue;
+        }
+        if (!detail::PointInTriangle(point, trianglePoints(triangle_index))) {
+            continue;
+        }
+        const double height = triangle_heights_[triangle_index];
+        if (!best) {
+            best = height;
+            out_triangle = triangle_index;
+        }
+        else if (!reference) {
+            if (height < *best) { // 无参考(直线起点):取最低瓦片,即路面而非恰好重叠其上的墙体
+                best = height;
+                out_triangle = triangle_index;
+            }
+        }
+        else if (std::abs(height - *reference) < std::abs(*best - *reference)) { // 取与上一采样高度最接近者,保持脚下地面连续
+            best = height;
+            out_triangle = triangle_index;
+        }
+    }
+    return best;
+}
+
+bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+{
+    if (pack_.findZone(zone_id) == nullptr) {
+        return false;
+    }
+    const double length = std::hypot(b.x - a.x, b.y - a.y);
+    const int samples = std::max(1, static_cast<int>(length / kRoutePullSampleStep));
+    std::optional<double> previous;
+    // 缓存上一采样点命中的三角形:相邻采样多落在同一三角形内,命中则复用其高度,省去 candidateTriangles
+    // 扫描,且结果与完整扫描等价。
+    uint32_t cached = kInvalidTriangle;
+    for (int index = 0; index <= samples; ++index) {
+        const double t = static_cast<double>(index) / samples;
+        const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
+        if (previous && cached != kInvalidTriangle) {
+            if (detail::PointInTriangle(point, trianglePoints(cached))) {
+                continue; // 命中缓存:高度等于 previous,直接进入下一采样点
+            }
+        }
+        const std::optional<double> height = groundHeightNearIndexed(zone_id, point, previous, cached);
+        if (!height) {
+            return false; // 采样点离开网格,判定捷径不可走
+        }
+        if (previous && std::abs(*height - *previous) > kBridgeMaxHeightDelta) {
+            return false; // 地面高度突跳(踩入墙体或跌落台面),为结构性拐角,捷径不可走
+        }
+        previous = height;
+    }
+    return true;
 }
 
 bool BaseNavPlanner::isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const
@@ -302,10 +440,17 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return std::nullopt;
     }
 
+    // 仅取邻近格内的候选三角形,替代对整区的线性扫描;经下方相同的剔除后结果与线性扫描一致。
+    const double query_radius = std::max(0.0, radius);
+    std::vector<uint32_t> candidates = candidateTriangles(zone_id, point, query_radius);
+    if (candidates.empty() && query_radius < kIndexBinSize) {
+        // 半径不足一格时邻域可能为空,放宽到整格再取候选(命中仍受 radius 距离剔除约束)。
+        candidates = candidateTriangles(zone_id, point, kIndexBinSize);
+    }
+
     std::optional<BaseNavSnapResult> best;
-    const uint32_t zone_end = zone->first_triangle + zone->triangle_count;
-    for (uint32_t triangle_index = zone->first_triangle; triangle_index < zone_end && triangle_index < pack_.triangles().size();
-         ++triangle_index) {
+    uint32_t inside_triangle = kInvalidTriangle; // 取包含该点的最小下标三角形,与原升序扫描的取舍一致
+    for (const uint32_t triangle_index : candidates) {
         if (triangle_zones_[triangle_index] != zone_id) {
             continue;
         }
@@ -318,16 +463,23 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
             continue;
         }
         if (detail::PointInTriangle(point, points)) {
-            return BaseNavSnapResult { .triangle = triangle_index, .point = point, .distance = 0.0 };
+            if (triangle_index < inside_triangle) {
+                inside_triangle = triangle_index; // 不提前返回:候选按格序排列,须扫完才能确定最小下标
+            }
+            continue;
         }
         const WorldPoint snapped = detail::ClosestPointOnTriangle(point, points);
         const double distance = detail::Distance(snapped, point);
         if (distance > radius) {
             continue;
         }
-        if (!best || distance < best->distance) {
+        // 距离更近则更新;等距时取更小下标,与原升序扫描的取舍一致。
+        if (!best || distance < best->distance || (distance == best->distance && triangle_index < best->triangle)) {
             best = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };
         }
+    }
+    if (inside_triangle != kInvalidTriangle) {
+        return BaseNavSnapResult { .triangle = inside_triangle, .point = point, .distance = 0.0 };
     }
     return best;
 }
@@ -348,7 +500,10 @@ bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, co
 
     const auto& triangles = pack_.triangles();
     uint32_t current = start->triangle;
-    // March from `a` toward `b` across shared edges, bounded by the triangle count.
+    // 沿 a→b 穿越三角形,要求出边交点参数 t 单调向前,截断重叠/共面三角形的横向往复,使不可达射线在
+    // 墙处快速失败而非遍历整张网格。仅加速 False 路径,判定结果与原算法一致。entry_t 初值取负(非 0):
+    // 起点常落在 portal 共享边上,起始三角形的真实出边可能 t≈0,否则会被单调过滤误剔除。
+    double entry_t = -1.0;
     const size_t max_steps = triangles.size() + 4;
     for (size_t step = 0; step < max_steps; ++step) {
         const auto points = trianglePoints(current);
@@ -358,7 +513,7 @@ bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, co
 
         // Exit edge = forward-most crossing (largest t in (0, 1]).
         const BaseNavTriangle& triangle = triangles[current];
-        double best_t = -1.0;
+        double best_t = entry_t;
         uint32_t exit_va = 0;
         uint32_t exit_vb = 0;
         bool has_exit = false;
@@ -370,7 +525,7 @@ bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, co
             if (!SegmentIntersectParams(a, b, p0, p1, t, s)) {
                 continue;
             }
-            if (t <= kSegmentWalkEpsilon || t > 1.0 + kSegmentWalkEpsilon) {
+            if (t <= entry_t + kSegmentWalkEpsilon || t > 1.0 + kSegmentWalkEpsilon) {
                 continue;
             }
             if (s < -kSegmentWalkEpsilon || s > 1.0 + kSegmentWalkEpsilon) {
@@ -404,6 +559,7 @@ bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, co
         if (next == kInvalidTriangle || next >= triangles.size() || triangle_zones_[next] != zone_id) {
             return false; // wall edge or zone boundary
         }
+        entry_t = best_t; // 记录进入下一三角形的参数,强制单调向前
         current = next;
     }
     return false;
@@ -570,13 +726,17 @@ std::vector<WorldPoint> BaseNavPlanner::buildWaypoints(
     }
     points.push_back(goal);
 
-    // Keep simplification from straightening a corner into a wall-crossing shortcut.
-    // The corridor is single-zone, so the first triangle's zone drives the check.
+    // LOS 拉直的可行性判据:按地面高度连续性判定捷径(改用高度连续性,因逐三角行进在共面重叠缝处误判
+    // 不可走、使路线贴墙)。走廊单 zone,取首个三角形的 zone。
     const uint16_t zone_id = triangles.empty() ? 0 : triangle_zones_[triangles.front()];
     const detail::SegmentWalkableFn validator = [this, zone_id](const WorldPoint& a, const WorldPoint& b) {
-        return isSegmentWalkable(zone_id, a, b);
+        return segmentHeightWalkable(zone_id, a, b);
     };
-    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks, validator);
+    // 点包含判据:居中据此还原走廊真实宽度,避免逐三角行进在重叠网格上低估横向余量。
+    const detail::PointOnMeshFn on_mesh = [this, zone_id](const WorldPoint& p) {
+        return pointOnMesh(zone_id, p);
+    };
+    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks, validator, on_mesh);
     segment_breaks = std::move(route.segment_breaks);
     return std::move(route.points);
 }

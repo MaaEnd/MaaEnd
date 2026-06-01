@@ -18,11 +18,16 @@ struct RoutePointsWithBreaks
 // True when the straight segment a->b stays on walkable mesh; supplied by the planner.
 using SegmentWalkableFn = std::function<bool(const WorldPoint& a, const WorldPoint& b)>;
 
-// When `is_segment_walkable` is set, simplification re-inserts any corner whose shortcut would
-// cross unwalkable mesh. An empty validator keeps the previous purely-geometric behaviour.
+// True when a point lies on walkable mesh (point-in-any-triangle). Centering uses this rather than
+// the marching SegmentWalkableFn, which underestimates clearance on overlapping/fragmented meshes.
+using PointOnMeshFn = std::function<bool(const WorldPoint& point)>;
+
+// Thinning keeps a point only at structural corners; centering then shifts straight runs onto the
+// corridor centreline. Either callback may be empty to skip the corresponding pass.
 RoutePointsWithBreaks PostProcessRoutePoints(
     const std::vector<WorldPoint>& points,
     const std::vector<size_t>& segment_breaks,
-    const SegmentWalkableFn& is_segment_walkable = {});
+    const SegmentWalkableFn& is_segment_walkable = {},
+    const PointOnMeshFn& point_on_mesh = {});
 
 }
