@@ -126,10 +126,10 @@
             "[JumpBack]_AutoEcoFarmCloseFertilizer",
             //识别工作按钮并点击
             "_AutoEcoFarmFindMenuIcon",
+            //如果还在农田内则任不会结束
+            "_AutoEcoFarmInAnyFarm",
             //第二次保障，判断标记还在不在
             "_AutoEcoFarmTargetExists",
-            //第三层保障，如果还在农田内则任不会结束
-            "_AutoEcoFarmInAnyFarm",
             //所有条件都不满足的情况下，启动最后一跳，再给一次机会
             "_AutoEcoFarmLastJump",
             //意外错误的话直接退出任务
