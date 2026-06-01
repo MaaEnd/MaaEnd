@@ -5,7 +5,7 @@
         "post_delay": 0,
         "next": [
             "BatchUseDetectorInStashValuablesTab",
-            "[JumpBack]SceneStashValuablesTab"
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
         ],
         "focus": {
             "Node.Action.Starting": "主任务启动"

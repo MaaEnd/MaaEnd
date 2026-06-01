@@ -776,17 +776,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "_SceneStashValuablesTabIn": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab"
-                ]
-            }
-        }
-    },
-    "_SceneStashValuablesTabSwitch": {
+    "__ScenePrivateMenuValuablesEnterValuableTab": {
         "desc": "切换到珍贵物品标签页",
         "recognition": {
             "type": "TemplateMatch",
@@ -797,20 +787,36 @@
                     23,
                     23
                 ],
-                "template": "SceneManager/ValuablesTabNotChoose.png",
-                "threshold": 0.6
+                "template": "SceneManager/ValuablesTabNotChoose.png"
             }
         },
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 100,
         "next": [
-            "_SceneStashValuablesTabIn"
-        ],
-        "focus": {
-            "Node.Action.Starting": "切换到珍贵物品页界面"
-        }
+            "__ScenePrivateAnyEnterValuableTabSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterValuableTabSuccess": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                0,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuOperationalManual": {
         "desc": "从大世界进入行动手册菜单",
