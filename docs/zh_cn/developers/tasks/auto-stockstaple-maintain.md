@@ -253,7 +253,7 @@ npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStap
 4. **`assets/locales/interface/*.json`**：补充选项与 focus 文案（如 `quantity_control.buy.*`）。
 5. 确认 `AutoStockStapleQuantityControl.next` 列表中的物品顺序与 `data.mjs` 一致，避免生成后遍历顺序变化。
 
-生成规则详见 [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../tools/pipeline-generate/AutoStockStaple/General/README.md)。
+生成规则详见 [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md)。
 
 ## 新增地区（参考四号谷地）
 
