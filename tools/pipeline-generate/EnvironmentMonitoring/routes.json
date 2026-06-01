@@ -430,10 +430,10 @@
         "EnterMap": "SceneEnterWorldWulingWulingCity8",
         "MapName": "map02_lv002",
         "MapAssert": [
-            689.6,
-            917.3,
-            6,
-            5.5
+            689.1,
+            915.3,
+            13.4,
+            12.7
         ],
         "MapPath": [
             [
