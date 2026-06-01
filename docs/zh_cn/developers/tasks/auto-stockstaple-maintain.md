@@ -187,7 +187,7 @@ Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 
 命中后：
 
-1. `[JumpBack]` 到 `{Item}RemoveFilter`，从 `AutoStockInStapleItemName.attach` 中 **排除** 该物品（`attach.{slug}: false`）。
+1. `[JumpBack]` 到 `{Item}RemoveFilter`，从 `AutoStockInStapleItemName.attach` 中 **排除** 该物品（`attach.{slug}: false`），并触发 `AutoStockStapleQuantityControlResetRecognitionParams` 重新生成白名单正则。
 2. 关闭购买弹窗（`AutoStockStapleQuantityControlCloseBuyWindow`）。
 
 这样后续列表扫描不会再反复点击买不起的商品。
