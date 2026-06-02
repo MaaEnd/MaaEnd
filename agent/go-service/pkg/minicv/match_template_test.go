@@ -141,6 +141,34 @@ func TestMatchTemplate(t *testing.T) {
 	}
 }
 
+func TestMatchTemplateMultiHitWithMask(t *testing.T) {
+	img := generateMatchTestImage(512, 384)
+	decorateTargetArea(img, 81, 68, 64, 48)
+	for row := range 48 {
+		srcOff := (68+row)*img.Stride + 81*4
+		dstOff := (244+row)*img.Stride + 321*4
+		copy(img.Pix[dstOff:dstOff+64*4], img.Pix[srcOff:srcOff+64*4])
+	}
+	imgIntArr := GetIntegralArray(img)
+	tpl := cropAsTemplate(img, 81, 68, 64, 48)
+
+	maskColor := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+	for y := 0; y < tpl.Rect.Dy(); y++ {
+		for x := tpl.Rect.Dx() / 2; x < tpl.Rect.Dx(); x++ {
+			tpl.SetRGBA(x, y, maskColor)
+		}
+	}
+	tplStats := GetImageStats(tpl)
+
+	hits := MatchTemplateMultiHitWithMask(img, imgIntArr, tpl, tplStats, 0x00FF00, 0.9999, 4)
+	if len(hits) != 2 {
+		t.Fatalf("unexpected hit count: got=%d, want=2", len(hits))
+	}
+
+	assertMatchNear(t, hits[0].X, hits[0].Y, 81, 68)
+	assertMatchNear(t, hits[1].X, hits[1].Y, 321, 244)
+}
+
 func TestMatchCircleTemplateNilInputs(t *testing.T) {
 	img := generateMatchTestImage(128, 128)
 	imgIntArr := GetIntegralArray(img)
