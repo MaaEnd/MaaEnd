@@ -266,16 +266,16 @@
         "recognition": "And",
         "all_of": [
             {
-        "recognition": "OCR",
-        "roi": [
-            420,
-            -100,
-            450,
-            100
-        ],
-        "expected": [
-            "FIELD",
-            "ENDFIELD"
+                "recognition": "OCR",
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "FIELD",
+                    "ENDFIELD"
                 ]
             },
             {
