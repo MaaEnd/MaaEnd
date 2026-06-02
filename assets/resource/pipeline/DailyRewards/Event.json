@@ -126,10 +126,7 @@
                     720
                 ],
                 "template": [
-                    "DailyRewards/EventRedDot.png",
-                    "DailyRewards/EventRedDot2.png",
-                    "DailyRewards/EventRedDot3.png",
-                    "DailyRewards/EventRedDot4.png"
+                    "DailyRewards/EventRedDot.png"
                 ],
                 "green_mask": true
             }
