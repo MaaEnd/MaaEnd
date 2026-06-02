@@ -47,6 +47,18 @@
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
+    "__ScenePrivateMapAnyEnterMapWulingTestArea": {
+        "desc": "在任意地图界面，进入武陵-试验园区地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingTestArea",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
@@ -79,6 +91,15 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess": {
+        "desc": "在地图界面，成功进入武陵-试验园区地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -197,6 +218,29 @@
             "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone"
         ]
     },
+    "__ScenePrivateMapOverviewEnterMapWulingTestArea": {
+        "desc": "在地图总览界面，进入武陵-试验园区地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea"
+        ]
+    },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "action": "Click",
@@ -247,6 +291,19 @@
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea": {
+        "desc": "在武陵总览界面，进入武陵-试验园区地图",
+        "action": "Click",
+        "target": [
+            755,
+            174,
+            99,
+            86
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
@@ -309,6 +366,26 @@
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
         ]
     },
+    "__ScenePrivateMapWulingTestAreaEnterWorldAnchor": {
+        "desc": "在武陵-试验园区地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
+        ]
+    },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchorWithPick": {
         "desc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
         "recognition": "And",
@@ -356,6 +433,20 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldAnchorWithPick": {
+        "desc": "在武陵-试验园区地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
         ],
         "pre_delay": 0,
         "post_delay": 0,
