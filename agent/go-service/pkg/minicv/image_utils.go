@@ -1,4 +1,3 @@
-// Copyright (c) 2026 Harry Huang
 package minicv
 
 import (
