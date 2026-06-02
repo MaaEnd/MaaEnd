@@ -1005,18 +1005,50 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWorldWulingMarkerStoneCore",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
         "MapName": "map02_lv004",
         "MapAssert": [
-            604.3,
-            422.8,
-            42.7,
-            39.4
+            602.8,
+            325,
+            9.7,
+            8.1
         ],
         "MapPath": [
             [
-                608.1,
-                434.8
+                617.3,
+                325.5
+            ],
+            [
+                633.8,
+                324.5
+            ],
+            [
+                637.5,
+                328.2
+            ],
+            [
+                641.4,
+                341.8
+            ],
+            [
+                646.2,
+                364.5
+            ],
+            [
+                647.5,
+                418.3
+            ],
+            [
+                602.5,
+                419.5
+            ],
+            [
+                602.3,
+                432.7
+            ],
+            [
+                590,
+                433.3
             ],
             [
                 565,
