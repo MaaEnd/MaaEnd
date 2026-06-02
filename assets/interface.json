@@ -185,6 +185,7 @@
         "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
+        "tasks/AchievementReport.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/CreditShopping.json",

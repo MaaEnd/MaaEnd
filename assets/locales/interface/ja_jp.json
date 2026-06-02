@@ -464,6 +464,8 @@
     "task.SimpleProductionBatch.error_not_found": "**簡易制作画面で制作するアイテムを選択してから、スクリプトを起動してください**",
     "task.AndroidOpenGame.label": "🎮 ゲーム起動（Android）",
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
+    "task.AchievementReport.label": "🏆 実績レポート",
+    "task.AchievementReport.description": "MaaEnd の実績進捗を確認し、未表示の実績解除通知を表示します。",
     "task.SeizeEntrustTask.label": "🌆受注依頼",
     "task.SeizeEntrustTaskCommissionSource.label": "依頼荷受場所",
     "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（11.9万）",

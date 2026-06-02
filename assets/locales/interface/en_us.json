@@ -659,6 +659,8 @@
     "task.SimpleProductionBatch.error_not_found": "**Please select the items to craft on the Simple Crafting page before starting the script**.",
     "task.AndroidOpenGame.label": "🎮 Launch Game (Android)",
     "task.AndroidOpenGame.description": "Launch the game on Android. Please open the emulator manually first.",
+    "task.AchievementReport.label": "🏆 Achievement Report",
+    "task.AchievementReport.description": "View MaaEnd achievement progress and show any pending achievement unlock notifications.",
     "task.SeizeEntrustTask.label": "🌆Accept Commission",
     "task.SeizeEntrustTaskCommissionSource.label": "Commission Destination",
     "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "Wuling City (119k)",

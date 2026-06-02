@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>MaaEnd 成就看板</title>
+        <style>
+            :root {
+                color-scheme: dark;
+                --bg: #101418;
+                --panel: #171e24;
+                --panel-strong: #202a32;
+                --text: #eef4f8;
+                --muted: #9fb0bc;
+                --line: #30404b;
+                --gold: #f2b84b;
+                --green: #55c884;
+                --blue: #69a8ff;
+                --red: #ff6d6d;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                background:
+                    radial-gradient(circle at top left, rgba(105, 168, 255, 0.16), transparent 32rem),
+                    linear-gradient(135deg, #101418 0%, #141a1f 54%, #111820 100%);
+                color: var(--text);
+                font-family:
+                    Inter,
+                    "Segoe UI",
+                    "Microsoft YaHei",
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    sans-serif;
+            }
+
+            main {
+                width: min(1120px, calc(100vw - 32px));
+                margin: 0 auto;
+                padding: 32px 0;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                gap: 24px;
+                align-items: flex-end;
+                margin-bottom: 24px;
+            }
+
+            h1 {
+                margin: 0;
+                font-size: 34px;
+                font-weight: 800;
+                letter-spacing: 0;
+            }
+
+            .subtitle {
+                margin: 8px 0 0;
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+            .summary {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .metric,
+            .panel,
+            .achievement {
+                border: 1px solid var(--line);
+                background: rgba(23, 30, 36, 0.9);
+                border-radius: 8px;
+            }
+
+            .metric {
+                padding: 16px;
+            }
+
+            .metric-label {
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .metric-value {
+                margin-top: 6px;
+                font-size: 30px;
+                font-weight: 800;
+            }
+
+            .progress {
+                height: 10px;
+                overflow: hidden;
+                border-radius: 999px;
+                background: #0c1115;
+                border: 1px solid #24313a;
+                margin-top: 12px;
+            }
+
+            .progress-fill {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, var(--gold), var(--green));
+                transition: width 180ms ease;
+            }
+
+            .layout {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 320px;
+                gap: 16px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .panel h2 {
+                margin: 0 0 14px;
+                font-size: 18px;
+                letter-spacing: 0;
+            }
+
+            .achievement-list {
+                display: grid;
+                gap: 10px;
+            }
+
+            .achievement {
+                display: grid;
+                grid-template-columns: 38px minmax(0, 1fr) auto;
+                gap: 12px;
+                align-items: center;
+                padding: 14px;
+            }
+
+            .badge {
+                display: grid;
+                place-items: center;
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                background: var(--panel-strong);
+                font-size: 20px;
+            }
+
+            .achievement.done .badge {
+                background: rgba(85, 200, 132, 0.18);
+                color: var(--green);
+            }
+
+            .achievement-title {
+                font-weight: 700;
+                overflow-wrap: anywhere;
+            }
+
+            .achievement-meta {
+                margin-top: 4px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .status {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--blue);
+                white-space: nowrap;
+            }
+
+            .achievement.done .status {
+                color: var(--green);
+            }
+
+            .recent {
+                display: grid;
+                gap: 10px;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+
+            .recent li {
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(48, 64, 75, 0.8);
+            }
+
+            .recent li:last-child {
+                border-bottom: 0;
+            }
+
+            .recent-title {
+                font-weight: 700;
+            }
+
+            .recent-time,
+            .state {
+                color: var(--muted);
+                font-size: 13px;
+                margin-top: 4px;
+            }
+
+            .state.error {
+                color: var(--red);
+            }
+
+            @media (max-width: 760px) {
+                main {
+                    width: min(calc(100vw - 20px), 1120px);
+                    padding: 20px 0;
+                }
+
+                header,
+                .layout {
+                    display: block;
+                }
+
+                h1 {
+                    font-size: 28px;
+                }
+
+                .summary {
+                    grid-template-columns: 1fr;
+                }
+
+                .panel {
+                    margin-top: 12px;
+                }
+
+                .achievement {
+                    grid-template-columns: 34px minmax(0, 1fr);
+                }
+
+                .status {
+                    grid-column: 2;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <header>
+                <div>
+                    <h1><span aria-hidden="true">🏆</span> MaaEnd 成就看板</h1>
+                    <p class="subtitle" id="source">正在读取成就记录...</p>
+                </div>
+                <p class="state" id="updated"></p>
+            </header>
+
+            <section class="summary" aria-label="成就摘要">
+                <div class="metric">
+                    <div class="metric-label">完成进度</div>
+                    <div class="metric-value" id="completion">0/0</div>
+                    <div class="progress" aria-hidden="true">
+                        <div class="progress-fill" id="completionBar"></div>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">累计事件</div>
+                    <div class="metric-value" id="events">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">待通知</div>
+                    <div class="metric-value" id="pending">0</div>
+                </div>
+            </section>
+
+            <section class="layout">
+                <section class="panel">
+                    <h2>成就列表</h2>
+                    <div class="achievement-list" id="achievements"></div>
+                </section>
+                <aside class="panel">
+                    <h2>最近解锁</h2>
+                    <ul class="recent" id="recent"></ul>
+                </aside>
+            </section>
+        </main>
+
+        <script>
+            const candidatePaths = [
+                "../debug/record/Achievements.json",
+                "./debug/record/Achievements.json",
+                "../../debug/record/Achievements.json",
+            ];
+
+            const sourceEl = document.getElementById("source");
+            const updatedEl = document.getElementById("updated");
+            const completionEl = document.getElementById("completion");
+            const completionBarEl = document.getElementById("completionBar");
+            const eventsEl = document.getElementById("events");
+            const pendingEl = document.getElementById("pending");
+            const achievementsEl = document.getElementById("achievements");
+            const recentEl = document.getElementById("recent");
+
+            function asArray(value) {
+                return Array.isArray(value) ? value : [];
+            }
+
+            function formatTime(value) {
+                if (!value) {
+                    return "";
+                }
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) {
+                    return value;
+                }
+                return date.toLocaleString();
+            }
+
+            function escapeHTML(value) {
+                return String(value).replace(/[&<>"']/g, (char) => {
+                    switch (char) {
+                        case "&":
+                            return "&amp;";
+                        case "<":
+                            return "&lt;";
+                        case ">":
+                            return "&gt;";
+                        case '"':
+                            return "&quot;";
+                        case "'":
+                            return "&#39;";
+                        default:
+                            return char;
+                    }
+                });
+            }
+
+            async function loadStorage() {
+                const errors = [];
+                for (const path of candidatePaths) {
+                    try {
+                        const response = await fetch(path, {cache: "no-store"});
+                        if (!response.ok) {
+                            errors.push(`${path}: HTTP ${response.status}`);
+                            continue;
+                        }
+                        return {
+                            path,
+                            storage: await response.json(),
+                        };
+                    } catch (error) {
+                        errors.push(`${path}: ${errorMessage(error)}`);
+                    }
+                }
+                throw new Error(errors.join("; "));
+            }
+
+            function errorMessage(error) {
+                return error instanceof Error ? error.message : String(error);
+            }
+
+            function renderEmpty(message, isError = false) {
+                sourceEl.textContent = "未读取到 debug/record/Achievements.json";
+                updatedEl.textContent = "";
+                completionEl.textContent = "0/0";
+                completionBarEl.style.width = "0%";
+                eventsEl.textContent = "0";
+                pendingEl.textContent = "0";
+                achievementsEl.innerHTML = `<p class="state ${isError ? "error" : ""}">${escapeHTML(message)}</p>`;
+                recentEl.innerHTML = `<li><div class="state">暂无最近解锁记录</div></li>`;
+            }
+
+            function render({path, storage}) {
+                const achievements = Object.values(storage.achievements || {}).sort((a, b) => {
+                    const aDone = Boolean(a.unlocked_at);
+                    const bDone = Boolean(b.unlocked_at);
+                    if (aDone !== bDone) {
+                        return aDone ? -1 : 1;
+                    }
+                    return String(a.title || a.id).localeCompare(String(b.title || b.id), "zh-Hans-CN");
+                });
+                const total = achievements.length;
+                const unlocked = achievements.filter((item) => item.unlocked_at).length;
+                const percent = total === 0 ? 0 : Math.round((unlocked / total) * 100);
+                const recent = asArray(storage.recent_unlocks).slice(-8).reverse();
+                const pending = asArray(storage.pending_notifications);
+                const events = asArray(storage.events);
+
+                sourceEl.textContent = `数据源：${path}`;
+                updatedEl.textContent = storage.updated_at ? `更新于 ${formatTime(storage.updated_at)}` : "";
+                completionEl.textContent = `${unlocked}/${total}`;
+                completionBarEl.style.width = `${percent}%`;
+                eventsEl.textContent = String(events.length);
+                pendingEl.textContent = String(pending.length);
+
+                if (achievements.length === 0) {
+                    achievementsEl.innerHTML = `<p class="state">还没有成就进度。运行带成就触发的任务后会显示在这里。</p>`;
+                } else {
+                    achievementsEl.innerHTML = achievements
+                        .map((item) => {
+                            const progress = Number(item.progress || 0);
+                            const target = Number(item.target || 0);
+                            const done = Boolean(item.unlocked_at);
+                            const title = item.title || item.id || "未命名成就";
+                            const meta = done ? `解锁于 ${formatTime(item.unlocked_at)}` : `进度 ${progress}/${target}`;
+                            const status = done ? "已完成" : `${progress}/${target}`;
+                            return `
+                                <article class="achievement ${done ? "done" : ""}">
+                                    <div class="badge" aria-hidden="true">${done ? "✓" : "↻"}</div>
+                                    <div>
+                                        <div class="achievement-title">${escapeHTML(title)}</div>
+                                        <div class="achievement-meta">${escapeHTML(meta)}</div>
+                                    </div>
+                                    <div class="status">${escapeHTML(status)}</div>
+                                </article>
+                            `;
+                        })
+                        .join("");
+                }
+
+                if (recent.length === 0) {
+                    recentEl.innerHTML = `<li><div class="state">暂无最近解锁记录</div></li>`;
+                } else {
+                    recentEl.innerHTML = recent
+                        .map(
+                            (item) => `
+                                <li>
+                                    <div class="recent-title">${escapeHTML(item.title || item.id || "未命名成就")}</div>
+                                    <div class="recent-time">${escapeHTML(formatTime(item.unlocked_at))}</div>
+                                </li>
+                            `,
+                        )
+                        .join("");
+                }
+            }
+
+            loadStorage()
+                .then(render)
+                .catch((error) => {
+                    renderEmpty(`无法读取成就记录：${errorMessage(error)}`, true);
+                });
+        </script>
+    </body>
+</html>

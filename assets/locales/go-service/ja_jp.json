@@ -1,4 +1,8 @@
 {
+    "achievement.unlocked": "実績解除：%s\nMaaEnd を初めて起動しました。自動化の旅が始まります。",
+    "achievement.report.summary": "実績進捗：%d/%d",
+    "achievement.report.no_unlocks": "最近解除された実績はありません。",
+    "achievement.report.recent": "最近解除：",
     "visitfriends.friend_missing": "フレンドに %s がありません",
     "visitfriends.clue_exchange": "手がかり交換",
     "visitfriends.control_nexus_assist": "制御中枢支援",

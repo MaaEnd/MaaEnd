@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/achievement"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
@@ -82,6 +83,7 @@ func registerAll() {
 	creditshopping.Register()
 	webevent202605.Register()
 	pullcount.Register()
+	achievement.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

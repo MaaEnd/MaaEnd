@@ -1,4 +1,8 @@
 {
+    "achievement.unlocked": "成就解锁：%s\n首次启动 MaaEnd，自动化之旅开始了。",
+    "achievement.report.summary": "成就进度：%d/%d",
+    "achievement.report.no_unlocks": "最近还没有解锁成就。",
+    "achievement.report.recent": "最近解锁：",
     "visitfriends.friend_missing": "该好友缺少 %s",
     "visitfriends.clue_exchange": "线索交换",
     "visitfriends.control_nexus_assist": "总控中枢助力",
