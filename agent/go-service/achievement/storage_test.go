@@ -13,7 +13,9 @@ import (
 
 func init() {
 	i18n.Init()
-	defaultRules = []rule{
+	rulesMu.Lock()
+	defer rulesMu.Unlock()
+	rules = []rule{
 		{
 			ID:     firstOpenMXUAchievementID,
 			Title:  "小试牛刀",
@@ -26,11 +28,15 @@ func init() {
 func setRulesForTest(t *testing.T, testRules []rule) {
 	t.Helper()
 
-	oldRules := defaultRules
-	defaultRules = append([]rule(nil), testRules...)
+	rulesMu.Lock()
+	oldRules := rules
+	rules = append([]rule(nil), testRules...)
+	rulesMu.Unlock()
 
 	t.Cleanup(func() {
-		defaultRules = oldRules
+		rulesMu.Lock()
+		defer rulesMu.Unlock()
+		rules = oldRules
 	})
 }
 

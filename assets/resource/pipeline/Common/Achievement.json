@@ -18,10 +18,22 @@
         "timeout": 1,
         "rate_limit": 0,
         "next": [
-            "AchievementConsumePending"
+            "AchievementNotify"
         ],
         "on_error": [
             "AchievementNotifyDone"
+        ]
+    },
+    "AchievementNotify": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MXU_NOTIFY_ACTION",
+        "custom_action_param": {
+            "title": "🏆 成就解锁",
+            "body": "新成就已解锁，前往成就报告查看"
+        },
+        "next": [
+            "AchievementConsumePending"
         ]
     },
     "AchievementConsumePending": {

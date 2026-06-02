@@ -75,6 +75,7 @@
                 "VisitFriendsMenuClueExchangeFullAction",
                 "VisitFriendsMenuScanTargetFriendOpenAction",
                 "WebEvent202605Action",
+                "MXU_NOTIFY_ACTION",
                 "AchievementTrackerAction",
                 "AchievementConsumePendingAction",
                 "AchievementReportAction",

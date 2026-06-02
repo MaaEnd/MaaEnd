@@ -1,0 +1,11 @@
+{
+    "achievements": [
+        {
+            "id": "first_open_mxu",
+            "title": "小试牛刀",
+            "event": "mxu_open",
+            "target": 1,
+            "icon": "🎯"
+        }
+    ]
+}

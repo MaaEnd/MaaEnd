@@ -248,7 +248,7 @@
         <main>
             <header>
                 <div>
-                    <h1><span aria-hidden="true">🏆</span> MaaEnd 成就看板</h1>
+                    <h1>🏆 MaaEnd 成就看板</h1>
                     <p class="subtitle" id="source">正在读取成就记录...</p>
                 </div>
                 <p class="state" id="updated"></p>
@@ -348,14 +348,10 @@
                             storage: await response.json(),
                         };
                     } catch (error) {
-                        errors.push(`${path}: ${errorMessage(error)}`);
+                        errors.push(`${path}: ${error.message}`);
                     }
                 }
                 throw new Error(errors.join("; "));
-            }
-
-            function errorMessage(error) {
-                return error instanceof Error ? error.message : String(error);
             }
 
             function renderEmpty(message, isError = false) {
@@ -405,7 +401,7 @@
                             const status = done ? "已完成" : `${progress}/${target}`;
                             return `
                                 <article class="achievement ${done ? "done" : ""}">
-                                    <div class="badge" aria-hidden="true">${done ? "✓" : "↻"}</div>
+                                    <div class="badge">${done ? "✓" : "↻"}</div>
                                     <div>
                                         <div class="achievement-title">${escapeHTML(title)}</div>
                                         <div class="achievement-meta">${escapeHTML(meta)}</div>
@@ -436,7 +432,7 @@
             loadStorage()
                 .then(render)
                 .catch((error) => {
-                    renderEmpty(`无法读取成就记录：${errorMessage(error)}`, true);
+                    renderEmpty(`无法读取成就记录：${error.message}`, true);
                 });
         </script>
     </body>
