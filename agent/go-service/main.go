@@ -78,8 +78,8 @@ func main() {
 		Msg("Starting agent server")
 
 	// Initialize MAA framework first (required before any other MAA calls)
-	// MAA DLL 位于工作目录下的 maafw/bin 子目录
-	libDir := filepath.Join(getCwd(), "maafw", "bin")
+	// MAA DLL 位于工作目录下的 maafw 子目录
+	libDir := filepath.Join(getCwd(), "maafw")
 	log.Info().
 		Str("libDir", libDir).
 		Msg("Initializing MAA framework")
