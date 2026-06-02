@@ -43,64 +43,6 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 	return (float64(dot) - count*imgStats.Mean*tplStats.Mean) / stdProd
 }
 
-// ComputeNCCInCircle computes masked normalized cross-correlation at the given top-left corner using circle spans.
-// See [ComputeNCC] for the unmasked version.
-func ComputeNCCInCircle(
-	img *image.RGBA,
-	imgIntArr IntegralArray,
-	tpl *image.RGBA,
-	tplCircleStats StatsResult,
-	spans []circleSpan,
-	pixelCount int,
-	ox, oy int,
-) float64 {
-	if pixelCount <= 0 || tplCircleStats.Std < 1e-12 {
-		return 0.0
-	}
-
-	iw, ih := img.Rect.Dx(), img.Rect.Dy()
-	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
-	if ox < 0 || oy < 0 || ox+tw > iw || oy+th > ih {
-		return 0.0
-	}
-
-	ipx, is := img.Pix, img.Stride
-	tpx, ts := tpl.Pix, tpl.Stride
-
-	var dot uint64
-	var sumI float64
-	var sumI2 float64
-
-	for _, sp := range spans {
-		ty := sp.Y
-		x0 := sp.X0
-		x1 := sp.X1
-		width := x1 - x0 + 1
-
-		rowSum, rowSumSq := imgIntArr.GetRowRangeIntegral(oy+ty, ox+x0, width)
-		sumI += rowSum
-		sumI2 += rowSumSq
-
-		iOff := (oy+ty)*is + (ox+x0)*4
-		tOff := ty*ts + x0*4
-		dot += dotRGBA3(&ipx[iOff], &tpx[tOff], width)
-	}
-
-	count := float64(pixelCount * 3)
-	imgMean := sumI / count
-	imgVar := sumI2 - count*imgMean*imgMean
-	if imgVar < 1e-12 {
-		return 0.0
-	}
-	imgStd := math.Sqrt(imgVar)
-	stdProd := imgStd * tplCircleStats.Std
-	if stdProd < 1e-12 {
-		return 0.0
-	}
-
-	return (float64(dot) - count*imgMean*tplCircleStats.Mean) / stdProd
-}
-
 type maskSpan struct {
 	Y  int
 	X0 int

@@ -141,6 +141,31 @@ func TestMatchTemplate(t *testing.T) {
 	}
 }
 
+func maskTemplateRightHalf(tpl *image.RGBA) {
+	maskColor := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+	for y := 0; y < tpl.Rect.Dy(); y++ {
+		for x := tpl.Rect.Dx() / 2; x < tpl.Rect.Dx(); x++ {
+			tpl.SetRGBA(x, y, maskColor)
+		}
+	}
+}
+
+func TestMatchTemplateWithMask(t *testing.T) {
+	img := generateMatchTestImage(512, 384)
+	decorateTargetArea(img, 81, 68, 64, 48)
+	imgIntArr := GetIntegralArray(img)
+	tpl := cropAsTemplate(img, 81, 68, 64, 48)
+	maskTemplateRightHalf(tpl)
+	tplStats := GetImageStats(tpl)
+
+	x, y, score := MatchTemplateWithMask(img, imgIntArr, tpl, tplStats, 0x00FF00)
+
+	assertMatchNear(t, x, y, 81, 68)
+	if score < 0.9999 {
+		t.Fatalf("unexpected match score: got=%.6f, want>=0.9999", score)
+	}
+}
+
 func TestMatchTemplateMultiHitWithMask(t *testing.T) {
 	img := generateMatchTestImage(512, 384)
 	decorateTargetArea(img, 81, 68, 64, 48)
@@ -151,13 +176,7 @@ func TestMatchTemplateMultiHitWithMask(t *testing.T) {
 	}
 	imgIntArr := GetIntegralArray(img)
 	tpl := cropAsTemplate(img, 81, 68, 64, 48)
-
-	maskColor := color.RGBA{R: 0, G: 255, B: 0, A: 255}
-	for y := 0; y < tpl.Rect.Dy(); y++ {
-		for x := tpl.Rect.Dx() / 2; x < tpl.Rect.Dx(); x++ {
-			tpl.SetRGBA(x, y, maskColor)
-		}
-	}
+	maskTemplateRightHalf(tpl)
 	tplStats := GetImageStats(tpl)
 
 	hits := MatchTemplateMultiHitWithMask(img, imgIntArr, tpl, tplStats, 0x00FF00, 0.9999, 4)
@@ -246,6 +265,23 @@ func TestMatchCircleTemplate(t *testing.T) {
 	}
 }
 
+func TestMatchCircleTemplateWithMask(t *testing.T) {
+	img := generateMatchTestImage(512, 384)
+	decorateTargetArea(img, 155, 113, 96, 96)
+	imgIntArr := GetIntegralArray(img)
+	tpl := cropAsTemplate(img, 155, 113, 96, 96)
+	maskTemplateRightHalf(tpl)
+	polar := Circle{X: 48, Y: 48, Radius: 32}
+	tplCircleStats := GetImageCircleStats(tpl, polar)
+
+	x, y, score := MatchCircleTemplateWithMask(img, imgIntArr, tpl, tplCircleStats, polar, 0x00FF00)
+
+	assertMatchNear(t, x, y, 155, 113)
+	if score < 0.9999 {
+		t.Fatalf("unexpected circle mask match score: got=%.6f, want>=0.9999", score)
+	}
+}
+
 func BenchmarkMatchTemplate(b *testing.B) {
 	img := generateBenchmarkImage(1280, 720)
 	imgIntArr := GetIntegralArray(img)
@@ -271,6 +307,37 @@ func BenchmarkMatchTemplate(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				_, _, _ = MatchTemplate(img, imgIntArr, tpl, tplStats)
+			}
+		})
+	}
+}
+
+func BenchmarkMatchTemplateWithMask(b *testing.B) {
+	img := generateBenchmarkImage(1280, 720)
+	imgIntArr := GetIntegralArray(img)
+
+	benchmarks := []struct {
+		name string
+		tplW int
+		tplH int
+		tplX int
+		tplY int
+	}{
+		{name: "tpl_32x32", tplW: 32, tplH: 32, tplX: 160, tplY: 120},
+		{name: "tpl_64x64", tplW: 64, tplH: 64, tplX: 480, tplY: 240},
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			tpl := cropAsTemplate(img, bm.tplX, bm.tplY, bm.tplW, bm.tplH)
+			maskTemplateRightHalf(tpl)
+			tplStats := GetImageStats(tpl)
+
+			b.ReportAllocs()
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				_, _, _ = MatchTemplateWithMask(img, imgIntArr, tpl, tplStats, 0x00FF00)
 			}
 		})
 	}
@@ -318,6 +385,54 @@ func BenchmarkMatchCircleTemplate(b *testing.B) {
 
 			for i := 0; i < b.N; i++ {
 				_, _, _ = MatchCircleTemplate(img, imgIntArr, tpl, tplCircleStats, polar)
+			}
+		})
+	}
+}
+
+func BenchmarkMatchCircleTemplateWithMask(b *testing.B) {
+	img := generateBenchmarkImage(1280, 720)
+	imgIntArr := GetIntegralArray(img)
+
+	benchmarks := []struct {
+		name        string
+		tplW        int
+		tplH        int
+		tplX        int
+		tplY        int
+		polarRadius int
+	}{
+		{
+			name:        "r23",
+			tplW:        128,
+			tplH:        128,
+			tplX:        420,
+			tplY:        260,
+			polarRadius: 23,
+		},
+		{
+			name:        "r45",
+			tplW:        128,
+			tplH:        128,
+			tplX:        420,
+			tplY:        260,
+			polarRadius: 45,
+		},
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			tpl := cropAsTemplate(img, bm.tplX, bm.tplY, bm.tplW, bm.tplH)
+			maskTemplateRightHalf(tpl)
+
+			polar := Circle{X: bm.tplW / 2, Y: bm.tplH / 2, Radius: bm.polarRadius}
+			tplCircleStats := GetImageCircleStats(tpl, polar)
+
+			b.ReportAllocs()
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				_, _, _ = MatchCircleTemplateWithMask(img, imgIntArr, tpl, tplCircleStats, polar, 0x00FF00)
 			}
 		})
 	}

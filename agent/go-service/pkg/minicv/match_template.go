@@ -148,6 +148,22 @@ func MatchTemplate(
 	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, [4]int{0, 0, iw, ih})
 }
 
+// MatchTemplateWithMask performs template matching on the whole image while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
+func MatchTemplateWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	return MatchTemplateInAreaWithMask(img, imgIntArr, tpl, tplStats, maskColorRGB888, [4]int{0, 0, iw, ih})
+}
+
 // MatchCircleTemplate matches a circular region inside the template on the whole image.
 // Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
 func MatchCircleTemplate(
@@ -162,6 +178,23 @@ func MatchCircleTemplate(
 	}
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	return MatchCircleTemplateInArea(img, imgIntArr, tpl, tplCircleStats, tplCirclePolar, [4]int{0, 0, iw, ih})
+}
+
+// MatchCircleTemplateWithMask matches a circular region inside the template while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+func MatchCircleTemplateWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplCircleStats StatsResult,
+	tplCirclePolar Circle,
+	maskColorRGB888 int32,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	return MatchCircleTemplateInAreaWithMask(img, imgIntArr, tpl, tplCircleStats, tplCirclePolar, maskColorRGB888, [4]int{0, 0, iw, ih})
 }
 
 // MatchTemplateInArea performs template matching such that the center of the template
@@ -250,16 +283,14 @@ func MatchTemplateInArea(
 	return subX, subY, fm
 }
 
-// MatchCircleTemplateInArea matches a circular region inside the template in a rectangular search area.
-// tplCirclePolar is the template-space circle and rect is the image-space area (x, y, w, h)
-// where the template center is constrained to remain.
-// Returns (x, y, val) where (x, y) is top-left with subpixel accuracy.
-func MatchCircleTemplateInArea(
+// MatchTemplateInAreaWithMask performs template matching in a rectangular search area while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+func MatchTemplateInAreaWithMask(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
-	tplCircleStats StatsResult,
-	tplCirclePolar Circle,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
 	rect [4]int,
 ) (x, y, val float64) {
 	if img == nil || tpl == nil {
@@ -272,11 +303,14 @@ func MatchCircleTemplateInArea(
 		return 0, 0, 0
 	}
 
-	spans, pixelCount := buildCircleSpans(tw, th, tplCirclePolar)
+	spans, pixelCount, tplMaskStats := buildMaskSpans(tpl, maskColorRGB888)
 	if pixelCount == 0 {
 		return 0, 0, 0
 	}
-	if tplCircleStats.Std < 1e-12 {
+	if pixelCount == tw*th {
+		tplMaskStats = tplStats
+	}
+	if tplMaskStats.Std < 1e-12 {
 		return 0, 0, 0
 	}
 
@@ -301,7 +335,7 @@ func MatchCircleTemplateInArea(
 		lx, ly, lm := minX, minY, -1.0
 		for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
 			for x := minX; x <= maxX; x += stepLen {
-				s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+				s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
 				if s > lm {
 					lm, lx, ly = s, x, y
 				}
@@ -323,7 +357,7 @@ func MatchCircleTemplateInArea(
 	fm, fx, fy := bc.s, bc.x, bc.y
 	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
 		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
-			s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+			s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
@@ -334,7 +368,7 @@ func MatchCircleTemplateInArea(
 		if tx < minX || tx > maxX || ty < minY || ty > maxY {
 			return fallback
 		}
-		return ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, tx, ty)
+		return ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, tx, ty)
 	}
 
 	upNCC := evalOr(fx, fy-1, fm)
@@ -346,6 +380,79 @@ func MatchCircleTemplateInArea(
 	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
 
 	return subX, subY, fm
+}
+
+// MatchCircleTemplateInArea matches a circular region inside the template in a rectangular search area.
+// tplCirclePolar is the template-space circle and rect is the image-space area (x, y, w, h)
+// where the template center is constrained to remain.
+// Returns (x, y, val) where (x, y) is top-left with subpixel accuracy.
+func MatchCircleTemplateInArea(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplCircleStats StatsResult,
+	tplCirclePolar Circle,
+	rect [4]int,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	_ = tplCircleStats
+	maskColorRGB888 := int32(0x00FF00)
+	circleTpl := buildCircleMaskTemplate(tpl, tplCirclePolar, maskColorRGB888)
+	circleTplStats := GetImageStats(circleTpl)
+	return MatchTemplateInAreaWithMask(img, imgIntArr, circleTpl, circleTplStats, maskColorRGB888, rect)
+}
+
+func buildCircleMaskTemplate(tpl *image.RGBA, circle Circle, maskColorRGB888 int32) *image.RGBA {
+	w, h := tpl.Rect.Dx(), tpl.Rect.Dy()
+	circleTpl := image.NewRGBA(image.Rect(0, 0, w, h))
+
+	maskR := uint8((uint32(maskColorRGB888) >> 16) & 0xFF)
+	maskG := uint8((uint32(maskColorRGB888) >> 8) & 0xFF)
+	maskB := uint8(uint32(maskColorRGB888) & 0xFF)
+	r2 := circle.Radius * circle.Radius
+
+	for y := range h {
+		srcOff := y * tpl.Stride
+		dstOff := y * circleTpl.Stride
+		for x := range w {
+			dx := x - circle.X
+			dy := y - circle.Y
+			if circle.Radius >= 0 && dx*dx+dy*dy <= r2 {
+				copy(circleTpl.Pix[dstOff:dstOff+4], tpl.Pix[srcOff:srcOff+4])
+			} else {
+				circleTpl.Pix[dstOff] = maskR
+				circleTpl.Pix[dstOff+1] = maskG
+				circleTpl.Pix[dstOff+2] = maskB
+				circleTpl.Pix[dstOff+3] = 255
+			}
+			srcOff += 4
+			dstOff += 4
+		}
+	}
+
+	return circleTpl
+}
+
+// MatchCircleTemplateInAreaWithMask matches a circular region inside the template in a rectangular search area while ignoring template pixels of the mask color.
+// Returns (x, y, val) where (x, y) is top-left with subpixel accuracy.
+func MatchCircleTemplateInAreaWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplCircleStats StatsResult,
+	tplCirclePolar Circle,
+	maskColorRGB888 int32,
+	rect [4]int,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	_ = tplCircleStats
+	circleTpl := buildCircleMaskTemplate(tpl, tplCirclePolar, maskColorRGB888)
+	circleTplStats := GetImageStats(circleTpl)
+	return MatchTemplateInAreaWithMask(img, imgIntArr, circleTpl, circleTplStats, maskColorRGB888, rect)
 }
 
 // MatchTemplateAnyScale performs iterative template matching over a scale range.
