@@ -285,11 +285,8 @@
         </main>
 
         <script>
-            const candidatePaths = [
-                "../debug/record/Achievements.json",
-                "./debug/record/Achievements.json",
-                "../../debug/record/Achievements.json",
-            ];
+            const storageFileName = "Achievements.json";
+            const defaultStorageBase = "../debug/record/";
 
             const sourceEl = document.getElementById("source");
             const updatedEl = document.getElementById("updated");
@@ -299,6 +296,16 @@
             const pendingEl = document.getElementById("pending");
             const achievementsEl = document.getElementById("achievements");
             const recentEl = document.getElementById("recent");
+
+            function configuredStorageBase() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get("storageBase") || window.MAAEND_ACHIEVEMENT_STORAGE_BASE || defaultStorageBase;
+            }
+
+            function buildStorageURL() {
+                const base = configuredStorageBase();
+                return new URL(storageFileName, new URL(base, window.location.href)).toString();
+            }
 
             function asArray(value) {
                 return Array.isArray(value) ? value : [];
@@ -335,23 +342,19 @@
             }
 
             async function loadStorage() {
-                const errors = [];
-                for (const path of candidatePaths) {
-                    try {
-                        const response = await fetch(path, {cache: "no-store"});
-                        if (!response.ok) {
-                            errors.push(`${path}: HTTP ${response.status}`);
-                            continue;
-                        }
-                        return {
-                            path,
-                            storage: await response.json(),
-                        };
-                    } catch (error) {
-                        errors.push(`${path}: ${error.message}`);
+                const url = buildStorageURL();
+                try {
+                    const response = await fetch(url, {cache: "no-store"});
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
                     }
+                    return {
+                        path: url,
+                        storage: await response.json(),
+                    };
+                } catch (error) {
+                    throw new Error(`${url}: ${error.message}`);
                 }
-                throw new Error(errors.join("; "));
             }
 
             function renderEmpty(message, isError = false) {

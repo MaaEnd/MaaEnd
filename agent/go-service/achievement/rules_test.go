@@ -8,14 +8,13 @@ import (
 )
 
 func TestReadRulesLoadsAssetsFile(t *testing.T) {
-	t.Chdir("..")
-
-	rules, err := readRules(rulesFilePath)
+	path := findTestResource(t, rulesFilePath)
+	rules, err := readRules(path)
 	if err != nil {
-		t.Fatalf("readRules(%q) error = %v, want nil", rulesFilePath, err)
+		t.Fatalf("readRules(%q) error = %v, want nil", path, err)
 	}
 	if len(rules) == 0 {
-		t.Fatalf("readRules(%q) returned no rules", rulesFilePath)
+		t.Fatalf("readRules(%q) returned no rules", path)
 	}
 
 	foundStarter := false
@@ -130,4 +129,25 @@ func writeInvalidRulesFile(t *testing.T) string {
 		t.Fatalf("os.WriteFile(%q) error = %v", invalidPath, err)
 	}
 	return invalidPath
+}
+
+func findTestResource(t *testing.T, relativePath string) string {
+	t.Helper()
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("os.Getwd() error = %v", err)
+	}
+	for dir := wd; ; dir = filepath.Dir(dir) {
+		path := filepath.Join(dir, "assets", filepath.FromSlash(relativePath))
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+	}
+	t.Fatalf("test resource %q not found from %q", relativePath, wd)
+	return ""
 }
