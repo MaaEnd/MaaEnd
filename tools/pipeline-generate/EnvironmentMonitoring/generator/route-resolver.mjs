@@ -93,9 +93,18 @@ function normalizeHeading(headingRaw, mission, missionName, warn) {
     };
 }
 
-function buildNavigationParams({MapName, MapAssert, MapPath, MapTarget, NoEnsureInitialMovementState, hasMapTarget}) {
+function buildNavigationParams({
+    MapName,
+    MapAssert,
+    MapPath,
+    MapTarget,
+    NoEnsureInitialMovementState,
+    hasMapTarget,
+    heading,
+}) {
     const MapNavigationAction = hasMapTarget ? "MapNavigateAction" : "MapTrackerMove";
     const MapAssertRecognition = hasMapTarget ? "MapLocateAssertLocation" : "MapTrackerAssertLocation";
+    const navigationHeading = hasMapTarget && heading.HasHeading;
     const MapAssertParam =
         MapAssertRecognition === "MapLocateAssertLocation"
             ? {
@@ -122,6 +131,14 @@ function buildNavigationParams({MapName, MapAssert, MapPath, MapTarget, NoEnsure
                           action: "NAVMESH",
                           target: MapTarget,
                       },
+                      ...(navigationHeading
+                          ? [
+                                {
+                                    action: "HEADING",
+                                    angle: heading.Heading,
+                                },
+                            ]
+                          : []),
                   ],
               }
             : {
@@ -135,6 +152,7 @@ function buildNavigationParams({MapName, MapAssert, MapPath, MapTarget, NoEnsure
         MapAssertParam,
         MapNavigationAction,
         MapNavigationParam,
+        HasNavigationHeading: navigationHeading,
     };
 }
 
@@ -209,6 +227,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                     MapTarget,
                     NoEnsureInitialMovementState,
                     hasMapTarget: hasMapTarget && !hasMapPath,
+                    heading,
                 }),
             };
         },

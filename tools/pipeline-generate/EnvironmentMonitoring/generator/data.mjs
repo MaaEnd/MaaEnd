@@ -89,33 +89,34 @@ function buildRow(mission, usedIds) {
     ];
     const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
-    // 朝向节点：配置了 Heading 时调用 MapNavigateAction 的 HEADING 旋转角色，
-    // 否则退化为透传节点（仅承担 next 桥接）。模板里以 "${AdjustHeadingNodeBody}" 整体注入。
-    const AdjustHeadingNodeBody = route.HasHeading
-        ? {
-              desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
-              pre_delay: 0,
-              action: "Custom",
-              custom_action: "MapNavigateAction",
-              custom_action_param: {
-                  path: [
-                      {
-                          action: "HEADING",
-                          angle: route.Heading,
-                      },
-                  ],
-              },
-              post_delay: 0,
-              rate_limit: 0,
-              next: ["EnvironmentMonitoringTakePhoto"],
-          }
-        : {
-              desc: `${sanitizeDisplayName(missionName)}任务无需调整角色朝向`,
-              pre_delay: 0,
-              post_delay: 0,
-              rate_limit: 0,
-              next: ["EnvironmentMonitoringTakePhoto"],
-          };
+    // 朝向节点：MapTarget 的 Heading 已合并到同一个 MapNavigateAction path；
+    // MapPath 仍需在移动后单独调用 HEADING，未配置 Heading 时退化为透传节点。
+    const AdjustHeadingNodeBody =
+        route.HasHeading && !route.HasNavigationHeading
+            ? {
+                  desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
+                  pre_delay: 0,
+                  action: "Custom",
+                  custom_action: "MapNavigateAction",
+                  custom_action_param: {
+                      path: [
+                          {
+                              action: "HEADING",
+                              angle: route.Heading,
+                          },
+                      ],
+                  },
+                  post_delay: 0,
+                  rate_limit: 0,
+                  next: ["EnvironmentMonitoringTakePhoto"],
+              }
+            : {
+                  desc: `${sanitizeDisplayName(missionName)}任务无需调整角色朝向`,
+                  pre_delay: 0,
+                  post_delay: 0,
+                  rate_limit: 0,
+                  next: ["EnvironmentMonitoringTakePhoto"],
+              };
 
     return {
         Station,
