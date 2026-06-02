@@ -1,0 +1,14 @@
+{
+    "task": [
+        {
+            "name": "AchievementReport",
+            "label": "$task.AchievementReport.label",
+            "entry": "AchievementNotifyPending",
+            "description": "$task.AchievementReport.description",
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {}
+}

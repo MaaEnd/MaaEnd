@@ -1,0 +1,82 @@
+{
+    "AchievementTracker": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AchievementTrackerAction",
+        "custom_action_param": {
+            "event": "mxu_open",
+            "increment": 1
+        },
+        "next": [
+            "AchievementNotifyPending"
+        ]
+    },
+    "AchievementNotifyPending": {
+        "recognition": "Custom",
+        "custom_recognition": "AchievementPendingRecognition",
+        "action": "DoNothing",
+        "timeout": 1,
+        "rate_limit": 0,
+        "next": [
+            "AchievementNotify"
+        ],
+        "on_error": [
+            "AchievementNotifyDone"
+        ]
+    },
+    "AchievementNotify": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MXU_NOTIFY_ACTION",
+        "custom_action_param": {
+            "title": "🏆 成就解锁",
+            "body": "新成就已解锁，前往成就报告查看"
+        },
+        "next": [
+            "AchievementConsumePending"
+        ]
+    },
+    "AchievementConsumePending": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AchievementConsumePendingAction",
+        "next": [
+            "AchievementLogMXU"
+        ]
+    },
+    "AchievementLogMXU": {
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "AchievementNotifyDone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #f2b84b;border-radius:8px;padding:8px 12px;margin:4px 0;color:#eef4f8;font-size:13px'><span style='font-size:18px'>🏆</span> <strong style='color:#f2b84b'>成就解锁!</strong> 新成就已解锁，前往成就报告查看</div>"
+        }
+    },
+    "AchievementNotifyDone": {
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "AchievementReport"
+        ]
+    },
+    "AchievementReport": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AchievementReportAction",
+        "custom_action_param": {
+            "limit": 5
+        },
+        "next": [
+            "AchievementReportDone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #4fc3f7;border-radius:8px;padding:8px 12px;margin:4px 0;color:#eef4f8;font-size:13px'><span style='font-size:18px'>📊</span> <strong style='color:#4fc3f7'>成就报告</strong> 正在生成最近的成就记录...</div>"
+        }
+    },
+    "AchievementReportDone": {
+        "recognition": "DirectHit",
+        "action": "StopTask"
+    }
+}

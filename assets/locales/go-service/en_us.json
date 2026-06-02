@@ -1,4 +1,8 @@
 {
+    "achievement.unlocked": "Achievement unlocked: %s\nMaaEnd started for the first time. Your automation journey begins.",
+    "achievement.report.summary": "Achievement progress: %d/%d",
+    "achievement.report.no_unlocks": "No achievements unlocked recently.",
+    "achievement.report.recent": "Recently unlocked:",
     "visitfriends.friend_missing": "Friend is missing: %s",
     "visitfriends.clue_exchange": "Clue Exchange",
     "visitfriends.control_nexus_assist": "Control Nexus Assist",

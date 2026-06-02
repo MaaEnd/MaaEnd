@@ -1,4 +1,8 @@
 {
+    "achievement.unlocked": "업적 잠금 해제: %s\nMaaEnd를 처음 시작했습니다. 자동화 여정이 시작됩니다.",
+    "achievement.report.summary": "업적 진행도: %d/%d",
+    "achievement.report.no_unlocks": "최근 잠금 해제된 업적이 없습니다.",
+    "achievement.report.recent": "최근 잠금 해제:",
     "visitfriends.friend_missing": "해당 친구에게 %s가 없습니다",
     "visitfriends.clue_exchange": "단서 교환",
     "visitfriends.control_nexus_assist": "컨트롤 넥서스 지원",

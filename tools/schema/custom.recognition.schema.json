@@ -26,7 +26,8 @@
                 "VisitFriendsMenuScanScrollFullRecognition",
                 "VisitFriendsMenuScanTargetFriendOpenRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
-                "autoEcoFarmFindNearestRecognitionResult"
+                "autoEcoFarmFindNearestRecognitionResult",
+                "AchievementPendingRecognition"
             ]
         }
     },

@@ -40,6 +40,11 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
+	if detail.Entry == "AchievementNotifyPending" {
+		log.Debug().Str("entry", detail.Entry).Msg("Achievement entry, skipping aspect ratio check")
+		return
+	}
+
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).

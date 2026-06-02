@@ -592,6 +592,8 @@
     "task.SimpleProductionBatch.error_not_found": "**请在简易制作页面中先选好要制作的道具再启动脚本**",
     "task.AndroidOpenGame.label": "🎮打开游戏",
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
+    "task.AchievementReport.label": "🏆成就报告",
+    "task.AchievementReport.description": "查看 MaaEnd 成就进度，并显示尚未弹出的成就解锁提示。",
     "task.SeizeEntrustTask.label": "🌆抢委托",
     "task.SeizeEntrustTaskCommissionSource.label": "委托接收点",
     "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（11.9万）",
