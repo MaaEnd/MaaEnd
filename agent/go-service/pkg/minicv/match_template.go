@@ -500,7 +500,7 @@ type MatchTemplateHit struct {
 	Val float64
 }
 
-// MatchTemplateMultiHit returns repeated template matches from a precomputed NCC matrix.
+// MatchTemplateMultiHit returns repeated template matches by computing an NCC matrix and repeatedly suppressing previous hit regions.
 func MatchTemplateMultiHit(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
@@ -591,7 +591,7 @@ func suppressNCCMatrix(matrix [][]float64, x, y, w, h int) {
 	for row := max(0, y); row < y1; row++ {
 		x1 := min(len(matrix[row]), x+w)
 		for col := max(0, x); col < x1; col++ {
-			matrix[row][col] = 0
+			matrix[row][col] = -1.0
 		}
 	}
 }
