@@ -117,6 +117,71 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
+### Action: MapTrackerGoal
+
+🧭 基于 NavMesh 自动规划路径，并操控玩家移动到指定目标。
+
+此节点会先识别玩家当前位置，再读取 `assets/data/NavMesh/{map_name}.mtnm` 中的 NavMesh 数据，将当前位置和目标点临时连接到路网中，通过 A* 规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。例如 "map02_lv002"。
+
+- `target` 或 `entity_id`: 二者至少提供一个。
+    - `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+    - `entity_id`: NavMesh 顶点关联的实体 ID，会从顶点的 `E` 字段查找目标点。
+
+可选参数：
+
+- 其他参数同 [MapTrackerMove](#action-maptrackermove)，会透传给最终的移动过程，例如 `fine_approach`、`arrival_timeout`、`stuck_mitigators` 等。
+
+> [!TIP]
+>
+> 如果同时提供 `target` 和 `entity_id`，节点会优先使用 `target`，不会报错。
+
+#### 示例用法
+
+使用坐标作为目标：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                670.0,
+                350.8
+            ]
+        }
+    }
+}
+```
+
+使用实体 ID 作为目标：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "entity_id": 22800173539
+        }
+    }
+}
+```
+
+> [!WARNING]
+>
+> 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且目标点能够通过对应 NavMesh 路网抵达。
+
 ### Action: MapTrackerBigMapPick
 
 🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
