@@ -1071,7 +1071,14 @@ def install_cpp_algo(
                     request_headers.update(auth_headers)
                     conn.request("GET", path, headers=request_headers)
                     with conn.getresponse() as api_resp:
-                        storage_url = api_resp.getheader("Location")
+                        if 300 <= api_resp.status < 400:
+                            storage_url = api_resp.getheader("Location")
+                        else:
+                            print(Console.warn(
+                                t("wrn_ci_artifact_unexpected_status",
+                                  status=api_resp.status,
+                                  reason=api_resp.reason)
+                            ))
                 finally:
                     conn.close()
 
