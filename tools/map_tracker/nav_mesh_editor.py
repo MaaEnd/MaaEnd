@@ -61,7 +61,7 @@ from _internal.location_service import LocationService
 from _internal.zmdmap_schemas import EntitiesTable
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
-NAVMESH_DIR = "assets/data/NavMesh"
+NAVMESH_DIR = "assets/data/MapTrackerNavMesh"
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MAP_ENTITIES_DATA_FILE = os.path.join(
     _REPO_ROOT,

@@ -18,7 +18,7 @@ import (
 
 const (
 	// NavMeshDataPath stores MapTracker NavMesh files under the resource root.
-	NavMeshDataPath = "data/NavMesh"
+	NavMeshDataPath = "data/MapTrackerNavMesh"
 
 	navMeshHeader          = "MapTrackerNavMesh"
 	navMeshVersion         = 1

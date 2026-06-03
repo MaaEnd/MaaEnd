@@ -182,7 +182,7 @@ func assertNavMeshPath(t *testing.T, actual [][2]float64, expected [][2]float64)
 }
 
 func TestParseRealNavMesh(t *testing.T) {
-	file, err := os.Open(filepath.Join("..", "..", "..", "..", "assets", "data", "NavMesh", "map02_lv002.mtnm"))
+	file, err := os.Open(filepath.Join("..", "..", "..", "..", "assets", "data", "MapTrackerNavMesh", "map02_lv002.mtnm"))
 	if err != nil {
 		t.Fatalf("Open real NavMesh file error = %v", err)
 	}

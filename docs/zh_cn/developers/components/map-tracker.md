@@ -121,7 +121,7 @@
 
 🧭 基于 NavMesh 自动规划路径，并操控玩家移动到指定目标。
 
-此节点会先识别玩家当前位置，再读取 `assets/data/NavMesh/{map_name}.mtnm` 中的 NavMesh 数据，将当前位置和目标点临时连接到路网中，通过 A* 规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
+此节点会先识别玩家当前位置，再读取 `assets/data/MapTrackerNavMesh/{map_name}.mtnm` 中的 NavMesh 数据，将当前位置和目标点临时连接到路网中，通过 A* 规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
 
 #### 节点参数
 
