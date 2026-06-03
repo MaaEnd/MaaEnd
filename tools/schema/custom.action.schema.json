@@ -56,6 +56,7 @@
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
+                "MapTrackerGoal",
                 "MapTrackerMove",
                 "MapTrackerMoveCompatible",
                 "OCREssenceInventoryNumberAction",
@@ -97,13 +98,27 @@
         "if": {
             "type": "object",
             "required": [ "custom_action" ],
-            "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+            "properties": { "custom_action": { "const": "MapTrackerGoal" } }
         },
         "then": {
             "type": "object",
             "required": [ "custom_action_param" ],
             "properties": {
-                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerGoalParam" }
+            }
+        },
+        "else": {
+            "if": {
+                "type": "object",
+                "required": [ "custom_action" ],
+                "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_action_param" ],
+                "properties": {
+                    "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                }
             }
         }
     }
