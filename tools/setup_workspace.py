@@ -467,8 +467,13 @@ def clean_cache() -> None:
         print(Console.warn(t("wrn_cache_clean_failed", path=CACHE_DIR, error=e)))
 
 
-def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
-    """下载文件到指定路径。"""
+def download_file(
+    url: str,
+    dest_path: Path,
+    resume: bool = False,
+    extra_headers: dict[str, str] | None = None,
+) -> bool:
+    """下载文件到指定路径。extra_headers 仅在初始请求携带，不跟随重定向。"""
 
     def to_percentage(current: float, total: float) -> str:
         return f"{(current / total) * 100:.1f}%" if total > 0 else ""
@@ -527,6 +532,9 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
 
         req = urllib.request.Request(url)
         req.add_header("User-Agent", "MaaEnd-setup")
+        if extra_headers:
+            for k, v in extra_headers.items():
+                req.add_header(k, v)
         if existing_size > 0:
             req.add_header("Range", f"bytes={existing_size}-")
 
@@ -891,6 +899,116 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
         print(Console.ok(t("inf_updated_file", name=companion_target.name)))
 
 
+def _github_auth_headers() -> dict[str, str] | None:
+    """Return GitHub API auth headers, or None if no token is configured."""
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+    token = token.strip()
+    if not token:
+        return None
+    return {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+
+def _is_git_sha(version: str | None) -> bool:
+    """Return True if version looks like a short git SHA (7-40 hex chars)."""
+    if not version:
+        return False
+    v = version.strip().lower()
+    return 7 <= len(v) <= 40 and all(c in "0123456789abcdef" for c in v)
+
+
+def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
+    """Find the latest cpp-algo artifact from successful install.yml runs on v2.
+
+    Only considers push events (not PRs) on the v2 branch, ensuring the artifact
+    comes from merged code. Returns (download_url, version_sha) or (None, None).
+    """
+    auth_headers = _github_auth_headers()
+    if auth_headers is None:
+        print(Console.info(t("inf_ci_artifact_no_token")))
+        return None, None
+
+    artifact_name = f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}"
+    print(Console.info(t("inf_ci_artifact_search", name=artifact_name)))
+
+    runs_url = (
+        f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
+        f"install.yml/runs?branch=v2&status=success&event=push&per_page=10"
+    )
+
+    try:
+        req = urllib.request.Request(runs_url)
+        req.add_header("User-Agent", "MaaEnd-setup")
+        for k, v in auth_headers.items():
+            req.add_header(k, v)
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
+            data = json.loads(res.read())
+    except urllib.error.HTTPError as e:
+        if e.code in (403, 429):
+            print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+        else:
+            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+        return None, None
+    except urllib.error.URLError as e:
+        print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+        return None, None
+    except Exception as e:
+        print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+        return None, None
+
+    runs = data.get("workflow_runs", [])
+    if not runs:
+        print(Console.info(t("inf_ci_artifact_no_runs")))
+        return None, None
+
+    for run in runs:
+        run_id = run["id"]
+        head_sha = run.get("head_sha", "")[:7]
+        if not head_sha:
+            continue
+
+        artifacts_url = (
+            f"https://api.github.com/repos/{MAAEND_REPO}/actions/"
+            f"runs/{run_id}/artifacts"
+        )
+        try:
+            req2 = urllib.request.Request(artifacts_url)
+            req2.add_header("User-Agent", "MaaEnd-setup")
+            for k, v in auth_headers.items():
+                req2.add_header(k, v)
+            with urllib.request.urlopen(req2, timeout=TIMEOUT) as res2:
+                artifacts_data = json.loads(res2.read())
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429):
+                print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+                break
+            else:
+                print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
+                continue
+        except urllib.error.URLError as e:
+            print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+            continue
+        except Exception as e:
+            print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
+            continue
+
+        for artifact in artifacts_data.get("artifacts", []):
+            if artifact.get("name") == artifact_name and not artifact.get("expired", False):
+                artifact_id = artifact["id"]
+                download_url = (
+                    f"https://api.github.com/repos/{MAAEND_REPO}/actions/"
+                    f"artifacts/{artifact_id}/zip"
+                )
+                print(Console.ok(t("inf_ci_artifact_found", sha=head_sha)))
+                return download_url, head_sha
+
+    print(Console.info(t("inf_ci_artifact_not_found")))
+    return None, None
+
+
 def install_cpp_algo(
     install_root: Path,
     skip_if_exist: bool = True,
@@ -905,6 +1023,61 @@ def install_cpp_algo(
         print(Console.ok(t("inf_cpp_algo_installed_skip")))
         return True, local_version, False
 
+    # ~~~ CI artifact fast path ~~~
+    # Try to grab just the cpp-algo binary from a recent successful v2 push
+    # workflow run. This avoids downloading the entire MaaEnd release package.
+    ci_url, ci_version = _find_cpp_algo_in_ci()
+    if ci_url:
+        ci_should_skip = (
+            update_mode
+            and cpp_algo_installed
+            and _is_git_sha(local_version)
+            and _is_git_sha(ci_version)
+            and local_version == ci_version
+        )
+        if ci_should_skip:
+            print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
+            return True, local_version, False
+
+        cache_dir = ensure_cache_dir()
+        ci_download_path = (
+            cache_dir / f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}.zip"
+        )
+        # _find_cpp_algo_in_ci already verified a token exists, so headers are non-None.
+        auth_headers = _github_auth_headers()
+        if auth_headers is None:
+            print(Console.warn(t("wrn_ci_artifact_download_failed")))
+        elif download_file(ci_url, ci_download_path, resume=False, extra_headers=auth_headers):
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                extract_root = tmp_dir / "extracted"
+                extract_root.mkdir(parents=True, exist_ok=True)
+                try:
+                    shutil.unpack_archive(str(ci_download_path), extract_root)
+                    cpp_algo_src = find_cpp_algo_binary(extract_root)
+                    if not cpp_algo_src:
+                        print(Console.warn(t("wrn_ci_artifact_no_binary")))
+                    else:
+                        copy_cpp_algo_binary(cpp_algo_src, real_install_root)
+                        print(Console.ok(t("inf_cpp_algo_install_complete")))
+                        cleanup_cache_file(ci_download_path)
+                        version_to_write = ci_version or local_version
+                        if version_to_write:
+                            _update_component_version(install_root, "cpp_algo", version_to_write)
+                        return True, version_to_write, True
+                except PermissionError:
+                    # User declined the retry prompt — release fallback would
+                    # hit the same file-in-use problem, so bail out directly.
+                    cleanup_cache_file(ci_download_path)
+                    return False, local_version, False
+                except Exception as e:
+                    print(Console.warn(t("wrn_ci_artifact_extract_failed", error=e)))
+            cleanup_cache_file(ci_download_path)
+        else:
+            print(Console.warn(t("wrn_ci_artifact_download_failed")))
+        # Fall through to release download on any failure
+        print(Console.info(t("inf_fallback_to_release")))
+
+    # ~~~ Release fallback (original logic) ~~~
     url, filename, remote_version = get_latest_release_url(
         MAAEND_REPO, ["maaend", OS_KEYWORD, ARCH_KEYWORD]
     )
@@ -917,6 +1090,8 @@ def install_cpp_algo(
         and cpp_algo_installed
         and local_version
         and remote_version
+        and not _is_git_sha(local_version)
+        and not _is_git_sha(remote_version)
         and compare_semver(local_version, remote_version) >= 0
     ):
         print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
