@@ -1081,7 +1081,7 @@ def install_cpp_algo(
                         storage_url, ci_download_path, resume=False,
                     )
             except Exception:
-                print(Console.warn(t("wrn_ci_artifact_download_failed")))
+                pass  # warning is printed by the elif below
 
         if ci_downloaded:
             with tempfile.TemporaryDirectory() as tmp_dir:
