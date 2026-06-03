@@ -42,7 +42,7 @@
                     "name": "ProtocolSpaceScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -53,7 +53,7 @@
                     "name": "ProtocolSpaceScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -64,7 +64,7 @@
                     "name": "ProtocolSpaceScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -75,7 +75,7 @@
                     "name": "ProtocolSpaceScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -86,7 +86,7 @@
                     "name": "ProtocolSpaceScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -97,7 +97,7 @@
                     "name": "ProtocolSpaceScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -108,7 +108,7 @@
                     "name": "ProtocolSpaceScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }

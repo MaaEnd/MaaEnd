@@ -22,7 +22,7 @@ The core maintenance points for SellProduct are as follows:
 | Win outpost generation config    | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | Output to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`                                              |
 | ADB outpost generation config    | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | Output to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`                                          |
 | Task options generation config   | `tools/pipeline-generate/SellProduct/task-config.json`            | Output to `assets/tasks/SellProduct.json`                                                                                 |
-| Task entry point                 | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleAction`, main loop, region entry; manually maintained                                                            |
+| Task entry point                 | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`, main loop, region entry; manually maintained                                                       |
 | Region sell entry point          | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list from region to outposts; manually maintained                                                                  |
 | Common sell core                 | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, handling for out-of-stock/insufficient dispatch coupons/exceeded redemption limits, final transaction process  |
 | Common exchange process          | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter item selection interface, select priority item or default item                                                      |
@@ -263,7 +263,7 @@ SellProductSchedule
 
 Key points:
 
-- `SellProductSchedule` determines the weekday selected by the user via `ScheduleAction` and actually executes `SellProductMain`.
+- `SellProductScheduleEnabled` determines the weekday selected by the user via `ScheduleRecognition`; when it hits, the Pipeline enters `SellProductMain`.
 - `SellProductLoop` only continues execution in the region construction interface; when not on the target interface, it hands over to `SceneEnterMenuRegionalDevelopment`.
 - `SellProductAuto` automatically selects Valley IV or Wuling based on the current region construction page.
 - `SellProduct{Region}Sell` enters the outpost management page of the corresponding region, then iterates through all outposts in that region via `next`.

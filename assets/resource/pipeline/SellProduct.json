@@ -2,12 +2,26 @@
     "SellProductSchedule": {
         "desc": "售卖产品计划任务",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ScheduleAction",
-        "custom_action_param": {
-            "task": "SellProductMain"
-        },
         "post_delay": 0,
+        "next": [
+            "SellProductScheduleEnabled",
+            "SellProductScheduleEnd"
+        ]
+    },
+    "SellProductScheduleEnabled": {
+        "desc": "售卖产品计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SellProductMain"
+        ],
         "attach": {
             "monday": false,
             "tuesday": false,
@@ -17,6 +31,11 @@
             "saturday": false,
             "sunday": false
         }
+    },
+    "SellProductScheduleEnd": {
+        "desc": "售卖产品计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "SellProductMain": {
         "desc": "脚本入口",

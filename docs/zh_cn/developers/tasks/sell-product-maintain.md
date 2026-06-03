@@ -22,7 +22,7 @@ SellProduct 的核心维护点如下：
 | Win 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | 输出到 `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`             |
 | ADB 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | 输出到 `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`         |
 | 任务选项生成配置   | `tools/pipeline-generate/SellProduct/task-config.json`            | 输出到 `assets/tasks/SellProduct.json`                                                |
-| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleAction`、主循环、地区入口；手写维护                                          |
+| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`、主循环、地区入口；手写维护                                     |
 | 地区售卖入口       | `assets/resource/pipeline/SellProduct/Sell.json`                  | 地区到据点的 `next` 列表；手写维护                                                    |
 | 通用售卖核心       | `assets/resource/pipeline/SellProduct/SellCore.json`              | 售卖循环、缺货/调度券不足/超出兑换上限处理、最终交易流程                              |
 | 通用换货流程       | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | 进入选择货品界面、选择优先物品或默认物品                                              |
@@ -263,7 +263,7 @@ SellProductSchedule
 
 关键点：
 
-- `SellProductSchedule` 通过 `ScheduleAction` 判断用户选择的星期，实际执行 `SellProductMain`。
+- `SellProductScheduleEnabled` 通过 `ScheduleRecognition` 判断用户选择的星期，命中后由 Pipeline 进入 `SellProductMain`。
 - `SellProductLoop` 只在地区建设界面继续执行；不在目标界面时交给 `SceneEnterMenuRegionalDevelopment`。
 - `SellProductAuto` 会根据当前地区建设页面自动选择四号谷地或武陵。
 - `SellProduct{Region}Sell` 进入对应地区的据点管理页，然后按 `next` 遍历该地区所有据点。
