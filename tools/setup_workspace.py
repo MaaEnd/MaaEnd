@@ -920,6 +920,16 @@ def _is_git_sha(version: str | None) -> bool:
     return 7 <= len(v) <= 40 and all(c in "0123456789abcdef" for c in v)
 
 
+def _github_api_get(url: str, auth_headers: dict[str, str]) -> dict:
+    """Make an authenticated GET request to the GitHub API and return parsed JSON."""
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", "MaaEnd-setup")
+    for k, v in auth_headers.items():
+        req.add_header(k, v)
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
+        return json.loads(res.read())
+
+
 def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
     """Find the latest cpp-algo artifact from successful install.yml runs on v2.
 
@@ -940,12 +950,7 @@ def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
     )
 
     try:
-        req = urllib.request.Request(runs_url)
-        req.add_header("User-Agent", "MaaEnd-setup")
-        for k, v in auth_headers.items():
-            req.add_header(k, v)
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
-            data = json.loads(res.read())
+        data = _github_api_get(runs_url, auth_headers)
     except urllib.error.HTTPError as e:
         if e.code in (403, 429):
             print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
@@ -975,12 +980,7 @@ def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
             f"runs/{run_id}/artifacts"
         )
         try:
-            req2 = urllib.request.Request(artifacts_url)
-            req2.add_header("User-Agent", "MaaEnd-setup")
-            for k, v in auth_headers.items():
-                req2.add_header(k, v)
-            with urllib.request.urlopen(req2, timeout=TIMEOUT) as res2:
-                artifacts_data = json.loads(res2.read())
+            artifacts_data = _github_api_get(artifacts_url, auth_headers)
         except urllib.error.HTTPError as e:
             if e.code in (403, 429):
                 print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
@@ -1049,7 +1049,7 @@ def install_cpp_algo(
             print(Console.warn(t("wrn_ci_artifact_download_failed")))
         elif download_file(ci_url, ci_download_path, resume=False, extra_headers=auth_headers):
             with tempfile.TemporaryDirectory() as tmp_dir:
-                extract_root = tmp_dir / "extracted"
+                extract_root = Path(tmp_dir) / "extracted"
                 extract_root.mkdir(parents=True, exist_ok=True)
                 try:
                     shutil.unpack_archive(str(ci_download_path), extract_root)
