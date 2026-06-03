@@ -67,8 +67,8 @@ MAP_ENTITIES_DATA_FILE = os.path.join(
     _REPO_ROOT,
     "assets",
     "data",
-    "MapTracker",
-    "map_entities_data.json",
+    "ZmdMap",
+    "maaend_entities.json",
 )
 
 ENTITY_TEMPLATE_CAMPFIRE = "int_campfire_v2"
@@ -300,7 +300,8 @@ class NavMeshRecorder:
         if self._rp.vertex_id is not None:
             exclude_ids.add(self._rp.vertex_id)
         return self._data.get_nearest_vertex_for(
-            x, y,
+            x,
+            y,
             max_distance=self._config.vertex_merge_distance,
             tier_id=tier_id,
             exclude_ids=exclude_ids,
@@ -352,7 +353,10 @@ class NavMeshRecorder:
             neighbor = self._data.get_vertex(neighbor_id)
             if neighbor is None:
                 continue
-            if math.hypot(vertex.x - neighbor.x, vertex.y - neighbor.y) > self._config.edge_max_distance:
+            if (
+                math.hypot(vertex.x - neighbor.x, vertex.y - neighbor.y)
+                > self._config.edge_max_distance
+            ):
                 self._data.delete_edge(edge.id)
 
     def _point_in_merge_zone(self, x: float, y: float) -> bool:
@@ -496,10 +500,7 @@ class NavMeshRecorder:
     ) -> tuple[tuple[int, ...], bool, str | None]:
         if from_id == to_id:
             return (), False, None
-        if (
-            self._rp.ts is not None
-            and now - self._rp.ts > self._config.edge_broken_sec
-        ):
+        if self._rp.ts is not None and now - self._rp.ts > self._config.edge_broken_sec:
             return (), True, "time_gap"
         src = self._data.get_vertex(from_id)
         dst = self._data.get_vertex(to_id)
@@ -529,7 +530,9 @@ class InfoBarButton:
 
 
 class InfoBar:
-    def __init__(self, window_w: int, window_h: int, sidebar_w: int, bar_h: int = 76) -> None:
+    def __init__(
+        self, window_w: int, window_h: int, sidebar_w: int, bar_h: int = 76
+    ) -> None:
         self.window_w = window_w
         self.sidebar_w = sidebar_w
         self.bar_h = bar_h
@@ -695,7 +698,9 @@ class NavMeshEditPage(MapViewportPage):
         self._infobar = InfoBar(self.window_w, self.window_h, self.SIDEBAR_W)
         self._coverage_mode = False
         self._coverage_cache: cv2.typing.MatLike | None = None
-        self._coverage_cache_key: tuple[int, int, tuple[tuple[int, int, int, int, float, float], ...]] | None = None
+        self._coverage_cache_key: (
+            tuple[int, int, tuple[tuple[int, int, int, int, float, float], ...]] | None
+        ) = None
         self._coverage_switch_widget = SwitchWidget(
             "Graph",
             "Coverage",
@@ -950,17 +955,37 @@ class NavMeshEditPage(MapViewportPage):
         self._render_sidebar(drawer)
         self.render_map_layer_selector(drawer, sidebar_width=self.SIDEBAR_W)
 
-    def _coverage_key(self) -> tuple[int, int, int, int, int, tuple[tuple[int, int, int, int, float, float], ...]]:
+    def _coverage_key(
+        self,
+    ) -> tuple[
+        int, int, int, int, int, tuple[tuple[int, int, int, int, float, float], ...]
+    ]:
         edges: list[tuple[int, int, int, int, float, float]] = []
         for e in self._data.edges:
             src = self._vertex_by_id(e.from_id)
             dst = self._vertex_by_id(e.to_id)
             if src is None or dst is None:
                 continue
-            edges.append((int(round(src.x)), int(round(src.y)), int(round(dst.x)), int(round(dst.y)), e.cost, e.flags))
+            edges.append(
+                (
+                    int(round(src.x)),
+                    int(round(src.y)),
+                    int(round(dst.x)),
+                    int(round(dst.y)),
+                    e.cost,
+                    e.flags,
+                )
+            )
         origin = self.view.get_real_coords(0, 0)
         zoom_key = int(round(self.view.zoom * 10000))
-        return (self.window_w, self.window_h, int(round(origin[0])), int(round(origin[1])), zoom_key, tuple(edges))
+        return (
+            self.window_w,
+            self.window_h,
+            int(round(origin[0])),
+            int(round(origin[1])),
+            zoom_key,
+            tuple(edges),
+        )
 
     def _ensure_coverage_overlay(self) -> cv2.typing.MatLike:
         key = self._coverage_key()
@@ -980,7 +1005,9 @@ class NavMeshEditPage(MapViewportPage):
                 continue
             sx1, sy1 = self.view.get_view_coords(src.x, src.y)
             sx2, sy2 = self.view.get_view_coords(dst.x, dst.y)
-            cv2.line(overlay, (sx1, sy1), (sx2, sy2), color, thickness, lineType=cv2.LINE_AA)
+            cv2.line(
+                overlay, (sx1, sy1), (sx2, sy2), color, thickness, lineType=cv2.LINE_AA
+            )
             cv2.circle(overlay, (sx1, sy1), radius, color, -1, lineType=cv2.LINE_AA)
             cv2.circle(overlay, (sx2, sy2), radius, color, -1, lineType=cv2.LINE_AA)
 
@@ -993,7 +1020,9 @@ class NavMeshEditPage(MapViewportPage):
             return
         overlay = self._ensure_coverage_overlay()
         bg = drawer.get_image()
-        cv2.addWeighted(bg, 1.0 - self.COVERAGE_ALPHA, overlay, self.COVERAGE_ALPHA, 0, dst=bg)
+        cv2.addWeighted(
+            bg, 1.0 - self.COVERAGE_ALPHA, overlay, self.COVERAGE_ALPHA, 0, dst=bg
+        )
 
     # ------------------------------------------------------------------
     # Data helpers
@@ -1451,7 +1480,9 @@ class NavMeshEditPage(MapViewportPage):
         if vertex is None:
             return
         map_name = os.path.splitext(self._location_map_name)[0]
-        self._update_status(0x50DC50, f"Running goal to ({vertex.x:.1f}, {vertex.y:.1f}) ...")
+        self._update_status(
+            0x50DC50, f"Running goal to ({vertex.x:.1f}, {vertex.y:.1f}) ..."
+        )
         self.render_request()
         try:
             self.location_service.run_goal(map_name, vertex.x, vertex.y)
