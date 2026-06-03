@@ -934,13 +934,15 @@ def _github_api_get(url: str, auth_headers: dict[str, str]) -> dict:
         return json.loads(res.read())
 
 
-def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
+def _find_cpp_algo_in_ci(
+    auth_headers: dict[str, str] | None,
+) -> tuple[str | None, str | None]:
     """Find the latest cpp-algo artifact from successful install.yml runs on v2.
 
     Only considers push events (not PRs) on the v2 branch, ensuring the artifact
-    comes from merged code. Returns (download_url, version_sha) or (None, None).
+    comes from merged code. auth_headers must be non-None (caller should verify).
+    Returns (download_url, version_sha) or (None, None).
     """
-    auth_headers = _github_auth_headers()
     if auth_headers is None:
         print(Console.info(t("inf_ci_artifact_no_token")))
         return None, None
@@ -975,7 +977,7 @@ def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
 
     for run in runs:
         run_id = run["id"]
-        head_sha = run.get("head_sha", "")[:7]
+        head_sha = run.get("head_sha", "")
         if not head_sha:
             continue
 
@@ -1006,7 +1008,7 @@ def _find_cpp_algo_in_ci() -> tuple[str | None, str | None]:
                     f"https://api.github.com/repos/{MAAEND_REPO}/actions/"
                     f"artifacts/{artifact_id}/zip"
                 )
-                print(Console.ok(t("inf_ci_artifact_found", sha=head_sha)))
+                print(Console.ok(t("inf_ci_artifact_found", sha=head_sha[:7])))
                 return download_url, head_sha
 
     print(Console.info(t("inf_ci_artifact_not_found")))
@@ -1030,7 +1032,8 @@ def install_cpp_algo(
     # ~~~ CI artifact fast path ~~~
     # Try to grab just the cpp-algo binary from a recent successful v2 push
     # workflow run. This avoids downloading the entire MaaEnd release package.
-    ci_url, ci_version = _find_cpp_algo_in_ci()
+    auth_headers = _github_auth_headers()
+    ci_url, ci_version = _find_cpp_algo_in_ci(auth_headers)
     if ci_url:
         ci_should_skip = (
             update_mode
@@ -1047,8 +1050,6 @@ def install_cpp_algo(
         ci_download_path = (
             cache_dir / f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}.zip"
         )
-        # _find_cpp_algo_in_ci already verified a token exists, so headers are non-None.
-        auth_headers = _github_auth_headers()
         ci_downloaded = False
 
         if auth_headers is not None:
