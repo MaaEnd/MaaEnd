@@ -1057,6 +1057,7 @@ def install_cpp_algo(
             # redirects, causing a 401.  Resolve the redirect with http.client
             # (which does not auto-follow redirects) and then download from the
             # storage URL with auth headers intact.
+            storage_url: str | None = None
             try:
                 parsed = urlparse(ci_url)
                 conn = http.client.HTTPSConnection(
@@ -1074,7 +1075,7 @@ def install_cpp_algo(
                 finally:
                     conn.close()
 
-                if storage_url:
+                if storage_url is not None:
                     # The storage URL is SAS-signed — no extra auth needed.
                     ci_downloaded = download_file(
                         storage_url, ci_download_path, resume=False,
