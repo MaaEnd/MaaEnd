@@ -392,15 +392,44 @@
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
         "next": [
+            "ProtocolSpaceFightStartWait"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "开始行动"
+        }
+    },
+    "ProtocolSpaceFightStartWait": {
+        "desc": "等待战斗开始",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "next": [
+            "ProtocolSpaceFightStartSuccess",
+            "ProtocolSpaceFightStartWait"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待战斗开始"
+        }
+    },
+    "ProtocolSpaceFightStartSuccess": {
+        "desc": "战斗开始",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            120
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true,
+        "next": [
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "开始行动"
-        }
+        ]
     },
     "ProtocolSpaceTouchExitMoveToTarget": {
         "desc": "向目标移动",
