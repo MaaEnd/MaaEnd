@@ -227,16 +227,19 @@ class MaaInterface:
         x: float,
         y: float,
         *,
-        move_params: dict = {
-            "arrival_timeout": 30000,
-            "no_ensure_initial_movement_state": True,
-        },
+        move_params: dict | None = None,
     ) -> None:
         """Run MapTrackerGoal to navigate to the given coordinate."""
         if self.controller is None:
             raise MaaRuntimeError("Controller not initialized")
         if self.agent_client is None:
             raise MaaRuntimeError("Agent client not initialized")
+
+        if move_params is None:
+            move_params = {
+                "arrival_timeout": 30000,
+                "no_ensure_initial_movement_state": True,
+            }
 
         ENTRY_NAME = f"__MapTrackerEditorInternalMapTrackerGoal"
         pipeline = {

@@ -140,7 +140,7 @@ func LoadNavMesh(mapName string) (*NavMesh, error) {
 	return ParseNavMesh(file)
 }
 
-// ParseNavMesh parses MapTracker NavMesh v2 text data.
+// ParseNavMesh parses MapTracker NavMesh text data.
 func ParseNavMesh(r io.Reader) (*NavMesh, error) {
 	scanner := bufio.NewScanner(r)
 	currentSection := ""
