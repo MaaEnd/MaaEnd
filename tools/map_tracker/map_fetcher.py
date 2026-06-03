@@ -36,6 +36,11 @@ VERSION_API = APIEndpoint(
     file_name="version.json",
 )
 
+ENTITIES_API = APIEndpoint(
+    re_url="nosj.seititne_dneaam/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    file_name="maaend_entities.json",
+)
+
 GRID_TIERS_API = APIEndpoint(
     re_url="nosj.sreit_dirg/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
     file_name="grid_tiers.json",
@@ -67,15 +72,9 @@ Groups:
 """
 
 
-def _save_json(
-    data: dict, dest: str, *, no_minify_if_size_less_than: int = 4 * 1024
-) -> None:
+def _save_json(data: dict, dest: str) -> None:
     with open(dest, "w", encoding="utf-8") as f:
-        json_str = json.dumps(
-            data, ensure_ascii=False, indent=None, separators=(",", ":")
-        )
-        if len(json_str) < no_minify_if_size_less_than:
-            json_str = json.dumps(data, ensure_ascii=False, indent=4)
+        json_str = json.dumps(data, ensure_ascii=False, indent=2)
         f.write(json_str)
 
 
@@ -127,6 +126,14 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
 
     version = ver_list[0]["version"]
     print(f"  {_G}Latest Version: {_C}{version}{_0}")
+
+    # Download entities data
+    print(f"  Downloading entities...")
+    entities_url = ENTITIES_API.format(version=version)
+    entities_dest = os.path.join(output_dir, ENTITIES_API.file_name)
+    if not _download_json_cached(entities_url, entities_dest, use_cache):
+        print(f"  {_R}Failed to fetch entities data{_0}")
+        raise SystemExit(1)
 
     # Download grid_tiers first to discover region names
     print(f"  Downloading grid_tiers...")
