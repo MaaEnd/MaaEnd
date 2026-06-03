@@ -147,6 +147,12 @@ class LocationService:
             )
         return result
 
+    def run_goal(self, map_name: str, x: float, y: float) -> None:
+        """Run MapTrackerGoal to navigate to the given coordinate."""
+        self._ensure_initialized()
+        with self._infer_lock:
+            self._maa_interface.do_goal(map_name, x, y)
+
     def cleanup(self) -> None:
         self._is_recording = False
         self._stop_event.set()
