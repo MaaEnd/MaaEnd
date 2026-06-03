@@ -1,16 +1,18 @@
 import argparse
+import http.client
+import json
 import os
-import sys
 import shutil
 import subprocess
+import sys
 import platform
-import traceback
-import urllib.request
-import urllib.error
-import json
 import tempfile
-from pathlib import Path
 import time
+import traceback
+import urllib.error
+import urllib.request
+from pathlib import Path
+from urllib.parse import urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
@@ -614,6 +616,8 @@ def download_file(
         except OSError:
             pass
         return True
+    except urllib.error.HTTPError as e:
+        print(Console.err(t("err_network_error_with_code", reason=e.reason, code=e.code)))
     except urllib.error.URLError as e:
         print(Console.err(t("err_network_error", reason=e.reason)))
     except Exception as e:
@@ -1045,9 +1049,40 @@ def install_cpp_algo(
         )
         # _find_cpp_algo_in_ci already verified a token exists, so headers are non-None.
         auth_headers = _github_auth_headers()
-        if auth_headers is None:
-            print(Console.warn(t("wrn_ci_artifact_download_failed")))
-        elif download_file(ci_url, ci_download_path, resume=False, extra_headers=auth_headers):
+        ci_downloaded = False
+
+        if auth_headers is not None:
+            # GitHub artifact API returns a 302 redirect to Azure blob storage.
+            # urllib's default redirect handler strips Authorization on cross-origin
+            # redirects, causing a 401.  Resolve the redirect with http.client
+            # (which does not auto-follow redirects) and then download from the
+            # storage URL with auth headers intact.
+            try:
+                parsed = urlparse(ci_url)
+                conn = http.client.HTTPSConnection(
+                    parsed.hostname, timeout=TIMEOUT,
+                )
+                try:
+                    path = parsed.path
+                    if parsed.query:
+                        path += "?" + parsed.query
+                    request_headers = {"User-Agent": "MaaEnd-setup"}
+                    request_headers.update(auth_headers)
+                    conn.request("GET", path, headers=request_headers)
+                    with conn.getresponse() as api_resp:
+                        storage_url = api_resp.getheader("Location")
+                finally:
+                    conn.close()
+
+                if storage_url:
+                    # The storage URL is SAS-signed — no extra auth needed.
+                    ci_downloaded = download_file(
+                        storage_url, ci_download_path, resume=False,
+                    )
+            except Exception:
+                print(Console.warn(t("wrn_ci_artifact_download_failed")))
+
+        if ci_downloaded:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 extract_root = Path(tmp_dir) / "extracted"
                 extract_root.mkdir(parents=True, exist_ok=True)
@@ -1072,10 +1107,12 @@ def install_cpp_algo(
                 except Exception as e:
                     print(Console.warn(t("wrn_ci_artifact_extract_failed", error=e)))
             cleanup_cache_file(ci_download_path)
-        else:
+        elif auth_headers is not None:
             print(Console.warn(t("wrn_ci_artifact_download_failed")))
+
         # Fall through to release download on any failure
-        print(Console.info(t("inf_fallback_to_release")))
+        if auth_headers is not None:
+            print(Console.info(t("inf_fallback_to_release")))
 
     # ~~~ Release fallback (original logic) ~~~
     url, filename, remote_version = get_latest_release_url(

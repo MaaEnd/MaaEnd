@@ -25,6 +25,7 @@
     "inf_download_complete": "[INF] 下载完成: {path}",
     "inf_cache_file_complete": "[INF] 文件已完整缓存，跳过下载: {path}",
     "err_network_error": "[ERR] 网络错误: {reason}",
+    "err_network_error_with_code": "[ERR] 网络错误 (HTTP {code}): {reason}",
     "err_download_failed": "[ERR] 下载失败: {error_type} - {error}",
     "inf_resume_detected": "[INF] 检测到部分下载文件，已下载 {size}",
     "inf_resuming_download": "[INF] 续传下载: 已下载 {downloaded} / 总计 {total}",
