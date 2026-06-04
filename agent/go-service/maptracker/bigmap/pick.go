@@ -191,10 +191,8 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 		return nil, fmt.Errorf("target must contain finite numbers")
 	}
 	if param.ZoomValue != nil {
-		if *param.ZoomValue != 0 {
-			if !(0 < *param.ZoomValue && *param.ZoomValue <= 1) {
-				return nil, fmt.Errorf("zoom_value must be in range (0, 1]")
-			}
+		if !(0 <= *param.ZoomValue && *param.ZoomValue <= 1) {
+			return nil, fmt.Errorf("zoom_value must be in range [0, 1]")
 		}
 	} else {
 		param.ZoomValue = mapTrackerBigMapPickDefaultParam.ZoomValue
