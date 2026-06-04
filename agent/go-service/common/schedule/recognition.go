@@ -12,11 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type scheduleParam struct {
-	Task string `json:"task"`
-}
-
-// weekdayFlags is read from the pipeline node's attach for the Schedule action node.
+// weekdayFlags is read from the configured pipeline node's attach.
 type weekdayFlags struct {
 	Monday    bool `json:"monday"`
 	Tuesday   bool `json:"tuesday"`
@@ -38,52 +34,42 @@ func gameWeekday(now time.Time) time.Weekday {
 	return t.Weekday()
 }
 
-// ScheduleAction runs the configured entry task only on weekdays where the
-// matching flag is enabled, and emits a localized notice on skipped days.
-type ScheduleAction struct{}
+// ScheduleRecognition reports a hit only on weekdays enabled in attach.
+type ScheduleRecognition struct{}
 
 // Compile-time interface check
-var _ maa.CustomActionRunner = &ScheduleAction{}
+var _ maa.CustomRecognitionRunner = &ScheduleRecognition{}
 
-func (a *ScheduleAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (r *ScheduleRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil {
 		log.Error().
-			Str("component", "ScheduleAction").
+			Str("component", "ScheduleRecognition").
 			Msg("got nil context")
-		return false
+		return nil, false
 	}
 	if arg == nil {
 		log.Error().
-			Str("component", "ScheduleAction").
-			Msg("got nil custom action arg")
-		return false
+			Str("component", "ScheduleRecognition").
+			Msg("got nil custom recognition arg")
+		return nil, false
 	}
 
-	var params scheduleParam
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+	node := strings.TrimSpace(arg.CurrentTaskName)
+	if node == "" {
 		log.Error().
-			Err(err).
-			Str("component", "ScheduleAction").
-			Str("custom_action_param", arg.CustomActionParam).
-			Msg("failed to parse custom action param")
-		return false
+			Str("component", "ScheduleRecognition").
+			Msg("ScheduleRecognition requires a current task name")
+		return nil, false
 	}
 
-	if params.Task == "" {
-		log.Error().
-			Str("component", "ScheduleAction").
-			Msg("Schedule requires non-empty custom_action_param.task")
-		return false
-	}
-
-	flags, err := loadWeekdayFlagsFromAttach(ctx, arg)
+	flags, err := loadWeekdayFlagsFromNode(ctx, node)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("component", "ScheduleAction").
-			Str("node", strings.TrimSpace(arg.CurrentTaskName)).
+			Str("component", "ScheduleRecognition").
+			Str("node", node).
 			Msg("failed to load weekday flags from node attach")
-		return false
+		return nil, false
 	}
 
 	weekday := gameWeekday(time.Now())
@@ -91,36 +77,33 @@ func (a *ScheduleAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	if !isEnabledOn(&flags, weekday) {
 		log.Info().
-			Str("component", "ScheduleAction").
+			Str("component", "ScheduleRecognition").
 			Str("weekday", weekday.String()).
-			Str("task", params.Task).
+			Str("node", node).
 			Msg("today is not in schedule, skip task")
 		maafocus.Print(ctx, i18n.T("schedule.skip_today", weekdayName))
-		return true
+		return nil, false
 	}
 
-	detail, err := ctx.RunTask(params.Task)
-	if err != nil || detail == nil {
-		log.Error().
-			Err(err).
-			Str("component", "ScheduleAction").
-			Str("task", params.Task).
-			Msg("failed to run scheduled task")
-		return false
-	}
+	detailJSON, _ := json.Marshal(map[string]any{
+		"scheduled": true,
+		"weekday":   weekday.String(),
+	})
 
-	if !detail.Status.Success() {
-		return false
-	}
-
-	return true
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: string(detailJSON),
+	}, true
 }
 
-func loadWeekdayFlagsFromAttach(ctx *maa.Context, arg *maa.CustomActionArg) (weekdayFlags, error) {
-	if ctx == nil || arg == nil {
-		return weekdayFlags{}, fmt.Errorf("context or arg is nil")
+func loadWeekdayFlagsFromNode(ctx *maa.Context, node string) (weekdayFlags, error) {
+	if ctx == nil {
+		return weekdayFlags{}, fmt.Errorf("context is nil")
 	}
-	raw, err := ctx.GetNodeJSON(arg.CurrentTaskName)
+	if node == "" {
+		return weekdayFlags{}, fmt.Errorf("node is empty")
+	}
+	raw, err := ctx.GetNodeJSON(node)
 	if err != nil {
 		return weekdayFlags{}, err
 	}

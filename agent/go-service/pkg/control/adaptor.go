@@ -25,6 +25,9 @@ type ControlAdaptor interface {
 	// TouchClick performs a touch down and up at (x, y) with the given contact ID, duration of the touch, and delay after the action.
 	TouchClick(contact, x, y int, durationMillis, delayMillis int)
 
+	// TouchMove performs a touch move of the given contact ID to (x, y) with delay after the action.
+	TouchMove(contact, x, y int, delayMillis int)
+
 	// Swipe performs an actual swipe from (x, y) to (x+dx, y+dy) with the given duration and delay after the action.
 	Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int)
 

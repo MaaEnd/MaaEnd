@@ -2,12 +2,26 @@
     "AutoStockStapleSchedule": {
         "desc": "稳定需求物资执行周期",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ScheduleAction",
-        "custom_action_param": {
-            "task": "AutoStockStapleMain"
-        },
         "post_delay": 0,
+        "next": [
+            "AutoStockStapleScheduleEnabled",
+            "AutoStockStapleDone"
+        ]
+    },
+    "AutoStockStapleScheduleEnabled": {
+        "desc": "稳定需求物资执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoStockStapleMain"
+        ],
         "attach": {
             "monday": false,
             "tuesday": false,

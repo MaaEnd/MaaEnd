@@ -224,11 +224,29 @@
                     "type": "boolean",
                     "default": false
                 },
-                "no_zoom": {
-                    "title": "No Zoom",
-                    "description": "Disable auto zoom adjustment.",
-                    "type": "boolean",
-                    "default": false
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target zoom slider position.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.7
+                }
+            }
+        },
+        "MapTrackerBigMapZoomParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapZoom: adjust the big-map zoom slider to a target position.",
+            "additionalProperties": false,
+            "required": [ "zoom_value" ],
+            "properties": {
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target slider position in range (0, 1], where 1 is zoom-out end and values near 0 are zoom-in end. Set to 0 to disable the zoom action.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
                 }
             }
         },

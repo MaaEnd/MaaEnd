@@ -19,6 +19,7 @@
                 "MapTrackerBigMapInfer",
                 "MapTrackerInfer",
                 "PuzzleRecognition",
+                "ScheduleRecognition",
                 "SellProductNormalizedItemMatch",
                 "VisitFriendsMenuScanDetailAssistRecognition",
                 "VisitFriendsMenuScanDetailClueExchangeRecognition",

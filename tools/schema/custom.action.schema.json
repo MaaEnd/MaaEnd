@@ -56,6 +56,7 @@
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
+                "MapTrackerBigMapZoom",
                 "MapTrackerGoal",
                 "MapTrackerMove",
                 "MapTrackerMoveCompatible",
@@ -66,7 +67,6 @@
                 "PuzzleAction",
                 "RealTimeTaskAction",
                 "SceneManagerMenuListClickItemAction",
-                "ScheduleAction",
                 "SubTask",
                 "VisitFriendsExecuteVisitAction",
                 "VisitFriendsMainAction",
@@ -118,6 +118,20 @@
                 "required": [ "custom_action_param" ],
                 "properties": {
                     "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                }
+            },
+            "else": {
+                "if": {
+                    "type": "object",
+                    "required": [ "custom_action" ],
+                    "properties": { "custom_action": { "const": "MapTrackerBigMapZoom" } }
+                },
+                "then": {
+                    "type": "object",
+                    "required": [ "custom_action_param" ],
+                    "properties": {
+                        "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
+                    }
                 }
             }
         }

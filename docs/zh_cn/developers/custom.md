@@ -108,23 +108,6 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
-### ScheduleAction
-
-`ScheduleAction` 实现位于 `agent/go-service/common/schedule`，用于按星期几调度子任务。读取当前节点的 `attach` 中的星期开关，仅在匹配的星期几执行指定子任务。
-
-- 参数：
-    - `task: string`：要执行的子任务名，必填。
-- `attach` 字段（写在当前节点的 `attach` 中，可以在任务配置中合并）：
-    - `monday: bool` — 周一是否执行。
-    - `tuesday: bool` — 周二是否执行。
-    - `wednesday: bool` — 周三是否执行。
-    - `thursday: bool` — 周四是否执行。
-    - `friday: bool` — 周五是否执行。
-    - `saturday: bool` — 周六是否执行。
-    - `sunday: bool` — 周日是否执行。
-
-省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Action 会发出一条“今日跳过”的本地化提示并返回成功（不执行子任务）。
-
 ### AutoAltClickAction
 
 `AutoAltClickAction` 实现位于 `agent/go-service/common/autoaltclick`，用于在指定位置执行 Alt + 点击操作。先按下 Alt 键，再点击目标位置，最后松开 Alt 键。
@@ -215,6 +198,22 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
 
+### ScheduleRecognition
+
+`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
+
+- 参数：无。
+- `attach` 字段（写在当前识别节点中，可以在任务配置中合并）：
+    - `monday: bool` — 周一是否执行。
+    - `tuesday: bool` — 周二是否执行。
+    - `wednesday: bool` — 周三是否执行。
+    - `thursday: bool` — 周四是否执行。
+    - `friday: bool` — 周五是否执行。
+    - `saturday: bool` — 周六是否执行。
+    - `sunday: bool` — 周日是否执行。
+
+省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会发出一条“今日跳过”的本地化提示并返回未命中。
+
 ## 小结
 
 写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
@@ -227,7 +226,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
-| 按星期几调度子任务            | `ScheduleAction`              |
+| 按星期几门控后续节点          | `ScheduleRecognition`         |
 | 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
 | 在指定位置 Alt + 长按         | `AutoAltLongPressAction`      |
 

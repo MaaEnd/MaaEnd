@@ -33,7 +33,7 @@
                     "name": "AutoStockStapleScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -44,7 +44,7 @@
                     "name": "AutoStockStapleScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -55,7 +55,7 @@
                     "name": "AutoStockStapleScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -66,7 +66,7 @@
                     "name": "AutoStockStapleScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -77,7 +77,7 @@
                     "name": "AutoStockStapleScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -88,7 +88,7 @@
                     "name": "AutoStockStapleScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -99,7 +99,7 @@
                     "name": "AutoStockStapleScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "AutoStockStapleSchedule": {
+                        "AutoStockStapleScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }

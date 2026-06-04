@@ -182,49 +182,6 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且目标点能够通过对应 NavMesh 路网抵达。
 
-### Action: MapTrackerBigMapPick
-
-🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
-
-#### 节点参数
-
-必填参数：
-
-- `map_name`: 地图的唯一名称。例如 "map01_lv001"。
-
-- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
-
-可选参数：
-
-- `on_find`: 找到目标点后执行的操作。默认 `"Click"`。可选值为：
-    - `"Click"`：点击目标点（默认）；
-    - `"Teleport"`：执行传送操作（要求目标点是传送锚点）；
-    - `"DoNothing"`：不执行任何操作。
-
-- `auto_open_map_scene`: 真假值，默认 `false`。是否预先自动打开对应的大地图界面。此功能依赖于 SceneManager 系列节点。未启用此功能的情况下，请确认玩家当前已经处于对应的大地图界面。
-
-- `no_zoom`: 真假值，默认 `false`。是否禁用自动缩放调整功能（自动调整大地图的缩放到合适的范围）。禁用此功能可能会降低本节点的成功率。
-
-#### 示例用法
-
-```json
-{
-    "MyNodeName": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                585.8,
-                825.5
-            ],
-            "on_find": "Teleport"
-        }
-    }
-}
-```
-
 ### Recognition: MapTrackerAssertLocation
 
 ✅判断玩家当前所处的地图名称和位置坐标是否满足任一预期条件。
@@ -269,6 +226,74 @@
             ]
         },
         "action": "DoNothing"
+    }
+}
+```
+
+### Action: MapTrackerBigMapPick
+
+🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。例如 "map01_lv001"。
+
+- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+
+可选参数：
+
+- `on_find`: 找到目标点后执行的操作。默认 `"Click"`。可选值为：
+    - `"Click"`：点击目标点（默认）；
+    - `"Teleport"`：执行传送操作（要求目标点是传送锚点）；
+    - `"DoNothing"`：不执行任何操作。
+
+- `auto_open_map_scene`: 真假值，默认 `false`。是否预先自动打开对应的大地图界面。此功能依赖于 SceneManager 系列节点。未启用此功能的情况下，请确认玩家当前已经处于对应的大地图界面。
+
+- `zoom_value`: 控制在寻找目标点之前的自动缩放调整行为，详情参见 [MapTrackerBigMapZoom](#action-maptrackerbigmapzoom) 节点的 `zoom_value` 参数。
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                585.8,
+                825.5
+            ],
+            "on_find": "Teleport"
+        }
+    }
+}
+```
+
+### Action: MapTrackerBigMapZoom
+
+🔍 在大地图界面中调整缩放滑条到指定位置。
+
+#### 节点参数
+
+必填参数：
+
+- `zoom_value`: 介于 $[0, 1]$ 的实数。若设为 `0` 或不填，则表示禁用缩放调整（什么都不会发生）。其余非零值表示的是大地图缩放滑条的点击位置，越接近 `0` 就越接近最近视野（最大缩放），`1` 为最远视野（最小缩放）。
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapZoom",
+        "custom_action_param": {
+            "zoom_value": 0.7
+        }
     }
 }
 ```

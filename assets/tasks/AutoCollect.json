@@ -38,7 +38,7 @@
                     "name": "AutoCollectScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -49,7 +49,7 @@
                     "name": "AutoCollectScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -60,7 +60,7 @@
                     "name": "AutoCollectScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -71,7 +71,7 @@
                     "name": "AutoCollectScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -82,7 +82,7 @@
                     "name": "AutoCollectScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -93,7 +93,7 @@
                     "name": "AutoCollectScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -104,7 +104,7 @@
                     "name": "AutoCollectScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "AutoCollectSchedule": {
+                        "AutoCollectScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }

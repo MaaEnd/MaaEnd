@@ -18,4 +18,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("MapTrackerGoal", &maptrackerdefault.MapTrackerGoal{})
 	maa.AgentServerRegisterCustomAction("MapTrackerMoveCompatible", &maptrackercompatible.MapTrackerMoveCompatible{})
 	maa.AgentServerRegisterCustomAction("MapTrackerBigMapPick", &maptrackerbigmap.MapTrackerBigMapPick{})
+	maa.AgentServerRegisterCustomAction("MapTrackerBigMapZoom", &maptrackerbigmap.MapTrackerBigMapZoom{})
 }
