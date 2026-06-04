@@ -1,0 +1,36 @@
+name: Sync ZmdMap Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-zmdmap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r tools/map_tracker/requirements.txt
+
+      - name: Download JSON data
+        run: |
+          python3 tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
+
+      - name: Commit and push changes
+        uses: actions-js/push@master
+        with:
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "chore: sync zmdmap data
+
+            This commit was automatically generated.
+
+            [skip changelog]"
+          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}

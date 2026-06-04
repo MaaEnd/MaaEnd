@@ -172,7 +172,7 @@ private:
         const std::string& targetZoneId,
         const YoloCoarseResult& coarse) const;
     std::optional<MapPosition>
-        tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint);
+        tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint, MapPosition* outBestRaw = nullptr);
     MapPosition stabilizePosition(const MapPosition& raw);
     MapPosition acceptPosition(const MapPosition& raw, TimePoint now);
     void drainBackgroundGlobalSearchTasks();
@@ -945,7 +945,8 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
 std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     const cv::Mat& minimap,
     const std::string& targetZoneId,
-    const SearchConstraint& constraint)
+    const SearchConstraint& constraint,
+    MapPosition* outBestRaw)
 {
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
@@ -986,6 +987,10 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     auto globalResult = primaryAttempt.result;
     const MapPosition& rawGlobalPrimaryPos = primaryAttempt.rawPos;
 
+    if (outBestRaw) {
+        *outBestRaw = rawGlobalPrimaryPos;
+    }
+
     const bool shouldTryDualMode =
         !globalResult && !isPathHeatmapZone && (constraint.yolo_validated || rawGlobalPrimaryPos.score > 0.1);
     if (!shouldTryDualMode) {
@@ -1007,6 +1012,10 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     auto fallbackResult = fallbackAttempt.result;
     const MapPosition& rawGlobalFallbackPos = fallbackAttempt.rawPos;
     const double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
+
+    if (outBestRaw && rawGlobalFallbackPos.score > rawGlobalPrimaryPos.score) {
+        *outBestRaw = rawGlobalFallbackPos;
+    }
 
     // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近，且双方分数都过线，才视为互证。
     if (rawGlobalPrimaryPos.score >= kDualGlobalVerifyMinScore && rawGlobalFallbackPos.score >= kDualGlobalVerifyMinScore
@@ -1113,14 +1122,23 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
-    auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint);
+    MapPosition bestRawGlobal {};
+    auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint, &bestRawGlobal);
     if (!globalResult) {
-        motionTracker->markLost();
-        if (motionTracker->getLostCount() > maxAllowedLost) {
-            motionTracker->forceLost();
-            stablePosition.reset();
+        if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
+            bestRawGlobal.isHeld = true;
+            globalResult = bestRawGlobal;
+            LogInfo << "Global gate low-confidence: releasing best raw peak (held) to avoid cold-start deadlock."
+                    << VAR(bestRawGlobal.x) << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
         }
-        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+        else {
+            motionTracker->markLost();
+            if (motionTracker->getLostCount() > maxAllowedLost) {
+                motionTracker->forceLost();
+                stablePosition.reset();
+            }
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+        }
     }
 
     const auto lastPosOpt = motionTracker->getLastPos();

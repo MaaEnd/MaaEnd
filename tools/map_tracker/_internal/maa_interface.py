@@ -88,8 +88,8 @@ class MaaInterface:
             self.controller = Win32Controller(
                 window.hwnd,
                 screencap_method=MaaWin32ScreencapMethodEnum.Background,
-                mouse_method=MaaWin32InputMethodEnum.PostMessageWithCursorPos,
-                keyboard_method=MaaWin32InputMethodEnum.PostMessage,
+                mouse_method=MaaWin32InputMethodEnum.Seize,
+                keyboard_method=MaaWin32InputMethodEnum.Seize,
             )
         except Exception as e_win:
             try:
@@ -220,6 +220,52 @@ class MaaInterface:
                 )
             raise MaaRuntimeError("Inference succeeded but no result found")
         raise MaaRuntimeError(f"Inference failed")
+
+    def do_goal(
+        self,
+        map_name: str,
+        x: float,
+        y: float,
+        *,
+        move_params: dict | None = None,
+    ) -> None:
+        """Run MapTrackerGoal to navigate to the given coordinate."""
+        if self.controller is None:
+            raise MaaRuntimeError("Controller not initialized")
+        if self.agent_client is None:
+            raise MaaRuntimeError("Agent client not initialized")
+
+        if move_params is None:
+            move_params = {
+                "arrival_timeout": 30000,
+                "no_ensure_initial_movement_state": True,
+            }
+
+        ENTRY_NAME = f"__MapTrackerEditorInternalMapTrackerGoal"
+        pipeline = {
+            ENTRY_NAME: {
+                "action": {
+                    "type": "Custom",
+                    "param": {
+                        "custom_action": "MapTrackerGoal",
+                        "custom_action_param": {
+                            "map_name": map_name,
+                            "target": [x, y],
+                            **move_params,
+                        },
+                    },
+                },
+                "pre_delay": 0,
+                "post_delay": 0,
+            }
+        }
+
+        task_detail: TaskDetail = (
+            self.tasker.post_task(ENTRY_NAME, pipeline).wait().get()
+        )
+
+        if not task_detail.status.succeeded:
+            raise MaaRuntimeError("Goal action failed")
 
 
 # Testing

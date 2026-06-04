@@ -105,7 +105,7 @@
             "path": [
                 [
                     632.5,
-                    348.9
+                    348.3
                 ],
                 [
                     623.8,
@@ -128,8 +128,8 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    630.0,
-                    350.1
+                    632.5,
+                    348.3
                 ],
                 [
                     626.3,
@@ -152,8 +152,8 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    635.0,
-                    347.6
+                    632.5,
+                    348.3
                 ],
                 [
                     628.7,
@@ -176,8 +176,8 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    635.0,
-                    347.6
+                    632.5,
+                    348.3
                 ],
                 [
                     628.7,
@@ -216,8 +216,8 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    635.0,
-                    347.6
+                    632.5,
+                    348.3
                 ],
                 [
                     630.0,
@@ -256,8 +256,8 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    635.0,
-                    347.6
+                    632.5,
+                    348.3
                 ],
                 [
                     628.7,
@@ -305,6 +305,14 @@
                 ]
             ]
         },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute12GotoFindCollect7"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute12GotoFindCollect7": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute12GotoFind8"
         },

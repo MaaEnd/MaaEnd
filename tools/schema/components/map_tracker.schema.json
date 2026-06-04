@@ -45,11 +45,8 @@
                 }
             }
         },
-        "MapTrackerMoveParam": {
-            "type": "object",
-            "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
-            "additionalProperties": false,
-            "required": [ "map_name", "path" ],
+        "MapTrackerMovementBaseParam": {
+            "description": "Shared movement parameters for MapTrackerMove and MapTrackerGoal.",
             "properties": {
                 "map_name": {
                     "title": "Map Name",
@@ -162,6 +159,41 @@
                     "default": "^%s(_tier_\\w+)?$"
                 }
             }
+        },
+        "MapTrackerMoveParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
+            "allOf": [
+                { "$ref": "#/$defs/MapTrackerMovementBaseParam" }
+            ],
+            "unevaluatedProperties": false,
+            "required": [ "map_name", "path" ]
+        },
+        "MapTrackerGoalParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerGoal: navigate to a target coordinate or entity through NavMesh pathfinding.",
+            "allOf": [
+                { "$ref": "#/$defs/MapTrackerMovementBaseParam" }
+            ],
+            "unevaluatedProperties": false,
+            "required": [ "map_name" ],
+            "properties": {
+                "target": {
+                    "title": "Target",
+                    "description": "Target coordinate [x, y] in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "entity_id": {
+                    "title": "Entity ID",
+                    "description": "NavMesh entity ID to look up as the target.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                }
+            },
+            "anyOf": [
+                { "required": [ "target" ] },
+                { "required": [ "entity_id" ] }
+            ]
         },
         "MapTrackerBigMapPickParam": {
             "type": "object",

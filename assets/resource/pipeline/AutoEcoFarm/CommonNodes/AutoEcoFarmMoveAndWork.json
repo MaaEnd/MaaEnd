@@ -124,12 +124,12 @@
             "[JumpBack]_AutoEcoFarmCloseEquipment",
             //识别肥料界面，有的话关了
             "[JumpBack]_AutoEcoFarmCloseFertilizer",
+            //离开农场则退出工作循环
+            "[Anchor]_AutoEcoFarmLeftFarmAnchor",
             //识别工作按钮并点击
             "_AutoEcoFarmFindMenuIcon",
             //第二次保障，判断标记还在不在
             "_AutoEcoFarmTargetExists",
-            //第三层保障，如果还在农田内则任不会结束
-            "_AutoEcoFarmInAnyFarm",
             //所有条件都不满足的情况下，启动最后一跳，再给一次机会
             "_AutoEcoFarmLastJump",
             //意外错误的话直接退出任务
@@ -200,60 +200,6 @@
         "next": [
             "_AutoEcoFarmJumpBack"
         ]
-    },
-    "_AutoEcoFarmInAnyFarm": {
-        "desc": "确认是否在任意农场内,还在的话继续循环",
-        "enabled": true,
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "_AutoEcoFarmInValleyIVFarm",
-                    "_AutoEcoFarmInWulinFarm"
-                ]
-            }
-        },
-        "next": [
-            "_AutoEcoFarmJump"
-        ]
-    },
-    "_AutoEcoFarmInValleyIVFarm": {
-        "desc": "确认是否在谷地农场内",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map01_lv005",
-                    "target": [
-                        551,
-                        322,
-                        23,
-                        23
-                    ]
-                }
-            ],
-            "precision": 1
-        }
-    },
-    "_AutoEcoFarmInWulinFarm": {
-        "desc": "确认是否在武陵农场内",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        413,
-                        164,
-                        33,
-                        32
-                    ]
-                }
-            ],
-            "precision": 1
-        }
     },
     "_AutoEcoFarmFindMenuIcon": {
         "desc": "寻找采集、播种、浇水的文字",

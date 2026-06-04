@@ -21,7 +21,9 @@
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmValleyIV",
-            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartValleyIV"
+            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartValleyIV",
+            //AutoEcoFarmMoveAndWork.json 工作循环部分
+            "_AutoEcoFarmLeftFarmAnchor": "_AutoEcoFarmLeftFarmValleyIV"
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
@@ -345,6 +347,31 @@
         },
         "next": [
             //JumpBack
+        ]
+    },
+    //确认是否离开谷地农场，离开则退出工作循环。如需更换目标农场，请修改下方 target 坐标，
+    //将矩形范围扩大至覆盖整块目标农场的地图区域
+    "_AutoEcoFarmLeftFarmValleyIV": {
+        "desc": "确认是否离开谷地农场, 离开则退出工作循环",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        551,
+                        322,
+                        23,
+                        23
+                    ]
+                }
+            ],
+            "precision": 1
+        },
+        "inverse": true,
+        "next": [
+            "_AutoEcoFarmCancelMove"
         ]
     },
     //识别地图上农田标题的节点，改ocr内容和节点名就行

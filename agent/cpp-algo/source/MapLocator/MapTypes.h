@@ -157,6 +157,7 @@ constexpr double kPositionConsensusRadius = 12.0; // 近点判定半径
 constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
 constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
+constexpr double kSeamFallbackMinPeakScore = 0.0;
 
 // tracking 窄带多尺度搜索参数。第一项必须为 0.0（即 baseScale），
 // 循环时 baseScale 先跑，达到 kFastTrackingPassScore 则跳过后续尺度
