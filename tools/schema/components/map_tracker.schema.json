@@ -188,12 +188,64 @@
                     "description": "NavMesh entity ID to look up as the target.",
                     "type": "integer",
                     "exclusiveMinimum": 0
+                },
+                "zipline_policy": {
+                    "title": "Zipline Policy",
+                    "description": "Controls whether opportunistic zipline routing is enabled.",
+                    "type": "string",
+                    "enum": [ "Never", "Active" ],
+                    "default": "Never"
                 }
             },
             "anyOf": [
                 { "required": [ "target" ] },
                 { "required": [ "entity_id" ] }
             ]
+        },
+        "MapTrackerZiplineParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerZipline: execute one zipline fast travel while already on a zipline.",
+            "additionalProperties": false,
+            "required": [ "map_name", "target" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Target zipline coordinate [x, y] in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "distance": {
+                    "title": "Distance",
+                    "description": "Distance between the current and target zipline points, used to estimate waiting time.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                },
+                "rotation_threshold": {
+                    "title": "Rotation Threshold",
+                    "description": "Angular difference threshold in degrees to consider the target zipline direction reached.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 180,
+                    "default": 12
+                },
+                "timeout": {
+                    "title": "Timeout",
+                    "description": "Max time in milliseconds for orienting toward the target zipline.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 12000
+                }
+            }
         },
         "MapTrackerBigMapPickParam": {
             "type": "object",
@@ -224,11 +276,27 @@
                     "type": "boolean",
                     "default": false
                 },
-                "no_zoom": {
-                    "title": "No Zoom",
-                    "description": "Disable auto zoom adjustment.",
-                    "type": "boolean",
-                    "default": false
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target zoom slider position. Zero or omitted disables auto zoom; non-zero values must be in range (0, 1].",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            }
+        },
+        "MapTrackerBigMapZoomParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapZoom: adjust the big-map zoom slider to a target position.",
+            "additionalProperties": false,
+            "required": [ "zoom_value" ],
+            "properties": {
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target slider position in range (0, 1], where 1.0 is zoom-out end and values near 0 are zoom-in end.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
                 }
             }
         },
