@@ -65,12 +65,11 @@ constexpr std::array<BaseNavZoneAlias, 4> kBaseNavZoneAliases {{
     { "dung01", { "dung01", "Dung" } },
 }};
 
-constexpr std::array<double, 4> kDetourRadii { 4.0, 7.0, 10.0, 14.0 };
-constexpr std::array<double, 12> kDetourHeadingOffsets { 45.0, -45.0, 75.0, -75.0, 110.0, -110.0,
-                                                         140.0, -140.0, 25.0, -25.0, 170.0, -170.0 };
+constexpr std::array<double, 3> kDetourRadii { 3.0, 5.0, 7.0 };
+constexpr std::array<double, 8> kDetourHeadingOffsets { 30.0, -30.0, 50.0, -50.0, 70.0, -70.0, 90.0, -90.0 };
 constexpr double kDetourSnapRadius = 4.0;
-constexpr double kDetourBlockedForwardDistance = 10.0;
-constexpr size_t kDetourBlockedTriangleCount = 6;
+constexpr double kDetourBlockedForwardDistance = 6.0;
+constexpr size_t kDetourBlockedTriangleCount = 4;
 constexpr double kDetourBacktrackPenalty = 8.0;
 constexpr double kDetourSnapPenalty = 3.0;
 
@@ -545,7 +544,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     const NaviParam& param,
     const NaviPosition& position,
     const Waypoint& anchor,
-    double route_heading)
+    double route_heading,
+    navmesh::WorldPoint* out_detour_vertex)
 {
     if (!anchor.HasPosition()) {
         return std::nullopt;
@@ -571,6 +571,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     std::optional<navmesh::BaseNavRouteResult> best;
     double best_score = std::numeric_limits<double>::infinity();
     navmesh::WorldPoint best_detour;
+    // The on-mesh point the start->candidate leg actually reaches (candidate snapped onto the mesh).
+    // This is the bypass vertex the recovery overlay pins so the agent is steered to the side of the
+    // obstacle rather than back into it.
+    navmesh::WorldPoint best_detour_vertex {};
     for (double radius : kDetourRadii) {
         for (double heading_offset : kDetourHeadingOffsets) {
             const navmesh::WorldPoint candidate = OffsetPoint(position, route_heading + heading_offset, radius);
@@ -594,6 +598,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
             if (score < best_score) {
                 best = *route_to_detour;
                 const size_t point_offset = best->path.points.size();
+                best_detour_vertex = best->path.points.back();
                 if (route_to_goal->path.points.size() > 1) {
                     best->path.points.insert(best->path.points.end(), route_to_goal->path.points.begin() + 1, route_to_goal->path.points.end());
                 }
@@ -618,8 +623,12 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
         return std::nullopt;
     }
 
-    LogInfo << "NAVMESH detour selected." << VAR(best_detour.x) << VAR(best_detour.y) << VAR(best_score) << VAR(best->cost)
-            << VAR(best->triangles.size()) << VAR(best->path.points.size());
+    if (out_detour_vertex != nullptr) {
+        *out_detour_vertex = best_detour_vertex;
+    }
+    LogInfo << "NAVMESH detour selected." << VAR(best_detour.x) << VAR(best_detour.y) << VAR(best_detour_vertex.x)
+            << VAR(best_detour_vertex.y) << VAR(best_score) << VAR(best->cost) << VAR(best->triangles.size())
+            << VAR(best->path.points.size());
     return best;
 }
 

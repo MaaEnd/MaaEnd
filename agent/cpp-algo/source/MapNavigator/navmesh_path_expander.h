@@ -26,7 +26,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     const NaviParam& param,
     const NaviPosition& position,
     const Waypoint& anchor,
-    double route_heading);
+    double route_heading,
+    navmesh::WorldPoint* out_detour_vertex = nullptr);
 bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal);
 
 } // namespace mapnavigator

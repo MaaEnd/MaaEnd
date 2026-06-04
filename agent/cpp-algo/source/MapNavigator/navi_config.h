@@ -77,6 +77,7 @@ constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerM
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
 constexpr int32_t kDynamicRecoveryMaxAttemptsPerAnchor = 3;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
+constexpr double kCloseGoalDetourSuppressSlack = 6.0;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;

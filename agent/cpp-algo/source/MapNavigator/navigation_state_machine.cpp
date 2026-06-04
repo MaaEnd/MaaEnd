@@ -413,14 +413,19 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    const auto route = use_detour ? PlanNavmeshDetourRoute(param_, *position_, anchor, route_heading)
+    navmesh::WorldPoint detour_vertex {};
+    const auto route = use_detour ? PlanNavmeshDetourRoute(param_, *position_, anchor, route_heading, &detour_vertex)
                                   : PlanNavmeshRoute(param_, position_->zone_id, start, goal);
     if (!route) {
         return false;
     }
 
     std::vector<Waypoint> generated_prefix;
-    if (!AppendGeneratedNavmeshWaypoints(route->path, generated_prefix, false)) {
+    if (use_detour) {
+        generated_prefix.emplace_back(detour_vertex.x, detour_vertex.y, ActionType::RUN);
+        generated_prefix.back().strict_arrival = true;
+    }
+    else if (!AppendGeneratedNavmeshWaypoints(route->path, generated_prefix, false)) {
         LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
                 << VAR(route->path.points.size());
         return false;
@@ -604,9 +609,12 @@ bool NavigationStateMachine::TickNavigate()
                                               : route.progress_distance;
         session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
     }
-    // A replan likely lengthens the corridor; reset so a longer-but-correct detour
-    // doesn't inherit the pre-replan stall counter.
-    if (nav_run_result.replanned_with != NavRunReplanReason::None) {
+    // An OffCorridor replan rebuilds a genuinely different (usually longer) corridor, so reset the stall
+    // counter to not penalize the new route. A ProgressRegression replan, by contrast, fires *because* the
+    // agent is making no corridor progress — it regenerates the same corridor against a dynamic obstacle the
+    // navmesh cannot see. Resetting on it would keep deferring the obstacle-recovery trigger that is the only
+    // layer able to route around the obstacle, so leave the stall counter running in that case.
+    if (nav_run_result.replanned_with == NavRunReplanReason::OffCorridor) {
         session_->ResetProgress();
     }
     const int64_t stalled_ms = session_->StalledMs(now);
@@ -670,8 +678,11 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
+    const bool near_strict_goal = waypoint.RequiresStrictArrival()
+        && route.waypoint_distance <= arrival_distance + kCloseGoalDetourSuppressSlack;
     const bool should_try_recovery = session_->phase() == NaviPhase::Navigate && stalled_ms >= kObstacleRecoveryMinTriggerMs
-                                     && (route.progress_distance > kNoProgressMinDistance || waypoint.RequiresStrictArrival());
+                                     && (route.progress_distance > kNoProgressMinDistance || waypoint.RequiresStrictArrival())
+                                     && !near_strict_goal;
     if (should_try_recovery) {
         const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
         if (anchor) {
