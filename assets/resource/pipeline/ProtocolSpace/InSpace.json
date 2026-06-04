@@ -395,7 +395,6 @@
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
-            "ProtocolSpaceNotClaimReward",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
         ],
@@ -529,6 +528,7 @@
         ],
         "pre_wait_freezes": 200,
         "next": [
+            "ProtocolSpaceNotClaimReward",
             "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",

@@ -381,7 +381,7 @@
             ],
             "pipeline_override": {
                 "ProtocolSpaceMissionCount": {
-                    "max_hit": "ProtocolSpaceMissionCount"
+                    "max_hit": "{ProtocolSpaceMissionCount}"
                 }
             }
         },
