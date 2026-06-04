@@ -613,7 +613,7 @@
     "task.ProtocolSpace.description": "이성을 소모하여 최고 등급 프로토콜 공간 보상을 자동으로 획득하며, 이성이 모두 소모될 때까지 계속합니다.",
     "task.WebEvent202605.label": "🎁공동 축하 웹 이벤트 자동화",
     "task.WebEvent202605.description": "2026년 5월 공동 축하 웹 이벤트를 자동으로 플레이하고, 선물 블록을 자동으로 쌓습니다.\n**주의: 이벤트 화면을 연 뒤 작업을 시작하세요!**",
-    "option.TaskSchedule.label": "실행 주기",
+    "option.TaskSchedule.label": "실행 주기(게임 시간)",
     "option.TaskScheduleMonday.label": "월요일에 실행",
     "option.TaskScheduleTuesday.label": "화요일에 실행",
     "option.TaskScheduleWednesday.label": "수요일에 실행",

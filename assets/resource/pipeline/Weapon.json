@@ -345,8 +345,36 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 100,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "WeaponUpgradeSwitchAscendingSuccess"
+        ]
+    },
+    "WeaponUpgradeSwitchAscendingSuccess": {
+        "desc": "成功切换到升序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 0,
                 -300,
@@ -354,7 +382,7 @@
                 300
             ]
         },
-        "post_delay": 0,
-        "rate_limit": 0
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

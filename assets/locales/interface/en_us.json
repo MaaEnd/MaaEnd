@@ -279,7 +279,7 @@
     "task.GearAssembly.description": "Automatically craft a gear of the specified level",
     "task.ProtocolSpace.label": "⚔️Protocol Space",
     "task.ProtocolSpace.description": "Automatically consume sanity to farm the highest-level Protocol Space rewards until sanity is fully consumed.",
-    "option.TaskSchedule.label": "Execution cycle",
+    "option.TaskSchedule.label": "Execution cycle (game time)",
     "option.TaskScheduleMonday.label": "Monday",
     "option.TaskScheduleTuesday.label": "Tuesday",
     "option.TaskScheduleWednesday.label": "Wednesday",

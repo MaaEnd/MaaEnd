@@ -565,16 +565,17 @@ class PathEditPage(MapViewportPage):
     ) -> bool:
         if k < 1:
             raise ValueError("k must be >= 1")
-        prev_next_dx, prev_next_dy = next_p[0] - prev_p[0], next_p[1] - prev_p[1]
-        d_prev_next = math.hypot(prev_next_dx, prev_next_dy)
-        if d_prev_next < (k - 1) + 1e-6:
-            return True
+        prev_mid_dx, prev_mid_dy = mid_p[0] - prev_p[0], mid_p[1] - prev_p[1]
         mid_next_dx, mid_next_dy = next_p[0] - mid_p[0], next_p[1] - mid_p[1]
-        sin_prev_next_sub_mid_next = abs(
-            prev_next_dx * mid_next_dy - prev_next_dy * mid_next_dx
-        ) / (d_prev_next * math.hypot(mid_next_dx, mid_next_dy) + 1e-6)
+        d_mid_next = math.hypot(mid_next_dx, mid_next_dy)
+        if d_mid_next < (k - 1) + 1e-6:
+            return True
+        d_prev_mid = math.hypot(prev_mid_dx, prev_mid_dy)
+        sin_delta_theta = abs(
+            prev_mid_dx * mid_next_dy - prev_mid_dy * mid_next_dx
+        ) / (d_prev_mid * d_mid_next + 1e-6)
         # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
-        return sin_prev_next_sub_mid_next * (d_prev_next + 1) < k
+        return sin_delta_theta * (d_mid_next + 1) < k
 
     def _get_map_coords(self, screen_x, screen_y):
         mx, my = self.view.get_real_coords(screen_x, screen_y)

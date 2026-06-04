@@ -664,7 +664,7 @@
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大等級限制",
     "task.ProtocolSpace.label": "⚔️協議空間",
     "task.ProtocolSpace.description": "自動消耗理智刷取最高等級協議空間獎勵，直到理智消耗完畢",
-    "option.TaskSchedule.label": "執行週期",
+    "option.TaskSchedule.label": "執行週期(遊戲時間)",
     "option.TaskScheduleMonday.label": "週一",
     "option.TaskScheduleTuesday.label": "週二",
     "option.TaskScheduleWednesday.label": "週三",

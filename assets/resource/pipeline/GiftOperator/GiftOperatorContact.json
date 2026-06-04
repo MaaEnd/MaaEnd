@@ -305,16 +305,15 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    40,
-                    40,
-                    40
+                    52,
+                    52,
+                    45
                 ],
                 "upper": [
-                    55,
-                    55,
-                    55
+                    80,
+                    78,
+                    52
                 ],
-                "connected": true,
                 "count": 10
             }
         }

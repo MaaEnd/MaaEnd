@@ -51,7 +51,8 @@
     ],
     "files.associations": {
         "**/assets/**/*.json": "jsonc",
-        "**/tests/**/*.json": "jsonc"
+        "**/tests/**/*.json": "jsonc",
+        "*.mtnm": "ini"
     },
     "[json][jsonc]": {
         "editor.formatOnSave": true,

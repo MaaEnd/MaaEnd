@@ -59,19 +59,34 @@
     },
     "DailyEventUnreadLimitedTimeEventClaim": {
         "desc": "领取奖励",
-        "recognition": "OCR",
-        "roi": [
-            -160,
-            -440,
-            160,
-            440
-        ],
-        "expected": [
-            "领取",
-            "領取",
-            "(?i)Claim",
-            "受取",
-            "획득"
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -160,
+                    -440,
+                    160,
+                    440
+                ],
+                "expected": [
+                    "领取",
+                    "領取",
+                    "(?i)Claim",
+                    "受取",
+                    "획득"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -160,
+                    -440,
+                    160,
+                    440
+                ],
+                "template": "DailyRewards/Event/LimitedTimeEventClaim.png"
+            }
         ],
         "action": "Click",
         "next": [

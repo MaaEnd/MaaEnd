@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
-	"math"
 	"os"
 	"runtime"
 	"sync"
-	"unsafe"
 )
 
 // Template represents a preloaded template image along with its integral array and statistics for matching.
@@ -135,101 +133,6 @@ func subpixelOffset(neg, pos float64) float64 {
 	return min(1.0, max(-1.0, offset))
 }
 
-func dotRGBA3(imgPix, tplPix *uint8, pixels int) uint64 {
-	if pixels <= 0 {
-		return 0
-	}
-	return dotRGBA3Impl(unsafe.Pointer(imgPix), unsafe.Pointer(tplPix), pixels)
-}
-
-// ComputeNCC computes the normalized cross-correlation between a rectangle region in the haystack image
-// and a template image, using precomputed integral array for efficiency
-func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplStats StatsResult, ox, oy int) float64 {
-	iw, ih := img.Rect.Dx(), img.Rect.Dy()
-	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
-	if ox < 0 || oy < 0 || ox+tw > iw || oy+th > ih {
-		return 0.0
-	}
-
-	ipx, is := img.Pix, img.Stride
-	tpx, ts := tpl.Pix, tpl.Stride
-
-	var dot uint64
-	iOff := oy*is + ox*4
-	tOff := 0
-	for range th {
-		dot += dotRGBA3(&ipx[iOff], &tpx[tOff], tw)
-		iOff += is
-		tOff += ts
-	}
-
-	count := float64(tw * th * 3)
-	imgStats := imgIntArr.GetAreaStats(ox, oy, tw, th)
-	stdProd := imgStats.Std * tplStats.Std
-	if stdProd < 1e-12 {
-		return 0.0
-	}
-	return (float64(dot) - count*imgStats.Mean*tplStats.Mean) / stdProd
-}
-
-// ComputeNCCInCircle computes masked normalized cross-correlation at the given top-left corner using circle spans.
-// See [ComputeNCC] for the unmasked version.
-func ComputeNCCInCircle(
-	img *image.RGBA,
-	imgIntArr IntegralArray,
-	tpl *image.RGBA,
-	tplCircleStats StatsResult,
-	spans []circleSpan,
-	pixelCount int,
-	ox, oy int,
-) float64 {
-	if pixelCount <= 0 || tplCircleStats.Std < 1e-12 {
-		return 0.0
-	}
-
-	iw, ih := img.Rect.Dx(), img.Rect.Dy()
-	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
-	if ox < 0 || oy < 0 || ox+tw > iw || oy+th > ih {
-		return 0.0
-	}
-
-	ipx, is := img.Pix, img.Stride
-	tpx, ts := tpl.Pix, tpl.Stride
-
-	var dot uint64
-	var sumI float64
-	var sumI2 float64
-
-	for _, sp := range spans {
-		ty := sp.Y
-		x0 := sp.X0
-		x1 := sp.X1
-		width := x1 - x0 + 1
-
-		rowSum, rowSumSq := imgIntArr.GetRowRangeIntegral(oy+ty, ox+x0, width)
-		sumI += rowSum
-		sumI2 += rowSumSq
-
-		iOff := (oy+ty)*is + (ox+x0)*4
-		tOff := ty*ts + x0*4
-		dot += dotRGBA3(&ipx[iOff], &tpx[tOff], width)
-	}
-
-	count := float64(pixelCount * 3)
-	imgMean := sumI / count
-	imgVar := sumI2 - count*imgMean*imgMean
-	if imgVar < 1e-12 {
-		return 0.0
-	}
-	imgStd := math.Sqrt(imgVar)
-	stdProd := imgStd * tplCircleStats.Std
-	if stdProd < 1e-12 {
-		return 0.0
-	}
-
-	return (float64(dot) - count*imgMean*tplCircleStats.Mean) / stdProd
-}
-
 // MatchTemplate performs template matching on the whole image,
 // returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
 func MatchTemplate(
@@ -245,20 +148,20 @@ func MatchTemplate(
 	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, [4]int{0, 0, iw, ih})
 }
 
-// MatchCircleTemplate matches a circular region inside the template on the whole image.
-// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
-func MatchCircleTemplate(
+// MatchTemplateWithMask performs template matching on the whole image while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
+func MatchTemplateWithMask(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
-	tplCircleStats StatsResult,
-	tplCirclePolar Circle,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
 ) (x, y, val float64) {
 	if img == nil || tpl == nil {
 		return 0, 0, 0
 	}
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
-	return MatchCircleTemplateInArea(img, imgIntArr, tpl, tplCircleStats, tplCirclePolar, [4]int{0, 0, iw, ih})
+	return MatchTemplateInAreaWithMask(img, imgIntArr, tpl, tplStats, maskColorRGB888, [4]int{0, 0, iw, ih})
 }
 
 // MatchTemplateInArea performs template matching such that the center of the template
@@ -347,16 +250,14 @@ func MatchTemplateInArea(
 	return subX, subY, fm
 }
 
-// MatchCircleTemplateInArea matches a circular region inside the template in a rectangular search area.
-// tplCirclePolar is the template-space circle and rect is the image-space area (x, y, w, h)
-// where the template center is constrained to remain.
-// Returns (x, y, val) where (x, y) is top-left with subpixel accuracy.
-func MatchCircleTemplateInArea(
+// MatchTemplateInAreaWithMask performs template matching in a rectangular search area while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+func MatchTemplateInAreaWithMask(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
-	tplCircleStats StatsResult,
-	tplCirclePolar Circle,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
 	rect [4]int,
 ) (x, y, val float64) {
 	if img == nil || tpl == nil {
@@ -369,11 +270,14 @@ func MatchCircleTemplateInArea(
 		return 0, 0, 0
 	}
 
-	spans, pixelCount := buildCircleSpans(tw, th, tplCirclePolar)
+	spans, pixelCount, tplMaskStats := buildMaskSpans(tpl, maskColorRGB888)
 	if pixelCount == 0 {
 		return 0, 0, 0
 	}
-	if tplCircleStats.Std < 1e-12 {
+	if pixelCount == tw*th {
+		tplMaskStats = tplStats
+	}
+	if tplMaskStats.Std < 1e-12 {
 		return 0, 0, 0
 	}
 
@@ -398,7 +302,7 @@ func MatchCircleTemplateInArea(
 		lx, ly, lm := minX, minY, -1.0
 		for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
 			for x := minX; x <= maxX; x += stepLen {
-				s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+				s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
 				if s > lm {
 					lm, lx, ly = s, x, y
 				}
@@ -420,7 +324,7 @@ func MatchCircleTemplateInArea(
 	fm, fx, fy := bc.s, bc.x, bc.y
 	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
 		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
-			s := ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, x, y)
+			s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
@@ -431,7 +335,7 @@ func MatchCircleTemplateInArea(
 		if tx < minX || tx > maxX || ty < minY || ty > maxY {
 			return fallback
 		}
-		return ComputeNCCInCircle(img, imgIntArr, tpl, tplCircleStats, spans, pixelCount, tx, ty)
+		return ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, tx, ty)
 	}
 
 	upNCC := evalOr(fx, fy-1, fm)
@@ -443,6 +347,39 @@ func MatchCircleTemplateInArea(
 	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
 
 	return subX, subY, fm
+}
+
+// BuildCircleMaskTemplate creates a template whose pixels outside the circle are filled with the mask color.
+// This is useful if you want to create a circular template from a rectangular image.
+func BuildCircleMaskTemplate(tpl *image.RGBA, circle Circle, maskColorRGB888 int32) *image.RGBA {
+	w, h := tpl.Rect.Dx(), tpl.Rect.Dy()
+	circleTpl := image.NewRGBA(image.Rect(0, 0, w, h))
+
+	maskR := uint8((uint32(maskColorRGB888) >> 16) & 0xFF)
+	maskG := uint8((uint32(maskColorRGB888) >> 8) & 0xFF)
+	maskB := uint8(uint32(maskColorRGB888) & 0xFF)
+	r2 := circle.Radius * circle.Radius
+
+	for y := range h {
+		srcOff := y * tpl.Stride
+		dstOff := y * circleTpl.Stride
+		for x := range w {
+			dx := x - circle.X
+			dy := y - circle.Y
+			if circle.Radius >= 0 && dx*dx+dy*dy <= r2 {
+				copy(circleTpl.Pix[dstOff:dstOff+4], tpl.Pix[srcOff:srcOff+4])
+			} else {
+				circleTpl.Pix[dstOff] = maskR
+				circleTpl.Pix[dstOff+1] = maskG
+				circleTpl.Pix[dstOff+2] = maskB
+				circleTpl.Pix[dstOff+3] = 255
+			}
+			srcOff += 4
+			dstOff += 4
+		}
+	}
+
+	return circleTpl
 }
 
 // MatchTemplateAnyScale performs iterative template matching over a scale range.
@@ -588,4 +525,107 @@ func MatchTemplateAnyScale(
 	}
 
 	return bestX, bestY, bestScore, bestScale
+}
+
+// MatchTemplateHit represents a template match result.
+type MatchTemplateHit struct {
+	X   float64
+	Y   float64
+	Val float64
+}
+
+// MatchTemplateMultiHit returns repeated template matches by computing an NCC matrix and repeatedly suppressing previous hit regions.
+func MatchTemplateMultiHit(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	threshold float64,
+	maxHits int,
+) []MatchTemplateHit {
+	matrix := ComputeNCCMatrix(img, imgIntArr, tpl, tplStats)
+	if len(matrix) == 0 {
+		return nil
+	}
+	return collectMultiHitFromNCCMatrix(matrix, tpl.Rect.Dx(), tpl.Rect.Dy(), threshold, maxHits)
+}
+
+// MatchTemplateMultiHitWithMask returns repeated template matches while ignoring template pixels of the mask color.
+func MatchTemplateMultiHitWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
+	threshold float64,
+	maxHits int,
+) []MatchTemplateHit {
+	matrix := ComputeNCCMatrixWithMask(img, imgIntArr, tpl, tplStats, maskColorRGB888)
+	if len(matrix) == 0 {
+		return nil
+	}
+	return collectMultiHitFromNCCMatrix(matrix, tpl.Rect.Dx(), tpl.Rect.Dy(), threshold, maxHits)
+}
+
+func collectMultiHitFromNCCMatrix(matrix [][]float64, tplW, tplH int, threshold float64, maxHits int) []MatchTemplateHit {
+	if maxHits <= 0 {
+		return nil
+	}
+
+	hits := make([]MatchTemplateHit, 0, maxHits)
+	for len(hits) < maxHits {
+		fx, fy, fm := findBestNCCInMatrix(matrix)
+		if fm < threshold {
+			break
+		}
+
+		x, y := subpixelNCCInMatrix(matrix, fx, fy, fm)
+		hits = append(hits, MatchTemplateHit{X: x, Y: y, Val: fm})
+		suppressNCCMatrix(matrix, fx, fy, tplW, tplH)
+	}
+	return hits
+}
+
+func findBestNCCInMatrix(matrix [][]float64) (x, y int, val float64) {
+	bestX, bestY, bestVal := 0, 0, -1.0
+	for y, row := range matrix {
+		for x, v := range row {
+			if v > bestVal {
+				bestX, bestY, bestVal = x, y, v
+			}
+		}
+	}
+	return bestX, bestY, bestVal
+}
+
+func subpixelNCCInMatrix(matrix [][]float64, x, y int, val float64) (float64, float64) {
+	leftNCC, rightNCC := val, val
+	upNCC, downNCC := val, val
+	if x > 0 {
+		leftNCC = matrix[y][x-1]
+	}
+	if x+1 < len(matrix[y]) {
+		rightNCC = matrix[y][x+1]
+	}
+	if y > 0 {
+		upNCC = matrix[y-1][x]
+	}
+	if y+1 < len(matrix) {
+		downNCC = matrix[y+1][x]
+	}
+	return float64(x) + subpixelOffset(leftNCC, rightNCC), float64(y) + subpixelOffset(upNCC, downNCC)
+}
+
+func suppressNCCMatrix(matrix [][]float64, x, y, w, h int) {
+	if len(matrix) == 0 {
+		return
+	}
+
+	y1 := min(len(matrix), y+h)
+	for row := max(0, y); row < y1; row++ {
+		x1 := min(len(matrix[row]), x+w)
+		for col := max(0, x); col < x1; col++ {
+			matrix[row][col] = -1.0
+		}
+	}
 }

@@ -10,8 +10,7 @@
                     23,
                     23
                 ],
-                "template": "SceneManager/ValuablesTabChoosed.png",
-                "threshold": 0.6
+                "template": "SceneManager/ValuablesTabChoosed.png"
             }
         },
         "focus": {

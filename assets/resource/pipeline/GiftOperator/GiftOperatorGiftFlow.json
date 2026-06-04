@@ -317,13 +317,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "timeout": 3000,
             "target": [
-                102,
-                103,
-                15,
-                15
+                992,
+                469,
+                203,
+                102
             ]
         },
         "next": [
