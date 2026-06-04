@@ -54,6 +54,11 @@ func (dca *desktopControlAdaptor) TouchClick(contact, x, y int, durationMillis, 
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
+func (dca *desktopControlAdaptor) TouchMove(contact, x, y int, delayMillis int) {
+	dca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
 func (dca *desktopControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
 	stepDurationMillis := durationMillis / 2
 	dca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
