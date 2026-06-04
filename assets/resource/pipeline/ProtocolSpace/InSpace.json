@@ -395,6 +395,7 @@
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
+            "ProtocolSpaceNotClaimReward",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
         ],
@@ -480,6 +481,44 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "领取奖励"
+        }
+    },
+    "ProtocolSpaceNotClaimReward": {
+        "desc": "不使用理智领取奖励",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceMissionCount",
+            "ProtocolSpaceMissionCountFinished"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "仅完成次数任务，不使用理智"
+        }
+    },
+    "ProtocolSpaceMissionCount": {
+        "desc": "任务计数器",
+        "max_hit": 10,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "重新回到主流程"
+        }
+    },
+    "ProtocolSpaceMissionCountFinished": {
+        "desc": "次数任务完成,结束任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "次数任务完成"
         }
     },
     "ProtocolSpaceReward": {

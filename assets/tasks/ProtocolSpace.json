@@ -12,6 +12,7 @@
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
                 "ProtocolSpaceUsePermit",
+                "ProtocolSpaceMissionCountOnly",
                 "ProtocolSpaceTab",
                 "ProtocolSpaceLevel"
             ],
@@ -340,6 +341,49 @@
                     }
                 }
             ]
+        },
+        "ProtocolSpaceMissionCountOnly": {
+            "type": "switch",
+            "label": "$option.ProtocolSpaceMissionCountOnly.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "ProtocolSpaceMissionCountSetting"
+                    ],
+                    "pipeline_override": {
+                        "ProtocolSpaceNotClaimReward": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ProtocolSpaceNotClaimReward": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ProtocolSpaceMissionCountSetting": {
+            "type": "input",
+            "label": "$option.ProtocolSpaceMissionCountSetting.label",
+            "inputs": [
+                {
+                    "name": "ProtocolSpaceMissionCount",
+                    "label": "$option.ProtocolSpaceMissionCountSetting.inputs.ProtocolSpaceMissionCount.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "1"
+                }
+            ],
+            "pipeline_override": {
+                "ProtocolSpaceMissionCount": {
+                    "max_hit": "ProtocolSpaceMissionCount"
+                }
+            }
         },
         "ProtocolSpaceTab": {
             "type": "select",
