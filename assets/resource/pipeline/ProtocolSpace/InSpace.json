@@ -24,12 +24,30 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpacePopupSanityLow",
-            "ProtocolSpaceEnterSpacePrepareSuccess"
+            "ProtocolSpaceEnterSpaceSelectClaimReward",
+            "ProtocolSpaceEnterSpaceSelectNoClaimReward"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
         }
+    },
+    "ProtocolSpaceEnterSpaceSelectClaimReward": {
+        "desc": "进入协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpacePopupSanityLowExit",
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+        "desc": "进入协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpacePopupSanityLowContinue",
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ]
     },
     "ProtocolSpaceEnterSpacePrepareSuccess": {
         "desc": "进入协议空间准备界面成功",
@@ -108,7 +126,7 @@
             "Node.Action.Succeeded": "选择队伍"
         }
     },
-    "ProtocolSpacePopupSanityLow": {
+    "ProtocolSpacePopupSanityLowExit": {
         "desc": "弹出理智不足，退出任务",
         "recognition": {
             "type": "OCR",
@@ -127,6 +145,34 @@
         },
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，结束任务"
+        }
+    },
+    "ProtocolSpacePopupSanityLowContinue": {
+        "desc": "弹出理智不足，继续下一轮",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    279,
+                    295,
+                    310,
+                    40
+                ],
+                "expected": [
+                    "理智不足",
+                    "Insufficient Sanity"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，继续行动"
         }
     },
     "ProtocolSpaceEnterSpaceConfirm": {
@@ -508,7 +554,7 @@
             "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "领取奖励"
+            "Node.Action.Succeeded": "打开奖励"
         }
     },
     "ProtocolSpaceReward": {
@@ -519,11 +565,59 @@
         ],
         "pre_wait_freezes": 200,
         "next": [
+            "ProtocolSpaceRewardSelectClaim",
+            "ProtocolSpaceRewardSelectNoClaim"
+        ]
+    },
+    "ProtocolSpaceRewardSelectClaim": {
+        "desc": "协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
         ]
+    },
+    "ProtocolSpaceRewardSelectNoClaim": {
+        "desc": "协议空间奖励界面，选择不领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardNoClaimSuccessContinue",
+            "ProtocolSpaceRewardNoClaimSuccessFinish"
+        ]
+    },
+    "ProtocolSpaceRewardNoClaimSuccessContinue": {
+        "desc": "协议空间奖励界面不领取奖励成功，继续下一轮",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "继续行动"
+        }
+    },
+    "ProtocolSpaceRewardNoClaimSuccessFinish": {
+        "desc": "协议空间奖励界面领取奖励成功，结束任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "行动成功次数已满，结束任务"
+        }
     },
     "ProtocolSpaceRewardSanityLowFilter": {
         "recognition": "ColorMatch",

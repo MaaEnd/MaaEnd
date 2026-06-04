@@ -9,6 +9,7 @@
                 "ProtocolSpaceSchedule",
                 "AutoFightSetting",
                 "ProtocolSpaceTeamChoose",
+                "ProtocolSpaceSuccessAction",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
                 "ProtocolSpaceUsePermit",
@@ -207,6 +208,49 @@
                 }
             ]
         },
+        "ProtocolSpaceSuccessAction": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceSuccessAction.label",
+            "default_case": "RewardClaim",
+            "cases": [
+                {
+                    "name": "RewardClaim",
+                    "label": "$option.ProtocolSpaceSuccessAction.case.RewardClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "NoRewardClaim",
+                    "label": "$option.ProtocolSpaceSuccessAction.case.NoRewardClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
         "ProtocolSpaceSuccessCount": {
             "type": "select",
             "label": "$option.ProtocolSpaceSuccessCount.label",
@@ -218,6 +262,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 0
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 0
                         }
                     }
                 },
@@ -226,6 +273,9 @@
                     "label": "2",
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 1
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
                             "max_hit": 1
                         }
                     }
@@ -236,6 +286,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 2
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 2
                         }
                     }
                 },
@@ -245,6 +298,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 3
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 3
                         }
                     }
                 },
@@ -253,6 +309,9 @@
                     "label": "5",
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 4
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
                             "max_hit": 4
                         }
                     }
