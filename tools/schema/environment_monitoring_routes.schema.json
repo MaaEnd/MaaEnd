@@ -44,6 +44,11 @@
                         },
                         {
                             "required": [
+                                "MapGoal"
+                            ]
+                        },
+                        {
+                            "required": [
                                 "CameraSwipeDirection"
                             ]
                         },
@@ -81,6 +86,11 @@
                             "required": [
                                 "MapTarget"
                             ]
+                        },
+                        {
+                            "required": [
+                                "MapGoal"
+                            ]
                         }
                     ]
                 }
@@ -114,7 +124,7 @@
             "MapName": {
                 "type": "string",
                 "minLength": 1,
-                "description": "地图标识。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapTarget 时填写 MapLocate 的 zone_id。必须与录制 MapAssert/MapPath/MapTarget 时使用的工具保持一致。",
+                "description": "地图标识。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapGoal 时填写可加载 NavMesh 的精确 MapTracker map_name；使用 MapTarget 时填写 MapLocate 的 zone_id。必须与录制 MapAssert/MapPath/MapTarget/MapGoal 时使用的工具保持一致。",
                 "examples": [
                     "map02_lv001",
                     "map02_lv002",
@@ -127,7 +137,7 @@
             },
             "MapAssert": {
                 "type": "array",
-                "description": "目标矩形 [x, y, w, h]。使用 MapPath 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。",
+                "description": "目标矩形 [x, y, w, h]。使用 MapPath / MapGoal 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。",
                 "items": {
                     "type": "number"
                 },
@@ -136,7 +146,7 @@
             },
             "MapPath": {
                 "type": "array",
-                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 MapTarget 二选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 MapTarget / MapGoal 三选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
                 "minItems": 1,
                 "items": {
                     "type": "array",
@@ -150,7 +160,16 @@
             },
             "MapTarget": {
                 "type": "array",
-                "description": "MapNavigateAction 目标点 [x, y]。生成器会在 path 前置 { action: \"ZONE\", zone_id: MapName }，再追加该坐标点。与 MapPath 二选一，适合不依赖交互、过图、机关的普通可达路线。",
+                "description": "MapNavigateAction 目标点 [x, y]。生成器会在 path 前置 { action: \"ZONE\", zone_id: MapName }，再追加该坐标点。与 MapPath / MapGoal 三选一，适合不依赖交互、过图、机关的普通可达路线。",
+                "items": {
+                    "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+            },
+            "MapGoal": {
+                "type": "array",
+                "description": "MapTrackerGoal 目标点 [x, y]。生成器会自动生成 custom_action: \"MapTrackerGoal\"，并把 MapName 作为 map_name、该坐标作为 target。与 MapPath / MapTarget 三选一，适合已有 NavMesh 的 MapTracker 路线。",
                 "items": {
                     "type": "number"
                 },
