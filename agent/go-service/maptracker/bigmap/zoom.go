@@ -19,8 +19,10 @@ type MapTrackerBigMapZoom struct{}
 
 // MapTrackerBigMapZoomParam represents the custom_action_param for MapTrackerBigMapZoom.
 type MapTrackerBigMapZoomParam struct {
-	// ZoomValue is the target slider position in range (0, 1], where 1.0 is zoom-out end and values near 0 are zoom-in end.
-	ZoomValue float64 `json:"zoom_value"`
+	// ZoomValue is the target zoom slider position.
+	// Set to 0 or omitted to disable the zoom action. Other values should be in range (0, 1],
+	// where 1.0 is zoom-out end and values near 0 are zoom-in end.
+	ZoomValue float64 `json:"zoom_value,omitempty"`
 }
 
 const (
@@ -37,6 +39,11 @@ func (a *MapTrackerBigMapZoom) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse parameters for MapTrackerBigMapZoom")
 		return false
+	}
+
+	if param.ZoomValue == 0 {
+		log.Info().Msg("Zoom value is set to 0, skipping MapTrackerBigMapZoom")
+		return true
 	}
 
 	ctrl := ctx.GetTasker().GetController()
@@ -63,8 +70,8 @@ func (a *MapTrackerBigMapZoom) parseParam(paramStr string) (*MapTrackerBigMapZoo
 	if err := json.Unmarshal([]byte(paramStr), &param); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal parameters: %w", err)
 	}
-	if !(0 < param.ZoomValue && param.ZoomValue <= 1) {
-		return nil, fmt.Errorf("zoom_value must be in range (0, 1]")
+	if !(0 <= param.ZoomValue && param.ZoomValue <= 1) {
+		return nil, fmt.Errorf("zoom_value must be in range [0, 1]")
 	}
 
 	return &param, nil
