@@ -111,7 +111,8 @@
                 ],
                 "template": [
                     "GiftOperator/Gift.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "action": {
