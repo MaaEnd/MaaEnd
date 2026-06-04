@@ -71,11 +71,13 @@ func (a *MapTrackerBigMapZoom) parseParam(paramStr string) (*MapTrackerBigMapZoo
 }
 
 func doBigMapZoom(ctrl *maa.Controller, ca control.ControlAdaptor, position float64) error {
+	// Zoom-in (+) button template
 	zoomInTemplate, err := internal.Resource.ZoomInTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-in template: %w", err)
 	}
 
+	// Zoom-out (-) button template
 	zoomOutTemplate, err := internal.Resource.ZoomOutTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-out template: %w", err)
@@ -128,7 +130,8 @@ func doBigMapZoom(ctrl *maa.Controller, ca control.ControlAdaptor, position floa
 			// Good case: both zoom-out and zoom-in buttons are detected, likely showing the zoom slider,
 			// we can click the slider area to adjust zoom level precisely.
 			cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
-			cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*position))
+			zoomInYFixed := zoomInY + float64(zoomInTemplate.Image.Rect.Dy()) // Use the bottom edge of zoom-in button as the slider baseline
+			cy := int(math.Round(zoomInYFixed + (zoomOutY-zoomInYFixed)*position))
 			ca.TouchClick(0, cx, cy, SLIDER_UI_TRIGGER_MS, SLIDER_UI_DELAY_MS)
 			ca.TouchMove(0, 1, 1, ZOOMING_RESPONSE_MS)
 
