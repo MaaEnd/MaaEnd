@@ -96,12 +96,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "StashBackpackUsableItemsStoreFull",
             "[JumpBack]StashBackpackUsableItemsLimitedDrag",
             "EmptyNode"
         ]
     },
+    "StashBackpackUsableItemsStoreFull": {
+        "desc": "仓库已满",
+        "recognition": "OCR",
+        "roi": [
+            319,
+            0,
+            601,
+            122
+        ],
+        "expected": [
+            "目标空间已满，部分物品未能完全移动",
+            "目標空間已滿，部分物品未能完全移動",
+            "(?i)Target\\s*space\\s*is\\s*full\\. Not every item could be moved\\.",
+            "空きがないため、一部のアイテムは移動できません"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "StashBackpackUsableItemsLimitedDrag": {
         "desc": "拖动物品到仓库",
+        "max_hit": 5, //防止重复拖动物品导致卡住
         "recognition": "And",
         "all_of": [
             {
