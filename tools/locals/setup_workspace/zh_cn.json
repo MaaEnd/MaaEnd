@@ -91,7 +91,7 @@
     "wrn_ci_artifact_no_binary": "[WRN] CI artifact 中未找到 cpp-algo 二进制文件",
     "wrn_ci_artifact_extract_failed": "[WRN] 解压 CI artifact 失败: {error}",
     "wrn_ci_artifact_download_failed": "[WRN] 下载 CI artifact 失败，回退到 Release 下载",
-    "wrn_ci_artifact_unexpected_status": "[WRN] CI artifact API 返回意外的 HTTP {status} ({reason})，回退到 Release 下载",
+    "wrn_ci_artifact_unexpected_status": "[WRN] CI artifact API 返回意外的 HTTP {status} ({reason}): {body}",
     "inf_fallback_to_release": "[INF] 回退到从 Release 下载 cpp-algo",
     "description": "MaaEnd 构建工具：初始化并安装依赖项",
     "arg_update": "当依赖项已存在时，是否进行更新操作",

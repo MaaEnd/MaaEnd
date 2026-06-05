@@ -1075,10 +1075,12 @@ def install_cpp_algo(
                         if 300 <= api_resp.status < 400:
                             storage_url = api_resp.getheader("Location")
                         else:
+                            body = api_resp.read(512).decode("utf-8", errors="replace")
                             print(Console.warn(
                                 t("wrn_ci_artifact_unexpected_status",
                                   status=api_resp.status,
-                                  reason=api_resp.reason)
+                                  reason=api_resp.reason,
+                                  body=body)
                             ))
                 finally:
                     conn.close()

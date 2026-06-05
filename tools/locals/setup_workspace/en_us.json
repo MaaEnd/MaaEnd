@@ -91,7 +91,7 @@
     "wrn_ci_artifact_no_binary": "[WRN] cpp-algo binary not found inside CI artifact",
     "wrn_ci_artifact_extract_failed": "[WRN] Failed to extract CI artifact: {error}",
     "wrn_ci_artifact_download_failed": "[WRN] Failed to download CI artifact, falling back to release",
-    "wrn_ci_artifact_unexpected_status": "[WRN] CI artifact API returned unexpected HTTP {status} ({reason}), falling back to release",
+    "wrn_ci_artifact_unexpected_status": "[WRN] CI artifact API returned unexpected HTTP {status} ({reason}): {body}",
     "inf_fallback_to_release": "[INF] Falling back to release download for cpp-algo",
     "description": "MaaEnd build tool: Initialize and install dependencies",
     "arg_update": "Update dependencies if they already exist",
