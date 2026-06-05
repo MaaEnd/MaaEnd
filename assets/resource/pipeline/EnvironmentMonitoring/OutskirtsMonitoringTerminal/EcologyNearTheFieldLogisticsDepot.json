@@ -117,7 +117,7 @@
         "expected": [
             "拍摄储备站周围的生态环境",
             "拍攝儲備站周圍的生態環境",
-            "(?i)Photograph\\s*the\\s*ecology\\s*near\\s*the\\s*Field\\s*Logistics\\s*Depot",
+            "(?i)Photo:\\s*Field\\s*Logistics\\s*Depot\\s*Ecology",
             "備蓄施設周辺の生態環境の写真を撮る",
             "보급소 주변의 생태 환경을 촬영하기"
         ]

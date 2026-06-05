@@ -4069,6 +4069,50 @@
                     "label": "$item.YazhenSyringeA"
                 },
                 {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
                     "name": "芽针针剂",
                     "pipeline_override": {
                         "SellProductSkyKingFlatsSelectItem1": {
@@ -4263,6 +4307,50 @@
                         }
                     },
                     "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
                 },
                 {
                     "name": "芽针针剂",
@@ -4461,6 +4549,50 @@
                     "label": "$item.YazhenSyringeA"
                 },
                 {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
                     "name": "芽针针剂",
                     "pipeline_override": {
                         "SellProductSkyKingFlatsSelectItem3": {
@@ -4655,6 +4787,50 @@
                         }
                     },
                     "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
                 },
                 {
                     "name": "芽针针剂",

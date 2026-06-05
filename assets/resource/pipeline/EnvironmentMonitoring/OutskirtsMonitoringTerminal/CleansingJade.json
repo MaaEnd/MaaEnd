@@ -117,7 +117,7 @@
         "expected": [
             "拍摄在石柱上侧向生长的“漱玉”",
             "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
+            "(?i)Photo:\\s*\"Cleansing\\s*Jade\"",
             "石柱の横にある「漱玉」の写真を撮る",
             "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
         ]
