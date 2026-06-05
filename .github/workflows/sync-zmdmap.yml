@@ -101,14 +101,13 @@ jobs:
         run: |
           python3 tools/map_tracker/map_generator.py tidy_tiers -i .cache/images -o .cache/final
 
-      - name: Generate bbox data
-        run: |
-          python3 tools/map_tracker/map_generator.py bbox -i .cache/final -o .cache/final
-
-      - name: Copy results to assets
+      - name: Copy images to assets
         run: |
           cp -f .cache/final/*.png assets/resource/image/MapTracker/map/
-          cp -f .cache/final/*.json assets/data/MapTracker/
+
+      - name: Generate bbox data
+        run: |
+          python3 tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
 
       - name: Setup oxipng
         uses: baptiste0928/cargo-install@v3
