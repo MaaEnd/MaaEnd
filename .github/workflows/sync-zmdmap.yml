@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  sync-zmdmap:
+  sync-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,9 +50,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH_NAME"
           git add assets/data/ZmdMap
-          git commit -m "chore: sync zmdmap data" \
-            -m "This commit was automatically generated." \
-            -m "[skip changelog]"
+          git commit -m "chore: sync zmdmap data" -m "This commit was automatically generated." -m "[skip changelog]"
           git push --force-with-lease origin "HEAD:$BRANCH_NAME"
 
       - name: Create or update PR
@@ -64,28 +62,116 @@ jobs:
           set -euo pipefail
 
           BASE_BRANCH="${{ github.event.repository.default_branch }}"
-
           PR_TITLE="chore: sync zmdmap data"
-
           PR_BODY="## Summary
 
           This PR automatically synchronized data files from zmdmap.
 
           Please review the changes before merging it."
-
           pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty')"
 
           if [ -n "$pr_number" ]; then
             gh pr edit "$pr_number" --title "$PR_TITLE" --body "$PR_BODY"
           else
-            gh pr create \
-              --base "$BASE_BRANCH" \
-              --head "$BRANCH_NAME" \
-              --title "$PR_TITLE" \
-              --body "$PR_BODY"
+            gh pr create --base "$BASE_BRANCH" --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"
           fi
 
       - name: Show no-op result
         if: steps.changes.outputs.has_changes != 'true'
         run: |
           echo "No changes detected in ZmdMap data."
+
+  sync-map:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r tools/map_tracker/requirements.txt
+
+      - name: Fetch layout data
+        run: |
+          python3 tools/map_tracker/map_fetcher.py json -o .cache/data
+
+      - name: Fetch map images
+        run: |
+          python3 tools/map_tracker/map_fetcher.py image -i .cache/data -o .cache/images
+
+      - name: Generate level maps
+        run: |
+          python3 tools/map_tracker/map_generator.py distinguish_levels -i .cache/images -o .cache/final --layout-dir .cache/data
+
+      - name: Generate tier maps
+        run: |
+          python3 tools/map_tracker/map_generator.py tidy_tiers -i .cache/images -o .cache/final
+
+      - name: Generate bbox data
+        run: |
+          python3 tools/map_tracker/map_generator.py bbox -i .cache/final -o .cache/final
+
+      - name: Copy results to assets
+        run: |
+          cp -f .cache/final/*.png assets/resource/image/MapTracker/map/
+          cp -f .cache/final/*.json assets/data/MapTracker/
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git add -N assets/resource/image/MapTracker/map/ assets/data/MapTracker/
+          if [ -z "$(git status --porcelain assets/resource/image/MapTracker/map/ assets/data/MapTracker/)" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          BRANCH_NAME: "feat/sync-map-image"
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH_NAME"
+          git add assets/resource/image/MapTracker/map/ assets/data/MapTracker/
+          git commit -m "feat(map): sync map image" -m "This commit was automatically generated." -m "[skip changelog]"
+          git push --force-with-lease origin "HEAD:$BRANCH_NAME"
+
+      - name: Create or update PR
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+          BRANCH_NAME: "feat/sync-map-image"
+        run: |
+          set -euo pipefail
+
+          BASE_BRANCH="${{ github.event.repository.default_branch }}"
+          PR_TITLE="feat(map): sync map image"
+          PR_BODY="## Summary
+
+          This PR automatically synchronized map images and bbox data from zmdmap.
+
+          Please review the changes before merging it."
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty')"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --title "$PR_TITLE" --body "$PR_BODY"
+          else
+            gh pr create --base "$BASE_BRANCH" --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"
+          fi
+
+      - name: Show no-op result
+        if: steps.changes.outputs.has_changes != 'true'
+        run: |
+          echo "No changes detected in map images."
