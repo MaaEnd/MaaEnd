@@ -12,8 +12,6 @@
                         "assets/data/WeaponIcon/iconbig"
                     ],
                     "output_path": "debug/record/WeaponInventoryScan.json",
-                    "same_cell_distance": 4,
-                    "unchanged_ratio": 0.9,
                     "roi": [
                         20,
                         70,
@@ -30,7 +28,11 @@
                     "min_kept_segment_ratio": 0.7,
                     "max_phash_distance": 10,
                     "max_returned_matches": 3,
+                    "max_ranked_candidates": 0,
                     "min_score": 0.6,
+                    "hue_weight": 0.4,
+                    "alignment_match_distance": 12,
+                    "min_alignment_match_ratio": 0.6,
                     "mask_ratios": {
                         "left_header_width": 0.20833333333333334,
                         "left_header_height": 0.20833333333333334,
@@ -106,8 +108,8 @@
             "param": {
                 "custom_action": "WeaponInventoryScanRecordAction",
                 "custom_action_param": {
-                    "same_cell_distance": 4,
-                    "unchanged_ratio": 0.9
+                    "alignment_match_distance": 12,
+                    "min_alignment_match_ratio": 0.6
                 }
             }
         },

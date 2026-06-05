@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
+#include <utility>
 
 #include <MaaUtils/ImageIo.h>
 #include <MaaUtils/Logger.h>
@@ -75,6 +76,22 @@ std::vector<int> ReadIntArray(const json::object& object, const char* key)
     return values;
 }
 
+std::vector<std::string> ReadStringArray(const json::object& object, const char* key)
+{
+    if (!object.contains(key) || !object.at(key).is_array()) {
+        return {};
+    }
+
+    std::vector<std::string> values;
+    for (const auto& item : object.at(key).as_array()) {
+        if (!item.is_string()) {
+            return {};
+        }
+        values.push_back(item.as_string());
+    }
+    return values;
+}
+
 bool ApplyRect(const std::vector<int>& values, cv::Rect& rect)
 {
     if (values.size() != 4 || values[2] <= 0 || values[3] <= 0) {
@@ -100,6 +117,30 @@ void ClampOptions(GridRecognitionOptions& options)
     options.detect.minRawSegmentLength = std::max(1, options.detect.minRawSegmentLength);
     options.detect.minKeptSegmentRatio = std::clamp(options.detect.minKeptSegmentRatio, 0.0, 1.0);
     options.maxPhashDistance = std::max(0, options.maxPhashDistance);
+    options.minScore = std::clamp(options.minScore, 0.0, 1.0);
+    options.hueWeight = std::clamp(options.hueWeight, 0.0, 1.0);
+    options.maxRankedCandidates = std::max(0, options.maxRankedCandidates);
+    options.maxReturnedCells = std::max(0, options.maxReturnedCells);
+    options.maxReturnedMatches = std::max(0, options.maxReturnedMatches);
+}
+
+void ClampOptions(GridClassifyOptions& options)
+{
+    options.maxPhashDistance = std::max(0, options.maxPhashDistance);
+    options.minScore = std::clamp(options.minScore, 0.0, 1.0);
+    options.hueWeight = std::clamp(options.hueWeight, 0.0, 1.0);
+    options.maxRankedCandidates = std::max(0, options.maxRankedCandidates);
+}
+
+GridClassifyOptions ClassifyOptionsFromRecognitionOptions(const GridRecognitionOptions& options)
+{
+    GridClassifyOptions classify;
+    classify.maxPhashDistance = options.maxPhashDistance;
+    classify.minScore = options.minScore;
+    classify.hueWeight = options.hueWeight;
+    classify.maxRankedCandidates = options.maxRankedCandidates;
+    ClampOptions(classify);
+    return classify;
 }
 
 cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
@@ -173,6 +214,7 @@ GridRecognitionResult Detect(const cv::Mat& image, const GridRecognitionOptions&
 
     GridRecognitionResult result;
     result.grid = DetectGrid(image, options.detect);
+    result.cellHashes = ComputeCellHashes(result.grid.roi, result.grid.cells, options.mask);
     FillScreenGeometry(result, options, image.size());
 
     if (result.grid.cells.empty()) {
@@ -222,12 +264,30 @@ bool GridRecognitionRequest::from_json(const json::value& value)
     const json::object& object = value.as_object();
     if (object.contains("options") && object.at("options").is_object()) {
         GridRecognitionRequest nested;
+        nested.options = options;
+        nested.classify = classify;
+        nested.templatePath = templatePath;
+        nested.templatePaths = templatePaths;
         if (nested.from_json(object.at("options"))) {
             options = nested.options;
+            classify = nested.classify;
+            templatePath = nested.templatePath;
+            templatePaths = nested.templatePaths;
         }
     }
 
     ReadField(object, "template_path", templatePath);
+    std::vector<std::string> configuredTemplatePaths = ReadStringArray(object, "template_paths");
+    if (!configuredTemplatePaths.empty()) {
+        templatePaths = std::move(configuredTemplatePaths);
+    }
+    if (!templatePath.empty() &&
+        (templatePaths.empty() || std::find(templatePaths.begin(), templatePaths.end(), templatePath) == templatePaths.end())) {
+        templatePaths.insert(templatePaths.begin(), templatePath);
+    }
+    if (templatePath.empty() && !templatePaths.empty()) {
+        templatePath = templatePaths.front();
+    }
     ApplyRect(ReadIntArray(object, "roi"), options.detect.roi);
     ApplySize(ReadIntArray(object, "normalized_size"), options.detect.normalizedSize);
     ReadField(object, "row_threshold_ratio", options.detect.rowThresholdRatio);
@@ -237,11 +297,19 @@ bool GridRecognitionRequest::from_json(const json::value& value)
     ReadMaskField(object, "mask_ratios", options.mask);
     ReadMaskField(object, "mask", options.mask);
     ReadField(object, "max_phash_distance", options.maxPhashDistance);
+    ReadField(object, "min_score", options.minScore);
+    ReadField(object, "hue_weight", options.hueWeight);
+    ReadField(object, "max_ranked_candidates", options.maxRankedCandidates);
     ReadField(object, "return_cells", options.collectCells);
     ReadField(object, "max_returned_cells", options.maxReturnedCells);
     ReadField(object, "max_returned_matches", options.maxReturnedMatches);
 
     ClampOptions(options);
+    classify.maxPhashDistance = options.maxPhashDistance;
+    classify.minScore = options.minScore;
+    classify.hueWeight = options.hueWeight;
+    classify.maxRankedCandidates = options.maxRankedCandidates;
+    ClampOptions(classify);
     return true;
 }
 
@@ -288,6 +356,168 @@ GridRecognitionResult RecognizeGrid(const cv::Mat& image, const GridRecognitionO
     return Detect(image, options);
 }
 
+GridTemplateMatchResult MatchGridTemplate(
+    const GridRecognitionResult& result,
+    const cv::Mat& target,
+    const GridRecognitionOptions& options,
+    cv::Size imageSize,
+    int maxRankedCandidates)
+{
+    if (target.empty()) {
+        throw std::invalid_argument("Cannot match an empty template");
+    }
+
+    GridTemplateMatchResult output;
+    if (result.grid.cells.empty()) {
+        return output;
+    }
+
+    output.candidates =
+        FilterCandidates(result.grid.roi, result.grid.cells, target, std::max(0, options.maxPhashDistance), options.mask);
+    output.candidateCount = static_cast<int>(output.candidates.size());
+
+    std::vector<Candidate> rankedCandidates = output.candidates;
+    if (maxRankedCandidates > 0 && static_cast<int>(rankedCandidates.size()) > maxRankedCandidates) {
+        rankedCandidates.resize(static_cast<std::size_t>(maxRankedCandidates));
+    }
+
+    const std::vector<TemplateMatchResult> ranked = RankTemplateMatches(
+        result.grid.roi,
+        target,
+        rankedCandidates,
+        TemplateMatchOptions { options.mask, std::clamp(options.hueWeight, 0.0, 1.0) });
+    output.rankedCount = static_cast<int>(ranked.size());
+
+    const int limit = std::clamp(options.maxReturnedMatches, 0, static_cast<int>(ranked.size()));
+    output.matches.reserve(static_cast<std::size_t>(limit));
+    for (int i = 0; i < limit; ++i) {
+        const auto& match = ranked[static_cast<std::size_t>(i)];
+        const bool rejected = match.match.empty() || !std::isfinite(match.score) || match.score < options.minScore;
+        if (i == 0) {
+            output.bestRejected = rejected;
+        }
+        if (rejected) {
+            continue;
+        }
+
+        output.matches.push_back({
+            match.cellIndex,
+            match.cell,
+            RoiToScreen(match.cell, options.detect, imageSize),
+            match.match,
+            RoiToScreen(match.match, options.detect, imageSize),
+            match.phashDistance,
+            match.score,
+            match.templateScore,
+            match.hueScore,
+        });
+    }
+    return output;
+}
+
+GridClassificationResult ClassifyGridCells(
+    const GridRecognitionResult& result,
+    const std::vector<GridClassifyTemplate>& templates,
+    const GridRecognitionOptions& gridOptions,
+    const GridClassifyOptions& classifyOptions,
+    cv::Size imageSize,
+    const std::vector<std::size_t>& cellIndices)
+{
+    GridClassifyOptions classify = classifyOptions;
+    ClampOptions(classify);
+
+    GridClassificationResult output;
+    if (result.grid.cells.empty()) {
+        return output;
+    }
+
+    std::vector<std::size_t> selectedIndices;
+    if (cellIndices.empty()) {
+        selectedIndices.reserve(result.grid.cells.size());
+        for (std::size_t i = 0; i < result.grid.cells.size(); ++i) {
+            selectedIndices.push_back(i);
+        }
+    }
+    else {
+        selectedIndices.reserve(cellIndices.size());
+        for (const std::size_t index : cellIndices) {
+            if (index < result.grid.cells.size()) {
+                selectedIndices.push_back(index);
+            }
+        }
+    }
+
+    std::vector<cv::Rect> selectedCells;
+    selectedCells.reserve(selectedIndices.size());
+    output.cells.reserve(selectedIndices.size());
+    for (const std::size_t index : selectedIndices) {
+        const cv::Rect& cell = result.grid.cells[index];
+        selectedCells.push_back(cell);
+        output.cells.push_back({
+            index,
+            RoiToScreen(cell, gridOptions.detect, imageSize),
+            index < result.cellHashes.size() ? result.cellHashes[index] : Hash {},
+        });
+    }
+
+    for (const GridClassifyTemplate& entry : templates) {
+        if (entry.id.empty() || entry.image.empty()) {
+            continue;
+        }
+        ++output.templatesScanned;
+
+        std::vector<Candidate> candidates =
+            FilterCandidates(result.grid.roi, selectedCells, entry.image, classify.maxPhashDistance, gridOptions.mask);
+        output.candidatesAfterPhash += static_cast<int>(candidates.size());
+
+        if (classify.maxRankedCandidates > 0 && static_cast<int>(candidates.size()) > classify.maxRankedCandidates) {
+            candidates.resize(static_cast<std::size_t>(classify.maxRankedCandidates));
+        }
+
+        const std::vector<TemplateMatchResult> ranked = RankTemplateMatches(
+            result.grid.roi,
+            entry.image,
+            candidates,
+            TemplateMatchOptions { gridOptions.mask, classify.hueWeight });
+        output.matchesRanked += static_cast<int>(ranked.size());
+
+        for (const TemplateMatchResult& match : ranked) {
+            if (match.cellIndex >= output.cells.size() || match.match.empty() || !std::isfinite(match.score) ||
+                match.score < classify.minScore) {
+                continue;
+            }
+
+            GridCellClassification& current = output.cells[match.cellIndex];
+            const bool replace = !current.matched || match.score > current.score ||
+                                 (match.score == current.score && match.templateScore > current.templateScore) ||
+                                 (match.score == current.score && match.templateScore == current.templateScore &&
+                                  match.phashDistance < current.phashDistance) ||
+                                 (match.score == current.score && match.templateScore == current.templateScore &&
+                                  match.phashDistance == current.phashDistance && entry.id < current.templateId);
+            if (!replace) {
+                continue;
+            }
+
+            current.matched = true;
+            current.templateId = entry.id;
+            current.score = match.score;
+            current.templateScore = match.templateScore;
+            current.hueScore = match.hueScore;
+            current.phashDistance = match.phashDistance;
+        }
+    }
+
+    for (const GridCellClassification& cell : output.cells) {
+        if (cell.matched) {
+            ++output.matchedCells;
+        }
+        else {
+            ++output.unmatchedCells;
+        }
+    }
+    return output;
+}
+
 GridRecognitionResult RecognizeGridTemplate(
     const cv::Mat& image,
     const cv::Mat& target,
@@ -302,26 +532,11 @@ GridRecognitionResult RecognizeGridTemplate(
         return result;
     }
 
-    result.candidates =
-        FilterCandidates(result.grid.roi, result.grid.cells, target, std::max(0, options.maxPhashDistance), options.mask);
+    GridTemplateMatchResult templateResult = MatchGridTemplate(result, target, options, image.size());
+    result.candidates = std::move(templateResult.candidates);
+    result.matches = std::move(templateResult.matches);
 
-    const std::vector<TemplateMatchResult> ranked = RankTemplateMatches(result.grid.roi, target, result.candidates, options.mask);
-    const int limit = std::clamp(options.maxReturnedMatches, 0, static_cast<int>(ranked.size()));
-    result.matches.reserve(static_cast<std::size_t>(limit));
-    for (int i = 0; i < limit; ++i) {
-        const auto& match = ranked[static_cast<std::size_t>(i)];
-        result.matches.push_back({
-            match.cellIndex,
-            match.cell,
-            RoiToScreen(match.cell, options.detect, image.size()),
-            match.match,
-            RoiToScreen(match.match, options.detect, image.size()),
-            match.phashDistance,
-            match.score,
-        });
-    }
-
-    if (result.matches.empty() || result.matches.front().match.empty() || !std::isfinite(result.matches.front().score)) {
+    if (result.matches.empty()) {
         result.matched = false;
         result.message = "Template produced no match";
         return result;

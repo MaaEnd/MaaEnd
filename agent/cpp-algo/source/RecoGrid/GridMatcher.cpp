@@ -92,6 +92,52 @@ cv::Mat ToBgr(const cv::Mat& image)
     return bgr;
 }
 
+double HueHistogramScore(const cv::Mat& source, const cv::Mat& target, const cv::Mat& mask)
+{
+    if (source.empty() || target.empty()) {
+        return 0.0;
+    }
+
+    cv::Mat sourceBgr = ToBgr(source);
+    cv::Mat targetBgr = ToBgr(target);
+    if (sourceBgr.empty() || targetBgr.empty()) {
+        return 0.0;
+    }
+
+    if (sourceBgr.size() != targetBgr.size()) {
+        cv::resize(targetBgr, targetBgr, sourceBgr.size(), 0, 0, cv::INTER_AREA);
+    }
+
+    cv::Mat histMask;
+    if (!mask.empty()) {
+        cv::resize(mask, histMask, sourceBgr.size(), 0, 0, cv::INTER_NEAREST);
+        cv::threshold(histMask, histMask, 10, 255, cv::THRESH_BINARY);
+    }
+
+    cv::Mat sourceHsv;
+    cv::Mat targetHsv;
+    cv::cvtColor(sourceBgr, sourceHsv, cv::COLOR_BGR2HSV);
+    cv::cvtColor(targetBgr, targetHsv, cv::COLOR_BGR2HSV);
+
+    const int histSize[] = { 30 };
+    const float hueRange[] = { 0.0F, 180.0F };
+    const float* ranges[] = { hueRange };
+    const int channels[] = { 0 };
+
+    cv::Mat sourceHist;
+    cv::Mat targetHist;
+    cv::calcHist(&sourceHsv, 1, channels, histMask, sourceHist, 1, histSize, ranges);
+    cv::calcHist(&targetHsv, 1, channels, histMask, targetHist, 1, histSize, ranges);
+
+    if (cv::sum(sourceHist)[0] <= 0.0 || cv::sum(targetHist)[0] <= 0.0) {
+        return 0.0;
+    }
+
+    cv::normalize(sourceHist, sourceHist, 1.0, 0.0, cv::NORM_L1);
+    cv::normalize(targetHist, targetHist, 1.0, 0.0, cv::NORM_L1);
+    return std::clamp(cv::compareHist(sourceHist, targetHist, cv::HISTCMP_CORREL), 0.0, 1.0);
+}
+
 } // namespace
 
 std::vector<TemplateMatchResult> RankTemplateMatches(
@@ -99,6 +145,15 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
     const cv::Mat& target,
     const std::vector<Candidate>& candidates,
     const CellMaskRatios& maskRatios)
+{
+    return RankTemplateMatches(roi, target, candidates, TemplateMatchOptions { maskRatios, 0.0 });
+}
+
+std::vector<TemplateMatchResult> RankTemplateMatches(
+    const cv::Mat& roi,
+    const cv::Mat& target,
+    const std::vector<Candidate>& candidates,
+    const TemplateMatchOptions& options)
 {
     if (roi.empty()) {
         throw std::invalid_argument("Cannot match template in an empty ROI");
@@ -109,7 +164,9 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
 
     cv::Mat sourceTemplateBgr;
     cv::Mat sourceMask;
-    PrepareTemplateSource(target, maskRatios, sourceTemplateBgr, sourceMask);
+    PrepareTemplateSource(target, options.maskRatios, sourceTemplateBgr, sourceMask);
+    const double hueWeight = std::clamp(options.hueWeight, 0.0, 1.0);
+    const double templateWeight = 1.0 - hueWeight;
 
     static const std::vector<double> scaleMultipliers {
         1.00,
@@ -129,6 +186,8 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
             static_cast<double>(clipped.height) / sourceTemplateBgr.rows);
 
         double bestScore = -std::numeric_limits<double>::infinity();
+        double bestTemplateScore = 0.0;
+        double bestHueScore = 0.0;
         cv::Rect bestMatch;
         for (double multiplier : scaleMultipliers) {
             const double scale = maxScale * multiplier;
@@ -163,22 +222,31 @@ std::vector<TemplateMatchResult> RankTemplateMatches(
                 continue;
             }
 
-            if (maxScore > bestScore) {
-                bestScore = maxScore;
-                bestMatch = cv::Rect(
-                    clipped.x + maxLocation.x,
-                    clipped.y + maxLocation.y,
-                    templateSize.width,
-                    templateSize.height);
+            const cv::Rect localMatch(maxLocation.x, maxLocation.y, templateSize.width, templateSize.height);
+            double hueScore = 0.0;
+            if (hueWeight > 0.0) {
+                hueScore = HueHistogramScore(cellBgr(localMatch), templateBgr, mask);
+            }
+            const double finalScore = std::clamp(templateWeight * maxScore + hueWeight * hueScore, 0.0, 1.0);
+
+            if (finalScore > bestScore || (finalScore == bestScore && maxScore > bestTemplateScore)) {
+                bestScore = finalScore;
+                bestTemplateScore = maxScore;
+                bestHueScore = hueScore;
+                bestMatch =
+                    cv::Rect(clipped.x + maxLocation.x, clipped.y + maxLocation.y, templateSize.width, templateSize.height);
             }
         }
 
-        results.push_back({ candidate.cellIndex, candidate.cell, bestMatch, candidate.distance, bestScore });
+        results.push_back({ candidate.cellIndex, candidate.cell, bestMatch, candidate.distance, bestScore, bestTemplateScore, bestHueScore });
     }
 
     std::sort(results.begin(), results.end(), [](const TemplateMatchResult& lhs, const TemplateMatchResult& rhs) {
         if (lhs.score != rhs.score) {
             return lhs.score > rhs.score;
+        }
+        if (lhs.templateScore != rhs.templateScore) {
+            return lhs.templateScore > rhs.templateScore;
         }
         if (lhs.phashDistance != rhs.phashDistance) {
             return lhs.phashDistance < rhs.phashDistance;
