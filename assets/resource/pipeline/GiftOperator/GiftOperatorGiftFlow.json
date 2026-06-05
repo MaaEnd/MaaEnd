@@ -361,7 +361,8 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity"
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorSkipDialog"
         ]
     }
 }
