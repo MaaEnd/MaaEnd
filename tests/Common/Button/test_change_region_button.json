@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "通用按钮，测试更换地区按钮",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设.png",
+            "hits": [
+                "ChangeRegionButton"
+            ]
+        },
+        {
+            "image": "武陵_地区建设.png",
+            "hits": [
+                "ChangeRegionButton"
+            ]
+        }
+    ]
+}
