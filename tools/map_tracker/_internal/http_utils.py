@@ -29,11 +29,10 @@ def download(
     timeout: float = 120.0,
 ) -> bytes | None:
     """Download raw bytes from URL (with retries), returns bytes or None on failure."""
-    retries = -1
+    retries = 0
     max_retries = max(0, max_retries)
     warning_msg = None
-    while retries < max_retries:
-        retries += 1
+    while retries <= max_retries:
         if retries > 0:
             _http_utils_notice(
                 f"Retrying download from {url} (attempt {retries}/{max_retries})"
@@ -53,6 +52,7 @@ def download(
             warning_msg = f"Failed to download from {url}: {type(e).__name__} - {e}"
         except TimeoutError as e:
             warning_msg = f"Failed to download from {url}: {type(e).__name__} - {e}"
+        retries += 1
 
     if warning_msg:
         _http_utils_warn(warning_msg)
