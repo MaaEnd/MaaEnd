@@ -9,8 +9,6 @@
             ],
             "controller": [
                 "Win32-Front",
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Wlroots"
             ],
             "group": [

@@ -14,7 +14,6 @@
                 "ItemTransferStashBackpack"
             ],
             "controller": [
-                "Win32-Window",
                 "Win32-Front",
                 "Wlroots"
             ],
