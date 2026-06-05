@@ -5,6 +5,11 @@
             "label": "$task.Crafting.label",
             "entry": "CraftingStart",
             "description": "$task.Crafting.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "backpack"
             ]

@@ -5,7 +5,14 @@
             "label": "$task.ReadAllWiki.label",
             "entry": "WikiReadAll",
             "description": "$task.ReadAllWiki.description",
-            "group": ["other_menu"]
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
         }
     ],
     "option": {}

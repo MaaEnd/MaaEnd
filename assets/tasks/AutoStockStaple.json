@@ -5,6 +5,11 @@
             "label": "$task.AutoStockStaple.label",
             "entry": "AutoStockStapleSchedule",
             "description": "$task.AutoStockStaple.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "regional_development"
             ],

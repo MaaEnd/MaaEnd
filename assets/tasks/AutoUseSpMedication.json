@@ -5,6 +5,11 @@
             "entry": "AutoUseSpMedicationEntry",
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "valuables_vault"
             ],

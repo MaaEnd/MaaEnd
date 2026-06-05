@@ -15,6 +15,11 @@
                 "CreditShoppingForce",
                 "CreditShoppingKeepShelfRecord"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "other_menu"
             ]

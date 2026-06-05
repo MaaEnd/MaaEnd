@@ -708,6 +708,7 @@
     "resource.CN.label": "General Resources (currently best supported in Simplified Chinese)",
     "controller.Win32-Front.label": "PC-Foreground",
     "controller.Win32-Front.description": "Best stability. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
+    "controller.Win32-Window-Background.label": "PC-Background (Deprecated - incompatible with new version)",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
     "controller.Wlroots.label": "Linux-Wlroots",

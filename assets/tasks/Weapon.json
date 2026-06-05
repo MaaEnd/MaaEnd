@@ -5,6 +5,11 @@
             "label": "$task.WeaponUpgrade.label",
             "entry": "WeaponUpgradeStart",
             "description": "$task.WeaponUpgrade.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "valuables_vault"
             ]

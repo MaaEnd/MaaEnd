@@ -708,6 +708,7 @@
     "resource.CN.label": "共通リソース（現在は簡体字中国語のみサポートが良好）",
     "controller.Win32-Front.label": "PC-前面",
     "controller.Win32-Front.description": "安定性が最も高い。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
+    "controller.Win32-Window-Background.label": "PC-バックグラウンド（非推奨 - 新バージョンに対応不可）",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
     "controller.Wlroots.label": "Linux-Wlroots",

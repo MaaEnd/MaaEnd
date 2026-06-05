@@ -9,6 +9,11 @@
                 "VisitFriendsRemark",
                 "ProductionAssistControl"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "dijiang_ship"
             ]

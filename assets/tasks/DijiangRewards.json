@@ -11,6 +11,11 @@
                 "ClueSetting",
                 "SelectToGrow"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "dijiang_ship"
             ]
