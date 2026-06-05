@@ -54,9 +54,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 | `Tier2` | 较大 |
 | `Tier3` | 极大 |
 
-## 维护指南
-
-### 添加商品
+## 添加商品
 
 添加新商品时，需要维护**商品映射**和**模板图片**两部分。
 
@@ -81,6 +79,9 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 ```text
 assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 ```
+
+> [!important]
+> 模板图片需基于1270*720分辨率
 
 ## 添加地区
 
@@ -122,7 +123,9 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 3. 确认场景导航入口存在
 
-通常被命名为 `SceneEnterMenuRegionalDevelopment{Region}StockRedistribution`
+通常被命名为 `SceneEnterMenuRegionalDevelopment{Region}StockRedistribution`。
+
+如果不存在，可等待其他维护者提供相应节点，或者自行补充，此处不再赘述。
 
 ### 4. Pipeline 节点
 
