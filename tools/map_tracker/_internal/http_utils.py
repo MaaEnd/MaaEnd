@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.request
 import urllib.error
 import warnings
@@ -7,6 +8,12 @@ import cv2
 import numpy as np
 
 _HEADERS = {"User-Agent": "MaaEnd-tools/0.1"}
+
+
+def _http_utils_warn(msg: str):
+    warnings.warn(f"http_utils: {msg}", stacklevel=3)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::warning::{msg}")
 
 
 def download_image(
@@ -21,8 +28,8 @@ def download_image(
         req = urllib.request.Request(url, headers=_HEADERS)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             if resp.status != 200:
-                warnings.warn(
-                    f"http_utils: Failed to download image from {url}: HTTP {resp.status}"
+                _http_utils_warn(
+                    f"Failed to download image from {url}: HTTP {resp.status}"
                 )
                 return None
             data = resp.read()
@@ -31,13 +38,12 @@ def download_image(
         buf = np.frombuffer(data, dtype=np.uint8)
         img = cv2.imdecode(buf, cv2.IMREAD_UNCHANGED)
         if img is None:
-            warnings.warn(f"http_utils: Failed to decode image from {url}")
+            _http_utils_warn(f"Failed to decode image from {url}")
             return None
         return img, len(data)
     except urllib.error.URLError as e:
-        warnings.warn(
-            f"http_utils: Failed to download image from {url}: "
-            f"{type(e).__name__} - {e}"
+        _http_utils_warn(
+            f"Failed to download image from {url}: {type(e).__name__} - {e}"
         )
         return None
 
@@ -52,24 +58,19 @@ def download_json(
         req = urllib.request.Request(url, headers=_HEADERS)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             if resp.status != 200:
-                warnings.warn(
-                    f"http_utils: Failed to download JSON from {url}: HTTP {resp.status}"
+                _http_utils_warn(
+                    f"Failed to download JSON from {url}: HTTP {resp.status}"
                 )
                 return None
             return json.loads(resp.read())
     except UnicodeDecodeError as e:
-        warnings.warn(
-            f"http_utils: Failed to decode JSON from {url}: {type(e).__name__} - {e}"
-        )
+        _http_utils_warn(f"Failed to decode JSON from {url}: {type(e).__name__} - {e}")
         return None
     except json.JSONDecodeError as e:
-        warnings.warn(
-            f"http_utils: Failed to parse JSON from {url}: {type(e).__name__} - {e}"
-        )
+        _http_utils_warn(f"Failed to parse JSON from {url}: {type(e).__name__} - {e}")
         return None
     except urllib.error.URLError as e:
-        warnings.warn(
-            f"http_utils: Failed to download JSON from {url}: "
-            f"{type(e).__name__} - {e}"
+        _http_utils_warn(
+            f"Failed to download JSON from {url}: " f"{type(e).__name__} - {e}"
         )
         return None
