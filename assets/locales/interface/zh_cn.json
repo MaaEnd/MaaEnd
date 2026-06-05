@@ -709,6 +709,7 @@
     "controller.Win32-Front.label": "电脑端-前台",
     "controller.Win32-Front.description": "稳定性最好，需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标",
     "controller.Win32-Window-Background.label": "电脑端-后台弃用(无法适配新版本)",
+    "controller.Win32-Window-Background.description": "因游戏更新导致无法继续适配，后台控制器已弃用，并将在后续版本中移除。",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
     "controller.Wlroots.label": "Linux端-Wlroots",
