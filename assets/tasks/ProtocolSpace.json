@@ -12,7 +12,6 @@
                 "ProtocolSpaceSuccessAction",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
-                "ProtocolSpaceUsePermit",
                 "ProtocolSpaceTab",
                 "ProtocolSpaceLevel"
             ],
@@ -229,7 +228,10 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         }
-                    }
+                    },
+                    "option": [
+                        "ProtocolSpaceUsePermit"
+                    ]
                 },
                 {
                     "name": "NoRewardClaim",
