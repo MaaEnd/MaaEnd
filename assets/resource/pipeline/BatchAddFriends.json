@@ -134,21 +134,11 @@
     "BatchAddFriendsClickAddButton": {
         "desc": "点击添加好友",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
-                ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "all_of": [
+                    "BatchAddfriendsAddFriendText"
+                ]
             }
         },
         "action": {
@@ -211,21 +201,11 @@
     "BatchAddFriendsHasAddButtonStranger": {
         "desc": "存在添加好友按钮（陌生人列表）",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
-                ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "all_of": [
+                    "BatchAddfriendsAddFriendText"
+                ]
             }
         },
         "action": {
@@ -239,6 +219,25 @@
     },
     "BatchAddFriendsClickAddButtonStranger": {
         "desc": "点击添加好友（陌生人列表）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsStrangersOnAdd"
+        ]
+    },
+    "BatchAddfriendsAddFriendText": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -262,16 +261,7 @@
                 ],
                 "threshold": 0.7
             }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "BatchAddFriendsFriendListFullToast",
-            "BatchAddFriendsStrangersOnAdd"
-        ]
+        }
     },
     "BatchAddFriendsStrangersOnAdd": {
         "desc": "陌生人添加进度",
@@ -594,21 +584,11 @@
     "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
         "desc": "换一批后检测到添加好友按钮",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
-                ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "all_of": [
+                    "BatchAddfriendsAddFriendText"
+                ]
             }
         },
         "action": {
