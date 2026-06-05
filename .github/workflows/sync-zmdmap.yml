@@ -3,12 +3,19 @@ name: Sync ZmdMap Data
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   sync-zmdmap:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -23,14 +30,62 @@ jobs:
         run: |
           python3 tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
 
-      - name: Commit and push changes
-        uses: actions-js/push@master
-        with:
-          rebase: true
-          branch: ${{ github.ref }}
-          message: "chore: sync zmdmap data
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain assets/data/ZmdMap)" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
 
-            This commit was automatically generated.
+      - name: Commit and push
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          BRANCH_NAME: "chore/sync-zmdmap-data"
+        run: |
+          set -euo pipefail
 
-            [skip changelog]"
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH_NAME"
+          git add assets/data/ZmdMap
+          git commit -m "chore: sync zmdmap data" \
+            -m "This commit was automatically generated." \
+            -m "[skip changelog]"
+          git push --force-with-lease origin "HEAD:$BRANCH_NAME"
+
+      - name: Create or update PR
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+          BRANCH_NAME: "chore/sync-zmdmap-data"
+        run: |
+          set -euo pipefail
+
+          BASE_BRANCH="${{ github.event.repository.default_branch }}"
+
+          PR_TITLE="chore: sync zmdmap data"
+
+          PR_BODY="## Summary
+
+          This PR automatically synchronized data files from zmdmap.
+
+          Please review the changes before merging it."
+
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty')"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --title "$PR_TITLE" --body "$PR_BODY"
+          else
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$BRANCH_NAME" \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY"
+          fi
+
+      - name: Show no-op result
+        if: steps.changes.outputs.has_changes != 'true'
+        run: |
+          echo "No changes detected in ZmdMap data."
