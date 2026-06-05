@@ -137,8 +137,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
                     "BatchAddfriendsAddFriendText"
-                ]
+                ],
+                "box_index": 2
             }
         },
         "action": {
@@ -204,8 +207,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
                     "BatchAddfriendsAddFriendText"
-                ]
+                ],
+                "box_index": 2
             }
         },
         "action": {
@@ -223,8 +229,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
                     "BatchAddfriendsAddFriendText"
-                ]
+                ],
+                "box_index": 2
             }
         },
         "action": {
@@ -237,16 +246,49 @@
             "BatchAddFriendsStrangersOnAdd"
         ]
     },
+    "BatchAddfriendsAddFriendButtonColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1157,
+                    102,
+                    122,
+                    570
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendButtonColor",
+                "method": 6,
+                "lower": [
+                    0
+                ],
+                "upper": [
+                    120
+                ],
+                "count": 10
+            }
+        }
+    },
     "BatchAddfriendsAddFriendText": {
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
-                ],
+                "roi": "BatchAddfriendsAddFriendTextColor",
                 "expected": [
                     "添加好友",
                     "新增好友",
@@ -587,8 +629,11 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
                     "BatchAddfriendsAddFriendText"
-                ]
+                ],
+                "box_index": 2
             }
         },
         "action": {
