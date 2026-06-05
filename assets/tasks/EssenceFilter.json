@@ -3,7 +3,7 @@
         {
             "name": "EssenceFilter",
             "label": "$task.EssenceFilter.label",
-            "entry": "EssenceFilterMain",
+            "entry": "EssenceFilterUnavailable",
             "description": "$task.EssenceFilter.description",
             "option": [],
             "controller": [
