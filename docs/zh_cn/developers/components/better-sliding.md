@@ -11,7 +11,7 @@
 
 ## 仅滑动模式
 
-适合滑动到最大/最小的情景，参数如下。如需精确控制数量，请转跳下文[指定数量模式](#指定数量模式)。
+适合滑动到最大/最小的情景，参数如下。如需精确控制数量，请跳转下文[指定数量模式](#指定数量模式)。
 
 ### 参数说明
 
@@ -21,7 +21,7 @@
 | `SwipeButton` | `string` | 否 | 自定义滑块模板路径。提供时覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板 `BetterSliding/SwipeButton.png`）。 |
 
 > [!note]
-> Custom内部在对`SwipeButton`进行匹配时，`GreenMask`设置为`true`，请涂绿方式可参考默认模板
+> Custom内部在对`SwipeButton`进行匹配时，`GreenMask`设置为`true`，涂绿方式可参考默认模板
 
 ### 示例
 

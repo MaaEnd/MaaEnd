@@ -81,7 +81,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 ```
 
 > [!important]
-> 模板图片需基于1270*720分辨率
+> 模板图片需基于1280×720分辨率
 
 ## 添加地区
 
