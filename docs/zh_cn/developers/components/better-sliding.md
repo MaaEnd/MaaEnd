@@ -4,7 +4,7 @@
 
 ![BetterSliding示例](../../../dev_img/BetterSlidingExample.png)
 
-如上图所示，可通过`SwiptButton`实现滑动，并通过`DecreaseButton`与`IncreaseButton`进行精确操作
+如上图所示，可通过`SwipeButton`实现滑动，并通过`DecreaseButton`与`IncreaseButton`进行精确操作
 
 > [!note]
 > 部分滑条在可滑动数量为1时会隐藏，请注意处理该种情况。

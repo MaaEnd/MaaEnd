@@ -122,7 +122,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 3. 确认场景导航入口存在
 
-通常被命名为 `SceneEnterMenuRegionalDevelopment{Reigon}StockRedistribution`
+通常被命名为 `SceneEnterMenuRegionalDevelopment{Region}StockRedistribution`
 
 ### 4. Pipeline 节点
 
