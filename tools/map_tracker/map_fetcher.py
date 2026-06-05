@@ -37,27 +37,32 @@ VERSION_API = APIEndpoint(
 )
 
 ENTITIES_API = APIEndpoint(
-    re_url="nosj.seititne_dneaam/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    # re_url="nosj.seititne_dneaam/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    re_url="nosj.seititne_dneaam/dneaam_tuptuo/ikiw.zf.stessa//:sptth",
     file_name="maaend_entities.json",
 )
 
 GRID_TIERS_API = APIEndpoint(
-    re_url="nosj.sreit_dirg/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    # re_url="nosj.sreit_dirg/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    re_url="nosj.sreit_dirg/pamdnoyeb_tuptuo/ikiw.zf.stessa//:sptth",
     file_name="grid_tiers.json",
 )
 
 REGION_LAYOUT_API = APIEndpoint(
-    re_url="nosj.tuoyal_}eman_pam{/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    # re_url="nosj.tuoyal_}eman_pam{/}noisrev{/ytitne/atad/moc.pamdmz.stessa//:sptth",
+    re_url="nosj.tuoyal_}eman_pam{/dneaam_tuptuo/ikiw.zf.stessa//:sptth",
     file_name="{map_name}_layout.json",
 )
 
 REGION_IMAGE_API = APIEndpoint(
-    re_url="gnp.}eman_noiger{/war/pam/segami/moc.pamdmz.stessa//:sptth",
+    # re_url="gnp.}eman_noiger{/war/pam/segami/moc.pamdmz.stessa//:sptth",
+    re_url="gnp.}eman_noiger{/pam/egami_tuptuo/ikiw.zf.stessa//:sptth",
     file_name="{region_name}.png",
 )
 
 TIER_IMAGE_API = APIEndpoint(
-    re_url="gnp.}eman_lluf_egami_reit{/reit/segami/moc.pamdmz.stessa//:sptth",
+    # re_url="gnp.}eman_lluf_egami_reit{/reit/segami/moc.pamdmz.stessa//:sptth",
+    re_url="gnp.}eman_lluf_egami_reit{/reit/egami_tuptuo/ikiw.zf.stessa//:sptth",
     file_name="{tier_image_full_name}.png",
 )
 
@@ -142,7 +147,9 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
         for l in r.levels.values()
         for e in l.categories.values()
     )
-    print(f"  {_G}Entities: {_C}{total}{_G} entries across {_C}{len(entities_table.regions)}{_G} regions{_0}")
+    print(
+        f"  {_G}Entities: {_C}{total}{_G} entries across {_C}{len(entities_table.regions)}{_G} regions{_0}"
+    )
 
     # Download grid_tiers first to discover region names
     print(f"  Downloading grid_tiers...")
@@ -363,7 +370,9 @@ def main():
     )
 
     # version
-    p_ver = sub.add_parser("version", help="Parse version info from a version JSON file")
+    p_ver = sub.add_parser(
+        "version", help="Parse version info from a version JSON file"
+    )
     p_ver.add_argument(
         "-i", "--input-file", required=True, help="Path to version JSON file"
     )
@@ -378,7 +387,11 @@ def main():
             cmd_json(args.output_dir, args.with_cache)
         elif args.command == "image":
             cmd_image(
-                args.input_dir, args.output_dir, args.match, args.with_cache, args.no_tiers
+                args.input_dir,
+                args.output_dir,
+                args.match,
+                args.with_cache,
+                args.no_tiers,
             )
         print(f"\n{_G}Done.{_0}")
 
