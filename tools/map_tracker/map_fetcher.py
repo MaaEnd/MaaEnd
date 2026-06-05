@@ -19,7 +19,7 @@ import numpy as np
 from typing import NamedTuple
 
 from _internal.core_utils import _R, _G, _Y, _C, _A, _0, cv2
-from _internal.zmdmap_schemas import RegionLayoutTable, GridTiersTable
+from _internal.zmdmap_schemas import RegionLayoutTable, GridTiersTable, EntitiesTable
 from _internal.http_utils import download_image, download_json
 
 
@@ -134,6 +134,15 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
     if not _download_json_cached(entities_url, entities_dest, use_cache):
         print(f"  {_R}Failed to fetch entities data{_0}")
         raise SystemExit(1)
+
+    entities_table = EntitiesTable.load(entities_dest)
+    total = sum(
+        len(e)
+        for r in entities_table.regions.values()
+        for l in r.levels.values()
+        for e in l.categories.values()
+    )
+    print(f"  {_G}Entities: {_C}{total}{_G} entries across {_C}{len(entities_table.regions)}{_G} regions{_0}")
 
     # Download grid_tiers first to discover region names
     print(f"  Downloading grid_tiers...")
@@ -289,6 +298,33 @@ def cmd_image(
             print(f"  {_G}Downloaded {tier_count} tier image(s){_0}")
 
 
+# ── version subcommand ────────────────────────────────────────────────────────
+
+
+def cmd_version(input_file: str) -> None:
+    """Parse the first version entry from a version JSON file and print version info."""
+    try:
+        with open(input_file, encoding="utf-8") as f:
+            raw = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"  {_R}Failed to read file: {e}{_0}")
+        raise SystemExit(1)
+
+    try:
+        ver_list = raw["data"]["list"]
+        entry = ver_list[0]
+        version = entry["version"]
+        game_version = entry["game_version"]
+        res_version = entry["resource_bundles"][0]["res_version"]
+    except (TypeError, KeyError, IndexError):
+        print(f"  {_R}Not a valid version file{_0}")
+        raise SystemExit(1)
+
+    print(version)
+    print(game_version)
+    print(res_version)
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 
 
@@ -326,18 +362,25 @@ def main():
         help="Only download region images, skip tier images",
     )
 
+    # version
+    p_ver = sub.add_parser("version", help="Parse version info from a version JSON file")
+    p_ver.add_argument(
+        "-i", "--input-file", required=True, help="Path to version JSON file"
+    )
+
     args = parser.parse_args()
 
-    print(f"{_G}MapFetcher{_0} [{args.command}]")
-
-    if args.command == "json":
-        cmd_json(args.output_dir, args.with_cache)
-    elif args.command == "image":
-        cmd_image(
-            args.input_dir, args.output_dir, args.match, args.with_cache, args.no_tiers
-        )
-
-    print(f"\n{_G}Done.{_0}")
+    if args.command == "version":
+        cmd_version(args.input_file)
+    else:
+        print(f"{_G}MapFetcher{_0} [{args.command}]")
+        if args.command == "json":
+            cmd_json(args.output_dir, args.with_cache)
+        elif args.command == "image":
+            cmd_image(
+                args.input_dir, args.output_dir, args.match, args.with_cache, args.no_tiers
+            )
+        print(f"\n{_G}Done.{_0}")
 
 
 if __name__ == "__main__":

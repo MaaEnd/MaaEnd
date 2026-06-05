@@ -30,20 +30,33 @@ jobs:
         run: |
           python3 tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
 
+      - name: Get version info
+        id: version
+        run: |
+          readarray -t VER < <(python3 tools/map_tracker/map_fetcher.py version -i assets/data/ZmdMap/version.json)
+          echo "version=${VER[0]}" >> "$GITHUB_OUTPUT"
+          echo "game_version=${VER[1]}" >> "$GITHUB_OUTPUT"
+          echo "res_version=${VER[2]}" >> "$GITHUB_OUTPUT"
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.MAAEND_BOT_TOKEN }}
           add-paths: assets/data/ZmdMap
-          commit-message: "chore: sync zmdmap data"
+          commit-message: "chore: sync zmdmap data ${{ steps.version.outputs.version }}"
           branch: chore/sync-zmdmap-data
-          title: "chore: sync zmdmap data"
+          title: "chore: sync zmdmap data ${{ steps.version.outputs.version }}"
           body: |
             ## Summary
 
             This PR automatically synchronized data files from zmdmap.
 
             Please review the changes before merging it.
+
+            **Version Information:**
+            - Version: ${{ steps.version.outputs.version }}
+            - Game Version: ${{ steps.version.outputs.game_version }}
+            - Resource Version: ${{ steps.version.outputs.res_version }}
 
   sync-map:
     runs-on: ubuntu-latest
@@ -66,6 +79,14 @@ jobs:
       - name: Fetch layout data
         run: |
           python3 tools/map_tracker/map_fetcher.py json -o .cache/data
+
+      - name: Get version info
+        id: version
+        run: |
+          readarray -t VER < <(python3 tools/map_tracker/map_fetcher.py version -i .cache/data/version.json)
+          echo "version=${VER[0]}" >> "$GITHUB_OUTPUT"
+          echo "game_version=${VER[1]}" >> "$GITHUB_OUTPUT"
+          echo "res_version=${VER[2]}" >> "$GITHUB_OUTPUT"
 
       - name: Fetch map images
         run: |
@@ -95,12 +116,17 @@ jobs:
           add-paths: |
             assets/resource/image/MapTracker/map/
             assets/data/MapTracker/
-          commit-message: "feat(map): sync map image"
+          commit-message: "feat(map): sync map image ${{ steps.version.outputs.version }}"
           branch: feat/sync-map-image
-          title: "feat(map): sync map image"
+          title: "feat(map): sync map image ${{ steps.version.outputs.version }}"
           body: |
             ## Summary
 
             This PR automatically synchronized map images and bbox data from zmdmap.
 
             Please review the changes before merging it.
+
+            **Version Information:**
+            - Version: ${{ steps.version.outputs.version }}
+            - Game Version: ${{ steps.version.outputs.game_version }}
+            - Resource Version: ${{ steps.version.outputs.res_version }}
