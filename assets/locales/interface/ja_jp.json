@@ -466,7 +466,7 @@
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
     "task.SeizeEntrustTask.label": "🌆受注依頼",
     "task.SeizeEntrustTaskCommissionSource.label": "依頼荷受場所",
-    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（11.9万）",
+    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（16.3万）",
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "実験区域（10.6万）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "倉庫ノード近くのアンカーへ転送",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "有効にすると、受注完了後に倉庫ノード近くのアンカーへ自動転送します。",

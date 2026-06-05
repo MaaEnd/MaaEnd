@@ -594,7 +594,7 @@
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
     "task.SeizeEntrustTask.label": "🌆抢委托",
     "task.SeizeEntrustTaskCommissionSource.label": "委托接收点",
-    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（11.9万）",
+    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（16.3万）",
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "试验园区（10.6万）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "传送至仓储节点锚点",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "开启后将抢完单将自动传送到仓储节点上面的锚点",

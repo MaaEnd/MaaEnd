@@ -470,7 +470,7 @@
     "task.AndroidOpenGame.description": "安卓端打開遊戲，需先手動打開模擬器",
     "task.SeizeEntrustTask.label": "🌆搶委託",
     "task.SeizeEntrustTaskCommissionSource.label": "委託接收點",
-    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（11.9萬）",
+    "task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label": "武陵城（16.3萬）",
     "task.SeizeEntrustTaskCommissionSource.cases.TestArea.label": "實驗園區（10.6萬）",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.label": "傳送至倉儲節點錨點",
     "task.SeizeEntrustTaskisGoDepotNodeWorld.description": "開啟後將搶完單後自動傳送到倉儲節點上面的錨點",
