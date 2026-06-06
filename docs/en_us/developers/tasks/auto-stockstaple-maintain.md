@@ -200,10 +200,20 @@ Action logic:
 1. Read the corresponding `AutoStockStapleGoods{Item}Validate` node expression, parse the **target limit** and **quantity OCR node name**.
 2. Run quantity OCR on the current screenshot to get the **current owned quantity**.
 3. Calculate `target = target limit - current owned quantity`.
-4. If `target <= 0`, skip swiping.
-5. Otherwise, use `OverridePipeline` to write `target` to `AutoStockStapleBetterSliding.attach.Target`, and `RunTask` to execute BetterSliding for smooth purchase quantity adjustment.
+4. If `target <= 0`, skip swiping (disable `AutoStockStapleBetterSliding`).
+5. Otherwise, use `OverridePipeline` to enable `AutoStockStapleBetterSliding` and write `target` to its `attach.Target`.
 
-`AutoStockStapleBetterSliding` is defined in `General/Item.json`, using `BetterSliding` to smoothly slide right to the specified quantity; the default value of `attach.Target` is just a placeholder, overridden at runtime by the Custom action.
+Go **no longer** `RunTask`s to execute sliding; quantity adjustment is handled by the low-code sibling branches:
+
+```text
+{Item}Buy (Go: compute target + OverridePipeline)
+  ├ AutoStockStapleCheckSliding              (skip sliding when slider hidden and default qty is 1)
+  ├ AutoStockStapleBetterSliding             (BetterSliding when enabled by Go)
+  └ AutoStockStapleQuantityControlRelayConfirm (fallback when target<=0, etc.)
+  → AutoStockStapleQuantityControlConfirmBuy
+```
+
+`AutoStockStapleBetterSliding` is defined in `General/Item.json`, default `enabled: false`, only enabled after Go override; the default `attach.Target` is a placeholder.
 
 After purchase quantity adjustment is complete, `next` enters `AutoStockStapleQuantityControlConfirmBuy` to click the yellow confirm button, then close the reward popup to return to the list.
 

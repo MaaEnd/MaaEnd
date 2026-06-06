@@ -42,7 +42,7 @@ type quantityValidatorNode struct {
 
 // QuantityControlAction calculates the purchase quantity for an AutoStockStaple item
 // from its validator expression and overrides BetterSliding attach.Target via pipeline.
-// Sliding itself is executed by the low-code AdjustQuantity branch.
+// Sliding itself is executed by the sibling CheckSliding / BetterSliding branch after Buy.
 type QuantityControlAction struct{}
 
 func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
