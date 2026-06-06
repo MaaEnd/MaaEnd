@@ -45,12 +45,12 @@
             }
         },
         "next": [
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop"
+            "[JumpBack]SeizeEntrustTaskStopTask"
         ]
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskStopTask",
             "[JumpBack]SeizeEntrustTaskNews"
         ]
     }
