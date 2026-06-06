@@ -26,12 +26,16 @@
                     "name": "WulingCity",
                     "label": "$task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label",
                     "option": [
-                        "SeizeEntrustTaskisGoDepotNodeWorld"
+                        "SeizeEntrustTaskisGoDepotNodeWorld",
+                        "SeizeEntrustTaskSpecifyDeliveryPointWulingCity"
                     ]
                 },
                 {
                     "name": "TestArea",
                     "label": "$task.SeizeEntrustTaskCommissionSource.cases.TestArea.label",
+                    "option": [
+                        "SeizeEntrustTaskSpecifyDeliveryPointTestArea"
+                    ],
                     "pipeline_override": {
                         "SeizeEntrustTaskGoDepotNode": {
                             "enabled": false
@@ -189,6 +193,87 @@
                             ]
                         }
                     }
+                }
+            ]
+        },
+        "SeizeEntrustTaskSpecifyDeliveryPointWulingCity": {
+            "type": "switch",
+            "label": "$task.SeizeEntrustTaskSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeEntrustTaskDeliveryPointWulingCity"
+                    ]
+                }
+            ]
+        },
+        "SeizeEntrustTaskSpecifyDeliveryPointTestArea": {
+            "type": "switch",
+            "label": "$task.SeizeEntrustTaskSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeEntrustTaskDeliveryPointTestArea"
+                    ]
+                }
+            ]
+        },
+        "SeizeEntrustTaskDeliveryPointWulingCity": {
+            "type": "checkbox",
+            "label": "$task.SeizeEntrustTaskDeliveryPoint.label",
+            "default_case": [
+                "Owl",
+                "MaterialResearchInstitute",
+                "Observatory",
+                "TechProductionOffice"
+            ],
+            "cases": [
+                {
+                    "name": "Owl",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.Owl.label"
+                },
+                {
+                    "name": "MaterialResearchInstitute",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.MaterialResearchInstitute.label"
+                },
+                {
+                    "name": "Observatory",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.Observatory.label"
+                },
+                {
+                    "name": "TechProductionOffice",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.TechProductionOffice.label"
+                }
+            ]
+        },
+        "SeizeEntrustTaskDeliveryPointTestArea": {
+            "type": "checkbox",
+            "label": "$task.SeizeEntrustTaskDeliveryPoint.label",
+            "default_case": [
+                "No1TypeCAnchorArea",
+                "No3TypeCAnchorArea",
+                "JingweiFieldArea"
+            ],
+            "cases": [
+                {
+                    "name": "No1TypeCAnchorArea",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.No1TypeCAnchorArea.label"
+                },
+                {
+                    "name": "No3TypeCAnchorArea",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.No3TypeCAnchorArea.label"
+                },
+                {
+                    "name": "JingweiFieldArea",
+                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.JingweiFieldArea.label"
                 }
             ]
         }
