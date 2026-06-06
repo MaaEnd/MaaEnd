@@ -453,7 +453,7 @@ class PathEditPage(MapViewportPage):
 
     def _fit_view_to_points_or_map(self) -> None:
         if self.points:
-            self.view.fit_to(self.points)
+            self.view.fit_to(self.points, padding=0.3, min_zoom=1.0, max_zoom=5.0)
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
@@ -572,9 +572,9 @@ class PathEditPage(MapViewportPage):
         if d_mid_next < (k - 1) + 1e-6:
             return True
         d_prev_mid = math.hypot(prev_mid_dx, prev_mid_dy)
-        sin_delta_theta = abs(
-            prev_mid_dx * mid_next_dy - prev_mid_dy * mid_next_dx
-        ) / (d_prev_mid * d_mid_next + 1e-6)
+        sin_delta_theta = abs(prev_mid_dx * mid_next_dy - prev_mid_dy * mid_next_dx) / (
+            d_prev_mid * d_mid_next + 1e-6
+        )
         # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
         return sin_delta_theta * (d_mid_next + 1) < k
 
@@ -1112,7 +1112,9 @@ class AreaEditPage(MapViewportPage):
     def _fit_view_to_target_or_map(self) -> None:
         if self.target is not None:
             x, y, w, h = self.target
-            self.view.fit_to([(x, y), (x + w, y + h)], padding=0.2)
+            self.view.fit_to(
+                [(x, y), (x + w, y + h)], padding=0.2, min_zoom=1.0, max_zoom=5.0
+            )
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
