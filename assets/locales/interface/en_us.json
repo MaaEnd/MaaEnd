@@ -779,6 +779,7 @@
     "task.AutoStockStaple.label": "🏪 Buy Staple Goods",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "Purchase page did not open properly",
+    "task.AutoStockStaple.focus.quantity_control.better_sliding_failed": "Failed to set purchase quantity, canceling purchase",
     "task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit": "Buy Valley Engraving Permit",
     "task.AutoStockStaple.focus.quantity_control.reached.valley_engraving_permit": "Valley Engraving Permit quota met",
     "task.AutoStockStaple.focus.quantity_control.buy.kunst_tube": "Buy Kunst Tube",

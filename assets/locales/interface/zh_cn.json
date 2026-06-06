@@ -779,6 +779,7 @@
     "task.AutoStockStaple.label": "🏪购买稳定物资",
     "task.AutoStockStaple.description": "购买稳定需求物资，仅购买每周刷新的物品。",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "购买页面未正常打开",
+    "task.AutoStockStaple.focus.quantity_control.better_sliding_failed": "定量滑动失败，取消购买",
     "task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit": "购买 谷地刻写券",
     "task.AutoStockStaple.focus.quantity_control.reached.valley_engraving_permit": "谷地刻写券数量达标",
     "task.AutoStockStaple.focus.quantity_control.buy.kunst_tube": "购买 附术铁瓶",

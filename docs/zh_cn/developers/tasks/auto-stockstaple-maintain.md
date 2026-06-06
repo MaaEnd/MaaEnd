@@ -144,8 +144,7 @@ AutoStockTargetCanNotBuyValleyIV
 
 三者同时命中后，点击商品卡片（`target_offset: [-50, 95, 0, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
 
-> [!IMPORTANT]
-> `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
+> [!IMPORTANT] > `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
 
 ### 5. 售罄与滑动
 
@@ -201,10 +200,21 @@ Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 1. 读取对应 `AutoStockStapleGoods{Item}Validate` 节点表达式，解析 **目标上限** 与 **数量 OCR 节点名**。
 2. 对当前截图运行数量 OCR，得到 **当前持有数量**。
 3. 计算 `target = 目标上限 - 当前持有数量`。
-4. 若 `target <= 0`，跳过滑动。
-5. 否则通过 `OverridePipeline` 将 `target` 写入 `AutoStockStapleBetterSliding.attach.Target`，并 `RunTask` 执行 BetterSliding 平滑调节购买数量。
+4. 若 `target <= 0`，跳过滑动（禁用 `AutoStockStapleBetterSliding`）。
+5. 否则通过 `OverridePipeline` 启用 `AutoStockStapleBetterSliding`，并将 `target` 写入其 `attach.Target`。
 
-`AutoStockStapleBetterSliding` 定义在 `General/Item.json`，使用 `BetterSliding` 向右滑到指定数量；`attach.Target` 的默认值只是占位，运行时会被 Custom 动作覆盖。
+Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
+
+```text
+{Item}Buy (Go: 计算 target + OverridePipeline)
+  → AutoStockStapleQuantityControlAdjustQuantity
+    → AutoStockStapleCheckSliding        （滑条隐藏且默认数量为 1 时跳过滑动）
+    → AutoStockStapleBetterSliding       （Go 启用后执行 BetterSliding）
+    → AutoStockStapleQuantityControlRelayConfirm （target<=0 等 fallback）
+  → AutoStockStapleQuantityControlConfirmBuy
+```
+
+`AutoStockStapleBetterSliding` 定义在 `General/Item.json`，默认 `enabled: false`，仅在 Go override 后启用；`attach.Target` 的默认值只是占位。
 
 购买数量调节完成后，`next` 进入 `AutoStockStapleQuantityControlConfirmBuy` 点击黄色确认按钮，再关闭奖励弹窗回到列表。
 
@@ -224,11 +234,11 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 本任务有两类运行时 override，维护时不要混淆：
 
-| 动作                                   | 触发位置                                          | 作用                                          |
-| -------------------------------------- | ------------------------------------------------- | --------------------------------------------- |
-| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则           |
-| `PipelineOverrideAction`               | 各物品 `{Item}RemoveFilter`                       | 将指定 attach 键设为 `false`，排除该物品      |
-| `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy`                                | 计算差值并 override BetterSliding 的 `Target` |
+| 动作                                   | 触发位置                                          | 作用                                                      |
+| -------------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则                       |
+| `PipelineOverrideAction`               | 各物品 `{Item}RemoveFilter`                       | 将指定 attach 键设为 `false`，排除该物品                  |
+| `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy`                                | 计算差值并 override BetterSliding 的 `Target` / `enabled` |
 
 `attach` 语义（见 `attachregex/action.go`）：
 

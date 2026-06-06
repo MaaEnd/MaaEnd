@@ -511,7 +511,7 @@ function buildQuantityControl(items) {
             post_delay: 0,
             rate_limit: 0,
             next: [
-                "AutoStockStapleQuantityControlConfirmBuy",
+                "AutoStockStapleQuantityControlAdjustQuantity",
             ],
         };
 
@@ -549,6 +549,65 @@ function buildQuantityControl(items) {
             ],
         };
     }
+
+    result.AutoStockStapleQuantityControlAdjustQuantity = {
+        desc: "购买数量调节入口",
+        pre_delay: 0,
+        post_delay: 0,
+        rate_limit: 0,
+        next: [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding",
+            "AutoStockStapleQuantityControlRelayConfirm",
+        ],
+    };
+
+    result.AutoStockStapleCheckSliding = {
+        desc: "检查滑条是否存在，当购买数量为1时滑条会隐藏",
+        recognition: {
+            type: "ColorMatch",
+            param: {
+                roi: [
+                    450,
+                    485,
+                    325,
+                    40,
+                ],
+                lower: [
+                    [
+                        80,
+                        80,
+                        80,
+                    ],
+                ],
+                upper: [
+                    [
+                        100,
+                        100,
+                        100,
+                    ],
+                ],
+                connected: true,
+                count: 10086,
+            },
+        },
+        pre_delay: 0,
+        post_delay: 0,
+        rate_limit: 0,
+        next: [
+            "AutoStockStapleQuantityControlRelayConfirm",
+        ],
+    };
+
+    result.AutoStockStapleQuantityControlRelayConfirm = {
+        desc: "数量调节完成，进入确认购买",
+        pre_delay: 0,
+        post_delay: 0,
+        rate_limit: 0,
+        next: [
+            "AutoStockStapleQuantityControlConfirmBuy",
+        ],
+    };
 
     result.AutoStockStapleQuantityControlConfirmBuy = {
         desc: "确认购买",

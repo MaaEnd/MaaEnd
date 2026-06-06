@@ -124,7 +124,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit"
@@ -269,7 +269,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.kunst_tube"
@@ -387,7 +387,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.jakubs_legacy"
@@ -505,7 +505,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.pulled_slug_meat"
@@ -623,7 +623,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.hazefyre_blossom"
@@ -741,7 +741,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cartilage_cookie"
@@ -859,7 +859,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmo_melto_jelly"
@@ -977,7 +977,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_detector"
@@ -1095,7 +1095,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_compass"
@@ -1213,7 +1213,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.breeze_of_kjersch"
@@ -1331,7 +1331,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.tidestone_specimen"
@@ -1449,7 +1449,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.simonch_shawl"
@@ -1567,7 +1567,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.frontiers_watch"
@@ -1685,7 +1685,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.aurylene_camera"
@@ -1803,7 +1803,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmic_gate_puzzle"
@@ -1921,7 +1921,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.surfing_festival_ticket"
@@ -2039,7 +2039,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_engraving_permit"
@@ -2157,7 +2157,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fortifying_infusion"
@@ -2275,7 +2275,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.garden_fried_rice"
@@ -2393,7 +2393,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.master_pans_egg_pudding"
@@ -2511,7 +2511,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.echoing_remedy"
@@ -2629,7 +2629,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_artificing_catalyst"
@@ -2747,7 +2747,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_detector"
@@ -2865,7 +2865,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_compass"
@@ -2983,7 +2983,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.eureka_teabox"
@@ -3101,7 +3101,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.yinglung_dumbbells"
@@ -3219,7 +3219,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.woven_aggelos"
@@ -3337,7 +3337,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.scrimshaw_of_the_pack"
@@ -3455,7 +3455,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleQuantityControlAdjustQuantity"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.chubby_lung_fangxing_memorabilia"
@@ -3504,6 +3504,62 @@
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.chubby_lung_fangxing_memorabilia"
         }
+    },
+    "AutoStockStapleQuantityControlAdjustQuantity": {
+        "desc": "购买数量调节入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding",
+            "AutoStockStapleQuantityControlRelayConfirm"
+        ]
+    },
+    "AutoStockStapleCheckSliding": {
+        "desc": "检查滑条是否存在，当购买数量为1时滑条会隐藏",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    450,
+                    485,
+                    325,
+                    40
+                ],
+                "lower": [
+                    [
+                        80,
+                        80,
+                        80
+                    ]
+                ],
+                "upper": [
+                    [
+                        100,
+                        100,
+                        100
+                    ]
+                ],
+                "connected": true,
+                "count": 10086
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlRelayConfirm"
+        ]
+    },
+    "AutoStockStapleQuantityControlRelayConfirm": {
+        "desc": "数量调节完成，进入确认购买",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlConfirmBuy"
+        ]
     },
     "AutoStockStapleQuantityControlConfirmBuy": {
         "desc": "确认购买",

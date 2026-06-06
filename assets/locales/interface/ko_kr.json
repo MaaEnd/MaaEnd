@@ -779,6 +779,7 @@
     "task.AutoStockStaple.label": "🏪 안정 수요 물자 구매",
     "task.AutoStockStaple.description": "안정 수요 물자를 구매하며, 매주 갱신되는 물자만 구매합니다.",
     "task.AutoStockStaple.focus.quantity_control.purchase_page_failed": "구매 화면이 정상적으로 열리지 않았습니다",
+    "task.AutoStockStaple.focus.quantity_control.better_sliding_failed": "수량 조절에 실패하여 구매를 취소합니다",
     "task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit": "구매 谷地刻写券",
     "task.AutoStockStaple.focus.quantity_control.reached.valley_engraving_permit": "谷地刻写券 수량 달성",
     "task.AutoStockStaple.focus.quantity_control.buy.kunst_tube": "구매 附术铁瓶",
