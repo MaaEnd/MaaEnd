@@ -2,7 +2,7 @@
 
 该CustomAction支持对滑块进行滑动，支持滑动到指定数值
 
-![BetterSliding示例](../../../dev_img/BetterSlidingExample.png)
+![BetterSliding示例](https://github.com/user-attachments/assets/27365f2c-b1a5-43cb-8ff6-d75d506716e2)
 
 如上图所示，可通过`SwipeButton`实现滑动，并通过`DecreaseButton`与`IncreaseButton`进行精确操作
 
