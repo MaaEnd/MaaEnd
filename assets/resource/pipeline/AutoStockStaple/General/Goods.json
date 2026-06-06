@@ -506,6 +506,27 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSprouts": {
+        "desc": "陈皮拌笋",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "陈皮拌笋",
+                    "陳皮拌筍",
+                    "(?i)Rind-Flavored\\s*Sprouts",
+                    "陳皮と筍の和え物",
+                    "Rind-Flavored Sprouts"
+                ]
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂",
         "recognition": {
@@ -667,6 +688,48 @@
                     "骨の彫刻",
                     "(?i)Scrimshaw\\s*Of\\s*The\\s*Pack",
                     "늑대 뼈 문신"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsFinNChips": {
+        "desc": "炸鳞薯条",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "炸鳞薯条",
+                    "炸鱗薯條",
+                    "(?i)Fin-n-Chips",
+                    "鱗獣アンドチップス",
+                    "Fin-n-Chips"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcake": {
+        "desc": "怪味纸杯蛋糕",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "怪味纸杯蛋糕",
+                    "怪味杯子蛋糕",
+                    "(?i)Bizarro\\s*Cupcake",
+                    "複雑な味のカップケーキ",
+                    "Bizarro Cupcake"
                 ]
             }
         }

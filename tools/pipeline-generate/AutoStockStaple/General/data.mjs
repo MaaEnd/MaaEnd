@@ -275,6 +275,18 @@ const ITEMS = [
         ],
     },
     {
+        id: "RindFlavoredSprouts",
+        slug: "rind_flavored_sprouts",
+        name: "陈皮拌笋",
+        expected: [
+            "陈皮拌笋",
+            "陳皮拌筍",
+            "(?i)Rind-Flavored\\s*Sprouts",
+            "陳皮と筍の和え物",
+            "Rind-Flavored Sprouts",
+        ],
+    },
+    {
         id: "WulingArtificingCatalyst",
         slug: "wuling_artificing_catalyst",
         name: "武陵精锻助剂",
@@ -356,6 +368,30 @@ const ITEMS = [
             "(?i)Scrimshaw\\s*Of\\s*The\\s*Pack",
             "狼群骨雕",
             "늑대 뼈 문신",
+        ],
+    },
+    {
+        id: "FinNChips",
+        slug: "fin_n_chips",
+        name: "炸鳞薯条",
+        expected: [
+            "炸鳞薯条",
+            "炸鱗薯條",
+            "(?i)Fin-n-Chips",
+            "鱗獣アンドチップス",
+            "Fin-n-Chips",
+        ],
+    },
+    {
+        id: "BizarroCupcake",
+        slug: "bizarro_cupcake",
+        name: "怪味纸杯蛋糕",
+        expected: [
+            "怪味纸杯蛋糕",
+            "怪味杯子蛋糕",
+            "(?i)Bizarro\\s*Cupcake",
+            "複雑な味のカップケーキ",
+            "Bizarro Cupcake",
         ],
     },
     {

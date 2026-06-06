@@ -43,6 +43,7 @@
             "AutoStockStapleQuantityControlGardenFriedRice",
             "AutoStockStapleQuantityControlMasterPansEggPudding",
             "AutoStockStapleQuantityControlEchoingRemedy",
+            "AutoStockStapleQuantityControlRindFlavoredSprouts",
             "AutoStockStapleQuantityControlWulingArtificingCatalyst",
             "AutoStockStapleQuantityControlKeenWulingDetector",
             "AutoStockStapleQuantityControlKeenWulingCompass",
@@ -50,6 +51,8 @@
             "AutoStockStapleQuantityControlYinglungDumbbells",
             "AutoStockStapleQuantityControlWovenAggelos",
             "AutoStockStapleQuantityControlScrimshawOfThePack",
+            "AutoStockStapleQuantityControlFinNChips",
+            "AutoStockStapleQuantityControlBizarroCupcake",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia"
         ],
         "focus": {
@@ -2561,6 +2564,124 @@
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.echoing_remedy"
         }
     },
+    "AutoStockStapleQuantityControlRindFlavoredSprouts": {
+        "desc": "陈皮拌笋的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlRindFlavoredSproutsStockBillInsufficient",
+            "AutoStockStapleQuantityControlRindFlavoredSproutsBuy",
+            "AutoStockStapleQuantityControlRindFlavoredSproutsExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter": {
+        "desc": "陈皮拌笋移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "rind_flavored_sprouts": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsBuy": {
+        "desc": "陈皮拌笋低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsRindFlavoredSproutsValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "rind_flavored_sprouts"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlAdjustQuantity"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.rind_flavored_sprouts"
+        }
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsExclude": {
+        "desc": "陈皮拌笋达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsRindFlavoredSproutsExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.rind_flavored_sprouts"
+        }
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsStockBillInsufficient": {
+        "desc": "陈皮拌笋调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.rind_flavored_sprouts"
+        }
+    },
     "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂的数量控制",
         "recognition": {
@@ -3385,6 +3506,242 @@
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.scrimshaw_of_the_pack"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChips": {
+        "desc": "炸鳞薯条的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlFinNChipsStockBillInsufficient",
+            "AutoStockStapleQuantityControlFinNChipsBuy",
+            "AutoStockStapleQuantityControlFinNChipsExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlFinNChipsRemoveFilter": {
+        "desc": "炸鳞薯条移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "fin_n_chips": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlFinNChipsBuy": {
+        "desc": "炸鳞薯条低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsFinNChipsValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "fin_n_chips"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlAdjustQuantity"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChipsExclude": {
+        "desc": "炸鳞薯条达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsFinNChipsExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFinNChipsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChipsStockBillInsufficient": {
+        "desc": "炸鳞薯条调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFinNChipsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcake": {
+        "desc": "怪味纸杯蛋糕的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlBizarroCupcakeStockBillInsufficient",
+            "AutoStockStapleQuantityControlBizarroCupcakeBuy",
+            "AutoStockStapleQuantityControlBizarroCupcakeExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter": {
+        "desc": "怪味纸杯蛋糕移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "bizarro_cupcake": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeBuy": {
+        "desc": "怪味纸杯蛋糕低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsBizarroCupcakeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "bizarro_cupcake"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlAdjustQuantity"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.bizarro_cupcake"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeExclude": {
+        "desc": "怪味纸杯蛋糕达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsBizarroCupcakeExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.bizarro_cupcake"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeStockBillInsufficient": {
+        "desc": "怪味纸杯蛋糕调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.bizarro_cupcake"
         }
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia": {

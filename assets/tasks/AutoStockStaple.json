@@ -1148,6 +1148,23 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "RindFlavoredSprouts",
+                    "label": "$option.CreditShoppingItems.cases.RindFlavoredSprouts.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "rind_flavored_sprouts": [
+                                    "陈皮拌笋",
+                                    "陳皮拌筍",
+                                    "Rind-Flavored Sprouts",
+                                    "陳皮と筍の和え物",
+                                    "Rind-Flavored Sprouts"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1267,6 +1284,24 @@
                     }
                 },
                 "AutoStockStapleGoodsEchoingRemedyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsRindFlavoredSproutsValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsRindFlavoredSproutsExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -1504,6 +1539,40 @@
                     }
                 },
                 {
+                    "name": "FinNChips",
+                    "label": "$option.CreditShoppingItems.cases.FinNChips.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "fin_n_chips": [
+                                    "炸鳞薯条",
+                                    "炸鱗薯條",
+                                    "Fin-n-Chips",
+                                    "鱗獣アンドチップス",
+                                    "Fin-n-Chips"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "BizarroCupcake",
+                    "label": "$option.CreditShoppingItems.cases.BizarroCupcake.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "bizarro_cupcake": [
+                                    "怪味纸杯蛋糕",
+                                    "怪味杯子蛋糕",
+                                    "Bizarro Cupcake",
+                                    "複雑な味のカップケーキ",
+                                    "Bizarro Cupcake"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "ChubbyLungFangxingMemorabilia",
                     "label": "$option.CreditShoppingItems.cases.ChubbyLungFangxingMemorabilia.label",
                     "pipeline_override": {
@@ -1604,6 +1673,42 @@
                     }
                 },
                 "AutoStockStapleGoodsScrimshawOfThePackExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFinNChipsValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFinNChipsExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsBizarroCupcakeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsBizarroCupcakeExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {

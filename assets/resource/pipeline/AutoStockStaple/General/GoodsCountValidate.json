@@ -304,6 +304,18 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSproutsValidate": {
+        "desc": "陈皮拌笋数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalystValidate": {
         "desc": "武陵精锻助剂数量验证",
         "recognition": {
@@ -378,6 +390,30 @@
     },
     "AutoStockStapleGoodsScrimshawOfThePackValidate": {
         "desc": "狼群骨雕数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFinNChipsValidate": {
+        "desc": "炸鳞薯条数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcakeValidate": {
+        "desc": "怪味纸杯蛋糕数量验证",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -652,6 +688,18 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSproutsExcludeValidate": {
+        "desc": "陈皮拌笋数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalystExcludeValidate": {
         "desc": "武陵精锻助剂数量排除验证",
         "recognition": {
@@ -726,6 +774,30 @@
     },
     "AutoStockStapleGoodsScrimshawOfThePackExcludeValidate": {
         "desc": "狼群骨雕数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFinNChipsExcludeValidate": {
+        "desc": "炸鳞薯条数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcakeExcludeValidate": {
+        "desc": "怪味纸杯蛋糕数量排除验证",
         "recognition": {
             "type": "Custom",
             "param": {
