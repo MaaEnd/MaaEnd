@@ -128,8 +128,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit"
@@ -275,8 +274,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.kunst_tube"
@@ -395,8 +393,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.jakubs_legacy"
@@ -515,8 +512,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.pulled_slug_meat"
@@ -635,8 +631,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.hazefyre_blossom"
@@ -755,8 +750,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cartilage_cookie"
@@ -875,8 +869,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmo_melto_jelly"
@@ -995,8 +988,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_detector"
@@ -1115,8 +1107,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_compass"
@@ -1235,8 +1226,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.breeze_of_kjersch"
@@ -1355,8 +1345,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.tidestone_specimen"
@@ -1475,8 +1464,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.simonch_shawl"
@@ -1595,8 +1583,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.frontiers_watch"
@@ -1715,8 +1702,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.aurylene_camera"
@@ -1835,8 +1821,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmic_gate_puzzle"
@@ -1955,8 +1940,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.surfing_festival_ticket"
@@ -2075,8 +2059,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_engraving_permit"
@@ -2195,8 +2178,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fortifying_infusion"
@@ -2315,8 +2297,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.garden_fried_rice"
@@ -2435,8 +2416,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.master_pans_egg_pudding"
@@ -2555,8 +2535,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.echoing_remedy"
@@ -2675,8 +2654,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.rind_flavored_sprouts"
@@ -2795,8 +2773,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_artificing_catalyst"
@@ -2915,8 +2892,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_detector"
@@ -3035,8 +3011,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_compass"
@@ -3155,8 +3130,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.eureka_teabox"
@@ -3275,8 +3249,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.yinglung_dumbbells"
@@ -3395,8 +3368,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.woven_aggelos"
@@ -3515,8 +3487,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.scrimshaw_of_the_pack"
@@ -3635,8 +3606,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fin_n_chips"
@@ -3755,8 +3725,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.bizarro_cupcake"
@@ -3875,8 +3844,7 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleCheckSliding",
-            "AutoStockStapleBetterSliding",
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.chubby_lung_fangxing_memorabilia"
@@ -3948,15 +3916,6 @@
                 "count": 2000
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleQuantityControlRelayConfirm"
-        ]
-    },
-    "AutoStockStapleQuantityControlRelayConfirm": {
-        "desc": "数量调节完成，进入确认购买",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

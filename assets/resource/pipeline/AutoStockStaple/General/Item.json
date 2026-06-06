@@ -287,7 +287,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlRelayConfirm"
+            "AutoStockStapleQuantityControlConfirmBuy"
         ],
         "focus": {
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.better_sliding_failed"
