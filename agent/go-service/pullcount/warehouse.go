@@ -12,6 +12,7 @@ import (
 const (
 	voucherNodePermit  = "PullCountCalculatorFindCarryToNextPermit"
 	voucherNodeDossier = "PullCountCalculatorFindHeadhuntingDossier"
+	voucherNodeBond    = "PullCountCalculatorFindBondQuota"
 	voucherQuantityOCR = "PullCountCalculatorVoucherQuantityOCR"
 )
 
@@ -21,22 +22,31 @@ type voucherPageHit struct {
 	Box      maa.Rect
 }
 
-// scanVoucherPage reads all carry-over voucher stacks visible on the current warehouse page.
+// scanVoucherPage reads all pull-count warehouse item stacks visible on the current page.
 func scanVoucherPage(ctx *maa.Context) ([]voucherPageHit, error) {
 	img, err := captureCurrentPage(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	hits, err := scanVoucherKind(ctx, img, voucherNodePermit, voucherKindPermit)
-	if err != nil {
-		return nil, err
+	kinds := []struct {
+		node string
+		kind string
+	}{
+		{voucherNodePermit, voucherKindPermit},
+		{voucherNodeDossier, voucherKindDossier},
+		{voucherNodeBond, voucherKindBondQuota},
 	}
-	dossierHits, err := scanVoucherKind(ctx, img, voucherNodeDossier, voucherKindDossier)
-	if err != nil {
-		return nil, err
+
+	var hits []voucherPageHit
+	for _, item := range kinds {
+		itemHits, err := scanVoucherKind(ctx, img, item.node, item.kind)
+		if err != nil {
+			return nil, err
+		}
+		hits = append(hits, itemHits...)
 	}
-	return append(hits, dossierHits...), nil
+	return hits, nil
 }
 
 // captureCurrentPage takes one screenshot for all warehouse recognitions on this page.
@@ -52,7 +62,7 @@ func captureCurrentPage(ctx *maa.Context) (image.Image, error) {
 	return img, nil
 }
 
-// scanVoucherKind locates one voucher kind and reads each matched stack quantity.
+// scanVoucherKind locates one pull-count item kind and reads each matched stack quantity.
 func scanVoucherKind(ctx *maa.Context, img image.Image, nodeName string, kind string) ([]voucherPageHit, error) {
 	detail, err := ctx.RunRecognition(nodeName, img, nil)
 	if err != nil {

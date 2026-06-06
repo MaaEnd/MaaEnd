@@ -79,8 +79,6 @@ func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, resource s
 	case resourceOroberyl:
 		session.Values.Oroberyl = value
 		session.HasOroberyl = true
-	case resourceBondQuota:
-		session.Values.BondQuota = value
 	default:
 		log.Error().Str("component", componentName).Str("resource", resource).Msg("unknown resource")
 		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
@@ -97,8 +95,6 @@ func resourceLabel(resource string) string {
 	switch resource {
 	case resourceOriginium:
 		return i18n.T("pullcount.resource.originium")
-	case resourceBondQuota:
-		return i18n.T("pullcount.resource.bond_quota")
 	default:
 		return i18n.T("pullcount.resource.oroberyl")
 	}
@@ -145,7 +141,7 @@ func handleRecordVoucher(ctx *maa.Context, _ *maa.CustomActionArg) bool {
 
 	for _, hit := range hits {
 		pulls := voucherPulls(hit.Kind, hit.Quantity)
-		added := recordCarryToNextVoucher(session, voucherKey(hit.Box), hit.Kind, hit.Quantity)
+		added := recordWarehousePullItem(session, voucherKey(hit.Box), hit.Kind, hit.Quantity)
 		log.Info().
 			Str("component", componentName).
 			Bool("added", added).
@@ -153,13 +149,14 @@ func handleRecordVoucher(ctx *maa.Context, _ *maa.CustomActionArg) bool {
 			Int("quantity", hit.Quantity).
 			Int("pulls", pulls).
 			Interface("box", hit.Box).
+			Int("bond_quota", session.Values.BondQuota).
 			Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
 			Int("dossier_pulls", session.Vouchers.DossierPulls).
-			Msg("warehouse voucher recorded")
+			Msg("warehouse pull item recorded")
 	}
 
 	if len(hits) == 0 {
-		log.Info().Str("component", componentName).Msg("no warehouse vouchers found on current page")
+		log.Info().Str("component", componentName).Msg("no warehouse pull items found on current page")
 	}
 	return true
 }
@@ -169,19 +166,23 @@ func voucherPulls(kind string, quantity int) int {
 	if quantity <= 0 {
 		return 0
 	}
-	if kind == voucherKindDossier {
+	switch kind {
+	case voucherKindDossier:
 		return quantity * dossierPulls
+	case voucherKindBondQuota:
+		return quantity / bondQuotaPerPull
+	default:
+		return quantity
 	}
-	return quantity
 }
 
-// voucherKey builds a stable duplicate key from a template hit box.
+// voucherKey builds a stable duplicate key from a template hit box on the scanned page.
 func voucherKey(box maa.Rect) string {
 	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// recordCarryToNextVoucher adds one confirmed carry-over item stack unless the hit box was already counted.
-func recordCarryToNextVoucher(session *runSession, key string, kind string, quantity int) bool {
+// recordWarehousePullItem adds one confirmed warehouse pull item unless the hit box was already counted.
+func recordWarehousePullItem(session *runSession, key string, kind string, quantity int) bool {
 	if quantity <= 0 {
 		return false
 	}
@@ -189,9 +190,12 @@ func recordCarryToNextVoucher(session *runSession, key string, kind string, quan
 		return false
 	}
 	session.VoucherHits[key] = struct{}{}
-	if kind == voucherKindDossier {
+	switch kind {
+	case voucherKindDossier:
 		session.Vouchers.DossierPulls += voucherPulls(kind, quantity)
-	} else {
+	case voucherKindBondQuota:
+		session.Values.BondQuota = quantity
+	default:
 		session.Vouchers.CarryToNextPulls += voucherPulls(kind, quantity)
 	}
 	return true

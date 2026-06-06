@@ -52,24 +52,45 @@ func TestCalculatePullCount(t *testing.T) {
 	}
 }
 
-// TestAddVoucher verifies voucher quantity accumulation and duplicate suppression.
-func TestAddVoucher(t *testing.T) {
+// TestRecordWarehousePullItem verifies warehouse quantity accumulation and duplicate suppression.
+func TestRecordWarehousePullItem(t *testing.T) {
 	session := newTestSession()
 
-	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit, 16); !added {
-		t.Fatal("recordCarryToNextVoucher first hit = false, want true")
+	if added := recordWarehousePullItem(session, "p1", voucherKindPermit, 16); !added {
+		t.Fatal("recordWarehousePullItem first hit = false, want true")
 	}
-	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit, 16); added {
-		t.Fatal("recordCarryToNextVoucher duplicate = true, want false")
+	if added := recordWarehousePullItem(session, "p1", voucherKindPermit, 16); added {
+		t.Fatal("recordWarehousePullItem duplicate = true, want false")
 	}
-	if added := recordCarryToNextVoucher(session, "p2", voucherKindDossier, 1); !added {
-		t.Fatal("recordCarryToNextVoucher second hit = false, want true")
+	if added := recordWarehousePullItem(session, "p2", voucherKindDossier, 1); !added {
+		t.Fatal("recordWarehousePullItem second hit = false, want true")
 	}
-	if added := recordCarryToNextVoucher(session, "p3", voucherKindPermit, 0); added {
-		t.Fatal("recordCarryToNextVoucher zero quantity = true, want false")
+	if added := recordWarehousePullItem(session, "p3", voucherKindPermit, 0); added {
+		t.Fatal("recordWarehousePullItem zero quantity = true, want false")
+	}
+	if added := recordWarehousePullItem(session, "p4", voucherKindBondQuota, 175); !added {
+		t.Fatal("recordWarehousePullItem bond quota = false, want true")
 	}
 	if session.Vouchers.CarryToNextPulls != 16 || session.Vouchers.DossierPulls != 10 {
 		t.Fatalf("voucher summary = %+v, want carry 16 and dossier 10", session.Vouchers)
+	}
+	if session.Values.BondQuota != 175 {
+		t.Fatalf("bond quota = %d, want 175", session.Values.BondQuota)
+	}
+}
+
+// TestIssue3355WarehouseItems verifies the fixed same-page warehouse item contributions.
+func TestIssue3355WarehouseItems(t *testing.T) {
+	session := newTestSession()
+
+	recordWarehousePullItem(session, "permit", voucherKindPermit, 16)
+	recordWarehousePullItem(session, "dossier", voucherKindDossier, 1)
+	recordWarehousePullItem(session, "bond", voucherKindBondQuota, 175)
+
+	result := calculatePullCount(session.Values, session.Vouchers)
+	if result.CarryToNextPulls != 16 || result.DossierPulls != 10 || result.BondQuotaPulls != 7 {
+		t.Fatalf("warehouse contributions = carry %d, dossier %d, bond %d; want 16, 10, 7",
+			result.CarryToNextPulls, result.DossierPulls, result.BondQuotaPulls)
 	}
 }
 
@@ -83,6 +104,9 @@ func TestVoucherPulls(t *testing.T) {
 	}
 	if got := voucherPulls(voucherKindDossier, 0); got != 0 {
 		t.Fatalf("voucherPulls(dossier, 0) = %d, want 0", got)
+	}
+	if got := voucherPulls(voucherKindBondQuota, 175); got != 7 {
+		t.Fatalf("voucherPulls(bond quota, 175) = %d, want 7", got)
 	}
 }
 

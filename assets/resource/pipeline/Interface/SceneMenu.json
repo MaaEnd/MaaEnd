@@ -60,6 +60,17 @@
             "[JumpBack]SceneEnterMenuValuables"
         ]
     },
+    "SceneEnterMenuValuablesValuableTabFromMenuList": {
+        "desc": "先返回菜单总列表，再进入贵重品库的珍贵物品页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateAnyEnterValuableTabSuccess",
+            "__ScenePrivateMenuValuablesEnterValuableTab",
+            "__ScenePrivateMenuListEnterMenuValuables",
+            "[JumpBack]SceneEnterMenuList"
+        ]
+    },
     "SceneEnterMenuOperationalManual": {
         "desc": "从任意界面进入行动手册菜单",
         "pre_delay": 0,

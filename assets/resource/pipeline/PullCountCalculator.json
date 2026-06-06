@@ -1,6 +1,6 @@
 {
     "PullCountCalculatorMain": {
-        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
+        "desc": "抽数计算入口：从大世界进入寻访读取顶部资源，再返回大世界打开菜单进入贵重品库扫描保障配额、寻访情报书和特许寻访凭证并输出估算",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
@@ -8,12 +8,77 @@
             "stage": "init"
         },
         "next": [
-            "PullCountCalculatorOriginiumOCR"
+            "PullCountCalculatorFocusWorldBeforeRecruitment"
         ],
         "focus": {
             "Node.Action.Starting": "$task.PullCountCalculator.focus.start",
             "Node.Action.Failed": "$task.PullCountCalculator.focus.failed"
         }
+    },
+    "PullCountCalculatorFocusWorldBeforeRecruitment": {
+        "desc": "进入寻访前聚焦 Endfield 游戏窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction",
+        "custom_action_param": {
+            "op": "focus",
+            "window": "main"
+        },
+        "next": [
+            "PullCountCalculatorEnterRecruitmentFromWorld"
+        ]
+    },
+    "PullCountCalculatorEnterRecruitmentFromWorld": {
+        "desc": "从大世界点击右上角寻访入口下方真实 UI 图标进入寻访界面，适配普通态和 Hover 态",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__PullCountCalculatorRecruitmentButton",
+                    "__PullCountCalculatorRecruitmentButtonHover"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "next": [
+            "PullCountCalculatorOriginiumOCR"
+        ]
+    },
+    "__PullCountCalculatorRecruitmentButton": {
+        "desc": "右上角寻访入口普通态模板",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1066,
+            24,
+            50,
+            48
+        ],
+        "template": "PullCountCalculator/RecruitmentButton.Template.png",
+        "threshold": 0.78
+    },
+    "__PullCountCalculatorRecruitmentButtonHover": {
+        "desc": "右上角寻访入口 Hover 态模板",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1066,
+            24,
+            50,
+            48
+        ],
+        "template": "PullCountCalculator/RecruitmentButtonHover.Template.png",
+        "threshold": 0.78
     },
     "PullCountCalculatorOriginiumOCR": {
         "desc": "识别顶部衍质源石换算嵌晶玉数量",
@@ -56,37 +121,71 @@
             "stage": "record_oroberyl"
         },
         "next": [
-            "PullCountCalculatorBondQuotaOCR",
-            "PullCountCalculatorEnterValuables"
+            "PullCountCalculatorBackToWorld"
         ]
     },
-    "PullCountCalculatorBondQuotaOCR": {
-        "desc": "识别顶部保障配额数量，可用于商店无限兑换特许寻访凭证",
-        "recognition": "OCR",
-        "roi": [
-            1138,
-            8,
-            44,
-            35
-        ],
-        "expected": [
-            "^\\d+.*$"
-        ],
-        "only_rec": true,
+    "PullCountCalculatorBackToWorld": {
+        "desc": "读取寻访顶部资源后返回大世界",
+        "next": [
+            "PullCountCalculatorFocusWorldBeforeMenu",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "PullCountCalculatorFocusWorldBeforeMenu": {
+        "desc": "打开主菜单前聚焦 Endfield 游戏窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
         "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
+        "custom_action": "AccountSwitchWindowAction",
         "custom_action_param": {
-            "stage": "record_bond_quota"
+            "op": "focus",
+            "window": "main"
+        },
+        "next": [
+            "PullCountCalculatorOpenMenuListByEsc"
+        ]
+    },
+    "PullCountCalculatorOpenMenuListByEsc": {
+        "desc": "从大世界按 ESC 打开主菜单列表",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "PullCountCalculatorInMenuList"
+        ]
+    },
+    "PullCountCalculatorInMenuList": {
+        "desc": "确认主菜单列表已打开",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMenuList"
+                ]
+            }
         },
         "next": [
             "PullCountCalculatorEnterValuables"
         ]
     },
     "PullCountCalculatorEnterValuables": {
-        "desc": "进入贵重品库珍贵物品页，界面跳转交由 SceneManager Pipeline 处理",
+        "desc": "从主菜单列表进入贵重品库珍贵物品页，界面跳转交由 SceneManager Pipeline 处理",
         "next": [
             "PullCountCalculatorInStashValuablesTab",
-            "[JumpBack]SceneEnterMenuValuablesValuableTab"
+            "[JumpBack]SceneEnterMenuValuablesValuableTabFromMenuList"
         ],
         "focus": {
             "Node.Action.Starting": "即将进入贵重品库珍贵物品页"
@@ -107,7 +206,7 @@
         ]
     },
     "PullCountCalculatorScanPage": {
-        "desc": "扫描当前页的寻访情报书与特许寻访凭证数量",
+        "desc": "扫描当前页的保障配额、寻访情报书与特许寻访凭证数量",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
@@ -115,7 +214,7 @@
             "stage": "record_voucher"
         },
         "next": [
-            "PullCountCalculatorPageDone"
+            "PullCountCalculatorFinish"
         ]
     },
     "PullCountCalculatorFindCarryToNextPermit": {
@@ -154,44 +253,31 @@
             }
         }
     },
+    "PullCountCalculatorFindBondQuota": {
+        "desc": "查找当前页保障配额图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    950,
+                    560
+                ],
+                "template": "PullCountCalculator/BondQuota.Template.png",
+                "green_mask": true,
+                "threshold": 0.78,
+                "order_by": "Vertical"
+            }
+        }
+    },
     "PullCountCalculatorVoucherQuantityOCR": {
-        "desc": "识别寻访相关物品格内数量，roi 由 Go 根据模板命中框覆盖",
+        "desc": "识别抽数相关物品格内数量，roi 由 Go 根据模板命中框覆盖",
         "recognition": "OCR",
         "expected": [
             ".*\\d+.*"
         ],
         "only_rec": true
-    },
-    "PullCountCalculatorPageDone": {
-        "desc": "记录本页图标扫描结果并判断继续滚动或完成",
-        "recognition": "DirectHit",
-        "action": "DoNothing",
-        "next": [
-            "PullCountCalculatorWarehouseScrollDown",
-            "PullCountCalculatorFinish"
-        ]
-    },
-    "PullCountCalculatorWarehouseScrollDown": {
-        "desc": "向下滚动贵重品库列表，继续扫描下一页",
-        "max_hit": 4,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab"
-                ]
-            }
-        },
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": -360,
-        "post_wait_freezes": 650,
-        "next": [
-            "PullCountCalculatorScanPage"
-        ]
     },
     "PullCountCalculatorFinish": {
         "desc": "汇总资源与仓库券并输出抽数计算结果",
