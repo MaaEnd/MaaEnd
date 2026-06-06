@@ -16,6 +16,8 @@ BRIDGE_FIXED_COST = 12.0
 BRIDGE_GAP_COST_FACTOR = 3.0
 BRIDGE_HEIGHT_COST_FACTOR = 40.0
 BRIDGE_MAX_HEIGHT_DELTA = 3.0
+SMALL_BRIDGE_COMPONENT_MAX_TRIANGLES = 512
+SMALL_BRIDGE_MAX_GAP = 4.0
 ROUTE_MIN_POINT_DISTANCE = 6.0
 ROUTE_SIMPLIFY_EPSILON = 3.0
 ROUTE_MAX_POINT_DISTANCE = 4.0
@@ -107,6 +109,8 @@ class BaseNavField:
         self.triangle_bounds: list[tuple[float, float, float, float]] = []
         self.bins: dict[tuple[int, int, int], list[int]] = {}
         self.adjacency: list[list[int]] = [[] for _triangle in self.triangles]
+        self.natural_component: list[int] = []
+        self.natural_component_size: list[int] = []
         self.triangle_height: list[float] = []
         self.overlay_cache = {}
         self._build_index()
@@ -210,9 +214,6 @@ class BaseNavField:
         zone_ranges = []
         for zone in self.zones:
             zone_ranges.append((zone.first_triangle, zone.first_triangle + zone.triangle_count, zone.zone_id))
-        for source, target in self.links:
-            if 0 <= source < len(self.adjacency) and 0 <= target < len(self.adjacency):
-                self.adjacency[source].append(target)
         range_index = 0
         for triangle_index, _triangle in enumerate(self.triangles):
             while range_index + 1 < len(zone_ranges) and triangle_index >= zone_ranges[range_index][1]:
@@ -234,6 +235,57 @@ class BaseNavField:
                 for bin_y in range(math.floor(top / self.bin_size), math.floor(bottom / self.bin_size) + 1):
                     self.bins.setdefault((zone_id, bin_x, bin_y), []).append(triangle_index)
         self.triangle_height = [self._triangle_average_height(triangle_index) for triangle_index in range(len(self.triangles))]
+        self._build_natural_components()
+        for source, target in self.links:
+            if self._is_traversable_link(source, target):
+                self.adjacency[source].append(target)
+
+    def _build_natural_components(self) -> None:
+        self.natural_component = [-1] * len(self.triangles)
+        self.natural_component_size = []
+        for triangle_index in range(len(self.triangles)):
+            if self.natural_component[triangle_index] >= 0:
+                continue
+            component_id = len(self.natural_component_size)
+            self.natural_component[triangle_index] = component_id
+            stack = [triangle_index]
+            size = 0
+            while stack:
+                current = stack.pop()
+                size += 1
+                for neighbor in self.triangles[current].neighbors:
+                    if (
+                        neighbor < 0
+                        or neighbor >= len(self.triangles)
+                        or self.natural_component[neighbor] >= 0
+                        or self.triangle_zone[neighbor] != self.triangle_zone[current]
+                    ):
+                        continue
+                    self.natural_component[neighbor] = component_id
+                    stack.append(neighbor)
+            self.natural_component_size.append(size)
+
+    def _is_traversable_link(self, source: int, target: int) -> bool:
+        if (
+            source < 0
+            or source >= len(self.triangles)
+            or target < 0
+            or target >= len(self.triangles)
+            or self.triangle_zone[source] == 0
+            or self.triangle_zone[source] != self.triangle_zone[target]
+        ):
+            return False
+        if target in self.triangles[source].neighbors:
+            return True
+
+        source_component = self.natural_component[source]
+        target_component = self.natural_component[target]
+        min_component_size = min(self.natural_component_size[source_component], self.natural_component_size[target_component])
+        if min_component_size > SMALL_BRIDGE_COMPONENT_MAX_TRIANGLES:
+            return True
+
+        bridge_points = self._closest_edge_bridge_points(source, target)
+        return bridge_points is not None and _point_distance(bridge_points[0], bridge_points[1]) <= SMALL_BRIDGE_MAX_GAP
 
     def _triangle_average_height(self, triangle_index: int) -> float:
         triangle = self.triangles[triangle_index]
