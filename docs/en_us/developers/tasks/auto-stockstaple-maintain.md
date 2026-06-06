@@ -21,7 +21,6 @@ This document uses **Valley IV** as the main example for introduction. Wuling's 
 | Scene Recognition               | `assets/resource/pipeline/Interface/InScene/StockStaple.json`              | `InValleyIVText`, `InWulingText`, `InStapleColor`                                                            |
 | Go Quantity Control Action      | `agent/go-service/autostockstaple/action.go`                               | Calculate required purchase quantity and override BetterSliding `Target`                                     |
 | Go Regex Initialization         | `agent/go-service/common/attachregex/action.go`                            | `AttachToExpectedRegexAction`: Merge attach keywords into an OCR whitelist regex                             |
-| Node Code Generation            | `tools/pipeline-generate/AutoStockStaple/General/`                         | Batch generate `Goods.json`, `GoodsCountValidate.json`, `QuantityControl.json`                               |
 | Multilingual Text               | `assets/locales/interface/*.json`                                          | Task names, options, and focus text                                                                          |
 
 > [!NOTE]
@@ -240,20 +239,13 @@ This task has two types of runtime overrides; do not confuse them during mainten
 
 When adding a new staple demand item, typically the following need to be modified simultaneously:
 
-1. **`tools/pipeline-generate/AutoStockStaple/General/data.mjs`**: Add item `id`, `slug`, and `expected` in various languages.
-2. **Regenerate** (in repository root):
+1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected` strings.
+2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
+3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node to `AutoStockStapleQuantityControl.next`, and add Buy / Exclude / StockBillInsufficient / RemoveFilter subnodes (copy an existing item in the same region as reference).
+4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the corresponding region checkbox, writing `AutoStockInStapleItemName.attach.{slug}` and quantity limit override.
+5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
 
-```bash
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
-```
-
-3. **`assets/tasks/AutoStockStaple.json`**: Add a case in the corresponding region checkbox, writing `AutoStockInStapleItemName.attach.{slug}` and quantity limit override.
-4. **`assets/locales/interface/*.json`**: Add options and focus text (e.g., `quantity_control.buy.*`).
-5. Confirm that the item order in `AutoStockStapleQuantityControl.next` list is consistent with `data.mjs` to avoid changes in traversal order after generation.
-
-Generation rules are detailed in [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md).
+Edit the Pipeline and task config directly. **Do not** rely on a code generator to overwrite these artifacts.
 
 ## Adding New Regions (Referencing Valley IV)
 

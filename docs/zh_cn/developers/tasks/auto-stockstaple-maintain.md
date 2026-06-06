@@ -21,7 +21,6 @@
 | 场景识别         | `assets/resource/pipeline/Interface/InScene/StockStaple.json`              | `InValleyIVText`、`InWulingText`、`InStapleColor`                         |
 | Go 数量控制动作  | `agent/go-service/autostockstaple/action.go`                               | 计算需购数量并 override BetterSliding 的 `Target`                         |
 | Go 正则初始化    | `agent/go-service/common/attachregex/action.go`                            | `AttachToExpectedRegexAction`：将 attach 关键词合并为 OCR 白名单正则      |
-| 节点代码生成     | `tools/pipeline-generate/AutoStockStaple/General/`                         | 批量生成 `Goods.json`、`GoodsCountValidate.json`、`QuantityControl.json`  |
 | 多语言文案       | `assets/locales/interface/*.json`                                          | 任务名、选项与 focus 文案                                                 |
 
 > [!NOTE]
@@ -250,20 +249,13 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 新增一种稳定需求物资时，通常需要同步修改：
 
-1. **`tools/pipeline-generate/AutoStockStaple/General/data.mjs`**：添加物品 `id`、`slug`、各语言 `expected`。
-2. **重新生成**（在仓库根目录）：
+1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**：新增 `AutoStockStapleGoods{Item}` OCR 节点及多语言 `expected`。
+2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**：新增 `{Item}Validate` / `{Item}ExcludeValidate` 表达式节点。
+3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**：在 `AutoStockStapleQuantityControl.next` 中追加 `{Item}` 控制节点，并补齐 Buy / Exclude / StockBillInsufficient / RemoveFilter 等子节点（可参考同地区已有物品的写法）。
+4. **`assets/tasks/AutoStockStaple.json`**：在对应地区 checkbox 中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}` 与数量上限 override。
+5. **`assets/locales/interface/*.json`**：补充 `option.CreditShoppingItems.cases.{Item}.label` 与 focus 文案（如 `quantity_control.buy.*`）。
 
-```bash
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
-```
-
-3. **`assets/tasks/AutoStockStaple.json`**：在对应地区 checkbox 中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}` 与数量上限 override。
-4. **`assets/locales/interface/*.json`**：补充选项与 focus 文案（如 `quantity_control.buy.*`）。
-5. 确认 `AutoStockStapleQuantityControl.next` 列表中的物品顺序与 `data.mjs` 一致，避免生成后遍历顺序变化。
-
-生成规则详见 [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md)。
+维护时请直接编辑上述 Pipeline 与任务配置，**不要**依赖代码生成器覆盖产物。
 
 ## 新增地区（参考四号谷地）
 
