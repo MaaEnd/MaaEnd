@@ -107,27 +107,19 @@
         ]
     },
     "PullCountCalculatorScanPage": {
-        "desc": "开始扫描当前页的寻访相关券图标",
+        "desc": "扫描当前页的寻访情报书与特许寻访凭证数量",
         "recognition": "DirectHit",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "PullCountCalculatorFindCarryToNextVoucher"
-                    ]
-                }
-            }
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_voucher"
         },
         "next": [
-            "PullCountCalculatorFindCarryToNextVoucher",
             "PullCountCalculatorPageDone"
         ]
     },
-    "PullCountCalculatorFindCarryToNextVoucher": {
-        "desc": "查找可留到后续池子的特许寻访凭证或寻访情报书图标",
-        "max_hit": 1,
+    "PullCountCalculatorFindCarryToNextPermit": {
+        "desc": "查找当前页可留到后续池子的特许寻访凭证图标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -137,70 +129,38 @@
                     950,
                     560
                 ],
-                "template": [
-                    "PullCountCalculator/CarryToNextVoucher.Template.png",
-                    "PullCountCalculator/HeadhuntingDossier.Template.png"
-                ],
+                "template": "PullCountCalculator/CarryToNextVoucher.Template.png",
                 "green_mask": true,
                 "threshold": 0.78,
                 "order_by": "Vertical"
             }
-        },
-        "action": "DoNothing",
-        "next": [
-            "PullCountCalculatorClickCarryToNextVoucher",
-            "PullCountCalculatorPageDone"
-        ]
+        }
     },
-    "PullCountCalculatorClickCarryToNextVoucher": {
-        "desc": "点击可留到后续池子的寻访相关物品图标",
+    "PullCountCalculatorFindHeadhuntingDossier": {
+        "desc": "查找当前页可在下版本转换的寻访情报书图标",
         "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab",
-                    "PullCountCalculatorFindCarryToNextVoucher"
-                ],
-                "box_index": 1
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": "PullCountCalculatorFindCarryToNextVoucher"
-            }
-        },
-        "post_wait_freezes": 150,
-        "next": [
-            "PullCountCalculatorCarryToNextVoucherTitleOCR"
-        ]
-    },
-    "PullCountCalculatorCarryToNextVoucherTitleOCR": {
-        "desc": "确认选中的物品是特许寻访凭证或寻访情报书，排除基础寻访凭证",
-        "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    980,
-                    58,
-                    260,
-                    36
+                    30,
+                    80,
+                    950,
+                    560
                 ],
-                "expected": [
-                    ".*(特许寻访凭证|特許尋訪憑證|寻访情报书|尋訪情報書|Headhunting\\s*Dossier).*"
-                ],
-                "only_rec": true
+                "template": "PullCountCalculator/HeadhuntingDossier.Template.png",
+                "green_mask": true,
+                "threshold": 0.78,
+                "order_by": "Vertical"
             }
-        },
-        "action": "Custom",
-        "custom_action": "PullCountCalculatorAction",
-        "custom_action_param": {
-            "stage": "record_voucher"
-        },
-        "target": "PullCountCalculatorFindCarryToNextVoucher",
-        "next": [
-            "PullCountCalculatorPageDone"
-        ]
+        }
+    },
+    "PullCountCalculatorVoucherQuantityOCR": {
+        "desc": "识别寻访相关物品格内数量，roi 由 Go 根据模板命中框覆盖",
+        "recognition": "OCR",
+        "expected": [
+            ".*\\d+.*"
+        ],
+        "only_rec": true
     },
     "PullCountCalculatorPageDone": {
         "desc": "记录本页图标扫描结果并判断继续滚动或完成",

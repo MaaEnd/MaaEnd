@@ -52,33 +52,37 @@ func TestCalculatePullCount(t *testing.T) {
 	}
 }
 
-// TestAddVoucher verifies Pipeline-classified voucher accumulation and duplicate suppression.
+// TestAddVoucher verifies voucher quantity accumulation and duplicate suppression.
 func TestAddVoucher(t *testing.T) {
 	session := newTestSession()
 
-	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit); !added {
+	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit, 16); !added {
 		t.Fatal("recordCarryToNextVoucher first hit = false, want true")
 	}
-	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit); added {
+	if added := recordCarryToNextVoucher(session, "p1", voucherKindPermit, 16); added {
 		t.Fatal("recordCarryToNextVoucher duplicate = true, want false")
 	}
-	if added := recordCarryToNextVoucher(session, "p2", voucherKindDossier); !added {
+	if added := recordCarryToNextVoucher(session, "p2", voucherKindDossier, 1); !added {
 		t.Fatal("recordCarryToNextVoucher second hit = false, want true")
 	}
-	if session.Vouchers.CarryToNextPulls != 1 || session.Vouchers.DossierPulls != 10 {
-		t.Fatalf("voucher summary = %+v, want carry 1 and dossier 10", session.Vouchers)
+	if added := recordCarryToNextVoucher(session, "p3", voucherKindPermit, 0); added {
+		t.Fatal("recordCarryToNextVoucher zero quantity = true, want false")
+	}
+	if session.Vouchers.CarryToNextPulls != 16 || session.Vouchers.DossierPulls != 10 {
+		t.Fatalf("voucher summary = %+v, want carry 16 and dossier 10", session.Vouchers)
 	}
 }
 
-// TestDossierText verifies title OCR classification for Headhunting Dossier.
-func TestDossierText(t *testing.T) {
-	for _, text := range []string{"寻访情报书", "尋訪情報書", "Headhunting Dossier"} {
-		if !isDossierText(text) {
-			t.Fatalf("isDossierText(%q) = false, want true", text)
-		}
+// TestVoucherPulls verifies item quantity to pull-count conversion.
+func TestVoucherPulls(t *testing.T) {
+	if got := voucherPulls(voucherKindPermit, 16); got != 16 {
+		t.Fatalf("voucherPulls(permit, 16) = %d, want 16", got)
 	}
-	if isDossierText("特许寻访凭证") {
-		t.Fatal("isDossierText permit = true, want false")
+	if got := voucherPulls(voucherKindDossier, 1); got != 10 {
+		t.Fatalf("voucherPulls(dossier, 1) = %d, want 10", got)
+	}
+	if got := voucherPulls(voucherKindDossier, 0); got != 0 {
+		t.Fatalf("voucherPulls(dossier, 0) = %d, want 0", got)
 	}
 }
 

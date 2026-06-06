@@ -129,53 +129,70 @@ func handleFinish(ctx *maa.Context) bool {
 
 // --- Warehouse Scan Stages --- //
 
-// handleRecordVoucher stores one Pipeline-classified voucher for the selected template hit.
-func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+// handleRecordVoucher scans the current warehouse page and records all carry-over items on it.
+func handleRecordVoucher(ctx *maa.Context, _ *maa.CustomActionArg) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
 		return false
 	}
 
-	kind := voucherKindFromRecognition(arg.RecognitionDetail)
-	added := recordCarryToNextVoucher(session, voucherKey(arg), kind)
-	log.Info().
-		Str("component", componentName).
-		Bool("added", added).
-		Str("kind", kind).
-		Int("pulls", voucherPulls(kind)).
-		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
-		Int("dossier_pulls", session.Vouchers.DossierPulls).
-		Msg("warehouse voucher recorded")
+	hits, err := scanVoucherPage(ctx)
+	if err != nil {
+		log.Warn().Err(err).Str("component", componentName).Msg("failed to scan warehouse vouchers")
+		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
+		return false
+	}
+
+	for _, hit := range hits {
+		pulls := voucherPulls(hit.Kind, hit.Quantity)
+		added := recordCarryToNextVoucher(session, voucherKey(hit.Box), hit.Kind, hit.Quantity)
+		log.Info().
+			Str("component", componentName).
+			Bool("added", added).
+			Str("kind", hit.Kind).
+			Int("quantity", hit.Quantity).
+			Int("pulls", pulls).
+			Interface("box", hit.Box).
+			Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
+			Int("dossier_pulls", session.Vouchers.DossierPulls).
+			Msg("warehouse voucher recorded")
+	}
+
+	if len(hits) == 0 {
+		log.Info().Str("component", componentName).Msg("no warehouse vouchers found on current page")
+	}
 	return true
 }
 
-// voucherPulls returns how many pulls the confirmed warehouse item contributes.
-func voucherPulls(kind string) int {
-	if kind == voucherKindDossier {
-		return dossierPulls
+// voucherPulls returns how many pulls the confirmed warehouse item contributes by quantity.
+func voucherPulls(kind string, quantity int) int {
+	if quantity <= 0 {
+		return 0
 	}
-	return 1
+	if kind == voucherKindDossier {
+		return quantity * dossierPulls
+	}
+	return quantity
 }
 
-// voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
-func voucherKey(arg *maa.CustomActionArg) string {
-	if arg == nil {
-		return "carry_to_next"
-	}
-	box := arg.Box
+// voucherKey builds a stable duplicate key from a template hit box.
+func voucherKey(box maa.Rect) string {
 	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// recordCarryToNextVoucher adds one confirmed carry-over item unless the hit box was already counted.
-func recordCarryToNextVoucher(session *runSession, key string, kind string) bool {
+// recordCarryToNextVoucher adds one confirmed carry-over item stack unless the hit box was already counted.
+func recordCarryToNextVoucher(session *runSession, key string, kind string, quantity int) bool {
+	if quantity <= 0 {
+		return false
+	}
 	if _, exists := session.VoucherHits[key]; exists {
 		return false
 	}
 	session.VoucherHits[key] = struct{}{}
 	if kind == voucherKindDossier {
-		session.Vouchers.DossierPulls += dossierPulls
+		session.Vouchers.DossierPulls += voucherPulls(kind, quantity)
 	} else {
-		session.Vouchers.CarryToNextPulls++
+		session.Vouchers.CarryToNextPulls += voucherPulls(kind, quantity)
 	}
 	return true
 }
