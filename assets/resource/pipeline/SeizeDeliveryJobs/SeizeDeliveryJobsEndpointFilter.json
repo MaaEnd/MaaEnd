@@ -1,320 +1,39 @@
 {
-    "SeizeDeliveryJobsFindTargetIndex0": {
-        "max_hit": 1,
-        "post_wait_freezes": 1000,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "RewardOcr",
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true,
-                                "index": 0
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "RewardOcr",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
+    "SeizeDeliveryJobsScanTarget": {
+        "desc": "Go驱动扫描所有符合条件的委托",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "SeizeDeliveryJobsScanTargetRecognition",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsScanTargetAction",
         "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocation"
+            "SeizeDeliveryJobsScanTarget",
+            "SeizeDeliveryJobsRefresh"
         ]
     },
-    "SeizeDeliveryJobsFindTargetIndex1": {
-        "max_hit": 1,
-        "post_wait_freezes": 1000,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "RewardOcr",
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true,
-                                "index": 1
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "RewardOcr",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
+    "SeizeDeliveryJobsFoundTargetViewLocationClick": {
+        "desc": "点击查看位置（由Go传入动态target）",
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterCheck": {
+        "desc": "检查终点是否符合筛选",
         "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocation"
+            "SeizeDeliveryJobsEndpointFilterWulingCity",
+            "SeizeDeliveryJobsEndpointFilterTestArea"
         ]
     },
-    "SeizeDeliveryJobsFindTargetIndex2": {
-        "max_hit": 1,
-        "post_wait_freezes": 1000,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "RewardOcr",
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true,
-                                "index": 2
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "RewardOcr",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
-        "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocation"
-        ]
-    },
-    "SeizeDeliveryJobsFindTargetIndex3": {
-        "max_hit": 1,
-        "post_wait_freezes": 1000,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "RewardOcr",
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true,
-                                "index": 3
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "RewardOcr",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
-        "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocation"
-        ]
-    },
-    "SeizeDeliveryJobsFindTargetIndex4": {
-        "max_hit": 1,
-        "post_wait_freezes": 1000,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "RewardOcr",
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true,
-                                "index": 4
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "RewardOcr",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
-        "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocation"
-        ]
-    },
-    "SeizeDeliveryJobsFoundTargetViewLocation": {
-        "desc": "点击查看位置查看送货点",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "SeizeDeliveryJobsFindTargetIndex0",
-                "roi_offset": [
-                    -214,
-                    -12,
-                    38,
-                    17
-                ],
-                "expected": [
-                    "查看位置"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
+    "SeizeDeliveryJobsAcceptClick": {
+        "desc": "点击接取运送委托（由Go传入动态target）",
+        "action": "Click",
         "post_wait_freezes": {
             "time": 2000,
             "target": [
@@ -324,6 +43,125 @@
                 103
             ]
         },
+        "next": [
+            "isSeizeDeliveryJobsInWorldAfterAccept",
+            "SeizeDeliveryJobsRetryClickAccept"
+        ]
+    },
+    "SeizeDeliveryJobsPressEsc": {
+        "desc": "按ESC返回委托列表",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 1000
+    },
+    "SeizeDeliveryJobsEndpointFilterWulingCity": {
+        "desc": "武陵城终点筛选入口",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterOwl",
+            "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
+            "SeizeDeliveryJobsEndpointFilterObservatory",
+            "SeizeDeliveryJobsEndpointFilterTechProductionOffice"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterTestArea": {
+        "desc": "试验园区终点筛选入口",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
+            "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
+            "SeizeDeliveryJobsEndpointFilterJingweiFieldArea"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterOwl": {
+        "desc": "猫头鹰（右下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            655,
+            515,
+            93,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterOwl.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+        "desc": "材料研究所（左下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            548,
+            542,
+            122,
+            73
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterObservatory": {
+        "desc": "观测站（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            853,
+            209,
+            84,
+            110
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterObservatory.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+        "desc": "技术生产办公室（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            781,
+            438,
+            88,
+            103
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterTechProductionOffice.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+        "desc": "一号丙型辅桩区（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            291,
+            194,
+            95,
+            89
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+        "desc": "三号丙型辅桩区（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            711,
+            210,
+            82,
+            99
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea.png",
+        "next": []
+    },
+    "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+        "desc": "经纬田区（右）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            752,
+            375,
+            74,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterJingweiFieldArea.png",
         "next": []
     }
 }

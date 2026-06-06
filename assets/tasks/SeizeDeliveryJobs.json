@@ -41,57 +41,30 @@
                             "enabled": false
                         },
                         "SeizeDeliveryJobsFindTarget": {
-                            "recognition": {
-                                "param": {
-                                    "all_of": [
-                                        {
-                                            "sub_name": "RewardOcr",
-                                            "recognition": {
-                                                "type": "OCR",
-                                                "param": {
-                                                    "roi": [
-                                                        841,
-                                                        177,
-                                                        48,
-                                                        424
-                                                    ],
-                                                    "roi_offset": [
-                                                        0,
-                                                        30,
-                                                        0,
-                                                        -20
-                                                    ],
-                                                    "expected": [
-                                                        "10.6"
-                                                    ],
-                                                    "only_rec": true
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "recognition": {
-                                                "type": "OCR",
-                                                "param": {
-                                                    "roi": "RewardOcr",
-                                                    "roi_offset": [
-                                                        -215,
-                                                        -6,
-                                                        19,
-                                                        -6
-                                                    ],
-                                                    "expected": [
-                                                        "试验园区",
-                                                        "實驗園區",
-                                                        "(?i)Test\\s*Area",
-                                                        "実験区域",
-                                                        "실험 구역"
-                                                    ]
-                                                }
-                                            }
-                                        }
+                            "all_of": [
+                                {
+                                    "sub_name": "RewardOcr",
+                                    "recognition": "OCR",
+                                    "expected": [
+                                        "10.6"
                                     ]
+                                },
+                                {
+                                    "sub_name": "OriginOcr",
+                                    "recognition": "OCR",
+                                    "expected": [
+                                        "试验园区",
+                                        "實驗園區",
+                                        "(?i)Test\\s*Area",
+                                        "実験区域",
+                                        "실험 구역"
+                                    ]
+                                },
+                                {
+                                    "sub_name": "AcceptOcr",
+                                    "recognition": "OCR"
                                 }
-                            },
+                            ],
                             "focus": {
                                 "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
                             }
@@ -200,6 +173,12 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsFindTarget": {
                             "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterWulingCity": {
+                            "enabled": true
                         }
                     }
                 }
@@ -220,6 +199,12 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsFindTarget": {
                             "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterTestArea": {
+                            "enabled": true
                         }
                     }
                 }
@@ -237,19 +222,39 @@
             "cases": [
                 {
                     "name": "Owl",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterOwl": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "MaterialResearchInstitute",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "Observatory",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterObservatory": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "TechProductionOffice",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         },
@@ -264,15 +269,30 @@
             "cases": [
                 {
                     "name": "No1TypeCAnchorArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No3TypeCAnchorArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "JingweiFieldArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         }

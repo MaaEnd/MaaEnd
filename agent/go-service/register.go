@@ -29,6 +29,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
@@ -75,6 +76,7 @@ func registerAll() {
 	autofight.Register()
 	visitfriends.Register()
 	scenemanager.Register()
+	seizedeliveryjobs.Register()
 	autostockstaple.Register()
 	autostockpile.Register()
 	itemtransfer.Register()
