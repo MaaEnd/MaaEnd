@@ -85,6 +85,7 @@ Come hang out and chat with everyone:
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [Join our Discord community](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ Support Us
 

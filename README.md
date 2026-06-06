@@ -93,6 +93,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [加入 Discord 社区](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ 请我们喝咖啡
 
