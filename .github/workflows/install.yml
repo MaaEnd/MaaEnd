@@ -27,7 +27,7 @@ jobs:
   meta:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: set_tag
@@ -91,7 +91,7 @@ jobs:
     runs-on: ${{ matrix.os == 'win' && 'windows-latest' || (matrix.os == 'macos' && 'macos-latest' || 'ubuntu-latest') }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -113,7 +113,7 @@ jobs:
           sdk-version: 26100
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: "agent/go-service/go.mod"
           cache-dependency-path: |
@@ -122,7 +122,7 @@ jobs:
 
       - name: Cache MaaDeps
         id: cache-maadeps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./agent/cpp-algo/MaaUtils/MaaDeps
@@ -201,12 +201,12 @@ jobs:
 
           cat install/interface.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate
           path: install
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: cpp-algo-${{ matrix.os }}-${{ matrix.arch }}
           path: |
@@ -224,7 +224,7 @@ jobs:
 
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: MaaEnd-linux-${{ matrix.arch }}-intermediate
           path: "install"
@@ -249,7 +249,7 @@ jobs:
           cd install
           tar -czvf ../MaaEnd-linux-${{ matrix.arch }}.tar.gz .
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: MaaEnd-linux-${{ matrix.arch }}-tarball
           path: "MaaEnd-linux-${{ matrix.arch }}.tar.gz"
@@ -263,10 +263,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download macOS artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: MaaEnd-macos-${{ matrix.arch }}-intermediate
           path: "install"
@@ -356,7 +356,7 @@ jobs:
             "MaaEnd.dmg" \
             "$APP_NAME"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: MaaEnd-macos-${{ matrix.arch }}-dmg
           path: "MaaEnd.dmg"
@@ -370,10 +370,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: MaaEnd-win-${{ matrix.arch }}-intermediate
           path: "install"
@@ -409,7 +409,7 @@ jobs:
         run: |
           Compress-Archive -Path install/* -DestinationPath MaaEnd-win-${{ matrix.arch }}.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: MaaEnd-win-${{ matrix.arch }}-zip
           path: "MaaEnd-win-${{ matrix.arch }}.zip"
@@ -422,7 +422,7 @@ jobs:
       release_body: ${{ steps.git-cliff.outputs.content }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -445,17 +445,17 @@ jobs:
     needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: MaaEnd-*-zip
           path: artifacts
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: MaaEnd-*-tarball
           path: artifacts
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: MaaEnd-*-dmg
           path: artifacts
