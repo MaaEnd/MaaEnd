@@ -364,15 +364,24 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         result.newCellIndices = delta.newCellIndices;
         result.hasProgress = delta.hasProgress;
 
-        if (options.incremental && hasSession && sessionIt->second.cols == result.cols && delta.reliable && !delta.hasProgress) {
+        auto keepSessionResult = [&](const SessionState& session, bool reachedEnd, std::string message) {
             result.success = true;
-            result.message = "Grid scan reached end";
-            result.reachedEnd = true;
-            result.sessionRows = static_cast<int>(sessionIt->second.cells.size() /
-                                                  static_cast<std::size_t>(std::max(1, sessionIt->second.cols)));
-            result.sessionCols = sessionIt->second.cols;
-            result.cells = sessionIt->second.cells;
+            result.message = std::move(message);
+            result.reachedEnd = reachedEnd;
+            result.sessionRows =
+                static_cast<int>(session.cells.size() / static_cast<std::size_t>(std::max(1, session.cols)));
+            result.sessionCols = session.cols;
+            result.cells = session.cells;
             FinalizeCounts(result);
+        };
+
+        if (options.incremental && hasSession && sessionIt->second.cols == result.cols && delta.reliable && !delta.hasProgress) {
+            keepSessionResult(sessionIt->second, true, "Grid scan reached end");
+            return result;
+        }
+
+        if (options.incremental && hasSession && sessionIt->second.cols == result.cols && !delta.reliable) {
+            keepSessionResult(sessionIt->second, false, "Grid delta is unreliable; kept previous scan session");
             return result;
         }
 

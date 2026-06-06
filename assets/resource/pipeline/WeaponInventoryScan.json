@@ -111,8 +111,25 @@
                 "duration": 120
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanMoveCursorAway"
+        ]
+    },
+    "WeaponInventoryScanMoveCursorAway": {
+        "desc": "Move cursor away from weapon inventory grid",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
         "post_wait_freezes": {
-            "time": 100,
+            "time": 300,
             "target": [
                 20,
                 70,

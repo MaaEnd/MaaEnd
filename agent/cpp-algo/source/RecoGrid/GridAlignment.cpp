@@ -1,7 +1,6 @@
 #include "GridAlignment.h"
 
 #include <algorithm>
-#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -10,9 +9,37 @@ namespace recogrid
 namespace
 {
 
+constexpr double kDoubleEpsilon = 1e-9;
+
 std::size_t CellIndex(int row, int col, int cols)
 {
     return static_cast<std::size_t>(row * cols + col);
+}
+
+bool IsBetterAlignment(const AlignmentResult& candidate, const AlignmentResult& best)
+{
+    if (best.comparedCells == 0) {
+        return true;
+    }
+
+    const double candidateMatchRatio =
+        static_cast<double>(candidate.matchedCells) / static_cast<double>(candidate.comparedCells);
+    const double bestMatchRatio = static_cast<double>(best.matchedCells) / static_cast<double>(best.comparedCells);
+    if (candidateMatchRatio > bestMatchRatio + kDoubleEpsilon) {
+        return true;
+    }
+    if (candidateMatchRatio + kDoubleEpsilon < bestMatchRatio) {
+        return false;
+    }
+
+    if (candidate.averageDistance + kDoubleEpsilon < best.averageDistance) {
+        return true;
+    }
+    if (candidate.averageDistance > best.averageDistance + kDoubleEpsilon) {
+        return false;
+    }
+
+    return candidate.comparedCells > best.comparedCells;
 }
 
 AlignmentResult EstimateRowOffsetCore(const GridHashSnapshot& first, const GridHashSnapshot& second, int matchDistanceThreshold)
@@ -24,7 +51,6 @@ AlignmentResult EstimateRowOffsetCore(const GridHashSnapshot& first, const GridH
     const int comparedCols = std::min(first.cols, second.cols);
 
     AlignmentResult best;
-    best.score = -std::numeric_limits<double>::infinity();
 
     for (int offset = -second.rows + 1; offset <= first.rows - 1; ++offset) {
         int comparedCells = 0;
@@ -58,15 +84,19 @@ AlignmentResult EstimateRowOffsetCore(const GridHashSnapshot& first, const GridH
         }
 
         const double averageDistance = static_cast<double>(totalDistance) / static_cast<double>(comparedCells);
-        const double score = static_cast<double>(matchedCells) * 100.0 - averageDistance;
+        const double matchRatio = static_cast<double>(matchedCells) / static_cast<double>(comparedCells);
+        const double score = matchRatio * 1000.0 - averageDistance;
 
-        if (score > best.score || (score == best.score && comparedCells > best.comparedCells)) {
-            best.rowOffset = offset;
-            best.comparedCells = comparedCells;
-            best.matchedCells = matchedCells;
-            best.totalDistance = totalDistance;
-            best.averageDistance = averageDistance;
-            best.score = score;
+        AlignmentResult candidate;
+        candidate.rowOffset = offset;
+        candidate.comparedCells = comparedCells;
+        candidate.matchedCells = matchedCells;
+        candidate.totalDistance = totalDistance;
+        candidate.averageDistance = averageDistance;
+        candidate.score = score;
+
+        if (IsBetterAlignment(candidate, best)) {
+            best = candidate;
         }
     }
 
