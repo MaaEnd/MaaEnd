@@ -505,9 +505,9 @@ class ViewportManager:
         self,
         real_points: list[Point],
         *,
-        padding: float,
-        min_zoom: float,
-        max_zoom: float,
+        padding: float = 0.0,
+        min_zoom: float | None = None,
+        max_zoom: float | None = None,
     ) -> None:
         if not real_points:
             return
@@ -521,7 +521,10 @@ class ViewportManager:
         padding = max(0.0, min(0.49, padding))
         fit_w = max(1.0, self._vw * (1.0 - 2.0 * padding))
         fit_h = max(1.0, self._vh * (1.0 - 2.0 * padding))
+
         target_zoom = min(fit_w / span_x, fit_h / span_y)
+        min_zoom = self._min_zoom if min_zoom is None else max(self._min_zoom, min_zoom)
+        max_zoom = self._max_zoom if max_zoom is None else min(self._max_zoom, max_zoom)
         self.zoom = max(min_zoom, min(max_zoom, target_zoom))
 
         view_w = self._vw / self._zoom
