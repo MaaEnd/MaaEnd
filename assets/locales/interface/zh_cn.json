@@ -961,8 +961,6 @@
     "task.AccountSwitch.description": "自动登出当前账号并切换到指定账号的后四位",
     "option.AccountSwitchLastFourDigits.label": "目标账号后四位",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "输入账号后四位",
-    "task.RecoGridTest.label": "RecoGrid 测试",
-    "task.RecoGridTest.description": "测试 RecoGrid 自定义识别：从当前游戏截图检测网格，只输出识别结果，不执行点击。",
     "task.WeaponInventoryScan.label": "武器库存扫描",
-    "task.WeaponInventoryScan.description": "扫描武器库存 ID，并写入 debug/record/WeaponInventoryScan.json。"
+    "task.WeaponInventoryScan.description": "扫描当前武器库存页面，并在日志中输出匹配到的武器 ID。"
 }

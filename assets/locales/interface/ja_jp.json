@@ -961,8 +961,6 @@
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力",
-    "task.RecoGridTest.label": "RecoGrid テスト",
-    "task.RecoGridTest.description": "現在のゲーム画面で RecoGrid カスタム認識をテストします。認識結果のみを出力し、クリックは行いません。",
     "task.WeaponInventoryScan.label": "武器インベントリスキャン",
-    "task.WeaponInventoryScan.description": "武器インベントリ ID をスキャンし、debug/record/WeaponInventoryScan.json に書き出します。"
+    "task.WeaponInventoryScan.description": "現在の武器インベントリ画面をスキャンし、一致した武器 ID をログに出力します。"
 }

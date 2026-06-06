@@ -961,8 +961,6 @@
     "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
-    "task.RecoGridTest.label": "RecoGrid Test",
-    "task.RecoGridTest.description": "Tests the RecoGrid custom recognition on the current screenshot. It only reports recognition output and does not click.",
     "task.WeaponInventoryScan.label": "Weapon Inventory Scan",
-    "task.WeaponInventoryScan.description": "Scans weapon inventory IDs and writes them to debug/record/WeaponInventoryScan.json."
+    "task.WeaponInventoryScan.description": "Scans the current weapon inventory page and logs matched weapon IDs."
 }

@@ -52,18 +52,6 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
-    MaaAgentServerRegisterCustomAction(
-        "WeaponInventoryScanInitAction",
-        weaponinventoryscan::WeaponInventoryScanInitActionRun,
-        nullptr);
-    MaaAgentServerRegisterCustomAction(
-        "WeaponInventoryScanRecordAction",
-        weaponinventoryscan::WeaponInventoryScanRecordActionRun,
-        nullptr);
-    MaaAgentServerRegisterCustomAction(
-        "WeaponInventoryScanFinishAction",
-        weaponinventoryscan::WeaponInventoryScanFinishActionRun,
-        nullptr);
 
     const char* identifier = argv[argc - 1];
 

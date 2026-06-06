@@ -17,34 +17,4 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail);
 
-MaaBool MAA_CALL WeaponInventoryScanInitActionRun(
-    MaaContext* context,
-    MaaTaskId task_id,
-    const char* node_name,
-    const char* custom_action_name,
-    const char* custom_action_param,
-    MaaRecoId reco_id,
-    const MaaRect* box,
-    void* trans_arg);
-
-MaaBool MAA_CALL WeaponInventoryScanRecordActionRun(
-    MaaContext* context,
-    MaaTaskId task_id,
-    const char* node_name,
-    const char* custom_action_name,
-    const char* custom_action_param,
-    MaaRecoId reco_id,
-    const MaaRect* box,
-    void* trans_arg);
-
-MaaBool MAA_CALL WeaponInventoryScanFinishActionRun(
-    MaaContext* context,
-    MaaTaskId task_id,
-    const char* node_name,
-    const char* custom_action_name,
-    const char* custom_action_param,
-    MaaRecoId reco_id,
-    const MaaRect* box,
-    void* trans_arg);
-
 } // namespace weaponinventoryscan
