@@ -45,9 +45,9 @@
                                 "param": {
                                     "all_of": [
                                         {
-                                            "sub_name": "WulingTpl",
+                                            "sub_name": "RewardOcr",
                                             "recognition": {
-                                                "type": "TemplateMatch",
+                                                "type": "OCR",
                                                 "param": {
                                                     "roi": [
                                                         841,
@@ -55,17 +55,6 @@
                                                         48,
                                                         424
                                                     ],
-                                                    "template": [
-                                                        "SeizeEntrustTask/wuling.png"
-                                                    ]
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "recognition": {
-                                                "type": "OCR",
-                                                "param": {
-                                                    "roi": "WulingTpl",
                                                     "roi_offset": [
                                                         0,
                                                         30,
@@ -83,7 +72,7 @@
                                             "recognition": {
                                                 "type": "OCR",
                                                 "param": {
-                                                    "roi": "WulingTpl",
+                                                    "roi": "RewardOcr",
                                                     "roi_offset": [
                                                         -215,
                                                         -6,
@@ -207,7 +196,12 @@
                     "name": "Yes",
                     "option": [
                         "SeizeEntrustTaskDeliveryPointWulingCity"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "SeizeEntrustTaskFindTarget": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },
@@ -222,7 +216,12 @@
                     "name": "Yes",
                     "option": [
                         "SeizeEntrustTaskDeliveryPointTestArea"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "SeizeEntrustTaskFindTarget": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },
