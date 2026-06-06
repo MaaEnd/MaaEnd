@@ -31,6 +31,7 @@
         }
     },
     "SeizeEntrustTaskFindTarget": {
+        "post_wait_freezes": 1000,
         "recognition": {
             "type": "And",
             "param": {
@@ -102,78 +103,6 @@
             "Node.Recognition.Succeeded": "对的对的！"
         }
     },
-    "SeizeEntrustTaskFindTargetF1": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "WulingTpl",
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    841,
-                                    177,
-                                    48,
-                                    424
-                                ],
-                                "template": [
-                                    "SeizeEntrustTask/wuling.png"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "WulingTpl",
-                                "roi_offset": [
-                                    0,
-                                    30,
-                                    0,
-                                    -20
-                                ],
-                                "expected": [
-                                    "16.3"
-                                ],
-                                "only_rec": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "WulingTpl",
-                                "roi_offset": [
-                                    -215,
-                                    -6,
-                                    19,
-                                    -6
-                                ],
-                                "expected": [
-                                    "武陵城",
-                                    "Wuling City",
-                                    "무릉성"
-                                ]
-                            }
-                        }
-                    }
-                ],
-                "box_index": 1
-            }
-        },
-        "post_wait_freezes": 1000,
-        "next": [
-            "SeizeEntrustTaskFindTarget",
-            "SeizeEntrustTaskNews"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "找到武陵城16.3万订单！"
-        }
-    },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
         "desc": "进入运送委托列表",
         "recognition": {
@@ -229,7 +158,7 @@
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
-            "isSeizeEntrustTaskDestinationWulingCity"
+            "SeizeEntrustTaskLoop"
         ],
         "on_error": [
             "SeizeEntrustTaskStopTask2"
@@ -305,7 +234,7 @@
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
-            "isSeizeEntrustTaskDestinationWulingCity"
+            "SeizeEntrustTaskLoop"
         ],
         "on_error": [
             "SeizeEntrustTaskStopTask2"
@@ -352,7 +281,7 @@
             "isSeizeEntrustTaskSuccessful",
             "isSeizeEntrustTaskSuccessful2",
             "isSeizeEntrustTaskNoSuccessful",
-            "SeizeEntrustTaskNews"
+            "SeizeEntrustTaskRefresh"
         ],
         "focus": {
             "Node.Action.Succeeded": "点击抢单~"
@@ -376,7 +305,7 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
     },
-    "SeizeEntrustTaskNews": {
+    "SeizeEntrustTaskRefresh": {
         "desc": "刷新动作",
         "recognition": {
             "type": "OCR",
@@ -398,7 +327,10 @@
             "type": "Click",
             "param": {}
         },
-        "post_delay": 1500
+        "post_delay": 1500,
+        "next": [
+            "SeizeEntrustTaskLoop"
+        ]
     },
     "SeizeEntrustTaskStopTask": {
         "action": {
@@ -473,7 +405,7 @@
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
     },
-    "isSeizeEntrustTaskDestinationWulingCity": {
+    "SeizeEntrustTaskLoop": {
         "desc": "等待委托列表静止后再进入调度",
         "pre_wait_freezes": {
             "time": 2000,
@@ -485,9 +417,9 @@
             ]
         },
         "next": [
-            "[JumpBack]SeizeEntrustTaskFindTargetF1",
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskNews"
+            "SeizeEntrustTaskFindTarget",
+            "SeizeEntrustTaskErrorTaskStop",
+            "SeizeEntrustTaskRefresh"
         ]
     },
     "isSeizeEntrustTaskExhausted": {
