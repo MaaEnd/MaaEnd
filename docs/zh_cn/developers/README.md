@@ -95,6 +95,7 @@ flowchart TD
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md)             | 购买优先级、补信用联动、刷新策略与商品扩展                 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
 | [SellProduct 售卖产品](./tasks/sell-product-maintain.md)                     | zmdmap 数据生成、据点售卖 Pipeline 与优先物品维护          |
+| [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md)               | 导航寻路、联络选人、送礼收礼分支与干员扩展维护             |
 
 ### 第三方协议文档（`protocol/`）
 

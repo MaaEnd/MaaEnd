@@ -12,8 +12,7 @@
                 "ProtocolSpaceSuccessAction",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
-                "ProtocolSpaceTab",
-                "ProtocolSpaceLevel"
+                "ProtocolSpaceTab"
             ],
             "controller": [
                 "Win32-Front",
@@ -425,7 +424,8 @@
                         }
                     },
                     "option": [
-                        "OperatorProgression"
+                        "OperatorProgression",
+                        "ProtocolSpaceLevel"
                     ]
                 },
                 {
@@ -450,7 +450,8 @@
                         }
                     },
                     "option": [
-                        "WeaponProgression"
+                        "WeaponProgression",
+                        "ProtocolSpaceLevel"
                     ]
                 },
                 {
