@@ -1,13 +1,13 @@
 {
-    "SeizeEntrustTaskMain": {
+    "SeizeDeliveryJobsMain": {
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
+            "SeizeDeliveryJobsFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
     },
-    "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
+    "SeizeDeliveryJobsFoundListOfDeliveryJobsButton": {
         "desc": "进入运送委托列表",
         "recognition": {
             "type": "OCR",
@@ -31,16 +31,16 @@
             "param": {}
         },
         "next": [
-            "isSeizeEntrustTaskExistOldTask",
-            "isSeizeEntrustTaskExhausted",
-            "SeizeEntrustTaskCheckWulingFilter",
-            "SeizeEntrustTaskOpenRegionFilter"
+            "isSeizeDeliveryJobsExistOldTask",
+            "isSeizeDeliveryJobsExhausted",
+            "SeizeDeliveryJobsCheckWulingFilter",
+            "SeizeDeliveryJobsOpenRegionFilter"
         ],
         "on_error": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ]
     },
-    "SeizeEntrustTaskCheckWulingFilter": {
+    "SeizeDeliveryJobsCheckWulingFilter": {
         "desc": "当前已是武陵筛选，直接进入调度",
         "recognition": {
             "type": "OCR",
@@ -59,13 +59,13 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskLoop"
+            "SeizeDeliveryJobsLoop"
         ],
         "on_error": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ]
     },
-    "SeizeEntrustTaskOpenRegionFilter": {
+    "SeizeDeliveryJobsOpenRegionFilter": {
         "desc": "非武陵筛选则点击展开地区筛选",
         "recognition": {
             "type": "OCR",
@@ -98,13 +98,13 @@
             "param": {}
         },
         "next": [
-            "SeizeEntrustTaskSelectWuling"
+            "SeizeDeliveryJobsSelectWuling"
         ],
         "on_error": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ]
     },
-    "SeizeEntrustTaskSelectWuling": {
+    "SeizeDeliveryJobsSelectWuling": {
         "desc": "在筛选列表中选择武陵",
         "recognition": {
             "type": "OCR",
@@ -127,13 +127,13 @@
             "param": {}
         },
         "next": [
-            "SeizeEntrustTaskLoop"
+            "SeizeDeliveryJobsLoop"
         ],
         "on_error": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ]
     },
-    "isSeizeEntrustTaskExistOldTask": {
+    "isSeizeDeliveryJobsExistOldTask": {
         "desc": "已有委托，结束抢单",
         "recognition": {
             "type": "OCR",
@@ -154,13 +154,13 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
         }
     },
-    "isSeizeEntrustTaskExhausted": {
+    "isSeizeDeliveryJobsExhausted": {
         "desc": "运送委托已满3单，结束抢单",
         "recognition": {
             "type": "OCR",
@@ -175,13 +175,13 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskStopTask"
+            "SeizeDeliveryJobsStopTask"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "今天的运送委托已满3单"
         }
     },
-    "SeizeEntrustTaskLoop": {
+    "SeizeDeliveryJobsLoop": {
         "desc": "等待委托列表静止后再进入调度",
         "pre_wait_freezes": {
             "time": 2000,
@@ -193,16 +193,16 @@
             ]
         },
         "next": [
-            "SeizeEntrustTaskFindTarget",
-            "[JumpBack]SeizeEntrustTaskFindTargetIndex0",
-            "[JumpBack]SeizeEntrustTaskFindTargetIndex1",
-            "[JumpBack]SeizeEntrustTaskFindTargetIndex2",
-            "[JumpBack]SeizeEntrustTaskFindTargetIndex3",
-            "[JumpBack]SeizeEntrustTaskFindTargetIndex4",
-            "SeizeEntrustTaskRefresh"
+            "SeizeDeliveryJobsFindTarget",
+            "[JumpBack]SeizeDeliveryJobsFindTargetIndex0",
+            "[JumpBack]SeizeDeliveryJobsFindTargetIndex1",
+            "[JumpBack]SeizeDeliveryJobsFindTargetIndex2",
+            "[JumpBack]SeizeDeliveryJobsFindTargetIndex3",
+            "[JumpBack]SeizeDeliveryJobsFindTargetIndex4",
+            "SeizeDeliveryJobsRefresh"
         ]
     },
-    "SeizeEntrustTaskFindTarget": {
+    "SeizeDeliveryJobsFindTarget": {
         "post_wait_freezes": 1000,
         "recognition": {
             "type": "And",
@@ -256,14 +256,14 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTarget"
+            "SeizeDeliveryJobsFoundTarget"
         ]
     },
-    "SeizeEntrustTaskFoundTarget": {
+    "SeizeDeliveryJobsFoundTarget": {
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "SeizeEntrustTaskFindTarget",
+                "roi": "SeizeDeliveryJobsFindTarget",
                 "roi_offset": [
                     215,
                     -6,
@@ -294,11 +294,11 @@
             ]
         },
         "next": [
-            "isSeizeEntrustTaskInWorldAfterAccept",
-            "SeizeEntrustTaskRetryClickAccept"
+            "isSeizeDeliveryJobsInWorldAfterAccept",
+            "SeizeDeliveryJobsRetryClickAccept"
         ]
     },
-    "isSeizeEntrustTaskInWorldAfterAccept": {
+    "isSeizeDeliveryJobsInWorldAfterAccept": {
         "desc": "点击接取后检查是否已进入大世界",
         "recognition": {
             "type": "And",
@@ -309,26 +309,26 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskGoDepotNode"
+            "SeizeDeliveryJobsGoDepotNode"
         ]
     },
-    "SeizeEntrustTaskRetryClickAccept": {
+    "SeizeDeliveryJobsRetryClickAccept": {
         "desc": "反复点击接取按钮直到进入大世界",
         "action": "Click",
-        "target": "SeizeEntrustTaskFoundTarget",
+        "target": "SeizeDeliveryJobsFoundTarget",
         "next": [
-            "isSeizeEntrustTaskInWorldAfterAccept",
-            "SeizeEntrustTaskRetryClickAccept"
+            "isSeizeDeliveryJobsInWorldAfterAccept",
+            "SeizeDeliveryJobsRetryClickAccept"
         ]
     },
-    "SeizeEntrustTaskGoDepotNode": {
+    "SeizeDeliveryJobsGoDepotNode": {
         "desc": "注意该节点受到开关控制",
         "next": [
-            "isSeizeEntrustTaskInMap",
+            "isSeizeDeliveryJobsInMap",
             "[JumpBack]SceneEnterMapAny"
         ]
     },
-    "isSeizeEntrustTaskInMap": {
+    "isSeizeDeliveryJobsInMap": {
         "desc": "是否在任意地图界面",
         "recognition": {
             "type": "And",
@@ -339,11 +339,11 @@
             }
         },
         "next": [
-            "isSeizeEntrustTaskInWolrld",
+            "isSeizeDeliveryJobsInWolrld",
             "[JumpBack]SceneEnterWorldWulingWulingCity5"
         ]
     },
-    "isSeizeEntrustTaskInWolrld": {
+    "isSeizeDeliveryJobsInWolrld": {
         "desc": "是否在大世界",
         "recognition": {
             "type": "And",
@@ -354,10 +354,10 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskWalkingToDepotNode"
+            "SeizeDeliveryJobsWalkingToDepotNode"
         ]
     },
-    "SeizeEntrustTaskWalkingToDepotNode": {
+    "SeizeDeliveryJobsWalkingToDepotNode": {
         "desc": "注意该节点受到开关控制",
         "enabled": false,
         "action": {
@@ -405,7 +405,7 @@
         },
         "next": []
     },
-    "SeizeEntrustTaskRefresh": {
+    "SeizeDeliveryJobsRefresh": {
         "desc": "刷新动作",
         "recognition": {
             "type": "OCR",
@@ -429,16 +429,16 @@
         },
         "post_delay": 1500,
         "next": [
-            "SeizeEntrustTaskLoop"
+            "SeizeDeliveryJobsLoop"
         ]
     },
-    "SeizeEntrustTaskStopTask": {
+    "SeizeDeliveryJobsStopTask": {
         "action": {
             "type": "StopTask",
             "param": {}
         }
     },
-    "SeizeEntrustTaskFindTargetIndex0": {
+    "SeizeDeliveryJobsFindTargetIndex0": {
         "max_hit": 1,
         "post_wait_freezes": 1000,
         "recognition": {
@@ -494,10 +494,10 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTargetViewLocation"
+            "SeizeDeliveryJobsFoundTargetViewLocation"
         ]
     },
-    "SeizeEntrustTaskFindTargetIndex1": {
+    "SeizeDeliveryJobsFindTargetIndex1": {
         "max_hit": 1,
         "post_wait_freezes": 1000,
         "recognition": {
@@ -553,10 +553,10 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTargetViewLocation"
+            "SeizeDeliveryJobsFoundTargetViewLocation"
         ]
     },
-    "SeizeEntrustTaskFindTargetIndex2": {
+    "SeizeDeliveryJobsFindTargetIndex2": {
         "max_hit": 1,
         "post_wait_freezes": 1000,
         "recognition": {
@@ -612,10 +612,10 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTargetViewLocation"
+            "SeizeDeliveryJobsFoundTargetViewLocation"
         ]
     },
-    "SeizeEntrustTaskFindTargetIndex3": {
+    "SeizeDeliveryJobsFindTargetIndex3": {
         "max_hit": 1,
         "post_wait_freezes": 1000,
         "recognition": {
@@ -671,10 +671,10 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTargetViewLocation"
+            "SeizeDeliveryJobsFoundTargetViewLocation"
         ]
     },
-    "SeizeEntrustTaskFindTargetIndex4": {
+    "SeizeDeliveryJobsFindTargetIndex4": {
         "max_hit": 1,
         "post_wait_freezes": 1000,
         "recognition": {
@@ -730,15 +730,15 @@
             }
         },
         "next": [
-            "SeizeEntrustTaskFoundTargetViewLocation"
+            "SeizeDeliveryJobsFoundTargetViewLocation"
         ]
     },
-    "SeizeEntrustTaskFoundTargetViewLocation": {
+    "SeizeDeliveryJobsFoundTargetViewLocation": {
         "desc": "点击查看位置查看送货点",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "SeizeEntrustTaskFindTargetIndex0",
+                "roi": "SeizeDeliveryJobsFindTargetIndex0",
                 "roi_offset": [
                     -214,
                     -12,

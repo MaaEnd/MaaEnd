@@ -1,11 +1,11 @@
 {
     "task": [
         {
-            "name": "SeizeEntrustTask",
-            "label": "$task.SeizeEntrustTask.label",
-            "entry": "SeizeEntrustTaskMain",
+            "name": "SeizeDeliveryJobs",
+            "label": "$task.SeizeDeliveryJobs.label",
+            "entry": "SeizeDeliveryJobsMain",
             "option": [
-                "SeizeEntrustTaskCommissionSource"
+                "SeizeDeliveryJobsCommissionSource"
             ],
             "controller": [
                 "Win32-Front",
@@ -17,30 +17,30 @@
         }
     ],
     "option": {
-        "SeizeEntrustTaskCommissionSource": {
+        "SeizeDeliveryJobsCommissionSource": {
             "type": "select",
             "default_case": "WulingCity",
-            "label": "$task.SeizeEntrustTaskCommissionSource.label",
+            "label": "$task.SeizeDeliveryJobsCommissionSource.label",
             "cases": [
                 {
                     "name": "WulingCity",
-                    "label": "$task.SeizeEntrustTaskCommissionSource.cases.WulingCity.label",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.WulingCity.label",
                     "option": [
-                        "SeizeEntrustTaskisGoDepotNodeWorld",
-                        "SeizeEntrustTaskSpecifyDeliveryPointWulingCity"
+                        "SeizeDeliveryJobsisGoDepotNodeWorld",
+                        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity"
                     ]
                 },
                 {
                     "name": "TestArea",
-                    "label": "$task.SeizeEntrustTaskCommissionSource.cases.TestArea.label",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
                     "option": [
-                        "SeizeEntrustTaskSpecifyDeliveryPointTestArea"
+                        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
                     ],
                     "pipeline_override": {
-                        "SeizeEntrustTaskGoDepotNode": {
+                        "SeizeDeliveryJobsGoDepotNode": {
                             "enabled": false
                         },
-                        "SeizeEntrustTaskFindTarget": {
+                        "SeizeDeliveryJobsFindTarget": {
                             "recognition": {
                                 "param": {
                                     "all_of": [
@@ -93,22 +93,22 @@
                                 }
                             },
                             "focus": {
-                                "Node.Recognition.Succeeded": "$task.SeizeEntrustTask.focus.testAreaFound"
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
                             }
                         }
                     }
                 }
             ]
         },
-        "SeizeEntrustTaskisGoDepotNodeWorld": {
+        "SeizeDeliveryJobsisGoDepotNodeWorld": {
             "type": "switch",
-            "label": "$task.SeizeEntrustTaskisGoDepotNodeWorld.label",
-            "description": "$task.SeizeEntrustTaskisGoDepotNodeWorld.description",
+            "label": "$task.SeizeDeliveryJobsisGoDepotNodeWorld.label",
+            "description": "$task.SeizeDeliveryJobsisGoDepotNodeWorld.description",
             "cases": [
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SeizeEntrustTaskGoDepotNode": {
+                        "SeizeDeliveryJobsGoDepotNode": {
                             "enabled": false
                         }
                     }
@@ -116,25 +116,25 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeEntrustTaskSelectDestination"
+                        "SeizeDeliveryJobsSelectDestination"
                     ],
                     "pipeline_override": {
-                        "SeizeEntrustTaskGoDepotNode": {
+                        "SeizeDeliveryJobsGoDepotNode": {
                             "enabled": true
                         }
                     }
                 }
             ]
         },
-        "SeizeEntrustTaskisWalkingToDepotNode": {
+        "SeizeDeliveryJobsisWalkingToDepotNode": {
             "type": "switch",
-            "label": "$task.SeizeEntrustTaskisWalkingToDepotNode.label",
-            "description": "$task.SeizeEntrustTaskisWalkingToDepotNode.description",
+            "label": "$task.SeizeDeliveryJobsisWalkingToDepotNode.label",
+            "description": "$task.SeizeDeliveryJobsisWalkingToDepotNode.description",
             "cases": [
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SeizeEntrustTaskWalkingToDepotNode": {
+                        "SeizeDeliveryJobsWalkingToDepotNode": {
                             "enabled": false
                         }
                     }
@@ -142,7 +142,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SeizeEntrustTaskWalkingToDepotNode": {
+                        "SeizeDeliveryJobsWalkingToDepotNode": {
                             "enabled": true
                         }
                     }
@@ -153,7 +153,7 @@
                 "Wlroots"
             ]
         },
-        "SeizeEntrustTaskSelectDestination": {
+        "SeizeDeliveryJobsSelectDestination": {
             "type": "select",
             "label": "选择要传送到的锚点",
             "description": "",
@@ -161,12 +161,12 @@
                 {
                     "name": "仓储节点上方锚点",
                     "option": [
-                        "SeizeEntrustTaskisWalkingToDepotNode"
+                        "SeizeDeliveryJobsisWalkingToDepotNode"
                     ],
                     "pipeline_override": {
-                        "isSeizeEntrustTaskInMap": {
+                        "isSeizeDeliveryJobsInMap": {
                             "next": [
-                                "isSeizeEntrustTaskInWolrld",
+                                "isSeizeDeliveryJobsInWolrld",
                                 "[JumpBack]SceneEnterWorldWulingWulingCity5"
                             ]
                         }
@@ -175,9 +175,9 @@
                 {
                     "name": "仓储节点左侧锚点",
                     "pipeline_override": {
-                        "isSeizeEntrustTaskInMap": {
+                        "isSeizeDeliveryJobsInMap": {
                             "next": [
-                                "isSeizeEntrustTaskInWolrld",
+                                "isSeizeDeliveryJobsInWolrld",
                                 "[JumpBack]SceneEnterWorldWulingWulingCity6"
                             ]
                         }
@@ -185,9 +185,9 @@
                 }
             ]
         },
-        "SeizeEntrustTaskSpecifyDeliveryPointWulingCity": {
+        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
             "type": "switch",
-            "label": "$task.SeizeEntrustTaskSpecifyDeliveryPoint.label",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
                     "name": "No"
@@ -195,19 +195,19 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeEntrustTaskDeliveryPointWulingCity"
+                        "SeizeDeliveryJobsDeliveryPointWulingCity"
                     ],
                     "pipeline_override": {
-                        "SeizeEntrustTaskFindTarget": {
+                        "SeizeDeliveryJobsFindTarget": {
                             "enabled": false
                         }
                     }
                 }
             ]
         },
-        "SeizeEntrustTaskSpecifyDeliveryPointTestArea": {
+        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
             "type": "switch",
-            "label": "$task.SeizeEntrustTaskSpecifyDeliveryPoint.label",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
                     "name": "No"
@@ -215,19 +215,19 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeEntrustTaskDeliveryPointTestArea"
+                        "SeizeDeliveryJobsDeliveryPointTestArea"
                     ],
                     "pipeline_override": {
-                        "SeizeEntrustTaskFindTarget": {
+                        "SeizeDeliveryJobsFindTarget": {
                             "enabled": false
                         }
                     }
                 }
             ]
         },
-        "SeizeEntrustTaskDeliveryPointWulingCity": {
+        "SeizeDeliveryJobsDeliveryPointWulingCity": {
             "type": "checkbox",
-            "label": "$task.SeizeEntrustTaskDeliveryPoint.label",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
             "default_case": [
                 "Owl",
                 "MaterialResearchInstitute",
@@ -237,25 +237,25 @@
             "cases": [
                 {
                     "name": "Owl",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.Owl.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label"
                 },
                 {
                     "name": "MaterialResearchInstitute",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.MaterialResearchInstitute.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label"
                 },
                 {
                     "name": "Observatory",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.Observatory.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label"
                 },
                 {
                     "name": "TechProductionOffice",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointWulingCity.cases.TechProductionOffice.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label"
                 }
             ]
         },
-        "SeizeEntrustTaskDeliveryPointTestArea": {
+        "SeizeDeliveryJobsDeliveryPointTestArea": {
             "type": "checkbox",
-            "label": "$task.SeizeEntrustTaskDeliveryPoint.label",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
             "default_case": [
                 "No1TypeCAnchorArea",
                 "No3TypeCAnchorArea",
@@ -264,15 +264,15 @@
             "cases": [
                 {
                     "name": "No1TypeCAnchorArea",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.No1TypeCAnchorArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label"
                 },
                 {
                     "name": "No3TypeCAnchorArea",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.No3TypeCAnchorArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label"
                 },
                 {
                     "name": "JingweiFieldArea",
-                    "label": "$task.SeizeEntrustTaskDeliveryPointTestArea.cases.JingweiFieldArea.label"
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label"
                 }
             ]
         }
