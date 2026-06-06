@@ -10,6 +10,7 @@ import (
 type resourceValues struct {
 	ConvertedOriginiumOroberyl int
 	Oroberyl                   int
+	BondQuota                  int
 }
 
 type calculationResult struct {
@@ -18,8 +19,10 @@ type calculationResult struct {
 	UsableOriginiumOroberyl   int
 	OroberylPulls             int
 	UsableOriginiumPulls      int
+	BondQuotaPulls            int
 	ResourcePulls             int
 	CarryToNextPulls          int
+	DossierPulls              int
 	NextPoolShopPulls         int
 	NextPoolSigninPulls       int
 	CurrentPoolTotal          int
@@ -34,11 +37,12 @@ func calculatePullCount(values resourceValues, summary voucherSummary) calculati
 		usableOriginiumOroberyl = 0
 	}
 
-	resourcePulls := (values.Oroberyl + usableOriginiumOroberyl) / oroberylPerPull
+	bondQuotaPulls := values.BondQuota / bondQuotaPerPull
+	resourcePulls := (values.Oroberyl+usableOriginiumOroberyl)/oroberylPerPull + bondQuotaPulls
 	oroberylPulls := values.Oroberyl / oroberylPerPull
 	usableOriginiumPulls := usableOriginiumOroberyl / oroberylPerPull
 	currentPoolTotal := resourcePulls + summary.CarryToNextPulls
-	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + nextPoolShopPulls + nextPoolSigninPulls
+	nextPoolTotal := currentPoolTotal + summary.DossierPulls + nextPoolShopPulls + nextPoolSigninPulls
 
 	return calculationResult{
 		ReservedOriginium:         reservedOriginium,
@@ -46,8 +50,10 @@ func calculatePullCount(values resourceValues, summary voucherSummary) calculati
 		UsableOriginiumOroberyl:   usableOriginiumOroberyl,
 		OroberylPulls:             oroberylPulls,
 		UsableOriginiumPulls:      usableOriginiumPulls,
+		BondQuotaPulls:            bondQuotaPulls,
 		ResourcePulls:             resourcePulls,
 		CarryToNextPulls:          summary.CarryToNextPulls,
+		DossierPulls:              summary.DossierPulls,
 		NextPoolShopPulls:         nextPoolShopPulls,
 		NextPoolSigninPulls:       nextPoolSigninPulls,
 		CurrentPoolTotal:          currentPoolTotal,
@@ -67,7 +73,10 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 		result.ReservedOriginiumOroberyl,
 		result.UsableOriginiumOroberyl,
 		result.UsableOriginiumPulls,
+		values.BondQuota,
+		result.BondQuotaPulls,
 		result.CarryToNextPulls,
+		result.DossierPulls,
 		result.NextPoolShopPulls,
 		result.NextPoolSigninPulls,
 		result.CurrentPoolTotal,

@@ -24,6 +24,24 @@ func readIntegerFromRecognition(detail *maa.RecognitionDetail) (int, error) {
 	return 0, fmt.Errorf("no integer OCR result")
 }
 
+// voucherKindFromRecognition classifies the clicked warehouse item by title OCR text.
+func voucherKindFromRecognition(detail *maa.RecognitionDetail) string {
+	for _, text := range ocrTextCandidates(detail) {
+		if isDossierText(text) {
+			return voucherKindDossier
+		}
+	}
+	return voucherKindPermit
+}
+
+// isDossierText returns whether OCR text names a Headhunting Dossier item.
+func isDossierText(text string) bool {
+	text = strings.ToLower(strings.TrimSpace(text))
+	return strings.Contains(text, "寻访情报书") ||
+		strings.Contains(text, "尋訪情報書") ||
+		strings.Contains(text, "headhunting dossier")
+}
+
 // ocrTextCandidates returns OCR texts in preferred reading order.
 func ocrTextCandidates(detail *maa.RecognitionDetail) []string {
 	texts := make([]string, 0)

@@ -56,6 +56,29 @@
             "stage": "record_oroberyl"
         },
         "next": [
+            "PullCountCalculatorBondQuotaOCR",
+            "PullCountCalculatorEnterValuables"
+        ]
+    },
+    "PullCountCalculatorBondQuotaOCR": {
+        "desc": "识别顶部保障配额数量，可用于商店无限兑换特许寻访凭证",
+        "recognition": "OCR",
+        "roi": [
+            1138,
+            8,
+            44,
+            35
+        ],
+        "expected": [
+            "^\\d+.*$"
+        ],
+        "only_rec": true,
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_bond_quota"
+        },
+        "next": [
             "PullCountCalculatorEnterValuables"
         ]
     },
@@ -103,7 +126,7 @@
         ]
     },
     "PullCountCalculatorFindCarryToNextVoucher": {
-        "desc": "查找可留到后续池子的特许寻访凭证图标",
+        "desc": "查找可留到后续池子的特许寻访凭证或寻访情报书图标",
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -114,7 +137,10 @@
                     950,
                     560
                 ],
-                "template": "PullCountCalculator/CarryToNextVoucher.Template.png",
+                "template": [
+                    "PullCountCalculator/CarryToNextVoucher.Template.png",
+                    "PullCountCalculator/HeadhuntingDossier.Template.png"
+                ],
                 "green_mask": true,
                 "threshold": 0.78,
                 "order_by": "Vertical"
@@ -127,7 +153,7 @@
         ]
     },
     "PullCountCalculatorClickCarryToNextVoucher": {
-        "desc": "点击可留到后续池子的特许寻访凭证图标",
+        "desc": "点击可留到后续池子的寻访相关物品图标",
         "recognition": {
             "type": "And",
             "param": {
@@ -150,7 +176,7 @@
         ]
     },
     "PullCountCalculatorCarryToNextVoucherTitleOCR": {
-        "desc": "确认选中的券是特许寻访凭证，排除基础寻访凭证",
+        "desc": "确认选中的物品是特许寻访凭证或寻访情报书，排除基础寻访凭证",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -161,7 +187,7 @@
                     36
                 ],
                 "expected": [
-                    ".*(特许寻访凭证|特許尋訪憑證).*"
+                    ".*(特许寻访凭证|特許尋訪憑證|寻访情报书|尋訪情報書|Headhunting\\s*Dossier).*"
                 ],
                 "only_rec": true
             }

@@ -16,14 +16,24 @@ const (
 	stageInit            = "init"
 	stageRecordOriginium = "record_originium"
 	stageRecordOroberyl  = "record_oroberyl"
+	stageRecordBondQuota = "record_bond_quota"
 	stageRecordVoucher   = "record_voucher"
 	stageFinish          = "finish"
 
 	reservedOriginium   = 29
 	originiumToOroberyl = 75
 	oroberylPerPull     = 500
+	bondQuotaPerPull    = 25
+	dossierPulls        = 10
 	nextPoolShopPulls   = 5
 	nextPoolSigninPulls = 5
+
+	resourceOriginium = "originium"
+	resourceOroberyl  = "oroberyl"
+	resourceBondQuota = "bond_quota"
+
+	voucherKindPermit  = "permit"
+	voucherKindDossier = "dossier"
 )
 
 var _ maa.CustomActionRunner = &Action{}
@@ -62,9 +72,11 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case stageInit:
 		return handleInit(ctx)
 	case stageRecordOriginium:
-		return handleRecordResource(ctx, arg, true)
+		return handleRecordResource(ctx, arg, resourceOriginium)
 	case stageRecordOroberyl:
-		return handleRecordResource(ctx, arg, false)
+		return handleRecordResource(ctx, arg, resourceOroberyl)
+	case stageRecordBondQuota:
+		return handleRecordResource(ctx, arg, resourceBondQuota)
 	case stageRecordVoucher:
 		return handleRecordVoucher(ctx, arg)
 	case stageFinish:

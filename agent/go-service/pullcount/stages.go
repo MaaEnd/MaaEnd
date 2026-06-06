@@ -28,6 +28,7 @@ type runSession struct {
 
 type voucherSummary struct {
 	CarryToNextPulls int
+	DossierPulls     int
 }
 
 // --- Resource And Finish Stages --- //
@@ -57,34 +58,50 @@ func requireSession(ctx *maa.Context) (*runSession, bool) {
 }
 
 // handleRecordResource stores one resource counter from the current Pipeline OCR result.
-func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, convertedOriginium bool) bool {
+func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, resource string) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
 		return false
 	}
 
 	value, err := readIntegerFromRecognition(arg.RecognitionDetail)
-	label := i18n.T("pullcount.resource.oroberyl")
-	if convertedOriginium {
-		label = i18n.T("pullcount.resource.originium")
-	}
+	label := resourceLabel(resource)
 	if err != nil {
 		log.Warn().Err(err).Str("component", componentName).Str("resource", label).Msg("failed to read resource OCR")
 		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", fmt.Sprintf("%s: %s", label, err.Error())))
 		return false
 	}
 
-	if convertedOriginium {
+	switch resource {
+	case resourceOriginium:
 		session.Values.ConvertedOriginiumOroberyl = value
 		session.HasConvertedOriginium = true
-	} else {
+	case resourceOroberyl:
 		session.Values.Oroberyl = value
 		session.HasOroberyl = true
+	case resourceBondQuota:
+		session.Values.BondQuota = value
+	default:
+		log.Error().Str("component", componentName).Str("resource", resource).Msg("unknown resource")
+		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+		return false
 	}
 
 	log.Info().Str("component", componentName).Str("resource", label).Int("value", value).Msg("resource recorded")
 	maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", label, value))
 	return true
+}
+
+// resourceLabel returns the localized display label for a top-bar resource.
+func resourceLabel(resource string) string {
+	switch resource {
+	case resourceOriginium:
+		return i18n.T("pullcount.resource.originium")
+	case resourceBondQuota:
+		return i18n.T("pullcount.resource.bond_quota")
+	default:
+		return i18n.T("pullcount.resource.oroberyl")
+	}
 }
 
 // handleFinish summarizes the session and prints the user-visible pull count result.
@@ -119,13 +136,25 @@ func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	added := recordCarryToNextVoucher(session, voucherKey(arg))
+	kind := voucherKindFromRecognition(arg.RecognitionDetail)
+	added := recordCarryToNextVoucher(session, voucherKey(arg), kind)
 	log.Info().
 		Str("component", componentName).
 		Bool("added", added).
+		Str("kind", kind).
+		Int("pulls", voucherPulls(kind)).
 		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
+		Int("dossier_pulls", session.Vouchers.DossierPulls).
 		Msg("warehouse voucher recorded")
 	return true
+}
+
+// voucherPulls returns how many pulls the confirmed warehouse item contributes.
+func voucherPulls(kind string) int {
+	if kind == voucherKindDossier {
+		return dossierPulls
+	}
+	return 1
 }
 
 // voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
@@ -137,12 +166,16 @@ func voucherKey(arg *maa.CustomActionArg) string {
 	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// recordCarryToNextVoucher adds one confirmed carry-over voucher unless the hit box was already counted.
-func recordCarryToNextVoucher(session *runSession, key string) bool {
+// recordCarryToNextVoucher adds one confirmed carry-over item unless the hit box was already counted.
+func recordCarryToNextVoucher(session *runSession, key string, kind string) bool {
 	if _, exists := session.VoucherHits[key]; exists {
 		return false
 	}
 	session.VoucherHits[key] = struct{}{}
-	session.Vouchers.CarryToNextPulls++
+	if kind == voucherKindDossier {
+		session.Vouchers.DossierPulls += dossierPulls
+	} else {
+		session.Vouchers.CarryToNextPulls++
+	}
 	return true
 }
