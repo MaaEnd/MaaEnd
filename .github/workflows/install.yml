@@ -61,14 +61,14 @@ jobs:
           echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
 
       - id: maafw-latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
+        uses: step-security/github-action-get-latest-release@v0.8.2
         with:
           repository: MaaXYZ/MaaFramework
           excludes: "draft"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - id: mxu-latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
+        uses: step-security/github-action-get-latest-release@v0.8.2
         with:
           repository: MistEO/MXU
           excludes: ${{ (steps.set_tag.outputs.is_release == 'true' && steps.set_tag.outputs.is_prerelease == 'false') && 'prerelease, draft' || 'draft' }}
@@ -109,7 +109,7 @@ jobs:
 
       - name: Setup Windows 10 SDK
         if: matrix.os == 'win'
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.2
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.5
         with:
           sdk-version: 26100
 
