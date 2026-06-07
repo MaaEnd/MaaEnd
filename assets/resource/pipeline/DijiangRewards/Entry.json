@@ -3,7 +3,7 @@
         "desc": "信用点商店联动入口",
         "max_hit": 1,
         "next": [
-            "EntryReceptionRoom_NeedCredit",
+            "ReceptionRoomMain",
             "[JumpBack]SceneEnterMenuDijiangControlNexus"
         ],
         "focus": {

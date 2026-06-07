@@ -202,6 +202,8 @@
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "培养舱奖励或再次培养流程失败",
     "option.AutoStartExchange.label": "开启线索交流",
     "option.AutoStartExchange.description": "在基建任务过程中，自动开启线索交流,并不推荐开启此选项,线索交流任务应该等待信用点交易任务主动开启来获取高价值物品",
+    "option.SendCluesDirect.label": "会客室直接赠予",
+    "option.SendCluesDirect.description": "在会客室主界面直接尝试进入「赠予」流程，不经过收集线索满溢路径。默认关闭；信用点商店补信用时会由该任务自行开启。",
     "option.ProductionAssistControl.label": "生产助力模式",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "助力总控中枢",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "助力制造舱",

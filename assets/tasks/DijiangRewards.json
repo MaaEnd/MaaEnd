@@ -7,6 +7,7 @@
             "description": "$task.DijiangRewards.description",
             "option": [
                 "AutoStartExchange",
+                "SendCluesDirect",
                 "StageTaskSetting",
                 "ClueSetting",
                 "SelectToGrow"
@@ -40,6 +41,30 @@
                     "name": "No",
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SendCluesDirect": {
+            "type": "switch",
+            "label": "$option.SendCluesDirect.label",
+            "description": "$option.SendCluesDirect.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
                             "enabled": false
                         }
                     }

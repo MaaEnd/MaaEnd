@@ -202,6 +202,8 @@
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "培養艙獎勵或再次培養流程失敗",
     "option.AutoStartExchange.label": "開啟線索交流",
     "option.AutoStartExchange.description": "在基建任務過程中，自動開啟線索交流，並不推薦開啟此選項，線索交流任務應該等待信用點交易任務主動開啟以獲取高價值物品",
+    "option.SendCluesDirect.label": "會客室直接贈予",
+    "option.SendCluesDirect.description": "在會客室主介面直接嘗試進入「贈予」流程，不經過收集線索滿溢路徑。預設關閉；信用點商店補信用時會由該任務自行開啟。",
     "option.ProductionAssistControl.label": "生產助力模式",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "助力總控中樞",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "助力製造艙",

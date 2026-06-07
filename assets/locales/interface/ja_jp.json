@@ -198,6 +198,8 @@
     "task.DijiangRewards.focus.growth_chamber_flow_failed": "培養室の報酬受取または再培養フローに失敗しました",
     "option.AutoStartExchange.label": "手がかり交換を開始",
     "option.AutoStartExchange.description": "基地任務中に手がかり交換を自動的に開始します。このオプションの有効化は推奨されません。高価値なアイテムを獲得するためには、手がかり交換任務はクレジット取引任務が主動的に開始するのを待つべきです。",
+    "option.SendCluesDirect.label": "応接室から直接贈呈",
+    "option.SendCluesDirect.description": "応接室のメイン画面から「贈呈」フローに直接入ります。手がかり収集満杯経路は使いません。既定はオフ。クレジットショップの信用補充時はそのタスク側で有効化されます。",
     "option.ProductionAssistControl.label": "生産支援モード",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "総合制御中枢を支援",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "製造艙を支援",
