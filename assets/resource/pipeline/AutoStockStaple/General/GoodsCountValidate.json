@@ -5,10 +5,34 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "AutoStockStapleGoodsCountValidateArea",
                     "AutoStockStapleGoodsCountValidateColor",
                     "AutoStockStapleGoodsCountValidateText"
                 ],
-                "box_index": 1
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockStapleGoodsCountValidateArea": {
+        "desc": "物品数量验证区域",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1036,
+                    189,
+                    50,
+                    17
+                ],
+                "method": 6,
+                "lower": [
+                    90
+                ],
+                "upper": [
+                    100
+                ],
+                "count": 10,
+                "connected": true
             }
         }
     },
@@ -36,12 +60,7 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": [
-                    1042,
-                    184,
-                    46,
-                    16
-                ],
+                "roi": "AutoStockStapleGoodsCountValidateArea",
                 "method": 6,
                 "lower": [
                     160
