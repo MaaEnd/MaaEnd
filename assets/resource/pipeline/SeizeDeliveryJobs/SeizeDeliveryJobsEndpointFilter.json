@@ -67,7 +67,7 @@
             93,
             83
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterOwl.png",
+        "template": "SeizeDeliveryJobs/Destinations/Owl.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointOwl"
@@ -86,7 +86,7 @@
             122,
             73
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute.png",
+        "template": "SeizeDeliveryJobs/Destinations/MaterialResearchInstitute.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute"
@@ -105,7 +105,7 @@
             84,
             110
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterObservatory.png",
+        "template": "SeizeDeliveryJobs/Destinations/Observatory.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointObservatory"
@@ -124,7 +124,7 @@
             88,
             103
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterTechProductionOffice.png",
+        "template": "SeizeDeliveryJobs/Destinations/TechProductionOffice.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointTechProductionOffice"
@@ -143,7 +143,7 @@
             95,
             89
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea.png",
+        "template": "SeizeDeliveryJobs/Destinations/No1TypeCAnchorArea.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointNo1TypeCAnchorArea"
@@ -162,7 +162,7 @@
             82,
             99
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea.png",
+        "template": "SeizeDeliveryJobs/Destinations/No3TypeCAnchorArea.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointNo3TypeCAnchorArea"
@@ -181,7 +181,7 @@
             74,
             83
         ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterJingweiFieldArea.png",
+        "template": "SeizeDeliveryJobs/Destinations/JingweiFieldArea.png",
         "threshold": 0.9,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointJingweiFieldArea"
