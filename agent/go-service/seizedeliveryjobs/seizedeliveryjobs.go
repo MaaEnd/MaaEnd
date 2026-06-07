@@ -50,8 +50,8 @@ func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.C
 	return true
 }
 
+// SeizeDeliveryJobsScanTargetRecognition scans the delivery job list once and caches OCR results for subsequent ScanTarget iterations.
 type SeizeDeliveryJobsScanTargetRecognition struct{}
-
 func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	// Subsequent calls: already have scanned data, just hit
 	if scannedJobItems != nil {
