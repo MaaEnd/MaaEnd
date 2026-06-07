@@ -37,6 +37,10 @@ class Button:
         self.hovered = False
         self.needs_render = True
 
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
     def _get_draw_color(self) -> int:
         if not self.hovered:
             return self.base_color
@@ -76,9 +80,8 @@ class Button:
         )
         self.needs_render = False
 
-    def handle_mouse(self, event, x: int, y: int) -> bool:
-        x1, y1, x2, y2 = self.rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def consume_mouse(self, event, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
 
         if self.hovered != in_rect:
             self.hovered = in_rect
@@ -91,7 +94,7 @@ class Button:
             return True
         return False
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key in self.hotkey:
             if self.on_click:
                 self.on_click()
@@ -113,7 +116,7 @@ class TextInputWidget:
         self.text = ""
         self._cursor_blink_start = time.time()
 
-    def handle_key(self, key: int) -> bool:
+    def consume_key(self, key: int) -> bool:
         if key == 8 or key == 127:  # Backspace / Del
             if self.text:
                 self.text = self.text[:-1]
@@ -153,58 +156,141 @@ class TextInputWidget:
             drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
 
 
-class RadioSelectWidget:
-    """Simple vertical radio selector widget."""
+class DropdownSelectWidget:
+    """Hover-expanded single-select dropdown body widget."""
 
-    def __init__(self, title: str = "", item_height: int = 24):
-        self.title = title
+    def __init__(self, item_height: int = 24):
         self.item_height = item_height
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
+        self.expanded = False
+        self.selection_changed = False
+        self.needs_render = True
 
     def set_items(self, items: list[dict], selected_data: object | None = None) -> None:
         self.items = items
         self.selected_idx = -1
         if not items:
+            self.needs_render = True
             return
         if selected_data is not None:
             for i, item in enumerate(items):
                 if item.get("data") == selected_data:
                     self.selected_idx = i
+                    self.needs_render = True
                     return
         self.selected_idx = 0
+        self.needs_render = True
 
     def get_selected_data(self) -> object | None:
         if 0 <= self.selected_idx < len(self.items):
             return self.items[self.selected_idx].get("data")
         return None
 
+    def get_selected_label(self) -> str:
+        if 0 <= self.selected_idx < len(self.items):
+            return str(self.items[self.selected_idx].get("label", ""))
+        return ""
+
     def select_by_data(self, data: object) -> bool:
         for i, item in enumerate(self.items):
             if item.get("data") == data:
                 changed = self.selected_idx != i
-                self.selected_idx = i
+                if changed:
+                    self.selected_idx = i
+                    self.needs_render = True
                 return changed
         return False
 
-    def get_height(self) -> int:
-        title_h = 22 if self.title else 0
-        return title_h + max(0, len(self.items)) * self.item_height + 8
+    def get_body_height(self) -> int:
+        return max(0, len(self.items)) * self.item_height + 4
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
-        if not (x1 <= x <= x2 and y1 <= y <= y2):
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def _expanded_rect(self) -> tuple[int, int, int, int]:
+        x1, y1, x2, y2 = self.rect
+        return (x1, y1, x2, y2 + self.get_body_height())
+
+    def _body_rect(self) -> tuple[int, int, int, int]:
+        x1, _, x2, y2 = self.rect
+        return (x1, y2 + 4, x2, y2 + self.get_body_height())
+
+    def _contains_expanded(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self._expanded_rect()
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        if event == cv2.EVENT_MOUSEMOVE:
+            if self.expanded:
+                if not self._contains_expanded(x, y):
+                    self.expanded = False
+                    self.needs_render = True
+                    return True
+                return False
+            if self.contains(x, y):
+                self.expanded = True
+                self.needs_render = True
+                return True
+            return False
+
+        if event != cv2.EVENT_LBUTTONDOWN:
+            return False
+
+        if self.expanded and self._contains_expanded(x, y):
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.selection_changed = True
+            return True
+
+        if self.contains(x, y):
+            if not self.expanded:
+                self.expanded = True
+                self.needs_render = True
+            return True
+
+        return False
+
+    def consume_selection_changed(self) -> bool:
+        changed = self.selection_changed
+        self.selection_changed = False
+        return changed
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, _ = self._body_rect()
+        if not (x1 <= x <= x2 and y >= y1):
             return -1
-        title_h = 22 if self.title else 0
-        list_y1 = y1 + title_h
-        if y < list_y1:
-            return -1
-        idx = (y - list_y1) // self.item_height
-        if 0 <= idx < len(self.items):
-            if self.selected_idx != idx:
-                self.selected_idx = idx
-                return idx
+        idx = (y - y1) // self.item_height
+        if 0 <= idx < len(self.items) and self.selected_idx != idx:
+            self.selected_idx = idx
+            self.needs_render = True
+            return idx
         return -1
+
+    def _render_item(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        item: dict,
+        *,
+        selected: bool,
+        font_scale: float,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        if selected:
+            drawer.rect((x1 + 2, y1), (x2 - 2, y2), color=0x132B4F, thickness=-1)
+        label = str(item.get("label", ""))
+        color = 0xFFFFFF if selected else 0xC8C8C8
+        cy_mark = y1 + self.item_height // 2
+        mark_x = x1 + 14
+        if selected:
+            drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
+            drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
+        else:
+            drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
+        drawer.text(label, (x1 + 26, y2 - 7), font_scale, color=color)
 
     def render(
         self,
@@ -213,31 +299,22 @@ class RadioSelectWidget:
         *,
         font_scale: float = 0.4,
     ) -> None:
-        x1, y1, x2, y2 = rect
-        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
-        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+        self.rect = rect
+        if self.expanded:
+            x1, y1, x2, y2 = self._body_rect()
+            drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+            drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+            for i, item in enumerate(self.items):
+                iy1 = y1 + i * self.item_height
+                self._render_item(
+                    drawer,
+                    (x1, iy1, x2, iy1 + self.item_height),
+                    item,
+                    selected=i == self.selected_idx,
+                    font_scale=font_scale,
+                )
 
-        cy = y1
-        if self.title:
-            drawer.text(f"[ {self.title} ]", (x1 + 8, cy + 16), 0.45, color=0x40FFFF)
-            cy += 22
-
-        for i, item in enumerate(self.items):
-            iy1 = cy + i * self.item_height
-            iy2 = iy1 + self.item_height
-            selected = i == self.selected_idx
-            if selected:
-                drawer.rect((x1 + 2, iy1), (x2 - 2, iy2), color=0x132B4F, thickness=-1)
-            label = str(item.get("label", ""))
-            color = 0xFFFFFF if selected else 0xC8C8C8
-            cy_mark = iy1 + self.item_height // 2
-            mark_x = x1 + 14
-            if selected:
-                drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
-                drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
-            else:
-                drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
-            drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
+        self.needs_render = False
 
 
 class SwitchWidget:
@@ -256,6 +333,7 @@ class SwitchWidget:
         self.is_left_selected = is_left_selected
         self.on_changed = on_changed
         self.hovered = False
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
 
     def get_value(self) -> bool:
         return self.is_left_selected
@@ -270,11 +348,14 @@ class SwitchWidget:
     def toggle(self) -> bool:
         return self.set_value(not self.is_left_selected)
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> bool:
-        x1, y1, x2, y2 = rect
-        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        in_rect = self.contains(x, y)
         self.hovered = in_rect
-        if not in_rect:
+        if event != cv2.EVENT_LBUTTONDOWN or not in_rect:
             return False
         self.toggle()
         return True
@@ -286,6 +367,7 @@ class SwitchWidget:
         *,
         font_scale: float = 0.42,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         w = max(2, x2 - x1)
         mid_x = x1 + w // 2
@@ -341,8 +423,10 @@ class ScrollableListWidget:
     def __init__(self, item_height: int = 38):
         self.items: list[dict] = []
         self.selected_idx: int = -1
+        self.submitted_idx: int = -1
         self.scroll_offset: int = 0
         self.item_height = item_height
+        self.rect: tuple[int, int, int, int] = (-100, -100, -90, -90)
         self._preview_generator: Callable[[dict], np.ndarray | None] | None = None
         self._last_list_x2: int | None = None
 
@@ -357,6 +441,7 @@ class ScrollableListWidget:
             prev_selected_data = self.items[self.selected_idx].get("data")
 
         self.items = items
+        self.submitted_idx = -1
         self.scroll_offset = 0
         self.selected_idx = -1
 
@@ -384,8 +469,36 @@ class ScrollableListWidget:
         if 0 <= new_pos < len(enabled):
             self.selected_idx = enabled[new_pos]
 
-    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
-        x1, y1, x2, y2 = rect
+    def contains(self, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        self.submitted_idx = -1
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self._select_at(x, y)
+            if idx >= 0:
+                self.submitted_idx = idx
+            return self.contains(x, y)
+        if event == cv2.EVENT_MOUSEWHEEL:
+            return self._scroll_at(x, y, flags)
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        self.submitted_idx = -1
+        if key in (82, 0x260000, 65362):
+            self.navigate(-1)
+            return True
+        if key in (84, 0x280000, 65364):
+            self.navigate(1)
+            return True
+        if key in (10, 13) and self.selected_idx >= 0:
+            self.submitted_idx = self.selected_idx
+            return True
+        return False
+
+    def _select_at(self, x: int, y: int) -> int:
+        x1, y1, x2, y2 = self.rect
         list_x2 = self._last_list_x2 if self._last_list_x2 is not None else x2
         content_x2 = max(x1, list_x2 - 6)
         if not (x1 <= x <= content_x2 and y1 <= y <= y2):
@@ -399,10 +512,8 @@ class ScrollableListWidget:
             return -1
         return -1
 
-    def handle_wheel(
-        self, x: int, y: int, flags: int, rect: tuple[int, int, int, int]
-    ) -> bool:
-        x1, y1, x2, y2 = rect
+    def _scroll_at(self, x: int, y: int, flags: int) -> bool:
+        x1, y1, x2, y2 = self.rect
         if not (x1 <= x <= x2 and y1 <= y <= y2):
             return False
 
@@ -441,6 +552,7 @@ class ScrollableListWidget:
         *,
         font_scale: float = 0.45,
     ) -> None:
+        self.rect = rect
         x1, y1, x2, y2 = rect
         preview_img: np.ndarray | None = None
         if self._preview_generator is not None and 0 <= self.selected_idx < len(
@@ -561,6 +673,248 @@ class ScrollableListWidget:
                 scale_h=nh,
                 with_alpha=(img.ndim == 3 and img.shape[2] == 4),
             )
+
+
+class _OffsetDrawer:
+    def __init__(self, drawer: "Drawer", offset: tuple[int, int]):
+        self._drawer = drawer
+        self._dx, self._dy = offset
+
+    @property
+    def w(self):
+        return self._drawer.w
+
+    @property
+    def h(self):
+        return self._drawer.h
+
+    def _pt(self, pt: tuple[int, int]) -> tuple[int, int]:
+        return (pt[0] + self._dx, pt[1] + self._dy)
+
+    def get_image(self):
+        return self._drawer.get_image()
+
+    def get_text_size(self, text: str, font_scale: float):
+        return self._drawer.get_text_size(text, font_scale)
+
+    def text(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+        bg_color: int | None = None,
+        bg_padding: int = 5,
+    ):
+        self._drawer.text(
+            text,
+            self._pt(pos),
+            font_scale,
+            color=color,
+            bg_color=bg_color,
+            bg_padding=bg_padding,
+        )
+
+    def text_centered(
+        self,
+        text: str,
+        pos: tuple[int, int],
+        font_scale: float,
+        *,
+        color: int,
+    ):
+        self._drawer.text_centered(text, self._pt(pos), font_scale, color=color)
+
+    def rect(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.rect(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def circle(
+        self,
+        center: tuple[int, int],
+        radius: int,
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.circle(self._pt(center), radius, color=color, thickness=thickness)
+
+    def line(
+        self,
+        pt1: tuple[int, int],
+        pt2: tuple[int, int],
+        *,
+        color: int,
+        thickness: int,
+    ):
+        self._drawer.line(
+            self._pt(pt1), self._pt(pt2), color=color, thickness=thickness
+        )
+
+    def paste(
+        self,
+        img: cv2.typing.MatLike,
+        pos: tuple[int, int],
+        *,
+        scale_w: int | None = None,
+        scale_h: int | None = None,
+        with_alpha: bool = False,
+    ) -> None:
+        self._drawer.paste(
+            img,
+            self._pt(pos),
+            scale_w=scale_w,
+            scale_h=scale_h,
+            with_alpha=with_alpha,
+        )
+
+
+class WidgetGroup:
+    def __init__(
+        self,
+        rect: tuple[int, int, int, int],
+        *,
+        visible: bool = True,
+    ) -> None:
+        self.rect = rect
+        self.visible = visible
+        self._items: list[dict] = []
+        self._needs_render = True
+
+    @property
+    def needs_render(self) -> bool:
+        return self._needs_render or any(
+            getattr(item["widget"], "needs_render", False) for item in self._items
+        )
+
+    def set_rect(self, rect: tuple[int, int, int, int]) -> None:
+        if self.rect != rect:
+            self.rect = rect
+            self._needs_render = True
+
+    def clear(self) -> None:
+        if self._items:
+            self._items.clear()
+            self._needs_render = True
+
+    def add_button(
+        self,
+        button: Button,
+        rect: tuple[int, int, int, int],
+    ) -> Button:
+        button.rect = rect
+        self._items.append(
+            {
+                "widget": button,
+                "rect": rect,
+                "kind": "button",
+                "render_kwargs": {},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return button
+
+    def add_switch(
+        self,
+        widget: SwitchWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.42,
+    ) -> SwitchWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "switch",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": None,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def add_dropdown(
+        self,
+        widget: DropdownSelectWidget,
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.4,
+        on_consumed: Callable[[], None] | None = None,
+    ) -> DropdownSelectWidget:
+        widget.rect = rect
+        self._items.append(
+            {
+                "widget": widget,
+                "rect": rect,
+                "kind": "dropdown",
+                "render_kwargs": {"font_scale": font_scale},
+                "on_consumed": on_consumed,
+            }
+        )
+        self._needs_render = True
+        return widget
+
+    def render(self, drawer: "Drawer") -> None:
+        if not self.visible:
+            self._needs_render = False
+            return
+        x1, y1, _, _ = self.rect
+        local_drawer = _OffsetDrawer(drawer, (x1, y1))
+        for item in self._items:
+            widget = item["widget"]
+            rect = item["rect"]
+            kind = item["kind"]
+            render_kwargs = item["render_kwargs"]
+            if kind == "button":
+                widget.rect = rect
+                widget.render(local_drawer)
+            else:
+                widget.render(local_drawer, rect, **render_kwargs)
+        self._needs_render = False
+
+    def consume_mouse(self, event: int, x: int, y: int, flags: int = 0) -> bool:
+        if not self.visible:
+            return False
+        x1, y1, x2, y2 = self.rect
+        in_group = x1 <= x <= x2 and y1 <= y <= y2
+        if event != cv2.EVENT_MOUSEMOVE and not in_group:
+            return False
+        lx = x - x1
+        ly = y - y1
+        for item in reversed(self._items):
+            widget = item["widget"]
+            if widget.consume_mouse(event, lx, ly, flags):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
+
+    def consume_key(self, key: int) -> bool:
+        if not self.visible:
+            return False
+        for item in self._items:
+            widget = item["widget"]
+            consume_key = getattr(widget, "consume_key", None)
+            if consume_key is not None and consume_key(key):
+                on_consumed = item["on_consumed"]
+                if on_consumed is not None:
+                    on_consumed()
+                self._needs_render = True
+                return True
+        return False
 
 
 T = TypeVar("T")

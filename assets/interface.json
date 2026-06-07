@@ -152,7 +152,6 @@
         "tasks/BatchUseDetector.json",
         "tasks/AutoUseSpMedication.json",
         "tasks/EssenceFilter.json",
-        "tasks/AutoArtificing.json",
         // group: open_world
         "tasks/ResourceRecycleStation.json",
         "tasks/AutoCollect.json",

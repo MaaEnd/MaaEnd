@@ -117,7 +117,7 @@
         "expected": [
             "拍摄倒塌的天师桩",
             "拍攝倒塌的天師樁",
-            "(?i)Photograph\\s*the\\s*collapsed\\s*Tianshi\\s*Pillar",
+            "(?i)Photo:\\s*Collapsed\\s*Tianshi\\s*Pillar",
             "倒れた天師杭の写真を撮る",
             "무너진 천사장을 촬영하기"
         ]

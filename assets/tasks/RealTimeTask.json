@@ -846,6 +846,7 @@
         },
         "AutoFightLockTarget": {
             "label": "$option.AutoFightLockTarget.label",
+            "description": "$option.AutoFightLockTarget.description",
             "type": "switch",
             "default_case": "Yes",
             "cases": [

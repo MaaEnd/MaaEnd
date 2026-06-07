@@ -317,13 +317,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 200,
-            "timeout": 3000,
+            "time": 1000,
+            "timeout": 2000,
             "target": [
-                102,
-                103,
-                15,
-                15
+                831,
+                403,
+                161,
+                176
             ]
         },
         "next": [
@@ -361,7 +361,8 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity"
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorSkipDialog"
         ]
     }
 }

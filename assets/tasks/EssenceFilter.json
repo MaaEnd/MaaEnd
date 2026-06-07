@@ -3,19 +3,10 @@
         {
             "name": "EssenceFilter",
             "label": "$task.EssenceFilter.label",
-            "entry": "EssenceFilterMain",
+            "entry": "EssenceFilterUnavailable",
             "description": "$task.EssenceFilter.description",
-            "option": [
-                "SelectInputLanguage",
-                "SelectWeaponRarity",
-                "SelectEssence",
-                "SelectExtraRules",
-                "SkipThumbLock",
-                "SkipThumbDiscard"
-            ],
+            "option": [],
             "controller": [
-                "Win32-Window-Background",
-                "Win32-Front",
                 "Wlroots"
             ],
             "group": [

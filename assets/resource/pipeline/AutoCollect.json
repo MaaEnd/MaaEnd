@@ -2,12 +2,26 @@
     "AutoCollectSchedule": {
         "desc": "自动采集时间任务",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ScheduleAction",
-        "custom_action_param": {
-            "task": "AutoCollectStart"
-        },
         "post_delay": 0,
+        "next": [
+            "AutoCollectScheduleEnabled",
+            "AutoCollectEnd"
+        ]
+    },
+    "AutoCollectScheduleEnabled": {
+        "desc": "自动采集时间任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectStart"
+        ],
         "attach": {
             "monday": false,
             "tuesday": false,

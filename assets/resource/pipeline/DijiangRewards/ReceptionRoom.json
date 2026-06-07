@@ -866,6 +866,7 @@
     },
     "ReceptionRoomSetClues": {
         "desc": "[会客室·线索] 识别到会客室内的线索红点，准备放置线索",
+        "max_hit": 14,
         "recognition": {
             "type": "And",
             "param": {

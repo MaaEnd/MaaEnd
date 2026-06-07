@@ -30,6 +30,10 @@ flowchart TD
 7. 用到某个高级组件时 → 查 `components/` 下的对应文档
 8. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
+> [!WARNING]
+> **提交任何代码前，必须先通读 [编码规范](./coding-standards.md)。**
+> 不合规范的 PR 会被直接打回。
+
 ## 文档索引
 
 ### Tier 1 — 快速上手
@@ -51,9 +55,9 @@ flowchart TD
 
 ### Tier 3 — 规范与约束
 
-| 文档                              | 说明                                             |
-| --------------------------------- | ------------------------------------------------ |
-| [编码规范](./coding-standards.md) | Pipeline / Go / Cpp 编码规则、提交前检查、常见坑 |
+| 文档                                          | 说明                                             |
+| --------------------------------------------- | ------------------------------------------------ |
+| [**编码规范（必看）**](./coding-standards.md) | Pipeline / Go / Cpp 编码规则、提交前检查、常见坑 |
 
 ### Pipeline 基础组件
 
@@ -86,9 +90,12 @@ flowchart TD
 | 文档                                                                         | 说明                                                       |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [AutoStockpile 自动囤货](./tasks/auto-stockpile-maintain.md)                 | 商品模板、商品映射、价格阈值与地区扩展维护                 |
+| [AutoStockStaple 稳定需求物资](./tasks/auto-stockstaple-maintain.md)         | 正则初始化、商品识别链、数量控制                           |
 | [DijiangRewards 基建任务](./tasks/dijiang-rewards-maintain.md)               | 主流程、阶段职责与 interface 选项覆盖逻辑                  |
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md)             | 购买优先级、补信用联动、刷新策略与商品扩展                 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
+| [SellProduct 售卖产品](./tasks/sell-product-maintain.md)                     | zmdmap 数据生成、据点售卖 Pipeline 与优先物品维护          |
+| [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md)               | 导航寻路、联络选人、送礼收礼分支与干员扩展维护             |
 
 ### 第三方协议文档（`protocol/`）
 

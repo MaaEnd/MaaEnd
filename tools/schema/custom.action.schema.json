@@ -56,6 +56,8 @@
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",
+                "MapTrackerBigMapZoom",
+                "MapTrackerGoal",
                 "MapTrackerMove",
                 "MapTrackerMoveCompatible",
                 "OCREssenceInventoryNumberAction",
@@ -65,7 +67,6 @@
                 "PuzzleAction",
                 "RealTimeTaskAction",
                 "SceneManagerMenuListClickItemAction",
-                "ScheduleAction",
                 "SubTask",
                 "VisitFriendsExecuteVisitAction",
                 "VisitFriendsMainAction",
@@ -97,13 +98,41 @@
         "if": {
             "type": "object",
             "required": [ "custom_action" ],
-            "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+            "properties": { "custom_action": { "const": "MapTrackerGoal" } }
         },
         "then": {
             "type": "object",
             "required": [ "custom_action_param" ],
             "properties": {
-                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerGoalParam" }
+            }
+        },
+        "else": {
+            "if": {
+                "type": "object",
+                "required": [ "custom_action" ],
+                "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_action_param" ],
+                "properties": {
+                    "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                }
+            },
+            "else": {
+                "if": {
+                    "type": "object",
+                    "required": [ "custom_action" ],
+                    "properties": { "custom_action": { "const": "MapTrackerBigMapZoom" } }
+                },
+                "then": {
+                    "type": "object",
+                    "required": [ "custom_action_param" ],
+                    "properties": {
+                        "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
+                    }
+                }
             }
         }
     }

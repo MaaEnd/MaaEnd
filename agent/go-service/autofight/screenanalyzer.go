@@ -230,6 +230,10 @@ func (sa *ScreenAnalyzer) GetEnemyLocked() bool {
 	return sa.hasLabelInFrames(LabelEnemyLocked, 1, false)
 }
 
+func (sa *ScreenAnalyzer) GetEnemyLockedReliable() bool {
+	return sa.hasLabelInFrames(LabelEnemyLocked, 5, false)
+}
+
 func (sa *ScreenAnalyzer) GetEnemyBossHealth() bool {
 	return sa.hasLabelInDuration(LabelEnemyBossHealth, 5000*time.Millisecond)
 }

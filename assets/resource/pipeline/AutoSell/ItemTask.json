@@ -471,9 +471,9 @@
         "pre_delay": 0,
         "action": "Click",
         "target_offset": [
-            -75,
+            -70,
             5,
-            -5,
+            -10,
             -10
         ],
         "post_delay": 0,

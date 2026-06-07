@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <queue>
 #include <tuple>
 #include <utility>
@@ -22,6 +23,8 @@ constexpr double kBridgeFixedCost = 12.0;
 constexpr double kBridgeGapCostFactor = 3.0;
 constexpr double kBridgeHeightCostFactor = 40.0;
 constexpr double kBridgeMaxHeightDelta = 3.0;
+constexpr uint32_t kSmallBridgeComponentMaxTriangles = 512;
+constexpr double kSmallBridgeMaxGap = 4.0;
 
 struct QueueNode
 {
@@ -29,6 +32,35 @@ struct QueueNode
     double priority = 0.0;
 
     bool operator<(const QueueNode& rhs) const { return priority > rhs.priority; }
+};
+
+struct DisjointSet
+{
+    std::vector<uint32_t> parent;
+
+    explicit DisjointSet(size_t count)
+        : parent(count, 0)
+    {
+        std::iota(parent.begin(), parent.end(), 0U);
+    }
+
+    uint32_t find(uint32_t value)
+    {
+        while (parent[value] != value) {
+            parent[value] = parent[parent[value]];
+            value = parent[value];
+        }
+        return value;
+    }
+
+    void unite(uint32_t lhs, uint32_t rhs)
+    {
+        const uint32_t lhs_root = find(lhs);
+        const uint32_t rhs_root = find(rhs);
+        if (lhs_root != rhs_root) {
+            parent[rhs_root] = lhs_root;
+        }
+    }
 };
 
 }
@@ -51,9 +83,11 @@ void BaseNavPlanner::buildIndex()
             triangle_zones_[index] = zone.zone_id;
         }
     }
+    buildNaturalComponents();
+
     size_t valid_link_count = 0;
     for (const BaseNavLink& link : pack_.links()) {
-        if (link.source < triangle_zones_.size() && link.target < triangle_zones_.size()) {
+        if (isTraversableLink(link.source, link.target)) {
             ++adjacency_offsets_[link.source + 1];
             ++valid_link_count;
         }
@@ -65,9 +99,41 @@ void BaseNavPlanner::buildIndex()
     adjacency_links_.resize(valid_link_count);
     std::vector<uint32_t> next_offsets = adjacency_offsets_;
     for (const BaseNavLink& link : pack_.links()) {
-        if (link.source < triangle_zones_.size() && link.target < triangle_zones_.size()) {
+        if (isTraversableLink(link.source, link.target)) {
             adjacency_links_[next_offsets[link.source]++] = link.target;
         }
+    }
+}
+
+void BaseNavPlanner::buildNaturalComponents()
+{
+    const auto& triangles = pack_.triangles();
+    DisjointSet components(triangles.size());
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        for (int32_t neighbor : triangles[triangle_index].neighbors) {
+            if (neighbor < 0) {
+                continue;
+            }
+            const uint32_t next = static_cast<uint32_t>(neighbor);
+            if (next < triangles.size() && triangle_zones_[next] == triangle_zones_[triangle_index]) {
+                components.unite(triangle_index, next);
+            }
+        }
+    }
+
+    constexpr uint32_t kInvalidComponent = std::numeric_limits<uint32_t>::max();
+    std::vector<uint32_t> root_to_component(triangles.size(), kInvalidComponent);
+    natural_component_ids_.assign(triangles.size(), kInvalidComponent);
+    natural_component_sizes_.clear();
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        const uint32_t root = components.find(triangle_index);
+        uint32_t& component_id = root_to_component[root];
+        if (component_id == kInvalidComponent) {
+            component_id = static_cast<uint32_t>(natural_component_sizes_.size());
+            natural_component_sizes_.push_back(0);
+        }
+        natural_component_ids_[triangle_index] = component_id;
+        ++natural_component_sizes_[component_id];
     }
 }
 
@@ -87,6 +153,37 @@ void BaseNavPlanner::computeTriangleHeights()
 double BaseNavPlanner::triangleAverageHeight(uint32_t triangle_index) const
 {
     return triangle_heights_[triangle_index];
+}
+
+bool BaseNavPlanner::isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const
+{
+    for (int32_t neighbor : pack_.triangles()[lhs].neighbors) {
+        if (neighbor >= 0 && static_cast<uint32_t>(neighbor) == rhs) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool BaseNavPlanner::isTraversableLink(uint32_t lhs, uint32_t rhs) const
+{
+    if (lhs >= triangle_zones_.size() || rhs >= triangle_zones_.size() || triangle_zones_[lhs] == 0
+        || triangle_zones_[lhs] != triangle_zones_[rhs]) {
+        return false;
+    }
+    if (isNaturalNeighbor(lhs, rhs)) {
+        return true;
+    }
+
+    const uint32_t lhs_component = natural_component_ids_[lhs];
+    const uint32_t rhs_component = natural_component_ids_[rhs];
+    const uint32_t min_component_size = std::min(natural_component_sizes_[lhs_component], natural_component_sizes_[rhs_component]);
+    if (min_component_size > kSmallBridgeComponentMaxTriangles) {
+        return true;
+    }
+
+    const auto bridge_points = closestEdgeBridgePoints(lhs, rhs);
+    return bridge_points && detail::Distance((*bridge_points)[0], (*bridge_points)[1]) <= kSmallBridgeMaxGap;
 }
 
 BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) const

@@ -117,7 +117,7 @@
         "expected": [
             "拍摄水中的七彩鳞",
             "拍攝水中的七彩鱗",
-            "(?i)Photograph\\s*the\\s*rainbow\\s*fin\\s*in\\s*the\\s*water",
+            "(?i)Photo:\\s*Rainbow\\s*Fin\\s*in\\s*Water",
             "水中の七色鱗獣の写真を撮る",
             "물속의 무지개 린수를 촬영하기"
         ]

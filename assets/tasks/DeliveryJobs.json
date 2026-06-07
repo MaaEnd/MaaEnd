@@ -12,6 +12,11 @@
                 "DeliveryJobsAcceptJobOnly",
                 "DeliveryJobsPackCargoOnly"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "regional_development"
             ]

@@ -4,16 +4,13 @@ package maptrackerbigmap
 import (
 	"encoding/json"
 	"fmt"
-	"image"
 	"math"
 	"math/rand"
 	"regexp"
 	"sync"
-	"time"
 
 	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -40,8 +37,9 @@ type MapTrackerBigMapPickParam struct {
 	OnFind string `json:"on_find,omitempty"`
 	// AutoOpenMapScene controls whether to automatically open the big map scene before picking.
 	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
-	// NoZoom controls whether to disable auto zoom before picking.
-	NoZoom bool `json:"no_zoom,omitempty"`
+	// ZoomValue is the target zoom slider position.
+	// If omitted, defaults to 0.7. Set to 0 to disable auto zoom. Other values should be in range (0, 1].
+	ZoomValue *float64 `json:"zoom_value,omitempty"`
 }
 
 const (
@@ -51,7 +49,8 @@ const (
 )
 
 var mapTrackerBigMapPickDefaultParam = MapTrackerBigMapPickParam{
-	OnFind: ON_FIND_CLICK,
+	OnFind:    ON_FIND_CLICK,
+	ZoomValue: func() *float64 { v := 0.7; return &v }(),
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -93,9 +92,10 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		return false
 	}
 
-	if !param.NoZoom {
-		if err := a.doAutoZoom(ctx, ctrl, ca); err != nil {
-			log.Warn().Err(err).Msg("Failed to auto adjust big-map zoom")
+	zoomValue := *param.ZoomValue // Not nil verified by parseParam
+	if zoomValue != 0 {
+		if err := doBigMapZoom(ctrl, ca, zoomValue); err != nil {
+			log.Warn().Err(err).Float64("zoomValue", zoomValue).Msg("Failed to auto adjust big-map zoom")
 		}
 	}
 
@@ -154,7 +154,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Float64("targetInViewY", targetInViewY).
 			Msg("Big-map target is not in viewport, need to pan")
 
-		segments := rand.Intn(4) + 2
+		segments := rand.Intn(3) + 1
 		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments) {
 			continue
 		}
@@ -189,6 +189,13 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 	}
 	if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
 		return nil, fmt.Errorf("target must contain finite numbers")
+	}
+	if param.ZoomValue != nil {
+		if !(0 <= *param.ZoomValue && *param.ZoomValue <= 1) {
+			return nil, fmt.Errorf("zoom_value must be in range [0, 1]")
+		}
+	} else {
+		param.ZoomValue = mapTrackerBigMapPickDefaultParam.ZoomValue
 	}
 
 	return &param, nil
@@ -235,104 +242,6 @@ func runBigMapTeleportNode(ctx *maa.Context, ca control.ControlAdaptor, targetIn
 	}
 
 	return nil
-}
-
-func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, ca control.ControlAdaptor) error {
-	zoomInTemplate, err := internal.Resource.ZoomInTemplate.Get()
-	if err != nil {
-		return fmt.Errorf("failed to load zoom-in template: %w", err)
-	}
-
-	zoomOutTemplate, err := internal.Resource.ZoomOutTemplate.Get()
-	if err != nil {
-		return fmt.Errorf("failed to load zoom-out template: %w", err)
-	}
-
-	const zoomLevelTarget = 0.7
-	triedAgain := false
-	for {
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err != nil {
-			return fmt.Errorf("failed to get cached image for auto zoom: %w", err)
-		}
-		if img == nil {
-			return fmt.Errorf("cached image is nil for auto zoom")
-		}
-
-		screen := minicv.ImageConvertRGBA(img)
-		searchArea := [4]int{
-			int(math.Round(ZOOM_BUTTON_AREA_X)),
-			int(math.Round(ZOOM_BUTTON_AREA_Y)),
-			int(math.Round(ZOOM_BUTTON_AREA_W)),
-			int(math.Round(ZOOM_BUTTON_AREA_H)),
-		}
-		screenIntegral := minicv.GetIntegralArray(screen)
-
-		zoomOutX, zoomOutY, outVal := minicv.MatchTemplateInArea(
-			screen,
-			screenIntegral,
-			zoomOutTemplate.Image,
-			zoomOutTemplate.Stats,
-			searchArea,
-		)
-		zoomInX, zoomInY, inVal := minicv.MatchTemplateInArea(
-			screen,
-			screenIntegral,
-			zoomInTemplate.Image,
-			zoomInTemplate.Stats,
-			searchArea,
-		)
-
-		outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
-		inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
-
-		if outMatched && inMatched {
-			// Good case: both zoom-out and zoom-in buttons are detected, likely showing the zoom slider,
-			// we can click the slider area to adjust zoom level precisely.
-			cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
-			cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*zoomLevelTarget))
-			ca.TouchClick(0, cx, cy, 100, 250)
-			time.Sleep(250 * time.Millisecond) // Wait for UI response
-
-			log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
-			return nil // Finished auto zoom
-
-		} else if !outMatched && !inMatched {
-			// Worst case: neither zoom-out nor zoom-in button is detected,
-			// just skip auto zoom to avoid wrong operation.
-			log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("No zoom button matched for auto zoom")
-			return nil // Skipped auto zoom
-
-		} else {
-			// Not good case: only one of the two buttons is detected, due to the current zoom level hit the limit,
-			// we can press the detected button to adjust zoom blindly, then start another round of detection.
-
-			pressZoomButton := func(matchX, matchY float64, tpl *image.RGBA) {
-				cx := int(math.Round(matchX + float64(tpl.Rect.Dx())/2.0))
-				cy := int(math.Round(matchY + float64(tpl.Rect.Dy())/2.0))
-				ca.TouchClick(0, cx, cy, 100, 250)
-				ctrl.PostTouchMove(0, 1, 1, 0).Wait() // Move mouse to the corner to avoid blocking the button
-				time.Sleep(250 * time.Millisecond)    // Wait for UI response
-			}
-
-			if outMatched {
-				pressZoomButton(zoomOutX, zoomOutY, zoomOutTemplate.Image)
-				log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-out button")
-			} else {
-				pressZoomButton(zoomInX, zoomInY, zoomInTemplate.Image)
-				log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-in button")
-			}
-
-			if triedAgain {
-				log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Still only one button appeared, giving up auto zoom")
-				return nil // Avoid infinite loop, give up after trying again
-			} else {
-				triedAgain = true
-				continue
-			}
-		}
-	}
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {

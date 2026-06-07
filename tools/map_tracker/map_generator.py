@@ -56,23 +56,6 @@ def scale_layout(layout: RegionLayoutTable, factor: float) -> RegionLayoutTable:
     )
 
 
-def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
-    """Load all *_layout.json files from layout_dir."""
-    layouts: dict[str, RegionLayoutTable] = {}
-    for fname in os.listdir(layout_dir):
-        m = _RE_LAYOUT_FILE.match(fname)
-        if not m:
-            continue
-        region_name = m.group(1)
-        try:
-            layouts[region_name] = RegionLayoutTable.load(
-                os.path.join(layout_dir, fname)
-            )
-        except Exception as e:
-            print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
-    return layouts
-
-
 def ensure_output_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
@@ -89,6 +72,22 @@ class DistinMapPage:
         self.ui = ui
         self.window_name = "MapTracker Level Distinguisher"
         self.window_w, self.window_h = 1280, 720
+
+    def _load_layouts(self) -> dict[str, RegionLayoutTable]:
+        """Load all *_layout.json files from layout_dir."""
+        layouts: dict[str, RegionLayoutTable] = {}
+        for fname in os.listdir(self.layout_dir):
+            m = _RE_LAYOUT_FILE.match(fname)
+            if not m:
+                continue
+            region_name = m.group(1)
+            try:
+                layouts[region_name] = RegionLayoutTable.load(
+                    os.path.join(self.layout_dir, fname)
+                )
+            except Exception as e:
+                print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
+        return layouts
 
     def _load_level_maps(self) -> Dict[str, np.ndarray]:
         """Load level images (files containing '_lv') from input directory.
@@ -327,7 +326,7 @@ class DistinMapPage:
         owner[overlap] = -2
 
         if not overlap.any():
-            print(f"    {_G}No overlaps — exporting maps as-is.{_0}")
+            print(f"    {_G}No overlaps, exporting maps as-is.{_0}")
             self._export_split_maps(
                 group_key,
                 maps,
@@ -554,7 +553,7 @@ class DistinMapPage:
         overlap = multi_hit  # pixels that need splitting
 
         if not overlap.any():
-            print(f"    {_G}No overlaps — exporting maps as-is.{_0}")
+            print(f"    {_G}No overlaps, exporting maps as-is.{_0}")
             fin = [m.astype(np.uint8) for m in land_masks]
             self._export_split_maps(group_key, maps, positions, names_list, fin, canvas)
             return
@@ -888,16 +887,16 @@ class DistinMapPage:
 
         # Load layouts
         print(f"\nLoading layouts...")
-        layouts = load_layouts(self.layout_dir)
+        layouts = self._load_layouts()
         if not layouts:
-            print(f"{_Y}No layout files found in {self.layout_dir}.{_0}")
+            print(f"{_Y}No layout files found in {self.layout_dir}{_0}")
             return
         print(f"  {len(layouts)} layout(s) loaded.")
 
         # Load level images
         all_maps = self._load_level_maps()
         if not all_maps:
-            print(f"{_Y}No level maps found in directory.{_0}")
+            print(f"{_Y}No level maps found in {self.input_dir}{_0}")
             return
 
         # Group level images by matching layout keys

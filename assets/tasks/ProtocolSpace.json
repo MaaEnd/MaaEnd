@@ -9,11 +9,10 @@
                 "ProtocolSpaceSchedule",
                 "AutoFightSetting",
                 "ProtocolSpaceTeamChoose",
+                "ProtocolSpaceSuccessAction",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
-                "ProtocolSpaceUsePermit",
-                "ProtocolSpaceTab",
-                "ProtocolSpaceLevel"
+                "ProtocolSpaceTab"
             ],
             "controller": [
                 "Win32-Front",
@@ -42,7 +41,7 @@
                     "name": "ProtocolSpaceScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -53,7 +52,7 @@
                     "name": "ProtocolSpaceScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -64,7 +63,7 @@
                     "name": "ProtocolSpaceScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -75,7 +74,7 @@
                     "name": "ProtocolSpaceScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -86,7 +85,7 @@
                     "name": "ProtocolSpaceScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -97,7 +96,7 @@
                     "name": "ProtocolSpaceScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -108,7 +107,7 @@
                     "name": "ProtocolSpaceScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "ProtocolSpaceSchedule": {
+                        "ProtocolSpaceScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }
@@ -207,6 +206,52 @@
                 }
             ]
         },
+        "ProtocolSpaceSuccessAction": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceSuccessAction.label",
+            "default_case": "RewardClaim",
+            "cases": [
+                {
+                    "name": "RewardClaim",
+                    "label": "$option.ProtocolSpaceSuccessAction.case.RewardClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceUsePermit"
+                    ]
+                },
+                {
+                    "name": "NoRewardClaim",
+                    "label": "$option.ProtocolSpaceSuccessAction.case.NoRewardClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
         "ProtocolSpaceSuccessCount": {
             "type": "select",
             "label": "$option.ProtocolSpaceSuccessCount.label",
@@ -218,6 +263,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 0
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 0
                         }
                     }
                 },
@@ -226,6 +274,9 @@
                     "label": "2",
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 1
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
                             "max_hit": 1
                         }
                     }
@@ -236,6 +287,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 2
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 2
                         }
                     }
                 },
@@ -245,6 +299,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
                             "max_hit": 3
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 3
                         }
                     }
                 },
@@ -253,6 +310,9 @@
                     "label": "5",
                     "pipeline_override": {
                         "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 4
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
                             "max_hit": 4
                         }
                     }
@@ -364,7 +424,8 @@
                         }
                     },
                     "option": [
-                        "OperatorProgression"
+                        "OperatorProgression",
+                        "ProtocolSpaceLevel"
                     ]
                 },
                 {
@@ -389,7 +450,8 @@
                         }
                     },
                     "option": [
-                        "WeaponProgression"
+                        "WeaponProgression",
+                        "ProtocolSpaceLevel"
                     ]
                 },
                 {

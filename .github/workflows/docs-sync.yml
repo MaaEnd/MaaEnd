@@ -48,7 +48,7 @@ jobs:
       repo_sha: ${{ steps.snapshot.outputs.repo_sha }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.repository.default_branch }}
@@ -107,7 +107,7 @@ jobs:
           fi
 
       - name: Upload docs sync artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docs-sync-artifacts
           path: artifacts/
@@ -119,14 +119,14 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
           ref: ${{ needs.prepare.outputs.repo_sha }}
           fetch-depth: 0
 
       - name: Download docs sync artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: docs-sync-artifacts
           path: artifacts

@@ -3,14 +3,15 @@ install/
 node_modules/
 
 # 子模块
-assets/resource/model
+assets/resource/model/
 agent/cpp-algo/MaaUtils/
-tests/MaaEndTestset
+tests/MaaEndTestset/
 
 # 跳过 schema 目录，避免与 sync_schema_files 冲突
 tools/schema/
 
 # 从 zmdmap 获取的数据不需要格式化
+assets/data/ZmdMap/
 tools/pipeline-generate/data/*.json
 
 # pipeline-generate 模板 jsonc 不能被 prettier 加 trailing comma：模板会被原样渲染到 assets/resource/pipeline/ 下，加了逗号生成产物就不是 strict JSON

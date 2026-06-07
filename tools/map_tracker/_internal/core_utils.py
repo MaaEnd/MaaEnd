@@ -248,6 +248,13 @@ class Drawer:
     def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
         cv2.circle(self._img, center, radius, self._to_bgr(color), thickness)
 
+    def polygon(self, points: list[Point], *, color: Color, thickness: int):
+        pts = np.array(points, dtype=np.int32)
+        if thickness < 0:
+            cv2.fillPoly(self._img, [pts], self._to_bgr(color))
+        else:
+            cv2.polylines(self._img, [pts], True, self._to_bgr(color), thickness)
+
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
 
@@ -494,7 +501,14 @@ class ViewportManager:
         self._vx = real_x - view_w / 2.0
         self._vy = real_y - view_h / 2.0
 
-    def fit_to(self, real_points: list[Point], padding: float = 0.3) -> None:
+    def fit_to(
+        self,
+        real_points: list[Point],
+        *,
+        padding: float = 0.0,
+        min_zoom: float | None = None,
+        max_zoom: float | None = None,
+    ) -> None:
         if not real_points:
             return
         min_x = min(p[0] for p in real_points)
@@ -507,8 +521,11 @@ class ViewportManager:
         padding = max(0.0, min(0.49, padding))
         fit_w = max(1.0, self._vw * (1.0 - 2.0 * padding))
         fit_h = max(1.0, self._vh * (1.0 - 2.0 * padding))
+
         target_zoom = min(fit_w / span_x, fit_h / span_y)
-        self.zoom = target_zoom
+        min_zoom = self._min_zoom if min_zoom is None else max(self._min_zoom, min_zoom)
+        max_zoom = self._max_zoom if max_zoom is None else min(self._max_zoom, max_zoom)
+        self.zoom = max(min_zoom, min(max_zoom, target_zoom))
 
         view_w = self._vw / self._zoom
         view_h = self._vh / self._zoom

@@ -19,12 +19,10 @@ from typing import NamedTuple
 from _internal.core_utils import (
     _G,
     _Y,
-    _C,
     _0,
     Color,
     Drawer,
     cv2,
-    MapName,
     ViewportManager,
     Layer,
     clipboard_copy_text,
@@ -36,15 +34,16 @@ from _internal.gui_pages import (
     StepPage,
     PageStepper,
     MapImageSelectStep,
+    ExportStringPage,
 )
 from _internal.gui_widgets import (
     Button,
     SwitchWidget,
     ScrollableListWidget,
     TextInputWidget,
-    RadioSelectWidget,
     UndoRedoHistory,
     UndoRedoWidget,
+    WidgetGroup,
 )
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
@@ -147,8 +146,6 @@ class PathEditPage(MapViewportPage):
     ):
         self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
-        self._main_map_name = self.map_name
-        self._active_map_name = self.map_name
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
 
@@ -158,8 +155,6 @@ class PathEditPage(MapViewportPage):
         super().__init__(
             window_name, 1280, 720, image=self.img, min_zoom=0.5, max_zoom=10.0
         )
-        self._main_img = self.img.copy()
-        self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
         self._status = StatusRecord(
             time.time(), 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
@@ -197,20 +192,6 @@ class PathEditPage(MapViewportPage):
         self._realtime_last_point_ts: float | None = None
         self._realtime_segment_has_checkpoint = False
 
-        # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
-        self._btn_save_rect: tuple | None = None
-        self._btn_record_rect: tuple | None = None
-        self._btn_back_rect: tuple | None = None
-        self._btn_finish_rect: tuple | None = None
-        self._btn_delete_rect: tuple | None = None
-        self._btn_copy_rect: tuple | None = None
-
-        # Tier map selector in sidebar (shown only when tier maps exist)
-        self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
-        self._tier_selector_rect: tuple[int, int, int, int] | None = None
-        self._tier_maps = self._collect_tier_maps(self._main_map_name)
-        if len(self._tier_maps) > 1:
-            self._tier_selector.set_items(self._tier_maps, selected_data=self.map_name)
         self._recorder_mode_switch = SwitchWidget(
             "Loop",
             "Once",
@@ -245,8 +226,9 @@ class PathEditPage(MapViewportPage):
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "Finish",
+            "[E] Export",
             base_color=0x3C643C,
+            hotkey=(ord("e"), ord("E")),
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
@@ -264,17 +246,14 @@ class PathEditPage(MapViewportPage):
             on_click=self._copy_selected_point,
             font_scale=0.42,
         )
-        self.buttons.extend(
-            [
-                self._save_button,
-                self._record_button,
-                self._back_button,
-                self._finish_button,
-                self._delete_button,
-                self._copy_button,
-                *self._history_widget.buttons,
-            ]
+        self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
+        self.groups.append(self._sidebar_group)
+        self.configure_map_layer_switching(
+            logical_map_name=self.map_name,
+            map_dir=self._map_dir,
+            base_image=self.img,
         )
+        self.buttons.extend(self._history_widget.buttons)
 
     def hook_idle(self) -> None:
         self._update_recording()
@@ -322,7 +301,7 @@ class PathEditPage(MapViewportPage):
             result = self.location_service.infer_once(self.map_name)
             map_name, x, y = result["map_name"], result["x"], result["y"]
             if map_name:
-                self._sync_tier_by_log_map(map_name)
+                self.sync_displayed_layer_from_map_name(map_name)
             updated = self._append_realtime_point(x, y)
             self._update_status(
                 0x50DC50 if updated else 0xD2D200,
@@ -474,73 +453,10 @@ class PathEditPage(MapViewportPage):
 
     def _fit_view_to_points_or_map(self) -> None:
         if self.points:
-            self.view.fit_to(self.points)
+            self.view.fit_to(self.points, padding=0.3, min_zoom=1.0, max_zoom=5.0)
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
-
-    def _collect_tier_maps(self, main_map_name: str) -> list[dict]:
-        main_base = os.path.basename(main_map_name)
-        try:
-            main_parsed = MapName.parse(main_base)
-        except ValueError:
-            return [{"label": "main", "data": main_base}]
-
-        tiers: list[dict] = [{"label": "main", "data": main_base}]
-        if not os.path.isdir(self._map_dir):
-            return tiers
-
-        for file_name in sorted(os.listdir(self._map_dir), key=lambda n: n.lower()):
-            try:
-                parsed = MapName.parse(file_name)
-            except ValueError:
-                continue
-            if (
-                parsed.map_type != "tier"
-                or parsed.map_id != main_parsed.map_id
-                or parsed.map_level_id != main_parsed.map_level_id
-            ):
-                continue
-            tiers.append({"label": f"tier_{parsed.tier_suffix}", "data": file_name})
-        return tiers
-
-    def _switch_active_map(self, map_name: str) -> None:
-        if map_name == self._active_map_name:
-            return
-        if map_name == self._main_map_name:
-            target_path = os.path.join(self._map_dir, self._main_map_name)
-            img = self._main_img
-        else:
-            target_path = os.path.join(self._map_dir, map_name)
-            tier_img = cv2.imread(target_path)
-            if tier_img is None:
-                return
-            # Compose once: dimmed main as base, tier non-black pixels as overlay.
-            img = self._main_dim_img.copy()
-            tier_mask = (
-                (tier_img[:, :, 0] > 2)
-                | (tier_img[:, :, 1] > 2)
-                | (tier_img[:, :, 2] > 2)
-            )
-            img[tier_mask] = tier_img[tier_mask]
-        self._active_map_name = map_name
-        self.map_path = target_path
-        self.img = img
-        self.set_map_image(self.img)
-        self.render_request()
-
-    def _sync_tier_by_log_map(self, log_map_name: str) -> None:
-        if len(self._tier_maps) <= 1:
-            return
-        resolved = find_map_file(log_map_name, self._map_dir)
-        if not resolved:
-            return
-        available = {str(item.get("data", "")) for item in self._tier_maps}
-        if resolved not in available:
-            return
-        self._tier_selector.select_by_data(resolved)
-        if resolved != self._active_map_name:
-            self._switch_active_map(resolved)
 
     def _do_save(self):
         if self.pipeline_context is None:
@@ -623,7 +539,7 @@ class PathEditPage(MapViewportPage):
                 map_name, x, y = result["map_name"], result["x"], result["y"]
 
                 if map_name:
-                    self._sync_tier_by_log_map(map_name)
+                    self.sync_displayed_layer_from_map_name(map_name)
 
                 updated = self._append_realtime_point(x, y) or updated
             except queue.Empty:
@@ -650,16 +566,17 @@ class PathEditPage(MapViewportPage):
     ) -> bool:
         if k < 1:
             raise ValueError("k must be >= 1")
-        prev_next_dx, prev_next_dy = next_p[0] - prev_p[0], next_p[1] - prev_p[1]
-        d_prev_next = math.hypot(prev_next_dx, prev_next_dy)
-        if d_prev_next < (k - 1) + 1e-6:
-            return True
+        prev_mid_dx, prev_mid_dy = mid_p[0] - prev_p[0], mid_p[1] - prev_p[1]
         mid_next_dx, mid_next_dy = next_p[0] - mid_p[0], next_p[1] - mid_p[1]
-        sin_prev_next_sub_mid_next = abs(
-            prev_next_dx * mid_next_dy - prev_next_dy * mid_next_dx
-        ) / (d_prev_next * math.hypot(mid_next_dx, mid_next_dy) + 1e-6)
+        d_mid_next = math.hypot(mid_next_dx, mid_next_dy)
+        if d_mid_next < (k - 1) + 1e-6:
+            return True
+        d_prev_mid = math.hypot(prev_mid_dx, prev_mid_dy)
+        sin_delta_theta = abs(prev_mid_dx * mid_next_dy - prev_mid_dy * mid_next_dx) / (
+            d_prev_mid * d_mid_next + 1e-6
+        )
         # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
-        return sin_prev_next_sub_mid_next * (d_prev_next + 1) < k
+        return sin_delta_theta * (d_mid_next + 1) < k
 
     def _get_map_coords(self, screen_x, screen_y):
         mx, my = self.view.get_real_coords(screen_x, screen_y)
@@ -722,13 +639,7 @@ class PathEditPage(MapViewportPage):
         self._render_status_bar(drawer)
         self._render_sidebar_bg(drawer)
         self._render_sidebar(drawer)
-
-    @staticmethod
-    def _hit_button(x: int, y: int, rect: tuple[int, int, int, int] | None) -> bool:
-        if rect is None:
-            return False
-        x1, y1, x2, y2 = rect
-        return x1 <= x <= x2 and y1 <= y <= y2
+        self.render_map_layer_selector(drawer, sidebar_width=self.SIDEBAR_W)
 
     def _render_attribute_panel(
         self,
@@ -739,11 +650,6 @@ class PathEditPage(MapViewportPage):
         panel_w: int,
     ) -> int:
         selected = self._get_selected_point()
-        hidden_rect = (-100, -100, -90, -90)
-        self._delete_button.rect = hidden_rect
-        self._copy_button.rect = hidden_rect
-        self._btn_delete_rect = None
-        self._btn_copy_rect = None
 
         if selected is None:
             return y0
@@ -777,21 +683,23 @@ class PathEditPage(MapViewportPage):
         btn_y1 = btn_y0 + btn_h
         btn_w = (panel_w - btn_gap) // 2
 
-        self._btn_delete_rect = (x0, btn_y0, x0 + btn_w, btn_y1)
-        self._delete_button.rect = self._btn_delete_rect
+        delete_rect = (x0, btn_y0, x0 + btn_w, btn_y1)
         self._delete_button.text = "[Del] Delete"
         self._delete_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._delete_button, delete_rect)
 
         copy_x0 = x0 + btn_w + btn_gap
-        self._btn_copy_rect = (copy_x0, btn_y0, copy_x0 + btn_w, btn_y1)
-        self._copy_button.rect = self._btn_copy_rect
+        copy_rect = (copy_x0, btn_y0, copy_x0 + btn_w, btn_y1)
         self._copy_button.text = "[C] Copy"
         self._copy_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._copy_button, copy_rect)
 
         return y2 + 12
 
     def _render_sidebar(self, drawer: "Drawer"):
         self._render_sidebar_bg(drawer)
+        self._sidebar_group.set_rect((0, 0, self.SIDEBAR_W, self.window_h))
+        self._sidebar_group.clear()
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
@@ -831,8 +739,8 @@ class PathEditPage(MapViewportPage):
         cy += 12
         switch_h = 26
         self._recorder_switch_rect = (pad, cy, sw - pad, cy + switch_h)
-        self._recorder_mode_switch.render(
-            drawer,
+        self._sidebar_group.add_switch(
+            self._recorder_mode_switch,
             self._recorder_switch_rect,
             font_scale=0.4,
         )
@@ -843,22 +751,10 @@ class PathEditPage(MapViewportPage):
         btn_w = sw - pad * 2
         btn_x0 = pad
         has_pipeline = self.pipeline_context is not None
-        dirty = self.is_dirty
-
-        hidden_rect = (-100, -100, -90, -90)
-        self._save_button.rect = hidden_rect
-        self._record_button.rect = hidden_rect
-        self._back_button.rect = hidden_rect
-        self._finish_button.rect = hidden_rect
-        self._delete_button.rect = hidden_rect
-        self._copy_button.rect = hidden_rect
-
-        self._btn_save_rect = None
 
         record_y0 = cy
         record_y1 = cy + btn_h
-        self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
-        self._record_button.rect = self._btn_record_rect
+        record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
         if self.is_loop_record_mode:
             is_recording = self.location_service.is_recording
             self._record_button.base_color = 0xB44022 if is_recording else 0x1A40B8
@@ -869,10 +765,10 @@ class PathEditPage(MapViewportPage):
             self._record_button.base_color = 0x1A40B8
             self._record_button.text = "[Enter] Get Location"
         self._record_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._record_button, record_rect)
         cy = record_y1 + 12
         cy = _draw_section_divider(cy, gap_after=14)
 
-        self._tier_selector_rect = None
         rendered_info_panel = False
         if self._get_selected_point() is not None:
             cy = self._render_attribute_panel(
@@ -882,45 +778,35 @@ class PathEditPage(MapViewportPage):
                 panel_w=btn_w,
             )
             rendered_info_panel = True
-        elif len(self._tier_maps) > 1:
-            tier_h = self._tier_selector.get_height()
-            self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
-            self._tier_selector.render(
-                drawer,
-                self._tier_selector_rect,
-                font_scale=0.4,
-            )
-            cy += tier_h + 12
-            rendered_info_panel = True
         if rendered_info_panel:
             cy = _draw_section_divider(cy, gap_after=12)
 
         back_y0 = cy
         back_y1 = cy + btn_h
-        self._btn_back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
-        self._back_button.rect = self._btn_back_rect
+        back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
         self._back_button.text = "Back"
         self._back_button.base_color = 0x4C4C64
         self._back_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._back_button, back_rect)
         cy = back_y1 + 8
 
         if has_pipeline:
             save_y0 = cy
             save_y1 = cy + btn_h
-            self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
-            self._save_button.rect = self._btn_save_rect
+            save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
             self._save_button.text = "[S] Save"
-            self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
-            self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
+            self._save_button.base_color = 0x3C643C
+            self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
+            self._sidebar_group.add_button(self._save_button, save_rect)
             cy = save_y1 + 8
 
         finish_y0 = cy
         finish_y1 = cy + btn_h
-        self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
-        self._finish_button.rect = self._btn_finish_rect
-        self._finish_button.text = "Finish"
+        finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
+        self._finish_button.text = "[E] Export"
         self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._finish_button, finish_rect)
         cy = finish_y1 + 12
         cy = _draw_section_divider(cy, gap_after=8)
 
@@ -961,7 +847,7 @@ class PathEditPage(MapViewportPage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if self.handle_view_mouse(event, x, y, flags, mx, my):
+        if self.consume_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_MOUSEMOVE:
@@ -1024,33 +910,12 @@ class PathEditPage(MapViewportPage):
             self.render_request()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
-            # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
-                if (
-                    self._recorder_switch_rect is not None
-                    and self._recorder_mode_switch.handle_click(
-                        x,
-                        y,
-                        self._recorder_switch_rect,
-                    )
-                ):
-                    self.render_request()
-                    return
                 if self._get_selected_point() is not None:
                     self.selected_idx = -1
                     self._update_status(0xD2D200, "Cleared point selection.")
                     self.render_request()
                     return
-                if self._tier_selector_rect is not None:
-                    idx = self._tier_selector.handle_click(
-                        x,
-                        y,
-                        self._tier_selector_rect,
-                    )
-                    if idx >= 0:
-                        selected_map = self._tier_selector.get_selected_data()
-                        if isinstance(selected_map, str) and selected_map:
-                            self._switch_active_map(selected_map)
                 return
 
             # ── Map area clicks ─────────────────────────────────
@@ -1169,6 +1034,7 @@ class AreaEditPage(MapViewportPage):
         pipeline_context: dict | None = None,
         window_name: str = "MapTracker Tool - Area Editor",
     ):
+        self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
@@ -1207,12 +1073,19 @@ class AreaEditPage(MapViewportPage):
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "Finish",
+            "[E] Export",
             base_color=0x3C643C,
+            hotkey=(ord("e"), ord("E")),
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
-        self.buttons.extend([self._save_button, self._back_button, self._finish_button])
+        self._sidebar_group = WidgetGroup((0, 0, self.SIDEBAR_W, self.window_h))
+        self.groups.append(self._sidebar_group)
+        self.configure_map_layer_switching(
+            logical_map_name=self.map_name,
+            map_dir=self._map_dir,
+            base_image=self.img,
+        )
 
     @property
     def is_dirty(self) -> bool:
@@ -1239,7 +1112,9 @@ class AreaEditPage(MapViewportPage):
     def _fit_view_to_target_or_map(self) -> None:
         if self.target is not None:
             x, y, w, h = self.target
-            self.view.fit_to([(x, y), (x + w, y + h)], padding=0.2)
+            self.view.fit_to(
+                [(x, y), (x + w, y + h)], padding=0.2, min_zoom=1.0, max_zoom=5.0
+            )
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
@@ -1296,6 +1171,8 @@ class AreaEditPage(MapViewportPage):
     def _render_ui(self, drawer: Drawer) -> None:
         self._render_status_bar(drawer)
         self._render_sidebar_bg(drawer)
+        self._sidebar_group.set_rect((0, 0, self.SIDEBAR_W, self.window_h))
+        self._sidebar_group.clear()
 
         sw = self.SIDEBAR_W
         h = self.window_h
@@ -1315,28 +1192,28 @@ class AreaEditPage(MapViewportPage):
         btn_h = 30
         btn_w = sw - pad * 2
         btn_x0 = pad
-        hidden_rect = (-100, -100, -90, -90)
-        self._save_button.rect = hidden_rect
-        self._back_button.rect = hidden_rect
-        self._finish_button.rect = hidden_rect
 
-        self._back_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        back_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
         self._back_button.base_color = 0x4C4C64
         self._back_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._back_button, back_rect)
         cy += btn_h + 8
 
         has_pipeline = self.pipeline_context is not None
         if has_pipeline:
-            self._save_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
-            self._save_button.base_color = 0x64C800 if self.is_dirty else 0x3C643C
+            save_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+            self._save_button.base_color = 0x3C643C
             self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
+            self._sidebar_group.add_button(self._save_button, save_rect)
             cy += btn_h + 8
 
-        self._finish_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
+        finish_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
         self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
+        self._sidebar_group.add_button(self._finish_button, finish_rect)
 
         drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
+        self.render_map_layer_selector(drawer, sidebar_width=self.SIDEBAR_W)
 
     def _render_once(self, drawer: Drawer) -> None:
         self._render_map_layer(drawer)
@@ -1386,7 +1263,7 @@ class AreaEditPage(MapViewportPage):
     def _on_mouse(self, event, x, y, flags, param) -> None:
         mx, my = self._get_map_coords(x, y)
 
-        if self.handle_view_mouse(event, x, y, flags, mx, my):
+        if self.consume_view_mouse(event, x, y, flags, mx, my):
             return
 
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -1567,19 +1444,19 @@ class FileSelectStep(StepPage):
         )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 160, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.file_list.handle_click(x, y, rect)
-            if idx >= 0:
+        if self.file_list.consume_mouse(event, x, y, flags):
+            if self.file_list.submitted_idx >= 0:
                 self.stepper.push_step(
-                    NodeSelectStep(self.file_list.items[idx]["data"])
+                    NodeSelectStep(
+                        self.file_list.items[self.file_list.submitted_idx]["data"]
+                    )
                 )
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.file_list.handle_wheel(x, y, flags, rect):
+            else:
                 self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        if self.search_input.handle_key(key):
+        if self.search_input.consume_key(key):
             q = self.search_input.text.lower()
             filtered = [
                 f
@@ -1589,17 +1466,16 @@ class FileSelectStep(StepPage):
             self.file_list.set_items(filtered)
             self.stepper.request_render()
             return
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.file_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.file_list.selected_idx >= 0:
-            self.stepper.push_step(
-                NodeSelectStep(
-                    self.file_list.items[self.file_list.selected_idx]["data"]
+        if self.file_list.consume_key(key):
+            if self.file_list.submitted_idx >= 0:
+                self.stepper.push_step(
+                    NodeSelectStep(
+                        self.file_list.items[self.file_list.submitted_idx]["data"]
+                    )
                 )
-            )
+            else:
+                self.stepper.request_render()
+            return
 
 
 class NodeSelectStep(StepPage):
@@ -1641,23 +1517,20 @@ class NodeSelectStep(StepPage):
         )
 
     def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.node_list.handle_click(x, y, rect)
-            if idx >= 0:
-                self._submit(idx)
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.node_list.handle_wheel(x, y, flags, rect):
+        if self.node_list.consume_mouse(event, x, y, flags):
+            if self.node_list.submitted_idx >= 0:
+                self._submit(self.node_list.submitted_idx)
+            else:
                 self.stepper.request_render()
+            return
 
     def _handle_content_key(self, key):
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.node_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.node_list.selected_idx >= 0:
-            self._submit(self.node_list.selected_idx)
+        if self.node_list.consume_key(key):
+            if self.node_list.submitted_idx >= 0:
+                self._submit(self.node_list.submitted_idx)
+            else:
+                self.stepper.request_render()
+            return
 
     def _submit(self, idx):
         selected = self.candidates[idx]
@@ -1742,185 +1615,101 @@ class EditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def _on_mouse(self, event, x, y, flags, param):
+    def consume_mouse(self, event, x, y, flags, param) -> bool:
         if self.editor is None:
-            return
-        self.editor.handle_mouse(event, x, y, flags, param)
+            return False
+        return self.editor.consume_mouse(event, x, y, flags, param)
 
-    def _on_key(self, key):
+    def consume_key(self, key: int) -> bool:
         if self.editor is None:
-            return
-        self.editor.handle_key(key)
+            return False
+        return self.editor.consume_key(key)
 
 
-class ExportStep(StepPage):
+class ExportStep(ExportStringPage):
     def __init__(
         self, points, import_context, map_name, *, node_type: str = NODE_TYPE_MOVE
     ):
-        super().__init__(StepData("Export / Save Result"))
         self.points = points
         self.import_context = import_context
         self.map_name = map_name
         self.node_type = node_type
+        super().__init__("Export Result", self._build_export_options())
 
-        self.options = [
-            {
-                "label": (
-                    "Just Save to File (Replace path)"
-                    if node_type == NODE_TYPE_MOVE
-                    else "Just Save to File (Replace target)"
-                ),
-                "data": "S",
-                "disabled": import_context is None,
-            },
-            {"label": "Print Context Dict", "data": "D"},
-            {"label": "Print Node JSON", "data": "J"},
-            {
-                "label": (
-                    "Print Point List"
-                    if node_type == NODE_TYPE_MOVE
-                    else "Print Target Rect"
-                ),
-                "data": "L",
-            },
-        ]
-        self.list_widget = ScrollableListWidget(45)
-        self.list_widget.set_items(self.options)
-        self.saved_text = ""
+    def _build_map_stem(self) -> str:
+        raw_map_name = (
+            self.import_context.get("original_map_name", self.map_name)
+            if self.import_context
+            else self.map_name
+        )
+        return os.path.splitext(os.path.basename(raw_map_name))[0]
 
-    def _render_content(self, drawer):
-        self.list_widget.render(drawer, (100, 150, self.WINDOW_W - 100, 350))
-        if self.saved_text:
-            drawer.text_centered(
-                self.saved_text, (self.WINDOW_W // 2, 450), 0.8, color=0x50DC50
-            )
-
-    def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (100, 150, self.WINDOW_W - 100, 350)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.list_widget.handle_click(x, y, rect)
-            if idx >= 0:
-                self._submit(self.list_widget.items[idx]["data"])
-
-    def _handle_content_key(self, key):
-        if key in (10, 13) and self.list_widget.selected_idx >= 0:
-            self._submit(self.list_widget.items[self.list_widget.selected_idx]["data"])
-        elif key in (82, 0x260000, 65362):
-            self.list_widget.navigate(-1)
-            self.stepper.request_render()
-        elif key in (84, 0x280000, 65364):
-            self.list_widget.navigate(1)
-            self.stepper.request_render()
-
-    def _submit(self, mode):
-        if mode == "S":
-            handler = self.import_context["handler"]
-            node_name = self.import_context["node_name"]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                raw_map_name = self.import_context.get(
-                    "original_map_name", self.map_name
-                )
-                map_name_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-                ok = handler.replace_assert_location(
-                    node_name, map_name_stem, self.points
-                )
-            else:
-                ok = handler.replace_path(node_name, self.points)
-            if ok:
-                self.saved_text = f"Successfully updated node '{node_name}'!"
-                print(f"\n{_G}Successfully updated node {_0}'{node_name}'")
-            else:
-                self.saved_text = "Failed to update node!"
-            self.stepper.request_render()
-
-        elif mode == "J":
-            raw_map_name = (
-                self.import_context.get("original_map_name", self.map_name)
-                if self.import_context
-                else self.map_name
-            )
-            map_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                param_data = {
-                    "expected": [
-                        {
-                            "map_name": map_stem,
-                            "target": [round(float(v), 1) for v in self.points],
-                        }
-                    ]
-                }
-                node_data = {
-                    "recognition": "Custom",
-                    "custom_recognition": NODE_TYPE_ASSERT_LOCATION,
-                    "custom_recognition_param": param_data,
-                    "action": "DoNothing",
-                }
-            else:
-                param_data = {
-                    "map_name": map_stem,
-                    "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
-                }
-                is_new = (
-                    self.import_context.get("is_new_structure", False)
-                    if self.import_context
-                    else False
-                )
-                if is_new:
-                    node_data = {
-                        "action": {
-                            "custom_action": NODE_TYPE_MOVE,
-                            "custom_action_param": param_data,
-                        }
+    def _build_param_data(self) -> dict:
+        map_stem = self._build_map_stem()
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            return {
+                "expected": [
+                    {
+                        "map_name": map_stem,
+                        "target": [round(float(v), 1) for v in self.points],
                     }
-                else:
-                    node_data = {
-                        "action": "Custom",
-                        "custom_action": NODE_TYPE_MOVE,
-                        "custom_action_param": param_data,
-                    }
-            print(f"\n{_C}--- JSON Snippet ---{_0}\n")
-            print(json.dumps({"NodeName": node_data}, indent=4, ensure_ascii=False))
-            self.saved_text = "JSON output printed to terminal!"
-            self.stepper.request_render()
+                ]
+            }
+        return {
+            "map_name": map_stem,
+            "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
+        }
 
-        elif mode == "D":
-            raw_map_name = (
-                self.import_context.get("original_map_name", self.map_name)
-                if self.import_context
-                else self.map_name
-            )
-            map_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                param_data = {
-                    "expected": [
-                        {
-                            "map_name": map_stem,
-                            "target": [round(float(v), 1) for v in self.points],
-                        }
-                    ]
-                }
-            else:
-                param_data = {
-                    "map_name": map_stem,
-                    "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
-                }
-            print(f"\n{_C}--- Parameters Dict ---{_0}\n")
-            print(json.dumps(param_data, indent=4, ensure_ascii=False))
-            self.saved_text = "Dict output printed to terminal!"
-            self.stepper.request_render()
+    def _build_node_data(self) -> dict:
+        param_data = self._build_param_data()
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            return {
+                "recognition": "Custom",
+                "custom_recognition": NODE_TYPE_ASSERT_LOCATION,
+                "custom_recognition_param": param_data,
+                "action": "DoNothing",
+            }
 
-        elif mode == "L":
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                target_rect = [round(float(v), 1) for v in self.points]
-                print(f"\n{_C}--- Target Rect ---{_0}\n")
-                print(target_rect)
-                self.saved_text = "Target rect printed to terminal!"
-            else:
-                point_list = [[round(p[0], 1), round(p[1], 1)] for p in self.points]
-                print(f"\n{_C}--- Point List ---{_0}\n")
-                print(point_list)
-                self.saved_text = "Point list printed to terminal!"
-            self.stepper.request_render()
+        is_new = (
+            self.import_context.get("is_new_structure", False)
+            if self.import_context
+            else False
+        )
+        if is_new:
+            return {
+                "action": {
+                    "custom_action": NODE_TYPE_MOVE,
+                    "custom_action_param": param_data,
+                }
+            }
+        return {
+            "action": "Custom",
+            "custom_action": NODE_TYPE_MOVE,
+            "custom_action_param": param_data,
+        }
+
+    def _build_list_text(self) -> str:
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            target_rect = [round(float(v), 1) for v in self.points]
+            return json.dumps(target_rect, ensure_ascii=False)
+        point_list = [[round(p[0], 1), round(p[1], 1)] for p in self.points]
+        return json.dumps(point_list, ensure_ascii=False)
+
+    def _build_export_options(self) -> dict[str, str]:
+        list_label = (
+            "Point List Export"
+            if self.node_type == NODE_TYPE_MOVE
+            else "Target Rect Export"
+        )
+        return {
+            "JSON Dict Export": json.dumps(
+                self._build_param_data(), indent=4, ensure_ascii=False
+            ),
+            "Node JSON Export": json.dumps(
+                {"NodeName": self._build_node_data()}, indent=4, ensure_ascii=False
+            ),
+            list_label: self._build_list_text(),
+        }
 
 
 class RegionEditorAdapterStep(BasePage):
@@ -1977,15 +1766,15 @@ class RegionEditorAdapterStep(BasePage):
             return None
         return self.editor.render()
 
-    def _on_mouse(self, event, x, y, flags, param):
+    def consume_mouse(self, event, x, y, flags, param) -> bool:
         if self.editor is None:
-            return
-        self.editor.handle_mouse(event, x, y, flags, param)
+            return False
+        return self.editor.consume_mouse(event, x, y, flags, param)
 
-    def _on_key(self, key):
+    def consume_key(self, key: int) -> bool:
         if self.editor is None:
-            return
-        self.editor.handle_key(key)
+            return False
+        return self.editor.consume_key(key)
 
 
 class App(PageStepper):

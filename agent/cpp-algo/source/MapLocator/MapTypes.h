@@ -65,14 +65,13 @@ struct LocateResult
 
 enum class GlobalSearchMode
 {
-    LegacyCoarse,
     FullMapFine,
     RoiFine,
 };
 
 struct SearchConstraint
 {
-    GlobalSearchMode mode = GlobalSearchMode::LegacyCoarse;
+    GlobalSearchMode mode = GlobalSearchMode::FullMapFine;
     bool yolo_validated = false;
     cv::Rect roi {};
 };
@@ -158,6 +157,7 @@ constexpr double kPositionConsensusRadius = 12.0; // 近点判定半径
 constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
 constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
+constexpr double kSeamFallbackMinPeakScore = 0.0;
 
 // tracking 窄带多尺度搜索参数。第一项必须为 0.0（即 baseScale），
 // 循环时 baseScale 先跑，达到 kFastTrackingPassScore 则跳过后续尺度
@@ -206,7 +206,6 @@ struct TrackingConfig
 struct MatchConfig
 {
     int blurSize = 7;
-    double coarseScale = 0.5;
     int fineSearchRadius = 40;   // 精搜半径(px)
     double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
     double yoloConfThreshold = 0.60;

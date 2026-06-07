@@ -63,7 +63,7 @@
         "desc": "进入贵重品库珍贵物品页，界面跳转交由 SceneManager Pipeline 处理",
         "next": [
             "PullCountCalculatorInStashValuablesTab",
-            "[JumpBack]SceneStashValuablesTab"
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
         ],
         "focus": {
             "Node.Action.Starting": "即将进入贵重品库珍贵物品页"

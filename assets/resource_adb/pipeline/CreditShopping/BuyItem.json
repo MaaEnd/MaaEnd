@@ -1,0 +1,28 @@
+{
+    "CreditShoppingBuyItemNameColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    55,
+                    66,
+                    246,
+                    53
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    110
+                ],
+                "upper": [
+                    0,
+                    3,
+                    200
+                ],
+                "count": 10,
+                "order_by": "Vertical"
+            }
+        }
+    }
+}

@@ -144,16 +144,19 @@
     "__AccountSwitchClickDropdown": {
         "desc": "点击账号下拉按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    651,
+                    254,
                     130,
-                    466,
+                    863,
                     495
                 ],
-                "template": [
-                    "AccountSwitch/DropdownButton.png"
+                "expected": [
+                    // @i18n-skip
+                    ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
+                    ".*\\d{4}\\s*(?:最近)?.*",
+                    "\\d{4}"
                 ]
             }
         },

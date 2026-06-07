@@ -3375,9 +3375,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 124
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 124
+                                "target_class": 124,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3408,9 +3417,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 102
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 102
+                                "target_class": 102,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3483,9 +3501,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 131
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 131
+                                "target_class": 131,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3567,9 +3594,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 177
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 177
+                                "target_class": 177,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3600,9 +3636,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 100
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 100
+                                "target_class": 100,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {

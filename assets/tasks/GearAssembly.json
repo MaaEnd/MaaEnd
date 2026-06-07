@@ -9,6 +9,11 @@
                 "GearAssemblyType",
                 "GearAssemblySortOrder"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "Wlroots"
+            ],
             "group": [
                 "valuables_vault"
             ]

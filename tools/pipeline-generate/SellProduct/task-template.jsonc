@@ -34,7 +34,7 @@
                     "name": "SellProductScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -45,7 +45,7 @@
                     "name": "SellProductScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -56,7 +56,7 @@
                     "name": "SellProductScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -67,7 +67,7 @@
                     "name": "SellProductScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -78,7 +78,7 @@
                     "name": "SellProductScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -89,7 +89,7 @@
                     "name": "SellProductScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -100,7 +100,7 @@
                     "name": "SellProductScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }

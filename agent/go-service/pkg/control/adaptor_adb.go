@@ -44,6 +44,11 @@ func (aca *ADBControlAdaptor) TouchClick(contact, x, y int, durationMillis, dela
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
+func (aca *ADBControlAdaptor) TouchMove(contact, x, y int, delayMillis int) {
+	aca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
 func (aca *ADBControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
 	aca.ctrl.PostSwipeV2(int32(x), int32(y), int32(x+dx), int32(y+dy), time.Duration(durationMillis)*time.Millisecond, int32(contact), 1).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)

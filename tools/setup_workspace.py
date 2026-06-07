@@ -1,16 +1,18 @@
 import argparse
+import http.client
+import json
 import os
-import sys
 import shutil
 import subprocess
+import sys
 import platform
-import traceback
-import urllib.request
-import urllib.error
-import json
 import tempfile
-from pathlib import Path
 import time
+import traceback
+import urllib.error
+import urllib.request
+from pathlib import Path
+from urllib.parse import urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
@@ -294,6 +296,39 @@ def write_versions_file(path: Path, versions: dict[str, str]) -> None:
         print(Console.warn(t("wrn_write_version_failed", error=e)))
 
 
+def _retry_on_permission(operation, *, error_key: str = "", **fmt_args) -> bool:
+    """执行 operation()，遇 PermissionError 提示重试/退出。
+
+    Returns True 表示成功，False 表示用户选择退出。
+    非 PermissionError 异常直接上抛。
+    """
+    while True:
+        try:
+            operation()
+            return True
+        except PermissionError as e:
+            print(Console.err(t("err_permission_denied", error=e)))
+            if error_key:
+                print(Console.err(t(error_key, **fmt_args)))
+            cmd = input(t("prompt_retry_or_quit")).strip().lower()
+            if cmd == "q":
+                return False
+
+
+def _update_component_version(
+    install_root: Path,
+    component_key: str,
+    version: str,
+) -> None:
+    """更新 version.json 中单个组件的版本号"""
+    if not version:
+        return
+    version_file = install_root / VERSION_FILE_NAME
+    versions = read_versions_file(version_file)
+    versions[component_key] = version
+    write_versions_file(version_file, versions)
+
+
 def parse_semver(version: str) -> tuple[list[int], list[str]]:
     """Parse a semver string into (core_numbers, prerelease_identifiers).
 
@@ -434,8 +469,13 @@ def clean_cache() -> None:
         print(Console.warn(t("wrn_cache_clean_failed", path=CACHE_DIR, error=e)))
 
 
-def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
-    """下载文件到指定路径。"""
+def download_file(
+    url: str,
+    dest_path: Path,
+    resume: bool = False,
+    extra_headers: dict[str, str] | None = None,
+) -> bool:
+    """下载文件到指定路径。extra_headers 仅在初始请求携带，不跟随重定向。"""
 
     def to_percentage(current: float, total: float) -> str:
         return f"{(current / total) * 100:.1f}%" if total > 0 else ""
@@ -469,8 +509,6 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
         s = sec % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
 
-    _retried_416 = False
-
     try:
         print(Console.info(t("inf_start_download", url=url)))
 
@@ -488,30 +526,30 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
                     if dest_path.exists():
                         resume = False
 
-        while True:
-            existing_size = 0
-            if resume and not _retried_416 and dest_path.exists():
-                existing_size = dest_path.stat().st_size
-                if existing_size > 0:
-                    print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
-
-            req = urllib.request.Request(url)
-            req.add_header("User-Agent", "MaaEnd-setup")
+        existing_size = 0
+        if resume and dest_path.exists():
+            existing_size = dest_path.stat().st_size
             if existing_size > 0:
-                req.add_header("Range", f"bytes={existing_size}-")
+                print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
 
-            print(Console.info(t("inf_connecting")), end="", flush=True)
-            try:
-                res = urllib.request.urlopen(req, timeout=TIMEOUT)
-            except urllib.error.HTTPError as he:
-                if he.code == 416 and existing_size > 0 and not _retried_416:
-                    print()
-                    _retried_416 = True
-                    cleanup_cache_file(dest_path)
-                    continue
-                raise
+        req = urllib.request.Request(url)
+        req.add_header("User-Agent", "MaaEnd-setup")
+        if extra_headers:
+            for k, v in extra_headers.items():
+                req.add_header(k, v)
+        if existing_size > 0:
+            req.add_header("Range", f"bytes={existing_size}-")
 
-            break
+        print(Console.info(t("inf_connecting")), end="", flush=True)
+        try:
+            res = urllib.request.urlopen(req, timeout=TIMEOUT)
+        except urllib.error.HTTPError as he:
+            if he.code == 416 and existing_size > 0:
+                # 416 means cached file is already complete — no need to re-download
+                print()
+                print(Console.ok(t("inf_cache_file_complete", path=dest_path)))
+                return True
+            raise
 
         with res:
             status_code = res.getcode()
@@ -578,6 +616,8 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
         except OSError:
             pass
         return True
+    except urllib.error.HTTPError as e:
+        print(Console.err(t("err_network_error_with_code", reason=e.reason, code=e.code)))
     except urllib.error.URLError as e:
         print(Console.err(t("err_network_error", reason=e.reason)))
     except Exception as e:
@@ -634,20 +674,15 @@ def install_maafw(
             print(Console.ok(t("inf_link_already_exists", path=maafw_dest)))
         elif maafw_dest.exists():
             if maafw_dest.is_dir():
-                while True:
-                    try:
-                        print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
-                        shutil.rmtree(maafw_dest)
-                        break
-                    except PermissionError as e:
-                        print(Console.err(t("err_permission_denied", error=e)))
-                        print(Console.err(t("err_cannot_delete_maafw", path=maafw_dest)))
-                        cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                        if cmd == "q":
-                            return False, local_version, False
-                    except Exception as e:
-                        print(Console.err(t("err_unknown_error_delete", error=e)))
+                def _delete_maafw_dest():
+                    print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
+                    shutil.rmtree(maafw_dest)
+                try:
+                    if not _retry_on_permission(_delete_maafw_dest, error_key="err_cannot_delete_maafw", path=maafw_dest):
                         return False, local_version, False
+                except Exception as e:
+                    print(Console.err(t("err_unknown_error_delete", error=e)))
+                    return False, local_version, False
             else:
                 maafw_dest.unlink(missing_ok=True)
 
@@ -671,11 +706,13 @@ def install_maafw(
                 return False, local_version, False
 
             # 先将完整 SDK 复制到项目根目录 deps/
-            maafw_deps = PROJECT_BASE / "deps"
             print(Console.info(t("inf_copying_sdk", dest=maafw_deps)))
-            if maafw_deps.exists():
-                shutil.rmtree(maafw_deps)
-            shutil.copytree(sdk_root, maafw_deps)
+            def _copy_sdk():
+                if maafw_deps.exists():
+                    shutil.rmtree(maafw_deps)
+                shutil.copytree(sdk_root, maafw_deps)
+            if not _retry_on_permission(_copy_sdk, error_key="err_cannot_access_deps", path=maafw_deps):
+                return False, local_version, False
             print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
 
             if not maafw_dest_is_link:
@@ -688,7 +725,10 @@ def install_maafw(
 
             print(Console.ok(t("inf_maafw_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "maafw", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             print(Console.err(t("err_maafw_install_failed", error=e)))
             return False, local_version, False
@@ -735,20 +775,15 @@ def install_mxu(
         tmp_path = Path(tmp_dir)
 
         if mxu_path.exists():
-            while True:
-                try:
-                    print(Console.info(t("inf_delete_old_file", path=mxu_path)))
-                    mxu_path.unlink()
-                    break
-                except PermissionError as e:
-                    print(Console.err(t("err_permission_denied", error=e)))
-                    print(Console.err(t("err_cannot_delete_mxu", name=MXU_DIST_NAME)))
-                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                    if cmd == "q":
-                        return False, local_version, False
-                except Exception as e:
-                    print(Console.err(t("err_unknown_error_delete_file", error=e)))
+            def _delete_mxu():
+                print(Console.info(t("inf_delete_old_file", path=mxu_path)))
+                mxu_path.unlink()
+            try:
+                if not _retry_on_permission(_delete_mxu, error_key="err_cannot_delete_mxu", name=MXU_DIST_NAME):
                     return False, local_version, False
+            except Exception as e:
+                print(Console.err(t("err_unknown_error_delete_file", error=e)))
+                return False, local_version, False
 
         print(Console.info(t("inf_extract_install_mxu")))
         try:
@@ -777,7 +812,10 @@ def install_mxu(
                 return False, local_version, False
             print(Console.ok(t("inf_mxu_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "mxu", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             print(Console.err(t("err_mxu_install_failed", error=e)))
             return False, local_version, False
@@ -819,21 +857,15 @@ def find_cpp_algo_binary(search_root: Path) -> Path | None:
 
 def _replace_file_with_retry(src_path: Path, target_path: Path) -> None:
     tmp_target = target_path.with_name(f".{target_path.name}.tmp")
-    while True:
-        try:
-            tmp_target.unlink(missing_ok=True)
-            shutil.copy2(src_path, tmp_target)
-            os.replace(tmp_target, target_path)
-            return
-        except PermissionError as e:
-            tmp_target.unlink(missing_ok=True)
-            print(Console.err(t("err_permission_denied", error=e)))
-            cmd = input(t("prompt_retry_or_quit")).strip().lower()
-            if cmd == "q":
-                raise
-        except Exception:
-            tmp_target.unlink(missing_ok=True)
-            raise
+    def _do_replace():
+        tmp_target.unlink(missing_ok=True)
+        shutil.copy2(src_path, tmp_target)
+        os.replace(tmp_target, target_path)
+    try:
+        if not _retry_on_permission(_do_replace):
+            raise PermissionError(t("err_user_declined_replace", path=target_path))
+    finally:
+        tmp_target.unlink(missing_ok=True)
 
 
 def _is_supported_archive(path: Path) -> bool:
@@ -871,6 +903,118 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
         print(Console.ok(t("inf_updated_file", name=companion_target.name)))
 
 
+def _github_auth_headers() -> dict[str, str] | None:
+    """Return GitHub API auth headers, or None if no token is configured."""
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+    token = token.strip()
+    if not token:
+        return None
+    return {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+
+def _is_git_sha(version: str | None) -> bool:
+    """Return True if version looks like a short git SHA (7-40 hex chars)."""
+    if not version:
+        return False
+    v = version.strip().lower()
+    return 7 <= len(v) <= 40 and all(c in "0123456789abcdef" for c in v)
+
+
+def _github_api_get(url: str, auth_headers: dict[str, str]) -> dict:
+    """Make an authenticated GET request to the GitHub API and return parsed JSON."""
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", "MaaEnd-setup")
+    for k, v in auth_headers.items():
+        req.add_header(k, v)
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
+        return json.loads(res.read())
+
+
+def _find_cpp_algo_in_ci(
+    auth_headers: dict[str, str] | None,
+) -> tuple[str | None, str | None]:
+    """Find the latest cpp-algo artifact from successful install.yml runs on v2.
+
+    Only considers push events (not PRs) on the v2 branch, ensuring the artifact
+    comes from merged code. auth_headers must be non-None (caller should verify).
+    Returns (download_url, version_sha) or (None, None).
+    """
+    if auth_headers is None:
+        print(Console.info(t("inf_ci_artifact_no_token")))
+        return None, None
+
+    artifact_name = f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}"
+    print(Console.info(t("inf_ci_artifact_search", name=artifact_name)))
+
+    runs_url = (
+        f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
+        f"install.yml/runs?branch=v2&status=success&event=push&per_page=10"
+    )
+
+    try:
+        data = _github_api_get(runs_url, auth_headers)
+    except urllib.error.HTTPError as e:
+        if e.code in (403, 429):
+            print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+        else:
+            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+        return None, None
+    except urllib.error.URLError as e:
+        print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+        return None, None
+    except Exception as e:
+        print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+        return None, None
+
+    runs = data.get("workflow_runs", [])
+    if not runs:
+        print(Console.info(t("inf_ci_artifact_no_runs")))
+        return None, None
+
+    for run in runs:
+        run_id = run["id"]
+        head_sha = run.get("head_sha", "")
+        if not head_sha:
+            continue
+
+        artifacts_url = (
+            f"https://api.github.com/repos/{MAAEND_REPO}/actions/"
+            f"runs/{run_id}/artifacts"
+        )
+        try:
+            artifacts_data = _github_api_get(artifacts_url, auth_headers)
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429):
+                print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+                break
+            else:
+                print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
+                continue
+        except urllib.error.URLError as e:
+            print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+            continue
+        except Exception as e:
+            print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
+            continue
+
+        for artifact in artifacts_data.get("artifacts", []):
+            if artifact.get("name") == artifact_name and not artifact.get("expired", False):
+                artifact_id = artifact["id"]
+                download_url = (
+                    f"https://api.github.com/repos/{MAAEND_REPO}/actions/"
+                    f"artifacts/{artifact_id}/zip"
+                )
+                print(Console.ok(t("inf_ci_artifact_found", sha=head_sha[:7])))
+                return download_url, head_sha
+
+    print(Console.info(t("inf_ci_artifact_not_found")))
+    return None, None
+
+
 def install_cpp_algo(
     install_root: Path,
     skip_if_exist: bool = True,
@@ -885,6 +1029,103 @@ def install_cpp_algo(
         print(Console.ok(t("inf_cpp_algo_installed_skip")))
         return True, local_version, False
 
+    # ~~~ CI artifact fast path ~~~
+    # Try to grab just the cpp-algo binary from a recent successful v2 push
+    # workflow run. This avoids downloading the entire MaaEnd release package.
+    auth_headers = _github_auth_headers()
+    ci_url, ci_version = _find_cpp_algo_in_ci(auth_headers)
+    if ci_url:
+        ci_should_skip = (
+            update_mode
+            and cpp_algo_installed
+            and _is_git_sha(local_version)
+            and _is_git_sha(ci_version)
+            and local_version == ci_version
+        )
+        if ci_should_skip:
+            print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
+            return True, local_version, False
+
+        cache_dir = ensure_cache_dir()
+        ci_download_path = (
+            cache_dir / f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}.zip"
+        )
+        ci_downloaded = False
+
+        if auth_headers is not None:
+            # GitHub artifact API returns a 302 redirect to Azure blob storage.
+            # urllib's default redirect handler strips Authorization on cross-origin
+            # redirects, causing a 401.  Resolve the redirect with http.client
+            # (which does not auto-follow redirects) and then download from the
+            # storage URL with auth headers intact.
+            storage_url: str | None = None
+            try:
+                parsed = urlparse(ci_url)
+                conn = http.client.HTTPSConnection(
+                    parsed.hostname, timeout=TIMEOUT,
+                )
+                try:
+                    path = parsed.path
+                    if parsed.query:
+                        path += "?" + parsed.query
+                    request_headers = {"User-Agent": "MaaEnd-setup"}
+                    request_headers.update(auth_headers)
+                    conn.request("GET", path, headers=request_headers)
+                    with conn.getresponse() as api_resp:
+                        if 300 <= api_resp.status < 400:
+                            storage_url = api_resp.getheader("Location")
+                        else:
+                            body = api_resp.read(512).decode("utf-8", errors="replace")
+                            print(Console.warn(
+                                t("wrn_ci_artifact_unexpected_status",
+                                  status=api_resp.status,
+                                  reason=api_resp.reason,
+                                  body=body)
+                            ))
+                finally:
+                    conn.close()
+
+                if storage_url is not None:
+                    # The storage URL is SAS-signed — no extra auth needed.
+                    ci_downloaded = download_file(
+                        storage_url, ci_download_path, resume=False,
+                    )
+            except Exception:
+                pass  # warning is printed by the elif below
+
+        if ci_downloaded:
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                extract_root = Path(tmp_dir) / "extracted"
+                extract_root.mkdir(parents=True, exist_ok=True)
+                try:
+                    shutil.unpack_archive(str(ci_download_path), extract_root)
+                    cpp_algo_src = find_cpp_algo_binary(extract_root)
+                    if not cpp_algo_src:
+                        print(Console.warn(t("wrn_ci_artifact_no_binary")))
+                    else:
+                        copy_cpp_algo_binary(cpp_algo_src, real_install_root)
+                        print(Console.ok(t("inf_cpp_algo_install_complete")))
+                        cleanup_cache_file(ci_download_path)
+                        version_to_write = ci_version or local_version
+                        if version_to_write:
+                            _update_component_version(install_root, "cpp_algo", version_to_write)
+                        return True, version_to_write, True
+                except PermissionError:
+                    # User declined the retry prompt — release fallback would
+                    # hit the same file-in-use problem, so bail out directly.
+                    cleanup_cache_file(ci_download_path)
+                    return False, local_version, False
+                except Exception as e:
+                    print(Console.warn(t("wrn_ci_artifact_extract_failed", error=e)))
+            cleanup_cache_file(ci_download_path)
+        elif auth_headers is not None:
+            print(Console.warn(t("wrn_ci_artifact_download_failed")))
+
+        # Fall through to release download on any failure
+        if auth_headers is not None:
+            print(Console.info(t("inf_fallback_to_release")))
+
+    # ~~~ Release fallback (original logic) ~~~
     url, filename, remote_version = get_latest_release_url(
         MAAEND_REPO, ["maaend", OS_KEYWORD, ARCH_KEYWORD]
     )
@@ -897,6 +1138,8 @@ def install_cpp_algo(
         and cpp_algo_installed
         and local_version
         and remote_version
+        and not _is_git_sha(local_version)
+        and not _is_git_sha(remote_version)
         and compare_semver(local_version, remote_version) >= 0
     ):
         print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
@@ -978,7 +1221,10 @@ def install_cpp_algo(
 
             print(Console.ok(t("inf_cpp_algo_install_complete")))
             cleanup_cache_file(download_path)
-            return True, remote_version or local_version, True
+            version_to_write = remote_version or local_version
+            if version_to_write:
+                _update_component_version(install_root, "cpp_algo", version_to_write)
+            return True, version_to_write, True
         except Exception as e:
             traceback.print_exc()
             error_with_type = f"{type(e).__name__}: {e}"
@@ -1008,7 +1254,6 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
-    parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
     parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
     args = parser.parse_args()
 
@@ -1037,9 +1282,7 @@ def main() -> None:
         print(Console.err(t("fatal_build_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_download_deps")))
-    versions: dict[str, str] = dict(local_versions)
-    any_downloaded = False
-    maafw_ok, maafw_version, maafw_downloaded = install_maafw(
+    maafw_ok, _, _ = install_maafw(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1048,11 +1291,8 @@ def main() -> None:
     if not maafw_ok:
         print(Console.err(t("fatal_maafw_failed")))
         sys.exit(1)
-    if maafw_version:
-        versions["maafw"] = maafw_version
-    any_downloaded = any_downloaded or maafw_downloaded
 
-    mxu_ok, mxu_version, mxu_downloaded = install_mxu(
+    mxu_ok, _, _ = install_mxu(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1061,11 +1301,8 @@ def main() -> None:
     if not mxu_ok:
         print(Console.err(t("fatal_mxu_failed")))
         sys.exit(1)
-    if mxu_version:
-        versions["mxu"] = mxu_version
-    any_downloaded = any_downloaded or mxu_downloaded
 
-    cpp_algo_ok, cpp_algo_version, cpp_algo_downloaded = install_cpp_algo(
+    cpp_algo_ok, _, _ = install_cpp_algo(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
@@ -1074,12 +1311,7 @@ def main() -> None:
     if not cpp_algo_ok:
         print(Console.err(t("fatal_cpp_algo_failed")))
         sys.exit(1)
-    if cpp_algo_version:
-        versions["cpp_algo"] = cpp_algo_version
-    any_downloaded = any_downloaded or cpp_algo_downloaded
 
-    if not args.ci and any_downloaded:
-        write_versions_file(version_file, versions)
     print(Console.ok(t("header_setup_complete")))
     print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))
     print(Console.info(t("inf_install_dir_hint", install_dir=install_dir)))

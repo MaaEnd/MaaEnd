@@ -29,7 +29,7 @@
             "「舊庭樹」",
             "(?i)\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
             "「旧庭の木」",
-            "'옛 정원의 나무'"
+            "옛 정원의 나무"
         ],
         "order_by": "Vertical"
     },

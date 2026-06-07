@@ -117,7 +117,7 @@
         "expected": [
             "拍摄生长在亭子中间的“栖霞驻影”",
             "拍攝生長在亭子中間的「棲霞駐影」",
-            "(?i)Photograph\\s*the\\s*\"Eternal\\s*Sunset\"\\s*growing\\s*in\\s*the\\s*middle\\s*of\\s*the\\s*pavilion",
+            "(?i)Photo:\\s*\"Eternal\\s*Sunset\"",
             "東屋中央の「棲霞留影」の写真を撮る",
             "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
         ]

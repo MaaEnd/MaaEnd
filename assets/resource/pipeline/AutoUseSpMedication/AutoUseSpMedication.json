@@ -5,7 +5,7 @@
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationInStashValuablesTab",
-            "[JumpBack]SceneStashValuablesTab"
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
         ],
         "focus": {
             "Node.Action.Starting": "即将进入珍贵物品标签页"

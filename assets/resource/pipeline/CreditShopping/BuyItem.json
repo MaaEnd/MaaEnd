@@ -1,20 +1,17 @@
 {
     // 在商店中购买物品的节点
     "CreditShoppingBuyItem": {
-        "desc": "识别购买商品",
-        "recognition": "OCR",
-        "roi": [
-            55,
-            53,
-            333,
-            167
-        ],
-        "expected": [
-            "购买商品",
-            "購買商品",
-            "(?i)Purchase",
-            "購入"
-        ],
+        "desc": "购买商品文字识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingBuyItemNameColor",
+                    "CreditShoppingBuyItemName"
+                ],
+                "box_index": 1
+            }
+        },
         "next": [
             "CreditShoppingBuyItemOCR_ArsenalTicket",
             "CreditShoppingBuyItemOCR_Oroberyl",
@@ -31,6 +28,45 @@
             "CreditShoppingBuyItemOCR_Protoprism",
             "CreditShoppingBuyItemOCR_Protohedron"
         ]
+    },
+    "CreditShoppingBuyItemNameColor": {
+        "desc": "物品名称文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    172,
+                    123,
+                    245,
+                    47
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    110
+                ],
+                "upper": [
+                    0,
+                    3,
+                    200
+                ],
+                "count": 10,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "CreditShoppingBuyItemName": {
+        "desc": "识别购买商品的文字(使用 CreditShoppingBuyItemNameColor 的 roi 作为识别区域)",
+        "recognition": "OCR",
+        "roi": "CreditShoppingBuyItemNameColor",
+        "expected": [
+            "购买商品",
+            "購買商品",
+            "(?i)Purchase",
+            "購入"
+        ],
+        "only_rec": true
     },
     "CreditShoppingBuyFailed": {
         "desc": "购买失败（已售罄/信用点不足）",

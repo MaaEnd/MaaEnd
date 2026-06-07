@@ -1,9 +1,11 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.png" width="280" />
+  <img alt="不要去森空岛讨论MAA" src="https://end.maafw.com/NoSkland-Tiny.webp" width="280" />
 </p>
 
-<p align="center"><strong>不要去森空岛讨论MAA!!!!!</strong></p>
+<p align="center"><strong>不要去森空岛讨论 MAA 了!!!!!</strong></p>
+
+---
 
 <p align="center">
   <img alt="LOGO" src="https://end.maafw.com/MaaEnd-Tiny-512.png" width="256" height="256" />
@@ -91,6 +93,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [加入 Discord 社区](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ 请我们喝咖啡
 

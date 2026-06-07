@@ -134,21 +134,14 @@
     "BatchAddFriendsClickAddButton": {
         "desc": "点击添加好友",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
                 ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "box_index": 2
             }
         },
         "action": {
@@ -211,21 +204,14 @@
     "BatchAddFriendsHasAddButtonStranger": {
         "desc": "存在添加好友按钮（陌生人列表）",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
                 ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "box_index": 2
             }
         },
         "action": {
@@ -240,21 +226,14 @@
     "BatchAddFriendsClickAddButtonStranger": {
         "desc": "点击添加好友（陌生人列表）",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
                 ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "box_index": 2
             }
         },
         "action": {
@@ -266,6 +245,71 @@
             "BatchAddFriendsFriendListFullToast",
             "BatchAddFriendsStrangersOnAdd"
         ]
+    },
+    "BatchAddfriendsAddFriendButtonColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1157,
+                    102,
+                    122,
+                    570
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendButtonColor",
+                "method": 6,
+                "lower": [
+                    0
+                ],
+                "upper": [
+                    120
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加"
+                ],
+                "replace": [
+                    [
+                        "反",
+                        "友"
+                    ]
+                ],
+                "threshold": 0.7
+            }
+        }
     },
     "BatchAddFriendsStrangersOnAdd": {
         "desc": "陌生人添加进度",
@@ -588,21 +632,14 @@
     "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
         "desc": "换一批后检测到添加好友按钮",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1102,
-                    139,
-                    149,
-                    495
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
                 ],
-                "expected": [
-                    "添加好友",
-                    "新增好友",
-                    "(?i)Add\\s*Friend",
-                    "フレンド追加"
-                ],
-                "threshold": 0.7
+                "box_index": 2
             }
         },
         "action": {

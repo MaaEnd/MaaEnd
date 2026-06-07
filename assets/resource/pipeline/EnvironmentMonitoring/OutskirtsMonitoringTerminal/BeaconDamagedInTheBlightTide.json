@@ -117,7 +117,7 @@
         "expected": [
             "拍摄侵蚀潮中损坏的信标",
             "拍攝侵蝕潮中損壞的信標",
-            "(?i)Photograph\\s*the\\s*beacon\\s*damaged\\s*in\\s*the\\s*Blight\\s*Tide",
+            "(?i)Photo:\\s*Damaged\\s*Beacon",
             "侵蝕潮で破損したビーコンの写真を撮る",
             "침식 조류로 인해 훼손된 신호기를 촬영하기"
         ]
