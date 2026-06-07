@@ -130,8 +130,6 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 		Strs("origins", origins).
 		Msg("scanned job items")
 
-	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.scanning"))
-
 	return &maa.CustomRecognitionResult{
 		Box: arg.Roi,
 	}, true
@@ -152,7 +150,7 @@ func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.Custo
 	}
 
 	item := scannedJobItems[currentIndex]
-	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.checking_job", currentIndex+1, len(scannedJobItems), item.OriginText))
+	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.checking_job", currentIndex+1, len(scannedJobItems)))
 
 	if len(item.ViewLocationBox) < 4 {
 		log.Error().

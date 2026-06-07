@@ -169,5 +169,11 @@
     "schedule.weekday_thursday": "木曜日",
     "schedule.weekday_friday": "金曜日",
     "schedule.weekday_saturday": "土曜日",
-    "schedule.weekday_sunday": "日曜日"
+    "schedule.weekday_sunday": "日曜日",
+    "seizedeliveryjobs.scanning": "配達依頼をスキャン中...",
+    "seizedeliveryjobs.checking_job": "依頼を確認中 %d/%d",
+    "seizedeliveryjobs.endpoint_matched": "配達先が一致、依頼を受注",
+    "seizedeliveryjobs.endpoint_not_matched": "配達先が不一致、スキップ",
+    "seizedeliveryjobs.no_more_targets": "一致する依頼なし、更新",
+    "seizedeliveryjobs.accepting": "配達依頼を受注中"
 }
