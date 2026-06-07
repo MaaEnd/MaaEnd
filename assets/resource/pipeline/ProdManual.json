@@ -146,6 +146,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 400,
         "action": {
             "type": "Click",
             "param": {}
@@ -557,7 +558,8 @@
             "type": "Click",
             "param": {}
         },
-        "next": [
+         "post_wait_freezes": 400,
+        "next": [   
             "ProdManualConfirmReward"
         ],
         "focus": {
