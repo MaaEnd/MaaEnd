@@ -250,7 +250,7 @@
                 ]
             }
         ],
-        "box_index": 4,
+        "box_index": 3,
         "action": "Click",
         "post_wait_freezes": {
             "time": 2000,
