@@ -5,7 +5,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsTeleportWulingCityWest",
             "SeizeDeliveryJobsTeleportWulingCityNorth"
         ]
     },
@@ -18,26 +17,6 @@
         "custom_action_param": {
             "sub": [
                 "SceneEnterWorldWulingWulingCity5"
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsCanWalkToDepotNodeWulingCity"
-        ],
-        "timeout": 10000,
-        "focus": {
-            "Node.Recognition.Succeeded": "正在传送到仓储节点"
-        }
-    },
-    "SeizeDeliveryJobsTeleportWulingCityWest": {
-        "desc": "传送到武陵城仓储节点锚点（西侧；注意该节点默认关闭）",
-        "enabled": false,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity6"
             ]
         },
         "post_delay": 0,
