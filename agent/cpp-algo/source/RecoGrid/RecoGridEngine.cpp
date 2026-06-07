@@ -95,22 +95,6 @@ std::size_t CellIndex(int row, int col, int cols)
     return static_cast<std::size_t>(row * cols + col);
 }
 
-std::vector<std::size_t> AllCellIndices(int rows, int cols)
-{
-    std::vector<std::size_t> indices;
-    if (rows <= 0 || cols <= 0) {
-        return indices;
-    }
-
-    indices.reserve(static_cast<std::size_t>(rows * cols));
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < cols; ++col) {
-            indices.push_back(CellIndex(row, col, cols));
-        }
-    }
-    return indices;
-}
-
 std::vector<std::size_t> NewCellIndicesForOffset(const GridHashSnapshot& current, int rowOffset)
 {
     std::vector<std::size_t> indices;

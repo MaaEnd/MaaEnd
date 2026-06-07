@@ -132,17 +132,6 @@ void ClampOptions(GridClassifyOptions& options)
     options.maxRankedCandidates = std::max(0, options.maxRankedCandidates);
 }
 
-GridClassifyOptions ClassifyOptionsFromRecognitionOptions(const GridRecognitionOptions& options)
-{
-    GridClassifyOptions classify;
-    classify.maxPhashDistance = options.maxPhashDistance;
-    classify.minScore = options.minScore;
-    classify.hueWeight = options.hueWeight;
-    classify.maxRankedCandidates = options.maxRankedCandidates;
-    ClampOptions(classify);
-    return classify;
-}
-
 cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
 {
     return rect & cv::Rect(0, 0, bounds.width, bounds.height);
