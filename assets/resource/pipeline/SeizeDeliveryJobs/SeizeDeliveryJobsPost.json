@@ -24,7 +24,8 @@
             "InWorld"
         ],
         "next": [
-            "SeizeDeliveryJobsWalkingToDepotNode"
+            "SeizeDeliveryJobsWalkingToDepotNode",
+            "SeizeDeliveryJobsStopTask"
         ]
     },
     "SeizeDeliveryJobsWalkingToDepotNode": {

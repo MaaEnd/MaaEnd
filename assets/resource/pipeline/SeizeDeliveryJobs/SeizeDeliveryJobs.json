@@ -276,7 +276,8 @@
             "InWorld"
         ],
         "next": [
-            "SeizeDeliveryJobsGoDepotNode"
+            "SeizeDeliveryJobsGoDepotNode",
+            "SeizeDeliveryJobsStopTask"
         ]
     },
     "SeizeDeliveryJobsRetryClickAccept": {
