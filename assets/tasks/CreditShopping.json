@@ -33,13 +33,7 @@
                 "ReceptionRoomSetClues": {
                     "enabled": false
                 },
-                "ReceptionRoomExit": {
-                    "enabled": false
-                },
                 "ReceptionRoomStartExchange": {
-                    "enabled": true
-                },
-                "ReceptionRoomNeedCreditDone": {
                     "enabled": true
                 }
             }
@@ -62,8 +56,7 @@
             ],
             "pipeline_override": {
                 "ReceptionRoomSendCluesDirect": {
-                    "enabled": true,
-                    "max_hit": "{MaxClueSendWhenInsufficient}"
+                    "enabled": true
                 },
                 "ReceptionRoomSendCluesSelectClues": {
                     "max_hit": "{MaxClueSendWhenInsufficient}"
