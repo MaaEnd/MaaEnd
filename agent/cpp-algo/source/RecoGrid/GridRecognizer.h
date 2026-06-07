@@ -5,7 +5,7 @@
 #include "GridMatcher.h"
 #include "PHashFilter.h"
 
-#include <opencv2/core.hpp>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include <meojson/json.hpp>
 

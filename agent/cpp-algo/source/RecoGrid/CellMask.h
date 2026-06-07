@@ -1,6 +1,6 @@
 #pragma once
 
-#include <opencv2/core.hpp>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include <vector>
 

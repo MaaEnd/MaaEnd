@@ -1,6 +1,6 @@
 #include "GridMatcher.h"
 
-#include <opencv2/imgproc.hpp>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
 #include <cmath>

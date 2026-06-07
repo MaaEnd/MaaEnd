@@ -10,7 +10,6 @@
 
 #include <cstring>
 #include <filesystem>
-#include <regex>
 #include <stdexcept>
 
 #ifndef MAA_TRUE
@@ -32,8 +31,6 @@ constexpr const char* kSessionId = "WeaponInventoryScan";
 recogrid::RecoGridEngine g_engine;
 bool g_loaded = false;
 MaaTaskId g_lastTaskId = MaaInvalidId;
-int g_inventoryTotalCells = 0;
-bool g_inventoryTotalAttempted = false;
 
 std::filesystem::path ResolveWeaponTemplateDir()
 {
@@ -112,22 +109,6 @@ double ReadDoubleOption(const char* raw, const char* key, double defaultValue)
     return object.at(key).as_double();
 }
 
-int ReadIntegerOption(const char* raw, const char* key, int defaultValue)
-{
-    if (raw == nullptr || std::strlen(raw) == 0 || key == nullptr || std::strlen(key) == 0) {
-        return defaultValue;
-    }
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        return defaultValue;
-    }
-    const auto& object = parsed->as_object();
-    if (!object.contains(key) || !object.at(key).is_number()) {
-        return defaultValue;
-    }
-    return object.at(key).as_integer();
-}
-
 bool ReadIncremental(const char* raw)
 {
     return ReadBooleanOption(raw, "incremental", true);
@@ -163,152 +144,7 @@ void ResetSessionForNewTask(MaaTaskId taskId)
     }
     g_engine.ResetSession(kSessionId);
     g_lastTaskId = taskId;
-    g_inventoryTotalCells = 0;
-    g_inventoryTotalAttempted = false;
     LogInfo << "WeaponInventoryScan reset session" << VAR(taskId);
-}
-
-int ParseInventoryTotalText(const std::string& text)
-{
-    static const std::regex pattern(R"((\d{1,6})\s*/\s*\d{1,6})");
-    std::smatch match;
-    if (!std::regex_search(text, match, pattern) || match.size() < 2) {
-        return 0;
-    }
-
-    try {
-        const int value = std::stoi(match[1].str());
-        return value > 0 && value <= 10000 ? value : 0;
-    }
-    catch (const std::exception&) {
-        return 0;
-    }
-}
-
-int ParseInventoryTotalFromOcrItem(const json::value& value)
-{
-    if (!value.is_object()) {
-        return 0;
-    }
-
-    const auto& object = value.as_object();
-    if (!object.contains("text") || !object.at("text").is_string()) {
-        return 0;
-    }
-    return ParseInventoryTotalText(object.at("text").as_string());
-}
-
-int ParseInventoryTotalFromOcrDetail(const char* raw)
-{
-    if (raw == nullptr || std::strlen(raw) == 0) {
-        return 0;
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        return 0;
-    }
-
-    const auto& object = parsed->as_object();
-    if (object.contains("filtered") && object.at("filtered").is_array()) {
-        for (const auto& item : object.at("filtered").as_array()) {
-            const int value = ParseInventoryTotalFromOcrItem(item);
-            if (value > 0) {
-                return value;
-            }
-        }
-    }
-    if (object.contains("best")) {
-        const int value = ParseInventoryTotalFromOcrItem(object.at("best"));
-        if (value > 0) {
-            return value;
-        }
-    }
-    if (object.contains("all") && object.at("all").is_array()) {
-        for (const auto& item : object.at("all").as_array()) {
-            const int value = ParseInventoryTotalFromOcrItem(item);
-            if (value > 0) {
-                return value;
-            }
-        }
-    }
-    return 0;
-}
-
-int RecognizeInventoryTotalCells(MaaContext* context, const MaaImageBuffer* image)
-{
-    if (context == nullptr || image == nullptr || MaaImageBufferIsEmpty(image)) {
-        return 0;
-    }
-
-    constexpr const char* ocrParam = R"({"roi":[0,0,155,85],"expected":["\\d+\\s*/\\s*\\d+"]})";
-    const MaaRecoId recoId = MaaContextRunRecognitionDirect(context, "OCR", ocrParam, image);
-    if (recoId == MaaInvalidId) {
-        LogWarn << "WeaponInventoryScan inventory total OCR returned invalid id";
-        return 0;
-    }
-
-    MaaTasker* tasker = MaaContextGetTasker(context);
-    if (tasker == nullptr) {
-        LogWarn << "WeaponInventoryScan inventory total OCR has no tasker";
-        return 0;
-    }
-
-    MaaStringBuffer* nodeName = MaaStringBufferCreate();
-    MaaStringBuffer* algorithm = MaaStringBufferCreate();
-    MaaStringBuffer* detail = MaaStringBufferCreate();
-    if (nodeName == nullptr || algorithm == nullptr || detail == nullptr) {
-        if (nodeName != nullptr) {
-            MaaStringBufferDestroy(nodeName);
-        }
-        if (algorithm != nullptr) {
-            MaaStringBufferDestroy(algorithm);
-        }
-        if (detail != nullptr) {
-            MaaStringBufferDestroy(detail);
-        }
-        LogWarn << "WeaponInventoryScan inventory total OCR buffer allocation failed";
-        return 0;
-    }
-
-    MaaBool hit = MAA_FALSE;
-    MaaRect box {};
-    const bool ok = MaaTaskerGetRecognitionDetail(tasker, recoId, nodeName, algorithm, &hit, &box, detail, nullptr, nullptr);
-    const int value = ok ? ParseInventoryTotalFromOcrDetail(MaaStringBufferGet(detail)) : 0;
-    if (value > 0) {
-        LogInfo << "WeaponInventoryScan inventory total OCR" << VAR(value) << VAR(hit);
-    }
-    else {
-        LogWarn << "WeaponInventoryScan inventory total OCR parse failed" << VAR(ok) << VAR(hit)
-                << VAR(MaaStringBufferGet(detail));
-    }
-
-    MaaStringBufferDestroy(nodeName);
-    MaaStringBufferDestroy(algorithm);
-    MaaStringBufferDestroy(detail);
-    return value;
-}
-
-int ResolveExpectedTotalCells(const char* raw, MaaContext* context, const MaaImageBuffer* image)
-{
-    int expected = ReadIntegerOption(raw, "expected_cells", 0);
-    if (expected <= 0) {
-        expected = ReadIntegerOption(raw, "expected_total_cells", 0);
-    }
-    if (expected > 0) {
-        return expected;
-    }
-
-    if (g_inventoryTotalCells > 0) {
-        return g_inventoryTotalCells;
-    }
-    if (g_inventoryTotalAttempted) {
-        return 0;
-    }
-
-    g_inventoryTotalAttempted = true;
-    g_inventoryTotalCells = RecognizeInventoryTotalCells(context, image);
-    return g_inventoryTotalCells;
 }
 
 void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResult& result)
@@ -321,8 +157,6 @@ void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResu
     detail["success"] = result.success;
     detail["page_grid"] = result.totalCells;
     detail["cumulative_grid"] = result.sessionTotalCells;
-    detail["expected_grid"] = result.expectedTotalCells;
-    detail["normalized_cell_delta"] = result.normalizedCellDelta;
     detail["unknown"] = result.unknownCells;
     detail["rows"] = result.sessionRows;
     detail["cols"] = result.sessionCols;
@@ -420,7 +254,6 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
         options.endMinMatchRatio =
             ReadDoubleOption(custom_recognition_param, "end_min_match_ratio", options.endMinMatchRatio);
         ApplyWeaponInventoryMask(options);
-        options.expectedTotalCells = ResolveExpectedTotalCells(custom_recognition_param, context, image);
 
         const recogrid::GridScanResult result = g_engine.Scan(kSessionId, to_mat(image), options);
         if (result.success) {
@@ -430,10 +263,8 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
             const int cols = result.sessionCols;
             const int pageGrid = result.totalCells;
             const int newCells = static_cast<int>(result.newCellIndices.size());
-            const int expectedGrid = result.expectedTotalCells;
-            const int normalizedDelta = result.normalizedCellDelta;
             LogInfo << "WeaponInventoryScan cumulative grid" << VAR(cumulativeGrid) << VAR(unknown) << VAR(rows)
-                    << VAR(cols) << VAR(pageGrid) << VAR(newCells) << VAR(expectedGrid) << VAR(normalizedDelta);
+                    << VAR(cols) << VAR(pageGrid) << VAR(newCells);
             LogInfo << "WeaponInventoryScan scan delta" << VAR(result.deltaReliable) << VAR(result.hasProgress)
                     << VAR(result.reachedEnd) << VAR(result.rowOffset) << VAR(result.matchedCells)
                     << VAR(result.comparedCells) << VAR(result.matchRatio) << VAR(result.averageDistance)

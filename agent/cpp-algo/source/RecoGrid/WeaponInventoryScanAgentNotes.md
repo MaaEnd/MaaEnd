@@ -40,16 +40,11 @@ In plain terms:
 
 Do not replace this with a simple "no row offset means end" rule. Normal scroll settling and partial rows can otherwise create premature termination.
 
-## Expected Total Normalization
+## No Total-Count Fallback
 
-At the start of a task, `WeaponInventoryScan.cpp` runs Maa direct OCR over the header ROI `[0, 0, 155, 85]` and parses text like `471/2000`. The left side becomes `expectedTotalCells`.
+Do not fix inventory totals by reading the UI total count and padding or trimming the grid session to match it. That hides recognition errors instead of solving them.
 
-`RecoGridEngine` only normalizes the cumulative sparse session after `reachedEnd` is true:
-
-- If the session is short, missing tail positions are padded as `unknown`.
-- If the session has cells beyond the expected total, those out-of-range cells are trimmed.
-
-This is what fixes totals such as `453` becoming the OCR-confirmed `471` without hiding real mid-scan alignment problems. The `normalized_cell_delta` result field records how many cells were added or removed by that final normalization.
+The total reported by `WeaponInventoryScan` must come from actual visible-cell detection, scroll alignment, and cumulative session merging. If a run reports `453` when the UI says `471`, treat it as a grid recognition or scroll-session bug and inspect the per-page grid/delta logs.
 
 ## Intentionally Retained Diagnostics
 
@@ -57,16 +52,13 @@ These are production diagnostics, not debug scaffolding. Keep them unless there 
 
 Runtime log lines:
 
-- `WeaponInventoryScan inventory total OCR`: confirms the parsed expected total.
-- `WeaponInventoryScan cumulative grid`: reports cumulative count, unknown count, cumulative rows/cols, visible page count, new cells, expected total, and normalization delta.
+- `WeaponInventoryScan cumulative grid`: reports cumulative count, unknown count, cumulative rows/cols, visible page count, and new cells.
 - `WeaponInventoryScan scan delta`: reports delta reliability, progress, end state, row offset, matched/compared cells, match ratio, average distance, and delta score.
 - `WeaponInventoryScan override next`: shows whether the pipeline will swipe again or finish.
 
 Recognition detail fields:
 
 - `cumulative_grid`
-- `expected_grid`
-- `normalized_cell_delta`
 - `page_grid`
 - `unknown`
 - `rows`, `cols`
@@ -89,6 +81,7 @@ The cleanup removed the one-off investigation support that should not return unl
 - the `weapon-scan-debug` target and standalone debug runner
 - generated `debug/scan/weapon_scan*` report/context files
 - screenshot saving parameters and runtime screenshot dumps
+- direct OCR total-count fallback and end-of-scan pad/trim normalization
 - large per-cell detail output such as `visibleCells`
 - delta-candidate dump structures used only for reports
 - the separate `WeaponInventoryScanConfig` files that only existed to share defaults with the debug runner

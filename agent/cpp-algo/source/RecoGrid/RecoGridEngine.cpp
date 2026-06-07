@@ -2,7 +2,7 @@
 
 #include <MaaUtils/ImageIo.h>
 
-#include <opencv2/imgproc.hpp>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -414,120 +414,6 @@ bool HasTrailingPartialRow(const std::vector<GridScanCell>& cells, int cols)
     return !visibleCols.empty() && static_cast<int>(visibleCols.size()) < cols;
 }
 
-int CountSessionCellsInRow(const SessionCells& cells, int row)
-{
-    int count = 0;
-    for (const auto& [_, cell] : cells) {
-        if (cell.row == row) {
-            ++count;
-        }
-    }
-    return count;
-}
-
-bool IsExpectedCellPosition(int row, int col, int cols, int expectedTotalCells)
-{
-    if (row < 0 || col < 0 || cols <= 0 || col >= cols || expectedTotalCells <= 0) {
-        return false;
-    }
-
-    const int ordinal = row * cols + col;
-    return ordinal >= 0 && ordinal < expectedTotalCells;
-}
-
-GridScanCell MakeExpectedUnknownCell(int row, int col, int cols, const std::string& unknownTemplateId)
-{
-    GridScanCell cell;
-    cell.row = row;
-    cell.col = col;
-    cell.cellIndex = CellIndex(row, col, cols);
-    cell.templateId = unknownTemplateId;
-    return cell;
-}
-
-void ShiftTrailingPartialRowToExpectedTail(SessionCells& cells, int cols, int expectedTotalCells, int missingCells)
-{
-    if (cols <= 0 || expectedTotalCells <= 0 || missingCells <= 0 || missingCells % cols != 0) {
-        return;
-    }
-
-    const int maxRow = MaxSessionRow(cells);
-    if (maxRow < 0) {
-        return;
-    }
-
-    const int expectedTailCols = expectedTotalCells % cols;
-    if (expectedTailCols <= 0) {
-        return;
-    }
-
-    const int missingRows = missingCells / cols;
-    const int expectedLastRow = (expectedTotalCells - 1) / cols;
-    if (maxRow + missingRows != expectedLastRow) {
-        return;
-    }
-    if (CountSessionCellsInRow(cells, maxRow) != expectedTailCols ||
-        CountSessionCellsInRow(cells, expectedLastRow) != 0) {
-        return;
-    }
-
-    std::vector<GridScanCell> tailCells;
-    for (auto iter = cells.begin(); iter != cells.end();) {
-        GridScanCell cell = iter->second;
-        if (cell.row == maxRow) {
-            cell.row = expectedLastRow;
-            tailCells.push_back(std::move(cell));
-            iter = cells.erase(iter);
-        }
-        else {
-            ++iter;
-        }
-    }
-
-    for (GridScanCell& cell : tailCells) {
-        if (IsExpectedCellPosition(cell.row, cell.col, cols, expectedTotalCells)) {
-            cells.emplace(std::make_pair(cell.row, cell.col), std::move(cell));
-        }
-    }
-}
-
-int NormalizeSessionCellsToExpectedTotal(
-    SessionCells& cells,
-    int cols,
-    int expectedTotalCells,
-    const std::string& unknownTemplateId)
-{
-    if (cols <= 0 || expectedTotalCells <= 0) {
-        return 0;
-    }
-
-    const int before = static_cast<int>(cells.size());
-    if (before < expectedTotalCells) {
-        ShiftTrailingPartialRowToExpectedTail(cells, cols, expectedTotalCells, expectedTotalCells - before);
-    }
-
-    for (auto iter = cells.begin(); iter != cells.end();) {
-        const GridScanCell& cell = iter->second;
-        if (!IsExpectedCellPosition(cell.row, cell.col, cols, expectedTotalCells)) {
-            iter = cells.erase(iter);
-        }
-        else {
-            ++iter;
-        }
-    }
-
-    for (int ordinal = 0; ordinal < expectedTotalCells; ++ordinal) {
-        const int row = ordinal / cols;
-        const int col = ordinal % cols;
-        const auto key = std::make_pair(row, col);
-        if (cells.find(key) == cells.end()) {
-            cells.emplace(key, MakeExpectedUnknownCell(row, col, cols, unknownTemplateId));
-        }
-    }
-
-    return static_cast<int>(cells.size()) - before;
-}
-
 bool HasNewVisibleSessionKey(const SessionCells& sessionCells, const std::vector<GridScanCell>& visibleCells)
 {
     return std::any_of(visibleCells.begin(), visibleCells.end(), [&](const GridScanCell& cell) {
@@ -652,7 +538,6 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
 
     try {
         GridScanResult result;
-        result.expectedTotalCells = options.expectedTotalCells;
         GridRecognitionResult recognition = RecognizeGrid(image, options.recognition);
         result.rows = static_cast<int>(recognition.grid.rows.size());
         result.cols = static_cast<int>(recognition.grid.cols.size());
@@ -744,11 +629,6 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
                 (delta.matchRatio >= std::clamp(options.endMinMatchRatio, 0.0, 1.0) ||
                  HasTrailingPartialRow(currentCells, result.cols));
             if (reachedEnd) {
-                result.normalizedCellDelta = NormalizeSessionCellsToExpectedTotal(
-                    stableSession.cells,
-                    stableSession.cols,
-                    options.expectedTotalCells,
-                    options.unknownTemplateId);
                 sessionIt->second = stableSession;
             }
             keepSessionResult(

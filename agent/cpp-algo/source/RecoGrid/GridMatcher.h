@@ -3,7 +3,7 @@
 #include "CellMask.h"
 #include "PHashFilter.h"
 
-#include <opencv2/core.hpp>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include <vector>
 
