@@ -76,13 +76,70 @@ std::vector<Segment> FilterSmallSegments(const std::vector<Segment>& segments, d
         return segments;
     }
 
-    for (const auto& segment : segments) {
+    std::vector<Segment> normalized;
+    normalized.reserve(segments.size());
+    const int maxMergeGap = std::max(2, minLength / 5);
+    for (std::size_t i = 0; i < segments.size(); ++i) {
+        Segment segment = segments[i];
+        if (i + 1 < segments.size()) {
+            const Segment& next = segments[i + 1];
+            const int gap = next.start - segment.end;
+            const int mergedLength = next.end - segment.start;
+            if (SegmentLength(segment) < minLength && SegmentLength(next) < minLength && gap >= 0 &&
+                gap <= maxMergeGap && mergedLength >= minLength) {
+                segment.end = next.end;
+                ++i;
+            }
+        }
+        normalized.push_back(segment);
+    }
+
+    for (const auto& segment : normalized) {
         if (SegmentLength(segment) >= minLength) {
             filtered.push_back(segment);
         }
     }
 
     return filtered;
+}
+
+bool ContainsSegment(const std::vector<Segment>& segments, const Segment& target)
+{
+    return std::any_of(segments.begin(), segments.end(), [&](const Segment& segment) {
+        return segment.start == target.start && segment.end == target.end;
+    });
+}
+
+bool HasMergedSegment(const std::vector<Segment>& rawSegments, const std::vector<Segment>& keptSegments)
+{
+    return std::any_of(keptSegments.begin(), keptSegments.end(), [&](const Segment& segment) {
+        return !ContainsSegment(rawSegments, segment);
+    });
+}
+
+void RestoreLeadingPartialSegment(
+    const std::vector<Segment>& rawSegments,
+    std::vector<Segment>& keptSegments,
+    int minLength)
+{
+    if (rawSegments.empty() || keptSegments.empty() || minLength <= 0) {
+        return;
+    }
+    if (!HasMergedSegment(rawSegments, keptSegments)) {
+        return;
+    }
+
+    const Segment& leading = rawSegments.front();
+    if (leading.end > keptSegments.front().start) {
+        return;
+    }
+
+    const int minPartialLength = std::max(1, static_cast<int>(std::round(static_cast<double>(minLength) * 0.35)));
+    if (SegmentLength(leading) < minPartialLength) {
+        return;
+    }
+
+    keptSegments.insert(keptSegments.begin(), leading);
 }
 
 cv::Mat ToGray(const cv::Mat& image)
@@ -174,6 +231,7 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
     result.rawRows = rowSegments;
     result.rawCols = colSegments;
     rowSegments = FilterSmallSegments(rowSegments, options.minKeptSegmentRatio, result.minRowHeight);
+    RestoreLeadingPartialSegment(result.rawRows, rowSegments, result.minRowHeight);
     colSegments = FilterSmallSegments(colSegments, options.minKeptSegmentRatio, result.minColWidth);
     result.rows = rowSegments;
     result.cols = colSegments;

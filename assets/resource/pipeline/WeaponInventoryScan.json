@@ -63,7 +63,7 @@
                         1280,
                         720
                     ],
-                    "row_threshold_ratio": 0.4,
+                    "row_threshold_ratio": 0.2,
                     "col_threshold_ratio": 0.4,
                     "min_raw_segment_length": 10,
                     "min_kept_segment_ratio": 0.7,
@@ -71,7 +71,8 @@
                     "max_ranked_candidates": 0,
                     "min_score": 0.6,
                     "hue_weight": 0.4,
-                    "incremental": true
+                    "incremental": true,
+                    "end_min_match_ratio": 0.95
                 }
             }
         },

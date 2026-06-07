@@ -10,6 +10,7 @@
 
 #include <cstring>
 #include <filesystem>
+#include <regex>
 #include <stdexcept>
 
 #ifndef MAA_TRUE
@@ -31,19 +32,51 @@ constexpr const char* kSessionId = "WeaponInventoryScan";
 recogrid::RecoGridEngine g_engine;
 bool g_loaded = false;
 MaaTaskId g_lastTaskId = MaaInvalidId;
+int g_inventoryTotalCells = 0;
+bool g_inventoryTotalAttempted = false;
+
+std::filesystem::path ResolveWeaponTemplateDir()
+{
+    for (const char* directory : { kRuntimeTemplateDir, kSourceTemplateDir }) {
+        std::error_code ec;
+        if (std::filesystem::exists(directory, ec) && std::filesystem::is_directory(directory, ec)) {
+            return directory;
+        }
+    }
+    throw std::runtime_error("Weapon icon template directory not found");
+}
+
+void ApplyWeaponInventoryMask(recogrid::GridScanOptions& options)
+{
+    options.recognition.mask.leftHeaderWidth = 20.0 / 96.0;
+    options.recognition.mask.leftHeaderHeight = 20.0 / 96.0;
+    options.recognition.mask.rightHeaderWidth = 30.0 / 96.0;
+    options.recognition.mask.rightHeaderHeight = 30.0 / 96.0;
+    options.recognition.mask.bottomHeight = 20.0 / 96.0;
+}
+
+void ApplyWeaponInventoryScanDefaults(recogrid::GridScanOptions& options)
+{
+    options.recognition.detect.roi = { 20, 70, 960, 600 };
+    options.recognition.detect.normalizedSize = { 1280, 720 };
+    options.recognition.detect.rowThresholdRatio = 0.2;
+    options.recognition.detect.colThresholdRatio = 0.4;
+    options.recognition.detect.minRawSegmentLength = 10;
+    options.recognition.detect.minKeptSegmentRatio = 0.7;
+    options.recognition.maxPhashDistance = 10;
+    options.recognition.maxRankedCandidates = 0;
+    options.recognition.minScore = 0.6;
+    options.recognition.hueWeight = 0.4;
+    ApplyWeaponInventoryMask(options);
+    options.incremental = true;
+    options.endMinMatchRatio = 0.95;
+}
 
 void EnsureLoaded()
 {
     if (!g_loaded) {
-        for (const char* directory : { kRuntimeTemplateDir, kSourceTemplateDir }) {
-            std::error_code ec;
-            if (std::filesystem::exists(directory, ec) && std::filesystem::is_directory(directory, ec)) {
-                g_engine.LoadTemplatesFromDirectory(directory);
-                g_loaded = true;
-                return;
-            }
-        }
-        throw std::runtime_error("Weapon icon template directory not found");
+        g_engine.LoadTemplatesFromDirectory(ResolveWeaponTemplateDir());
+        g_loaded = true;
     }
 }
 
@@ -63,23 +96,64 @@ bool ReadBooleanOption(const char* raw, const char* key, bool defaultValue)
     return object.at(key).as_boolean();
 }
 
+double ReadDoubleOption(const char* raw, const char* key, double defaultValue)
+{
+    if (raw == nullptr || std::strlen(raw) == 0 || key == nullptr || std::strlen(key) == 0) {
+        return defaultValue;
+    }
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        return defaultValue;
+    }
+    const auto& object = parsed->as_object();
+    if (!object.contains(key) || !object.at(key).is_number()) {
+        return defaultValue;
+    }
+    return object.at(key).as_double();
+}
+
+int ReadIntegerOption(const char* raw, const char* key, int defaultValue)
+{
+    if (raw == nullptr || std::strlen(raw) == 0 || key == nullptr || std::strlen(key) == 0) {
+        return defaultValue;
+    }
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        return defaultValue;
+    }
+    const auto& object = parsed->as_object();
+    if (!object.contains(key) || !object.at(key).is_number()) {
+        return defaultValue;
+    }
+    return object.at(key).as_integer();
+}
+
 bool ReadIncremental(const char* raw)
 {
     return ReadBooleanOption(raw, "incremental", true);
 }
 
-bool ReadDebugDetail(const char* raw)
+recogrid::GridRecognitionRequest ParseWeaponRecognitionRequest(const char* raw, const recogrid::GridRecognitionOptions& defaults)
 {
-    return ReadBooleanOption(raw, "debug_detail", false);
-}
+    recogrid::GridRecognitionRequest request;
+    request.options = defaults;
+    request.classify.maxPhashDistance = defaults.maxPhashDistance;
+    request.classify.minScore = defaults.minScore;
+    request.classify.hueWeight = defaults.hueWeight;
+    request.classify.maxRankedCandidates = defaults.maxRankedCandidates;
 
-void ApplyWeaponMask(recogrid::GridScanOptions& options)
-{
-    options.recognition.mask.leftHeaderWidth = 20.0 / 96.0;
-    options.recognition.mask.leftHeaderHeight = 20.0 / 96.0;
-    options.recognition.mask.rightHeaderWidth = 30.0 / 96.0;
-    options.recognition.mask.rightHeaderHeight = 30.0 / 96.0;
-    options.recognition.mask.bottomHeight = 20.0 / 96.0;
+    if (raw == nullptr || std::strlen(raw) == 0) {
+        return request;
+    }
+
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        throw std::invalid_argument("custom_recognition_param must be a JSON object");
+    }
+    if (!request.from_json(*parsed)) {
+        throw std::invalid_argument("custom_recognition_param cannot be converted to GridRecognitionRequest");
+    }
+    return request;
 }
 
 void ResetSessionForNewTask(MaaTaskId taskId)
@@ -89,7 +163,152 @@ void ResetSessionForNewTask(MaaTaskId taskId)
     }
     g_engine.ResetSession(kSessionId);
     g_lastTaskId = taskId;
+    g_inventoryTotalCells = 0;
+    g_inventoryTotalAttempted = false;
     LogInfo << "WeaponInventoryScan reset session" << VAR(taskId);
+}
+
+int ParseInventoryTotalText(const std::string& text)
+{
+    static const std::regex pattern(R"((\d{1,6})\s*/\s*\d{1,6})");
+    std::smatch match;
+    if (!std::regex_search(text, match, pattern) || match.size() < 2) {
+        return 0;
+    }
+
+    try {
+        const int value = std::stoi(match[1].str());
+        return value > 0 && value <= 10000 ? value : 0;
+    }
+    catch (const std::exception&) {
+        return 0;
+    }
+}
+
+int ParseInventoryTotalFromOcrItem(const json::value& value)
+{
+    if (!value.is_object()) {
+        return 0;
+    }
+
+    const auto& object = value.as_object();
+    if (!object.contains("text") || !object.at("text").is_string()) {
+        return 0;
+    }
+    return ParseInventoryTotalText(object.at("text").as_string());
+}
+
+int ParseInventoryTotalFromOcrDetail(const char* raw)
+{
+    if (raw == nullptr || std::strlen(raw) == 0) {
+        return 0;
+    }
+
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        return 0;
+    }
+
+    const auto& object = parsed->as_object();
+    if (object.contains("filtered") && object.at("filtered").is_array()) {
+        for (const auto& item : object.at("filtered").as_array()) {
+            const int value = ParseInventoryTotalFromOcrItem(item);
+            if (value > 0) {
+                return value;
+            }
+        }
+    }
+    if (object.contains("best")) {
+        const int value = ParseInventoryTotalFromOcrItem(object.at("best"));
+        if (value > 0) {
+            return value;
+        }
+    }
+    if (object.contains("all") && object.at("all").is_array()) {
+        for (const auto& item : object.at("all").as_array()) {
+            const int value = ParseInventoryTotalFromOcrItem(item);
+            if (value > 0) {
+                return value;
+            }
+        }
+    }
+    return 0;
+}
+
+int RecognizeInventoryTotalCells(MaaContext* context, const MaaImageBuffer* image)
+{
+    if (context == nullptr || image == nullptr || MaaImageBufferIsEmpty(image)) {
+        return 0;
+    }
+
+    constexpr const char* ocrParam = R"({"roi":[0,0,155,85],"expected":["\\d+\\s*/\\s*\\d+"]})";
+    const MaaRecoId recoId = MaaContextRunRecognitionDirect(context, "OCR", ocrParam, image);
+    if (recoId == MaaInvalidId) {
+        LogWarn << "WeaponInventoryScan inventory total OCR returned invalid id";
+        return 0;
+    }
+
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        LogWarn << "WeaponInventoryScan inventory total OCR has no tasker";
+        return 0;
+    }
+
+    MaaStringBuffer* nodeName = MaaStringBufferCreate();
+    MaaStringBuffer* algorithm = MaaStringBufferCreate();
+    MaaStringBuffer* detail = MaaStringBufferCreate();
+    if (nodeName == nullptr || algorithm == nullptr || detail == nullptr) {
+        if (nodeName != nullptr) {
+            MaaStringBufferDestroy(nodeName);
+        }
+        if (algorithm != nullptr) {
+            MaaStringBufferDestroy(algorithm);
+        }
+        if (detail != nullptr) {
+            MaaStringBufferDestroy(detail);
+        }
+        LogWarn << "WeaponInventoryScan inventory total OCR buffer allocation failed";
+        return 0;
+    }
+
+    MaaBool hit = MAA_FALSE;
+    MaaRect box {};
+    const bool ok = MaaTaskerGetRecognitionDetail(tasker, recoId, nodeName, algorithm, &hit, &box, detail, nullptr, nullptr);
+    const int value = ok ? ParseInventoryTotalFromOcrDetail(MaaStringBufferGet(detail)) : 0;
+    if (value > 0) {
+        LogInfo << "WeaponInventoryScan inventory total OCR" << VAR(value) << VAR(hit);
+    }
+    else {
+        LogWarn << "WeaponInventoryScan inventory total OCR parse failed" << VAR(ok) << VAR(hit)
+                << VAR(MaaStringBufferGet(detail));
+    }
+
+    MaaStringBufferDestroy(nodeName);
+    MaaStringBufferDestroy(algorithm);
+    MaaStringBufferDestroy(detail);
+    return value;
+}
+
+int ResolveExpectedTotalCells(const char* raw, MaaContext* context, const MaaImageBuffer* image)
+{
+    int expected = ReadIntegerOption(raw, "expected_cells", 0);
+    if (expected <= 0) {
+        expected = ReadIntegerOption(raw, "expected_total_cells", 0);
+    }
+    if (expected > 0) {
+        return expected;
+    }
+
+    if (g_inventoryTotalCells > 0) {
+        return g_inventoryTotalCells;
+    }
+    if (g_inventoryTotalAttempted) {
+        return 0;
+    }
+
+    g_inventoryTotalAttempted = true;
+    g_inventoryTotalCells = RecognizeInventoryTotalCells(context, image);
+    return g_inventoryTotalCells;
 }
 
 void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResult& result)
@@ -102,6 +321,8 @@ void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResu
     detail["success"] = result.success;
     detail["page_grid"] = result.totalCells;
     detail["cumulative_grid"] = result.sessionTotalCells;
+    detail["expected_grid"] = result.expectedTotalCells;
+    detail["normalized_cell_delta"] = result.normalizedCellDelta;
     detail["unknown"] = result.unknownCells;
     detail["rows"] = result.sessionRows;
     detail["cols"] = result.sessionCols;
@@ -118,51 +339,6 @@ void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResu
     if (!result.success) {
         detail["message"] = result.message;
     }
-
-    const std::string text = json::value(std::move(detail)).dumps();
-    MaaStringBufferSet(outDetail, text.c_str());
-}
-
-void WriteDebugDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResult& result)
-{
-    if (outDetail == nullptr) {
-        return;
-    }
-
-    json::array cells;
-    for (const recogrid::GridScanCell& cell : result.cells) {
-        json::object item;
-        item["row"] = cell.row;
-        item["col"] = cell.col;
-        item["template_id"] = cell.templateId;
-        item["matched"] = cell.matched;
-        cells.emplace_back(std::move(item));
-    }
-
-    json::object detail;
-    detail["success"] = result.success;
-    detail["message"] = result.message;
-    detail["rows"] = result.rows;
-    detail["cols"] = result.cols;
-    detail["total_cells"] = result.totalCells;
-    detail["cumulative_rows"] = result.sessionRows;
-    detail["cumulative_cols"] = result.sessionCols;
-    detail["cumulative_cells"] = result.sessionTotalCells;
-    detail["known_cells"] = result.knownCells;
-    detail["unknown_cells"] = result.unknownCells;
-    detail["incremental_used"] = result.incrementalUsed;
-    detail["row_offset"] = result.rowOffset;
-    detail["delta_reliable"] = result.deltaReliable;
-    detail["has_progress"] = result.hasProgress;
-    detail["reached_end"] = result.reachedEnd;
-    detail["matched_cells"] = result.matchedCells;
-    detail["compared_cells"] = result.comparedCells;
-    detail["total_distance"] = result.totalDistance;
-    detail["average_distance"] = result.averageDistance;
-    detail["delta_score"] = result.deltaScore;
-    detail["match_ratio"] = result.matchRatio;
-    detail["new_cells"] = static_cast<int>(result.newCellIndices.size());
-    detail["cells"] = std::move(cells);
 
     const std::string text = json::value(std::move(detail)).dumps();
     MaaStringBufferSet(outDetail, text.c_str());
@@ -229,18 +405,23 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
         EnsureLoaded();
         ResetSessionForNewTask(task_id);
 
-        recogrid::GridRecognitionRequest request = recogrid::ParseGridRecognitionRequest(custom_recognition_param);
+        recogrid::GridScanOptions options;
+        ApplyWeaponInventoryScanDefaults(options);
+
+        recogrid::GridRecognitionRequest request =
+            ParseWeaponRecognitionRequest(custom_recognition_param, options.recognition);
         if ((custom_recognition_param == nullptr || std::strlen(custom_recognition_param) == 0) && roi != nullptr &&
             roi->width > 0 && roi->height > 0) {
             request = recogrid::ApplyRoiOverride(request, { roi->x, roi->y, roi->width, roi->height });
         }
 
-        recogrid::GridScanOptions options;
         options.recognition = request.options;
         options.incremental = ReadIncremental(custom_recognition_param);
-        ApplyWeaponMask(options);
+        options.endMinMatchRatio =
+            ReadDoubleOption(custom_recognition_param, "end_min_match_ratio", options.endMinMatchRatio);
+        ApplyWeaponInventoryMask(options);
+        options.expectedTotalCells = ResolveExpectedTotalCells(custom_recognition_param, context, image);
 
-        const bool debugDetail = ReadDebugDetail(custom_recognition_param);
         const recogrid::GridScanResult result = g_engine.Scan(kSessionId, to_mat(image), options);
         if (result.success) {
             const int cumulativeGrid = result.sessionTotalCells;
@@ -249,8 +430,10 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
             const int cols = result.sessionCols;
             const int pageGrid = result.totalCells;
             const int newCells = static_cast<int>(result.newCellIndices.size());
+            const int expectedGrid = result.expectedTotalCells;
+            const int normalizedDelta = result.normalizedCellDelta;
             LogInfo << "WeaponInventoryScan cumulative grid" << VAR(cumulativeGrid) << VAR(unknown) << VAR(rows)
-                    << VAR(cols) << VAR(pageGrid) << VAR(newCells);
+                    << VAR(cols) << VAR(pageGrid) << VAR(newCells) << VAR(expectedGrid) << VAR(normalizedDelta);
             LogInfo << "WeaponInventoryScan scan delta" << VAR(result.deltaReliable) << VAR(result.hasProgress)
                     << VAR(result.reachedEnd) << VAR(result.rowOffset) << VAR(result.matchedCells)
                     << VAR(result.comparedCells) << VAR(result.matchRatio) << VAR(result.averageDistance)
@@ -261,12 +444,7 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
                 LogWarn << "WeaponInventoryScan override next failed" << VAR(result.reachedEnd);
             }
         }
-        if (debugDetail) {
-            WriteDebugDetail(out_detail, result);
-        }
-        else {
-            WriteSummaryDetail(out_detail, result);
-        }
+        WriteSummaryDetail(out_detail, result);
 
         if (out_box != nullptr) {
             for (const recogrid::GridScanCell& cell : result.cells) {

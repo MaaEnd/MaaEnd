@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,8 +24,13 @@ struct GridScanOptions
 {
     GridRecognitionOptions recognition;
     bool incremental = true;
+    int expectedTotalCells = 0;
     int matchDistanceThreshold = 12;
-    double minMatchRatio = 0.6;
+    double minMatchRatio = 0.5;
+    double endMinMatchRatio = 0.6;
+    int occupiedBrightThreshold = 70;
+    double minOccupiedMean = 55.0;
+    double minOccupiedBrightRatio = 0.20;
     std::string unknownTemplateId = "unknown";
 };
 
@@ -53,6 +59,8 @@ struct GridScanResult
     int sessionRows = 0;
     int sessionCols = 0;
     int sessionTotalCells = 0;
+    int expectedTotalCells = 0;
+    int normalizedCellDelta = 0;
     int knownCells = 0;
     int unknownCells = 0;
     bool incrementalUsed = false;
@@ -92,7 +100,7 @@ private:
         GridHashSnapshot snapshot;
         int viewportStartRow = 0;
         int cols = 0;
-        std::vector<GridScanCell> cells;
+        std::map<std::pair<int, int>, GridScanCell> cells;
     };
 
     std::vector<GridClassifyTemplate> templates_;

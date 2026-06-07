@@ -42,14 +42,16 @@ bool IsBetterAlignment(const AlignmentResult& candidate, const AlignmentResult& 
     return candidate.comparedCells > best.comparedCells;
 }
 
-AlignmentResult EstimateRowOffsetCore(const GridHashSnapshot& first, const GridHashSnapshot& second, int matchDistanceThreshold)
+AlignmentResult EstimateRowOffsetCore(
+    const GridHashSnapshot& first,
+    const GridHashSnapshot& second,
+    int matchDistanceThreshold)
 {
     if (first.rows == 0 || second.rows == 0 || first.cols == 0 || second.cols == 0) {
         throw std::invalid_argument("Cannot align empty grids");
     }
 
     const int comparedCols = std::min(first.cols, second.cols);
-
     AlignmentResult best;
 
     for (int offset = -second.rows + 1; offset <= first.rows - 1; ++offset) {

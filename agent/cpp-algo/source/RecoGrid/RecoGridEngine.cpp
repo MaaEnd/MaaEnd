@@ -2,6 +2,8 @@
 
 #include <MaaUtils/ImageIo.h>
 
+#include <opencv2/imgproc.hpp>
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -15,6 +17,8 @@ namespace recogrid
 {
 namespace
 {
+
+using SessionCells = std::map<std::pair<int, int>, GridScanCell>;
 
 std::string LowercaseExtension(fs::path path)
 {
@@ -107,11 +111,123 @@ std::vector<std::size_t> AllCellIndices(int rows, int cols)
     return indices;
 }
 
+std::vector<std::size_t> NewCellIndicesForOffset(const GridHashSnapshot& current, int rowOffset)
+{
+    std::vector<std::size_t> indices;
+    if (rowOffset <= 0 || current.rows <= 0 || current.cols <= 0) {
+        return indices;
+    }
+
+    const int newRows = std::min(rowOffset, current.rows);
+    const int startRow = std::max(0, current.rows - newRows);
+    indices.reserve(static_cast<std::size_t>(newRows * current.cols));
+    for (int row = startRow; row < current.rows; ++row) {
+        for (int col = 0; col < current.cols; ++col) {
+            const std::size_t index = CellIndex(row, col, current.cols);
+            if (index < current.hashes.size()) {
+                indices.push_back(index);
+            }
+        }
+    }
+    return indices;
+}
+
+int CountLeadingPartialRows(const GridResult& grid)
+{
+    int count = 0;
+    for (const Segment& row : grid.rows) {
+        if (grid.minRowHeight <= 0 || SegmentLength(row) >= grid.minRowHeight) {
+            break;
+        }
+        ++count;
+    }
+    return count;
+}
+
+cv::Mat ToGray(const cv::Mat& image)
+{
+    if (image.channels() == 1) {
+        return image;
+    }
+
+    cv::Mat gray;
+    if (image.channels() == 4) {
+        cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
+    }
+    else if (image.channels() == 3) {
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    }
+    else {
+        throw std::invalid_argument("Unsupported image channel count for grid cell occupancy");
+    }
+    return gray;
+}
+
+bool IsOccupiedCell(const cv::Mat& roi, const cv::Rect& rect, const GridScanOptions& options)
+{
+    const cv::Rect clipped = ClampRect(rect, roi.size());
+    if (clipped.empty()) {
+        return false;
+    }
+
+    const cv::Mat gray = ToGray(roi(clipped));
+    const cv::Mat keepMask = BuildIgnoreMask(gray.size(), options.recognition.mask);
+    const int keptPixels = keepMask.empty() ? gray.rows * gray.cols : cv::countNonZero(keepMask);
+    if (keptPixels <= 0) {
+        return false;
+    }
+
+    cv::Mat bright;
+    cv::threshold(gray, bright, std::clamp(options.occupiedBrightThreshold, 0, 255), 255, cv::THRESH_BINARY);
+    if (!keepMask.empty()) {
+        cv::bitwise_and(bright, keepMask, bright);
+    }
+
+    const double mean = keepMask.empty() ? cv::mean(gray)[0] : cv::mean(gray, keepMask)[0];
+    const double brightRatio = static_cast<double>(cv::countNonZero(bright)) / static_cast<double>(keptPixels);
+    return mean >= options.minOccupiedMean && brightRatio >= options.minOccupiedBrightRatio;
+}
+
+std::vector<std::size_t> CellIndices(const std::vector<GridScanCell>& cells)
+{
+    std::vector<std::size_t> indices;
+    indices.reserve(cells.size());
+    for (const GridScanCell& cell : cells) {
+        indices.push_back(cell.cellIndex);
+    }
+    return indices;
+}
+
+std::vector<std::size_t> ClassifyIndicesForIncrementalCells(
+    const SessionCells& previousCells,
+    const std::vector<GridScanCell>& currentCells,
+    const std::vector<std::size_t>& deltaNewIndices)
+{
+    std::unordered_set<std::size_t> selected(deltaNewIndices.begin(), deltaNewIndices.end());
+    for (const GridScanCell& cell : currentCells) {
+        const auto key = std::make_pair(cell.row, cell.col);
+        if (previousCells.find(key) == previousCells.end()) {
+            selected.insert(cell.cellIndex);
+        }
+    }
+
+    std::vector<std::size_t> indices;
+    indices.reserve(currentCells.size());
+    for (const GridScanCell& cell : currentCells) {
+        if (selected.contains(cell.cellIndex)) {
+            indices.push_back(cell.cellIndex);
+        }
+    }
+    return indices;
+}
+
 std::vector<GridScanCell> MakeUnknownCells(
     int startRow,
     int rows,
     int cols,
+    const cv::Mat& gridRoi,
     const std::vector<cv::Rect>& gridCells,
+    const GridScanOptions& scanOptions,
     const GridRecognitionOptions& options,
     cv::Size imageSize,
     const std::string& unknownTemplateId)
@@ -125,15 +241,17 @@ std::vector<GridScanCell> MakeUnknownCells(
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
             const std::size_t index = CellIndex(row, col, cols);
+            if (index >= gridCells.size() || !IsOccupiedCell(gridRoi, gridCells[index], scanOptions)) {
+                continue;
+            }
+
             GridScanCell cell;
             cell.row = startRow + row;
             cell.col = col;
             cell.cellIndex = index;
             cell.templateId = unknownTemplateId;
             cell.visible = true;
-            if (index < gridCells.size()) {
-                cell.screenCell = RoiToScreen(gridCells[index], options.detect, imageSize);
-            }
+            cell.screenCell = RoiToScreen(gridCells[index], options.detect, imageSize);
             cells.push_back(std::move(cell));
         }
     }
@@ -147,12 +265,19 @@ void ApplyClassifications(
     int startRow,
     const std::string& unknownTemplateId)
 {
+    std::unordered_map<std::size_t, GridScanCell*> cellsByIndex;
+    cellsByIndex.reserve(cells.size());
+    for (GridScanCell& cell : cells) {
+        cellsByIndex.emplace(cell.cellIndex, &cell);
+    }
+
     for (const GridCellClassification& source : classification.cells) {
-        if (source.cellIndex >= cells.size()) {
+        const auto iter = cellsByIndex.find(source.cellIndex);
+        if (iter == cellsByIndex.end()) {
             continue;
         }
 
-        GridScanCell& target = cells[source.cellIndex];
+        GridScanCell& target = *iter->second;
         const int localRow = cols > 0 ? static_cast<int>(source.cellIndex / static_cast<std::size_t>(cols)) : 0;
         const int col = cols > 0 ? static_cast<int>(source.cellIndex % static_cast<std::size_t>(cols)) : 0;
         target.row = startRow + localRow;
@@ -179,9 +304,11 @@ GridScanResult MakeFailure(std::string message)
 void FinalizeCounts(GridScanResult& result)
 {
     result.sessionTotalCells = static_cast<int>(result.cells.size());
+    result.sessionRows = 0;
     result.knownCells = 0;
     result.unknownCells = 0;
     for (const GridScanCell& cell : result.cells) {
+        result.sessionRows = std::max(result.sessionRows, cell.row + 1);
         if (cell.matched) {
             ++result.knownCells;
         }
@@ -191,41 +318,255 @@ void FinalizeCounts(GridScanResult& result)
     }
 }
 
-std::vector<GridScanCell> MakeSessionCells(int rows, int cols, const std::string& unknownTemplateId)
+std::vector<GridScanCell> ToSortedCells(const SessionCells& cells)
 {
-    std::vector<GridScanCell> cells;
-    if (rows <= 0 || cols <= 0) {
-        return cells;
+    std::vector<GridScanCell> output;
+    output.reserve(cells.size());
+    for (const auto& [_, cell] : cells) {
+        output.push_back(cell);
     }
-
-    cells.reserve(static_cast<std::size_t>(rows * cols));
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < cols; ++col) {
-            GridScanCell cell;
-            cell.row = row;
-            cell.col = col;
-            cell.cellIndex = CellIndex(row, col, cols);
-            cell.templateId = unknownTemplateId;
-            cells.push_back(std::move(cell));
-        }
-    }
-    return cells;
+    return output;
 }
 
-void MergeVisibleCell(GridScanCell& target, const GridScanCell& visibleCell, const std::string& unknownTemplateId)
+void HideSessionCells(SessionCells& cells)
 {
-    if (visibleCell.matched) {
-        target = visibleCell;
-        return;
+    for (auto& [_, cell] : cells) {
+        cell.visible = false;
+        cell.screenCell = {};
+    }
+}
+
+bool ShouldReplaceCell(const GridScanCell& current, const GridScanCell& candidate)
+{
+    if (candidate.matched && !current.matched) {
+        return true;
+    }
+    if (!candidate.matched) {
+        return false;
+    }
+    if (candidate.score != current.score) {
+        return candidate.score > current.score;
+    }
+    if (candidate.templateScore != current.templateScore) {
+        return candidate.templateScore > current.templateScore;
+    }
+    if (candidate.phashDistance != current.phashDistance) {
+        return candidate.phashDistance < current.phashDistance;
+    }
+    return candidate.templateId < current.templateId;
+}
+
+int UpsertSessionCell(SessionCells& cells, const GridScanCell& visibleCell)
+{
+    const auto key = std::make_pair(visibleCell.row, visibleCell.col);
+    auto iter = cells.find(key);
+    if (iter == cells.end()) {
+        cells.emplace(key, visibleCell);
+        return 1;
     }
 
-    target.row = visibleCell.row;
-    target.col = visibleCell.col;
+    GridScanCell& target = iter->second;
+    if (ShouldReplaceCell(target, visibleCell)) {
+        target = visibleCell;
+        return 0;
+    }
+
     target.cellIndex = visibleCell.cellIndex;
     target.screenCell = visibleCell.screenCell;
     target.visible = true;
-    if (target.templateId.empty()) {
-        target.templateId = unknownTemplateId;
+    return 0;
+}
+
+int UpsertSessionCells(SessionCells& cells, const std::vector<GridScanCell>& visibleCells)
+{
+    int inserted = 0;
+    for (const GridScanCell& cell : visibleCells) {
+        inserted += UpsertSessionCell(cells, cell);
+    }
+    return inserted;
+}
+
+int MaxSessionRow(const SessionCells& cells)
+{
+    int maxRow = -1;
+    for (const auto& [_, cell] : cells) {
+        maxRow = std::max(maxRow, cell.row);
+    }
+    return maxRow;
+}
+
+int MaxVisibleRow(const std::vector<GridScanCell>& cells)
+{
+    int maxRow = -1;
+    for (const GridScanCell& cell : cells) {
+        maxRow = std::max(maxRow, cell.row);
+    }
+    return maxRow;
+}
+
+std::unordered_set<int> VisibleColsInRow(const std::vector<GridScanCell>& cells, int row)
+{
+    std::unordered_set<int> cols;
+    for (const GridScanCell& cell : cells) {
+        if (cell.row == row) {
+            cols.insert(cell.col);
+        }
+    }
+    return cols;
+}
+
+bool HasTrailingPartialRow(const std::vector<GridScanCell>& cells, int cols)
+{
+    if (cols <= 0) {
+        return false;
+    }
+
+    const int lastRow = MaxVisibleRow(cells);
+    if (lastRow < 0) {
+        return false;
+    }
+
+    const std::unordered_set<int> visibleCols = VisibleColsInRow(cells, lastRow);
+    return !visibleCols.empty() && static_cast<int>(visibleCols.size()) < cols;
+}
+
+int CountSessionCellsInRow(const SessionCells& cells, int row)
+{
+    int count = 0;
+    for (const auto& [_, cell] : cells) {
+        if (cell.row == row) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+bool IsExpectedCellPosition(int row, int col, int cols, int expectedTotalCells)
+{
+    if (row < 0 || col < 0 || cols <= 0 || col >= cols || expectedTotalCells <= 0) {
+        return false;
+    }
+
+    const int ordinal = row * cols + col;
+    return ordinal >= 0 && ordinal < expectedTotalCells;
+}
+
+GridScanCell MakeExpectedUnknownCell(int row, int col, int cols, const std::string& unknownTemplateId)
+{
+    GridScanCell cell;
+    cell.row = row;
+    cell.col = col;
+    cell.cellIndex = CellIndex(row, col, cols);
+    cell.templateId = unknownTemplateId;
+    return cell;
+}
+
+void ShiftTrailingPartialRowToExpectedTail(SessionCells& cells, int cols, int expectedTotalCells, int missingCells)
+{
+    if (cols <= 0 || expectedTotalCells <= 0 || missingCells <= 0 || missingCells % cols != 0) {
+        return;
+    }
+
+    const int maxRow = MaxSessionRow(cells);
+    if (maxRow < 0) {
+        return;
+    }
+
+    const int expectedTailCols = expectedTotalCells % cols;
+    if (expectedTailCols <= 0) {
+        return;
+    }
+
+    const int missingRows = missingCells / cols;
+    const int expectedLastRow = (expectedTotalCells - 1) / cols;
+    if (maxRow + missingRows != expectedLastRow) {
+        return;
+    }
+    if (CountSessionCellsInRow(cells, maxRow) != expectedTailCols ||
+        CountSessionCellsInRow(cells, expectedLastRow) != 0) {
+        return;
+    }
+
+    std::vector<GridScanCell> tailCells;
+    for (auto iter = cells.begin(); iter != cells.end();) {
+        GridScanCell cell = iter->second;
+        if (cell.row == maxRow) {
+            cell.row = expectedLastRow;
+            tailCells.push_back(std::move(cell));
+            iter = cells.erase(iter);
+        }
+        else {
+            ++iter;
+        }
+    }
+
+    for (GridScanCell& cell : tailCells) {
+        if (IsExpectedCellPosition(cell.row, cell.col, cols, expectedTotalCells)) {
+            cells.emplace(std::make_pair(cell.row, cell.col), std::move(cell));
+        }
+    }
+}
+
+int NormalizeSessionCellsToExpectedTotal(
+    SessionCells& cells,
+    int cols,
+    int expectedTotalCells,
+    const std::string& unknownTemplateId)
+{
+    if (cols <= 0 || expectedTotalCells <= 0) {
+        return 0;
+    }
+
+    const int before = static_cast<int>(cells.size());
+    if (before < expectedTotalCells) {
+        ShiftTrailingPartialRowToExpectedTail(cells, cols, expectedTotalCells, expectedTotalCells - before);
+    }
+
+    for (auto iter = cells.begin(); iter != cells.end();) {
+        const GridScanCell& cell = iter->second;
+        if (!IsExpectedCellPosition(cell.row, cell.col, cols, expectedTotalCells)) {
+            iter = cells.erase(iter);
+        }
+        else {
+            ++iter;
+        }
+    }
+
+    for (int ordinal = 0; ordinal < expectedTotalCells; ++ordinal) {
+        const int row = ordinal / cols;
+        const int col = ordinal % cols;
+        const auto key = std::make_pair(row, col);
+        if (cells.find(key) == cells.end()) {
+            cells.emplace(key, MakeExpectedUnknownCell(row, col, cols, unknownTemplateId));
+        }
+    }
+
+    return static_cast<int>(cells.size()) - before;
+}
+
+bool HasNewVisibleSessionKey(const SessionCells& sessionCells, const std::vector<GridScanCell>& visibleCells)
+{
+    return std::any_of(visibleCells.begin(), visibleCells.end(), [&](const GridScanCell& cell) {
+        return sessionCells.find(std::make_pair(cell.row, cell.col)) == sessionCells.end();
+    });
+}
+
+void PruneSessionTrailingPartialRow(SessionCells& sessionCells, const std::vector<GridScanCell>& visibleCells, int cols)
+{
+    if (!HasTrailingPartialRow(visibleCells, cols)) {
+        return;
+    }
+
+    const int lastRow = MaxVisibleRow(visibleCells);
+    const std::unordered_set<int> visibleCols = VisibleColsInRow(visibleCells, lastRow);
+    for (auto iter = sessionCells.begin(); iter != sessionCells.end();) {
+        const GridScanCell& cell = iter->second;
+        if (cell.row > lastRow || (cell.row == lastRow && !visibleCols.contains(cell.col))) {
+            iter = sessionCells.erase(iter);
+        }
+        else {
+            ++iter;
+        }
     }
 }
 
@@ -327,6 +668,7 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
 
     try {
         GridScanResult result;
+        result.expectedTotalCells = options.expectedTotalCells;
         GridRecognitionResult recognition = RecognizeGrid(image, options.recognition);
         result.rows = static_cast<int>(recognition.grid.rows.size());
         result.cols = static_cast<int>(recognition.grid.cols.size());
@@ -350,6 +692,12 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
                 sessionIt->second.snapshot,
                 currentSnapshot,
                 { options.matchDistanceThreshold, options.minMatchRatio });
+            const int leadingPartialRows = CountLeadingPartialRows(recognition.grid);
+            if (delta.reliable && delta.hasProgress && delta.rowOffset > 0 && leadingPartialRows > 0) {
+                delta.rowOffset += leadingPartialRows;
+                delta.newCellIndices = NewCellIndicesForOffset(currentSnapshot, delta.rowOffset);
+                delta.hasProgress = !delta.newCellIndices.empty();
+            }
             useIncremental = delta.reliable && delta.hasProgress && delta.rowOffset > 0;
         }
 
@@ -368,15 +716,61 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
             result.success = true;
             result.message = std::move(message);
             result.reachedEnd = reachedEnd;
-            result.sessionRows =
-                static_cast<int>(session.cells.size() / static_cast<std::size_t>(std::max(1, session.cols)));
             result.sessionCols = session.cols;
-            result.cells = session.cells;
+            result.cells = ToSortedCells(session.cells);
             FinalizeCounts(result);
         };
 
         if (options.incremental && hasSession && sessionIt->second.cols == result.cols && delta.reliable && !delta.hasProgress) {
-            keepSessionResult(sessionIt->second, true, "Grid scan reached end");
+            SessionState stableSession = sessionIt->second;
+            std::vector<GridScanCell> currentCells = MakeUnknownCells(
+                stableSession.viewportStartRow,
+                result.rows,
+                result.cols,
+                recognition.grid.roi,
+                recognition.grid.cells,
+                options,
+                options.recognition,
+                imageSize,
+                options.unknownTemplateId);
+            if (delta.rowOffset == 0 && HasTrailingPartialRow(currentCells, result.cols)) {
+                const int rowOverrun = MaxVisibleRow(currentCells) - MaxSessionRow(stableSession.cells);
+                if (rowOverrun > 0) {
+                    stableSession.viewportStartRow = std::max(0, stableSession.viewportStartRow - rowOverrun);
+                    currentCells = MakeUnknownCells(
+                        stableSession.viewportStartRow,
+                        result.rows,
+                        result.cols,
+                        recognition.grid.roi,
+                        recognition.grid.cells,
+                        options,
+                        options.recognition,
+                        imageSize,
+                        options.unknownTemplateId);
+                }
+                if (!HasNewVisibleSessionKey(stableSession.cells, currentCells)) {
+                    PruneSessionTrailingPartialRow(stableSession.cells, currentCells, result.cols);
+                }
+            }
+            result.totalCells = static_cast<int>(currentCells.size());
+
+            const bool hasNewVisibleKey = HasNewVisibleSessionKey(stableSession.cells, currentCells);
+            const bool reachedEnd =
+                delta.rowOffset == 0 && !hasNewVisibleKey &&
+                (delta.matchRatio >= std::clamp(options.endMinMatchRatio, 0.0, 1.0) ||
+                 HasTrailingPartialRow(currentCells, result.cols));
+            if (reachedEnd) {
+                result.normalizedCellDelta = NormalizeSessionCellsToExpectedTotal(
+                    stableSession.cells,
+                    stableSession.cols,
+                    options.expectedTotalCells,
+                    options.unknownTemplateId);
+                sessionIt->second = stableSession;
+            }
+            keepSessionResult(
+                stableSession,
+                reachedEnd,
+                reachedEnd ? "Grid scan reached end" : "Grid delta has no progress below end threshold; kept previous scan session");
             return result;
         }
 
@@ -386,98 +780,83 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         }
 
         if (!useIncremental) {
+            SessionState session;
+            session.snapshot = currentSnapshot;
+            session.viewportStartRow = 0;
+            session.cols = result.cols;
+            std::vector<GridScanCell> currentCells = MakeUnknownCells(
+                0,
+                result.rows,
+                result.cols,
+                recognition.grid.roi,
+                recognition.grid.cells,
+                options,
+                options.recognition,
+                imageSize,
+                options.unknownTemplateId);
+            result.totalCells = static_cast<int>(currentCells.size());
+
+            const std::vector<std::size_t> occupiedIndices = CellIndices(currentCells);
             GridClassificationResult classification = ClassifyGridCells(
                 recognition,
                 templates_,
                 options.recognition,
                 classifyOptions,
                 imageSize,
-                AllCellIndices(result.rows, result.cols));
+                occupiedIndices);
 
-            SessionState session;
-            session.snapshot = currentSnapshot;
-            session.viewportStartRow = 0;
-            session.cols = result.cols;
-            session.cells = MakeUnknownCells(
-                0,
-                result.rows,
-                result.cols,
-                recognition.grid.cells,
-                options.recognition,
-                imageSize,
-                options.unknownTemplateId);
-            ApplyClassifications(session.cells, classification, result.cols, 0, options.unknownTemplateId);
+            ApplyClassifications(currentCells, classification, result.cols, 0, options.unknownTemplateId);
+            result.newCellIndices = occupiedIndices;
+            UpsertSessionCells(session.cells, currentCells);
             result.success = true;
             result.message = recognition.message.empty() ? "Grid scanned" : recognition.message;
             result.hasProgress = true;
-            result.sessionRows = result.rows;
             result.sessionCols = result.cols;
-            result.cells = session.cells;
+            result.cells = ToSortedCells(session.cells);
             FinalizeCounts(result);
             sessions_[sessionId] = std::move(session);
             return result;
         }
 
+        SessionState& previous = sessionIt->second;
+        SessionState next = previous;
+        next.snapshot = currentSnapshot;
+        next.viewportStartRow = previous.viewportStartRow + delta.rowOffset;
+        next.cols = result.cols;
+        HideSessionCells(next.cells);
+
+        std::vector<GridScanCell> currentCells = MakeUnknownCells(
+            next.viewportStartRow,
+            result.rows,
+            result.cols,
+            recognition.grid.roi,
+            recognition.grid.cells,
+            options,
+            options.recognition,
+            imageSize,
+            options.unknownTemplateId);
+        result.totalCells = static_cast<int>(currentCells.size());
+
+        const std::vector<std::size_t> occupiedNewIndices =
+            ClassifyIndicesForIncrementalCells(previous.cells, currentCells, delta.newCellIndices);
         GridClassificationResult classification = ClassifyGridCells(
             recognition,
             templates_,
             options.recognition,
             classifyOptions,
             imageSize,
-            delta.newCellIndices);
+            occupiedNewIndices);
 
-        SessionState& previous = sessionIt->second;
-        SessionState next;
-        next.snapshot = currentSnapshot;
-        next.viewportStartRow = previous.viewportStartRow + delta.rowOffset;
-        next.cols = result.cols;
-
-        const int newSessionRows = std::max(
-            static_cast<int>(previous.cells.size() / static_cast<std::size_t>(std::max(1, previous.cols))) + delta.rowOffset,
-            result.rows);
-        next.cells = MakeSessionCells(newSessionRows, result.cols, options.unknownTemplateId);
-
-        for (const GridScanCell& oldCell : previous.cells) {
-            if (oldCell.col < 0 || oldCell.col >= result.cols || oldCell.row < 0) {
-                continue;
-            }
-            const std::size_t targetIndex = CellIndex(oldCell.row, oldCell.col, result.cols);
-            if (targetIndex >= next.cells.size()) {
-                continue;
-            }
-            GridScanCell copied = oldCell;
-            copied.cellIndex = targetIndex;
-            copied.visible = false;
-            copied.screenCell = {};
-            copied.row = oldCell.row;
-            copied.col = oldCell.col;
-            next.cells[targetIndex] = std::move(copied);
-        }
-
-        std::vector<GridScanCell> currentCells = MakeUnknownCells(
-            next.viewportStartRow,
-            result.rows,
-            result.cols,
-            recognition.grid.cells,
-            options.recognition,
-            imageSize,
-            options.unknownTemplateId);
         ApplyClassifications(currentCells, classification, result.cols, next.viewportStartRow, options.unknownTemplateId);
-
-        for (const GridScanCell& currentCell : currentCells) {
-            const std::size_t targetIndex = CellIndex(currentCell.row, currentCell.col, result.cols);
-            if (targetIndex < next.cells.size()) {
-                MergeVisibleCell(next.cells[targetIndex], currentCell, options.unknownTemplateId);
-            }
-        }
+        result.newCellIndices = occupiedNewIndices;
+        UpsertSessionCells(next.cells, currentCells);
 
         result.success = true;
         result.message = recognition.message.empty() ? "Grid incrementally scanned" : recognition.message;
         result.incrementalUsed = true;
         result.hasProgress = true;
-        result.sessionRows = newSessionRows;
         result.sessionCols = result.cols;
-        result.cells = next.cells;
+        result.cells = ToSortedCells(next.cells);
         FinalizeCounts(result);
         previous = std::move(next);
         return result;
