@@ -599,6 +599,7 @@
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.label": "传送至仓储节点锚点",
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.description": "开启后将抢完单将自动传送到仓储节点上面的锚点",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "找到试验园区10.6万订单！",
+    "task.SeizeDeliveryJobs.focus.wulingCityFound": "找到武陵城16.3万订单！",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.label": "走到仓储节点",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.description": "传送完成后将走到仓储节点，开启此选项需要使用前台控制器，注意有可能落水！！！",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "指定送货点",

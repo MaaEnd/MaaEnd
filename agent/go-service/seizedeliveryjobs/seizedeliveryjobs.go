@@ -72,16 +72,16 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 		return nil, false
 	}
 
-	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 4 {
+	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 5 {
 		log.Warn().Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("recognition miss")
 		return nil, false
 	}
 
-	// Parse all 4 sub-recognition results
+	// Parse all 4 sub-recognition results (skip index 0 = WulingToken)
 	var details [4]filteredDetail
 	subNames := [4]string{"reward", "origin", "accept", "view_location"}
 	for i := range details {
-		if err := json.Unmarshal([]byte(detail.CombinedResult[i].DetailJson), &details[i]); err != nil {
+		if err := json.Unmarshal([]byte(detail.CombinedResult[i+1].DetailJson), &details[i]); err != nil {
 			log.Error().Err(err).
 				Str("component", "SeizeDeliveryJobs").
 				Str("step", "scan_target").

@@ -68,6 +68,7 @@
             83
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterOwl.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -83,6 +84,7 @@
             73
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -98,6 +100,7 @@
             110
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterObservatory.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -113,6 +116,7 @@
             103
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterTechProductionOffice.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -128,6 +132,7 @@
             89
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -143,6 +148,7 @@
             99
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]
@@ -158,6 +164,7 @@
             83
         ],
         "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterJingweiFieldArea.png",
+        "threshold": 0.9,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ]

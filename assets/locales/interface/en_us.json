@@ -669,6 +669,7 @@
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.label": "Teleport to Depot Node Anchor",
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.description": "When enabled, automatically teleports to the anchor point near the depot node after seizing an order.",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "Found Test Area 106k order!",
+    "task.SeizeDeliveryJobs.focus.wulingCityFound": "Found Wuling City 163k order!",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.label": "Walk to Depot Node",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.description": "After teleporting, will walk to the depot node. Requires Foreground Controller. Warning: may fall into water!!!",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "Specify Delivery Point",

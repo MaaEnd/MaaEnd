@@ -471,6 +471,7 @@
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.label": "倉庫ノード近くのアンカーへ転送",
     "task.SeizeDeliveryJobsisGoDepotNodeWorld.description": "有効にすると、受注完了後に倉庫ノード近くのアンカーへ自動転送します。",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "実験区域10.6万オーダーを見つけました！",
+    "task.SeizeDeliveryJobs.focus.wulingCityFound": "武陵城16.3万オーダーを見つけました！",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.label": "倉庫ノードまで歩行",
     "task.SeizeDeliveryJobsisWalkingToDepotNode.description": "転送完了後に倉庫ノードへ歩行します。このオプションはフォアグラウンドコントローラーが必要です。水に落ちる可能性があります！！！",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "配達先指定",

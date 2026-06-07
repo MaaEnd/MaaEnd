@@ -169,14 +169,22 @@
         "recognition": "And",
         "all_of": [
             {
+                "sub_name": "WulingToken",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    840,
+                    190,
+                    50,
+                    430
+                ],
+                "template": [
+                    "SeizeDeliveryJobs/WulingToken.png"
+                ]
+            },
+            {
                 "sub_name": "RewardOcr",
                 "recognition": "OCR",
-                "roi": [
-                    841,
-                    177,
-                    48,
-                    424
-                ],
+                "roi": "WulingToken",
                 "roi_offset": [
                     0,
                     30,
@@ -193,10 +201,10 @@
                 "recognition": "OCR",
                 "roi": "RewardOcr",
                 "roi_offset": [
-                    -215,
-                    -6,
-                    19,
-                    -6
+                    -229,
+                    -38,
+                    50,
+                    14
                 ],
                 "expected": [
                     "武陵城",
@@ -209,10 +217,10 @@
                 "recognition": "OCR",
                 "roi": "RewardOcr",
                 "roi_offset": [
-                    215,
-                    -6,
-                    93,
-                    15
+                    226,
+                    -4,
+                    70,
+                    12
                 ],
                 "expected": [
                     "接取运送委托",
@@ -228,10 +236,10 @@
                 "recognition": "OCR",
                 "roi": "RewardOcr",
                 "roi_offset": [
-                    -214,
-                    -12,
-                    50,
-                    20
+                    -215,
+                    -8,
+                    34,
+                    10
                 ],
                 "expected": [
                     "查看位置",
@@ -242,7 +250,10 @@
                 ]
             }
         ],
-        "box_index": 2,
+        "box_index": 4,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityFound"
+        },
         "action": "Click",
         "post_wait_freezes": {
             "time": 2000,
