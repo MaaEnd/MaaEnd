@@ -34,11 +34,14 @@
                     "name": "TestArea",
                     "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
                     "option": [
+                        "SeizeDeliveryJobsPostProcessing",
                         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
                     ],
                     "pipeline_override": {
-                        "SeizeDeliveryJobsWulingCityDeparture": {
-                            "enabled": false
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "next": [
+                                "SeizeDeliveryJobsTestAreaDeparture"
+                            ]
                         },
                         "SeizeDeliveryJobsFindTarget": {
                             "all_of": [
@@ -143,7 +146,7 @@
                     "name": "Disable",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Disable.label",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsWulingCityDeparture": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": false
                         }
                     }
@@ -152,10 +155,15 @@
                     "name": "Tele",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsWulingCityDeparture": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
                         "SeizeDeliveryJobsTeleportWulingCityNorth": {
+                            "next": [
+                                "SeizeDeliveryJobsStopTask1"
+                            ]
+                        },
+                        "SeizeDeliveryJobsTeleportTestArea": {
                             "next": [
                                 "SeizeDeliveryJobsStopTask1"
                             ]
@@ -166,10 +174,15 @@
                     "name": "TeleWalk",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsWulingCityDeparture": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
                         "SeizeDeliveryJobsWalkToDepotNodeWulingCity": {
+                            "next": [
+                                "SeizeDeliveryJobsStopTask1"
+                            ]
+                        },
+                        "SeizeDeliveryJobsWalkToDepotNodeTestArea": {
                             "next": [
                                 "SeizeDeliveryJobsStopTask1"
                             ]
@@ -180,7 +193,7 @@
                     "name": "TeleWalkFetch",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetch.label",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsWulingCityDeparture": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         }
                     }
