@@ -135,8 +135,8 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	}, true
 }
 
+// SeizeDeliveryJobsScanTargetAction overrides pipeline click targets for the current scanned job item and advances the scan index.
 type SeizeDeliveryJobsScanTargetAction struct{}
-
 func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// All items exhausted → on_error: ScanExhausted → Refresh
 	if scannedJobItems == nil || currentIndex >= len(scannedJobItems) {
