@@ -1,14 +1,15 @@
 {
     "SeizeDeliveryJobsMain": {
+        "desc": "抢委托任务的主入口",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsFoundListOfDeliveryJobsButton",
+            "SeizeDeliveryJobsEnterJobList",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
     },
-    "SeizeDeliveryJobsFoundListOfDeliveryJobsButton": {
-        "desc": "进入运送委托列表",
+    "SeizeDeliveryJobsEnterJobList": {
+        "desc": "在仓储管理页面，进入运送委托列表",
         "recognition": "OCR",
         "roi": [
             252,
@@ -24,17 +25,20 @@
         ],
         "action": "Click",
         "next": [
-            "isSeizeDeliveryJobsExistOldTask",
-            "isSeizeDeliveryJobsExhausted",
-            "SeizeDeliveryJobsCheckWulingFilter",
-            "SeizeDeliveryJobsOpenRegionFilter"
+            "SeizeDeliveryJobsFailedExistDueTask",
+            "SeizeDeliveryJobsFailedChanceExhausted",
+            "SeizeDeliveryJobsJobListCheckWulingFilter",
+            "SeizeDeliveryJobsJobListOpenRegionFilter"
         ],
         "on_error": [
-            "SeizeDeliveryJobsStopTask"
-        ]
+            "SeizeDeliveryJobsStopTask2"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入运送委托列表"
+        }
     },
-    "SeizeDeliveryJobsCheckWulingFilter": {
-        "desc": "当前已是武陵筛选，直接进入调度",
+    "SeizeDeliveryJobsJobListCheckWulingFilter": {
+        "desc": "在运送委托列表，检查到武陵筛选，直接进入调度",
         "recognition": "OCR",
         "roi": [
             60,
@@ -50,12 +54,12 @@
         "next": [
             "SeizeDeliveryJobsLoop"
         ],
-        "on_error": [
-            "SeizeDeliveryJobsStopTask"
-        ]
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已是武陵筛选，直接进入抢单"
+        }
     },
-    "SeizeDeliveryJobsOpenRegionFilter": {
-        "desc": "非武陵筛选则点击展开地区筛选",
+    "SeizeDeliveryJobsJobListOpenRegionFilter": {
+        "desc": "在运送委托列表，检查到不是武陵筛选，则点击展开地区筛选",
         "recognition": "OCR",
         "roi": [
             60,
@@ -80,13 +84,16 @@
         ],
         "action": "Click",
         "next": [
-            "SeizeDeliveryJobsSelectWuling"
+            "SeizeDeliveryJobsJobListSelectWulingFilter"
         ],
         "on_error": [
-            "SeizeDeliveryJobsStopTask"
-        ]
+            "SeizeDeliveryJobsStopTask2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "展开地区筛选"
+        }
     },
-    "SeizeDeliveryJobsSelectWuling": {
+    "SeizeDeliveryJobsJobListSelectWulingFilter": {
         "desc": "在筛选列表中选择武陵",
         "recognition": "OCR",
         "roi": [
@@ -104,48 +111,8 @@
         "next": [
             "SeizeDeliveryJobsLoop"
         ],
-        "on_error": [
-            "SeizeDeliveryJobsStopTask"
-        ]
-    },
-    "isSeizeDeliveryJobsExistOldTask": {
-        "desc": "已有委托，结束抢单",
-        "recognition": "OCR",
-        "roi": [
-            1020,
-            210,
-            200,
-            35
-        ],
-        "expected": [
-            "查看任务",
-            "查看任務",
-            "(?i)View\\s*Mission",
-            "任務確認",
-            "임무 확인"
-        ],
-        "next": [
-            "SeizeDeliveryJobsStopTask"
-        ],
         "focus": {
-            "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
-        }
-    },
-    "isSeizeDeliveryJobsExhausted": {
-        "desc": "运送委托已满3单，结束抢单",
-        "recognition": "OCR",
-        "roi": [
-            1030,
-            650,
-            45,
-            40
-        ],
-        "expected": "3/3",
-        "next": [
-            "SeizeDeliveryJobsStopTask"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+            "Node.Action.Succeeded": "切换到武陵筛选"
         }
     },
     "SeizeDeliveryJobsLoop": {
@@ -166,6 +133,7 @@
         ]
     },
     "SeizeDeliveryJobsFindTarget": {
+        "desc": "默认匹配武陵城最高价订单（终点筛选关闭时启用）",
         "recognition": "And",
         "all_of": [
             {
@@ -276,8 +244,8 @@
             "InWorld"
         ],
         "next": [
-            "SeizeDeliveryJobsGoDepotNode",
-            "SeizeDeliveryJobsStopTask"
+            "SeizeDeliveryJobsWulingCityDeparture",
+            "SeizeDeliveryJobsStopTask1"
         ]
     },
     "SeizeDeliveryJobsRetryClickAccept": {
@@ -290,13 +258,13 @@
         ]
     },
     "SeizeDeliveryJobsRefresh": {
-        "desc": "刷新动作",
+        "desc": "执行刷新操作",
         "recognition": "OCR",
         "roi": [
-            1075,
-            652,
-            98,
-            34
+            1016,
+            636,
+            161,
+            54
         ],
         "expected": [
             "^刷新",
@@ -309,7 +277,72 @@
             "SeizeDeliveryJobsLoop"
         ]
     },
-    "SeizeDeliveryJobsStopTask": {
-        "action": "StopTask"
+    "SeizeDeliveryJobsFailedTaskConflict": {
+        "desc": "还有订单没有完成，直接结束抢单",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            108,
+            273,
+            29
+        ],
+        "expected": [
+            "当前已有其他送货任务",
+            "请完成后再接取"
+        ],
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已有其他送货任务，请完成后再接取"
+        }
+    },
+    "SeizeDeliveryJobsFailedChanceExhausted": {
+        "desc": "今天的运送委托已满，无法继续接单，直接结束抢单",
+        "recognition": "OCR",
+        "roi": [
+            1030,
+            650,
+            45,
+            40
+        ],
+        "expected": "3/3",
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
+    "SeizeDeliveryJobsFailedExistDueTask": {
+        "desc": "已经接过单了，直接结束抢单",
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            210,
+            200,
+            35
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)View\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
+        }
+    },
+    "SeizeDeliveryJobsStopTask1": {
+        "desc": "抢单成功，结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "记得及时送货哟~"
+        }
+    },
+    "SeizeDeliveryJobsStopTask2": {
+        "desc": "未能前往运送委托列表界面，结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "未能前往运送委托列表界面"
+        }
     }
 }
