@@ -45,13 +45,33 @@
                                 {
                                     "sub_name": "RewardOcr",
                                     "recognition": "OCR",
+                                    "roi": [
+                                        841,
+                                        177,
+                                        48,
+                                        424
+                                    ],
+                                    "roi_offset": [
+                                        0,
+                                        30,
+                                        0,
+                                        -20
+                                    ],
                                     "expected": [
                                         "10.6"
-                                    ]
+                                    ],
+                                    "only_rec": true
                                 },
                                 {
                                     "sub_name": "OriginOcr",
                                     "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        -215,
+                                        -6,
+                                        19,
+                                        -6
+                                    ],
                                     "expected": [
                                         "试验园区",
                                         "實驗園區",
@@ -62,7 +82,40 @@
                                 },
                                 {
                                     "sub_name": "AcceptOcr",
-                                    "recognition": "OCR"
+                                    "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        215,
+                                        -6,
+                                        93,
+                                        15
+                                    ],
+                                    "expected": [
+                                        "接取运送委托",
+                                        "接取運送委託",
+                                        "(?i)Accept\\s*Delivery\\s*Job",
+                                        "配達依頼を受ける",
+                                        "輸送依頼を受注",
+                                        "輸送依頼を受ける"
+                                    ]
+                                },
+                                {
+                                    "sub_name": "ViewLocationOcr",
+                                    "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        -214,
+                                        -12,
+                                        50,
+                                        20
+                                    ],
+                                    "expected": [
+                                        "查看位置",
+                                        "查看地點",
+                                        "(?i)View\\s*Location",
+                                        "位置を確認",
+                                        "위치 확인"
+                                    ]
                                 }
                             ],
                             "focus": {

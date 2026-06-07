@@ -65,7 +65,7 @@
                 "PipelineOverrideAction",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsMainAction",
+                "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "RealTimeTaskAction",
                 "SceneManagerMenuListClickItemAction",

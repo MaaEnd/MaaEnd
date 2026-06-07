@@ -7,12 +7,14 @@
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsScanTargetAction",
         "next": [
-            "SeizeDeliveryJobsScanTarget",
-            "SeizeDeliveryJobsRefresh"
+            "SeizeDeliveryJobsFoundTargetViewLocationClick"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsScanExhausted"
         ]
     },
     "SeizeDeliveryJobsFoundTargetViewLocationClick": {
-        "desc": "点击查看位置（由Go传入动态target）",
+        "desc": "点击查看位置（由Go覆写target）",
         "action": "Click",
         "post_wait_freezes": {
             "time": 2000,
@@ -22,7 +24,10 @@
                 264,
                 103
             ]
-        }
+        },
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterCheck"
+        ]
     },
     "SeizeDeliveryJobsEndpointFilterCheck": {
         "desc": "检查终点是否符合筛选",
@@ -31,8 +36,153 @@
             "SeizeDeliveryJobsEndpointFilterTestArea"
         ]
     },
+    "SeizeDeliveryJobsEndpointFilterWulingCity": {
+        "desc": "武陵城终点筛选入口",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterOwl",
+            "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
+            "SeizeDeliveryJobsEndpointFilterObservatory",
+            "SeizeDeliveryJobsEndpointFilterTechProductionOffice",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterTestArea": {
+        "desc": "试验园区终点筛选入口",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
+            "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
+            "SeizeDeliveryJobsEndpointFilterJingweiFieldArea",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterOwl": {
+        "desc": "猫头鹰（右下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            655,
+            515,
+            93,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterOwl.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+        "desc": "材料研究所（左下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            548,
+            542,
+            122,
+            73
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterObservatory": {
+        "desc": "观测站（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            853,
+            209,
+            84,
+            110
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterObservatory.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+        "desc": "技术生产办公室（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            781,
+            438,
+            88,
+            103
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterTechProductionOffice.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+        "desc": "一号丙型辅桩区（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            291,
+            194,
+            95,
+            89
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+        "desc": "三号丙型辅桩区（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            711,
+            210,
+            82,
+            99
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+        "desc": "经纬田区（右）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            752,
+            375,
+            74,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterJingweiFieldArea.png",
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointMatched": {
+        "desc": "终点匹配成功，重置Go扫描状态",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "next": [
+            "SeizeDeliveryJobsPressEscAfterMatch"
+        ]
+    },
+    "SeizeDeliveryJobsPressEscAfterMatch": {
+        "desc": "终点匹配后按ESC关闭地图",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 1000,
+        "next": [
+            "SeizeDeliveryJobsAcceptClick"
+        ]
+    },
     "SeizeDeliveryJobsAcceptClick": {
-        "desc": "点击接取运送委托（由Go传入动态target）",
+        "desc": "点击接取运送委托（由Go覆写target）",
         "action": "Click",
         "post_wait_freezes": {
             "time": 2000,
@@ -48,120 +198,27 @@
             "SeizeDeliveryJobsRetryClickAccept"
         ]
     },
-    "SeizeDeliveryJobsPressEsc": {
-        "desc": "按ESC返回委托列表",
+    "SeizeDeliveryJobsEndpointNotMatched": {
+        "desc": "终点未匹配，继续扫描下一个委托",
+        "next": [
+            "SeizeDeliveryJobsPressEscAfterNotMatch"
+        ]
+    },
+    "SeizeDeliveryJobsPressEscAfterNotMatch": {
+        "desc": "终点未匹配后按ESC关闭地图",
         "action": "ClickKey",
         "key": 27,
-        "post_delay": 1000
-    },
-    "SeizeDeliveryJobsEndpointFilterWulingCity": {
-        "desc": "武陵城终点筛选入口",
-        "enabled": false,
+        "post_delay": 1000,
         "next": [
-            "SeizeDeliveryJobsEndpointFilterOwl",
-            "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
-            "SeizeDeliveryJobsEndpointFilterObservatory",
-            "SeizeDeliveryJobsEndpointFilterTechProductionOffice"
+            "SeizeDeliveryJobsScanTarget"
         ]
     },
-    "SeizeDeliveryJobsEndpointFilterTestArea": {
-        "desc": "试验园区终点筛选入口",
-        "enabled": false,
+    "SeizeDeliveryJobsScanExhausted": {
+        "desc": "扫描完毕未找到目标委托，重置Go扫描状态",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
         "next": [
-            "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
-            "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
-            "SeizeDeliveryJobsEndpointFilterJingweiFieldArea"
+            "SeizeDeliveryJobsRefresh"
         ]
-    },
-    "SeizeDeliveryJobsEndpointFilterOwl": {
-        "desc": "猫头鹰（右下）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            655,
-            515,
-            93,
-            83
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterOwl.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
-        "desc": "材料研究所（左下）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            548,
-            542,
-            122,
-            73
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterObservatory": {
-        "desc": "观测站（右上）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            853,
-            209,
-            84,
-            110
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterObservatory.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
-        "desc": "技术生产办公室（左上）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            781,
-            438,
-            88,
-            103
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterTechProductionOffice.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
-        "desc": "一号丙型辅桩区（左上）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            291,
-            194,
-            95,
-            89
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
-        "desc": "三号丙型辅桩区（右上）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            711,
-            210,
-            82,
-            99
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea.png",
-        "next": []
-    },
-    "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
-        "desc": "经纬田区（右）",
-        "enabled": false,
-        "recognition": "TemplateMatch",
-        "roi": [
-            752,
-            375,
-            74,
-            83
-        ],
-        "template": "SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilterJingweiFieldArea.png",
-        "next": []
     }
 }

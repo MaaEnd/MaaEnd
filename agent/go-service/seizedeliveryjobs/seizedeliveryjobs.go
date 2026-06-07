@@ -13,7 +13,17 @@ type deliveryJobItem struct {
 	RewardBox       []int  `json:"reward_box"`
 	OriginText      string `json:"origin_text"`
 	AcceptBox       []int  `json:"accept_box"`
-	ViewLocationBox []int  `json:"view_location_box"` // computed: RewardBox + offset [-214,-12,38,17]
+	ViewLocationBox []int  `json:"view_location_box"`
+}
+
+// filteredDetail holds the parsed OCR sub-recognition result.
+// The Text field is only populated for origin (index 1); others leave it zero.
+type filteredDetail struct {
+	Filtered []struct {
+		Box   []int   `json:"box"`
+		Score float64 `json:"score"`
+		Text  string  `json:"text"`
+	} `json:"filtered"`
 }
 
 var (
@@ -21,201 +31,171 @@ var (
 	currentIndex    int
 )
 
-func computeViewLocationBox(rewardBox []int) []int {
-	return []int{
-		rewardBox[0] - 214,
-		rewardBox[1] - 12,
-		38,
-		17,
-	}
+// boxToRect converts a [x, y, w, h] box slice to maa.Rect.
+func boxToRect(box []int) maa.Rect {
+	return maa.Rect{box[0], box[1], box[2], box[3]}
 }
 
-type SeizeDeliveryJobsMainAction struct{}
+// SeizeDeliveryJobsResetScanStateAction resets scan state (items + index).
+// Used by both EndpointMatched and ScanExhausted nodes.
+type SeizeDeliveryJobsResetScanStateAction struct{}
 
-func (a *SeizeDeliveryJobsMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	scannedJobItems = nil
+	currentIndex = 0
 	log.Info().
 		Str("component", "SeizeDeliveryJobs").
-		Str("step", "main_run").
-		Msg("start")
-	scannedJobItems = []deliveryJobItem{}
-	currentIndex = 0
+		Str("step", "reset_scan_state").
+		Msg("scan state cleared")
 	return true
 }
 
 type SeizeDeliveryJobsScanTargetRecognition struct{}
 
 func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	// Subsequent calls: already have scanned data, just hit
+	if scannedJobItems != nil {
+		log.Debug().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_target").
+			Int("remaining", len(scannedJobItems)-currentIndex).
+			Msg("reusing existing scan data")
+		return &maa.CustomRecognitionResult{
+			Box: arg.Roi,
+		}, true
+	}
+
+	// First call: OCR scan to build items
 	detail, recoErr := ctx.RunRecognition("SeizeDeliveryJobsFindTarget", arg.Img)
 	if recoErr != nil || detail == nil {
 		log.Error().Err(recoErr).Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("run recognition")
 		return nil, false
 	}
 
-	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
+	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 4 {
 		log.Warn().Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("recognition miss")
 		return nil, false
 	}
 
-	var rewardDetail struct {
-		Filtered []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-		} `json:"filtered"`
-	}
-	var originDetail struct {
-		Filtered []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-			Text  string  `json:"text"`
-		} `json:"filtered"`
-	}
-	var acceptDetail struct {
-		Filtered []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-		} `json:"filtered"`
+	// Parse all 4 sub-recognition results
+	var details [4]filteredDetail
+	subNames := [4]string{"reward", "origin", "accept", "view_location"}
+	for i := range details {
+		if err := json.Unmarshal([]byte(detail.CombinedResult[i].DetailJson), &details[i]); err != nil {
+			log.Error().Err(err).
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_target").
+				Str("sub", subNames[i]).
+				Msg("parse detail json")
+			return nil, false
+		}
 	}
 
-	if err := json.Unmarshal([]byte(detail.CombinedResult[0].DetailJson), &rewardDetail); err != nil {
-		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("parse reward detail json")
-		return nil, false
-	}
-	if err := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &originDetail); err != nil {
-		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("parse origin detail json")
-		return nil, false
-	}
-	if err := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &acceptDetail); err != nil {
-		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("parse accept detail json")
-		return nil, false
-	}
-
-	if len(rewardDetail.Filtered) != len(originDetail.Filtered) || len(rewardDetail.Filtered) != len(acceptDetail.Filtered) {
-		log.Warn().
-			Int("reward_count", len(rewardDetail.Filtered)).
-			Int("origin_count", len(originDetail.Filtered)).
-			Int("accept_count", len(acceptDetail.Filtered)).
-			Str("component", "SeizeDeliveryJobs").
-			Str("step", "scan_target").
-			Msg("recognition count mismatch")
-		return nil, false
+	// Verify all sub-results have the same count
+	n := len(details[0].Filtered)
+	for i := 1; i < 4; i++ {
+		if len(details[i].Filtered) != n {
+			log.Warn().
+				Ints("counts", []int{
+					len(details[0].Filtered), len(details[1].Filtered),
+					len(details[2].Filtered), len(details[3].Filtered),
+				}).
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_target").
+				Msg("recognition count mismatch")
+			return nil, false
+		}
 	}
 
 	// Build all items from the filtered results
-	items := make([]deliveryJobItem, 0, len(rewardDetail.Filtered))
-	for i := range rewardDetail.Filtered {
-		item := deliveryJobItem{
-			RewardBox:       rewardDetail.Filtered[i].Box,
-			OriginText:      originDetail.Filtered[i].Text,
-			AcceptBox:       acceptDetail.Filtered[i].Box,
-			ViewLocationBox: computeViewLocationBox(rewardDetail.Filtered[i].Box),
-		}
-		items = append(items, item)
+	items := make([]deliveryJobItem, 0, n)
+	for i := range details[0].Filtered {
+		items = append(items, deliveryJobItem{
+			RewardBox:       details[0].Filtered[i].Box,
+			OriginText:      details[1].Filtered[i].Text,
+			AcceptBox:       details[2].Filtered[i].Box,
+			ViewLocationBox: details[3].Filtered[i].Box,
+		})
 	}
 	scannedJobItems = items
 
+	origins := make([]string, 0, len(items))
+	for _, it := range items {
+		origins = append(origins, it.OriginText)
+	}
+	log.Info().
+		Str("component", "SeizeDeliveryJobs").
+		Str("step", "scan_target").
+		Int("item_count", len(items)).
+		Strs("origins", origins).
+		Msg("scanned job items")
+
 	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.scanning"))
 
-	if currentIndex >= len(scannedJobItems) {
-		maafocus.Print(ctx, i18n.T("seizedeliveryjobs.no_more_targets"))
-		return nil, false
-	}
-
-	item := scannedJobItems[currentIndex]
-	resultJson, err := json.Marshal(item)
-	if err != nil {
-		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_target").Msg("marshal result json")
-		return nil, false
-	}
-
 	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(resultJson),
+		Box: arg.Roi,
 	}, true
 }
 
 type SeizeDeliveryJobsScanTargetAction struct{}
 
 func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
-	if !ok {
-		log.Error().Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("get custom result")
+	// All items exhausted → on_error: ScanExhausted → Refresh
+	if scannedJobItems == nil || currentIndex >= len(scannedJobItems) {
+		log.Info().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_action").
+			Int("index", currentIndex).
+			Int("total", len(scannedJobItems)).
+			Msg("all items scanned, will refresh")
 		return false
 	}
 
-	var item deliveryJobItem
-	if err := json.Unmarshal([]byte(customResult.Detail), &item); err != nil {
-		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("parse custom result")
-		return false
-	}
-
+	item := scannedJobItems[currentIndex]
 	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.checking_job", currentIndex+1, len(scannedJobItems), item.OriginText))
 
-	// Click "查看位置" to view the delivery destination
 	if len(item.ViewLocationBox) < 4 {
-		log.Error().Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("view location box invalid")
+		log.Error().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_action").
+			Int("index", currentIndex).
+			Int("box_len", len(item.ViewLocationBox)).
+			Msg("view location box invalid")
 		return false
 	}
-	{
-		override := map[string]any{
-			"SeizeDeliveryJobsFoundTargetViewLocationClick": map[string]any{
-				"target": maa.Rect{
-					item.ViewLocationBox[0],
-					item.ViewLocationBox[1],
-					item.ViewLocationBox[2],
-					item.ViewLocationBox[3],
-				},
-			},
-		}
-		_, err := ctx.RunTask("SeizeDeliveryJobsFoundTargetViewLocationClick", override)
-		if err != nil {
-			log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("click view location failed")
-			return false
-		}
+	if len(item.AcceptBox) < 4 {
+		log.Error().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_action").
+			Int("index", currentIndex).
+			Int("box_len", len(item.AcceptBox)).
+			Msg("accept box invalid")
+		return false
 	}
 
-	// Check endpoint filter
-	{
-		detail, err := ctx.RunTask("SeizeDeliveryJobsEndpointFilterCheck", nil)
-		if err != nil {
-			log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("endpoint filter check failed")
-			return false
-		}
+	viewRect := boxToRect(item.ViewLocationBox)
+	acceptRect := boxToRect(item.AcceptBox)
 
-		if detail != nil {
-			// Endpoint matched - ESC back and accept the job
-			maafocus.Print(ctx, i18n.T("seizedeliveryjobs.endpoint_matched"))
+	log.Debug().
+		Str("component", "SeizeDeliveryJobs").
+		Str("step", "scan_action").
+		Int("index", currentIndex).
+		Ints("view_location_box", item.ViewLocationBox).
+		Ints("accept_box", item.AcceptBox).
+		Msg("overriding pipeline targets")
 
-			// ESC back to delivery list
-			_, _ = ctx.RunTask("SeizeDeliveryJobsPressEsc", nil)
-
-			// Click "接取运送委托" at the saved AcceptBox position
-			maafocus.Print(ctx, i18n.T("seizedeliveryjobs.accepting"))
-			if len(item.AcceptBox) < 4 {
-				log.Error().Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("accept box invalid")
-				return false
-			}
-			override := map[string]any{
-				"SeizeDeliveryJobsAcceptClick": map[string]any{
-					"target": maa.Rect{
-						item.AcceptBox[0],
-						item.AcceptBox[1],
-						item.AcceptBox[2],
-						item.AcceptBox[3],
-					},
-				},
-			}
-			_, err := ctx.RunTask("SeizeDeliveryJobsAcceptClick", override)
-			if err != nil {
-				log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_action").Msg("accept click failed")
-				return false
-			}
-			return true
-		}
+	if err := ctx.OverridePipeline(map[string]any{
+		"SeizeDeliveryJobsFoundTargetViewLocationClick": map[string]any{"target": viewRect},
+		"SeizeDeliveryJobsAcceptClick":                  map[string]any{"target": acceptRect},
+		"SeizeDeliveryJobsRetryClickAccept":             map[string]any{"target": acceptRect},
+	}); err != nil {
+		log.Error().Err(err).
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_action").
+			Int("index", currentIndex).
+			Msg("override pipeline failed")
+		return false
 	}
-
-	// Endpoint not matched - ESC back and try next
-	maafocus.Print(ctx, i18n.T("seizedeliveryjobs.endpoint_not_matched"))
-	_, _ = ctx.RunTask("SeizeDeliveryJobsPressEsc", nil)
 
 	currentIndex++
 	return true
@@ -223,7 +203,7 @@ func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.Custo
 
 // Compile-time interface checks
 var (
-	_ maa.CustomActionRunner      = &SeizeDeliveryJobsMainAction{}
+	_ maa.CustomActionRunner      = &SeizeDeliveryJobsResetScanStateAction{}
 	_ maa.CustomRecognitionRunner = &SeizeDeliveryJobsScanTargetRecognition{}
 	_ maa.CustomActionRunner      = &SeizeDeliveryJobsScanTargetAction{}
 )

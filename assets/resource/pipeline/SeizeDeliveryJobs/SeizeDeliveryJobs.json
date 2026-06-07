@@ -222,6 +222,24 @@
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
                 ]
+            },
+            {
+                "sub_name": "ViewLocationOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    -214,
+                    -12,
+                    50,
+                    20
+                ],
+                "expected": [
+                    "查看位置",
+                    "查看地點",
+                    "(?i)View\\s*Location",
+                    "位置を確認",
+                    "위치 확인"
+                ]
             }
         ],
         "box_index": 2,
