@@ -16,7 +16,10 @@
             "friday": false,
             "saturday": false,
             "sunday": false
-        }
+        },
+        "next": [
+            "DetectRunningTask"
+        ]
     },
     "SellProductMain": {
         "desc": "脚本入口",

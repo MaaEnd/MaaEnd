@@ -3,6 +3,7 @@
         "desc": "在 tasks 中对默认 false 的 前置(next) 任务进行 override",
         "recognition": "DirectHit",
         "next": [
+            "DetectRunningTask",
             "ItemTransferStart",
             "ItemTransferInBackpack"
         ]

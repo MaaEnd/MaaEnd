@@ -1,0 +1,59 @@
+{
+    "DetectRunningTask": {
+        "recognition": "DirectHit",
+        "next": [
+            "DetectRunningTaskLoginScreen",
+            "DetectRunningTaskMain",
+            "DetectRunningTaskTopRight"
+        ]
+    },
+    "DetectRunningTaskLoginScreen": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            867,
+            364,
+            411,
+            43
+        ],
+        "template": "DetectRunningTask/3.png",
+        "threshold": 0.7,
+        "next": [
+            "DetectRunningTaskWaitLogin"
+        ]
+    },
+    "DetectRunningTaskWaitLogin": {
+        "recognition": "DirectHit",
+        "pre_delay": 17000,
+        "next": [
+            "DetectRunningTask"
+        ]
+    },
+    "DetectRunningTaskMain": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -1,
+            253,
+            1278,
+            178
+        ],
+        "template": "DetectRunningTask/1.png",
+        "threshold": 0.7,
+        "focus": {
+            "Node.Recognition.Succeeded": "检测到当期正在进行任务，请自行选择是否退出"
+        }
+    },
+    "DetectRunningTaskTopRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1237,
+            36,
+            20,
+            18
+        ],
+        "template": "DetectRunningTask/2.png",
+        "threshold": 0.7,
+        "focus": {
+            "Node.Recognition.Succeeded": "检测到当期正在进行任务，请自行选择是否退出"
+        }
+    }
+}

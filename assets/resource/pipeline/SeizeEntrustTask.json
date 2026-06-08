@@ -372,6 +372,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "DetectRunningTask",
             "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
