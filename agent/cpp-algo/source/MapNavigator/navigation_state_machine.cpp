@@ -617,7 +617,6 @@ bool NavigationStateMachine::TickNavigate()
     if (nav_run_result.replanned_with == NavRunReplanReason::OffCorridor) {
         session_->ResetProgress();
     }
-    const int64_t stalled_ms = session_->StalledMs(now);
     if (runtime_state_.recovery.active) {
         const bool recovery_zone_changed = !runtime_state_.recovery.anchor_pos.zone_id.empty() && !position_->zone_id.empty()
                                            && runtime_state_.recovery.anchor_pos.zone_id != position_->zone_id;
@@ -625,8 +624,16 @@ bool NavigationStateMachine::TickNavigate()
             std::hypot(position_->x - runtime_state_.recovery.anchor_pos.x, position_->y - runtime_state_.recovery.anchor_pos.y);
         if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {
             runtime_state_.recovery.Reset();
+            runtime_state_.route.ResetTracking();
+            runtime_state_.dynamic_replan_requested = false;
+            runtime_state_.nav_run_dirty = true;
+            session_->ResetProgress();
+            LogInfo << "Dynamic recovery escaped obstacle." << VAR(recovery_zone_changed) << VAR(recovery_displacement);
+            SelectPhaseForCurrentWaypoint("recovery_escape");
+            return true;
         }
     }
+    const int64_t stalled_ms = session_->StalledMs(now);
 
     if (!route.valid) {
         if (degraded_fix) {
@@ -718,43 +725,66 @@ bool NavigationStateMachine::TickNavigate()
                         stalled_ms);
                 }
 
+                recovery.last_replan_at = now;
+                const NaviPosition jump_start = *position_;
+                LogInfo << "Dynamic recovery jump pulse issued." << VAR(recovery.attempt_count + 1);
+                motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
+                utils::SleepFor(kActionJumpSettleMs);
                 motion_controller_->SetForwardState(false);
-                if (!CaptureCurrentPosition(true) || position_provider_->LastCaptureWasHeld()
+                if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld()
                     || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
-                    LogWarn << "Dynamic recovery waiting for a fresh localization fix." << VAR(stalled_ms)
+                    LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR(stalled_ms)
                             << VAR(recovery.attempt_count);
                     utils::SleepFor(kTargetTickMs);
                     return true;
                 }
 
-                const std::optional<DynamicAnchor> fresh_anchor = ResolveCurrentAnchor(session_, *position_);
-                if (!fresh_anchor) {
-                    LogWarn << "Dynamic recovery skipped: no future anchor after relocalization." << VAR(position_->x)
+                const bool jump_zone_changed = !jump_start.zone_id.empty() && !position_->zone_id.empty()
+                                               && jump_start.zone_id != position_->zone_id;
+                const double jump_displacement = std::hypot(position_->x - jump_start.x, position_->y - jump_start.y);
+                const double jump_waypoint_distance = std::hypot(waypoint.x - position_->x, waypoint.y - position_->y);
+                const bool jump_made_progress = jump_waypoint_distance + kNoProgressDistanceEpsilon < route.waypoint_distance;
+                const bool jump_moved_forward = jump_displacement >= kDynamicRecoveryResetDistance * 0.5 && jump_made_progress;
+                if (jump_zone_changed || jump_displacement >= kDynamicRecoveryResetDistance || jump_moved_forward) {
+                    recovery.Reset();
+                    runtime_state_.route.ResetTracking();
+                    runtime_state_.dynamic_replan_requested = false;
+                    runtime_state_.nav_run_dirty = true;
+                    session_->ResetProgress();
+                    LogInfo << "Dynamic recovery jump escaped obstacle." << VAR(jump_zone_changed) << VAR(jump_displacement)
+                            << VAR(jump_moved_forward);
+                    SelectPhaseForCurrentWaypoint("recovery_jump_escape");
+                    return true;
+                }
+
+                const std::optional<DynamicAnchor> post_jump_anchor = ResolveCurrentAnchor(session_, *position_);
+                if (!post_jump_anchor) {
+                    LogWarn << "Dynamic recovery skipped: no future anchor after post-jump local tracking." << VAR(position_->x)
                             << VAR(position_->y) << VAR(position_->zone_id);
                     utils::SleepFor(kTargetTickMs);
                     return true;
                 }
-                if (fresh_anchor->first != recovery.anchor_index) {
+                if (post_jump_anchor->first != recovery.anchor_index) {
                     recovery.Reset();
                     recovery.active = true;
                     recovery.anchor_pos = *position_;
                     recovery.started_at = now;
-                    recovery.anchor_index = fresh_anchor->first;
+                    recovery.anchor_index = post_jump_anchor->first;
+                    recovery.last_replan_at = now;
                 }
 
                 ++recovery.attempt_count;
-                recovery.last_replan_at = now;
                 if (TryApplyDynamicOverlayToAnchor(
                         "recovery_navmesh_detour",
-                        fresh_anchor->first,
-                        fresh_anchor->second,
+                        post_jump_anchor->first,
+                        post_jump_anchor->second,
                         true,
                         route.route_heading)) {
                     SelectPhaseForCurrentWaypoint("recovery_navmesh_detour");
                     return true;
                 }
 
-                LogWarn << "Dynamic recovery detour attempt failed." << VAR(recovery.attempt_count) << VAR(fresh_anchor->first)
+                LogWarn << "Dynamic recovery detour attempt failed." << VAR(recovery.attempt_count) << VAR(post_jump_anchor->first)
                         << VAR(route.progress_distance) << VAR(stalled_ms);
                 if (recovery.attempt_count >= kDynamicRecoveryMaxAttemptsPerAnchor) {
                     return FailNavigation(
