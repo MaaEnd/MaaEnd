@@ -128,6 +128,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 400,
         "next": [
             "ProdManualNext",
             "ProdManualConfirmUpdate",
@@ -180,8 +181,7 @@
                     -28
                 ]
             }
-        },
-            "post_wait_freezes": 400
+        }
     },
     "ProdManualOpenInBackpack": {
         "recognition": {
