@@ -558,7 +558,7 @@
             "type": "Click",
             "param": {}
         },
-         "post_wait_freezes": 400,
+        "post_wait_freezes": 400,
         "next": [   
             "ProdManualConfirmReward"
         ],
