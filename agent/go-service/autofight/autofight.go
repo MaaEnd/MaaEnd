@@ -87,8 +87,52 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	return detail.Hit
 }
 
+// captureDurationTracker 统计截图识别的平均耗时：每 reportWindow 计算一次窗口内平均值并重置，
+// 若平均耗时超过 alertThreshold，则通过 maafocus 提醒用户降低显卡资源占用。
+type captureDurationTracker struct {
+	reportWindow   time.Duration
+	alertThreshold time.Duration
+	total          time.Duration
+	count          int
+	windowStart    time.Time
+}
+
+// record 累计一次耗时，并在窗口结束时返回该窗口的平均耗时（毫秒）；
+// 仅当窗口刚结束时 ok 为 true，否则 ok 为 false。
+func (t *captureDurationTracker) record(d time.Duration) (avgMs int64, ok bool) {
+	now := time.Now()
+	if t.windowStart.IsZero() {
+		t.windowStart = now
+	}
+	t.total += d
+	t.count++
+
+	if now.Sub(t.windowStart) < t.reportWindow {
+		return 0, false
+	}
+
+	avg := t.total / time.Duration(t.count)
+	t.total = 0
+	t.count = 0
+	t.windowStart = now
+	return avg.Milliseconds(), true
+}
+
+var capturePerf = &captureDurationTracker{
+	reportWindow:   5 * time.Second,
+	alertThreshold: 500 * time.Millisecond,
+}
+
 // captureAndUpdateScreenDetail 因 DirectHit 耗时 50ms，在 action 里直接截图并更新屏幕分析状态。
 func captureAndUpdateScreenDetail(ctx *maa.Context) (image.Image, bool) {
+	start := time.Now()
+	defer func() {
+		if avgMs, ok := capturePerf.record(time.Since(start)); ok &&
+			time.Duration(avgMs)*time.Millisecond > capturePerf.alertThreshold {
+			maafocus.Print(ctx, i18n.T("autofight.capture_slow", avgMs))
+		}
+	}()
+
 	ctx.GetTasker().GetController().PostScreencap().Wait()
 	img, err := ctx.GetTasker().GetController().CacheImage()
 	if err != nil {
