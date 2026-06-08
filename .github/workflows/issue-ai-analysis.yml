@@ -41,7 +41,8 @@ jobs:
         with:
           github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
           codex-api-key: ${{ secrets.CODEX_API_KEY }}
-          # codex-base-url: ${{ secrets.CODEX_BASE_URL }}
+          codex-base-url: ${{ secrets.CODEX_BASE_URL }}
+          codex-model: ${{ secrets.CODEX_MODEL }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
             🤖 **MaaEndBot 正在分析该 Issue...**
