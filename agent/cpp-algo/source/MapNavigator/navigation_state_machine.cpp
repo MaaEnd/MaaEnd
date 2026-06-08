@@ -667,7 +667,7 @@ bool NavigationStateMachine::TickNavigate()
                 return true;
             }
 
-            const size_t arrived_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
+            const std::optional<size_t> arrived_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
             if (waypoint.RequiresStrictArrival() && motion_controller_->IsMoving()) {
                 motion_controller_->SetForwardState(false);
                 utils::SleepFor(kStopWaitMs);

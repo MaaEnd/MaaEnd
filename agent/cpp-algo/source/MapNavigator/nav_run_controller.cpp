@@ -83,19 +83,24 @@ double RemainingAlongCorridor(const navmesh::WorldPath& path, const CorridorProj
     return total;
 }
 
-double CorridorArcLengthTo(const navmesh::WorldPath& path, const CorridorProjection& projection)
+std::vector<double> BuildCorridorArcPrefix(const navmesh::WorldPath& path)
 {
-    double arc = 0.0;
-    for (size_t edge = 0; edge < projection.edge_idx && edge + 1 < path.points.size(); ++edge) {
+    std::vector<double> prefix(path.points.size(), 0.0);
+    for (size_t edge = 0; edge + 1 < path.points.size(); ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
-        arc += std::hypot(b.x - a.x, b.y - a.y);
+        prefix[edge + 1] = prefix[edge] + std::hypot(b.x - a.x, b.y - a.y);
     }
-    if (projection.edge_idx < path.points.size()) {
-        arc += std::hypot(
-            projection.point.x - path.points[projection.edge_idx].x, projection.point.y - path.points[projection.edge_idx].y);
+    return prefix;
+}
+
+double CorridorArcLengthTo(const navmesh::WorldPath& path, const std::vector<double>& arc_prefix, const CorridorProjection& projection)
+{
+    if (projection.edge_idx >= arc_prefix.size() || projection.edge_idx >= path.points.size()) {
+        return std::numeric_limits<double>::infinity();
     }
-    return arc;
+    const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
+    return arc_prefix[projection.edge_idx] + std::hypot(projection.point.x - edge_start.x, projection.point.y - edge_start.y);
 }
 
 bool IsContinuousRunWaypoint(const Waypoint& waypoint)
@@ -111,8 +116,16 @@ bool IsContinuousRunWaypoint(const Waypoint& waypoint)
 // has deviated far enough from the original waypoint line that serial cross-track tracking gives
 // up advancing it.
 size_t CountCorridorPassedRunWaypoints(
-    const NavigationSession& session, const navmesh::WorldPath& path, size_t anchor_index, double character_arc)
+    const NavigationSession& session,
+    const navmesh::WorldPath& path,
+    const std::vector<double>& arc_prefix,
+    size_t anchor_index,
+    double character_arc)
 {
+    if (!std::isfinite(character_arc)) {
+        return 0;
+    }
+
     const std::vector<Waypoint>& waypoints = session.current_path();
     const double margin = std::max(kMeasurementDefaultPositionQuantum, 0.0);
     size_t count = 0;
@@ -130,7 +143,7 @@ size_t CountCorridorPassedRunWaypoints(
         if (!waypoint_projection) {
             break;
         }
-        if (CorridorArcLengthTo(path, *waypoint_projection) > character_arc + margin) {
+        if (CorridorArcLengthTo(path, arc_prefix, *waypoint_projection) > character_arc + margin) {
             break;
         }
         ++count;
@@ -232,6 +245,7 @@ bool NavRunController::buildPlan(
     plan_.anchor_index = anchor_index;
     plan_.anchor_pos = { .x = anchor.x, .y = anchor.y };
     plan_.path = std::move(route->path);
+    plan_.corridor_arc_prefix = BuildCorridorArcPrefix(plan_.path);
     plan_.cursor = 0;
     plan_.planned_at = now;
     return true;
@@ -361,8 +375,9 @@ NavRunTickResult NavRunController::tick(
     result.lookahead_point = lookahead;
     result.cross_track = projection->cross_track;
     result.remaining_to_anchor = remaining;
+    const double character_arc = CorridorArcLengthTo(plan_.path, plan_.corridor_arc_prefix, *projection);
     result.passed_run_waypoints =
-        CountCorridorPassedRunWaypoints(*session, plan_.path, anchor_index, CorridorArcLengthTo(plan_.path, *projection));
+        CountCorridorPassedRunWaypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
     return result;
 }
 

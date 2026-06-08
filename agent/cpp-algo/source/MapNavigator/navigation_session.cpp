@@ -71,10 +71,10 @@ size_t NavigationSession::current_node_idx() const
     return current_node_idx_;
 }
 
-size_t NavigationSession::CurrentAbsoluteNodeIndex() const
+std::optional<size_t> NavigationSession::CurrentAbsoluteNodeIndex() const
 {
     if (current_node_idx_ < generated_prefix_size_) {
-        return std::numeric_limits<size_t>::max();
+        return std::nullopt;
     }
     return path_origin_index_ + current_node_idx_ - generated_prefix_size_;
 }
@@ -150,9 +150,12 @@ void NavigationSession::CommitSuccessfulCompletion(const NaviPosition& position,
     UpdatePhase(NaviPhase::Finished, reason);
 }
 
-void NavigationSession::NoteCanonicalFinalGoalConsumed(size_t consumed_absolute_index, const NaviPosition& position, const char* reason)
+void NavigationSession::NoteCanonicalFinalGoalConsumed(
+    std::optional<size_t> consumed_absolute_index,
+    const NaviPosition& position,
+    const char* reason)
 {
-    if (!HasCanonicalFinalGoal() || consumed_absolute_index != canonical_final_goal_index_) {
+    if (!HasCanonicalFinalGoal() || !consumed_absolute_index || *consumed_absolute_index != canonical_final_goal_index_) {
         return;
     }
     RecordFinalArrivalEvidence(position, false, canonical_final_goal_index_, reason);

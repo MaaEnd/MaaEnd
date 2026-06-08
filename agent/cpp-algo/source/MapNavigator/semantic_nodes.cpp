@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <thread>
 
 #include <MaaFramework/MaaAPI.h>
@@ -398,7 +399,7 @@ Result ConsumeInlineSemantics(const Context& ctx)
 Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
     Result result;
-    const size_t arrived_absolute_node_idx = ctx.session->CurrentAbsoluteNodeIndex();
+    const std::optional<size_t> arrived_absolute_node_idx = ctx.session->CurrentAbsoluteNodeIndex();
 
     if (waypoint.RequiresStrictArrival() && ctx.motion_controller->IsMoving()) {
         StopMotionAndCommitment(ctx);

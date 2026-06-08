@@ -23,7 +23,8 @@ using SegmentWalkableFn = std::function<bool(const WorldPoint& a, const WorldPoi
 using PointOnMeshFn = std::function<bool(const WorldPoint& point)>;
 
 // Thinning keeps a point only at structural corners; centering then shifts straight runs onto the
-// corridor centreline. Either callback may be empty to skip the corresponding pass.
+// corridor centreline. Keep this mirrored with tools/MapNavigator/basenav_preview.py. Either
+// callback may be empty to skip the corresponding pass.
 RoutePointsWithBreaks PostProcessRoutePoints(
     const std::vector<WorldPoint>& points,
     const std::vector<size_t>& segment_breaks,
