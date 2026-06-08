@@ -11,6 +11,7 @@
 #include <cstring>
 #include <filesystem>
 #include <stdexcept>
+#include <string>
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
@@ -59,7 +60,7 @@ void ApplyWeaponInventoryScanDefaults(recogrid::GridScanOptions& options)
     options.recognition.detect.rowThresholdRatio = 0.2;
     options.recognition.detect.colThresholdRatio = 0.4;
     options.recognition.detect.minRawSegmentLength = 10;
-    options.recognition.detect.minKeptSegmentRatio = 0.7;
+    options.recognition.detect.minKeptSegmentRatio = 0.9;
     options.recognition.maxPhashDistance = 10;
     options.recognition.maxRankedCandidates = 0;
     options.recognition.minScore = 0.6;
@@ -165,6 +166,8 @@ void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResu
     detail["new_cells"] = static_cast<int>(result.newCellIndices.size());
     detail["row_offset"] = result.rowOffset;
     detail["delta_reliable"] = result.deltaReliable;
+    detail["pending_stored"] = result.pendingStored;
+    detail["pending_resolved"] = result.pendingResolved;
     detail["has_progress"] = result.hasProgress;
     detail["reached_end"] = result.reachedEnd;
     detail["matched_cells"] = result.matchedCells;
@@ -255,7 +258,8 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
             ReadDoubleOption(custom_recognition_param, "end_min_match_ratio", options.endMinMatchRatio);
         ApplyWeaponInventoryMask(options);
 
-        const recogrid::GridScanResult result = g_engine.Scan(kSessionId, to_mat(image), options);
+        const cv::Mat imageMat = to_mat(image);
+        const recogrid::GridScanResult result = g_engine.Scan(kSessionId, imageMat, options);
         if (result.success) {
             const int cumulativeGrid = result.sessionTotalCells;
             const int unknown = result.unknownCells;

@@ -962,7 +962,5 @@
     "task.AccountSwitch.label": "自動切換帳號",
     "task.AccountSwitch.description": "自動登出當前帳號並切換到指定帳號的後四位",
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",
-    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位",
-    "task.WeaponInventoryScan.label": "武器庫存掃描",
-    "task.WeaponInventoryScan.description": "掃描目前武器庫存頁面，並在日誌中輸出匹配到的武器 ID。"
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位"
 }

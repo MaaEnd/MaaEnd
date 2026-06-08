@@ -1,5 +1,7 @@
 #include "PHashFilter.h"
 
+#include "GridGeometry.h"
+
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
@@ -13,11 +15,6 @@ namespace
 
 constexpr int kDctSize = 32;
 constexpr int kHashSize = 8;
-
-cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
-{
-    return rect & cv::Rect(0, 0, bounds.width, bounds.height);
-}
 
 cv::Mat ToPHashGray(const cv::Mat& image)
 {

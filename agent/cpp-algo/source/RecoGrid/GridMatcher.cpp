@@ -1,5 +1,7 @@
 #include "GridMatcher.h"
 
+#include "GridGeometry.h"
+
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
@@ -12,11 +14,6 @@ namespace recogrid
 {
 namespace
 {
-
-cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
-{
-    return rect & cv::Rect(0, 0, bounds.width, bounds.height);
-}
 
 cv::Rect VisibleAlphaBounds(const cv::Mat& image)
 {

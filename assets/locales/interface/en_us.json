@@ -962,7 +962,5 @@
     "task.AccountSwitch.label": "Auto Account Switch",
     "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
-    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
-    "task.WeaponInventoryScan.label": "Weapon Inventory Scan",
-    "task.WeaponInventoryScan.description": "Scans the current weapon inventory page and logs matched weapon IDs."
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits"
 }

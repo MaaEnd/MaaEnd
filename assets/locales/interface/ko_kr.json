@@ -962,7 +962,5 @@
     "task.AccountSwitch.label": "자동 계정 전환",
     "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 마지막 4자리 계정으로 전환합니다",
     "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",
-    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력",
-    "task.WeaponInventoryScan.label": "무기 인벤토리 스캔",
-    "task.WeaponInventoryScan.description": "현재 무기 인벤토리 페이지를 스캔하고 일치한 무기 ID를 로그에 출력합니다."
+    "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력"
 }

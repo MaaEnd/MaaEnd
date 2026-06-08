@@ -1,5 +1,7 @@
 #include "GridRecognizer.h"
 
+#include "GridGeometry.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -132,11 +134,6 @@ void ClampOptions(GridClassifyOptions& options)
     options.maxRankedCandidates = std::max(0, options.maxRankedCandidates);
 }
 
-cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
-{
-    return rect & cv::Rect(0, 0, bounds.width, bounds.height);
-}
-
 cv::Rect UnionRects(const std::vector<cv::Rect>& rects)
 {
     cv::Rect bounds;
@@ -147,36 +144,6 @@ cv::Rect UnionRects(const std::vector<cv::Rect>& rects)
         bounds = bounds.empty() ? rect : (bounds | rect);
     }
     return bounds;
-}
-
-cv::Rect OffsetRect(const cv::Rect& rect, const cv::Point& offset)
-{
-    if (rect.empty()) {
-        return {};
-    }
-    return { rect.x + offset.x, rect.y + offset.y, rect.width, rect.height };
-}
-
-cv::Rect ScaleRect(const cv::Rect& rect, cv::Size fromSize, cv::Size toSize)
-{
-    if (rect.empty() || fromSize.width <= 0 || fromSize.height <= 0 || toSize.width <= 0 || toSize.height <= 0) {
-        return {};
-    }
-
-    const double scaleX = static_cast<double>(toSize.width) / static_cast<double>(fromSize.width);
-    const double scaleY = static_cast<double>(toSize.height) / static_cast<double>(fromSize.height);
-
-    const int x = static_cast<int>(std::lround(static_cast<double>(rect.x) * scaleX));
-    const int y = static_cast<int>(std::lround(static_cast<double>(rect.y) * scaleY));
-    const int right = static_cast<int>(std::lround(static_cast<double>(rect.x + rect.width) * scaleX));
-    const int bottom = static_cast<int>(std::lround(static_cast<double>(rect.y + rect.height) * scaleY));
-
-    return ClampRect({ x, y, std::max(1, right - x), std::max(1, bottom - y) }, toSize);
-}
-
-cv::Rect RoiToScreen(const cv::Rect& rect, const GridDetectOptions& options, cv::Size imageSize)
-{
-    return ScaleRect(OffsetRect(rect, { options.roi.x, options.roi.y }), options.normalizedSize, imageSize);
 }
 
 void FillScreenGeometry(GridRecognitionResult& result, const GridRecognitionOptions& options, cv::Size imageSize)
@@ -400,109 +367,6 @@ GridTemplateMatchResult MatchGridTemplate(
             match.templateScore,
             match.hueScore,
         });
-    }
-    return output;
-}
-
-GridClassificationResult ClassifyGridCells(
-    const GridRecognitionResult& result,
-    const std::vector<GridClassifyTemplate>& templates,
-    const GridRecognitionOptions& gridOptions,
-    const GridClassifyOptions& classifyOptions,
-    cv::Size imageSize,
-    const std::vector<std::size_t>& cellIndices)
-{
-    GridClassifyOptions classify = classifyOptions;
-    ClampOptions(classify);
-
-    GridClassificationResult output;
-    if (result.grid.cells.empty()) {
-        return output;
-    }
-
-    std::vector<std::size_t> selectedIndices;
-    if (cellIndices.empty()) {
-        selectedIndices.reserve(result.grid.cells.size());
-        for (std::size_t i = 0; i < result.grid.cells.size(); ++i) {
-            selectedIndices.push_back(i);
-        }
-    }
-    else {
-        selectedIndices.reserve(cellIndices.size());
-        for (const std::size_t index : cellIndices) {
-            if (index < result.grid.cells.size()) {
-                selectedIndices.push_back(index);
-            }
-        }
-    }
-
-    std::vector<cv::Rect> selectedCells;
-    selectedCells.reserve(selectedIndices.size());
-    output.cells.reserve(selectedIndices.size());
-    for (const std::size_t index : selectedIndices) {
-        const cv::Rect& cell = result.grid.cells[index];
-        selectedCells.push_back(cell);
-        output.cells.push_back({
-            index,
-            RoiToScreen(cell, gridOptions.detect, imageSize),
-            index < result.cellHashes.size() ? result.cellHashes[index] : Hash {},
-        });
-    }
-
-    for (const GridClassifyTemplate& entry : templates) {
-        if (entry.id.empty() || entry.image.empty()) {
-            continue;
-        }
-        ++output.templatesScanned;
-
-        std::vector<Candidate> candidates =
-            FilterCandidates(result.grid.roi, selectedCells, entry.image, classify.maxPhashDistance, gridOptions.mask);
-        output.candidatesAfterPhash += static_cast<int>(candidates.size());
-
-        if (classify.maxRankedCandidates > 0 && static_cast<int>(candidates.size()) > classify.maxRankedCandidates) {
-            candidates.resize(static_cast<std::size_t>(classify.maxRankedCandidates));
-        }
-
-        const std::vector<TemplateMatchResult> ranked = RankTemplateMatches(
-            result.grid.roi,
-            entry.image,
-            candidates,
-            TemplateMatchOptions { gridOptions.mask, classify.hueWeight });
-        output.matchesRanked += static_cast<int>(ranked.size());
-
-        for (const TemplateMatchResult& match : ranked) {
-            if (match.cellIndex >= output.cells.size() || match.match.empty() || !std::isfinite(match.score) ||
-                match.score < classify.minScore) {
-                continue;
-            }
-
-            GridCellClassification& current = output.cells[match.cellIndex];
-            const bool replace = !current.matched || match.score > current.score ||
-                                 (match.score == current.score && match.templateScore > current.templateScore) ||
-                                 (match.score == current.score && match.templateScore == current.templateScore &&
-                                  match.phashDistance < current.phashDistance) ||
-                                 (match.score == current.score && match.templateScore == current.templateScore &&
-                                  match.phashDistance == current.phashDistance && entry.id < current.templateId);
-            if (!replace) {
-                continue;
-            }
-
-            current.matched = true;
-            current.templateId = entry.id;
-            current.score = match.score;
-            current.templateScore = match.templateScore;
-            current.hueScore = match.hueScore;
-            current.phashDistance = match.phashDistance;
-        }
-    }
-
-    for (const GridCellClassification& cell : output.cells) {
-        if (cell.matched) {
-            ++output.matchedCells;
-        }
-        else {
-            ++output.unmatchedCells;
-        }
     }
     return output;
 }
