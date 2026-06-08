@@ -743,6 +743,7 @@
     "operator.Rossi": "Rossi",
     "operator.Tangtang": "Tangtang",
     "operator.ZhuangFangyi": "Zhuang Fangyi",
+    "operator.MiFu": "Mi Fu",
     "operator.Endministrator": "Endministrator",
     "preset.DailyFull.label": "Full Daily Routine",
     "preset.DailyFull.description": "Covers all daily routine tasks, perfect for one-click execution upon login.",

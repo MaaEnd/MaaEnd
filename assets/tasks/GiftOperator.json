@@ -798,6 +798,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/MiFu.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },

@@ -999,5 +999,45 @@
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
+    },
+    "GiftOperatorSelect_MiFu": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/MiFu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
     }
 }
