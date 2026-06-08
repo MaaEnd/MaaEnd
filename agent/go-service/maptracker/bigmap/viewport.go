@@ -51,21 +51,26 @@ func (bmv *BigMapViewport) GetScreenCoordOf(mapX, mapY float64) (float64, float6
 }
 
 // GetMapCoordOf converts screen coordinates to map coordinates based on the current viewport.
-func (bmv *BigMapViewport) GetMapCoordOf(viewX, viewY float64) (float64, float64) {
-	mapX := bmv.OriginMapX + (viewX-bmv.Left)/bmv.Scale
-	mapY := bmv.OriginMapY + (viewY-bmv.Top)/bmv.Scale
+func (bmv *BigMapViewport) GetMapCoordOf(screenX, screenY float64) (float64, float64) {
+	mapX := bmv.OriginMapX + (screenX-bmv.Left)/bmv.Scale
+	mapY := bmv.OriginMapY + (screenY-bmv.Top)/bmv.Scale
 	return mapX, mapY
 }
 
 // IsMapCoordInView reports whether a map coordinate is currently inside the viewport.
 func (bmv *BigMapViewport) IsMapCoordInView(mapX, mapY float64) bool {
-	viewX, viewY := bmv.GetScreenCoordOf(mapX, mapY)
-	return bmv.IsViewCoordInView(viewX, viewY)
+	screenX, screenY := bmv.GetScreenCoordOf(mapX, mapY)
+	return bmv.IsScreenCoordInView(screenX, screenY)
 }
 
-// IsViewCoordInView reports whether a screen coordinate is inside the viewport bounds.
-func (bmv *BigMapViewport) IsViewCoordInView(viewX, viewY float64) bool {
-	return viewX >= bmv.Left && viewX <= bmv.Right && viewY >= bmv.Top && viewY <= bmv.Bottom
+func (bmv *BigMapViewport) IsMapCoordInViewWithPadding(mapX, mapY float64, padding float64) bool {
+	screenX, screenY := bmv.GetScreenCoordOf(mapX, mapY)
+	return screenX >= bmv.Left+padding && screenX <= bmv.Right-padding && screenY >= bmv.Top+padding && screenY <= bmv.Bottom-padding
+}
+
+// IsScreenCoordInView reports whether a screen coordinate is inside the viewport bounds.
+func (bmv *BigMapViewport) IsScreenCoordInView(screenX, screenY float64) bool {
+	return screenX >= bmv.Left && screenX <= bmv.Right && screenY >= bmv.Top && screenY <= bmv.Bottom
 }
 
 func bigMapViewBounds(screenW, screenH int) (left int, top int, right int, bottom int) {

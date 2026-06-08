@@ -119,7 +119,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		targetInViewX, targetInViewY := inferRes.ViewPort.GetScreenCoordOf(param.Target[0], param.Target[1])
 
 		// If the target is already in view
-		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
+		if inferRes.ViewPort.IsScreenCoordInView(targetInViewX, targetInViewY) {
 			switch param.OnFind {
 			case ON_FIND_CLICK:
 				ca.TouchClick(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100, 0)
