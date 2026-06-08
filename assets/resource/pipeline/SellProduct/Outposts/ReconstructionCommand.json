@@ -26,6 +26,8 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductBeforeSellOperator": "",
+            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
             "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
             "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
@@ -34,8 +36,438 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductBeforeSellOperator",
             "SellProductSellLoop"
         ]
+    },
+    // ===== 售卖前派驻干员切换 =====
+    "SellProductReconstructionCommandBeforeSellOperator": {
+        "desc": "重建指挥部售卖前检查并切换派驻干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandCurrentTargetOperator",
+            "SellProductReconstructionCommandCurrentOperatorTradeStockBillBonus",
+            "SellProductReconstructionCommandOpenTargetOperatorList"
+        ]
+    },
+    "SellProductReconstructionCommandCurrentTargetOperator": {
+        "desc": "重建指挥部当前派驻干员已是售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductReconstructionCommandCurrentOperatorTradeStockBillBonus": {
+        "desc": "重建指挥部当前派驻效果已有交易收益额外获取加成",
+        "recognition": "OCR",
+        "roi": [
+            272,
+            596,
+            440,
+            69
+        ],
+        "expected": [
+            "交易货物每获得[1一]张调度[券卷]有20%几率额外获得[1一]张",
+            "交易貨物每獲得[1一]張調度[券卷]有20%機率額外獲得[1一]張",
+            "交易货物每获得[1一]点据点发展值有20%几率额外获得[1一]点",
+            "交易貨物每獲得[1一]點據點發展值有20%機率額外獲得[1一]點"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductReconstructionCommandOpenTargetOperatorList": {
+        "desc": "重建指挥部打开派驻干员列表以切换售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            250,
+            570,
+            30,
+            30
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandTargetOperatorListIn"
+        ]
+    },
+    "SellProductReconstructionCommandTargetOperatorListIn": {
+        "desc": "重建指挥部已打开派驻干员列表，选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSelectTargetOperator",
+            "SellProductReconstructionCommandSwipeTargetOperatorList",
+            "SellProductReconstructionCommandTargetOperatorNotFound"
+        ]
+    },
+    "SellProductReconstructionCommandSelectTargetOperator": {
+        "desc": "重建指挥部在派驻列表中选择售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandConfirmTargetOperatorSelected"
+        ]
+    },
+    "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
+        "desc": "重建指挥部确认售卖用干员已选中",
+        "recognition": "OCR",
+        "roi": [
+            142,
+            570,
+            240,
+            42
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandConfirmTargetOperator"
+        ]
+    },
+    "SellProductReconstructionCommandConfirmTargetOperator": {
+        "desc": "重建指挥部点击派驻确认售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            1052,
+            603,
+            180,
+            70
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "(?i)Assign"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandTargetOperatorDone"
+        ]
+    },
+    "SellProductReconstructionCommandTargetOperatorDone": {
+        "desc": "重建指挥部售卖用干员派驻完成，回到售卖循环",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand",
+            "SellProductReconstructionCommandCurrentTargetOperator"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductReconstructionCommandSwipeTargetOperatorList": {
+        "desc": "重建指挥部在派驻干员列表中向下滑动查找售卖用干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandTargetOperatorListIn"
+        ]
+    },
+    "SellProductReconstructionCommandTargetOperatorNotFound": {
+        "desc": "重建指挥部未找到配置的售卖用干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
+        }
+    },
+    // ===== 售卖后派驻干员恢复 =====
+    "SellProductReconstructionCommandAfterSellOperator": {
+        "desc": "重建指挥部售卖后恢复派驻干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandCurrentRestoreOperator",
+            "SellProductReconstructionCommandOpenRestoreOperatorList"
+        ]
+    },
+    "SellProductReconstructionCommandCurrentRestoreOperator": {
+        "desc": "重建指挥部当前派驻干员已是恢复目标",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductReconstructionCommandOpenRestoreOperatorList": {
+        "desc": "重建指挥部打开派驻干员列表以恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            250,
+            570,
+            30,
+            30
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandRestoreOperatorListIn"
+        ]
+    },
+    "SellProductReconstructionCommandRestoreOperatorListIn": {
+        "desc": "重建指挥部已打开派驻干员列表，选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSelectRestoreOperator",
+            "SellProductReconstructionCommandSwipeRestoreOperatorList",
+            "SellProductReconstructionCommandRestoreOperatorNotFound"
+        ]
+    },
+    "SellProductReconstructionCommandSelectRestoreOperator": {
+        "desc": "重建指挥部在派驻列表中选择恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandConfirmRestoreOperatorSelected"
+        ]
+    },
+    "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
+        "desc": "重建指挥部确认恢复干员已选中",
+        "recognition": "OCR",
+        "roi": [
+            142,
+            570,
+            240,
+            42
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandConfirmRestoreOperator"
+        ]
+    },
+    "SellProductReconstructionCommandConfirmRestoreOperator": {
+        "desc": "重建指挥部点击派驻确认恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            1052,
+            603,
+            180,
+            70
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "(?i)Assign"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandRestoreOperatorDone"
+        ]
+    },
+    "SellProductReconstructionCommandRestoreOperatorDone": {
+        "desc": "重建指挥部恢复干员派驻完成",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand",
+            "SellProductReconstructionCommandCurrentRestoreOperator"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductReconstructionCommandSwipeRestoreOperatorList": {
+        "desc": "重建指挥部在派驻干员列表中向下滑动查找恢复干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandRestoreOperatorListIn"
+        ]
+    },
+    "SellProductReconstructionCommandRestoreOperatorNotFound": {
+        "desc": "重建指挥部未找到配置的恢复干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
+        }
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductInReconstructionCommand": {

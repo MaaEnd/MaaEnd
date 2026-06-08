@@ -1,0 +1,20 @@
+{
+    "SellProductOperatorContactIn": {
+        "desc": "在据点派驻干员列表界面",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            45,
+            250,
+            72
+        ],
+        "expected": [
+            "联系干员",
+            "聯絡幹員",
+            "(?i)Contact\\s*Operator"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

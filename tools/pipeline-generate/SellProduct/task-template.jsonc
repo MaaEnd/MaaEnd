@@ -186,6 +186,7 @@
                         }
                     },
                     "option": [
+                        "${RegionPrefix}${LocationId}Operator",
                         "${RegionPrefix}${LocationId}Attempt1",
                         "${RegionPrefix}${LocationId}Attempt2",
                         "${RegionPrefix}${LocationId}Attempt3",
@@ -201,6 +202,54 @@
                     }
                 }
             ]
+        },
+        // ===== 派驻干员切换 =====
+        "${RegionPrefix}${LocationId}Operator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProduct${LocationId}Sell": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "${RegionPrefix}${LocationId}TargetOperator",
+                        "${RegionPrefix}${LocationId}RestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProduct${LocationId}Sell": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "",
+                                "SellProductAfterSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "${RegionPrefix}${LocationId}TargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "ChenQianyu",
+            "cases": "${TargetOperatorCases}"
+        },
+        "${RegionPrefix}${LocationId}RestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": "${RestoreOperatorCases}"
         },
         // ===== 售卖尝试 1（默认开启，含描述） =====
         "${RegionPrefix}${LocationId}Attempt1": {

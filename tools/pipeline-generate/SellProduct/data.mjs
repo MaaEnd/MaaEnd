@@ -15,6 +15,7 @@ try {
 
 const require = createRequire(import.meta.url);
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
+const giftOperatorTask = require("../../../assets/tasks/GiftOperator.json");
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -53,6 +54,20 @@ function buildItemLocaleKeyByCNName() {
 // 中文物品名 → locales/interface/zh_cn.json 中 `item.*` 的后缀 key。
 // 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
+
+function buildOperatorCaseEntries() {
+    const selectOperatorCases = giftOperatorTask.option?.SelectOperator?.cases || [];
+    return selectOperatorCases
+        .filter((entry) => entry.name !== "Any")
+        .map((entry) => ({
+            name: entry.name,
+            label: entry.label,
+            expected: entry.pipeline_override?.GiftOperatorName?.expected || [],
+        }))
+        .filter((entry) => entry.expected.length > 0);
+}
+
+const OPERATOR_CASE_ENTRIES = buildOperatorCaseEntries();
 
 // TODO(SellProduct): 活动结束后，临时排除以下活动物品，避免继续生成到可售卖列表。
 // 当 settlement_trade.json 数据更新并确认活动物品已移除后，删除该常量与下方过滤判断。
@@ -292,6 +307,66 @@ function buildItemCases(nodePrefix, itemNum, entries) {
     });
 }
 
+function buildTargetOperatorCases(nodePrefix) {
+    const currentKey = `SellProduct${nodePrefix}CurrentTargetOperator`;
+    const selectKey = `SellProduct${nodePrefix}SelectTargetOperator`;
+    const confirmKey = `SellProduct${nodePrefix}ConfirmTargetOperatorSelected`;
+    return OPERATOR_CASE_ENTRIES.map((entry) => ({
+        name: entry.name,
+        label: entry.label,
+        pipeline_override: {
+            [currentKey]: {
+                expected: entry.expected,
+            },
+            [selectKey]: {
+                expected: entry.expected,
+            },
+            [confirmKey]: {
+                expected: entry.expected,
+            },
+        },
+    }));
+}
+
+function buildRestoreOperatorCases(nodePrefix) {
+    const currentKey = `SellProduct${nodePrefix}CurrentRestoreOperator`;
+    const selectKey = `SellProduct${nodePrefix}SelectRestoreOperator`;
+    const confirmKey = `SellProduct${nodePrefix}ConfirmRestoreOperatorSelected`;
+    return [
+        {
+            name: "DoNotRestore",
+            label: "$task.SellProduct.OperatorRestoreDoNotRestore",
+            pipeline_override: {
+                [`SellProduct${nodePrefix}Sell`]: {
+                    anchor: {
+                        SellProductAfterSellOperator: "",
+                    },
+                },
+            },
+        },
+        ...OPERATOR_CASE_ENTRIES.map((entry) => ({
+            name: entry.name,
+            label: entry.label,
+            pipeline_override: {
+                [`SellProduct${nodePrefix}Sell`]: {
+                    anchor: {
+                        SellProductAfterSellOperator: `SellProduct${nodePrefix}AfterSellOperator`,
+                    },
+                },
+                [currentKey]: {
+                    expected: entry.expected,
+                },
+                [selectKey]: {
+                    expected: entry.expected,
+                },
+                [confirmKey]: {
+                    expected: entry.expected,
+                },
+            },
+        })),
+    ];
+}
+
 // ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
 // 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
 const QUANTITY_BOX = [
@@ -335,6 +410,8 @@ export const settlementFlatRows = LOCATIONS.map((loc) => {
         ItemCases2: buildItemCases(loc.LocationId, 2, entries),
         ItemCases3: buildItemCases(loc.LocationId, 3, entries),
         ItemCases4: buildItemCases(loc.LocationId, 4, entries),
+        TargetOperatorCases: buildTargetOperatorCases(loc.LocationId),
+        RestoreOperatorCases: buildRestoreOperatorCases(loc.LocationId),
     };
 });
 

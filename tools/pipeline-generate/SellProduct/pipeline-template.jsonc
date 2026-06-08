@@ -26,6 +26,8 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductBeforeSellOperator": "",
+            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProduct${LocationId}SellAttempt1",
             "SellProductSellAttempt2": "SellProduct${LocationId}SellAttempt2",
             "SellProductSellAttempt3": "SellProduct${LocationId}SellAttempt3",
@@ -34,8 +36,438 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductBeforeSellOperator",
             "SellProductSellLoop"
         ]
+    },
+    // ===== 售卖前派驻干员切换 =====
+    "SellProduct${LocationId}BeforeSellOperator": {
+        "desc": "${LocationDesc}售卖前检查并切换派驻干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CurrentTargetOperator",
+            "SellProduct${LocationId}CurrentOperatorTradeStockBillBonus",
+            "SellProduct${LocationId}OpenTargetOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}CurrentTargetOperator": {
+        "desc": "${LocationDesc}当前派驻干员已是售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProduct${LocationId}CurrentOperatorTradeStockBillBonus": {
+        "desc": "${LocationDesc}当前派驻效果已有交易收益额外获取加成",
+        "recognition": "OCR",
+        "roi": [
+            272,
+            596,
+            440,
+            69
+        ],
+        "expected": [
+            "交易货物每获得[1一]张调度[券卷]有20%几率额外获得[1一]张",
+            "交易貨物每獲得[1一]張調度[券卷]有20%機率額外獲得[1一]張",
+            "交易货物每获得[1一]点据点发展值有20%几率额外获得[1一]点",
+            "交易貨物每獲得[1一]點據點發展值有20%機率額外獲得[1一]點"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProduct${LocationId}OpenTargetOperatorList": {
+        "desc": "${LocationDesc}打开派驻干员列表以切换售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            250,
+            570,
+            30,
+            30
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}TargetOperatorListIn"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorListIn": {
+        "desc": "${LocationDesc}已打开派驻干员列表，选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SelectTargetOperator",
+            "SellProduct${LocationId}SwipeTargetOperatorList",
+            "SellProduct${LocationId}TargetOperatorNotFound"
+        ]
+    },
+    "SellProduct${LocationId}SelectTargetOperator": {
+        "desc": "${LocationDesc}在派驻列表中选择售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}ConfirmTargetOperatorSelected"
+        ]
+    },
+    "SellProduct${LocationId}ConfirmTargetOperatorSelected": {
+        "desc": "${LocationDesc}确认售卖用干员已选中",
+        "recognition": "OCR",
+        "roi": [
+            142,
+            570,
+            240,
+            42
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}ConfirmTargetOperator"
+        ]
+    },
+    "SellProduct${LocationId}ConfirmTargetOperator": {
+        "desc": "${LocationDesc}点击派驻确认售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            1052,
+            603,
+            180,
+            70
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "(?i)Assign"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}TargetOperatorDone"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorDone": {
+        "desc": "${LocationDesc}售卖用干员派驻完成，回到售卖循环",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}",
+            "SellProduct${LocationId}CurrentTargetOperator"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProduct${LocationId}SwipeTargetOperatorList": {
+        "desc": "${LocationDesc}在派驻干员列表中向下滑动查找售卖用干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}TargetOperatorListIn"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorNotFound": {
+        "desc": "${LocationDesc}未找到配置的售卖用干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
+        }
+    },
+    // ===== 售卖后派驻干员恢复 =====
+    "SellProduct${LocationId}AfterSellOperator": {
+        "desc": "${LocationDesc}售卖后恢复派驻干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CurrentRestoreOperator",
+            "SellProduct${LocationId}OpenRestoreOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}CurrentRestoreOperator": {
+        "desc": "${LocationDesc}当前派驻干员已是恢复目标",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProduct${LocationId}OpenRestoreOperatorList": {
+        "desc": "${LocationDesc}打开派驻干员列表以恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            250,
+            570,
+            30,
+            30
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}RestoreOperatorListIn"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorListIn": {
+        "desc": "${LocationDesc}已打开派驻干员列表，选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SelectRestoreOperator",
+            "SellProduct${LocationId}SwipeRestoreOperatorList",
+            "SellProduct${LocationId}RestoreOperatorNotFound"
+        ]
+    },
+    "SellProduct${LocationId}SelectRestoreOperator": {
+        "desc": "${LocationDesc}在派驻列表中选择恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}ConfirmRestoreOperatorSelected"
+        ]
+    },
+    "SellProduct${LocationId}ConfirmRestoreOperatorSelected": {
+        "desc": "${LocationDesc}确认恢复干员已选中",
+        "recognition": "OCR",
+        "roi": [
+            142,
+            570,
+            240,
+            42
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}ConfirmRestoreOperator"
+        ]
+    },
+    "SellProduct${LocationId}ConfirmRestoreOperator": {
+        "desc": "${LocationDesc}点击派驻确认恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            1052,
+            603,
+            180,
+            70
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "(?i)Assign"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}RestoreOperatorDone"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorDone": {
+        "desc": "${LocationDesc}恢复干员派驻完成",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}",
+            "SellProduct${LocationId}CurrentRestoreOperator"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProduct${LocationId}SwipeRestoreOperatorList": {
+        "desc": "${LocationDesc}在派驻干员列表中向下滑动查找恢复干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}RestoreOperatorListIn"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorNotFound": {
+        "desc": "${LocationDesc}未找到配置的恢复干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorContactIn"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
+        }
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductIn${LocationId}": {
