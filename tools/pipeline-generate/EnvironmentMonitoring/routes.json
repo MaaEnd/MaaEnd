@@ -305,7 +305,8 @@
                 618
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 300
     },
     {
         "MissionId": "m1m32",

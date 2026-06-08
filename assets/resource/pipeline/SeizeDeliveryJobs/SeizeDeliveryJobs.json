@@ -1,0 +1,315 @@
+{
+    "SeizeDeliveryJobsMain": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsFoundListOfDeliveryJobsButton",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+        ]
+    },
+    "SeizeDeliveryJobsFoundListOfDeliveryJobsButton": {
+        "desc": "进入运送委托列表",
+        "recognition": "OCR",
+        "roi": [
+            252,
+            65,
+            170,
+            55
+        ],
+        "expected": [
+            "运送委托列表",
+            "運送委託清單",
+            "(?i)List\\s*of\\s*Delivery\\s*Jobs",
+            "配達依頼一覧"
+        ],
+        "action": "Click",
+        "next": [
+            "isSeizeDeliveryJobsExistOldTask",
+            "isSeizeDeliveryJobsExhausted",
+            "SeizeDeliveryJobsCheckWulingFilter",
+            "SeizeDeliveryJobsOpenRegionFilter"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "SeizeDeliveryJobsCheckWulingFilter": {
+        "desc": "当前已是武陵筛选，直接进入调度",
+        "recognition": "OCR",
+        "roi": [
+            60,
+            647,
+            132,
+            29
+        ],
+        "expected": [
+            "武陵",
+            "(?i)Wuling",
+            "무릉"
+        ],
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "SeizeDeliveryJobsOpenRegionFilter": {
+        "desc": "非武陵筛选则点击展开地区筛选",
+        "recognition": "OCR",
+        "roi": [
+            60,
+            647,
+            132,
+            29
+        ],
+        "roi_offset": [
+            0,
+            0,
+            33,
+            0
+        ],
+        "expected": [
+            "全部地区",
+            "全部地區",
+            "(?i)All\\s*Regions",
+            "全エリア",
+            "四号谷地",
+            "四號谷地",
+            "(?i)Valley\\s*IV"
+        ],
+        "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsSelectWuling"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "SeizeDeliveryJobsSelectWuling": {
+        "desc": "在筛选列表中选择武陵",
+        "recognition": "OCR",
+        "roi": [
+            65,
+            523,
+            123,
+            114
+        ],
+        "expected": [
+            "武陵",
+            "(?i)Wuling",
+            "무릉"
+        ],
+        "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "isSeizeDeliveryJobsExistOldTask": {
+        "desc": "已有委托，结束抢单",
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            210,
+            200,
+            35
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)View\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "next": [
+            "SeizeDeliveryJobsStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
+        }
+    },
+    "isSeizeDeliveryJobsExhausted": {
+        "desc": "运送委托已满3单，结束抢单",
+        "recognition": "OCR",
+        "roi": [
+            1030,
+            650,
+            45,
+            40
+        ],
+        "expected": "3/3",
+        "next": [
+            "SeizeDeliveryJobsStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
+    "SeizeDeliveryJobsLoop": {
+        "desc": "等待委托列表静止后再进入调度",
+        "pre_wait_freezes": {
+            "time": 2000,
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ]
+        },
+        "next": [
+            "SeizeDeliveryJobsFindTarget",
+            "SeizeDeliveryJobsScanTarget",
+            "SeizeDeliveryJobsRefresh"
+        ]
+    },
+    "SeizeDeliveryJobsFindTarget": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "WulingToken",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    840,
+                    190,
+                    50,
+                    430
+                ],
+                "template": [
+                    "SeizeDeliveryJobs/WulingToken.png"
+                ]
+            },
+            {
+                "sub_name": "RewardOcr",
+                "recognition": "OCR",
+                "roi": "WulingToken",
+                "roi_offset": [
+                    0,
+                    30,
+                    0,
+                    -20
+                ],
+                "expected": [
+                    "16.3"
+                ],
+                "only_rec": true
+            },
+            {
+                "sub_name": "OriginOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    -229,
+                    -38,
+                    50,
+                    14
+                ],
+                "expected": [
+                    "武陵城",
+                    "Wuling City",
+                    "무릉성"
+                ]
+            },
+            {
+                "sub_name": "AcceptOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    226,
+                    -4,
+                    70,
+                    12
+                ],
+                "expected": [
+                    "接取运送委托",
+                    "接取運送委託",
+                    "(?i)Accept\\s*Delivery\\s*Job",
+                    "配達依頼を受ける",
+                    "輸送依頼を受注",
+                    "輸送依頼を受ける"
+                ]
+            },
+            {
+                "sub_name": "ViewLocationOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    -215,
+                    -8,
+                    34,
+                    10
+                ],
+                "expected": [
+                    "查看位置",
+                    "查看地點",
+                    "(?i)View\\s*Location",
+                    "位置を確認",
+                    "위치 확인"
+                ]
+            }
+        ],
+        "box_index": 3,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        },
+        "next": [
+            "isSeizeDeliveryJobsInWorldAfterAccept",
+            "SeizeDeliveryJobsRetryClickAccept"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityFound"
+        }
+    },
+    "isSeizeDeliveryJobsInWorldAfterAccept": {
+        "desc": "点击接取后检查是否已进入大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "SeizeDeliveryJobsGoDepotNode",
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "SeizeDeliveryJobsRetryClickAccept": {
+        "desc": "反复点击接取按钮直到进入大世界",
+        "action": "Click",
+        "target": "SeizeDeliveryJobsFindTarget",
+        "next": [
+            "isSeizeDeliveryJobsInWorldAfterAccept",
+            "SeizeDeliveryJobsRetryClickAccept"
+        ]
+    },
+    "SeizeDeliveryJobsRefresh": {
+        "desc": "刷新动作",
+        "recognition": "OCR",
+        "roi": [
+            1075,
+            652,
+            98,
+            34
+        ],
+        "expected": [
+            "^刷新",
+            "^更新",
+            "^Refresh"
+        ],
+        "action": "Click",
+        "post_delay": 1500,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    },
+    "SeizeDeliveryJobsStopTask": {
+        "action": "StopTask"
+    }
+}

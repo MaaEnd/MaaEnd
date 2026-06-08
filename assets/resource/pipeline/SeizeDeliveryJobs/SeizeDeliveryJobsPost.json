@@ -1,0 +1,77 @@
+{
+    "SeizeDeliveryJobsGoDepotNode": {
+        "desc": "注意该节点受到开关控制",
+        "next": [
+            "isSeizeDeliveryJobsInMap",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
+    "isSeizeDeliveryJobsInMap": {
+        "desc": "是否在任意地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "isSeizeDeliveryJobsInWolrld",
+            "[JumpBack]SceneEnterWorldWulingWulingCity5"
+        ]
+    },
+    "isSeizeDeliveryJobsInWolrld": {
+        "desc": "是否在大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "SeizeDeliveryJobsWalkingToDepotNode",
+            "SeizeDeliveryJobsStopTask"
+        ]
+    },
+    "SeizeDeliveryJobsWalkingToDepotNode": {
+        "desc": "注意该节点受到开关控制",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    670.2,
+                    730.6
+                ],
+                [
+                    675.7,
+                    731.9
+                ],
+                [
+                    684.4,
+                    741.8
+                ],
+                [
+                    689.5,
+                    749.2
+                ],
+                [
+                    688.9,
+                    761.6
+                ],
+                [
+                    688.0,
+                    774.9
+                ],
+                [
+                    686.9,
+                    786.7
+                ],
+                [
+                    674.5,
+                    787.0
+                ]
+            ]
+        },
+        "next": [
+            "SeizeDeliveryJobsStopTask"
+        ]
+    }
+}

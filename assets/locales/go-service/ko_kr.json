@@ -169,5 +169,11 @@
     "schedule.weekday_thursday": "목요일",
     "schedule.weekday_friday": "금요일",
     "schedule.weekday_saturday": "토요일",
-    "schedule.weekday_sunday": "일요일"
+    "schedule.weekday_sunday": "일요일",
+    "seizedeliveryjobs.scanning": "배달 의뢰 스캔 중...",
+    "seizedeliveryjobs.checking_job": "의뢰 확인 중 %d/%d",
+    "seizedeliveryjobs.endpoint_matched": "배달지 일치, 의뢰 수락",
+    "seizedeliveryjobs.endpoint_not_matched": "배달지 불일치, 건너뛰기",
+    "seizedeliveryjobs.no_more_targets": "일치하는 의뢰 없음, 새로고침",
+    "seizedeliveryjobs.accepting": "배달 의뢰 수락 중"
 }

@@ -22,7 +22,21 @@
             ],
             "group": [
                 "other_menu"
-            ]
+            ],
+            "pipeline_override": {
+                "ReceptionRoomCollectClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomReceiveClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomSetClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomStartExchange": {
+                    "enabled": true
+                }
+            }
         }
     ],
     "option": {
@@ -41,11 +55,10 @@
                 }
             ],
             "pipeline_override": {
-                "ReceptionRoomSendCluesEntry_NeedCredit": {
-                    "enabled": true,
-                    "max_hit": "{MaxClueSendWhenInsufficient}"
+                "ReceptionRoomSendCluesDirect": {
+                    "enabled": true
                 },
-                "ReceptionRoomSendCluesSelectClues_NeedCredit": {
+                "ReceptionRoomSendCluesSelectClues": {
                     "max_hit": "{MaxClueSendWhenInsufficient}"
                 }
             }
@@ -60,23 +73,8 @@
                     "name": "1",
                     "label": "$option.CreditShoppingClueStockLimit.cases.1.label",
                     "pipeline_override": {
-                        "ClueItemCount_NeedCredit": {
-                            "recognition": {
-                                "type": "OCR",
-                                "param": {
-                                    "roi": "ClueItem",
-                                    "roi_offset": [
-                                        165,
-                                        0,
-                                        -46,
-                                        0
-                                    ],
-                                    "expected": [
-                                        "^(?:[2-9]|1[0-9]|20)$"
-                                    ],
-                                    "only_rec": true
-                                }
-                            }
+                        "ClueItemCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
                         }
                     }
                 },
@@ -84,23 +82,8 @@
                     "name": "2",
                     "label": "$option.CreditShoppingClueStockLimit.cases.2.label",
                     "pipeline_override": {
-                        "ClueItemCount_NeedCredit": {
-                            "recognition": {
-                                "type": "OCR",
-                                "param": {
-                                    "roi": "ClueItem",
-                                    "roi_offset": [
-                                        165,
-                                        0,
-                                        -46,
-                                        0
-                                    ],
-                                    "expected": [
-                                        "^(20|[3-9]|1[0-9])$"
-                                    ],
-                                    "only_rec": true
-                                }
-                            }
+                        "ClueItemCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
                         }
                     }
                 }

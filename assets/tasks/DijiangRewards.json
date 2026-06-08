@@ -202,6 +202,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "SendCluesDirect",
                         "ClueSend",
                         "ClueStockLimit"
                     ]
@@ -214,6 +215,30 @@
                         },
                         "ClueItemCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        }
+                    }
+                }
+            ]
+        },
+        "SendCluesDirect": {
+            "type": "switch",
+            "label": "$option.SendCluesDirect.label",
+            "description": "$option.SendCluesDirect.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
+                            "enabled": false
                         }
                     }
                 }

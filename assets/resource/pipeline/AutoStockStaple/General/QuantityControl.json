@@ -43,6 +43,7 @@
             "AutoStockStapleQuantityControlGardenFriedRice",
             "AutoStockStapleQuantityControlMasterPansEggPudding",
             "AutoStockStapleQuantityControlEchoingRemedy",
+            "AutoStockStapleQuantityControlRindFlavoredSprouts",
             "AutoStockStapleQuantityControlWulingArtificingCatalyst",
             "AutoStockStapleQuantityControlKeenWulingDetector",
             "AutoStockStapleQuantityControlKeenWulingCompass",
@@ -50,6 +51,8 @@
             "AutoStockStapleQuantityControlYinglungDumbbells",
             "AutoStockStapleQuantityControlWovenAggelos",
             "AutoStockStapleQuantityControlScrimshawOfThePack",
+            "AutoStockStapleQuantityControlFinNChips",
+            "AutoStockStapleQuantityControlBizarroCupcake",
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia"
         ],
         "focus": {
@@ -124,7 +127,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.valley_engraving_permit"
@@ -269,7 +273,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.kunst_tube"
@@ -387,7 +392,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.jakubs_legacy"
@@ -505,7 +511,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.pulled_slug_meat"
@@ -623,7 +630,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.hazefyre_blossom"
@@ -741,7 +749,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cartilage_cookie"
@@ -859,7 +868,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmo_melto_jelly"
@@ -977,7 +987,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_detector"
@@ -1095,7 +1106,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_valley_compass"
@@ -1213,7 +1225,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.breeze_of_kjersch"
@@ -1331,7 +1344,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.tidestone_specimen"
@@ -1449,7 +1463,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.simonch_shawl"
@@ -1567,7 +1582,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.frontiers_watch"
@@ -1685,7 +1701,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.aurylene_camera"
@@ -1803,7 +1820,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.cosmic_gate_puzzle"
@@ -1921,7 +1939,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.surfing_festival_ticket"
@@ -2039,7 +2058,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_engraving_permit"
@@ -2157,7 +2177,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fortifying_infusion"
@@ -2275,7 +2296,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.garden_fried_rice"
@@ -2393,7 +2415,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.master_pans_egg_pudding"
@@ -2511,7 +2534,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.echoing_remedy"
@@ -2559,6 +2583,125 @@
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.echoing_remedy"
+        }
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSprouts": {
+        "desc": "陈皮拌笋的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlRindFlavoredSproutsStockBillInsufficient",
+            "AutoStockStapleQuantityControlRindFlavoredSproutsBuy",
+            "AutoStockStapleQuantityControlRindFlavoredSproutsExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter": {
+        "desc": "陈皮拌笋移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "rind_flavored_sprouts": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsBuy": {
+        "desc": "陈皮拌笋低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsRindFlavoredSproutsValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "rind_flavored_sprouts"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.rind_flavored_sprouts"
+        }
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsExclude": {
+        "desc": "陈皮拌笋达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsRindFlavoredSproutsExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.rind_flavored_sprouts"
+        }
+    },
+    "AutoStockStapleQuantityControlRindFlavoredSproutsStockBillInsufficient": {
+        "desc": "陈皮拌笋调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsRindFlavoredSprouts",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlRindFlavoredSproutsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.rind_flavored_sprouts"
         }
     },
     "AutoStockStapleQuantityControlWulingArtificingCatalyst": {
@@ -2629,7 +2772,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.wuling_artificing_catalyst"
@@ -2747,7 +2891,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_detector"
@@ -2865,7 +3010,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.keen_wuling_compass"
@@ -2983,7 +3129,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.eureka_teabox"
@@ -3101,7 +3248,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.yinglung_dumbbells"
@@ -3219,7 +3367,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.woven_aggelos"
@@ -3337,7 +3486,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.scrimshaw_of_the_pack"
@@ -3385,6 +3535,244 @@
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.scrimshaw_of_the_pack"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChips": {
+        "desc": "炸鳞薯条的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlFinNChipsStockBillInsufficient",
+            "AutoStockStapleQuantityControlFinNChipsBuy",
+            "AutoStockStapleQuantityControlFinNChipsExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlFinNChipsRemoveFilter": {
+        "desc": "炸鳞薯条移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "fin_n_chips": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlFinNChipsBuy": {
+        "desc": "炸鳞薯条低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsFinNChipsValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "fin_n_chips"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChipsExclude": {
+        "desc": "炸鳞薯条达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsFinNChipsExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFinNChipsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlFinNChipsStockBillInsufficient": {
+        "desc": "炸鳞薯条调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsFinNChips",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlFinNChipsRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.fin_n_chips"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcake": {
+        "desc": "怪味纸杯蛋糕的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlBizarroCupcakeStockBillInsufficient",
+            "AutoStockStapleQuantityControlBizarroCupcakeBuy",
+            "AutoStockStapleQuantityControlBizarroCupcakeExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter": {
+        "desc": "怪味纸杯蛋糕移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "bizarro_cupcake": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeBuy": {
+        "desc": "怪味纸杯蛋糕低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsBizarroCupcakeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "bizarro_cupcake"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.bizarro_cupcake"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeExclude": {
+        "desc": "怪味纸杯蛋糕达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsBizarroCupcakeExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.bizarro_cupcake"
+        }
+    },
+    "AutoStockStapleQuantityControlBizarroCupcakeStockBillInsufficient": {
+        "desc": "怪味纸杯蛋糕调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsBizarroCupcake",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlBizarroCupcakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.bizarro_cupcake"
         }
     },
     "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia": {
@@ -3455,7 +3843,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleQuantityControlConfirmBuy"
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.chubby_lung_fangxing_memorabilia"
@@ -3504,6 +3893,35 @@
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.chubby_lung_fangxing_memorabilia"
         }
+    },
+    "AutoStockStapleCheckSliding": {
+        "desc": "检查滑条是否存在，当购买数量为1时滑条会隐藏",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    543,
+                    514,
+                    138,
+                    24
+                ],
+                "method": 6,
+                "lower": [
+                    80
+                ],
+                "upper": [
+                    255
+                ],
+                "connected": true,
+                "count": 2000
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlConfirmBuy"
+        ]
     },
     "AutoStockStapleQuantityControlConfirmBuy": {
         "desc": "确认购买",

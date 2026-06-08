@@ -169,5 +169,11 @@
     "schedule.weekday_thursday": "Thursday",
     "schedule.weekday_friday": "Friday",
     "schedule.weekday_saturday": "Saturday",
-    "schedule.weekday_sunday": "Sunday"
+    "schedule.weekday_sunday": "Sunday",
+    "seizedeliveryjobs.scanning": "Scanning delivery jobs...",
+    "seizedeliveryjobs.checking_job": "Checking job %d/%d",
+    "seizedeliveryjobs.endpoint_matched": "Delivery point matched, accepting job",
+    "seizedeliveryjobs.endpoint_not_matched": "Delivery point not matched, skipping",
+    "seizedeliveryjobs.no_more_targets": "No matching jobs found, refreshing",
+    "seizedeliveryjobs.accepting": "Accepting delivery job"
 }

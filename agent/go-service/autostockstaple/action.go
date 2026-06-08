@@ -41,7 +41,8 @@ type quantityValidatorNode struct {
 }
 
 // QuantityControlAction calculates the purchase quantity for an AutoStockStaple item
-// from its validator expression, overrides BetterSliding attach.Target, and runs it once.
+// from its validator expression and overrides BetterSliding attach.Target via pipeline.
+// Sliding itself is executed by the sibling CheckSliding / BetterSliding branch after Buy.
 type QuantityControlAction struct{}
 
 func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -119,43 +120,14 @@ func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		slidingNode = defaultSlidingNodeName
 	}
 
-	override := map[string]any{
-		slidingNode: map[string]any{
-			"attach": map[string]any{
-				"Target": target,
-			},
-		},
-	}
-
-	detail, err := ctx.RunTask(slidingNode, override)
-	if err != nil {
+	if err := ctx.OverridePipeline(buildQuantityControlOverride(slidingNode, target)); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", autoStockStapleQuantityActionName).
 			Str("item_name", param.ItemName).
 			Str("sliding_node", slidingNode).
 			Int("target", target).
-			Msg("failed to run BetterSliding task")
-		return false
-	}
-	if detail == nil {
-		log.Error().
-			Str("component", autoStockStapleQuantityActionName).
-			Str("item_name", param.ItemName).
-			Str("sliding_node", slidingNode).
-			Int("target", target).
-			Msg("BetterSliding task returned nil detail")
-		return false
-	}
-	if !detail.Status.Success() {
-		log.Error().
-			Str("component", autoStockStapleQuantityActionName).
-			Str("item_name", param.ItemName).
-			Str("sliding_node", slidingNode).
-			Int("target", target).
-			Int64("subtask_id", detail.ID).
-			Str("subtask_status", detail.Status.String()).
-			Msg("BetterSliding task did not succeed")
+			Msg("failed to override BetterSliding pipeline")
 		return false
 	}
 
@@ -169,9 +141,20 @@ func (a *QuantityControlAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		Int("threshold", threshold).
 		Int("current_count", currentCount).
 		Int("target", target).
-		Msg("BetterSliding target resolved and executed")
+		Msg("BetterSliding target resolved")
 
 	return true
+}
+
+func buildQuantityControlOverride(slidingNode string, target int) map[string]any {
+	return map[string]any{
+		slidingNode: map[string]any{
+			"enabled": target > 0,
+			"attach": map[string]any{
+				"Target": target,
+			},
+		},
+	}
 }
 
 func parseQuantityControlActionParam(raw string) (*quantityControlActionParam, error) {

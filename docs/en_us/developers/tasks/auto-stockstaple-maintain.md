@@ -21,7 +21,6 @@ This document uses **Valley IV** as the main example for introduction. Wuling's 
 | Scene Recognition               | `assets/resource/pipeline/Interface/InScene/StockStaple.json`              | `InValleyIVText`, `InWulingText`, `InStapleColor`                                                            |
 | Go Quantity Control Action      | `agent/go-service/autostockstaple/action.go`                               | Calculate required purchase quantity and override BetterSliding `Target`                                     |
 | Go Regex Initialization         | `agent/go-service/common/attachregex/action.go`                            | `AttachToExpectedRegexAction`: Merge attach keywords into an OCR whitelist regex                             |
-| Node Code Generation            | `tools/pipeline-generate/AutoStockStaple/General/`                         | Batch generate `Goods.json`, `GoodsCountValidate.json`, `QuantityControl.json`                               |
 | Multilingual Text               | `assets/locales/interface/*.json`                                          | Task names, options, and focus text                                                                          |
 
 > [!NOTE]
@@ -201,10 +200,20 @@ Action logic:
 1. Read the corresponding `AutoStockStapleGoods{Item}Validate` node expression, parse the **target limit** and **quantity OCR node name**.
 2. Run quantity OCR on the current screenshot to get the **current owned quantity**.
 3. Calculate `target = target limit - current owned quantity`.
-4. If `target <= 0`, skip swiping.
-5. Otherwise, use `OverridePipeline` to write `target` to `AutoStockStapleBetterSliding.attach.Target`, and `RunTask` to execute BetterSliding for smooth purchase quantity adjustment.
+4. If `target <= 0`, skip swiping (disable `AutoStockStapleBetterSliding`).
+5. Otherwise, use `OverridePipeline` to enable `AutoStockStapleBetterSliding` and write `target` to its `attach.Target`.
 
-`AutoStockStapleBetterSliding` is defined in `General/Item.json`, using `BetterSliding` to smoothly slide right to the specified quantity; the default value of `attach.Target` is just a placeholder, overridden at runtime by the Custom action.
+Go **no longer** `RunTask`s to execute sliding; quantity adjustment is handled by the low-code sibling branches:
+
+```text
+{Item}Buy (Go: compute target + OverridePipeline)
+  ├ AutoStockStapleCheckSliding              (skip sliding when slider hidden and default qty is 1)
+  ├ AutoStockStapleBetterSliding             (BetterSliding when enabled by Go)
+  └ AutoStockStapleQuantityControlRelayConfirm (fallback when target<=0, etc.)
+  → AutoStockStapleQuantityControlConfirmBuy
+```
+
+`AutoStockStapleBetterSliding` is defined in `General/Item.json`, default `enabled: false`, only enabled after Go override; the default `attach.Target` is a placeholder.
 
 After purchase quantity adjustment is complete, `next` enters `AutoStockStapleQuantityControlConfirmBuy` to click the yellow confirm button, then close the reward popup to return to the list.
 
@@ -240,20 +249,13 @@ This task has two types of runtime overrides; do not confuse them during mainten
 
 When adding a new staple demand item, typically the following need to be modified simultaneously:
 
-1. **`tools/pipeline-generate/AutoStockStaple/General/data.mjs`**: Add item `id`, `slug`, and `expected` in various languages.
-2. **Regenerate** (in repository root):
+1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected` strings.
+2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
+3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node to `AutoStockStapleQuantityControl.next`, and add Buy / Exclude / StockBillInsufficient / RemoveFilter subnodes (copy an existing item in the same region as reference).
+4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the corresponding region checkbox, writing `AutoStockInStapleItemName.attach.{slug}` and quantity limit override.
+5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
 
-```bash
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
-```
-
-3. **`assets/tasks/AutoStockStaple.json`**: Add a case in the corresponding region checkbox, writing `AutoStockInStapleItemName.attach.{slug}` and quantity limit override.
-4. **`assets/locales/interface/*.json`**: Add options and focus text (e.g., `quantity_control.buy.*`).
-5. Confirm that the item order in `AutoStockStapleQuantityControl.next` list is consistent with `data.mjs` to avoid changes in traversal order after generation.
-
-Generation rules are detailed in [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md).
+Edit the Pipeline and task config directly. **Do not** rely on a code generator to overwrite these artifacts.
 
 ## Adding New Regions (Referencing Valley IV)
 

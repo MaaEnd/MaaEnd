@@ -169,5 +169,11 @@
     "schedule.weekday_thursday": "周四",
     "schedule.weekday_friday": "周五",
     "schedule.weekday_saturday": "周六",
-    "schedule.weekday_sunday": "周日"
+    "schedule.weekday_sunday": "周日",
+    "seizedeliveryjobs.scanning": "正在扫描委托列表...",
+    "seizedeliveryjobs.checking_job": "检查委托 %d/%d",
+    "seizedeliveryjobs.endpoint_matched": "送货点匹配成功，接取委托",
+    "seizedeliveryjobs.endpoint_not_matched": "送货点不匹配，跳过",
+    "seizedeliveryjobs.no_more_targets": "当前列表无匹配委托，刷新",
+    "seizedeliveryjobs.accepting": "接取运送委托"
 }

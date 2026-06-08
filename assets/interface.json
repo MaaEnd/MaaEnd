@@ -140,7 +140,7 @@
     "import": [
         // group: regional_development
         "tasks/SellProduct.json",
-        "tasks/SeizeEntrustTask.json",
+        "tasks/SeizeDeliveryJobs.json",
         "tasks/DeliveryJobs.json",
         "tasks/AutoStockpile.json",
         "tasks/AutoStockStaple.json",

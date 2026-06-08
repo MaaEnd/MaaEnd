@@ -1,0 +1,361 @@
+{
+    "task": [
+        {
+            "name": "SeizeDeliveryJobs",
+            "label": "$task.SeizeDeliveryJobs.label",
+            "entry": "SeizeDeliveryJobsMain",
+            "option": [
+                "SeizeDeliveryJobsCommissionSource"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "regional_development"
+            ]
+        }
+    ],
+    "option": {
+        "SeizeDeliveryJobsCommissionSource": {
+            "type": "select",
+            "default_case": "WulingCity",
+            "label": "$task.SeizeDeliveryJobsCommissionSource.label",
+            "cases": [
+                {
+                    "name": "WulingCity",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.WulingCity.label",
+                    "option": [
+                        "SeizeDeliveryJobsisGoDepotNodeWorld",
+                        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity"
+                    ]
+                },
+                {
+                    "name": "TestArea",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
+                    "option": [
+                        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGoDepotNode": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsFindTarget": {
+                            "all_of": [
+                                {
+                                    "sub_name": "WulingToken",
+                                    "recognition": "TemplateMatch",
+                                    "roi": [
+                                        840,
+                                        190,
+                                        50,
+                                        430
+                                    ],
+                                    "template": [
+                                        "SeizeDeliveryJobs/WulingToken.png"
+                                    ]
+                                },
+                                {
+                                    "sub_name": "RewardOcr",
+                                    "recognition": "OCR",
+                                    "roi": "WulingToken",
+                                    "roi_offset": [
+                                        0,
+                                        30,
+                                        0,
+                                        -20
+                                    ],
+                                    "expected": [
+                                        "10.6"
+                                    ],
+                                    "only_rec": true
+                                },
+                                {
+                                    "sub_name": "OriginOcr",
+                                    "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        -229,
+                                        -38,
+                                        50,
+                                        14
+                                    ],
+                                    "expected": [
+                                        "试验园区",
+                                        "實驗園區",
+                                        "(?i)Test\\s*Area",
+                                        "実験区域",
+                                        "실험 구역"
+                                    ]
+                                },
+                                {
+                                    "sub_name": "AcceptOcr",
+                                    "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        226,
+                                        -4,
+                                        70,
+                                        12
+                                    ],
+                                    "expected": [
+                                        "接取运送委托",
+                                        "接取運送委託",
+                                        "(?i)Accept\\s*Delivery\\s*Job",
+                                        "配達依頼を受ける",
+                                        "輸送依頼を受注",
+                                        "輸送依頼を受ける"
+                                    ]
+                                },
+                                {
+                                    "sub_name": "ViewLocationOcr",
+                                    "recognition": "OCR",
+                                    "roi": "RewardOcr",
+                                    "roi_offset": [
+                                        -215,
+                                        -8,
+                                        34,
+                                        10
+                                    ],
+                                    "expected": [
+                                        "查看位置",
+                                        "查看地點",
+                                        "(?i)View\\s*Location",
+                                        "位置を確認",
+                                        "위치 확인"
+                                    ]
+                                }
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsisGoDepotNodeWorld": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsisGoDepotNodeWorld.label",
+            "description": "$task.SeizeDeliveryJobsisGoDepotNodeWorld.description",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGoDepotNode": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsSelectDestination"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGoDepotNode": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsisWalkingToDepotNode": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsisWalkingToDepotNode.label",
+            "description": "$task.SeizeDeliveryJobsisWalkingToDepotNode.description",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsWalkingToDepotNode": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsWalkingToDepotNode": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ]
+        },
+        "SeizeDeliveryJobsSelectDestination": {
+            "type": "select",
+            "label": "选择要传送到的锚点",
+            "description": "",
+            "cases": [
+                {
+                    "name": "仓储节点上方锚点",
+                    "option": [
+                        "SeizeDeliveryJobsisWalkingToDepotNode"
+                    ],
+                    "pipeline_override": {
+                        "isSeizeDeliveryJobsInMap": {
+                            "next": [
+                                "isSeizeDeliveryJobsInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity5"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "仓储节点左侧锚点",
+                    "pipeline_override": {
+                        "isSeizeDeliveryJobsInMap": {
+                            "next": [
+                                "isSeizeDeliveryJobsInWolrld",
+                                "[JumpBack]SceneEnterWorldWulingWulingCity6"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointWulingCity"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterWulingCity": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointTestArea"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterTestArea": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointWulingCity": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
+            "default_case": [
+                "Owl",
+                "MaterialResearchInstitute",
+                "Observatory",
+                "TechProductionOffice"
+            ],
+            "cases": [
+                {
+                    "name": "Owl",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterOwl": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "MaterialResearchInstitute",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Observatory",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterObservatory": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TechProductionOffice",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointTestArea": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
+            "default_case": [
+                "No1TypeCAnchorArea",
+                "No3TypeCAnchorArea",
+                "JingweiFieldArea"
+            ],
+            "cases": [
+                {
+                    "name": "No1TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No3TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "JingweiFieldArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

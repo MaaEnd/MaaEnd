@@ -10,7 +10,6 @@
         "check": "maa-tools check",
         "test": "maa-tools test",
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
-        "generate:AutoStockStaple": "node tools/pipeline-generate/run-all.mjs AutoStockStaple/General",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
         "generate:EnvironmentMonitoring": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
         "generate:SellProduct": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"

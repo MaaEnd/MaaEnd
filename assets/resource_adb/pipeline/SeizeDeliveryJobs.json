@@ -1,5 +1,5 @@
 {
-    "SeizeEntrustTaskNews": {
+    "SeizeDeliveryJobsNews": {
         "desc": "刷新动作",
         "recognition": {
             "type": "OCR",
@@ -23,10 +23,10 @@
         },
         "rate_limit": 1000,
         "next": [
-            "SeizeEntrustTaskNewsStatus1"
+            "SeizeDeliveryJobsNewsStatus1"
         ]
     },
-    "SeizeEntrustTaskNewsStatus1": {
+    "SeizeDeliveryJobsNewsStatus1": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -45,13 +45,13 @@
             }
         },
         "next": [
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop"
+            "[JumpBack]SeizeDeliveryJobsStopTask"
         ]
     },
-    "isSeizeEntrustTaskDestinationWulingCity": {
+    "isSeizeDeliveryJobsDestinationWulingCity": {
         "next": [
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskNews"
+            "[JumpBack]SeizeDeliveryJobsStopTask",
+            "[JumpBack]SeizeDeliveryJobsNews"
         ]
     }
 }

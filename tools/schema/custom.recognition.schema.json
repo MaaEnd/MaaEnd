@@ -27,6 +27,7 @@
                 "VisitFriendsMenuScanScrollFullRecognition",
                 "VisitFriendsMenuScanTargetFriendOpenRecognition",
                 "WeaponInventoryScanRecognition",
+                "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
