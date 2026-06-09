@@ -47,6 +47,73 @@
 - [`assets/locales/`](assets/locales/): 国际化本地化文件（任务名称、UI 文本等）。
 - [`docs/zh_cn/developers/README.md`](docs/zh_cn/developers/README.md): 中文开发者文档索引（阅读路线、文档目录）；英文镜像见 [`docs/en_us/developers/README.md`](docs/en_us/developers/README.md)。
 
+## 文档索引
+
+这些为 `docs/zh_cn/` 下的开发者文档清单，按用途分层。AI Agent 在遇到对应场景时应主动查阅这些参考文档
+
+### 新手入门（写给第一次接触的开发者）
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`docs/zh_cn/developers/super-basic-introduction.md`](docs/zh_cn/developers/super-basic-introduction.md) | 超基础入门：面向完全不懂 Git/终端/VS Code 的新手，分「普通玩家」「会写代码但没用过 Git」「运维/网管」三类引导 |
+| [`docs/zh_cn/developers/getting-started.md`](docs/zh_cn/developers/getting-started.md) | 快速开始：以「自动售卖物品」为例，走一遍从环境准备、编写 Pipeline、注册任务到提交 PR 的完整流程 |
+
+### 架构与设计
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`docs/zh_cn/developers/README.md`](docs/zh_cn/developers/README.md) | 开发者文档总索引，含阅读路线图 |
+| [`docs/zh_cn/developers/components-guide.md`](docs/zh_cn/developers/components-guide.md) | 项目四层架构（interface → tasks → pipeline → go-service）总览，「改动该改哪」速查表，可复用节点清单 |
+| [`docs/zh_cn/developers/custom.md`](docs/zh_cn/developers/custom.md) | Custom Action 与 Custom Recognition 参考（`SubTask`、`ClearHitCount`、`FalseAction`、`PipelineOverride`、`AttachToExpectedRegexAction` 等） |
+| [`docs/zh_cn/developers/in-scene.md`](docs/zh_cn/developers/in-scene.md) | InScene 场景系统：进入场景、检测退出、场景内循环操作的通用框架 |
+| [`docs/zh_cn/developers/scene-manager.md`](docs/zh_cn/developers/scene-manager.md) | SceneManager：场景切换管理，处理场景跳转与状态恢复 |
+| [`docs/zh_cn/developers/common-buttons.md`](docs/zh_cn/developers/common-buttons.md) | 通用按钮参考：`WhiteConfirmButton`、`YellowConfirmButton`、`CancelButton`、`TeleportButton`、`CloseButton`、`CloseRewardsButton` 等可复用节点的 ROI 与适用条件 |
+
+### 开发规范与调试
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`docs/zh_cn/developers/coding-standards.md`](docs/zh_cn/developers/coding-standards.md) | 编码规范总纲（Pipeline / Go / Cpp / 格式化 / OCR / i18n / 常见坑） |
+| [`docs/zh_cn/developers/node-testing.md`](docs/zh_cn/developers/node-testing.md) | 单节点测试方法：在不跑完整任务的情况下独立验证某个 Pipeline 节点 |
+| [`docs/zh_cn/developers/tools-and-debug.md`](docs/zh_cn/developers/tools-and-debug.md) | 工具链与调试指南：`tools/` 下脚本用法、日志分析、常见排查手段 |
+
+### 组件参考（`docs/zh_cn/developers/components/`）
+
+这些是可复用的底层组件，由 Go 或 C++ 实现，通过 Custom Action / Custom Recognition 供 Pipeline 调用。
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`components/auto-fight.md`](docs/zh_cn/developers/components/auto-fight.md) | AutoFight 战斗自动操作：普攻/技能/连携技/终结技/闪避的动作队列，只能用 `AutoFightInterface.json` 的三个公开接口 |
+| [`components/better-sliding.md`](docs/zh_cn/developers/components/better-sliding.md) | BetterSliding 滑条精确调节：先拖到最大→插值定位→微调的三段式流程，支持 Value/Percentage/Reverse 三种模式 |
+| [`components/character-controller.md`](docs/zh_cn/developers/components/character-controller.md) | CharacterController 角色底层控制：视角旋转（`YawDeltaAction`/`PitchDeltaAction`）、前后移动（`ForwardAxisAction`）、自动朝向目标（`CharacterMoveToTargetAction`），需前台 Seize 模式 |
+| [`components/map-locator.md`](docs/zh_cn/developers/components/map-locator.md) | MapLocator 小地图定位系统（C++ 实现）：基于 YOLOv26-small + ZNCC 模板匹配，输出 ZoneID、全局坐标和朝向角度，需要用户查看 |
+| [`components/map-navigator.md`](docs/zh_cn/developers/components/map-navigator.md) | MapNavigator 地图导航：基于 MapLocator 定位结果执行路径规划与移动，此功能需要用户自行阅读后使用，agents仅作阅读，辅助用户排查错误 |
+| [`components/map-tracker.md`](docs/zh_cn/developers/components/map-tracker.md) | MapTracker 地图追踪（基础）：追踪地图上的动态目标 ，同样，agents仅作阅读，在必要时候提示用户 |
+| [`components/map-tracker(advanced).md`](docs/zh_cn/developers/components/map-tracker(advanced).md) | MapTracker 进阶：高级地图追踪功能与配置，同样，Agents仅作阅读，必要时候辅助用户 |
+
+### 任务维护手册（`docs/zh_cn/developers/tasks/`）
+
+每个任务的维护文档说明其 Pipeline 架构、Go Service 协作方式、关键识别节点、模板图片位置和常见问题排查点。
+**注意，这些文档仅在维护有关的文档时会用到，其他时候请无视无关的**
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`tasks/auto-stockpile-maintain.md`](docs/zh_cn/developers/tasks/auto-stockpile-maintain.md) | AutoStockpile（自动囤货）：Pipeline 负责界面交互 + Go 负责决策的商品映射、阈值查表、地区/档位同步清单 |
+| [`tasks/auto-stockstaple-maintain.md`](docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md) | AutoStockStaple（稳定需求购买）：以剩余刷新时间为锚点逐级偏移识别的全链路、数量控制三元分支、与 AutoStockpile 的根本差异 |
+| [`tasks/credit-shopping-maintain.md`](docs/zh_cn/developers/tasks/credit-shopping-maintain.md) | CreditShopping（信用点商店）：商品识别层级偏移依赖（CreditIcon → NotSoldOut → CanAfford → 商品名 → 折扣）、三条购买优先级、补信用联动 |
+| [`tasks/dijiang-rewards-maintain.md`](docs/zh_cn/developers/tasks/dijiang-rewards-maintain.md) | DijiangRewards（基建奖励）：恢复心情/会客室/基地三大阶段、昼夜判断与场景切换 |
+| [`tasks/environment-monitoring-maintain.md`](docs/zh_cn/developers/tasks/environment-monitoring-maintain.md) | EnvironmentMonitoring（环境监测）：观察点路线配置、EnterMap/MapPath/MapTarget 数据结构 |
+| [`tasks/sell-product-maintain.md`](docs/zh_cn/developers/tasks/sell-product-maintain.md) | SellProduct（自动售卖）：售卖界面识别、物品选择与数量调节流程 |
+
+### 其他参考
+
+| 文档 | 作用 |
+| ---- | ---- |
+| [`docs/zh_cn/protocol/autostockpile-daily-storage/protocol.md`](docs/zh_cn/protocol/autostockpile-daily-storage/protocol.md) | AutoStockpile 每日物资存储格式协议与 JSON Schema |
+| [`docs/zh_cn/users/troubleshooting.md`](docs/zh_cn/users/troubleshooting.md) | 用户故障排除指南 |
+
+---
+
 ## 编码规范
 
 ### 1. Pipeline 低代码规范
