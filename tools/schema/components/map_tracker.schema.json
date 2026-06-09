@@ -14,6 +14,17 @@
             "maxItems": 2,
             "items": false
         },
+        "Coordinate2I": {
+            "type": "array",
+            "description": "A 2D integer coordinate [x, y].",
+            "prefixItems": [
+                { "type": "integer" },
+                { "type": "integer" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
         "Rect4D": {
             "type": "array",
             "description": "A rectangle [x, y, w, h].",
@@ -334,6 +345,74 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.5
+                }
+            }
+        },
+        "MapTrackerBigMapFindImageParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapFindImage: find icon images in the current big-map viewport, optionally panning until required points are visible.",
+            "additionalProperties": false,
+            "required": [ "template", "expected" ],
+            "properties": {
+                "template": {
+                    "title": "Template",
+                    "description": "Template image resource path.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "expected": {
+                    "title": "Expected",
+                    "description": "Recognition hit condition: true for at least one match, false for no matches, integer for exact match count, or [x, y, w, h] for a required map-coordinate rectangle hit.",
+                    "oneOf": [
+                        { "type": "boolean" },
+                        { "type": "integer", "minimum": 0 },
+                        {
+                            "type": "array",
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "items": { "type": "number" }
+                        }
+                    ]
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum template matching confidence.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "max_matches": {
+                    "title": "Max Matches",
+                    "description": "Maximum number of matches to return.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 32
+                },
+                "green_mask": {
+                    "title": "Green Mask",
+                    "description": "Use green pixels in the template as mask pixels.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "with_rotation": {
+                    "title": "With Rotation",
+                    "description": "Match the template across rotations and return the matched angle.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Optional big-map zoom slider position (0-1) to apply before matching.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "must_see_points": {
+                    "title": "Must See Points",
+                    "description": "Map points that must all be covered by the big-map viewport before matching.",
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Coordinate2I" }
                 }
             }
         }
