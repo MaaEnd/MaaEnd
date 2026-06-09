@@ -849,10 +849,7 @@
                     "ClaimDijiangRewards/BackButton.png"
                 ],
                 "green_mask": true,
-                "method": 10001,
-                "threshold": [
-                    0.9
-                ]
+                "method": 10001
             }
         },
         "action": {
