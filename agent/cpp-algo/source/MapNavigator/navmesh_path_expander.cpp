@@ -145,6 +145,10 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
         if (configured.is_absolute()) {
             return configured;
         }
+        // A relative override resolves exe-anchored first (production layout), then falls back to the
+        // CWD-walk for dev. If it exists nowhere, we intentionally return the exe-anchored path rather
+        // than the bare relative one so a not-found diagnostic names the deployed location instead of a
+        // CWD-relative path that only resolves in dev.
         const std::filesystem::path anchored = exe_dir / ".." / configured;
         if (std::filesystem::exists(anchored, ec) && !ec) {
             return anchored;
