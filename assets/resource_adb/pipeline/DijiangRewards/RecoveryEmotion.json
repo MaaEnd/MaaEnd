@@ -7,16 +7,12 @@
             365
         ]
     },
-    "RecoveryEmotionNotSelect": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    56,
-                    -103,
-                    -24,
-                    0
-                ]
-            }
-        }
+    "RecoveryEmotionCouldNotAssist": {
+        "roi": [
+            1166,
+            164,
+            22,
+            23
+        ]
     }
 }

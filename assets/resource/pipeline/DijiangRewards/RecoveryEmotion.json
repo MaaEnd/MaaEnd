@@ -1,6 +1,7 @@
 {
     "RecoveryEmotionMain": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
+        "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
@@ -206,16 +207,20 @@
         ]
     },
     "RecoveryEmotionSelectLowEmotion": {
-        "desc": "[恢复心情·操作] 识别未选中的干员（信赖图标 + 右上角无黄色角标）并点击",
-        "max_hit": 6,
+        "desc": "[恢复心情·操作] 识别干员（信赖图标）并点击",
         "recognition": {
-            "type": "And",
+            "type": "TemplateMatch",
             "param": {
-                "all_of": [
-                    "RecoveryEmotionTrustIcon",
-                    "RecoveryEmotionNotSelect"
+                "roi": [
+                    467,
+                    236,
+                    620,
+                    282
                 ],
-                "box_index": 1
+                "template": [
+                    "GiftOperator/TrustIcon.png"
+                ],
+                "order_by": "Vertical"
             }
         },
         "pre_delay": 0,
@@ -235,12 +240,11 @@
         "next": [
             "RecoveryEmotionFull",
             "RecoveryEmotionCouldNotAssist",
-            "RecoveryEmotionSelectLowEmotion",
-            "RecoveryEmotionExitView2ToView1"
+            "RecoveryEmotionSelectLowEmotion2"
         ]
     },
-    "RecoveryEmotionTrustIcon": {
-        "desc": "[恢复心情·状态] 干员好感度图标，与 GiftOperatorTrustIcon 同款",
+    "RecoveryEmotionSelectLowEmotion2": {
+        "desc": "[恢复心情·操作] 识别第二位干员（信赖图标）并点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -253,52 +257,29 @@
                 "template": [
                     "GiftOperator/TrustIcon.png"
                 ],
-                "order_by": "Vertical"
+                "order_by": "Vertical",
+                "index": 1
             }
-        }
-    },
-    "RecoveryEmotionNotSelect": {
-        "desc": "[恢复心情·状态] 干员未被选中（信赖图标同位右上角无黄色角标）",
-        "recognition": {
-            "type": "ColorMatch",
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
             "param": {
-                "roi": "RecoveryEmotionTrustIcon",
-                "roi_offset": [
-                    41,
-                    -83,
-                    -5,
-                    -2
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        0,
-                        0
-                    ],
-                    [
-                        29,
-                        0,
-                        0
-                    ]
-                ],
-                "upper": [
-                    [
-                        27,
-                        255,
-                        255
-                    ],
-                    [
-                        180,
-                        255,
-                        255
-                    ]
-                ],
-                "connected": true,
-                "count": 100,
-                "order_by": "Vertical"
+                "target_offset": [
+                    -30,
+                    50,
+                    0,
+                    0
+                ]
             }
-        }
+        },
+        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionFull",
+            "RecoveryEmotionCouldNotAssist",
+            "RecoveryEmotionExitView2ToView1"
+        ]
     },
     "RecoveryEmotionCouldNotAssist": {
         "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，点击确认",
@@ -306,19 +287,15 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    432,
-                    74,
-                    428,
-                    92
+                    1062,
+                    204,
+                    15,
+                    17
                 ],
                 "expected": [
-                    "没有更多的心情激励点数，无法选择更多干员",
-                    "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
-                    "体力激励ポイントが足りないため、これ以上選択できません",
-                    "没有更多的心情激励点数",
-                    "沒有更多的心情激勵點數"
-                ]
+                    "0"
+                ],
+                "only_rec": true
             }
         },
         "pre_delay": 0,

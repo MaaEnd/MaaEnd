@@ -1,7 +1,7 @@
 # Developer Guide — Base Facility Task Maintenance
 
-This document explains the overall structure of `DijiangRewards` (the base facility task), the responsibilities of its four phase tasks, and how each `interface` option in `assets/tasks/DijiangRewards.json` overrides Pipeline behavior and why—so future maintenance and extensions are easier.  
-This document was last updated on April 7, 2026, and is aligned with [fix(GrowthChamber): fix "Plant again" button sometimes being ignored (#2003)](https://github.com/MaaEnd/MaaEnd/pull/2003).
+This document explains the overall structure of `DijiangRewards` (the base facility task), the responsibilities of its phase tasks, and how each `interface` option in `assets/tasks/DijiangRewards.json` overrides Pipeline behavior and why—so future maintenance and extensions are easier.  
+This document was last updated on June 9, 2026, and is aligned with the recovery-emotion operator selection refactor.
 
 ## File overview
 
@@ -12,11 +12,13 @@ The current implementation is spread across these files:
 | Project interface hook       | `assets/interface.json`                                              | Mounts `tasks/DijiangRewards.json` under the `daily` task group                                   |
 | Task and option definitions  | `assets/tasks/DijiangRewards.json`                                   | Defines task entry, UI options, sub-options, and `pipeline_override`                              |
 | Task entry                   | `assets/resource/pipeline/DijiangRewards/Entry.json`                 | Enters Dijiang Control Nexus from the task entry                                                  |
-| Main flow dispatch           | `assets/resource/pipeline/DijiangRewards/MainFlow.json`              | Dispatches from Control Nexus into four sub-phases in order                                       |
+| Main flow dispatch           | `assets/resource/pipeline/DijiangRewards/MainFlow.json`              | Dispatches from Control Nexus into sub-phases in order                                            |
+| Fast collect                 | `assets/resource/pipeline/DijiangRewards/FastCollect.json`           | One-click harvest of products and clues from Control Nexus (optional)                             |
 | Mood recovery                | `assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json`       | Handles friend-assist mood recovery in Control Nexus                                              |
 | Reception room               | `assets/resource/pipeline/DijiangRewards/ReceptionRoom.json`         | Handles clue collection, receipt, placement, gifting, and clue exchange                           |
 | Manufacturing bay            | `assets/resource/pipeline/DijiangRewards/Manufacturing.json`         | Handles harvest, restock, and assists                                                             |
 | Growth chamber               | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json`         | Handles claim, the post-reward "plant again" branch, normal cultivation, and seed core extraction |
+| Need credit chain            | `assets/resource/pipeline/DijiangRewards/NeedCredit.json`            | Sub-flow for LMD credit shop linkage                                                              |
 | Shared location template     | `assets/resource/pipeline/DijiangRewards/Template/Location.json`     | Maintains location nodes for each bay UI                                                          |
 | Shared text template         | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | Maintains OCR templates for button/state text                                                     |
 | Supplemental status template | `assets/resource/pipeline/DijiangRewards/Template/Status.json`       | Maintains auxiliary recognition for red dots, counts, cultivation stock, etc.                     |
@@ -26,32 +28,34 @@ The current implementation is spread across these files:
 The task entry is `DijiangRewards` in `Entry.json`:
 
 1. Enter Dijiang Control Nexus via `SceneEnterMenuDijiangControlNexus`.
-2. After hitting `ControlNexus` in `MainFlow.json`, try the four phases in `next` order:
-    1. `[JumpBack]RecoveryEmotionMain`
-    2. `[JumpBack]ReceptionRoomMain`
-    3. `[JumpBack]MFGCabinMain`
-    4. `[JumpBack]GrowthChamberMain`
+2. After hitting `ControlNexus` in `MainFlow.json`, try sub-phases in `next` order:
+    1. `[JumpBack]DijiangRewardsFastCollectProduction` (optional)
+    2. `[JumpBack]DijiangRewardsFastCollectClues` (optional)
+    3. `[JumpBack]RecoveryEmotionMain`
+    4. `[JumpBack]ReceptionRoomMain`
+    5. `[JumpBack]MFGCabinMain`
+    6. `[JumpBack]GrowthChamberMain`
 3. After each phase completes, return to `InDijiangControlNexus`, then check the next phase.
-4. When none of the four phases match anymore, go to `FinishDijiangRewards` to finish.
+4. When none of the phases match anymore, go to `FinishDijiangRewards` to finish.
 
 The design centers on **Control Nexus dispatch + per-phase jump-back**:
 
-- The four phases are independent, so they can be enabled, disabled, and maintained separately.
+- Sub-phases are independent, so they can be enabled, disabled, and maintained separately.
 - Each phase only cares about **how to enter its bay, finish that bay’s logic, and return to Control Nexus**.
 - `interface` options only need to override each phase’s entry or branch nodes; the main flow skeleton does not change.
 
-## Responsibilities of the four phases
+## Responsibilities of the phase tasks
+
+### Fast collect (optional)
+
+Implemented in `FastCollect.json`. From Control Nexus, tap the "Products" or "Clues" shortcut to harvest without entering the corresponding bay.  
+Controlled by `StageTaskSetting` → `FastCollect`; disabled by default.
 
 ### 1. Mood recovery
 
-`RecoveryEmotionMain` enters the assist UI from Control Nexus when the "needs assist" red dot is recognized:
+`RecoveryEmotionMain` runs at most once per Control Nexus scan (`max_hit: 1`).
 
-- Tap "Use assist" first.
-- On the "select an Operator whose mood to restore" screen, find an Operator whose mood bar has an empty slot.
-- Handle cleanup when "Operator mood is full" or "no more mood boost points".
-- Finally return to Control Nexus.
-
-This is essentially a phase that **spends assist points from Control Nexus**.
+Operator selection: tap the leftmost Operator → check whether mood is full and remaining uses is 0 → if both are false, tap the second Operator from the left → finish and return to Control Nexus.
 
 ### 2. Reception room
 
@@ -345,6 +349,7 @@ Rationale:
 | Option                 | Overridden node           | Override                 | Rationale                                                          |
 | ---------------------- | ------------------------- | ------------------------ | ------------------------------------------------------------------ |
 | `StageTaskSetting=Yes` | None directly in Pipeline | Only expands sub-options | Folds "advanced phase control" so casual users are not overwhelmed |
+| `FastCollect`          | `DijiangRewardsFastCollectProduction`, `DijiangRewardsFastCollectClues` | `enabled=true/false` | Whether to run one-click product/clue harvest from Control Nexus |
 | `RecoveryEmotionStage` | `RecoveryEmotionMain`     | `enabled=true/false`     | Whether to run the mood recovery phase                             |
 | `ReceptionRoomStage`   | `ReceptionRoomMain`       | `enabled=true/false`     | Whether to run the reception room phase                            |
 | `ManufacturingStage`   | `MFGCabinMain`            | `enabled=true/false`     | Whether to run the manufacturing bay phase                         |
