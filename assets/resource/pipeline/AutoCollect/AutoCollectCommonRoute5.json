@@ -1,0 +1,170 @@
+{
+    "AutoCollectCommonRoute5Start": {
+        "desc": "蓬耳锦草采集线，4个点共8个",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "enabled": false,
+        "next": [
+            "AutoCollectCommonRoute5"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.label"
+        }
+    },
+    "AutoCollectCommonRoute5": {
+        "next": [
+            "AutoCollectCommonRoute5AssertLocation1",
+            "[JumpBack]SceneEnterWorldWulingMarkerStone1"
+        ]
+    },
+    "AutoCollectCommonRoute5End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute5AssertLocation1": {
+        "desc": "传送点和目的点定位",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        494.6,
+                        196.9,
+                        10.0,
+                        10.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoCollectCommonRoute5GotoFindLine1"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFindLine1": {
+        "desc": "前往蓬耳锦草采集点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    497.6,
+                    210.3
+                ],
+                [
+                    425.1,
+                    210.8
+                ],
+                [
+                    416.3,
+                    212.0
+                ]
+            ]
+        },
+        "next": [
+            "AutoCollectCommonRoute5GotoFind1"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFind1": {
+        "desc": "采集点1",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [417.8, 216.1]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect1"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFindCollect1": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFind2": {
+        "desc": "采集点2",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [414.4, 213.4]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFindCollect2": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFind3": {
+        "desc": "采集点3",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [414.3, 212.5]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFindCollect3": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFind4": {
+        "desc": "采集点4",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [413.1, 210.3]
+            ]
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute5GotoFindCollect4": {
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute5End"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}

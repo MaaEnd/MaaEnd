@@ -91,21 +91,9 @@ struct MapLocateAssertLocationOutput
 
 fs::path getExeDir()
 {
-#ifdef _WIN32
-    const auto process_path = MAA_NS::get_process_path(GetCurrentProcessId());
-#else
-    const auto process_path = MAA_NS::get_process_path(::getpid());
-#endif
-    if (process_path && !process_path->empty()) {
-        return process_path->parent_path();
-    }
-
-    std::error_code ec;
-    const fs::path cwd = fs::current_path(ec);
-    if (!ec && !cwd.empty()) {
-        return cwd;
-    }
-    return {};
+    // Shared single-source resolution (see source/utils.h). Kept as a thin alias so MapLocator and
+    // MapNavigator anchor resources identically.
+    return get_exe_dir();
 }
 
 class ScopedImageBuffer

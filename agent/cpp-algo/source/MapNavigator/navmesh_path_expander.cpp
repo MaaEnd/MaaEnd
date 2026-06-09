@@ -22,6 +22,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../Navmesh/BaseNavReader.h"
+#include "../utils.h"
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "navi_math.h"
@@ -135,23 +136,43 @@ std::optional<std::filesystem::path> FindExistingFromParents(const std::filesyst
 
 std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
 {
+    std::error_code ec;
+    const std::filesystem::path exe_dir = get_exe_dir();
+    const std::filesystem::path navmesh_dir = exe_dir / ".." / "resource" / "model" / "map" / "navmesh";
+
     if (!configured_path.empty()) {
         const std::filesystem::path configured(configured_path);
         if (configured.is_absolute()) {
             return configured;
         }
+        // A relative override resolves exe-anchored first (production layout), then falls back to the
+        // CWD-walk for dev. If it exists nowhere, we intentionally return the exe-anchored path rather
+        // than the bare relative one so a not-found diagnostic names the deployed location instead of a
+        // CWD-relative path that only resolves in dev.
+        const std::filesystem::path anchored = exe_dir / ".." / configured;
+        if (std::filesystem::exists(anchored, ec) && !ec) {
+            return anchored;
+        }
         if (auto found = FindExistingFromParents(configured); found.has_value()) {
             return *found;
         }
-        return configured;
+        return anchored;
     }
 
-    for (const char* relative_path : { kDefaultNavmeshRelativePath, kDefaultCompressedNavmeshRelativePath }) {
+    for (const char* file_name : { "base.nav.gz", "base.nav" }) {
+        const std::filesystem::path candidate = navmesh_dir / file_name;
+        if (std::filesystem::exists(candidate, ec) && !ec) {
+            return candidate;
+        }
+    }
+
+    for (const char* relative_path : { kDefaultCompressedNavmeshRelativePath, kDefaultNavmeshRelativePath }) {
         if (auto found = FindExistingFromParents(relative_path); found.has_value()) {
             return *found;
         }
     }
-    return std::filesystem::path(kDefaultNavmeshRelativePath);
+
+    return navmesh_dir / "base.nav.gz";
 }
 
 std::string BuildNavmeshCacheKey(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
@@ -163,7 +184,7 @@ std::shared_ptr<CachedNavmesh> LoadNavmeshPack(const std::filesystem::path& navm
 {
     const auto load_result = navmesh::LoadBaseNavPack(navmesh_path, navmesh_zone);
     if (!load_result.ok()) {
-        LogError << "Failed to load navmesh .nav file." << VAR(navmesh_path) << VAR(navmesh_zone) << VAR(load_result.message);
+        LogError << "Failed to load navmesh pack." << VAR(navmesh_path) << VAR(navmesh_zone) << VAR(load_result.message);
         return nullptr;
     }
     return std::make_shared<CachedNavmesh>(std::move(*load_result.pack));
@@ -446,6 +467,11 @@ navmesh::WorldPoint OffsetPoint(const NaviPosition& position, double heading, do
 }
 
 } // namespace
+
+std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
+{
+    return ResolveNavmeshFile(configured_path);
+}
 
 std::string InitialExpectedZone(const NaviParam& param)
 {
