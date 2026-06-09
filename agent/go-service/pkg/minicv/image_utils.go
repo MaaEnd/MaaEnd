@@ -9,6 +9,11 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"math"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"time"
 
 	xdraw "golang.org/x/image/draw"
 )
@@ -155,6 +160,65 @@ func ImageDrawLine(img *image.RGBA, x1, y1, x2, y2 int, c color.RGBA, thickness 
 			y1 += sy
 		}
 	}
+}
+
+// ImageSaveDebug saves a debug image as JPEG and removes old images with the same prefix beyond maxKeep.
+func ImageSaveDebug(img image.Image, dirPath string, namePrefix string, maxKeep int) error {
+	if img == nil {
+		return fmt.Errorf("nil image")
+	}
+	if err := os.MkdirAll(dirPath, 0o755); err != nil {
+		return err
+	}
+
+	filename := fmt.Sprintf("%s_%s.jpg", namePrefix, time.Now().Format("20060102150405"))
+	filePath := filepath.Join(dirPath, filename)
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+	if err := jpeg.Encode(f, img, &jpeg.Options{Quality: 95}); err != nil {
+		return err
+	}
+
+	if maxKeep <= 0 {
+		return nil
+	}
+
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+	prefix := namePrefix + "_"
+	var oldFiles []os.DirEntry
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if strings.HasPrefix(name, prefix) && strings.HasSuffix(name, ".jpg") {
+			oldFiles = append(oldFiles, entry)
+		}
+	}
+	if len(oldFiles) <= maxKeep {
+		return nil
+	}
+
+	sort.Slice(oldFiles, func(i, j int) bool {
+		left, leftErr := oldFiles[i].Info()
+		right, rightErr := oldFiles[j].Info()
+		if leftErr != nil || rightErr != nil {
+			return oldFiles[i].Name() < oldFiles[j].Name()
+		}
+		return left.ModTime().Before(right.ModTime())
+	})
+	for _, entry := range oldFiles[:len(oldFiles)-maxKeep] {
+		if err := os.Remove(filepath.Join(dirPath, entry.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ImageDrawFilledCircle draws a filled circle on an RGBA image.
