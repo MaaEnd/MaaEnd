@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute2Start": {
-        "desc": "黯银柑实采集线，10个",
+        "desc": "黯银柑实采集线，5个点",
         "pre_delay": 0,
         "post_delay": 0,
         "enabled": false,

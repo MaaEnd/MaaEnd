@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute3Start": {
-        "desc": "灼壳虫采集线，6个点共12个",
+        "desc": "灼壳虫采集线，6个点",
         "pre_delay": 0,
         "post_delay": 0,
         "enabled": false,
@@ -147,8 +147,12 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    514.7,
-                    573.0
+                    516.2,
+                    579.8
+                ],
+                [
+                    513.8,
+                    574.8
                 ]
             ]
         },

@@ -303,7 +303,7 @@
             ],
             "cases": [
                 {
-                    "name": "CommonRoute1",//乔华
+                    "name": "CommonRoute1",
                     "label": "$option.AutoCollectCommonRoute1.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute1Start": {
@@ -312,7 +312,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute2",//柑橘
+                    "name": "CommonRoute2",
                     "label": "$option.AutoCollectCommonRoute2.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute2Start": {
@@ -321,7 +321,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute3",//苦叶
+                    "name": "CommonRoute3",
                     "label": "$option.AutoCollectCommonRoute3.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute3Start": {
@@ -330,7 +330,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute4",//芦苇
+                    "name": "CommonRoute4",
                     "label": "$option.AutoCollectCommonRoute4.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute4Start": {
@@ -339,7 +339,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute5",//人参
+                    "name": "CommonRoute5",
                     "label": "$option.AutoCollectCommonRoute5.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute5Start": {
@@ -348,7 +348,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute6",//芽针
+                    "name": "CommonRoute6",
                     "label": "$option.AutoCollectCommonRoute6.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute6Start": {
@@ -357,7 +357,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute7",//锦草
+                    "name": "CommonRoute7",
                     "label": "$option.AutoCollectCommonRoute7.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute7Start": {
@@ -366,7 +366,7 @@
                     }
                 },
                 {
-                    "name": "CommonRoute8",//锦草
+                    "name": "CommonRoute8",
                     "label": "$option.AutoCollectCommonRoute8.label",
                     "pipeline_override": {
                         "AutoCollectCommonRoute8Start": {

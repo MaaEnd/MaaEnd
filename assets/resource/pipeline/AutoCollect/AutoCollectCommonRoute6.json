@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute6Start": {
-        "desc": "琼叶参采集线，5个点共5个",
+        "desc": "琼叶参采集线，5个点",
         "pre_delay": 0,
         "post_delay": 0,
         "enabled": false,
@@ -302,6 +302,14 @@
     },
     "AutoCollectCommonRoute6GotoFindCollect3": {
         "anchor": {
+            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectCommonRoute6GotoFindCollect4": {
+        "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFind4"
         },
         "next": [
@@ -326,13 +334,13 @@
             ]
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect4"
+            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect5"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectCommonRoute6GotoFindCollect4": {
+    "AutoCollectCommonRoute6GotoFindCollect5": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6End"
         },

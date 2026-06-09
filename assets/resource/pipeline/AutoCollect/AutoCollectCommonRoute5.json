@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute5Start": {
-        "desc": "蓬耳锦草采集线，4个点共8个",
+        "desc": "蓬茸锦草采集线，4个点",
         "pre_delay": 0,
         "post_delay": 0,
         "enabled": false,
@@ -43,7 +43,7 @@
         ]
     },
     "AutoCollectCommonRoute5GotoFindLine1": {
-        "desc": "前往蓬耳锦草采集点",
+        "desc": "前往蓬茸锦草采集点",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
