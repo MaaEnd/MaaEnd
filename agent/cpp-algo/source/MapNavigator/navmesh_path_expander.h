@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@ namespace mapnavigator
 
 struct NaviParam;
 
+std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
 std::string InitialExpectedZone(const NaviParam& param);
 void PreloadNavmeshWaypoints(const NaviParam& param);
 bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_pos, std::vector<Waypoint>& out_path);

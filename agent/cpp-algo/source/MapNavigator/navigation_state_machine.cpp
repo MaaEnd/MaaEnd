@@ -351,9 +351,28 @@ bool NavigationStateMachine::Run()
 bool NavigationStateMachine::Bootstrap()
 {
     runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+
+    if (session_->HasSatisfiedFinalSuccess(*position_, "bootstrap_already_at_final_goal")) {
+        return true;
+    }
+
     const std::optional<DynamicAnchor> anchor = ResolveBootstrapAnchor(param_, session_, *position_);
     if (anchor && TryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
         SelectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
+        return true;
+    }
+
+    const std::optional<BootstrapContinueCandidate> continue_candidate =
+        ResolveBootstrapContinueCandidate(session_->original_path(), *position_);
+    if (continue_candidate && continue_candidate->continue_index > 0
+        && continue_candidate->continue_index < session_->original_path().size()) {
+        session_->ApplyDynamicOverlay({}, continue_candidate->continue_index, *position_);
+        runtime_state_.route.Reset();
+        runtime_state_.nav_run_dirty = true;
+        LogInfo << "Bootstrap serial route continue after navmesh overlay unavailable."
+                << VAR(continue_candidate->continue_index) << VAR(continue_candidate->route_distance) << VAR(position_->x)
+                << VAR(position_->y) << VAR(position_->zone_id);
+        SelectPhaseForCurrentWaypoint("bootstrap_serial_continue");
         return true;
     }
 

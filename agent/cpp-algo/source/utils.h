@@ -1,11 +1,42 @@
 #pragma once
 
+#include <filesystem>
+#include <system_error>
+
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/NoWarningCV.hpp>
+#include <MaaUtils/Platform.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 inline cv::Mat to_mat(const MaaImageBuffer* buffer)
 {
     return cv::Mat(MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer));
+}
+
+// Directory containing the running executable. Resolve bundled resources against this rather than
+// the process current-working-directory: the CWD differs between dev and production, but resources
+// always ship at a fixed location relative to the binary. This is the single anchor used by every
+// resource lookup (MapLocator models, navmesh pack, ...).
+inline std::filesystem::path get_exe_dir()
+{
+#ifdef _WIN32
+    const auto process_path = MAA_NS::get_process_path(GetCurrentProcessId());
+#else
+    const auto process_path = MAA_NS::get_process_path(::getpid());
+#endif
+    if (process_path && !process_path->empty()) {
+        return process_path->parent_path();
+    }
+
+    std::error_code ec;
+    const std::filesystem::path cwd = std::filesystem::current_path(ec);
+    if (!ec && !cwd.empty()) {
+        return cwd;
+    }
+    return {};
 }
 
 #ifdef _WIN32
