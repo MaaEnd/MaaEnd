@@ -55,7 +55,7 @@ Controlled by `StageTaskSetting` → `FastCollect`; disabled by default.
 
 `RecoveryEmotionMain` runs at most once per Control Nexus scan (`max_hit: 1`).
 
-Operator selection: tap the leftmost Operator → check whether mood is full and remaining uses is 0 → if both are false, tap the second Operator from the left → finish and return to Control Nexus.
+Operator selection: tap the leftmost Operator → check whether mood is full and remaining uses are 0 → if both are false, tap the second Operator from the left → finish and return to Control Nexus.
 
 ### 2. Reception room
 
