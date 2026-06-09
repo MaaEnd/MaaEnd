@@ -230,6 +230,69 @@
 }
 ```
 
+### Recognition: MapTrackerBigMapFindImage
+
+🔍 在大地图界面中通过模板匹配查找指定图标的位置。
+
+#### 节点参数
+
+必填参数：
+
+- `template`: 模板图片路径。注意这个路径是相对于 `assets/resource` 目录的，例如 `image/MapTracker/BigMapIcons/Pointer.png`（玩家指针图标）。
+
+- `expected`: 布尔值、非负整数、或者由 4 个实数组成的列表 `[x, y, w, h]`。控制命中识别的条件，具体含义如下：
+  - 如果是布尔值 `true`，则表示找到至少一个匹配结果即可命中识别；
+  - 如果是布尔值 `false`，则表示找不到匹配结果才能命中识别；
+  - 如果是非负整数 `n`，则表示匹配到恰好 `n` 个结果才能命中识别；
+  - 如果是列表 `[x, y, w, h]`，则表示指定的矩形坐标区域内有至少一个匹配结果才能命中识别。
+
+可选参数：
+
+- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.6`。匹配置信度阈值，低于此值的匹配结果将被忽略。
+
+- `green_mask`: 布尔值，默认 `false`。是否对模板图启用绿色遮罩。
+
+- `with_rotation`: 布尔值，默认 `false`。是否开启任意角度匹配，适用于需要匹配旋转图标的情况（例如玩家指针）。
+
+- `zoom_value`: 介于 $[0, 1]$ 的实数，默认 `0`。开始匹配之前先将大地图缩放滑块调整到该位置。若设为 `0`（默认），则表示不进行缩放滑块的调整。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `max_matches`: 整数，默认 `32`。控制最多匹配多少个结果。此参数一般无需调整。
+- `must_see_points`: 由若干个实数坐标组成的点列表，默认不填。指定匹配过程中地图视口必须涵盖的地图坐标点。若填写了此参数，在匹配期间会自动拖拽地图视口直到所有指定的坐标点都曾出现在视口中。此参数适合需要在大范围区域内进行大规模匹配的情况，但会显著增加匹配耗时。
+
+</details>
+
+#### 示例用法
+
+下面演示了如何判断“蓝色任务定位标”是否在地图的某个区域内：
+
+```json
+{
+    "MyFindImageNode": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapFindImage",
+        "custom_recognition_param": {
+            "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
+            "expected": [
+                114,
+                514,
+                19,
+                19
+            ],
+            "green_mask": true,
+            "zoom_value": 0.25
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> 当然，此节点在 Go 侧调用可以获得更丰富的信息返回。返回结果的具体格式请参考本节点的 Go 代码。
+
 ### Action: MapTrackerBigMapPick
 
 🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
