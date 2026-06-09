@@ -193,24 +193,23 @@
             ]
         },
         "next": [
-            "AutoCollectCommonRoute2fightSub"
+            "AutoCollectCommonRoute2GoFight1"
         ]
     },
     "AutoCollectCommonRoute2GoFight1": {
         "desc": "凭空索敌，该范围内只有一个怪，4下攻击不出意外可以锁定并进战",
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectCommonRoute2GoFight2"
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
         },
+        "repeat": 3,
+        "repeat_delay": 500,
         "next": [
-            "AutoCollectDigStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GoFight2": {
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectCommonRoute2fightSub"
-        },
-        "next": [
-            "AutoCollectDigStart"
+            "AutoCollectCommonRoute2fightSub",
+            "AutoCollectCommonRoute2GotoFindLine4"
         ]
     },
     "AutoCollectCommonRoute2fightSub": {
@@ -230,17 +229,14 @@
         "AutoCollectCommonRoute2GotoFindLine4": {
         "desc": "战斗完成后重新定位",
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "map_name": "map01_lv001",
             "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        272.63,
-                        933.4
-                    ],
-                    "zone_id": "ValleyIV_Base"
-                }
+                [
+                    198.5,
+                    526.0
+                ]
             ]
         },
         "next": [

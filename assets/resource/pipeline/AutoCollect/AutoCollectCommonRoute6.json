@@ -334,38 +334,6 @@
     },
     "AutoCollectCommonRoute6GotoFindCollect4": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFind5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute6GotoFind5": {
-        "desc": "采集点5",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    476.2,
-                    490.7
-                ],
-                [
-                    472.2,
-                    485.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute6GotoFindCollect5": {
-        "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6End"
         },
         "next": [
