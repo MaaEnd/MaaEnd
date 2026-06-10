@@ -128,10 +128,6 @@ function buildNavigationParams({
             ? {
                   path: [
                       {
-                          action: "ZONE",
-                          zone_id: MapName,
-                      },
-                      {
                           action: "NAVMESH",
                           target: MapTarget,
                       },
