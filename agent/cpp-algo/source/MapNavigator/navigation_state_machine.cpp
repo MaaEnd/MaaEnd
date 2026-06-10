@@ -426,13 +426,13 @@ bool NavigationStateMachine::HandleLocalizationLoss()
 {
     const auto now = std::chrono::steady_clock::now();
     LocalizationLossState& loss = runtime_state_.localization_loss;
-    if (loss.started_at.time_since_epoch().count() == 0) {
+    if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
     }
     motion_controller_->SetForwardState(false);
 
-    const int64_t loss_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at).count();
-    if (loss_elapsed_ms >= kLocalizationLossTimeoutMs) {
+    const auto loss_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at);
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossTimeoutMs)) {
         return FailNavigation(
             "localization_lost_timeout",
             "Localization lost beyond timeout (likely shoved off-route into another zone); terminating navigation.",
@@ -441,12 +441,12 @@ bool NavigationStateMachine::HandleLocalizationLoss()
             0);
     }
 
-    const bool unstick_cooling = loss.last_unstick_at.time_since_epoch().count() > 0
-                                 && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at).count()
-                                        < kLocalizationLossUnstickIntervalMs;
-    if (loss_elapsed_ms >= kLocalizationLossUnstickIntervalMs && !unstick_cooling) {
+    const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}
+                                 && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at)
+                                        < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling) {
         loss.last_unstick_at = now;
-        LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed_ms);
+        LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
         utils::SleepFor(kActionJumpSettleMs);
         motion_controller_->SetForwardState(false);
