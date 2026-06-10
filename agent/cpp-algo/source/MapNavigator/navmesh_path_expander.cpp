@@ -74,6 +74,12 @@ constexpr size_t kDetourBlockedTriangleCount = 4;
 constexpr double kDetourBacktrackPenalty = 8.0;
 constexpr double kDetourSnapPenalty = 3.0;
 
+// Blind-target fallback: navmesh omits water, so a target a human can reach is reported unreachable.
+// Route as close as the mesh allows, then walk the residual gap blind toward the exact target.
+constexpr double kBlindTargetFallbackSnapRadius = 12.0;
+constexpr double kBlindTargetMaxExtension = 30.0;
+constexpr double kBlindTargetProbeStep = 2.0;
+
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
     return waypoint.action == ActionType::NAVMESH && waypoint.HasPosition();
@@ -396,6 +402,69 @@ void LogGeneratedNavmeshPath(
             << VAR(navmesh_segment_breaks) << VAR(navmesh_path_points);
 }
 
+// Probe from the target back toward the agent; the first reachable probe is the closest connected mesh
+// point. Route there, then walk the residual gap to the exact target as a single non-strict (blind) RUN.
+bool AppendBlindTargetFallback(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const Waypoint& waypoint,
+    NavmeshExpansionState& state,
+    std::vector<Waypoint>& out_path)
+{
+    const navmesh::WorldPoint target { .x = waypoint.x, .y = waypoint.y };
+    const navmesh::WorldPoint start = state.route_start;
+    const double total = std::hypot(target.x - start.x, target.y - start.y);
+    if (total < 1e-6) {
+        return false;
+    }
+    const double snap_radius = std::max(param.navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
+
+    navmesh::BaseNavRouteResult approach;
+    bool found = false;
+    double blind_gap = 0.0;
+    for (double offset = 0.0; offset <= total + 1e-6; offset += kBlindTargetProbeStep) {
+        const double t = std::min(offset / total, 1.0);
+        const navmesh::WorldPoint probe {
+            .x = target.x + (start.x - target.x) * t,
+            .y = target.y + (start.y - target.y) * t,
+        };
+        navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state.navmesh_zone, start, probe);
+        request.snap_radius = snap_radius;
+        const auto route = navmesh.planner.findPath(request);
+        if (!route.ok() || route.path.points.empty()) {
+            continue;
+        }
+        const navmesh::WorldPoint reached = route.path.points.back();
+        blind_gap = std::hypot(target.x - reached.x, target.y - reached.y);
+        approach = route;
+        found = true;
+        break;
+    }
+
+    if (!found) {
+        return false;
+    }
+    if (blind_gap > kBlindTargetMaxExtension) {
+        LogWarn << "NAVMESH blind-target fallback rejected: residual gap too large." << VAR(state.navmesh_zone)
+                << VAR(state.current_zone) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(blind_gap)
+                << VAR(kBlindTargetMaxExtension);
+        return false;
+    }
+
+    if (!AppendGeneratedNavmeshWaypoints(approach.path, out_path, true)) {
+        return false;
+    }
+    if (blind_gap > kWaypointArrivalSlack) {
+        out_path.emplace_back(target.x, target.y, ActionType::RUN);
+        out_path.back().strict_arrival = false;
+    }
+    state.route_start = target;
+    LogWarn << "NAVMESH blind-target fallback applied." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+            << VAR(waypoint.x) << VAR(waypoint.y) << VAR(blind_gap) << VAR(approach.path.points.back().x)
+            << VAR(approach.path.points.back().y);
+    return true;
+}
+
 bool AppendNavmeshWaypoint(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
@@ -406,6 +475,12 @@ bool AppendNavmeshWaypoint(
     const navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state, waypoint);
     const auto route_result = navmesh.planner.findPath(request);
     if (!route_result.ok()) {
+        LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
+                << VAR(state.current_zone) << VAR(waypoint.x) << VAR(waypoint.y)
+                << VAR(navmesh::ToString(route_result.status));
+        if (AppendBlindTargetFallback(param, navmesh, waypoint, state, out_path)) {
+            return true;
+        }
         LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(waypoint.x)
                  << VAR(waypoint.y) << VAR(navmesh::ToString(route_result.status));
         return false;
