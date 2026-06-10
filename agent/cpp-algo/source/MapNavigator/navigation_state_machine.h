@@ -36,6 +36,7 @@ private:
     bool TickNavigate();
     bool TickPhase(NaviPhase phase);
     bool CaptureCurrentPosition(bool force_global_search = false);
+    bool HandleLocalizationLoss();
     bool TryApplyDynamicOverlayToAnchor(
         const char* reason,
         size_t continue_index,

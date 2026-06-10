@@ -91,12 +91,25 @@ struct DynamicRecoveryState
     }
 };
 
+struct LocalizationLossState
+{
+    std::chrono::steady_clock::time_point started_at {};
+    std::chrono::steady_clock::time_point last_unstick_at {};
+
+    void Reset()
+    {
+        started_at = {};
+        last_unstick_at = {};
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
     FlowState flow;
     SemanticState semantic;
     DynamicRecoveryState recovery;
+    LocalizationLossState localization_loss;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
 
@@ -113,6 +126,7 @@ struct NavigationRuntimeState
         route.Reset();
         semantic.ResetTransient();
         recovery.Reset();
+        localization_loss.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.navigate_started_at = now;

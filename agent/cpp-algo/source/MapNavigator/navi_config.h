@@ -78,6 +78,12 @@ constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
 constexpr int32_t kDynamicRecoveryMaxAttemptsPerAnchor = 3;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr double kCloseGoalDetourSuppressSlack = 6.0;
+// When the locator yields no usable fix for a sustained period (e.g. the agent was shoved across a
+// zone boundary into a sub-zone the active route was not planned in, so every fix fails zone
+// validation), stop holding forward into the obstacle, hop periodically to dislodge, and fail-fast
+// once the loss outlasts the timeout so the pipeline can retry instead of stalling forever.
+constexpr int32_t kLocalizationLossUnstickIntervalMs = kObstacleRecoveryMinTriggerMs;
+constexpr int32_t kLocalizationLossTimeoutMs = kDynamicRecoveryTotalTimeoutMs;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;
