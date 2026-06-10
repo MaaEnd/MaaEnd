@@ -307,14 +307,14 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    52,
-                    52,
+                    40,
+                    40,
                     45
                 ],
                 "upper": [
                     80,
                     78,
-                    52
+                    53
                 ],
                 "count": 10
             }
