@@ -846,6 +846,8 @@ bool NavigationStateMachine::TickNavigate()
         nav_run_result.has_corridor_heading && std::isfinite(nav_run_result.remaining_to_anchor)
             ? nav_run_result.remaining_to_anchor
             : route.along_track_remaining;
+    // Strict-arrival goals no longer block sprint outright; allow it until a braking buffer before the
+    // waypoint so long straight runs into a strict goal still sprint, then brake in time to land.
     const bool has_strict_arrival_braking_room = !target_requires_strict_arrival
         || route.waypoint_distance > arrival_distance + kStrictArrivalSprintBrakeDistance;
     const bool allow_sprint =

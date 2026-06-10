@@ -46,6 +46,8 @@ constexpr int32_t kActionJumpSettleMs = 500;
 constexpr int32_t kActionInteractAttempts = 5;
 constexpr int32_t kActionInteractHoldMs = 100;
 constexpr int32_t kAutoSprintCooldownMs = 1500;
+// Braking buffer (world units) ahead of a strict-arrival waypoint: sprint stays allowed until within
+// arrival_distance + this margin, leaving room to brake and land precisely.
 constexpr double kStrictArrivalSprintBrakeDistance = 6.0;
 constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
