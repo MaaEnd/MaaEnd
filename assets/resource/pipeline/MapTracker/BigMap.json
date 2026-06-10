@@ -1,0 +1,170 @@
+{
+    "MapTrackerBigMap_OpenBigMap": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterMapAny"
+        ],
+        "timeout": 5000
+    },
+    "MapTrackerBigMap_FilterOnlyZipline": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__MapTrackerBigMap_OpenFiltersDialog",
+            "__MapTrackerBigMap_InFiltersDialog"
+        ],
+        "timeout": 5000,
+        "anchor": {
+            "MapTrackerAfterOpenFiltersDialog": "__MapTrackerBigMap_InFiltersDialog",
+            "MapTrackerAfterInFiltersDialog": "__MapTrackerBigMap_ClearFilters",
+            "MapTrackerAfterClearFilters": "__MapTrackerBigMap_SwipeDownFiltersDialog",
+            "MapTrackerAfterSwipeDownFiltersDialog": "__MapTrackerBigMap_ClickFilterZipline",
+            "MapTrackerAfterClickFilterZipline": "__MapTrackerBigMap_CloseFilterDialog"
+        }
+    },
+    "__MapTrackerBigMap_OpenFiltersDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/BigMap/FiltersOff.png",
+                    "MapTracker/BigMap/FiltersOn.png"
+                ],
+                "roi": [
+                    50,
+                    600,
+                    300,
+                    100
+                ],
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[Anchor]MapTrackerAfterOpenFiltersDialog"
+        ]
+    },
+    "__MapTrackerBigMap_InFiltersDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "MapTracker/BigMap/FiltersDialog.png",
+                "roi": [
+                    5,
+                    5,
+                    95,
+                    95
+                ],
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]MapTrackerAfterInFiltersDialog"
+        ]
+    },
+    "__MapTrackerBigMap_ClearFilters": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
+                "roi": [
+                    50,
+                    600,
+                    350,
+                    100
+                ],
+                "order_by": "Horizontal",
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[Anchor]MapTrackerAfterClearFilters"
+        ]
+    },
+    "__MapTrackerBigMap_SwipeDownFiltersDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Common/Button/WhiteConfirmButtonType1.png",
+                "roi": [
+                    50,
+                    600,
+                    350,
+                    100
+                ],
+                "order_by": "Random"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin_offset": [
+                    0,
+                    -200,
+                    0,
+                    0
+                ],
+                "end_offset": [
+                    0,
+                    -400,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_delay": 250,
+        "next": [
+            "[Anchor]MapTrackerAfterSwipeDownFiltersDialog"
+        ]
+    },
+    "__MapTrackerBigMap_ClickFilterZipline": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "MapTracker/BigMap/FilterZiplineOff.png",
+                "roi": [
+                    10,
+                    40,
+                    490,
+                    630
+                ],
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[Anchor]MapTrackerAfterClickFilterZipline"
+        ]
+    },
+    "__MapTrackerBigMap_CloseFilterDialog": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    -41,
+                    1,
+                    40,
+                    40
+                ]
+            }
+        }
+    }
+}

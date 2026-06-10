@@ -1,0 +1,95 @@
+{
+    "__MapTrackerOpenWorld_IsZiplineInteractButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "MapTracker/OpenWorld/ZiplineInteract.png"
+                ],
+                "roi": [
+                    760,
+                    330,
+                    190,
+                    340
+                ],
+                "threshold": [
+                    0.8
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "MapTrackerOpenWorld_GetOnZipline": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__MapTrackerOpenWorld_GetOnZipline_Reco"
+        ],
+        "timeout": 2000
+    },
+    "__MapTrackerOpenWorld_GetOnZipline_Reco": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__MapTrackerOpenWorld_IsZiplineInteractButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 2
+            }
+        },
+        "next": [
+            "__MapTrackerOpenWorld_GetOnZipline_InteractPre"
+        ]
+    },
+    "__MapTrackerOpenWorld_GetOnZipline_InteractPre": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        "next": [
+            "__MapTrackerOpenWorld_GetOnZipline_Interact"
+        ],
+        "timeout": 2000
+    },
+    "__MapTrackerOpenWorld_GetOnZipline_Interact": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__MapTrackerOpenWorld_IsZiplineInteractButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__MapTrackerOpenWorld_GetOnZipline_InteractPost"
+        ]
+    },
+    "__MapTrackerOpenWorld_GetOnZipline_InteractPost": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        "post_delay": 500
+    },
+    "MapTrackerOpenWorld_GetOffZipline": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // Esc
+            }
+        },
+        "post_delay": 500
+    }
+}
