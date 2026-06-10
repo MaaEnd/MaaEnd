@@ -75,7 +75,6 @@ constexpr double kWaypointArrivalSlack = 0.5;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
 constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
-constexpr int32_t kDynamicRecoveryMaxAttemptsPerAnchor = 3;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr double kCloseGoalDetourSuppressSlack = 6.0;
 

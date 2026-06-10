@@ -735,25 +735,18 @@ bool NavigationStateMachine::TickNavigate()
                                             && std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.last_replan_at).count()
                                                    < kDynamicRecoveryRetryIntervalMs;
             if (!retry_cooling_down) {
-                if (recovery.attempt_count >= kDynamicRecoveryMaxAttemptsPerAnchor) {
-                    return FailNavigation(
-                        "dynamic_recovery_exhausted",
-                        "Dynamic recovery attempts were exhausted and navigation was terminated.",
-                        route.progress_distance,
-                        NaviMath::NormalizeAngle(route.route_heading - current_heading),
-                        stalled_ms);
-                }
-
                 recovery.last_replan_at = now;
+                ++recovery.jump_attempt_count;
                 const NaviPosition jump_start = *position_;
-                LogInfo << "Dynamic recovery jump pulse issued." << VAR(recovery.attempt_count + 1);
+                LogInfo << "Dynamic recovery jump pulse issued." << VAR(recovery.jump_attempt_count)
+                        << VAR(recovery.detour_attempt_count);
                 motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
                 utils::SleepFor(kActionJumpSettleMs);
                 motion_controller_->SetForwardState(false);
                 if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld()
                     || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
                     LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR(stalled_ms)
-                            << VAR(recovery.attempt_count);
+                            << VAR(recovery.jump_attempt_count);
                     utils::SleepFor(kTargetTickMs);
                     return true;
                 }
@@ -790,9 +783,10 @@ bool NavigationStateMachine::TickNavigate()
                     recovery.started_at = now;
                     recovery.anchor_index = post_jump_anchor->first;
                     recovery.last_replan_at = now;
+                    recovery.jump_attempt_count = 1;
                 }
 
-                ++recovery.attempt_count;
+                ++recovery.detour_attempt_count;
                 if (TryApplyDynamicOverlayToAnchor(
                         "recovery_navmesh_detour",
                         post_jump_anchor->first,
@@ -803,16 +797,9 @@ bool NavigationStateMachine::TickNavigate()
                     return true;
                 }
 
-                LogWarn << "Dynamic recovery detour attempt failed." << VAR(recovery.attempt_count) << VAR(post_jump_anchor->first)
-                        << VAR(route.progress_distance) << VAR(stalled_ms);
-                if (recovery.attempt_count >= kDynamicRecoveryMaxAttemptsPerAnchor) {
-                    return FailNavigation(
-                        "dynamic_recovery_exhausted",
-                        "Dynamic recovery attempts were exhausted and navigation was terminated.",
-                        route.progress_distance,
-                        NaviMath::NormalizeAngle(route.route_heading - current_heading),
-                        stalled_ms);
-                }
+                LogWarn << "Dynamic recovery detour attempt failed." << VAR(recovery.detour_attempt_count)
+                        << VAR(recovery.jump_attempt_count) << VAR(post_jump_anchor->first) << VAR(route.progress_distance)
+                        << VAR(stalled_ms);
                 utils::SleepFor(kTargetTickMs);
                 return true;
             }

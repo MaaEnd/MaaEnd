@@ -77,7 +77,8 @@ struct DynamicRecoveryState
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_replan_at {};
     size_t anchor_index = std::numeric_limits<size_t>::max();
-    int attempt_count = 0;
+    int jump_attempt_count = 0;
+    int detour_attempt_count = 0;
     bool active = false;
 
     void Reset()
@@ -86,7 +87,8 @@ struct DynamicRecoveryState
         started_at = {};
         last_replan_at = {};
         anchor_index = std::numeric_limits<size_t>::max();
-        attempt_count = 0;
+        jump_attempt_count = 0;
+        detour_attempt_count = 0;
         active = false;
     }
 };
