@@ -438,7 +438,10 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
     if (request.blocked_triangles.empty() && segmentHeightWalkable(zone->zone_id, start->point, goal->point)) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::Success;
-        result.triangles = { start->triangle, goal->triangle };
+        result.triangles.push_back(start->triangle);
+        if (goal->triangle != start->triangle) {
+            result.triangles.push_back(goal->triangle);
+        }
         result.path.zone_id = zone->zone_id;
         result.path.zone_name = zone->name;
         result.path.points = { start->point, goal->point };
