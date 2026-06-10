@@ -90,7 +90,7 @@ function buildRow(mission, usedIds) {
     const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
     // 朝向节点：MapTarget 的 Heading 已合并到同一个 MapNavigateAction path；
-    // MapPath 仍需在移动后单独调用 HEADING，未配置 Heading 时退化为透传节点。
+    // MapPath / MapGoal 仍需在移动后单独调用 HEADING，未配置 Heading 时退化为透传节点。
     const AdjustHeadingNodeBody =
         route.HasHeading && !route.HasNavigationHeading
             ? {
