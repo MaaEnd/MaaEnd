@@ -412,6 +412,13 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         return MAA_FALSE;
     }
 
+    auto locator = getOrInitLocator();
+    if (!locator) {
+        LogError << "MapLocateAssertLocation: Locator init failed";
+        return MAA_FALSE;
+    }
+    locator->resetTrackingState();
+
     const LocateOptions options = BuildAssertLocateOptions(param);
     LocateResult result;
     constexpr auto cold_start_retry_delay = std::chrono::milliseconds(300);
