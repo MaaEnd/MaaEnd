@@ -428,6 +428,24 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
         }
     }
 
+    // A* over the triangle adjacency graph reports Unreachable on fragmented / overlapping meshes where
+    // the goal sits in a tiny disconnected component, or just past a height step the bridge-cost cutoff
+    // (kBridgeMaxHeightDelta) rejects — even when the goal is a short, flat walk away. Both endpoints have
+    // already snapped onto the mesh here, so when the straight segment between them stays on walkable mesh
+    // with continuous ground height it is a sound proof the goal is reachable; accept it as a direct path.
+    // Skipped when triangles are blocked (an obstacle-detour query), where a straight shortcut would walk
+    // back through the very obstacle the detour is trying to bypass.
+    if (request.blocked_triangles.empty() && segmentHeightWalkable(zone->zone_id, start->point, goal->point)) {
+        BaseNavRouteResult result;
+        result.status = BaseNavRouteStatus::Success;
+        result.triangles = { start->triangle, goal->triangle };
+        result.path.zone_id = zone->zone_id;
+        result.path.zone_name = zone->name;
+        result.path.points = { start->point, goal->point };
+        result.cost = detail::Distance(start->point, goal->point);
+        return result;
+    }
+
     BaseNavRouteResult result;
     result.status = BaseNavRouteStatus::Unreachable;
     return result;

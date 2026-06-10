@@ -406,18 +406,6 @@ bool AppendNavmeshWaypoint(
     const navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state, waypoint);
     const auto route_result = navmesh.planner.findPath(request);
     if (!route_result.ok()) {
-        const double direct_distance = std::hypot(waypoint.x - state.route_start.x, waypoint.y - state.route_start.y);
-        const double fallback_distance = kBootstrapOwnershipMaxDistance + param.navmesh_snap_radius;
-        if (direct_distance <= fallback_distance) {
-            out_path.emplace_back(waypoint.x, waypoint.y, ActionType::RUN);
-            out_path.back().strict_arrival = true;
-            out_path.back().zone_id = state.current_zone;
-            state.route_start = { .x = waypoint.x, .y = waypoint.y };
-            LogWarn << "NAVMESH waypoint fallback to strict RUN." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-                    << VAR(waypoint.x) << VAR(waypoint.y) << VAR(navmesh::ToString(route_result.status)) << VAR(direct_distance)
-                    << VAR(fallback_distance);
-            return true;
-        }
         LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(waypoint.x)
                  << VAR(waypoint.y) << VAR(navmesh::ToString(route_result.status));
         return false;
