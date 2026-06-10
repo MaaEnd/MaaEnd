@@ -419,10 +419,15 @@ bool AppendBlindTargetFallback(
     }
     const double snap_radius = std::max(param.navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
 
+    // A probe at distance `offset` from the target snaps to within snap_radius, so its residual gap is at
+    // least (offset - snap_radius). Past (kBlindTargetMaxExtension + snap_radius) every probe would fail the
+    // gap check below, so cap the scan there instead of calling findPath across the whole (possibly long) span.
+    const double probe_limit = std::min(total, kBlindTargetMaxExtension + snap_radius);
+
     navmesh::BaseNavRouteResult approach;
     bool found = false;
     double blind_gap = 0.0;
-    for (double offset = 0.0; offset <= total + 1e-6; offset += kBlindTargetProbeStep) {
+    for (double offset = 0.0; offset <= probe_limit + 1e-6; offset += kBlindTargetProbeStep) {
         const double t = std::min(offset / total, 1.0);
         const navmesh::WorldPoint probe {
             .x = target.x + (start.x - target.x) * t,
@@ -459,7 +464,7 @@ bool AppendBlindTargetFallback(
         out_path.back().strict_arrival = false;
     }
     state.route_start = target;
-    LogWarn << "NAVMESH blind-target fallback applied." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+    LogInfo << "NAVMESH blind-target fallback applied." << VAR(state.navmesh_zone) << VAR(state.current_zone)
             << VAR(waypoint.x) << VAR(waypoint.y) << VAR(blind_gap) << VAR(approach.path.points.back().x)
             << VAR(approach.path.points.back().y);
     return true;
