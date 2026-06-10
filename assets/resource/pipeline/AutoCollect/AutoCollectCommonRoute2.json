@@ -198,15 +198,24 @@
     },
     "AutoCollectCommonRoute2GoFight1": {
         "desc": "凭空索敌，该范围内只有一个怪，4下攻击不出意外可以锁定并进战",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": true
-            }
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectCommonRoute2GoFight2"
         },
-        "repeat": 3,
-        "repeat_delay": 500,
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectCommonRoute2GoFight2": {
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectCommonRoute2GoFight3"
+        },
+        "next": [
+            "AutoCollectDigStart"
+        ]
+    },
+    "AutoCollectCommonRoute2GoFight3": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute2fightSub",
             "AutoCollectCommonRoute2GotoFindLine4"
