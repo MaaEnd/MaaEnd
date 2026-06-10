@@ -317,3 +317,32 @@ func clipLineToRect(x1, y1, x2, y2 int, rect image.Rectangle) (int, int, int, in
 		}
 	}
 }
+
+// ImageSimilarity downsamples two images to the specified size and returns template matching similarity.
+// downsamplingSize is [height, width].
+func ImageSimilarity(src *image.RGBA, tmp *image.RGBA, downsamplingSize [2]int) float64 {
+	srcH, srcW := src.Bounds().Dy(), src.Bounds().Dx()
+	tgtH, tgtW := downsamplingSize[0], downsamplingSize[1]
+	if srcH < 1 || srcW < 1 || tgtH < 1 || tgtW < 1 {
+		return 0
+	}
+	if tgtH > srcH || tgtW > srcW {
+		return 0
+	}
+	tgtScaleY := float64(tgtH) / float64(srcH)
+	tgtScaleX := float64(tgtW) / float64(srcW)
+	tgtScale := math.Max(tgtScaleX, tgtScaleY)
+	if tgtScale > 1 {
+		return 0
+	}
+	if tgtScale < 1 {
+		src = ImageScale(src, tgtScale)
+		tmp = ImageScale(tmp, tgtScale)
+	}
+	stats := GetImageStats(tmp)
+	if stats.Std < 1e-6 {
+		return 0
+	}
+	_, _, val := MatchTemplate(src, GetIntegralArray(src), tmp, stats)
+	return val
+}

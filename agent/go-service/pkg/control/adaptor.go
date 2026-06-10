@@ -58,6 +58,10 @@ type ControlAdaptor interface {
 	// This will not change the player movement state.
 	PlayerJump()
 
+	// ResetCamera eliminates the side effect of camera rotation solidly.
+	// Different implementations may have different ways to achieve this.
+	ResetCamera()
+
 	// AggressivelyResetCamera eliminates the side effect of camera rotation.
 	// Different implementations may have different ways to achieve this.
 	AggressivelyResetCamera()

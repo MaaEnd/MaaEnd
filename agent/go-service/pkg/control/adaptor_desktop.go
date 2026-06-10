@@ -159,6 +159,15 @@ func (dca *desktopControlAdaptor) PlayerJump() {
 	dca.KeyType(dca.keys.Space, defaultDesktopKeyActionDelayMillis*4)
 }
 
+func (dca *desktopControlAdaptor) ResetCamera() {
+	// Policy: use ALT key to release mouse cursor and reset its position using a move, then release ALT key
+	cx, cy := dca.w/2, dca.h/2
+	stepDelayMillis := defaultDesktopKeyActionDelayMillis / 3
+	dca.KeyDown(dca.keys.Alt, stepDelayMillis)
+	dca.TouchMove(0, cx, cy, stepDelayMillis)
+	dca.KeyUp(dca.keys.Alt, stepDelayMillis)
+}
+
 func (dca *desktopControlAdaptor) AggressivelyResetCamera() {
 	// Policy: use ALT key to release mouse cursor and reset its position using a click, then release ALT key
 	cx, cy := dca.w/2, dca.h/2
