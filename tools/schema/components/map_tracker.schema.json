@@ -199,12 +199,58 @@
                     "description": "NavMesh entity ID to look up as the target.",
                     "type": "integer",
                     "exclusiveMinimum": 0
+                },
+                "zipline_policy": {
+                    "title": "Zipline Policy",
+                    "description": "How aggressively MapTrackerGoal should consider runtime zipline edges.",
+                    "type": "string",
+                    "enum": [ "Never", "Lazy", "Active", "Aggressive" ],
+                    "default": "Never"
                 }
             },
             "anyOf": [
                 { "required": [ "target" ] },
                 { "required": [ "entity_id" ] }
             ]
+        },
+        "MapTrackerZiplineParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerZipline: perform one zipline fast travel while already on a zipline.",
+            "additionalProperties": false,
+            "required": [ "map_name", "target" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Target zipline point coordinate [x, y] in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                },
+                "rotation_threshold": {
+                    "title": "Rotation Threshold",
+                    "description": "Angular difference threshold in degrees to consider the target zipline point aligned.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 180,
+                    "default": 9
+                },
+                "timeout": {
+                    "title": "Timeout",
+                    "description": "Max time in milliseconds for rotation and movement completion.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 15000
+                }
+            }
         },
         "MapTrackerBigMapPickParam": {
             "type": "object",
