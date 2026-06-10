@@ -198,7 +198,7 @@
                 "recognition": "OCR",
                 "roi": "ticket_icon",
                 "roi_offset": [
-                    30,
+                    32,
                     0,
                     32,
                     0
