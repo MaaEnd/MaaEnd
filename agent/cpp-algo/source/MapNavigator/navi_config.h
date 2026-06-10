@@ -46,6 +46,7 @@ constexpr int32_t kActionJumpSettleMs = 500;
 constexpr int32_t kActionInteractAttempts = 5;
 constexpr int32_t kActionInteractHoldMs = 100;
 constexpr int32_t kAutoSprintCooldownMs = 1500;
+constexpr double kStrictArrivalSprintBrakeDistance = 6.0;
 constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
