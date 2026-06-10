@@ -158,10 +158,10 @@
         "desc": "${LocationDesc}确认售卖用干员已选中",
         "recognition": "OCR",
         "roi": [
-            142,
-            570,
-            240,
-            42
+            140,
+            520,
+            360,
+            120
         ],
         "expected": [],
         "pre_delay": 0,
@@ -175,10 +175,10 @@
         "desc": "${LocationDesc}点击派驻确认售卖用干员",
         "recognition": "OCR",
         "roi": [
-            1052,
-            603,
-            180,
-            70
+            900,
+            540,
+            330,
+            135
         ],
         "expected": [
             "派驻",
@@ -361,10 +361,10 @@
         "desc": "${LocationDesc}确认恢复干员已选中",
         "recognition": "OCR",
         "roi": [
-            142,
-            570,
-            240,
-            42
+            140,
+            520,
+            360,
+            120
         ],
         "expected": [],
         "pre_delay": 0,
@@ -378,10 +378,10 @@
         "desc": "${LocationDesc}点击派驻确认恢复干员",
         "recognition": "OCR",
         "roi": [
-            1052,
-            603,
-            180,
-            70
+            900,
+            540,
+            330,
+            135
         ],
         "expected": [
             "派驻",
