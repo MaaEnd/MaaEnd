@@ -191,8 +191,7 @@
                 "template": [
                     "AutoSell/SellTicketFriendValleyIV.png",
                     "AutoSell/SellTicketFriendWuling.png"
-                ],
-                "threshold": 0.9
+                ]
             },
             {
                 "recognition": "OCR",
