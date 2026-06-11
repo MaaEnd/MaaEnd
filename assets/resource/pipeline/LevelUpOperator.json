@@ -502,7 +502,8 @@
         "desc": "确认升级",
         "recognition": "And",
         "all_of": [
-            "LevelUpButton",
+            "LevelUpButton"
+            /*
             {
                 "recognition": "OCR",
                 "roi": [
@@ -512,6 +513,7 @@
                     40
                 ]
             }
+                */
         ],
         "box_index": 0,
         "pre_delay": 0,
