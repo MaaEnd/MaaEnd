@@ -2,6 +2,7 @@
     "task": [
         {
             "name": "SeizeDeliveryJobs",
+            "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
             "entry": "SeizeDeliveryJobsMain",
             "option": [
@@ -141,6 +142,7 @@
             "type": "select",
             "default_case": "Disable",
             "label": "$task.SeizeDeliveryJobsPostProcessing.label",
+            "description": "$task.SeizeDeliveryJobsPostProcessing.description",
             "cases": [
                 {
                     "name": "Disable",
@@ -195,6 +197,42 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TeleWalkFetchDeliver",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsFetchGoods": {
+                            "next": [
+                                "SeizeDeliveryJobsPostDepartureEntry"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
+            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGuard": {
+                            "enabled": false
                         }
                     }
                 }

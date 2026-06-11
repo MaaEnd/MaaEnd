@@ -4,9 +4,24 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "SeizeDeliveryJobsGuard",
             "SeizeDeliveryJobsEnterJobList",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         ]
+    },
+    "SeizeDeliveryJobsGuard": {
+        "desc": "自动送委托的风险知悉拦截节点（此节点默认开启）",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "StopTask",
+        "next": [
+            "SeizeDeliveryJobsEnterJobList",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+        ],
+        "focus": {
+            "Node.Action.Starting": "您需要同意知悉可能的后果才能使用自动走路送货功能"
+        }
     },
     "SeizeDeliveryJobsEnterJobList": {
         "desc": "在仓储管理页面，进入运送委托列表",

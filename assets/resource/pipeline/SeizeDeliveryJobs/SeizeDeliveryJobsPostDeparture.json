@@ -1,0 +1,246 @@
+{
+    "SeizeDeliveryJobsPostDepartureEntry": {
+        "desc": "自动送委托的入口点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsIsInWulingDepotNode2",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+        ],
+        "focus": {
+            "Node.Action.Starting": "**准备进行自动送货流程**"
+        }
+    },
+    "SeizeDeliveryJobsIsInWulingDepotNode2": {
+        "desc": "检查是否在武陵城仓储管理页面",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/InWulingDepotNode.png",
+        "roi": [
+            970,
+            10,
+            270,
+            180
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsIsInJobList2",
+            "[JumpBack]__SeizeDeliveryJobsEnterJobList2"
+        ]
+    },
+    "SeizeDeliveryJobsIsInJobList2": {
+        "desc": "在仓储管理页面，检查是否在运送委托列表",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/JobListTabActive.png",
+        "roi": [
+            170,
+            10,
+            180,
+            180
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsViewCurrentJob"
+        ],
+        "timeout": 5000 // 断言在较短时间内可找到当前任务详情
+    },
+    "__SeizeDeliveryJobsEnterJobList2": {
+        "desc": "在仓储管理页面，进入运送委托列表（需使用 jumpback 调用）",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/JobListTab.png",
+        "roi": [
+            170,
+            10,
+            180,
+            180
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 500 // 等待界面弹出
+    },
+    "SeizeDeliveryJobsViewCurrentJob": {
+        "desc": "在运送委托列表，点击查看当前任务详情",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/JobViewButton.png",
+        "roi": [
+            1170,
+            160,
+            100,
+            210
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "target_offset": [
+            -50,
+            0,
+            0,
+            -10
+        ], // 点击识别位置稍左位置，并压缩点击高度，防止点到按钮外面
+        "post_wait_freezes": 500, // 等待界面弹出
+        "next": [
+            "SeizeDeliveryJobsViewDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "打开当前任务详情"
+        }
+    },
+    "SeizeDeliveryJobsViewDestinationMap": {
+        "desc": "在任务详情页面，点击打开大地图查看目的地",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/TrackTaskButton.png",
+        "roi": [
+            940,
+            580,
+            150,
+            130
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsIsInDestinationMap"
+        ]
+    },
+    "SeizeDeliveryJobsIsInDestinationMap": {
+        "desc": "检查是否已打开目的地地图",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/TrackTaskSuccess.png",
+        "roi": [
+            900,
+            10,
+            130,
+            140
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsPurifyDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "查看目的地位置"
+        }
+    },
+    "SeizeDeliveryJobsPurifyDestinationMap": {
+        "desc": "在目的地地图界面，清理地图图标遮挡",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "MapTrackerBigMap_FilterOnlyZipline"
+            ]
+        },
+        "next": [
+            "SeizeDeliveryJobsRunDeparture"
+        ],
+        "focus": {
+            "Node.Action.Starting": "清理图标遮挡"
+        }
+    },
+    "SeizeDeliveryJobsRunDeparture": {
+        "desc": "在目的地地图界面，调用 custom 进行自动送货流程",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "post_delay": 750, // 等待提交货物按钮弹出
+        "next": [
+            // 结束
+        ]
+    },
+    // ===== 分割线：下面的节点由 Go 调用 =====
+    "SeizeDeliveryJobsClickTracking": {
+        "desc": "在目的地地图界面，点击任务的定位标（此节点由 Go 覆写 target 并调用）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 需要由 Go 覆写点击位置
+        "next": [
+            "SeizeDeliveryJobsCancelTracking"
+        ],
+        "timeout": 5000 // 断言可以正常取消追踪
+    },
+    "SeizeDeliveryJobsCancelTracking": {
+        "desc": "在目的地地图界面，取消任务追踪以防止追踪标志干扰后续识别",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/CancelButtonType1.png",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "action": "Click",
+        "next": [
+            // 完成
+        ],
+        "focus": {
+            "Node.Action.Starting": "成功识别目的地位置"
+        }
+    },
+    "SeizeDeliveryJobsSubmitEntry": {
+        "desc": "自动送委托的提交入口点（此节点由 Go 调用）",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsSubmit",
+            "SeizeDeliveryJobsSubmitFallback"
+        ],
+        "focus": {
+            "Node.Action.Starting": "识别提交货物按钮"
+        }
+    },
+    "SeizeDeliveryJobsSubmit": {
+        "desc": "在 NPC 附近，识别交互按钮并提交货物",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/SubmitGood.png",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "order_by": "Score",
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "next": [
+            "[JumpBack]__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
+            "SeizeDeliveryJobsCloseRewardDialog"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始提交货物"
+        }
+    },
+    "SeizeDeliveryJobsCloseRewardDialog": {
+        "desc": "在提交货物后，关闭奖励对话框（随后任务结束）",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "next": [
+            "CloseRewardsButton"
+        ],
+        "focus": {
+            "Node.Action.Starting": "**成功提交货物**"
+        }
+    },
+    "SeizeDeliveryJobsSubmitFallback": {
+        "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",
+        "max_hit": 5,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action_param": {
+            "is_retry": true
+        },
+        "next": [
+            // 完成，后续由 Go 内部逻辑来重新调用提交货物分支
+        ],
+        "focus": {
+            "Node.Action.Starting": "准备重新前往终点"
+        }
+    }
+}
