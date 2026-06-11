@@ -18,6 +18,17 @@ import (
 	xdraw "golang.org/x/image/draw"
 )
 
+// ImageCopy creates a deep copy of an *image.RGBA.
+func ImageCopy(img *image.RGBA) *image.RGBA {
+	if img == nil {
+		return nil
+	}
+	b := img.Bounds()
+	dst := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+	draw.Draw(dst, dst.Bounds(), img, b.Min, draw.Src)
+	return dst
+}
+
 // ImageCropRect crops a rectangular region from the image and clips it to bounds.
 func ImageCropRect(img *image.RGBA, rect image.Rectangle) *image.RGBA {
 	if img == nil {
@@ -30,6 +41,17 @@ func ImageCropRect(img *image.RGBA, rect image.Rectangle) *image.RGBA {
 	}
 	dst := image.NewRGBA(image.Rect(0, 0, clipped.Dx(), clipped.Dy()))
 	draw.Draw(dst, dst.Bounds(), img, clipped.Min, draw.Src)
+	return dst
+}
+
+// ImageCropSquareByRadius crops a square region from the image centered at (centerX, centerY) with the given radius
+func ImageCropSquareByRadius(img *image.RGBA, centerX, centerY, radius int) *image.RGBA {
+	x1, x2 := max(img.Rect.Min.X, centerX-radius), min(img.Rect.Max.X, centerX+radius+1)
+	y1, y2 := max(img.Rect.Min.Y, centerY-radius), min(img.Rect.Max.Y, centerY+radius+1)
+
+	cropRect := image.Rect(x1, y1, x2, y2)
+	dst := image.NewRGBA(image.Rect(0, 0, cropRect.Dx(), cropRect.Dy()))
+	draw.Draw(dst, dst.Bounds(), img, cropRect.Min, draw.Src)
 	return dst
 }
 
@@ -49,17 +71,6 @@ func ImageToBase64JPEG(img image.Image, quality int) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
-}
-
-// ImageCropSquareByRadius crops a square region from the image centered at (centerX, centerY) with the given radius
-func ImageCropSquareByRadius(img *image.RGBA, centerX, centerY, radius int) *image.RGBA {
-	x1, x2 := max(img.Rect.Min.X, centerX-radius), min(img.Rect.Max.X, centerX+radius+1)
-	y1, y2 := max(img.Rect.Min.Y, centerY-radius), min(img.Rect.Max.Y, centerY+radius+1)
-
-	cropRect := image.Rect(x1, y1, x2, y2)
-	dst := image.NewRGBA(image.Rect(0, 0, cropRect.Dx(), cropRect.Dy()))
-	draw.Draw(dst, dst.Bounds(), img, cropRect.Min, draw.Src)
-	return dst
 }
 
 // ImageRotate rotates an image by the given angle (degrees) around its center

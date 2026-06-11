@@ -4,9 +4,7 @@ package maptrackerdefault
 import (
 	"encoding/json"
 	"fmt"
-	"image"
 	"image/color"
-	"image/draw"
 	"math"
 	"time"
 
@@ -491,8 +489,7 @@ func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, pat
 		return
 	}
 
-	canvas := image.NewRGBA(mapRGBA.Bounds())
-	draw.Draw(canvas, canvas.Bounds(), mapRGBA, mapRGBA.Bounds().Min, draw.Src)
+	canvas := minicv.ImageCopy(mapRGBA)
 
 	colorPath := color.RGBA{0x2b, 0x62, 0xc0, 0xff}
 	colorPathZipline := color.RGBA{0xff, 0x8c, 0x00, 0xff}
