@@ -1,12 +1,14 @@
 {
     "SeizeDeliveryJobsMain": {
-        "desc": "抢委托任务的主入口",
+        "desc": "抢委托送货任务的主入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyToSeize"
+        },
         "next": [
             "SeizeDeliveryJobsGuard",
-            "SeizeDeliveryJobsEnterJobList",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+            "SeizeDeliveryJobsEnterWulingJobList"
         ]
     },
     "SeizeDeliveryJobsGuard": {
@@ -19,49 +21,98 @@
             "Node.Action.Starting": "您需要同意知悉可能的后果才能使用自动走路送货功能"
         }
     },
-    "SeizeDeliveryJobsEnterJobList": {
-        "desc": "在仓储管理页面，进入运送委托列表",
-        "recognition": "OCR",
-        "roi": [
-            252,
-            65,
-            170,
-            55
-        ],
-        "expected": [
-            "运送委托列表",
-            "運送委託清單",
-            "(?i)List\\s*of\\s*Delivery\\s*Jobs",
-            "配達依頼一覧"
-        ],
-        "action": "Click",
+    "SeizeDeliveryJobsReadyToSeize": {
+        "desc": "在运送委托列表，准备开始抢单",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsFailedExistDueTask",
+            "SeizeDeliveryJobsExistDueTask",
             "SeizeDeliveryJobsFailedChanceExhausted",
-            "SeizeDeliveryJobsJobListCheckWulingFilter",
-            "SeizeDeliveryJobsJobListOpenRegionFilter"
+            "SeizeDeliveryJobsJobListIsWulingFilter",
+            "SeizeDeliveryJobsJobListSelectWulingFilterPre"
+        ]
+    },
+    "SeizeDeliveryJobsExistDueTask": {
+        "desc": "发现已经接过单了，或许可以跳到后处理节点",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoViewCurrentJob"
         ],
-        "on_error": [
-            "SeizeDeliveryJobsStopTask2"
+        "next": [
+            // 已接过单，且开启了后处理，就会跳转后续处理
+            "SeizeDeliveryJobsPostProcessingEntry",
+            // 已接过单，但没开启后处理，就会跳转失败节点
+            "SeizeDeliveryJobsFailedExistDueTask"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "进入运送委托列表"
+            "Node.Recognition.Succeeded": "手里已经有单了"
         }
     },
-    "SeizeDeliveryJobsJobListCheckWulingFilter": {
-        "desc": "在运送委托列表，检查到武陵筛选，直接进入调度",
-        "recognition": "OCR",
+    "SeizeDeliveryJobsFailedExistDueTask": {
+        "desc": "无法开始抢单，因为已经接过单了且未开启后处理节点，任务结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // 视作任务结束
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "**同时只能接一个单**"
+        }
+    },
+    "SeizeDeliveryJobsFailedChanceExhausted": {
+        "desc": "无法开始抢单，因为今天的运送委托已满，任务结束",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/DepotNodePage/JobExhausted.png",
         "roi": [
-            60,
-            647,
-            132,
-            29
+            940,
+            600,
+            160,
+            110
         ],
-        "expected": [
-            "武陵",
-            "(?i)Wuling",
-            "무릉"
+        "order_by": "Score",
+        "next": [
+            // 视作任务结束
         ],
+        "focus": {
+            "Node.Recognition.Succeeded": "**今日接取的委托已达上限**"
+        }
+    },
+    // ===== 下面是运送委托列表中的流程节点 =====
+    "__SeizeDeliveryJobsRecoFilterWuling": {
+        "desc": "寻找武陵筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
+        "roi": [
+            20,
+            440,
+            140,
+            260
+        ],
+        "order_by": "Score"
+    },
+    "__SeizeDeliveryJobsRecoFilterNonWuling": {
+        "desc": "寻找非武陵筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
+            "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png"
+        ],
+        "roi": [
+            20,
+            440,
+            140,
+            260
+        ],
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsJobListIsWulingFilter": {
+        "desc": "在运送委托列表，检查到武陵筛选，直接进入调度",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
         ],
@@ -69,54 +120,25 @@
             "Node.Recognition.Succeeded": "当前已是武陵筛选，直接进入抢单"
         }
     },
-    "SeizeDeliveryJobsJobListOpenRegionFilter": {
+    "SeizeDeliveryJobsJobListSelectWulingFilterPre": {
         "desc": "在运送委托列表，检查到不是武陵筛选，则点击展开地区筛选",
-        "recognition": "OCR",
-        "roi": [
-            60,
-            647,
-            132,
-            29
-        ],
-        "roi_offset": [
-            0,
-            0,
-            33,
-            0
-        ],
-        "expected": [
-            "全部地区",
-            "全部地區",
-            "(?i)All\\s*Regions",
-            "全エリア",
-            "四号谷地",
-            "四號谷地",
-            "(?i)Valley\\s*IV"
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterNonWuling"
         ],
         "action": "Click",
         "next": [
             "SeizeDeliveryJobsJobListSelectWulingFilter"
-        ],
-        "on_error": [
-            "SeizeDeliveryJobsStopTask2"
         ],
         "focus": {
             "Node.Action.Succeeded": "展开地区筛选"
         }
     },
     "SeizeDeliveryJobsJobListSelectWulingFilter": {
-        "desc": "在筛选列表中选择武陵",
-        "recognition": "OCR",
-        "roi": [
-            65,
-            523,
-            123,
-            114
-        ],
-        "expected": [
-            "武陵",
-            "(?i)Wuling",
-            "무릉"
+        "desc": "在筛选列表中选择武陵，随后进入调度",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterWuling"
         ],
         "action": "Click",
         "next": [
@@ -127,22 +149,17 @@
         }
     },
     "SeizeDeliveryJobsLoop": {
-        "desc": "等待委托列表静止后再进入调度",
-        "pre_wait_freezes": {
-            "time": 2000,
-            "target": [
-                29,
-                166,
-                1222,
-                481
-            ]
-        },
+        "desc": "等待委托列表静止，随后开始抢单",
+        "pre_wait_freezes": 1000, // 等待列表加载动画结束
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsFindTarget",
             "SeizeDeliveryJobsScanTarget",
             "SeizeDeliveryJobsRefresh"
         ]
     },
+    // ===== 抢委托的核心流程节点 =====
     "SeizeDeliveryJobsFindTarget": {
         "desc": "默认匹配武陵城最高价订单（终点筛选关闭时启用）",
         "recognition": "And",
@@ -157,8 +174,9 @@
                     430
                 ],
                 "template": [
-                    "SeizeDeliveryJobs/WulingToken.png"
-                ]
+                    "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
+                ],
+                "order_by": "Score"
             },
             {
                 "sub_name": "RewardOcr",
@@ -241,119 +259,64 @@
             ]
         },
         "next": [
-            "isSeizeDeliveryJobsInWorldAfterAccept",
-            "SeizeDeliveryJobsRetryClickAccept"
+            "SeizeDeliveryJobsIsSeizeSuccess"
+        ],
+        "timeout": 5000, // 断言能在短时间内弹出接取成功动画
+        "on_error": [
+            // 没弹出接取动画，意味着该委托已失效，需重新抢单
+            "SeizeDeliveryJobsRefresh"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityFound"
         }
     },
-    "isSeizeDeliveryJobsInWorldAfterAccept": {
-        "desc": "点击接取后检查是否已进入大世界",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
+    "SeizeDeliveryJobsIsSeizeSuccess": {
+        "desc": "点击接取委托后，检查是否接取成功",
+        "recognition": "TemplateMatch",
+        "template": "SeizeDeliveryJobs/DepotNodePage/JobSeized.png",
+        "roi": [
+            760,
+            550,
+            230,
+            160
         ],
+        "order_by": "Score",
+        "pre_wait_freezes": 1000, // 等待接取动画结束
+        "action": "Click",
+        "post_delay": 500, // 点击后，等待界面回到大世界
         "next": [
             "SeizeDeliveryJobsPostProcessingEntry",
-            "SeizeDeliveryJobsStopTask1"
-        ]
-    },
-    "SeizeDeliveryJobsRetryClickAccept": {
-        "desc": "反复点击接取按钮直到进入大世界",
-        "action": "Click",
-        "target": "SeizeDeliveryJobsFindTarget",
-        "next": [
-            "isSeizeDeliveryJobsInWorldAfterAccept",
-            "SeizeDeliveryJobsRetryClickAccept"
+            "SeizeDeliveryJobsSuccessFetchOnly"
         ]
     },
     "SeizeDeliveryJobsRefresh": {
-        "desc": "执行刷新操作",
-        "recognition": "OCR",
+        "desc": "对委托列表执行刷新操作",
+        "recognition": "TemplateMatch",
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
         "roi": [
-            1016,
-            636,
-            161,
-            54
+            1160,
+            600,
+            110,
+            110
         ],
-        "expected": [
-            "^刷新",
-            "^更新",
-            "^Refresh"
-        ],
+        "order_by": "Score",
         "action": "Click",
-        "post_delay": 1500,
+        "post_delay": 1000, // 等待刷新响应
         "next": [
             "SeizeDeliveryJobsLoop"
         ]
     },
-    "SeizeDeliveryJobsFailedTaskConflict": {
-        "desc": "还有订单没有完成，直接结束抢单",
-        "recognition": "OCR",
-        "roi": [
-            500,
-            108,
-            273,
-            29
+    "SeizeDeliveryJobsSuccessFetchOnly": {
+        "desc": "任务成功，触发早停，已抢单（此节点默认开启）",
+        "enabled": true,
+        "next": [
+            // 无后续节点，即停止任务
         ],
-        "expected": [
-            "当前已有其他送货任务",
-            "请完成后再接取"
-        ],
-        "action": "StopTask",
         "focus": {
-            "Node.Recognition.Succeeded": "当前已有其他送货任务，请完成后再接取"
-        }
-    },
-    "SeizeDeliveryJobsFailedChanceExhausted": {
-        "desc": "今天的运送委托已满，无法继续接单，直接结束抢单",
-        "recognition": "OCR",
-        "roi": [
-            1030,
-            650,
-            45,
-            40
-        ],
-        "expected": "3/3",
-        "action": "StopTask",
-        "focus": {
-            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
-        }
-    },
-    "SeizeDeliveryJobsFailedExistDueTask": {
-        "desc": "已经接过单了，直接结束抢单",
-        "recognition": "OCR",
-        "roi": [
-            1020,
-            210,
-            200,
-            35
-        ],
-        "expected": [
-            "查看任务",
-            "查看任務",
-            "(?i)View\\s*Mission",
-            "任務確認",
-            "임무 확인"
-        ],
-        "action": "StopTask",
-        "focus": {
-            "Node.Recognition.Succeeded": "手里已经有单了，结束抢单"
-        }
-    },
-    "SeizeDeliveryJobsStopTask1": {
-        "desc": "抢单成功，结束任务",
-        "action": "StopTask",
-        "focus": {
-            "Node.Action.Starting": "记得及时送货哟~"
-        }
-    },
-    "SeizeDeliveryJobsStopTask2": {
-        "desc": "未能前往运送委托列表界面，结束任务",
-        "action": "StopTask",
-        "focus": {
-            "Node.Recognition.Succeeded": "未能前往运送委托列表界面"
+            "Node.Action.Starting": "**抢到了！记得及时送货哟~**"
         }
     }
 }

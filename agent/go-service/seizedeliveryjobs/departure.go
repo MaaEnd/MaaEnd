@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	seizeDeliveryJobsDepartureComponent       = "SeizeDeliveryJobsDepartureAction"
-	seizeDeliveryJobsBlueTaskLocationTemplate = "image/SeizeDeliveryJobs/BlueTaskLocation.png"
+	seizeDeliveryJobsDepartureComponent          = "SeizeDeliveryJobsDepartureAction"
+	seizeDeliveryJobsBlueTaskLocationTemplate    = "image/SeizeDeliveryJobs/BlueTaskLocation.png"
+	seizeDeliveryJobsBlueTaskLocationTemplateAlt = "image/SeizeDeliveryJobs/BlueTaskLocation2.png"
 )
 
 // SeizeDeliveryJobsDepartureAction navigates from the tracked task marker back in the open world.
@@ -180,12 +181,11 @@ func (a *SeizeDeliveryJobsDepartureAction) findTarget(ctx *maa.Context, arg *maa
 		return "", [2]float64{}, [2]int{}, false
 	}
 
-	matches, err := a.findBlueTaskLocation(ctx, arg, img)
+	matches, err := a.findBlueTaskLocation(ctx, arg, img, inferResult.MapName)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", seizeDeliveryJobsDepartureComponent).
-			Str("template", seizeDeliveryJobsBlueTaskLocationTemplate).
 			Msg("failed to find delivery job marker")
 		return "", [2]float64{}, [2]int{}, false
 	}
@@ -230,7 +230,12 @@ func (a *SeizeDeliveryJobsDepartureAction) inferBigMap(ctx *maa.Context, arg *ma
 	return &result, nil
 }
 
-func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
+func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image, mapName string) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
+	tpl := seizeDeliveryJobsBlueTaskLocationTemplate
+	if mapName == "map02_lv005" {
+		tpl = seizeDeliveryJobsBlueTaskLocationTemplateAlt
+	}
+
 	param := struct {
 		Template   string  `json:"template"`
 		Expected   bool    `json:"expected"`
@@ -238,7 +243,7 @@ func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context
 		ZoomValue  float64 `json:"zoom_value,omitempty"`
 		MaxMatches int     `json:"max_matches,omitempty"`
 	}{
-		Template:   seizeDeliveryJobsBlueTaskLocationTemplate,
+		Template:   tpl,
 		Expected:   true,
 		GreenMask:  true,
 		ZoomValue:  0.25,

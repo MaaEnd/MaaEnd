@@ -1,5 +1,6 @@
 {
     "MapTrackerBigMap_OpenBigMap": {
+        "desc": "打开大地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -7,7 +8,23 @@
         ],
         "timeout": 5000
     },
+    "MapTrackerBigMap_FilterNone": {
+        "desc": "在大地图界面，确保不显示任何图标",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__MapTrackerBigMap_OpenFiltersDialog",
+            "__MapTrackerBigMap_InFiltersDialog"
+        ],
+        "timeout": 5000,
+        "anchor": {
+            "MapTrackerAfterOpenFiltersDialog": "__MapTrackerBigMap_InFiltersDialog",
+            "MapTrackerAfterInFiltersDialog": "__MapTrackerBigMap_ClearFilters",
+            "MapTrackerAfterClearFilters": "__MapTrackerBigMap_CloseFilterDialog"
+        }
+    },
     "MapTrackerBigMap_FilterOnlyZipline": {
+        "desc": "在大地图界面，确保仅显示滑索架图标",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

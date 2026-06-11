@@ -39,11 +39,6 @@
                         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
                     ],
                     "pipeline_override": {
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "next": [
-                                "SeizeDeliveryJobsTestAreaDeparture"
-                            ]
-                        },
                         "SeizeDeliveryJobsFindTarget": {
                             "all_of": [
                                 {
@@ -56,7 +51,7 @@
                                         430
                                     ],
                                     "template": [
-                                        "SeizeDeliveryJobs/WulingToken.png"
+                                        "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
                                     ]
                                 },
                                 {
@@ -146,12 +141,7 @@
             "cases": [
                 {
                     "name": "Disable",
-                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Disable.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": false
-                        }
-                    }
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Disable.label"
                 },
                 {
                     "name": "Tele",
@@ -160,15 +150,8 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
-                        "SeizeDeliveryJobsTeleportWulingCityNorth": {
-                            "next": [
-                                "SeizeDeliveryJobsStopTask1"
-                            ]
-                        },
-                        "SeizeDeliveryJobsTeleportTestArea": {
-                            "next": [
-                                "SeizeDeliveryJobsStopTask1"
-                            ]
+                        "SeizeDeliveryJobsSuccessTeleportDone": {
+                            "enabled": true
                         }
                     }
                 },
@@ -179,15 +162,8 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
-                        "SeizeDeliveryJobsWalkToDepotNodeWulingCity": {
-                            "next": [
-                                "SeizeDeliveryJobsStopTask1"
-                            ]
-                        },
-                        "SeizeDeliveryJobsWalkToDepotNodeTestArea": {
-                            "next": [
-                                "SeizeDeliveryJobsStopTask1"
-                            ]
+                        "SeizeDeliveryJobsSuccessWalkDone": {
+                            "enabled": true
                         }
                     }
                 },
@@ -196,6 +172,9 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetch.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsSuccessFetchGoods": {
                             "enabled": true
                         }
                     }
@@ -210,10 +189,8 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
-                        "SeizeDeliveryJobsFetchGoods": {
-                            "next": [
-                                "SeizeDeliveryJobsPostDepartureEntry"
-                            ]
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
                         }
                     }
                 }

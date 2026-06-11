@@ -1,6 +1,6 @@
 {
     "SeizeDeliveryJobsScanTarget": {
-        "desc": "委托目标扫描入口点，Go 驱动扫描所有符合条件的委托",
+        "desc": "委托目标扫描入口点，Go 驱动扫描所有符合条件的委托（终点筛选开启时启用）",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SeizeDeliveryJobsScanTargetRecognition",
@@ -200,8 +200,9 @@
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointJingweiFieldArea"
         }
     },
+    // ===== 下面是结果处理的流程节点 =====
     "SeizeDeliveryJobsEndpointMatched": {
-        "desc": "终点匹配成功，重置Go扫描状态",
+        "desc": "终点匹配成功，重置 Go 扫描状态",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsResetScanStateAction",
@@ -211,17 +212,21 @@
         ]
     },
     "SeizeDeliveryJobsPressEscAfterMatch": {
-        "desc": "终点匹配后按ESC关闭地图",
+        "desc": "终点匹配成功，关闭地图",
         "action": "ClickKey",
-        "key": 27,
+        "key": 27, // ESC
         "post_delay": 1000,
         "next": [
             "SeizeDeliveryJobsAcceptClick"
         ]
     },
     "SeizeDeliveryJobsAcceptClick": {
-        "desc": "点击接取运送委托（由Go覆写target）",
+        "desc": "点击接取运送委托（由 Go 覆写target）",
         "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 必须覆写此字段
         "post_wait_freezes": {
             "time": 2000,
             "target": [
@@ -232,8 +237,11 @@
             ]
         },
         "next": [
-            "isSeizeDeliveryJobsInWorldAfterAccept",
-            "SeizeDeliveryJobsRetryClickAccept"
+            "SeizeDeliveryJobsIsSeizeSuccess"
+        ],
+        "timeout": 5000,
+        "on_error": [
+            "SeizeDeliveryJobsRefresh"
         ]
     },
     "SeizeDeliveryJobsEndpointNotMatched": {
@@ -246,16 +254,16 @@
         }
     },
     "SeizeDeliveryJobsPressEscAfterNotMatch": {
-        "desc": "终点未匹配后按ESC关闭地图",
+        "desc": "终点未匹配，关闭地图",
         "action": "ClickKey",
-        "key": 27,
+        "key": 27, // ESC
         "post_delay": 1000,
         "next": [
             "SeizeDeliveryJobsScanTarget"
         ]
     },
     "SeizeDeliveryJobsScanExhausted": {
-        "desc": "扫描完毕未找到目标委托，重置Go扫描状态",
+        "desc": "扫描完毕未找到目标委托，重置 Go 扫描状态",
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsResetScanStateAction",
         "next": [
