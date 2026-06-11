@@ -218,8 +218,9 @@ class BaseNavField:
         display_zone_id: str = "",
         progress_callback=None,
     ):
-        if zone_id in self.dots_cache:
-            return self.dots_cache[zone_id]
+        cache_key = (zone_id, max_points)
+        if cache_key in self.dots_cache:
+            return self.dots_cache[cache_key]
         try:
             from PIL import Image, ImageDraw
         except ImportError:
@@ -246,7 +247,7 @@ class BaseNavField:
             if total > 100 and _idx % _step == 0:
                 _report_progress(progress_callback, _idx / total)
         image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
-        self.dots_cache[zone_id] = image
+        self.dots_cache[cache_key] = image
         return image
 
     def find_route(

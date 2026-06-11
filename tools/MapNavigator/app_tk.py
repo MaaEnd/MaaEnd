@@ -882,11 +882,11 @@ class RouteEditorApp:
         self.load_progress_bar["value"] = int(progress * 100)
         if self.btn_load_basenav.cget("state") == "normal":
             self.load_progress_label.config(text="生成预览图像...")
-        elif progress < 0.04:
+        elif progress < 0.03:
             self.load_progress_label.config(text="读取文件...")
-        elif progress < 0.36:
+        elif progress < 0.25:
             self.load_progress_label.config(text="解析 NavMesh 数据...")
-        elif progress < 0.58:
+        elif progress < 0.70:
             self.load_progress_label.config(text="构建空间索引...")
         else:
             self.load_progress_label.config(text="生成预览图像...")
@@ -894,35 +894,37 @@ class RouteEditorApp:
     def _load_basenav_worker(self, input_file) -> None:
         try:
             def _progress(progress: float) -> None:
-                self.root.after(0, lambda: self._update_load_progress(progress))
+                scaled = progress * 0.70
+                self.root.after(0, lambda: self._update_load_progress(scaled))
 
             field = load_basenav_field(input_file, progress_callback=_progress)
-            self.root.after(0, lambda: self._update_load_progress(1.0))
             self.root.after(0, lambda: self._on_basenav_core_loaded(field, input_file))
 
             zone_ids = field.zone_ids()
-            zones_total = len(zone_ids)
+            zones_total = max(1, len(zone_ids))
             self.root.after(0, lambda: self._set_status("正在生成预览图像...", "#3b82f6"))
-            for _index, zone_id in enumerate(zone_ids):
-                progress_phase = 0.0 + 0.5 * (_index / max(1, zones_total))
-                def _make_cb(phase_start):
-                    def _cb(local):
-                        p = phase_start + 0.5 * (local / max(1, zones_total))
-                        self.root.after(0, lambda: self._update_load_progress(p))
-                    return _cb
-                field.overlay_image(zone_id, progress_callback=_make_cb(progress_phase))
 
             for _index, zone_id in enumerate(zone_ids):
-                progress_phase = 0.5 + 0.5 * (_index / max(1, zones_total))
-                def _make_cb2(phase_start):
+                def _make_overlay_cb(zi):
                     def _cb(local):
-                        p = phase_start + 0.5 * (local / max(1, zones_total))
+                        p = 0.70 + 0.18 * (zi + local) / zones_total
                         self.root.after(0, lambda: self._update_load_progress(p))
                     return _cb
-                field.walkable_dots_image(zone_id, progress_callback=_make_cb2(progress_phase))
 
-            self.root.after(0, lambda: self._hide_load_progress())
+                field.overlay_image(zone_id, progress_callback=_make_overlay_cb(_index))
+
+            for _index, zone_id in enumerate(zone_ids):
+                def _make_dots_cb(zi):
+                    def _cb(local):
+                        p = 0.88 + 0.12 * (zi + local) / zones_total
+                        self.root.after(0, lambda: self._update_load_progress(p))
+                    return _cb
+
+                field.walkable_dots_image(zone_id, progress_callback=_make_dots_cb(_index))
+
+            self.root.after(0, lambda: self._update_load_progress(1.0))
             self.root.after(0, lambda: self._set_status("预览图像已就绪", "#10b981"))
+            self.root.after(0, lambda: self._hide_load_progress())
         except Exception as exc:
             self.root.after(0, lambda: self._on_basenav_load_error(str(exc)))
 
@@ -945,7 +947,6 @@ class RouteEditorApp:
         self._sync_astar_controls()
         self.clear_astar_preview(redraw=False)
         self.btn_load_basenav.config(state=tk.NORMAL)
-        self._update_load_progress(0.0)
         self._set_status("A* 模式：左键点起点，再点终点生成预览路线。", "#3b82f6")
         self._refresh_zone_label()
         self.fit_view()
@@ -1188,6 +1189,7 @@ class RouteEditorApp:
         if self.recording_service and self.recording_service.is_running:
             self.recording_service.stop()
         self._persist_settings()
+        self._astar_render_executor.shutdown(wait=False)
         self.root.destroy()
 
     # ---- 视图交互 ----
