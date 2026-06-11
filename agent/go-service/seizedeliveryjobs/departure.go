@@ -179,7 +179,7 @@ func (a *SeizeDeliveryJobsDepartureAction) findTarget(ctx *maa.Context, arg *maa
 		return "", [2]float64{}, [2]int{}, false
 	}
 
-	// Figure out the big-map viewport
+	// Figure out the current big-map information
 	inferResult, err := a.inferBigMap(ctx, arg, img)
 	if err != nil {
 		log.Error().
@@ -206,6 +206,7 @@ func (a *SeizeDeliveryJobsDepartureAction) findTarget(ctx *maa.Context, arg *maa
 		return "", [2]float64{}, [2]int{}, false
 	}
 
+	// Choose the best match for the task marker
 	best := matches[0]
 	screenTarget := [2]int{int(math.Round(best.ScreenX)), int(math.Round(best.ScreenY))}
 	return inferResult.MapName, [2]float64{best.MapX, best.MapY}, screenTarget, true
@@ -233,9 +234,6 @@ func (a *SeizeDeliveryJobsDepartureAction) inferBigMap(ctx *maa.Context, arg *ma
 	if result.MapName == "" {
 		return nil, fmt.Errorf("big-map inference returned empty map name")
 	}
-	if result.ViewPort.Scale <= 0 {
-		return nil, fmt.Errorf("invalid inferred scale: %f", result.ViewPort.Scale)
-	}
 	return &result, nil
 }
 
@@ -245,20 +243,13 @@ func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context
 		tpl = seizeDeliveryJobsBlueTaskLocationTemplateAlt
 	}
 
-	param := struct {
-		Template   string  `json:"template"`
-		Expected   bool    `json:"expected"`
-		GreenMask  bool    `json:"green_mask,omitempty"`
-		ZoomValue  float64 `json:"zoom_value,omitempty"`
-		MaxMatches int     `json:"max_matches,omitempty"`
-	}{
-		Template:   tpl,
-		Expected:   true,
-		GreenMask:  true,
-		ZoomValue:  0.25,
-		MaxMatches: 1,
-	}
-	paramBytes, err := json.Marshal(param)
+	paramBytes, err := json.Marshal(map[string]any{
+		"template":    tpl,
+		"expected":    true,
+		"green_mask":  true,
+		"zoom_value":  0.25,
+		"max_matches": 1,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal find-image parameters: %w", err)
 	}
@@ -272,9 +263,6 @@ func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context
 		Roi:                    maa.Rect{0, 0, img.Bounds().Dx(), img.Bounds().Dy()},
 	})
 	if resultWrapper == nil || resultWrapper.Detail == "" {
-		if !hit {
-			return nil, nil
-		}
 		return nil, fmt.Errorf("find-image result is empty")
 	}
 
@@ -318,18 +306,12 @@ func (a *SeizeDeliveryJobsDepartureAction) clickTracking(ctx *maa.Context, scree
 }
 
 func (a *SeizeDeliveryJobsDepartureAction) runGoal(ctx *maa.Context, arg *maa.CustomActionArg, mapName string, target [2]float64) bool {
-	param := struct {
-		MapName         string     `json:"map_name"`
-		Target          [2]float64 `json:"target"`
-		ZiplinePolicy   string     `json:"zipline_policy"`
-		StuckMitigators []string   `json:"stuck_mitigators"`
-	}{
-		MapName:         mapName,
-		Target:          target,
-		ZiplinePolicy:   maptrackerdefault.ZIPLINE_POLICY_LAZY,
-		StuckMitigators: []string{"MoveOrDeleteDevice"},
-	}
-	paramBytes, err := json.Marshal(param)
+	paramBytes, err := json.Marshal(map[string]any{
+		"map_name":        mapName,
+		"target":          target,
+		"zipline_policy":  maptrackerdefault.ZIPLINE_POLICY_LAZY,
+		"stuck_mitigators": []string{"MoveOrDeleteDevice"},
+	})
 	if err != nil {
 		log.Error().
 			Err(err).
