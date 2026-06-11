@@ -45,8 +45,7 @@
             "LevelUpOperatorSetFilter"
         ],
         "focus": {
-            "Node.Action.Succeeded": "正在进入干员列表",
-            "Node.Action.Failed": "未进入到干员界面"
+            "Node.Action.Succeeded": "正在进入干员列表"
         }
     },
     "LevelUpOperatorSetFilter": {
@@ -503,17 +502,6 @@
         "recognition": "And",
         "all_of": [
             "LevelUpButton"
-            /*
-            {
-                "recognition": "OCR",
-                "roi": [
-                    1110,
-                    92,
-                    20,
-                    40
-                ]
-            }
-                */
         ],
         "box_index": 0,
         "pre_delay": 0,
