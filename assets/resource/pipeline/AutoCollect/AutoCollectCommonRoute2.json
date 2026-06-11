@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute2Start": {
         "desc": "黯银柑实采集线，5个点",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute2"
         ],
@@ -97,7 +97,7 @@
         "desc": "前往黯银柑实采集点",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
-        "custom_action_param": {         
+        "custom_action_param": {
             "path_trim": true,
             "map_name": "map01_lv001",
             "path": [
@@ -235,7 +235,7 @@
             "AutoCollectCommonRoute2GotoFindLine4"
         ]
     },
-        "AutoCollectCommonRoute2GotoFindLine4": {
+    "AutoCollectCommonRoute2GotoFindLine4": {
         "desc": "战斗完成后重新定位",
         "action": "Custom",
         "custom_action": "MapTrackerMove",

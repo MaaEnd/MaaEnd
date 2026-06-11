@@ -45,7 +45,7 @@ type MapTrackerGoalParam struct {
 	MapTrackerMoveParam
 	Target        *[2]float64 `json:"target,omitempty"`
 	EntityID      *int64      `json:"entity_id,omitempty"`
-	ZiplinePolicy string `json:"zipline_policy,omitempty"`
+	ZiplinePolicy string      `json:"zipline_policy,omitempty"`
 }
 
 type ziplinePolicy struct {

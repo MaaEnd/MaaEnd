@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute8Start": {
         "desc": "金石稻采集线，12个",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute8"
         ],

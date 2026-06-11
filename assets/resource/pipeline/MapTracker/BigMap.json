@@ -3,10 +3,10 @@
         "desc": "打开大地图界面",
         "pre_delay": 0,
         "post_delay": 0,
+        "timeout": 5000,
         "next": [
             "SceneEnterMapAny"
-        ],
-        "timeout": 5000
+        ]
     },
     "MapTrackerBigMap_FilterNone": {
         "desc": "在大地图界面，确保不显示任何图标",
@@ -26,33 +26,33 @@
     "MapTrackerBigMap_FilterOnlyZipline": {
         "desc": "在大地图界面，确保仅显示滑索架图标",
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__MapTrackerBigMap_OpenFiltersDialog",
-            "__MapTrackerBigMap_InFiltersDialog"
-        ],
-        "timeout": 5000,
         "anchor": {
             "MapTrackerAfterOpenFiltersDialog": "__MapTrackerBigMap_InFiltersDialog",
             "MapTrackerAfterInFiltersDialog": "__MapTrackerBigMap_ClearFilters",
             "MapTrackerAfterClearFilters": "__MapTrackerBigMap_SwipeDownFiltersDialog",
             "MapTrackerAfterSwipeDownFiltersDialog": "__MapTrackerBigMap_ClickFilterZipline",
             "MapTrackerAfterClickFilterZipline": "__MapTrackerBigMap_CloseFilterDialog"
-        }
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "next": [
+            "__MapTrackerBigMap_OpenFiltersDialog",
+            "__MapTrackerBigMap_InFiltersDialog"
+        ]
     },
     "__MapTrackerBigMap_OpenFiltersDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "MapTracker/BigMap/FiltersOff.png",
-                    "MapTracker/BigMap/FiltersOn.png"
-                ],
                 "roi": [
                     50,
                     600,
                     300,
                     100
+                ],
+                "template": [
+                    "MapTracker/BigMap/FiltersOff.png",
+                    "MapTracker/BigMap/FiltersOn.png"
                 ],
                 "order_by": "Score"
             }
@@ -69,13 +69,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "MapTracker/BigMap/FiltersDialog.png",
                 "roi": [
                     5,
                     5,
                     95,
                     95
                 ],
+                "template": "MapTracker/BigMap/FiltersDialog.png",
                 "order_by": "Score"
             }
         },
@@ -89,15 +89,15 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "Common/Button/WhiteConfirmButtonType1.png",
-                    "Common/Button/WhiteConfirmButtonType1Hover.png"
-                ],
                 "roi": [
                     50,
                     600,
                     350,
                     100
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ],
                 "order_by": "Horizontal",
                 "index": 0
@@ -115,13 +115,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Common/Button/WhiteConfirmButtonType1.png",
                 "roi": [
                     50,
                     600,
                     350,
                     100
                 ],
+                "template": "Common/Button/WhiteConfirmButtonType1.png",
                 "order_by": "Random"
             }
         },
@@ -152,13 +152,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "MapTracker/BigMap/FilterZiplineOff.png",
                 "roi": [
                     10,
                     40,
                     490,
                     630
                 ],
+                "template": "MapTracker/BigMap/FilterZiplineOff.png",
                 "order_by": "Score"
             }
         },

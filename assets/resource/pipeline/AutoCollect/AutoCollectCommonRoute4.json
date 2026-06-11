@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute4Start": {
         "desc": "萤壳虫采集线，6个点",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute4"
         ],

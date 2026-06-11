@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute5Start": {
         "desc": "蓬茸锦草采集线，4个点",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute5"
         ],

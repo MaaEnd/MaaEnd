@@ -3,14 +3,14 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "MapTracker/OpenWorld/ZiplineInteract.png"
-                ],
                 "roi": [
                     760,
                     330,
                     190,
                     340
+                ],
+                "template": [
+                    "MapTracker/OpenWorld/ZiplineInteract.png"
                 ],
                 "threshold": [
                     0.8
@@ -22,10 +22,10 @@
     "MapTrackerOpenWorld_GetOnZipline": {
         "pre_delay": 0,
         "post_delay": 0,
+        "timeout": 2000,
         "next": [
             "__MapTrackerOpenWorld_GetOnZipline_Reco"
-        ],
-        "timeout": 2000
+        ]
     },
     "__MapTrackerOpenWorld_GetOnZipline_Reco": {
         "recognition": {
@@ -53,10 +53,10 @@
                 "key": 18 // Alt
             }
         },
+        "timeout": 2000,
         "next": [
             "__MapTrackerOpenWorld_GetOnZipline_Interact"
-        ],
-        "timeout": 2000
+        ]
     },
     "__MapTrackerOpenWorld_GetOnZipline_Interact": {
         "recognition": {

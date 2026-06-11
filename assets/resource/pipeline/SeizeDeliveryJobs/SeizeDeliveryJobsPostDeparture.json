@@ -31,25 +31,25 @@
             -1,
             -1
         ], // 需要由 Go 覆写点击位置
+        "timeout": 5000, // 断言可以正常取消追踪
         "next": [
             "SeizeDeliveryJobsCancelTracking"
-        ],
-        "timeout": 5000 // 断言可以正常取消追踪
+        ]
     },
     "SeizeDeliveryJobsCancelTracking": {
         "desc": "在目的地地图界面，取消任务追踪以防止追踪标志干扰后续识别",
         "enabled": true,
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "TemplateMatch",
-        "template": "Common/Button/CancelButtonType1.png",
         "roi": [
             1100,
             560,
             170,
             150
         ],
+        "template": "Common/Button/CancelButtonType1.png",
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "next": [
             // 完成
         ],
@@ -73,13 +73,13 @@
     "SeizeDeliveryJobsSubmit": {
         "desc": "在 NPC 附近，识别交互按钮并提交货物",
         "recognition": "TemplateMatch",
-        "template": "SeizeDeliveryJobs/SubmitGood.png",
         "roi": [
             760,
             350,
             200,
             270
         ],
+        "template": "SeizeDeliveryJobs/SubmitGood.png",
         "order_by": "Score",
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
@@ -108,12 +108,12 @@
         "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",
         "max_hit": 5,
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
         "custom_action_param": {
             "is_retry": true
         },
+        "post_delay": 0,
         "next": [
             // 完成，后续由 Go 内部逻辑来重新调用提交货物分支
         ],

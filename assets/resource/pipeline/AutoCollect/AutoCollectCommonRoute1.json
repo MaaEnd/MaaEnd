@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute1Start": {
         "desc": "映火荞花采集线，5个点",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute1"
         ],

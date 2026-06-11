@@ -1,9 +1,9 @@
 {
     "AutoCollectCommonRoute7Start": {
         "desc": "荆刺芽针采集线，6个点共12个",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
-        "enabled": false,
         "next": [
             "AutoCollectCommonRoute7"
         ],
