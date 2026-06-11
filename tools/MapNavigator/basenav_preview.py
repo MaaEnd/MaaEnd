@@ -194,27 +194,36 @@ class _DeferredVerifier:
     (本工具仅用于预览,文件损坏概率极低,告警足以提示重新烘焙)。
     """
 
-    __slots__ = ("_parts", "_expected", "_thread", "result")
+    __slots__ = ("_parts", "_expected", "_thread", "_lock", "result")
 
     def __init__(self, parts, expected: int) -> None:
         self._parts = parts
         self._expected = expected
         self._thread: threading.Thread | None = None
+        self._lock = threading.Lock()  # 串行化前台/后台两条校验路径
         self.result: bool | None = None  # None=未校验, True=通过, False=不匹配
 
     def run(self) -> bool:
-        actual = _fnv64_parts(self._parts)
-        self.result = actual == self._expected
+        # 幂等且线程安全:前台(verify_integrity)与后台(start_background)无论何序调用,
+        # 都只真正计算一次。锁保证若一条路径正在算,另一条会等其算完并复用结果,
+        # 不会重复计算,也不会在 _parts 已释放后再次访问它。
+        with self._lock:
+            if self.result is not None:
+                return self.result
+            parts, self._parts = self._parts, None  # 锁内取出并释放,后台不会与之争用
+            # result 为 None 时 parts 必非空(二者仅在锁内成对更新),无需再判空
+            actual = _fnv64_parts(parts)
+            self.result = actual == self._expected
         if not self.result:
             print(f"[basenav] 警告: build hash 不匹配 (期望 {self._expected:016x}, 实际 {actual:016x})")
-        self._parts = None  # 释放对解压缓冲区的引用
-        return bool(self.result)
+        return self.result
 
     def start_background(self) -> None:
-        if self._thread is not None:
-            return
-        self._thread = threading.Thread(target=self.run, name="basenav-verify", daemon=True)
-        self._thread.start()
+        with self._lock:
+            if self._thread is not None or self.result is not None:
+                return
+            self._thread = threading.Thread(target=self.run, name="basenav-verify", daemon=True)
+            self._thread.start()
 
 
 class BaseNavField:
