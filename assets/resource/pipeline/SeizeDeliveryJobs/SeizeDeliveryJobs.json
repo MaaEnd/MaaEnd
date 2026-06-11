@@ -10,8 +10,8 @@
         ]
     },
     "SeizeDeliveryJobsGuard": {
-        "desc": "自动送委托的风险知悉拦截节点（此节点默认开启）",
-        "enabled": true,
+        "desc": "自动送委托的风险知悉拦截节点（此节点在 tasks 中跟随全自动送货选项默认开启）",
+        "enabled": false,
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,

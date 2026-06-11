@@ -226,15 +226,15 @@
             "default_case": "No",
             "cases": [
                 {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
+                    "name": "No",
                     "pipeline_override": {
                         "SeizeDeliveryJobsGuard": {
-                            "enabled": false
+                            "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "Yes"
                 }
             ]
         },
