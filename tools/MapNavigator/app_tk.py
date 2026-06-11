@@ -59,6 +59,10 @@ class RouteEditorApp:
 
     BOX_SELECT_MODIFIER_MASK = 0x0004
     DRAG_ACTIVATION_DISTANCE = 4
+    # 拖拽停顿多少毫秒后补一帧精确底图
+    PAN_SETTLE_DELAY_MS = 90
+    # 底图额外渲染的边距（按可视区比例），让拖拽时画布位移有预渲染内容可滑入
+    PAN_MARGIN_FRACTION = 0.6
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
@@ -156,6 +160,9 @@ class RouteEditorApp:
         self.pointer_down_x = 0
         self.pointer_down_y = 0
         self._redraw_pending = False
+        # 拖拽期间只做画布级整体位移，停顿/松手后才补一帧精确渲染
+        self._pan_settle_timer: str | None = None
+        self._pan_dirty = False
 
         self._build_layout()
         self.renderer = MapRenderer(self.canvas, root, MAP_IMAGE_DIR)
@@ -925,6 +932,8 @@ class RouteEditorApp:
             self.root.after(0, lambda: self._update_load_progress(1.0))
             self.root.after(0, lambda: self._set_status("预览图像已就绪", "#10b981"))
             self.root.after(0, lambda: self._hide_load_progress())
+            # 完整性校验（FNV-64）在后台线程进行，不阻塞 UI 交互
+            field.start_background_verify()
         except Exception as exc:
             self.root.after(0, lambda: self._on_basenav_load_error(str(exc)))
 
@@ -1215,16 +1224,46 @@ class RouteEditorApp:
     def on_pan_move(self, event) -> None:
         if not self.is_panning:
             return
-        dx = (event.x - self.drag_start_x) / self.renderer.view_scale
-        dy = (event.y - self.drag_start_y) / self.renderer.view_scale
-        self.renderer.view_offset_x += dx
-        self.renderer.view_offset_y += dy
+        self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
         self.drag_start_x, self.drag_start_y = event.x, event.y
-        self.schedule_redraw(fast=True)
 
     def on_pan_end(self, _event) -> None:
         self.is_panning = False
         self.canvas.config(cursor="cross")
+        self._finish_pan()
+
+    def _pan_by_pixels(self, px: int, py: int) -> None:
+        """拖拽期间仅做画布级整体位移（C 级、瞬时），停顿后再补一帧精确底图。
+
+        不在每一帧重渲染底图/节点：那会反复创建全视口 PhotoImage 并重建所有
+        覆盖物，正是“一卡一卡”的根源。改为整体平移已渲染内容，靠预渲染边距
+        （PAN_MARGIN_FRACTION）填充滑入区域，手势停顿后 _settle_pan 再补精确帧。
+        """
+        if px == 0 and py == 0:
+            return
+        self.renderer.view_offset_x += px / self.renderer.view_scale
+        self.renderer.view_offset_y += py / self.renderer.view_scale
+        self.canvas.move("all", px, py)
+        self._pan_dirty = True
+        if self._pan_settle_timer is not None:
+            self.root.after_cancel(self._pan_settle_timer)
+        self._pan_settle_timer = self.root.after(self.PAN_SETTLE_DELAY_MS, self._settle_pan)
+
+    def _settle_pan(self) -> None:
+        self._pan_settle_timer = None
+        if not self._pan_dirty:
+            return
+        self._pan_dirty = False
+        self.schedule_redraw(fast=True, margin_fraction=self.PAN_MARGIN_FRACTION)
+
+    def _finish_pan(self) -> None:
+        if self._pan_settle_timer is not None:
+            self.root.after_cancel(self._pan_settle_timer)
+            self._pan_settle_timer = None
+        if not self._pan_dirty:
+            return
+        self._pan_dirty = False
+        self.schedule_redraw(fast=False, margin_fraction=self.PAN_MARGIN_FRACTION)
 
     def fit_view(self) -> None:
         zone_id = self._display_zone_id()
@@ -1272,13 +1311,13 @@ class RouteEditorApp:
         self.schedule_redraw(fast=False)
 
     # ---- 渲染调度 ----
-    def schedule_redraw(self, fast: bool = True) -> None:
+    def schedule_redraw(self, fast: bool = True, margin_fraction: float = 0.0) -> None:
         if self._redraw_pending:
             return
         self._redraw_pending = True
-        self.root.after(16, lambda: self._do_redraw(fast))
+        self.root.after(16, lambda: self._do_redraw(fast, margin_fraction))
 
-    def _do_redraw(self, fast: bool) -> None:
+    def _do_redraw(self, fast: bool, margin_fraction: float = 0.0) -> None:
         self._redraw_pending = False
         zone_id = self._display_zone_id()
         if zone_id != self.renderer.last_params[0]:
@@ -1290,7 +1329,7 @@ class RouteEditorApp:
             self.zone_point_global_indices = self.zone_state.point_indices(self.points)
             points = [self.points[index] for index in self.zone_point_global_indices]
 
-        self.renderer.request_render(zone_id, fast=fast)
+        self.renderer.request_render(zone_id, fast=fast, margin_fraction=margin_fraction)
         self._render_path(points)
         self._render_nodes(points)
         self._render_assert_rect()
@@ -1968,12 +2007,8 @@ class RouteEditorApp:
                 self.canvas.config(cursor="fleur")
                 return
             if self.is_panning:
-                dx = (event.x - self.drag_start_x) / self.renderer.view_scale
-                dy = (event.y - self.drag_start_y) / self.renderer.view_scale
-                self.renderer.view_offset_x += dx
-                self.renderer.view_offset_y += dy
+                self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
                 self.drag_start_x, self.drag_start_y = event.x, event.y
-                self.schedule_redraw(fast=True)
             return
 
         if self.assert_mode_var.get():
@@ -1998,12 +2033,8 @@ class RouteEditorApp:
             return
 
         if self.is_panning:
-            dx = (event.x - self.drag_start_x) / self.renderer.view_scale
-            dy = (event.y - self.drag_start_y) / self.renderer.view_scale
-            self.renderer.view_offset_x += dx
-            self.renderer.view_offset_y += dy
+            self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
             self.drag_start_x, self.drag_start_y = event.x, event.y
-            self.schedule_redraw(fast=True)
             return
 
         if not self.is_dragging:
@@ -2025,6 +2056,7 @@ class RouteEditorApp:
             if self.is_panning:
                 self.is_panning = False
                 self.canvas.config(cursor="cross")
+                self._finish_pan()
                 return
             if self.is_pan_candidate:
                 self.is_pan_candidate = False
@@ -2075,6 +2107,7 @@ class RouteEditorApp:
         if self.is_panning:
             self.is_panning = False
             self.canvas.config(cursor="cross")
+            self._finish_pan()
             return
 
         if self.is_pan_candidate:

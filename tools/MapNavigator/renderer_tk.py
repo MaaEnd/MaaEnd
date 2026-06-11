@@ -36,7 +36,10 @@ class MapRenderer:
         self.view_offset_y = 0.0
         self.view_scale = 1.0
 
-        self.last_params: tuple[str | None, float | None, float | None, float | None, bool | None] = (
+        self.last_params: tuple[
+            str | None, float | None, float | None, float | None, bool | None, float | None
+        ] = (
+            None,
             None,
             None,
             None,
@@ -86,11 +89,13 @@ class MapRenderer:
             print(f"Failed to load map image for {zone_id} at {image_path}: {exc}")
             return None
 
-    def request_render(self, zone_id: str, fast: bool = True) -> None:
+    def request_render(self, zone_id: str, fast: bool = True, margin_fraction: float = 0.0) -> None:
         """
         请求异步渲染：
         - `fast=True` 使用 Nearest 采样，优先保证拖拽流畅。
         - `fast=False` 使用 Lanczos 采样，作为视觉补帧。
+        - `margin_fraction` 在可视区四周多渲染一圈底图（按可视区比例），
+          供拖拽时画布整体位移滑入，避免露出空白边。
         """
         if self._hq_timer:
             self.root.after_cancel(self._hq_timer)
@@ -106,14 +111,26 @@ class MapRenderer:
         if canvas_width <= 1 or canvas_height <= 1:
             return
 
-        params = (zone_id, self.view_scale, self.view_offset_x, self.view_offset_y, fast)
+        params = (zone_id, self.view_scale, self.view_offset_x, self.view_offset_y, fast, margin_fraction)
         if params == self.last_params:
             return
 
         viewport = (self.view_scale, self.view_offset_x, self.view_offset_y)
-        self.executor.submit(self._async_render, zone_id, canvas_width, canvas_height, fast, request_time, request_seq, viewport)
+        self.executor.submit(
+            self._async_render,
+            zone_id,
+            canvas_width,
+            canvas_height,
+            fast,
+            request_time,
+            request_seq,
+            viewport,
+            margin_fraction,
+        )
         if fast:
-            self._hq_timer = self.root.after(150, lambda: self.request_render(zone_id, fast=False))
+            self._hq_timer = self.root.after(
+                150, lambda: self.request_render(zone_id, fast=False, margin_fraction=margin_fraction)
+            )
 
     def _async_render(
         self,
@@ -124,6 +141,7 @@ class MapRenderer:
         request_time: float,
         request_seq: int,
         viewport: tuple[float, float, float],
+        margin_fraction: float = 0.0,
     ) -> None:
         if request_seq != self._last_request_seq:
             return
@@ -134,10 +152,12 @@ class MapRenderer:
             return
 
         view_scale, view_offset_x, view_offset_y = viewport
-        x0 = 0 / view_scale - view_offset_x
-        y0 = 0 / view_scale - view_offset_y
-        x1 = canvas_width / view_scale - view_offset_x
-        y1 = canvas_height / view_scale - view_offset_y
+        margin_x = canvas_width * margin_fraction / view_scale
+        margin_y = canvas_height * margin_fraction / view_scale
+        x0 = 0 / view_scale - view_offset_x - margin_x
+        y0 = 0 / view_scale - view_offset_y - margin_y
+        x1 = canvas_width / view_scale - view_offset_x + margin_x
+        y1 = canvas_height / view_scale - view_offset_y + margin_y
 
         image_width, image_height = image.size
         left = max(0, int(x0))
@@ -170,6 +190,7 @@ class MapRenderer:
             request_seq,
             viewport,
             fast,
+            margin_fraction,
         )
 
     def _apply_render_result(
@@ -182,6 +203,7 @@ class MapRenderer:
         request_seq: int,
         viewport: tuple[float, float, float],
         fast: bool,
+        margin_fraction: float = 0.0,
     ) -> None:
         if request_seq != self._last_request_seq or request_time < self._last_request_time:
             return
@@ -196,14 +218,14 @@ class MapRenderer:
             self.canvas.coords(self.bg_image_id, canvas_x, canvas_y)
 
         self.canvas.tag_lower(self.bg_image_id)
-        self.last_params = (zone_id, viewport[0], viewport[1], viewport[2], fast)
+        self.last_params = (zone_id, viewport[0], viewport[1], viewport[2], fast, margin_fraction)
 
     def _clear_bg(self) -> None:
         if self.bg_image_id is not None:
             self.canvas.delete(self.bg_image_id)
             self.bg_image_id = None
         self.render_photo = None
-        self.last_params = (None, None, None, None, None)
+        self.last_params = (None, None, None, None, None, None)
 
     def _clear_bg_if_current(
         self,
