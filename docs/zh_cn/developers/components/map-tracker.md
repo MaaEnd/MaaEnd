@@ -310,11 +310,11 @@
 
 - `template`: 模板图片路径。注意这个路径是相对于 `assets/resource` 目录的，例如 `image/MapTracker/BigMapIcons/Pointer.png`（玩家指针图标）。
 
-- `expected`: 布尔值、非负整数、或者由 4 个实数组成的列表 `[x, y, w, h]`。控制命中识别的条件，具体含义如下：
+- `expected`: 布尔值、非负整数、或者条件对象。控制命中识别的条件，具体含义如下：
     - 如果是布尔值 `true`，则表示找到至少一个匹配结果即可命中识别；
     - 如果是布尔值 `false`，则表示找不到匹配结果才能命中识别；
     - 如果是非负整数 `n`，则表示匹配到恰好 `n` 个结果才能命中识别；
-    - 如果是列表 `[x, y, w, h]`，则表示指定的矩形坐标区域内有至少一个匹配结果才能命中识别。
+    - 如果是对象 `{"map_name": "...", "target": [x, y, w, h]}`，则表示指定的地图的矩形坐标区域内有至少一个匹配结果才能命中识别。
 
 可选参数：
 
@@ -345,12 +345,15 @@
         "custom_recognition": "MapTrackerBigMapFindImage",
         "custom_recognition_param": {
             "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
-            "expected": [
-                114,
-                514,
-                19,
-                19
-            ],
+            "expected": {
+                "map_name": "map02_lv005",
+                "target": [
+                    114,
+                    514,
+                    19,
+                    19
+                ]
+            },
             "green_mask": true,
             "zoom_value": 0.25
         },

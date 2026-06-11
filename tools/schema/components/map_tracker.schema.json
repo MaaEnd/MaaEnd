@@ -408,15 +408,27 @@
                 },
                 "expected": {
                     "title": "Expected",
-                    "description": "Recognition hit condition: true for at least one match, false for no matches, integer for exact match count, or [x, y, w, h] for a required map-coordinate rectangle hit.",
+                    "description": "Recognition hit condition: true for at least one match, false for no matches, integer for exact match count, or an object with map_name and target for a required map-coordinate rectangle hit.",
                     "oneOf": [
                         { "type": "boolean" },
                         { "type": "integer", "minimum": 0 },
                         {
-                            "type": "array",
-                            "minItems": 4,
-                            "maxItems": 4,
-                            "items": { "type": "number" }
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [ "map_name", "target" ],
+                            "properties": {
+                                "map_name": {
+                                    "title": "Map Name",
+                                    "description": "Map identifier that the match must land on.",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "target": {
+                                    "title": "Target",
+                                    "description": "Bounding box [x, y, w, h] defining the required hit region in map pixel coordinates.",
+                                    "$ref": "#/$defs/Rect4D"
+                                }
+                            }
                         }
                     ]
                 },
