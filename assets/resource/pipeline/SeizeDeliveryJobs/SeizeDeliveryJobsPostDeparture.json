@@ -1,7 +1,7 @@
 {
     "SeizeDeliveryJobsPostDepartureEntry": {
         "desc": "自动送委托的入口点（此节点默认关闭）",
-        "enabled": true,
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
