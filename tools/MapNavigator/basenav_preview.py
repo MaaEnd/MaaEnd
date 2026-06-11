@@ -4,6 +4,7 @@ import gzip
 import heapq
 import math
 import struct
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,7 +39,7 @@ SEGMENT_PARALLEL_EPSILON = 1e-12
 # 落在查询半径内的三角形都会按包围盒插入到对应 bin)。烘焙后网格三角形极细碎
 # (中位包围盒约 1px),96px 的粗 bin 会让单个 bin 堆叠上万个三角形,使纯 Python
 # 的 snap 退化成线性扫描;取 8px 让每个 bin 仅含数十个三角形,snap 提前命中。
-INDEX_BIN_SIZE = 8.0
+INDEX_BIN_SIZE = 16.0
 
 HEADER_STRUCT = struct.Struct("<4sHHIIIIQQQQQ")
 ZONE_STRUCT = struct.Struct("<HHIIIIff4f")
@@ -47,7 +48,7 @@ TRIANGLE_STRUCT = struct.Struct("<IIIiiiIff")
 LINK_STRUCT = struct.Struct("<II")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class _BaseNavZone:
     zone_id: int
     name: str
@@ -60,14 +61,14 @@ class _BaseNavZone:
     flags: int = 0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class _BaseNavVertex:
     u: float
     v: float
     height: float
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class _BaseNavTriangle:
     vertices: tuple[int, int, int]
     neighbors: tuple[int, int, int]
@@ -90,8 +91,16 @@ class _BaseNavRoute:
     segment_breaks: list[int]
 
 
-def load_basenav_field(input_file: Path) -> BaseNavField:
-    return BaseNavField(input_file)
+def _report_progress(callback, progress: float) -> None:
+    if callback is not None:
+        try:
+            callback(progress)
+        except Exception:
+            pass
+
+
+def load_basenav_field(input_file: Path, progress_callback=None) -> BaseNavField:
+    return BaseNavField(input_file, progress_callback=progress_callback)
 
 
 @dataclass(frozen=True)
@@ -116,21 +125,22 @@ def find_preview_route(
 
 
 class BaseNavField:
-    def __init__(self, path: Path, bin_size: float = INDEX_BIN_SIZE) -> None:
+    def __init__(self, path: Path, bin_size: float = INDEX_BIN_SIZE, progress_callback=None) -> None:
         self.path = path
-        self.zones, self.vertices, self.triangles, self.links = _read_basenav(path)
+        self.zones, self.vertices, self.triangles, self.links = _read_basenav(path, progress_callback=progress_callback)
         self.bin_size = bin_size
         self.zone_by_id = {zone.zone_id: zone for zone in self.zones}
         self.zone_by_name = {zone.name: zone for zone in self.zones}
         self.triangle_zone: list[int] = [0] * len(self.triangles)
         self.triangle_bounds: list[tuple[float, float, float, float]] = []
-        self.bins: dict[tuple[int, int, int], list[int]] = {}
+        self.bins: dict[tuple[int, int, int], list[int]] = defaultdict(list)
         self.adjacency: list[list[int]] = [[] for _triangle in self.triangles]
         self.natural_component: list[int] = []
         self.natural_component_size: list[int] = []
-        self.triangle_height: list[float] = []
-        self.overlay_cache = {}
-        self._build_index()
+        self.triangle_height: list[float] = [0.0] * len(self.triangles)
+        self.overlay_cache: dict[int, object] = {}
+        self.dots_cache: dict[int, object] = {}
+        self._build_index(progress_callback=progress_callback)
 
     def zone_ids(self) -> list[int]:
         return [zone.zone_id for zone in self.zones]
@@ -167,7 +177,7 @@ class BaseNavField:
         end = start + zone.triangle_count
         return [self.triangles[index].center for index in range(start, end, stride)]
 
-    def overlay_image(self, zone_id: int):
+    def overlay_image(self, zone_id: int, progress_callback=None):
         if zone_id in self.overlay_cache:
             return self.overlay_cache[zone_id]
         try:
@@ -178,14 +188,65 @@ class BaseNavField:
         zone = self.zone_by_id.get(zone_id)
         if zone is None or zone.width <= 0 or zone.height <= 0:
             return None
-        image = Image.new("RGBA", (math.ceil(zone.width), math.ceil(zone.height)), (0, 0, 0, 0))
+        _scale = 0.5
+        _w = math.ceil(zone.width * _scale)
+        _h = math.ceil(zone.height * _scale)
+        image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         start = zone.first_triangle
         end = start + zone.triangle_count
-        for triangle_index in range(start, end):
-            points = [(self.vertices[index].u, self.vertices[index].v) for index in self.triangles[triangle_index].vertices]
-            draw.polygon(points, fill=(255, 0, 0, 46))
+        total = end - start
+        _step = max(1, total // 50) if total > 100 else 1
+        for _idx, triangle_index in enumerate(range(start, end)):
+            tv = self.triangles[triangle_index].vertices
+            pts = [
+                (self.vertices[tv[0]].u * _scale, self.vertices[tv[0]].v * _scale),
+                (self.vertices[tv[1]].u * _scale, self.vertices[tv[1]].v * _scale),
+                (self.vertices[tv[2]].u * _scale, self.vertices[tv[2]].v * _scale),
+            ]
+            draw.polygon(pts, fill=(255, 0, 0, 46))
+            if total > 100 and _idx % _step == 0:
+                _report_progress(progress_callback, _idx / total)
+        image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
         self.overlay_cache[zone_id] = image
+        return image
+
+    def walkable_dots_image(
+        self,
+        zone_id: int,
+        max_points: int = 60000,
+        display_zone_id: str = "",
+        progress_callback=None,
+    ):
+        if zone_id in self.dots_cache:
+            return self.dots_cache[zone_id]
+        try:
+            from PIL import Image, ImageDraw
+        except ImportError:
+            return None
+
+        zone = self.zone_by_id.get(zone_id)
+        if zone is None or zone.width <= 0 or zone.height <= 0:
+            return None
+        points = self.walkable_preview_points(zone_id, max_points, display_zone_id)
+        if not points:
+            return None
+        _scale = 0.5
+        _w = math.ceil(zone.width * _scale)
+        _h = math.ceil(zone.height * _scale)
+        image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        total = len(points)
+        _step = max(1, total // 50) if total > 100 else 1
+        for _idx, (x, y) in enumerate(points):
+            draw.ellipse(
+                ((x - 1.5) * _scale, (y - 1.5) * _scale, (x + 1.5) * _scale, (y + 1.5) * _scale),
+                fill=(100, 100, 100, 200),
+            )
+            if total > 100 and _idx % _step == 0:
+                _report_progress(progress_callback, _idx / total)
+        image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
+        self.dots_cache[zone_id] = image
         return image
 
     def find_route(
@@ -291,11 +352,13 @@ class BaseNavField:
             current = next_triangle
         return False
 
-    def _build_index(self) -> None:
+    def _build_index(self, progress_callback=None) -> None:
         zone_ranges = []
         for zone in self.zones:
             zone_ranges.append((zone.first_triangle, zone.first_triangle + zone.triangle_count, zone.zone_id))
         range_index = 0
+        total_triangles = len(self.triangles)
+        _bin_report_step = max(1, total_triangles // 50) if total_triangles > 100 else 1
         for triangle_index, _triangle in enumerate(self.triangles):
             while range_index + 1 < len(zone_ranges) and triangle_index >= zone_ranges[range_index][1]:
                 range_index += 1
@@ -304,22 +367,32 @@ class BaseNavField:
                 self.triangle_zone[triangle_index] = zone_id
             else:
                 zone_id = 0
-            points = self._triangle_points(triangle_index)
-            left = min(point[0] for point in points)
-            top = min(point[1] for point in points)
-            right = max(point[0] for point in points)
-            bottom = max(point[1] for point in points)
+            tv = self.triangles[triangle_index].vertices
+            v0, v1, v2 = self.vertices[tv[0]], self.vertices[tv[1]], self.vertices[tv[2]]
+            left = min(v0.u, v1.u, v2.u)
+            top = min(v0.v, v1.v, v2.v)
+            right = max(v0.u, v1.u, v2.u)
+            bottom = max(v0.v, v1.v, v2.v)
             self.triangle_bounds.append((left, top, right, bottom))
+            self.triangle_height[triangle_index] = (v0.height + v1.height + v2.height) / 3.0
             if zone_id == 0:
                 continue
-            for bin_x in range(math.floor(left / self.bin_size), math.floor(right / self.bin_size) + 1):
-                for bin_y in range(math.floor(top / self.bin_size), math.floor(bottom / self.bin_size) + 1):
-                    self.bins.setdefault((zone_id, bin_x, bin_y), []).append(triangle_index)
-        self.triangle_height = [self._triangle_average_height(triangle_index) for triangle_index in range(len(self.triangles))]
+            bin_sx = int(left / self.bin_size)
+            bin_ex = int(right / self.bin_size)
+            bin_sy = int(top / self.bin_size)
+            bin_ey = int(bottom / self.bin_size)
+            for bin_x in range(bin_sx, bin_ex + 1):
+                for bin_y in range(bin_sy, bin_ey + 1):
+                    self.bins[(zone_id, bin_x, bin_y)].append(triangle_index)
+            if total_triangles > 100 and triangle_index % _bin_report_step == 0:
+                _report_progress(progress_callback, 0.36 + 0.17 * (triangle_index / total_triangles))
+        _report_progress(progress_callback, 0.53)
         self._build_natural_components()
+        _report_progress(progress_callback, 0.56)
         for source, target in self.links:
             if self._is_traversable_link(source, target):
                 self.adjacency[source].append(target)
+        _report_progress(progress_callback, 0.58)
 
     def _build_natural_components(self) -> None:
         self.natural_component = [-1] * len(self.triangles)
@@ -622,8 +695,9 @@ class BaseNavField:
         return best[1], best[2]
 
 
-def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex], list[_BaseNavTriangle], list[tuple[int, int]]]:
-    data = _read_basenav_bytes(path)
+def _read_basenav(path: Path, progress_callback=None) -> tuple[list[_BaseNavZone], list[_BaseNavVertex], list[_BaseNavTriangle], list[tuple[int, int]]]:
+    data = _read_basenav_bytes_mv(path)
+    _report_progress(progress_callback, 0.03)
     if len(data) < HEADER_STRUCT.size:
         raise ValueError("file is smaller than BaseNav header")
     header_values = HEADER_STRUCT.unpack_from(data, 0)
@@ -655,20 +729,20 @@ def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex],
     if link_count <= 0:
         raise ValueError("BaseNav v2 requires link table")
 
-    zone_table = _read_exact(data, zone_table_offset, vertex_offset - zone_table_offset)
-    vertex_data = _read_exact(data, vertex_offset, VERTEX_STRUCT.size * vertex_count)
-    triangle_data = _read_exact(data, triangle_offset, TRIANGLE_STRUCT.size * triangle_count)
-    link_data = _read_exact(data, link_offset, LINK_STRUCT.size * link_count)
+    zone_table = data[zone_table_offset:vertex_offset]
+    vertex_data = data[vertex_offset:vertex_offset + VERTEX_STRUCT.size * vertex_count]
+    triangle_data = data[triangle_offset:triangle_offset + TRIANGLE_STRUCT.size * triangle_count]
+    link_data = data[link_offset:link_offset + LINK_STRUCT.size * link_count]
     if _fnv64_parts((zone_table, vertex_data, triangle_data, link_data)) != build_hash:
         raise ValueError("BaseNav build hash mismatch")
 
     zones = []
     cursor = zone_table_offset
     for _index in range(zone_count):
-        values = ZONE_STRUCT.unpack(_read_exact(data, cursor, ZONE_STRUCT.size))
+        values = ZONE_STRUCT.unpack_from(data, offset=cursor)
         cursor += ZONE_STRUCT.size
         name_size = int(values[2])
-        name = _read_exact(data, cursor, name_size).decode("utf-8")
+        name = data[cursor:cursor + name_size].tobytes().decode("utf-8")
         cursor += name_size
         zones.append(
             _BaseNavZone(
@@ -686,49 +760,51 @@ def _read_basenav(path: Path) -> tuple[list[_BaseNavZone], list[_BaseNavVertex],
     if cursor != vertex_offset:
         raise ValueError("invalid BaseNav zone table size")
 
-    vertices = []
-    cursor = vertex_offset
-    for _index in range(vertex_count):
-        values = VERTEX_STRUCT.unpack(_read_exact(data, cursor, VERTEX_STRUCT.size))
-        cursor += VERTEX_STRUCT.size
-        vertices.append(_BaseNavVertex(float(values[0]), float(values[1]), float(values[2])))
+    _report_progress(progress_callback, 0.05)
 
-    triangles = []
+    vertices: list = [None] * vertex_count
+    cursor = vertex_offset
+    _vertex_report_step = max(1, vertex_count // 50) if vertex_count > 100 else 1
+    for _index in range(vertex_count):
+        v0, v1, v2 = VERTEX_STRUCT.unpack_from(data, offset=cursor)
+        cursor += VERTEX_STRUCT.size
+        vertices[_index] = _BaseNavVertex(v0, v1, v2)
+        if vertex_count > 100 and _index % _vertex_report_step == 0:
+            _report_progress(progress_callback, 0.05 + 0.12 * (_index / vertex_count))
+
+    _report_progress(progress_callback, 0.17)
+
+    triangles: list = [None] * triangle_count
     cursor = triangle_offset
+    _triangle_report_step = max(1, triangle_count // 50) if triangle_count > 100 else 1
     for _index in range(triangle_count):
-        values = TRIANGLE_STRUCT.unpack(_read_exact(data, cursor, TRIANGLE_STRUCT.size))
+        v_idx0, v_idx1, v_idx2, n0, n1, n2, comp_id, cx, cy = TRIANGLE_STRUCT.unpack_from(data, offset=cursor)
         cursor += TRIANGLE_STRUCT.size
-        triangles.append(
-            _BaseNavTriangle(
-                vertices=(int(values[0]), int(values[1]), int(values[2])),
-                neighbors=(int(values[3]), int(values[4]), int(values[5])),
-                component_id=int(values[6]),
-                center=(float(values[7]), float(values[8])),
-            )
+        triangles[_index] = _BaseNavTriangle(
+            vertices=(v_idx0, v_idx1, v_idx2),
+            neighbors=(n0, n1, n2),
+            component_id=comp_id,
+            center=(cx, cy),
         )
+        if triangle_count > 100 and _index % _triangle_report_step == 0:
+            _report_progress(progress_callback, 0.17 + 0.18 * (_index / triangle_count))
 
     links = []
     cursor = link_offset
     for _index in range(link_count):
-        source, target = LINK_STRUCT.unpack(_read_exact(data, cursor, LINK_STRUCT.size))
+        source, target = LINK_STRUCT.unpack_from(data, offset=cursor)
         cursor += LINK_STRUCT.size
         if int(source) < triangle_count and int(target) < triangle_count:
             links.append((int(source), int(target)))
+    _report_progress(progress_callback, 0.36)
     return zones, vertices, triangles, links
 
 
-def _read_basenav_bytes(path: Path) -> bytes:
+def _read_basenav_bytes_mv(path: Path) -> memoryview:
     if path.suffix.lower() != ".gz":
-        return path.read_bytes()
+        return memoryview(path.read_bytes())
     with gzip.open(path, "rb") as handle:
-        return handle.read()
-
-
-def _read_exact(data: bytes, offset: int, size: int) -> bytes:
-    end = offset + size
-    if end > len(data):
-        raise ValueError("truncated basenav")
-    return data[offset:end]
+        return memoryview(handle.read())
 
 
 def _fnv64(data: bytes) -> int:

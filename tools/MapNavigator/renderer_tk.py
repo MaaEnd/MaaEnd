@@ -107,10 +107,6 @@ class MapRenderer:
             return
 
         params = (zone_id, self.view_scale, self.view_offset_x, self.view_offset_y, fast)
-        rendered_view = self.last_params[:4]
-        requested_view = params[:4]
-        if self.bg_image_id is not None and rendered_view != requested_view:
-            self._clear_bg()
         if params == self.last_params:
             return
 
