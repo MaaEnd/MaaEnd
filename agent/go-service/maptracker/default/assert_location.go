@@ -131,7 +131,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
-		Detail: fmt.Sprintf("Expected hit one of%v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.X, result.Y),
+		Detail: fmt.Sprintf("Expected hit one of %v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.X, result.Y),
 	}, false
 }
 
