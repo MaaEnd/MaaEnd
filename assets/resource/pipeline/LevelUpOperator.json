@@ -45,7 +45,8 @@
             "LevelUpOperatorSetFilter"
         ],
         "focus": {
-            "Node.Action.Succeeded": "正在进入干员列表"
+            "Node.Action.Succeeded": "正在进入干员列表",
+            "Node.Action.Failed": "未进入到干员界面"
         }
     },
     "LevelUpOperatorSetFilter": {
@@ -118,7 +119,7 @@
             "[JumpBack]OperatorListScrollUp"
         ],
         "focus": {
-            "Node.Action.Succeeded": "正在选择第一个干员"
+            "Node.Action.Succeeded": "正在选择列表中第一个干员"
         }
     },
     "OperatorListScrollUpFinished": {
@@ -298,21 +299,16 @@
     "LevelUpOperatorEnterLevelUpMenu": {
         "desc": "打开升级界面",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1000,
                     210,
-                    88,
-                    60
+                    120,
+                    70
                 ],
-                "expected": [
-                    "LEVEL",
-                    "等级",
-                    "等級",
-                    "(?i)Level",
-                    "レベル",
-                    "레벨"
+                "template": [
+                    "LevelUpOperator/LevelUpWhitePlus.png"
                 ]
             }
         },
@@ -324,7 +320,7 @@
             "LevelUpOperatorExitLevelUpMenu"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "打开升级界面"
+            "Node.Recognition.Succeeded": "尝试打开升级界面"
         }
     },
     "LevelUpOperatorExitLevelUpMenu": {
