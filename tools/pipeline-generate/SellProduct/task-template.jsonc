@@ -219,7 +219,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProduct${LocationId}Sell": {
+                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
                             }
@@ -233,10 +233,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProduct${LocationId}Sell": {
+                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }

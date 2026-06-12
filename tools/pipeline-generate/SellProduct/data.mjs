@@ -337,7 +337,7 @@ function buildRestoreOperatorCases(nodePrefix) {
             name: "DoNotRestore",
             label: "$task.SellProduct.OperatorRestoreDoNotRestore",
             pipeline_override: {
-                [`SellProduct${nodePrefix}Sell`]: {
+                [`SellProduct${nodePrefix}SetAfterSellOperatorAnchor`]: {
                     anchor: {
                         SellProductAfterSellOperator: "",
                     },
@@ -348,7 +348,7 @@ function buildRestoreOperatorCases(nodePrefix) {
             name: entry.name,
             label: entry.label,
             pipeline_override: {
-                [`SellProduct${nodePrefix}Sell`]: {
+                [`SellProduct${nodePrefix}SetAfterSellOperatorAnchor`]: {
                     anchor: {
                         SellProductAfterSellOperator: `SellProduct${nodePrefix}AfterSellOperator`,
                     },

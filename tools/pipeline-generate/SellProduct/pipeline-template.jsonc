@@ -26,13 +26,37 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBeforeSellOperator": "",
-            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProduct${LocationId}SellAttempt1",
             "SellProductSellAttempt2": "SellProduct${LocationId}SellAttempt2",
             "SellProductSellAttempt3": "SellProduct${LocationId}SellAttempt3",
             "SellProductSellAttempt4": "SellProduct${LocationId}SellAttempt4"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
+        "desc": "${LocationDesc}设置售卖前派驻干员锚点",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
+        "desc": "${LocationDesc}设置售卖后恢复干员锚点",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductAfterSellOperator": ""
+        },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

@@ -26,12 +26,36 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBeforeSellOperator": "",
-            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProductReconstructionCommandSellAttempt1",
             "SellProductSellAttempt2": "SellProductReconstructionCommandSellAttempt2",
             "SellProductSellAttempt3": "SellProductReconstructionCommandSellAttempt3",
             "SellProductSellAttempt4": "SellProductReconstructionCommandSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
+        "desc": "重建指挥部设置售卖前派驻干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionCommandSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
+        "desc": "重建指挥部设置售卖后恢复干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": ""
         },
         "post_delay": 0,
         "rate_limit": 0,

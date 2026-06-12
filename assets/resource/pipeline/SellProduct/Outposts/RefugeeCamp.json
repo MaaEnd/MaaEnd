@@ -26,12 +26,36 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBeforeSellOperator": "",
-            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProductRefugeeCampSellAttempt1",
             "SellProductSellAttempt2": "SellProductRefugeeCampSellAttempt2",
             "SellProductSellAttempt3": "SellProductRefugeeCampSellAttempt3",
             "SellProductSellAttempt4": "SellProductRefugeeCampSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductRefugeeCampSetBeforeSellOperatorAnchor": {
+        "desc": "难民暂居处设置售卖前派驻干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+        "desc": "难民暂居处设置售卖后恢复干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": ""
         },
         "post_delay": 0,
         "rate_limit": 0,

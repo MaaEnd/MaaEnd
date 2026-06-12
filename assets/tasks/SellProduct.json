@@ -219,7 +219,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProductRefugeeCampBeforeSellOperator"
                             }
@@ -233,10 +233,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }
@@ -1119,7 +1118,7 @@
                     "name": "DoNotRestore",
                     "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": ""
                             }
@@ -1130,7 +1129,7 @@
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1168,7 +1167,7 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1206,7 +1205,7 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1244,7 +1243,7 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1282,7 +1281,7 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1320,7 +1319,7 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1358,7 +1357,7 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1396,7 +1395,7 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1434,7 +1433,7 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1472,7 +1471,7 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1510,7 +1509,7 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1548,7 +1547,7 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1586,7 +1585,7 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1624,7 +1623,7 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1662,7 +1661,7 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1700,7 +1699,7 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1738,7 +1737,7 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1776,7 +1775,7 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1814,7 +1813,7 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1852,7 +1851,7 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1890,7 +1889,7 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1928,7 +1927,7 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -1966,7 +1965,7 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -2004,7 +2003,7 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -2042,7 +2041,7 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -2080,7 +2079,7 @@
                     "name": "MiFu",
                     "label": "$operator.MiFu",
                     "pipeline_override": {
-                        "SellProductRefugeeCampSell": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
                             }
@@ -3480,7 +3479,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProductInfrastructureOutpostBeforeSellOperator"
                             }
@@ -3494,10 +3493,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }
@@ -4380,7 +4378,7 @@
                     "name": "DoNotRestore",
                     "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": ""
                             }
@@ -4391,7 +4389,7 @@
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4429,7 +4427,7 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4467,7 +4465,7 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4505,7 +4503,7 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4543,7 +4541,7 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4581,7 +4579,7 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4619,7 +4617,7 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4657,7 +4655,7 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4695,7 +4693,7 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4733,7 +4731,7 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4771,7 +4769,7 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4809,7 +4807,7 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4847,7 +4845,7 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4885,7 +4883,7 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4923,7 +4921,7 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4961,7 +4959,7 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -4999,7 +4997,7 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5037,7 +5035,7 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5075,7 +5073,7 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5113,7 +5111,7 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5151,7 +5149,7 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5189,7 +5187,7 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5227,7 +5225,7 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5265,7 +5263,7 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5303,7 +5301,7 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -5341,7 +5339,7 @@
                     "name": "MiFu",
                     "label": "$operator.MiFu",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpostSell": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
                             }
@@ -6565,7 +6563,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProductReconstructionCommandBeforeSellOperator"
                             }
@@ -6579,10 +6577,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }
@@ -7465,7 +7462,7 @@
                     "name": "DoNotRestore",
                     "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": ""
                             }
@@ -7476,7 +7473,7 @@
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7514,7 +7511,7 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7552,7 +7549,7 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7590,7 +7587,7 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7628,7 +7625,7 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7666,7 +7663,7 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7704,7 +7701,7 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7742,7 +7739,7 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7780,7 +7777,7 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7818,7 +7815,7 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7856,7 +7853,7 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7894,7 +7891,7 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7932,7 +7929,7 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -7970,7 +7967,7 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8008,7 +8005,7 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8046,7 +8043,7 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8084,7 +8081,7 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8122,7 +8119,7 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8160,7 +8157,7 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8198,7 +8195,7 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8236,7 +8233,7 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8274,7 +8271,7 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8312,7 +8309,7 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8350,7 +8347,7 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8388,7 +8385,7 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -8426,7 +8423,7 @@
                     "name": "MiFu",
                     "label": "$operator.MiFu",
                     "pipeline_override": {
-                        "SellProductReconstructionCommandSell": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
                             }
@@ -9590,7 +9587,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProductSkyKingFlatsBeforeSellOperator"
                             }
@@ -9604,10 +9601,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }
@@ -10490,7 +10486,7 @@
                     "name": "DoNotRestore",
                     "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": ""
                             }
@@ -10501,7 +10497,7 @@
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10539,7 +10535,7 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10577,7 +10573,7 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10615,7 +10611,7 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10653,7 +10649,7 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10691,7 +10687,7 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10729,7 +10725,7 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10767,7 +10763,7 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10805,7 +10801,7 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10843,7 +10839,7 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10881,7 +10877,7 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10919,7 +10915,7 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10957,7 +10953,7 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -10995,7 +10991,7 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11033,7 +11029,7 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11071,7 +11067,7 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11109,7 +11105,7 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11147,7 +11143,7 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11185,7 +11181,7 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11223,7 +11219,7 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11261,7 +11257,7 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11299,7 +11295,7 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11337,7 +11333,7 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11375,7 +11371,7 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11413,7 +11409,7 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -11451,7 +11447,7 @@
                     "name": "MiFu",
                     "label": "$operator.MiFu",
                     "pipeline_override": {
-                        "SellProductSkyKingFlatsSell": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
                             }
@@ -12763,7 +12759,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProductCardiacRemediationStationBeforeSellOperator"
                             }
@@ -12777,10 +12773,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductBeforeSellOperator": "",
-                                "SellProductAfterSellOperator": ""
+                                "SellProductBeforeSellOperator": ""
                             }
                         }
                     }
@@ -13663,7 +13658,7 @@
                     "name": "DoNotRestore",
                     "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": ""
                             }
@@ -13674,7 +13669,7 @@
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13712,7 +13707,7 @@
                     "name": "Yvonne",
                     "label": "$operator.Yvonne",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13750,7 +13745,7 @@
                     "name": "Ardelia",
                     "label": "$operator.Ardelia",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13788,7 +13783,7 @@
                     "name": "Gilberta",
                     "label": "$operator.Gilberta",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13826,7 +13821,7 @@
                     "name": "ChenQianyu",
                     "label": "$operator.ChenQianyu",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13864,7 +13859,7 @@
                     "name": "Wulfgard",
                     "label": "$operator.Wulfgard",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13902,7 +13897,7 @@
                     "name": "Antal",
                     "label": "$operator.Antal",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13940,7 +13935,7 @@
                     "name": "Xaihi",
                     "label": "$operator.Xaihi",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -13978,7 +13973,7 @@
                     "name": "Lifeng",
                     "label": "$operator.Lifeng",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14016,7 +14011,7 @@
                     "name": "Catcher",
                     "label": "$operator.Catcher",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14054,7 +14049,7 @@
                     "name": "Arclight",
                     "label": "$operator.Arclight",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14092,7 +14087,7 @@
                     "name": "Avywenna",
                     "label": "$operator.Avywenna",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14130,7 +14125,7 @@
                     "name": "Laevatain",
                     "label": "$operator.Laevatain",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14168,7 +14163,7 @@
                     "name": "Alesh",
                     "label": "$operator.Alesh",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14206,7 +14201,7 @@
                     "name": "Pogranichnik",
                     "label": "$operator.Pogranichnik",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14244,7 +14239,7 @@
                     "name": "LastRite",
                     "label": "$operator.LastRite",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14282,7 +14277,7 @@
                     "name": "Ember",
                     "label": "$operator.Ember",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14320,7 +14315,7 @@
                     "name": "Snowshine",
                     "label": "$operator.Snowshine",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14358,7 +14353,7 @@
                     "name": "DaPan",
                     "label": "$operator.DaPan",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14396,7 +14391,7 @@
                     "name": "Fluorite",
                     "label": "$operator.Fluorite",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14434,7 +14429,7 @@
                     "name": "Akekuri",
                     "label": "$operator.Akekuri",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14472,7 +14467,7 @@
                     "name": "Estella",
                     "label": "$operator.Estella",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14510,7 +14505,7 @@
                     "name": "Rossi",
                     "label": "$operator.Rossi",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14548,7 +14543,7 @@
                     "name": "Tangtang",
                     "label": "$operator.Tangtang",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14586,7 +14581,7 @@
                     "name": "ZhuangFangyi",
                     "label": "$operator.ZhuangFangyi",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }
@@ -14624,7 +14619,7 @@
                     "name": "MiFu",
                     "label": "$operator.MiFu",
                     "pipeline_override": {
-                        "SellProductCardiacRemediationStationSell": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
                                 "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
                             }

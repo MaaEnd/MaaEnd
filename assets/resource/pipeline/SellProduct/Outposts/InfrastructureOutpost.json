@@ -26,12 +26,36 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBeforeSellOperator": "",
-            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProductInfrastructureOutpostSellAttempt1",
             "SellProductSellAttempt2": "SellProductInfrastructureOutpostSellAttempt2",
             "SellProductSellAttempt3": "SellProductInfrastructureOutpostSellAttempt3",
             "SellProductSellAttempt4": "SellProductInfrastructureOutpostSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
+        "desc": "基建前站设置售卖前派驻干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
+        "desc": "基建前站设置售卖后恢复干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": ""
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -26,12 +26,36 @@
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductBeforeSellOperator": "",
-            "SellProductAfterSellOperator": "",
             "SellProductSellAttempt1": "SellProductCardiacRemediationStationSellAttempt1",
             "SellProductSellAttempt2": "SellProductCardiacRemediationStationSellAttempt2",
             "SellProductSellAttempt3": "SellProductCardiacRemediationStationSellAttempt3",
             "SellProductSellAttempt4": "SellProductCardiacRemediationStationSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖前派驻干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖后恢复干员锚点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
