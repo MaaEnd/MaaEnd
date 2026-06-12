@@ -204,19 +204,17 @@
         ]
     },
     "TrialOfSwordmancyCoatingEnterFreeCalc": {
-        "desc": "按 F 进入自由演算",
-        "recognition": "OCR",
-        "roi": [
-            868,
-            445,
-            119,
-            35
+        "desc": "点击进入演算",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnterTrialMenu"
         ],
-        "expected": [
-            "进入自由演算"
-        ],
-        "action": "ClickKey",
-        "key": 70,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
         "post_delay": 1000,
         "next": [
             "TrialOfSwordmancyCoating1"
