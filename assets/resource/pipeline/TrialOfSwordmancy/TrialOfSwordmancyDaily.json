@@ -61,7 +61,7 @@
             "TrialOfSwordmancyConservativeMainLoop"
         ]
     },
-    // 激进模式：每日3次免费放弃期间，仅8/9/10时开战以利用放弃次数
+    // 激进模式：每日 3 次免费放弃期间，仅 8/9/10 时开战以利用放弃次数
     "TrialOfSwordmancyAggressiveEntry": {
         "desc": "激进模式入口（3次放弃机会）",
         "max_hit": 3, // 此处意为 3 次免费放弃机会
@@ -78,6 +78,7 @@
         "next": [
             "TrialOfSwordmancyDailyBattlePtsOverflow",
             "TrialOfSwordmancyAggressiveShouldDrawCard",
+            "TrialOfSwordmancyDailyResetDoubleReward",
             "TrialOfSwordmancyStartTrial"
         ]
     },
@@ -109,9 +110,11 @@
         "action": "Click",
         "post_delay": 800,
         "next": [
+            "[JumpBack]TrialOfSwordmancyDailyDoubleReward",
             "TrialOfSwordmancyAggressiveMainLoop"
         ]
     },
+    // 激进模式放弃处理
     "TrialOfSwordmancyDailyBattlePtsOverflow": {
         "desc": "检测战力点溢出",
         "recognition": "OCR",
@@ -120,12 +123,11 @@
             "溢出"
         ],
         "next": [
-            "TrialOfSwordmancyDailyGiveUp",
-            "TrialOfSwordmancyConservativeMainLoop"
+            "TrialOfSwordmancyDailyGiveUp"
         ]
     },
     "TrialOfSwordmancyDailyGiveUp": {
-        "desc": "日常放弃当前抽取",
+        "desc": "放弃当前抽取",
         "recognition": "OCR",
         "roi": [154, 593, 114, 87],
         "expected": [
@@ -143,6 +145,21 @@
             "YellowConfirmButtonType1"
         ],
         "action": "Click",
+        "next": [
+            "TrialOfSwordmancyDailyGiveUpAndResetDoubleReward"
+        ]
+    },
+    "TrialOfSwordmancyDailyGiveUpAndResetDoubleReward": {
+        "desc": "激进模式放弃后重置双倍奖励计次",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "TrialOfSwordmancyDailyDoubleReward"
+            ]
+        },
+        // 无 maxhit：未开始演算直接放弃，不消耗双倍奖励机会
         "next": [
             "TrialOfSwordmancyDailyReEnterTrialMenu"
         ]
@@ -163,7 +180,7 @@
             "TrialOfSwordmancyConservativeMainLoop"
         ]
     },
-    // 保守模式：重试耗尽后，6-10均接单
+    // 保守模式：免费放弃次数耗尽后，6-10 均接单
     "TrialOfSwordmancyConservativeMainLoop": {
         "desc": "保守模式抽牌循环",
         "recognition": "And",
@@ -172,6 +189,7 @@
         ],
         "next": [
             "TrialOfSwordmancyConservativeShouldDrawCard",
+            "TrialOfSwordmancyDailyResetDoubleReward",
             "TrialOfSwordmancyStartTrial"
         ]
     },
@@ -204,6 +222,30 @@
         "post_delay": 800,
         "next": [
             "TrialOfSwordmancyConservativeMainLoop"
+        ]
+    },
+    // 双倍奖励处理
+    "TrialOfSwordmancyDailyDoubleReward": {
+        "desc": "开启双倍奖励",
+        "recognition": "TemplateMatch",
+        "roi": [857, 602, 64, 71],
+        "template": "TrialOfSwordmancy/DoubleReward.png",
+        "action": "Click",
+        "max_hit": 1
+    },
+    "TrialOfSwordmancyDailyResetDoubleReward": {
+        "desc": "开始演算后重置双倍奖励计次",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "TrialOfSwordmancyDailyDoubleReward"
+            ]
+        },
+        "max_hit": 2, // 此处意为每天最多使用 2 次双倍奖励
+        "next": [
+            "TrialOfSwordmancyStartTrial"
         ]
     }
 }
