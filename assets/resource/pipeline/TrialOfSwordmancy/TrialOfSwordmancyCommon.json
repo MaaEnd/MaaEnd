@@ -91,5 +91,34 @@
             "TrialOfSwordmancyBattlePts4",
             "TrialOfSwordmancyBattlePts5"
         ]
+    },
+    "TrialOfSwordmancyBattlePtsLessThan8": {
+        "desc": "战力点小于8",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts0",
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4",
+            "TrialOfSwordmancyBattlePts5",
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7"
+        ]
+    },
+    "TrialOfSwordmancyBattlePtsLessThan9": {
+        "desc": "战力点小于9",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts0",
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4",
+            "TrialOfSwordmancyBattlePts5",
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7",
+            "TrialOfSwordmancyBattlePts8"
+        ]
     }
 }
