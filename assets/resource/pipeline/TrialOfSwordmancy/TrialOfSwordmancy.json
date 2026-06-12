@@ -1,0 +1,30 @@
+{
+    "TrialOfSwordmancyMain": {
+        "desc": "选剑演武任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDaily",
+            "TrialOfSwordmancyCoating"
+        ]
+    },
+    "TrialOfSwordmancyDaily": {
+        "enabled": false,
+        "desc": "自动每日选剑演武",
+        "focus": [
+            "task.TrialOfSwordmancy.focus.not_implemented"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "TrialOfSwordmancyCoating": {
+        "enabled": false,
+        "desc": "自动刷镀层",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingMain"
+        ]
+    }
+}

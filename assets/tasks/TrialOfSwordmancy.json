@@ -1,0 +1,48 @@
+{
+    "task": [
+        {
+            "name": "TrialOfSwordmancy",
+            "label": "$task.TrialOfSwordmancy.label",
+            "entry": "TrialOfSwordmancyMain",
+            "description": "$task.TrialOfSwordmancy.description",
+            "option": [
+                "TrialOfSwordmancyMode"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "TrialOfSwordmancyMode": {
+            "type": "select",
+            "label": "$option.TrialOfSwordmancyMode.label",
+            "default_case": "Daily",
+            "cases": [
+                {
+                    "name": "Daily",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Daily.label",
+                    "description": "$option.TrialOfSwordmancyMode.cases.Daily.description",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDaily": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Coating",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Coating.label",
+                    "description": "$option.TrialOfSwordmancyMode.cases.Coating.description",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyCoating": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

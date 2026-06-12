@@ -176,6 +176,7 @@
         "tasks/ReadAllWiki.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
+        "tasks/TrialOfSwordmancy.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         "tasks/WebEvent202605.json",
