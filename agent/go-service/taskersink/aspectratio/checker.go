@@ -22,11 +22,6 @@ const (
 	tolerance    = 0.02
 	targetWidth  = 1280
 	targetHeight = 720
-
-	fullscreenToggleSettleDelay    = 3000 * time.Millisecond
-	fullscreenToggleRecheckTimeout = 8000 * time.Millisecond
-	fullscreenToggleRecheckDelay   = 500 * time.Millisecond
-	altEnterKeyStepDelay           = 80 * time.Millisecond
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
@@ -277,7 +272,7 @@ func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail 
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
 		Msg("Alt+Enter completed, waiting for fullscreen toggle to settle")
-	time.Sleep(fullscreenToggleSettleDelay)
+	time.Sleep(3 * time.Second)
 
 	return recheckResolutionAfterFullscreenToggle(controller, detail, width, height)
 }
@@ -325,7 +320,7 @@ func recheckResolutionAfterFullscreenToggle(controller *maa.Controller, detail m
 		}
 
 		elapsed := time.Since(start)
-		if elapsed >= fullscreenToggleRecheckTimeout {
+		if elapsed >= 8*time.Second {
 			log.Warn().
 				Uint64("task_id", detail.TaskID).
 				Str("entry", detail.Entry).
@@ -337,8 +332,8 @@ func recheckResolutionAfterFullscreenToggle(controller *maa.Controller, detail m
 			return width, height, false
 		}
 
-		sleepDuration := fullscreenToggleRecheckDelay
-		if remaining := fullscreenToggleRecheckTimeout - elapsed; remaining < sleepDuration {
+		sleepDuration := 500 * time.Millisecond
+		if remaining := 8*time.Second - elapsed; remaining < sleepDuration {
 			sleepDuration = remaining
 		}
 		time.Sleep(sleepDuration)
@@ -363,15 +358,15 @@ func sendAltEnterAndWait(controller *maa.Controller) {
 	}()
 
 	controller.PostKeyDown(vkAlt).Wait()
-	time.Sleep(altEnterKeyStepDelay)
+	time.Sleep(80 * time.Millisecond)
 
 	controller.PostKeyDown(vkReturn).Wait()
 	enterReleased = false
-	time.Sleep(altEnterKeyStepDelay)
+	time.Sleep(80 * time.Millisecond)
 
 	controller.PostKeyUp(vkReturn).Wait()
 	enterReleased = true
-	time.Sleep(altEnterKeyStepDelay)
+	time.Sleep(80 * time.Millisecond)
 
 	controller.PostKeyUp(vkAlt).Wait()
 	altReleased = true
