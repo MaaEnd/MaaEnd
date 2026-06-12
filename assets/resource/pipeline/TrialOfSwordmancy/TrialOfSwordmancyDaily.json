@@ -1,0 +1,175 @@
+{
+    "TrialOfSwordmancyDailyMain": {
+        "desc": "日常选剑演武入口",
+        "next": [
+            "TrialOfSwordmancyEnterTrialMenu"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrialMenu": {
+        "desc": "点击进入演算",
+        "max_hit": 3,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            840,
+                            448,
+                            30,
+                            30
+                        ],
+                        "template": "TrialOfSwordmancy/TrialTrigger1.png"
+                    },
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            840,
+                            448,
+                            30,
+                            30
+                        ],
+                        "template": "TrialOfSwordmancy/TrialTrigger2.png"
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": 100,
+        "next": [
+            "TrialOfSwordmancyInTrialMenu"
+        ]
+    },
+    "TrialOfSwordmancyInTrialMenu": {
+        "desc": "确认已在演算菜单界面",
+        "recognition": "OCR",
+        "roi": [
+            49,
+            21,
+            57,
+            16
+        ],
+        "expected": "选剑演武",
+        "next": [
+            "TrialOfSwordmancyDailyMainLoop"
+        ]
+    },
+    "TrialOfSwordmancyDailyMainLoop": {
+        "desc": "日常选剑演武主循环",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyHasResource"
+        ],
+        "next": [
+            "[JumpBack]TrialOfSwordmancyShouldDrawCard",
+            "TrialOfSwordmancyStartTrial"
+        ]
+    },
+    "TrialOfSwordmancyShouldDrawCard": {
+        "desc": "判断是否应该抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyBattlePtsLessThan6",
+            {
+                "type": "Not",
+                "param": "TrialOfSwordmancyCantDrawCard"
+            }
+        ],
+        "next": [
+            "TrialOfSwordmancyDrawCard"
+        ]
+    },
+    "TrialOfSwordmancyDrawCard": {
+        "desc": "抽取铭牌",
+        "recognition": "OCR",
+        "roi": [
+            1161,
+            535,
+            77,
+            20
+        ],
+        "expected": "抽取铭牌",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500, // 多等一会儿，抽牌动画比较长
+        "post_delay": 0
+    },
+    "TrialOfSwordmancyStartTrial": {
+        "desc": "开始演算",
+        "recognition": "TemplateMatch",
+        "roi": [
+            986,
+            628,
+            17,
+            25
+        ],
+        "template": "TrialOfSwordmancy/TrialStart.png",
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "TrialOfSwordmancyChooseTeam"
+        ]
+    },
+    "TrialOfSwordmancyChooseTeam": {
+        "desc": "开始战斗前确认编队", // TODO: 编队切换
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "TrialOfSwordmancyEnterTrial"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrial": {
+        "desc": "进入演算场景",
+        "recognition": "OCR",
+        "roi": [
+            547,
+            222,
+            191,
+            24
+        ],
+        "expected": "挑战目标",
+        "next": [
+            "TrialOfSwordmancyCloseTrialTarget"
+        ]
+    },
+    "TrialOfSwordmancyCloseTrialTarget": {
+        "desc": "关闭挑战目标界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1042,
+            176,
+            119,
+            119
+        ],
+        "template": "Common/Button/CloseButtonType4.png",
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack]AutoFight",
+            "TrialOfSwordmancyFightSuccess"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccess": {
+        "desc": "战斗胜利",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "TrialOfSwordmancyInTrialMenu"
+        ]
+    }
+}

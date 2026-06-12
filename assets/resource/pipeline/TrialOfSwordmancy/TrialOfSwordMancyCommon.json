@@ -1,0 +1,152 @@
+{
+    "TrialOfSwordmancyHasResource": {
+        "desc": "还有奖励次数",
+        "max_hit": 3 // 未实现，先拿 maxhit 顶一下
+    },
+    "TrialOfSwordmancyCantDrawCard": {
+        "desc": "抽卡满5次了，无法抽取铭牌",
+        "recognition": "TemplateMatch",
+        "roi": [
+            915,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/MonsterCard.png"
+    },
+    "TrialOfSwordmancyBattlePts0": {
+        "desc": "战力点0",
+        "recognition": "TemplateMatch",
+        "roi": [
+            156,
+            502,
+            60,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts0.png"
+    },
+    "TrialOfSwordmancyBattlePts1": {
+        "desc": "战力点1",
+        "recognition": "TemplateMatch",
+        "roi": [
+            235,
+            502,
+            57,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts1.png"
+    },
+    "TrialOfSwordmancyBattlePts2": {
+        "desc": "战力点2",
+        "recognition": "TemplateMatch",
+        "roi": [
+            314,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts2.png"
+    },
+    "TrialOfSwordmancyBattlePts3": {
+        "desc": "战力点3",
+        "recognition": "TemplateMatch",
+        "roi": [
+            393,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts3.png"
+    },
+    "TrialOfSwordmancyBattlePts4": {
+        "desc": "战力点4",
+        "recognition": "TemplateMatch",
+        "roi": [
+            472,
+            502,
+            60,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts4.png"
+    },
+    "TrialOfSwordmancyBattlePts5": {
+        "desc": "战力点5",
+        "recognition": "TemplateMatch",
+        "roi": [
+            551,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts5.png"
+    },
+    "TrialOfSwordmancyBattlePts6": {
+        "desc": "战力点6",
+        "recognition": "TemplateMatch",
+        "roi": [
+            630,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts6.png"
+    },
+    "TrialOfSwordmancyBattlePts7": {
+        "desc": "战力点7",
+        "recognition": "TemplateMatch",
+        "roi": [
+            709,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts7.png"
+    },
+    "TrialOfSwordmancyBattlePts8": {
+        "desc": "战力点8",
+        "recognition": "TemplateMatch",
+        "roi": [
+            787,
+            502,
+            60,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts8.png"
+    },
+    "TrialOfSwordmancyBattlePts9": {
+        "desc": "战力点9",
+        "recognition": "TemplateMatch",
+        "roi": [
+            866,
+            502,
+            59,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts9.png"
+    },
+    "TrialOfSwordmancyBattlePts10": {
+        "desc": "战力点10",
+        "recognition": "TemplateMatch",
+        "roi": [
+            945,
+            502,
+            65,
+            34
+        ],
+        "template": "TrialOfSwordmancy/BattlePts10.png"
+    },
+    "TrialOfSwordmancyBattlePtsLessThan6": {
+        "desc": "战力点小于6",
+        "recognition": {
+            "type": "Or",
+            "param": {"any_of": [
+                    "TrialOfSwordmancyBattlePts0",
+                    "TrialOfSwordmancyBattlePts1",
+                    "TrialOfSwordmancyBattlePts2",
+                    "TrialOfSwordmancyBattlePts3",
+                    "TrialOfSwordmancyBattlePts4",
+                    "TrialOfSwordmancyBattlePts5"
+                ]}
+        }
+    }
+}
