@@ -112,6 +112,7 @@
     },
     "__SeizeDeliveryJobsRecoViewCurrentJob": {
         "desc": "寻找查看当前任务详情按钮（仅识别）",
+        "recognition": "TemplateMatch",
         "template": "SeizeDeliveryJobs/DepotNodePage/JobViewButton.png",
         "roi": [
             1170,
