@@ -148,48 +148,19 @@
         "Name": "室内作物",
         "Id": "IndoorCrops",
         "EnterMap": "SceneEnterWorldWulingWulingCity4",
-        "MapName": "map02_lv002",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            240,
-            695,
-            15,
-            15
+            517.16,
+            675.72,
+            31.13,
+            26.64
         ],
-        "MapPath": [
-            [
-                238,
-                703
-            ],
-            [
-                220,
-                705
-            ],
-            [
-                215,
-                716
-            ],
-            [
-                212,
-                727
-            ],
-            [
-                199,
-                729
-            ],
-            [
-                196,
-                721
-            ],
-            [
-                188,
-                721
-            ],
-            [
-                191,
-                729
-            ]
+        "MapTarget": [
+            474.12,
+            716.18
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 180
     },
     {
         "MissionId": "m1m30",

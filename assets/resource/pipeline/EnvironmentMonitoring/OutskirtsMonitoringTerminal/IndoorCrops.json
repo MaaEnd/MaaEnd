@@ -207,18 +207,14 @@
     "GoToIndoorCropsStartPos": {
         "desc": "在室内作物任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                517.16,
+                675.72,
+                31.13,
+                26.64
             ]
         },
         "next": [
@@ -241,42 +237,20 @@
     "GoToIndoorCropsMapTrackerMove": {
         "desc": "前往室内作物",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
-                [
-                    238,
-                    703
-                ],
-                [
-                    220,
-                    705
-                ],
-                [
-                    215,
-                    716
-                ],
-                [
-                    212,
-                    727
-                ],
-                [
-                    199,
-                    729
-                ],
-                [
-                    196,
-                    721
-                ],
-                [
-                    188,
-                    721
-                ],
-                [
-                    191,
-                    729
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        474.12,
+                        716.18
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
             ]
         },
         "anchor": {
