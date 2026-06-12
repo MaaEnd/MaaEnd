@@ -1015,9 +1015,8 @@
     "task.TrialOfSwordmancy.label": "🗡️검술 연무",
     "task.TrialOfSwordmancy.description": "검술 연무 도전을 자동으로 완료합니다",
     "option.TrialOfSwordmancyMode.label": "작업 모드",
+    "option.TrialOfSwordmancyMode.description": "일일 검술 연무는 아직 구현되지 않았습니다. 코팅 파밍은 명함 뽑기 화면에서 시작하세요.",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "일일 검술 연무",
-    "option.TrialOfSwordmancyMode.cases.Daily.description": "이 기능은 아직 구현되지 않았습니다",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "코팅 파밍",
-    "option.TrialOfSwordmancyMode.cases.Coating.description": "명함 뽑기 화면에서 작업을 시작합니다",
     "task.TrialOfSwordmancy.focus.not_implemented": "이 기능은 아직 구현되지 않았습니다"
 }

@@ -1015,9 +1015,8 @@
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
     "task.TrialOfSwordmancy.description": "剣術演武チャレンジを自動的に完了します",
     "option.TrialOfSwordmancyMode.label": "タスクモード",
+    "option.TrialOfSwordmancyMode.description": "デイリー剣術演武はまだ未実装です。コーティング周回は銘牌ガチャ画面から開始してください。",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "デイリー剣術演武",
-    "option.TrialOfSwordmancyMode.cases.Daily.description": "この機能はまだ未実装です",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "コーティング周回",
-    "option.TrialOfSwordmancyMode.cases.Coating.description": "銘牌ガチャ画面からタスクを開始します",
     "task.TrialOfSwordmancy.focus.not_implemented": "この機能はまだ未実装です"
 }
