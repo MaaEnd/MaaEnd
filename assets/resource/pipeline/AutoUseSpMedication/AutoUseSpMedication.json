@@ -98,7 +98,7 @@
                 "template": "Valuables/EmergencySpBoosterExpireSoon.png",
                 "green_mask": true,
                 "threshold": 0.84,
-                "order_by": "Vertical"
+                "order_by": "Score"
             }
         }
     },
