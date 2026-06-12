@@ -199,6 +199,31 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductSkyKingFlatsCloseTargetOperatorContact"
+        ]
+    },
+    "SellProductSkyKingFlatsCloseTargetOperatorContact": {
+        "desc": "天王坪援建点关闭售卖用干员派驻列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorContact",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SellProductSkyKingFlatsTargetOperatorDone"
         ]
     },
@@ -397,6 +422,31 @@
                 160,
                 360,
                 150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsCloseRestoreOperatorContact"
+        ]
+    },
+    "SellProductSkyKingFlatsCloseRestoreOperatorContact": {
+        "desc": "天王坪援建点关闭恢复干员派驻列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorContact",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
             ]
         },
         "post_delay": 0,

@@ -12,20 +12,29 @@
             "image": "四号谷地_地区建设_据点_联络干员_派驻.png",
             "hits": [
                 "SellProductInOperatorContact",
+                "CloseButtonType1",
                 "SellProductInfrastructureOutpostConfirmTargetOperator",
-                "SellProductInfrastructureOutpostConfirmRestoreOperator"
+                "SellProductInfrastructureOutpostConfirmRestoreOperator",
+                "SellProductInfrastructureOutpostCloseTargetOperatorContact",
+                "SellProductInfrastructureOutpostCloseRestoreOperatorContact"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_联络干员_撤下.png",
             "hits": [
-                "SellProductInOperatorContact"
+                "SellProductInOperatorContact",
+                "CloseButtonType1",
+                "SellProductInfrastructureOutpostCloseTargetOperatorContact",
+                "SellProductInfrastructureOutpostCloseRestoreOperatorContact"
             ]
         },
         {
             "image": "武陵_地区建设_据点_联络干员_撤下.png",
             "hits": [
-                "SellProductInOperatorContact"
+                "SellProductInOperatorContact",
+                "CloseButtonType1",
+                "SellProductInfrastructureOutpostCloseTargetOperatorContact",
+                "SellProductInfrastructureOutpostCloseRestoreOperatorContact"
             ]
         }
     ]
