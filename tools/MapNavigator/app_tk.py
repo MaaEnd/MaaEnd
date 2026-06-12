@@ -2416,11 +2416,6 @@ class RouteEditorApp:
             messagebox.showwarning("复制失败", "请先在 A* 模式点击目标点")
             return
 
-        # NAVMESH targets are base-px; convert from the display frame when a tier底图 is shown.
-        tier_id = self._active_display_tier_id()
-        if tier_id is not None:
-            target = self.astar_field.tier_to_base(tier_id, target[0], target[1])
-
         payload = {
             "action": "NAVMESH",
             "target": [
@@ -2428,11 +2423,25 @@ class RouteEditorApp:
                 _compact_number(target[1]),
             ],
         }
+        # When a real tier底图 is shown the click is in that tier's coordinate frame. Emit the
+        # raw tier-frame coordinate plus target_tier (the tier's zone name) and let the runtime
+        # project it onto the base routing frame via the tier's baked affine — do NOT convert
+        # here. (Authoring contract: base targets carry only `target`; tier targets carry
+        # `target` + `target_tier`.)
+        tier_id = self._active_display_tier_id()
+        tier_name = ""
+        if tier_id is not None:
+            zone = self.astar_field.zone_by_id.get(tier_id)
+            if zone is not None and zone.name:
+                tier_name = zone.name
+                payload["target_tier"] = tier_name
+
         target_text = json.dumps(payload, indent=4, ensure_ascii=False)
         self.root.clipboard_clear()
         self.root.clipboard_append(target_text)
         self.root.update()
-        self._set_status(f"NAVMESH 目标已复制: zone={zone_id} target={payload['target']}", "#10b981")
+        tier_note = f" target_tier={tier_name}" if tier_name else ""
+        self._set_status(f"NAVMESH 目标已复制: zone={zone_id} target={payload['target']}{tier_note}", "#10b981")
 
     def copy_assert_location(self) -> None:
         zone_id = self._display_zone_id()

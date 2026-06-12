@@ -164,6 +164,26 @@ In the GUI, clicking `Load BaseNav` enters the same BaseNav preview flow, and `C
 
 **As long as the raw route is reachable without interactions, zone transitions, or special mechanisms, `NAVMESH` only needs a single `target` to carry the character directly to the destination**. You do not need to pre-record the whole path, add intermediate waypoints, or tune the route by hand for that goal. In the GUI, once you click the target, the runtime uses the BaseNav triangle graph to plan an executable route directly.
 
+###### Cross-tier targets: `target_tier`
+
+Without `target_tier`, `target` is interpreted in **base (base-map) coordinates** — that is the default shape above and its behavior is unchanged.
+
+When the destination lives on a **tier (layered sub-map)**, each tier has its **own independent coordinate system**: the same numbers `[123, 456]` denote completely different physical points on the base map versus on a tier. In that case just add a `target_tier` field declaring **which tier's** frame the `target` is authored in:
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [81.77, 108.72],
+    "target_tier": "ValleyIV_L1_171"
+}
+```
+
+- `target`: the coordinate you **click directly after switching to that tier's map in the GUI** — no manual conversion to base.
+- `target_tier`: that tier's **zone name**, i.e. the `name` part after `:` in the GUI's `id:name` tier dropdown.
+- At runtime the affine baked into the `.nav` for that tier projects `target` back onto base coordinates automatically (the same mirror logic that normalizes the start localization), and the goal snaps onto that tier's floor height.
+- This is the only thing needed to target a tier: **one node with `target` + `target_tier`** — no extra `ZONE` node, no intermediate waypoints, no hand-tuned coordinates.
+- The camelCase spelling `targetTier` is also accepted; an unknown tier name is logged as a warning and falls back to treating the target as base coordinates.
+
 #### Return Behavior
 
 `MapNavigateAction` is an Action node, so it does not expose a stable structured recognition output like a Recognition node does. In practice, its result is mainly reflected as:

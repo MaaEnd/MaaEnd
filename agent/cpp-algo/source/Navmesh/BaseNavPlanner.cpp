@@ -379,7 +379,9 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
     // zone) takes precedence; otherwise fall back to the queried zone's own baked floor, captured BEFORE any
     // tier->parent reassignment so the planner's self-sufficient tier-zone branch stays floor-aware. A
     // geometry query with no request floor yields the sentinel -> legacy floor-blind snap, byte-for-byte.
-    const float floor_y = request.floor_y > kBaseNavFloorYValidMin ? request.floor_y : zone->floor_y;
+    const float base_floor = request.floor_y > kBaseNavFloorYValidMin ? request.floor_y : zone->floor_y;
+    const float start_floor = request.start_floor_y > kBaseNavFloorYValidMin ? request.start_floor_y : base_floor;
+    const float goal_floor = request.goal_floor_y > kBaseNavFloorYValidMin ? request.goal_floor_y : base_floor;
     if (IsTierZone(*zone)) {
         const BaseNavZone* parent = pack_.findZone(static_cast<uint16_t>(zone->component_count));
         if (parent == nullptr) {
@@ -395,13 +397,13 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
         zone = parent;
     }
 
-    const auto start = snap(zone->zone_id, start_point, request.snap_radius, floor_y);
+    const auto start = snap(zone->zone_id, start_point, request.snap_radius, start_floor);
     if (!start) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::StartNotWalkable;
         return result;
     }
-    const auto goal = snap(zone->zone_id, goal_point, request.snap_radius, floor_y);
+    const auto goal = snap(zone->zone_id, goal_point, request.snap_radius, goal_floor);
     if (!goal) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::GoalNotWalkable;

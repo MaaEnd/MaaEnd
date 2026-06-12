@@ -32,7 +32,13 @@ struct BaseNavRouteRequest
     std::vector<uint32_t> blocked_triangles;
     // Dominant-floor height of the floor being navigated (from the locator/tier zone). Lets snap resolve
     // onto the right floor of a multi-floor base. kBaseNavFloorYNone (default) keeps the floor-blind path.
+    // Shared fallback for both endpoints; the per-endpoint overrides below take precedence when set.
     float floor_y = kBaseNavFloorYNone;
+    // Per-endpoint floor override. When set (> kBaseNavFloorYValidMin) the start / goal snap uses its own
+    // floor instead of the shared `floor_y` — so a cross-tier route snaps the start onto the live tier's
+    // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
+    float start_floor_y = kBaseNavFloorYNone;
+    float goal_floor_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
