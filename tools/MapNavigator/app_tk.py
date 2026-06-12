@@ -816,7 +816,7 @@ class RouteEditorApp:
             self._set_status("返回路径编辑模式。", "#10b981")
         self._sync_assert_controls()
         self._refresh_zone_label()
-        self.fit_view()
+        self.schedule_redraw(fast=False)
 
     def _sync_astar_controls(self) -> None:
         active = self.astar_mode_var.get()
