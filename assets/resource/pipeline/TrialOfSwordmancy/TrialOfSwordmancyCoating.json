@@ -29,11 +29,11 @@
         "desc": "刷镀层第1次检查战力点",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyCoatingBattlePts1",
-            "TrialOfSwordmancyCoatingBattlePts2",
-            "TrialOfSwordmancyCoatingBattlePts3",
-            "TrialOfSwordmancyCoatingBattlePts4",
-            "TrialOfSwordmancyCoatingBattlePts5"
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4",
+            "TrialOfSwordmancyBattlePts5"
         ],
         "next": [
             "TrialOfSwordmancyCoating2"
@@ -61,11 +61,11 @@
         "desc": "刷镀层第2次检查战力点",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyCoatingBattlePts6",
-            "TrialOfSwordmancyCoatingBattlePts7",
-            "TrialOfSwordmancyCoatingBattlePts8",
-            "TrialOfSwordmancyCoatingBattlePts9",
-            "TrialOfSwordmancyCoatingBattlePts10"
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7",
+            "TrialOfSwordmancyBattlePts8",
+            "TrialOfSwordmancyBattlePts9",
+            "TrialOfSwordmancyBattlePts10"
         ],
         "next": [
             "TrialOfSwordmancyCoating3"
@@ -93,11 +93,11 @@
         "desc": "刷镀层第3次检查战力点",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyCoatingBattlePts0",
-            "TrialOfSwordmancyCoatingBattlePts1",
-            "TrialOfSwordmancyCoatingBattlePts2",
-            "TrialOfSwordmancyCoatingBattlePts3",
-            "TrialOfSwordmancyCoatingBattlePts4"
+            "TrialOfSwordmancyBattlePts0",
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4"
         ],
         "next": [
             "TrialOfSwordmancyCoating4"
@@ -125,11 +125,11 @@
         "desc": "刷镀层第4次检查战力点",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyCoatingBattlePts5",
-            "TrialOfSwordmancyCoatingBattlePts6",
-            "TrialOfSwordmancyCoatingBattlePts7",
-            "TrialOfSwordmancyCoatingBattlePts8",
-            "TrialOfSwordmancyCoatingBattlePts9"
+            "TrialOfSwordmancyBattlePts5",
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7",
+            "TrialOfSwordmancyBattlePts8",
+            "TrialOfSwordmancyBattlePts9"
         ],
         "next": [
             "TrialOfSwordmancyCoating5"
@@ -157,7 +157,7 @@
         "desc": "刷镀层第5次检查战力点",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyCoatingBattlePts10"
+            "TrialOfSwordmancyBattlePts10"
         ],
         "next": []
     },
