@@ -1013,9 +1013,9 @@
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力",
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
-    "task.TrialOfSwordmancy.description": "剣術演武チャレンジを自動的に完了します",
+    "task.TrialOfSwordmancy.description": "デイリー剣術演武 / コーティング周回を自動完了",
     "option.TrialOfSwordmancyMode.label": "タスクモード",
-    "option.TrialOfSwordmancyMode.description": "デイリー剣術演武はまだ未実装です。コーティング周回は銘牌ガチャ画面から開始してください。",
+    "option.TrialOfSwordmancyMode.description": "デイリー剣術演武：自動でカードを引いて戦闘\nコーティング周回：自由演算モード中、銘牌ガチャ画面からタスクを開始してください",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "デイリー剣術演武",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "コーティング周回"
 }

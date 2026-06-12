@@ -1013,9 +1013,9 @@
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",
-    "task.TrialOfSwordmancy.description": "Automatically complete Trial of Swordmancy challenges",
+    "task.TrialOfSwordmancy.description": "Automatically complete Daily Trial of Swordmancy / Farm Coating",
     "option.TrialOfSwordmancyMode.label": "Task Mode",
-    "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy is not yet implemented. For Farm Coating, start from the nameplate drawing screen.",
+    "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy: Auto draw cards and battle\nFarm Coating: Start from the nameplate drawing screen in Free Calculation mode",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "Daily Trial of Swordmancy",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating"
 }
