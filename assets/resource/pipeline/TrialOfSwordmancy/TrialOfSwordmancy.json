@@ -17,10 +17,7 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyMain"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.TrialOfSwordmancy.focus.not_implemented"
-        }
+        ]
     },
     "TrialOfSwordmancyCoating": {
         "desc": "自动刷镀层",

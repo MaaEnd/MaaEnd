@@ -1017,6 +1017,5 @@
     "option.TrialOfSwordmancyMode.label": "Task Mode",
     "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy is not yet implemented. For Farm Coating, start from the nameplate drawing screen.",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "Daily Trial of Swordmancy",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating",
-    "task.TrialOfSwordmancy.focus.not_implemented": "This feature is not yet implemented"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating"
 }

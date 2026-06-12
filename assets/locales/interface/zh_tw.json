@@ -1017,6 +1017,5 @@
     "option.TrialOfSwordmancyMode.label": "任務模式",
     "option.TrialOfSwordmancyMode.description": "每日選劍演武尚未完成。刷鍍層請在抽取銘牌界面開始任務。",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "每日選劍演武",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷鍍層",
-    "task.TrialOfSwordmancy.focus.not_implemented": "此功能尚未完成"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷鍍層"
 }
