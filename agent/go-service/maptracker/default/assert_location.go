@@ -111,7 +111,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 			x, y, w, h := condition.Target[0], condition.Target[1], condition.Target[2], condition.Target[3]
 			if result.X >= x && result.X < x+w && result.Y >= y && result.Y < y+h {
 				log.Info().
-					Interface("expected", condition).
+					Interface("condition", condition).
 					Msg("Location assertion satisfied")
 
 				return &maa.CustomRecognitionResult{
@@ -122,8 +122,17 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		}
 	}
 
-	log.Info().Msg("Location assertion not satisfied, no conditions met")
-	return nil, false
+	log.Info().
+		Str("mapName", result.MapName).
+		Float64("x", result.X).
+		Float64("y", result.Y).
+		Interface("expected", param.Expected).
+		Msg("Location assertion not satisfied, no conditions met")
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: fmt.Sprintf("Expected hit one of %v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.X, result.Y),
+	}, false
 }
 
 func (r *MapTrackerAssertLocation) parseParam(paramStr string) (*MapTrackerAssertLocationParam, error) {

@@ -666,6 +666,9 @@ bool NavigationStateMachine::TickNavigate()
                                               ? nav_run_result.remaining_to_anchor
                                               : route.progress_distance;
         session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
+        // Feed the same signal to the hard watchdog, which recovery escapes can never reset (they only clear
+        // the ordinary ObserveProgress clock). This is what lets the recovery timeout below actually fire.
+        session_->ObserveHardProgress(session_->current_node_idx(), effective_progress, now);
     }
     // An OffCorridor replan rebuilds a genuinely different (usually longer) corridor, so reset the stall
     // counter to not penalize the new route. A ProgressRegression replan, by contrast, fires *because* the
@@ -762,7 +765,13 @@ bool NavigationStateMachine::TickNavigate()
                 recovery.anchor_index = anchor->first;
             }
 
-            const int64_t recovery_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.started_at).count();
+            // Measure the recovery timeout from the session hard-progress clock, not this episode's
+            // recovery.started_at. Every small jump "escape" calls recovery.Reset() + ResetProgress(), which
+            // re-stamps started_at and the ordinary stall clock — so a started_at-based elapsed never grows and
+            // the agent can thrash in place indefinitely (observed: ~6 min, 1094 jumps, 0 timeouts). The hard
+            // clock only advances on genuine net progress toward the waypoint, so a livelock now trips the
+            // emergency stop after kDynamicRecoveryTotalTimeoutMs of real no-progress.
+            const int64_t recovery_elapsed_ms = session_->HardStalledMs(now);
             if (recovery_elapsed_ms > kDynamicRecoveryTotalTimeoutMs) {
                 return FailNavigation(
                     "dynamic_recovery_timeout",

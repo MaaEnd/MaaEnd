@@ -232,6 +232,7 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
     RequireCurrentWaypoint(reason);
     ++current_node_idx_;
     ResetProgress();
+    ResetHardProgress();
 }
 
 void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const char* reason)
@@ -248,6 +249,7 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
     current_node_idx_ = waypoint_idx + 1;
     ResetProgress();
+    ResetHardProgress();
 }
 
 void NavigationSession::ResetProgress()
@@ -288,6 +290,39 @@ double NavigationSession::best_distance_to_target() const
     return best_distance_to_target_;
 }
 
+void NavigationSession::ObserveHardProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now)
+{
+    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
+    if (!hard_progress_initialized_ || hard_progress_waypoint_idx_ != waypoint_idx) {
+        hard_progress_waypoint_idx_ = waypoint_idx;
+        hard_best_distance_ = actual_distance;
+        hard_last_progress_time_ = now;
+        hard_progress_initialized_ = true;
+        return;
+    }
+
+    if (actual_distance < hard_best_distance_ - progress_epsilon) {
+        hard_best_distance_ = actual_distance;
+        hard_last_progress_time_ = now;
+    }
+}
+
+int64_t NavigationSession::HardStalledMs(const std::chrono::steady_clock::time_point& now) const
+{
+    if (!hard_progress_initialized_ || hard_last_progress_time_.time_since_epoch().count() == 0) {
+        return 0;
+    }
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - hard_last_progress_time_).count();
+}
+
+void NavigationSession::ResetHardProgress()
+{
+    hard_progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
+    hard_best_distance_ = std::numeric_limits<double>::max();
+    hard_last_progress_time_ = {};
+    hard_progress_initialized_ = false;
+}
+
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
     assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
@@ -300,6 +335,7 @@ void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_pref
     current_node_idx_ = 0;
     current_zone_id_ = pos.zone_id;
     ResetProgress();
+    ResetHardProgress();
     LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size())
             << VAR(pos.x) << VAR(pos.y) << VAR(pos.zone_id);
 }

@@ -7,32 +7,32 @@ import (
 	"math"
 )
 
-type astarPoint struct {
+type algoPoint struct {
 	x float64
 	y float64
 }
 
-type astarEdge struct {
+type algoEdge struct {
 	to   int
 	cost float64
 }
 
-func astarPath(points map[int]astarPoint, adjacency map[int][]astarEdge, startID, targetID int) ([]int, error) {
-	open := &astarPriorityQueue{}
+func dijkstraPath(adjacency map[int][]algoEdge, startID, targetID int) ([]int, error) {
+	open := &dijkstraPriorityQueue{}
 	heap.Init(open)
-	heap.Push(open, astarQueueItem{id: startID, priority: 0})
+	heap.Push(open, dijkstraQueueItem{id: startID, priority: 0})
 
 	cameFrom := map[int]int{}
 	gScore := map[int]float64{startID: 0}
 	closed := map[int]bool{}
 
 	for open.Len() > 0 {
-		current := heap.Pop(open).(astarQueueItem).id
+		current := heap.Pop(open).(dijkstraQueueItem).id
 		if closed[current] {
 			continue
 		}
 		if current == targetID {
-			return reconstructAstarPath(cameFrom, current), nil
+			return reconstructDijkstraPath(cameFrom, current), nil
 		}
 		closed[current] = true
 
@@ -47,15 +47,14 @@ func astarPath(points map[int]astarPoint, adjacency map[int][]astarEdge, startID
 			}
 			cameFrom[edge.to] = current
 			gScore[edge.to] = tentativeG
-			priority := tentativeG + astarDistance(points[edge.to], points[targetID])
-			heap.Push(open, astarQueueItem{id: edge.to, priority: priority})
+			heap.Push(open, dijkstraQueueItem{id: edge.to, priority: tentativeG})
 		}
 	}
 
-	return nil, fmt.Errorf("astar path not found")
+	return nil, fmt.Errorf("dijkstra path not found")
 }
 
-func reconstructAstarPath(cameFrom map[int]int, current int) []int {
+func reconstructDijkstraPath(cameFrom map[int]int, current int) []int {
 	path := []int{current}
 	for {
 		prev, ok := cameFrom[current]
@@ -71,33 +70,29 @@ func reconstructAstarPath(cameFrom map[int]int, current int) []int {
 	return path
 }
 
-func astarDistance(a, b astarPoint) float64 {
-	return math.Hypot(a.x-b.x, a.y-b.y)
-}
-
-type astarQueueItem struct {
+type dijkstraQueueItem struct {
 	id       int
 	priority float64
 }
 
-type astarPriorityQueue []astarQueueItem
+type dijkstraPriorityQueue []dijkstraQueueItem
 
-func (q astarPriorityQueue) Len() int { return len(q) }
+func (q dijkstraPriorityQueue) Len() int { return len(q) }
 
-func (q astarPriorityQueue) Less(i, j int) bool {
+func (q dijkstraPriorityQueue) Less(i, j int) bool {
 	if math.Abs(q[i].priority-q[j].priority) < 1e-9 {
 		return q[i].id < q[j].id
 	}
 	return q[i].priority < q[j].priority
 }
 
-func (q astarPriorityQueue) Swap(i, j int) { q[i], q[j] = q[j], q[i] }
+func (q dijkstraPriorityQueue) Swap(i, j int) { q[i], q[j] = q[j], q[i] }
 
-func (q *astarPriorityQueue) Push(x any) {
-	*q = append(*q, x.(astarQueueItem))
+func (q *dijkstraPriorityQueue) Push(x any) {
+	*q = append(*q, x.(dijkstraQueueItem))
 }
 
-func (q *astarPriorityQueue) Pop() any {
+func (q *dijkstraPriorityQueue) Pop() any {
 	old := *q
 	item := old[len(old)-1]
 	*q = old[:len(old)-1]

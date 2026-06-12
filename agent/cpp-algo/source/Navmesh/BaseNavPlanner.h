@@ -30,6 +30,15 @@ struct BaseNavRouteRequest
     double snap_radius = 5.0;
     double max_cost = 0.0;
     std::vector<uint32_t> blocked_triangles;
+    // Dominant-floor height of the floor being navigated (from the locator/tier zone). Lets snap resolve
+    // onto the right floor of a multi-floor base. kBaseNavFloorYNone (default) keeps the floor-blind path.
+    // Shared fallback for both endpoints; the per-endpoint overrides below take precedence when set.
+    float floor_y = kBaseNavFloorYNone;
+    // Per-endpoint floor override. When set (> kBaseNavFloorYValidMin) the start / goal snap uses its own
+    // floor instead of the shared `floor_y` — so a cross-tier route snaps the start onto the live tier's
+    // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
+    float start_floor_y = kBaseNavFloorYNone;
+    float goal_floor_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
@@ -57,7 +66,12 @@ public:
     explicit BaseNavPlanner(const BaseNavPack& pack);
 
     BaseNavRouteResult findPath(const BaseNavRouteRequest& request) const;
-    std::optional<BaseNavSnapResult> snap(uint16_t zone_id, const WorldPoint& point, double radius) const;
+    // `floor_y` re-ranks the snap onto the correct floor of a multi-floor base: surfaces within
+    // kBaseNavFloorBand of it are preferred, off-band ones are a graceful fallback (never gated to
+    // nullopt). kBaseNavFloorYNone (the default) keeps the legacy floor-blind behavior byte-for-byte.
+    // Mirrors basenav_preview.py BaseNavField.snap.
+    std::optional<BaseNavSnapResult> snap(
+        uint16_t zone_id, const WorldPoint& point, double radius, float floor_y = kBaseNavFloorYNone) const;
 
     // Navmesh raycast: true when the straight segment a->b stays on walkable mesh within `zone_id`.
     // Fails closed on any ambiguity.
@@ -99,7 +113,13 @@ private:
     // LOS 拉直的可行性判据,取代抽稀中的 march:沿 a→b 采样,要求每点在网格内、且相邻采样的地面高度
     // 跳变不超过 kBridgeMaxHeightDelta。共面捷径全程平坦判可走(被拉直至中线),绕墙捷径因踩墙跳变判
     // 不可走(直角得以保留)。march 在共面重叠缝处误判不可走、使抽稀拉不直,故改用此高度连续性判据。
-    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    // blocked 非空(绕障查询)时,直线踩入任一被封堵三角形即判不可走——即直线穿回障碍本身;反之直线
+    // 全程绕开封堵集,才作为两端真实可衔接的可达性证明被接受。
+    bool segmentHeightWalkable(
+        uint16_t zone_id,
+        const WorldPoint& a,
+        const WorldPoint& b,
+        const std::vector<uint8_t>* blocked = nullptr) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> sharedEdgePortal(uint32_t lhs, uint32_t rhs) const;
     std::optional<WorldPoint> sharedEdgeMidpoint(uint32_t lhs, uint32_t rhs) const;

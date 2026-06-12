@@ -162,6 +162,10 @@ func (aca *ADBControlAdaptor) PlayerJump() {
 	aca.TouchClick(jumpButtonContact, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
 }
 
+func (aca *ADBControlAdaptor) ResetCamera() {
+	// ADB has no need to reset camera
+}
+
 func (aca *ADBControlAdaptor) AggressivelyResetCamera() {
 	// ADB has no need to reset camera aggressively
 }

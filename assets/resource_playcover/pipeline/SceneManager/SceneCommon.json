@@ -1,0 +1,28 @@
+{
+    // PlayCover 控制器没有任何按键能力（ClickKey / KeyDown / KeyUp / InputText 均被
+    // libMaaPlayCoverControlUnit 拒绝，日志为 "not supported on PlayCover"），
+    // 因此 resource_adb 把 ESC 重映射成 BACK 按键（key=4）在 PlayCover 上同样无法执行。
+    //
+    // 这里用「三种标准返回键」的纯触摸点击来替代 ESC：识别到其中之一即点击，
+    // 所有界面都至少包含其一。
+    //   - CloseButtonType1：右上角两种 X（普通面板 X + 圆形菜单 X，已聚合 5 种变体），优先
+    //   - ProtosyncMenuButton：大世界右上角「手表」（协议同步器），大世界叠加态下的兜底返回入口
+    // 仅复用上述节点的识别框；它们各自的 action / next（含 Alt+点击链）不会被执行。
+    "__ScenePrivateAnyExit": {
+        "desc": "PlayCover 触摸版退出场景：识别右上角 X 或大世界手表并点击（无 ESC 按键可用）",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ProtosyncMenuButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 600
+    }
+}

@@ -29,9 +29,15 @@ public:
     bool LastCaptureWasBlackScreen() const;
     int HeldFixStreak() const;
 
+    // Optional post-locate hook: maps every successful fix onto a common coordinate frame at the single
+    // capture chokepoint (so every consumer — WaitForFix, the state machine, semantic nodes — sees the
+    // same frame). Defaults to absent, i.e. the raw locator output is passed through unchanged.
+    void SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer);
+
 private:
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
+    std::function<void(NaviPosition&)> position_normalizer_;
     bool uses_adb_minimap_roi_ = false;
     bool last_capture_was_held_ = false;
     bool last_capture_was_black_screen_ = false;

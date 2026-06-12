@@ -57,6 +57,11 @@ struct Waypoint
     bool heading_uses_target;
     double heading_angle;
     std::string zone_id;
+    // NAVMESH only: the tier whose coordinate frame `target` (x, y) is expressed in. The expander projects
+    // the goal through this tier's baked affine onto the base-pixel routing frame at expand time (the mirror
+    // of NormalizeLivePositionToBase on the start). Empty -> the target is already base-pixel (legacy
+    // authoring), so projection is the identity and behavior is byte-for-byte unchanged.
+    std::string target_tier;
 
     double GetLookahead() const
     {

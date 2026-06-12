@@ -59,6 +59,18 @@
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
+    "__ScenePrivateMapAnyEnterMapWulingSwordVaultDale": {
+        "desc": "在任意地图界面，进入武陵-藏剑谷地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
@@ -100,6 +112,15 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess": {
+        "desc": "在地图界面，成功进入武陵-藏剑谷地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -241,6 +262,29 @@
             "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea"
         ]
     },
+    "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale": {
+        "desc": "在地图总览界面，进入武陵-藏剑谷地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale"
+        ]
+    },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "action": "Click",
@@ -304,6 +348,19 @@
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale": {
+        "desc": "在武陵总览界面，进入武陵-藏剑谷地图",
+        "action": "Click",
+        "target": [
+            825,
+            537,
+            88,
+            78
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
@@ -447,6 +504,20 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldAnchorWithPick": {
+        "desc": "在武陵-藏剑谷地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
         ],
         "pre_delay": 0,
         "post_delay": 0,

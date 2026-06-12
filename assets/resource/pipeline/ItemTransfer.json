@@ -317,6 +317,25 @@
         "action": "KeyUp",
         "key": 17,
         "next": [
+            "ItemTransferCheckIfBagFull",
+            "ItemTransferBagToOriginRepo"
+        ]
+    },
+    "ItemTransferCheckIfBagFull": {
+        "recognition": "OCR",
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
+        "expected": [
+            "已满",
+            "已滿",
+            "(?i)Full",
+            "FULL"
+        ],
+        "next": [
             "ItemTransferSwitchRepoToDestination"
         ]
     },
@@ -742,7 +761,8 @@
             "max_distance": 1
         },
         "next": [
-            "ItemTransferSwitchRepoToDestination"
+            "ItemTransferCheckIfBagFull",
+            "ItemTransferBagToOriginRepo"
         ]
     },
     "ItemTransferFindItemWithOCRBag": {
@@ -783,7 +803,8 @@
             "max_distance": 1
         },
         "next": [
-            "ItemTransferSwitchRepoToDestination"
+            "ItemTransferCheckIfBagFull",
+            "ItemTransferBagToOriginRepo"
         ]
     },
     "ItemTransferFindItemFallbackBag": {

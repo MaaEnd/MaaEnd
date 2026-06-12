@@ -29,7 +29,7 @@ constexpr size_t kZonePrefixSize = 44;
 constexpr size_t kVertexSize = 12;
 constexpr size_t kTriangleSize = 36;
 constexpr size_t kLinkSize = 8;
-constexpr uint16_t kBaseNavVersion = 2;
+constexpr uint16_t kBaseNavRevision = 3;
 constexpr size_t kGzipReadChunkSize = 4 << 20;
 constexpr uint64_t kFnvOffset = 14'695'981'039'346'656'037ULL;
 constexpr uint64_t kFnvPrime = 1'099'511'628'211ULL;
@@ -248,9 +248,10 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     const uint8_t* header_cursor = file_bytes.data() + 4;
     const uint16_t version = ReadU16(header_cursor);
     (void)ReadU16(header_cursor); // flags
-    if (version != kBaseNavVersion) {
+    if (version == 0 || version > kBaseNavRevision) {
         return Fail(BaseNavLoadStatus::UnsupportedVersion, "unsupported nav version");
     }
+    const size_t zone_prefix_size = kZonePrefixSize + (version >= kBaseNavRevision ? 4 : 0);
     const uint32_t zone_count = ReadU32(header_cursor);
     const uint32_t vertex_count = ReadU32(header_cursor);
     const uint32_t triangle_count = ReadU32(header_cursor);
@@ -288,7 +289,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     std::set<uint16_t> zone_ids;
     const uint8_t* zone_cursor = zone_table;
     for (uint32_t index = 0; index < zone_count; ++index) {
-        if (static_cast<size_t>(zone_end - zone_cursor) < kZonePrefixSize) {
+        if (static_cast<size_t>(zone_end - zone_cursor) < zone_prefix_size) {
             return Fail(BaseNavLoadStatus::InvalidSize, "zone table is truncated");
         }
         BaseNavZone zone;
@@ -302,6 +303,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         zone.height = ReadF32(zone_cursor);
         for (float& value : zone.transform) {
             value = ReadF32(zone_cursor);
+        }
+        if (version >= kBaseNavRevision) {
+            // current revision carries one extra per-zone value here; earlier packs leave it
+            // at its sentinel.
+            zone.floor_y = ReadF32(zone_cursor);
         }
         if (static_cast<size_t>(zone_end - zone_cursor) < name_size) {
             return Fail(BaseNavLoadStatus::InvalidSize, "zone name is truncated");
@@ -391,7 +397,23 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         }
         selected_zone->first_triangle = 0;
         selected_zone->triangle_count = static_cast<uint32_t>(triangles.size());
-        zones = { *selected_zone };
+        // Keep the selected geometry zone PLUS its tier children (zones whose component_count points
+        // back at it). Tier zones are 0-triangle affine metadata, so retaining them never touches the
+        // sliced geometry / snap graph / golden-hash parity (this in-memory vector is not serialized) —
+        // it just lets a zone-scoped pack still resolve a tier zone_id to base via its OWN baked affine,
+        // mirroring the python loader which holds every zone.
+        std::vector<BaseNavZone> scoped_zones;
+        scoped_zones.reserve(zones.size());
+        scoped_zones.push_back(*selected_zone);
+        for (const BaseNavZone& candidate : zones) {
+            if (IsTierZone(candidate) && candidate.component_count == selected_zone->zone_id) {
+                BaseNavZone tier = candidate;
+                tier.first_triangle = 0;
+                tier.triangle_count = 0;
+                scoped_zones.push_back(std::move(tier));
+            }
+        }
+        zones = std::move(scoped_zones);
     }
 
     std::vector<BaseNavLink> links;

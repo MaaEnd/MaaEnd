@@ -113,7 +113,19 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     out_pos->timestamp = capture_started_at;
     last_capture_was_held_ = locate_result.position->isHeld;
     held_fix_streak_ = last_capture_was_held_ ? (held_fix_streak_ + 1) : 0;
+
+    // Single chokepoint: every capture path (semantic nodes, the state machine, WaitForFix) funnels
+    // through here, and out_pos is always repopulated from the fresh locate result above before this
+    // runs, so the normalizer is applied exactly once per fix — double-transform is impossible.
+    if (position_normalizer_) {
+        position_normalizer_(*out_pos);
+    }
     return true;
+}
+
+void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
+{
+    position_normalizer_ = std::move(normalizer);
 }
 
 bool PositionProvider::WaitForFix(

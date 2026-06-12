@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <optional>
 #include <utility>
 
 #include "BaseNavPack.h"
@@ -57,6 +58,39 @@ const BaseNavZone* BaseNavPack::findZoneByName(const std::string& name) const
 {
     const auto iter = std::find_if(zones_.begin(), zones_.end(), [&name](const BaseNavZone& zone) { return zone.name == name; });
     return iter == zones_.end() ? nullptr : &*iter;
+}
+
+std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::string& zone_name, double x, double y) const
+{
+    const BaseNavZone* zone = findZoneByName(zone_name);
+    if (zone == nullptr) {
+        return std::nullopt;
+    }
+    if (!IsTierZone(*zone)) {
+        // Geometry zone: python's geometry_zone_id() returns self and applies no affine.
+        return BaseNavBaseProjection { zone, x, y, false };
+    }
+    const BaseNavZone* parent = findZone(static_cast<uint16_t>(zone->component_count));
+    if (parent == nullptr) {
+        return std::nullopt;
+    }
+    // base = s * tier + t, with transform = {sx, tx, sy, ty} — byte-identical to basenav_preview.py.
+    const std::array<float, 4>& t = zone->transform;
+    return BaseNavBaseProjection {
+        parent,
+        static_cast<double>(t[0]) * x + static_cast<double>(t[1]),
+        static_cast<double>(t[2]) * y + static_cast<double>(t[3]),
+        true,
+    };
+}
+
+float BaseNavPack::floorYForZoneName(const std::string& zone_name) const
+{
+    const BaseNavZone* zone = findZoneByName(zone_name);
+    if (zone == nullptr || zone->floor_y <= kBaseNavFloorYValidMin) {
+        return kBaseNavFloorYNone;
+    }
+    return zone->floor_y;
 }
 
 const char* ToString(BaseNavLoadStatus status)

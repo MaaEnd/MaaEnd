@@ -28,6 +28,9 @@ bool NaviController::Navigate(const NaviParam& param)
     ActionWrapper action_wrapper(ctx_);
     PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator());
     position_provider.ResetTracking();
+    if (param.normalize_position_via_navmesh) {
+        position_provider.SetPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
+    }
     const char* controller_type = action_wrapper.controller_type();
     const bool uses_touch_backend = action_wrapper.uses_touch_backend();
     LogInfo << "MapNavigator controller initialized." << VAR(controller_type) << VAR(uses_touch_backend);

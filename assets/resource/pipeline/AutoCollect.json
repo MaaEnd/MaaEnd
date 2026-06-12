@@ -53,6 +53,14 @@
                 "AutoCollectRoute12Sub",
                 "AutoCollectRoute13Sub",
                 "AutoCollectRoute14Sub",
+                "AutoCollectCommonRoute1Sub",
+                "AutoCollectCommonRoute2Sub",
+                "AutoCollectCommonRoute3Sub",
+                "AutoCollectCommonRoute4Sub",
+                "AutoCollectCommonRoute5Sub",
+                "AutoCollectCommonRoute6Sub",
+                "AutoCollectCommonRoute7Sub",
+                "AutoCollectCommonRoute8Sub",
                 "StashBackpackSubTask"
             ],
             "continue": true,
@@ -190,6 +198,78 @@
         "post_delay": 0,
         "next": [
             "AutoCollectRoute14Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute1Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute1Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute2Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute2Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute3Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute3Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute4Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute4Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute5Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute5Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute6Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute6Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute7Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute7Start",
+            "EmptyNode"
+        ]
+    },
+    "AutoCollectCommonRoute8Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectCommonRoute8Start",
             "EmptyNode"
         ]
     }

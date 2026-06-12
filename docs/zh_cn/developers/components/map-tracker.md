@@ -121,7 +121,11 @@
 
 🧭 基于 NavMesh 自动规划路径，并操控玩家移动到指定目标。
 
-此节点会先识别玩家当前位置，再读取 `assets/data/MapTrackerNavMesh/{map_name}.mtnm` 中的 NavMesh 数据，将当前位置和目标点临时连接到路网中，通过 A\* 规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
+#### 工作原理
+
+此节点会先识别玩家当前位置，再读取 NavMesh 路网数据，将当前位置和目标点临时连接到路网中，通过 Dijkstra 算法规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
+
+若主动指定了滑索策略，还会在寻路前自动扫描大地图中的滑索点位，并将滑索纳入寻路考量中。
 
 #### 节点参数
 
@@ -135,7 +139,16 @@
 
 可选参数：
 
-- 其他参数同 [MapTrackerMove](#action-maptrackermove)，会透传给最终的移动过程，例如 `fine_approach`、`arrival_timeout`、`stuck_mitigators` 等。
+- `zipline_policy`: 字符串，默认 `"Never"`。控制使用滑索的积极程度。可选值：
+
+    | 选项值         | 含义                       | 适用场景                     |
+    | -------------- | -------------------------- | ---------------------------- |
+    | `"Never"`      | 始终不使用滑索（默认）     | 大多数场景                   |
+    | `"Lazy"`       | 仅在极端情况下使用滑索     | 需要跨越水域等不可通行区域时 |
+    | `"Active"`     | 像人类玩家一样主动使用滑索 | 不可通行区域较多且路程较长时 |
+    | `"Aggressive"` | 非常积极地使用滑索         | 一般不推荐                   |
+
+- 其他参数：支持补充填写 [MapTrackerMove](#action-maptrackermove) 的各个参数，这会透传给最终的移动过程，例如 `fine_approach`、`arrival_timeout`、`stuck_mitigators` 等。
 
 > [!TIP]
 >
@@ -178,9 +191,65 @@
 }
 ```
 
+> [!TIP]
+>
+> 实体信息可在 [assets/data/ZmdMap/maaend_entities.json](/assets/data/ZmdMap/maaend_entities.json) 文件中查找，并使用 [ZmdMap 网站](https://zmdmap.com)进行对照。
+
 > [!WARNING]
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且目标点能够通过对应 NavMesh 路网抵达。
+
+### Action: MapTrackerZipline
+
+🎢 让滑索架上的玩家转向下一个指定的滑索架，对准后自动执行滑索移动。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。
+
+- `target`: 下一个滑索架所处的地图坐标 `[x, y]`。
+
+可选参数：
+
+- `rotation_threshold`: 介于 $(0, 180)$ 的正实数，默认 `9.0`。判断已朝向目标滑索点的方向角偏离阈值，单位是度。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `timeout`: 正整数，默认 `15000`。转向目标滑索架，以及执行滑索移动操作的超时时间，单位是毫秒。
+
+- `map_name_match_rule`: 含义同 [MapTrackerMove](#action-maptrackermove) 节点中的 `map_name_match_rule` 参数。
+
+</details>
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerZipline",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                114.0,
+                514.0
+            ]
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> 此节点全程**在滑索架上**完成。即，节点被调用时，要求玩家已经在滑索架上；节点执行完毕后，玩家不会自动下滑索架。
+
+> [!WARNING]
+>
+> 若目标滑索架无法抵达（滑索架未通电、滑索架不存在、障碍物阻挡），此节点会立即返回失败。
 
 ### Recognition: MapTrackerAssertLocation
 
@@ -240,11 +309,11 @@
 
 - `template`: 模板图片路径。注意这个路径是相对于 `assets/resource` 目录的，例如 `image/MapTracker/BigMapIcons/Pointer.png`（玩家指针图标）。
 
-- `expected`: 布尔值、非负整数、或者由 4 个实数组成的列表 `[x, y, w, h]`。控制命中识别的条件，具体含义如下：
+- `expected`: 布尔值、非负整数、或者条件对象。控制命中识别的条件，具体含义如下：
     - 如果是布尔值 `true`，则表示找到至少一个匹配结果即可命中识别；
     - 如果是布尔值 `false`，则表示找不到匹配结果才能命中识别；
     - 如果是非负整数 `n`，则表示匹配到恰好 `n` 个结果才能命中识别；
-    - 如果是列表 `[x, y, w, h]`，则表示指定的矩形坐标区域内有至少一个匹配结果才能命中识别。
+    - 如果是对象 `{"map_name": "...", "target": [x, y, w, h]}`，则表示指定的地图的矩形坐标区域内有至少一个匹配结果才能命中识别。
 
 可选参数：
 
@@ -275,12 +344,15 @@
         "custom_recognition": "MapTrackerBigMapFindImage",
         "custom_recognition_param": {
             "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
-            "expected": [
-                114,
-                514,
-                19,
-                19
-            ],
+            "expected": {
+                "map_name": "map02_lv005",
+                "target": [
+                    114,
+                    514,
+                    19,
+                    19
+                ]
+            },
             "green_mask": true,
             "zoom_value": 0.25
         },

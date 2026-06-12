@@ -18,6 +18,17 @@ import (
 	xdraw "golang.org/x/image/draw"
 )
 
+// ImageCopy creates a deep copy of an *image.RGBA.
+func ImageCopy(img *image.RGBA) *image.RGBA {
+	if img == nil {
+		return nil
+	}
+	b := img.Bounds()
+	dst := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+	draw.Draw(dst, dst.Bounds(), img, b.Min, draw.Src)
+	return dst
+}
+
 // ImageCropRect crops a rectangular region from the image and clips it to bounds.
 func ImageCropRect(img *image.RGBA, rect image.Rectangle) *image.RGBA {
 	if img == nil {
@@ -30,6 +41,17 @@ func ImageCropRect(img *image.RGBA, rect image.Rectangle) *image.RGBA {
 	}
 	dst := image.NewRGBA(image.Rect(0, 0, clipped.Dx(), clipped.Dy()))
 	draw.Draw(dst, dst.Bounds(), img, clipped.Min, draw.Src)
+	return dst
+}
+
+// ImageCropSquareByRadius crops a square region from the image centered at (centerX, centerY) with the given radius
+func ImageCropSquareByRadius(img *image.RGBA, centerX, centerY, radius int) *image.RGBA {
+	x1, x2 := max(img.Rect.Min.X, centerX-radius), min(img.Rect.Max.X, centerX+radius+1)
+	y1, y2 := max(img.Rect.Min.Y, centerY-radius), min(img.Rect.Max.Y, centerY+radius+1)
+
+	cropRect := image.Rect(x1, y1, x2, y2)
+	dst := image.NewRGBA(image.Rect(0, 0, cropRect.Dx(), cropRect.Dy()))
+	draw.Draw(dst, dst.Bounds(), img, cropRect.Min, draw.Src)
 	return dst
 }
 
@@ -49,17 +71,6 @@ func ImageToBase64JPEG(img image.Image, quality int) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
-}
-
-// ImageCropSquareByRadius crops a square region from the image centered at (centerX, centerY) with the given radius
-func ImageCropSquareByRadius(img *image.RGBA, centerX, centerY, radius int) *image.RGBA {
-	x1, x2 := max(img.Rect.Min.X, centerX-radius), min(img.Rect.Max.X, centerX+radius+1)
-	y1, y2 := max(img.Rect.Min.Y, centerY-radius), min(img.Rect.Max.Y, centerY+radius+1)
-
-	cropRect := image.Rect(x1, y1, x2, y2)
-	dst := image.NewRGBA(image.Rect(0, 0, cropRect.Dx(), cropRect.Dy()))
-	draw.Draw(dst, dst.Bounds(), img, cropRect.Min, draw.Src)
-	return dst
 }
 
 // ImageRotate rotates an image by the given angle (degrees) around its center
@@ -316,4 +327,33 @@ func clipLineToRect(x1, y1, x2, y2 int, rect image.Rectangle) (int, int, int, in
 			x2f, y2f = x, y
 		}
 	}
+}
+
+// ImageSimilarity downsamples two images to the specified size and returns template matching similarity.
+// downsamplingSize is [height, width].
+func ImageSimilarity(src *image.RGBA, tmp *image.RGBA, downsamplingSize [2]int) float64 {
+	srcH, srcW := src.Bounds().Dy(), src.Bounds().Dx()
+	tgtH, tgtW := downsamplingSize[0], downsamplingSize[1]
+	if srcH < 1 || srcW < 1 || tgtH < 1 || tgtW < 1 {
+		return 0
+	}
+	if tgtH > srcH || tgtW > srcW {
+		return 0
+	}
+	tgtScaleY := float64(tgtH) / float64(srcH)
+	tgtScaleX := float64(tgtW) / float64(srcW)
+	tgtScale := math.Max(tgtScaleX, tgtScaleY)
+	if tgtScale > 1 {
+		return 0
+	}
+	if tgtScale < 1 {
+		src = ImageScale(src, tgtScale)
+		tmp = ImageScale(tmp, tgtScale)
+	}
+	stats := GetImageStats(tmp)
+	if stats.Std < 1e-6 {
+		return 0
+	}
+	_, _, val := MatchTemplate(src, GetIntegralArray(src), tmp, stats)
+	return val
 }

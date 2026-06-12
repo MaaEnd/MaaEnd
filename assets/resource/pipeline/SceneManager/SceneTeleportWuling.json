@@ -872,8 +872,8 @@
         "custom_action_param": {
             "map_name": "map02_lv002",
             "target": [
-                694,
-                916
+                695.9,
+                917.5
             ],
             "on_find": "Click"
         },
@@ -1144,6 +1144,60 @@
             "target": [
                 336.3,
                 420.1
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
+        "desc": "在地图界面找锚点 (藏剑谷-东谷遗迹)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv006",
+            "target": [
+                578.5,
+                383.2
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
+        "desc": "在地图界面找锚点 (藏剑谷-悬谷台)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv006",
+            "target": [
+                601.6,
+                479.3
             ],
             "on_find": "Click"
         },

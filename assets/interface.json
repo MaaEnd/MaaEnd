@@ -60,7 +60,11 @@
             "type": "PlayCover",
             "playcover": {
                 "uuid": "maa.playcover"
-            }
+            },
+            "attach_resource_path": [
+                "./resource_adb",
+                "./resource_playcover"
+            ]
         },
         {
             "name": "Wlroots",

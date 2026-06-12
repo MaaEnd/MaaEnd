@@ -58,7 +58,8 @@ type mapTrackerBigMapFindImageExpected struct {
 	mode      string
 	boolValue bool
 	count     int
-	rect      [4]float64
+	mapName   string
+	target    [4]float64
 }
 
 func (e *mapTrackerBigMapFindImageExpected) UnmarshalJSON(data []byte) error {
@@ -82,22 +83,32 @@ func (e *mapTrackerBigMapFindImageExpected) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	var rectValue []float64
-	if err := json.Unmarshal(data, &rectValue); err == nil {
-		if len(rectValue) != 4 {
-			return fmt.Errorf("expected rectangle must have 4 numbers [x, y, w, h]")
+	var conditionValue struct {
+		MapName string    `json:"map_name"`
+		Target  []float64 `json:"target"`
+	}
+	if err := json.Unmarshal(data, &conditionValue); err == nil {
+		if conditionValue.MapName == "" {
+			return fmt.Errorf("expected map_name must not be empty")
 		}
-		if rectValue[2] <= 0 || rectValue[3] <= 0 {
-			return fmt.Errorf("expected rectangle width and height must be positive")
+		if len(conditionValue.Target) != 4 {
+			return fmt.Errorf("expected target must have 4 numbers [x, y, w, h]")
 		}
-		*e = mapTrackerBigMapFindImageExpected{mode: findImageExpectedModeRect, rect: [4]float64{rectValue[0], rectValue[1], rectValue[2], rectValue[3]}}
+		if conditionValue.Target[2] <= 0 || conditionValue.Target[3] <= 0 {
+			return fmt.Errorf("expected target width and height must be positive")
+		}
+		*e = mapTrackerBigMapFindImageExpected{
+			mode:    findImageExpectedModeLocation,
+			mapName: conditionValue.MapName,
+			target:  [4]float64{conditionValue.Target[0], conditionValue.Target[1], conditionValue.Target[2], conditionValue.Target[3]},
+		}
 		return nil
 	}
 
-	return fmt.Errorf("expected must be a boolean, non-negative integer, or [x, y, w, h]")
+	return fmt.Errorf("expected must be a boolean, non-negative integer, or {\"map_name\": string, \"target\": [x, y, w, h]}")
 }
 
-func (e mapTrackerBigMapFindImageExpected) isSatisfied(matches []MapTrackerBigMapFindImageMatch) bool {
+func (e mapTrackerBigMapFindImageExpected) isSatisfied(mapName string, matches []MapTrackerBigMapFindImageMatch) bool {
 	switch e.mode {
 	case findImageExpectedModeBool:
 		if e.boolValue {
@@ -106,8 +117,11 @@ func (e mapTrackerBigMapFindImageExpected) isSatisfied(matches []MapTrackerBigMa
 		return len(matches) == 0
 	case findImageExpectedModeCount:
 		return len(matches) == e.count
-	case findImageExpectedModeRect:
-		x, y, w, h := e.rect[0], e.rect[1], e.rect[2], e.rect[3]
+	case findImageExpectedModeLocation:
+		if mapName != e.mapName {
+			return false
+		}
+		x, y, w, h := e.target[0], e.target[1], e.target[2], e.target[3]
 		for _, match := range matches {
 			if match.MapX >= x && match.MapX < x+w && match.MapY >= y && match.MapY < y+h {
 				return true
@@ -118,9 +132,9 @@ func (e mapTrackerBigMapFindImageExpected) isSatisfied(matches []MapTrackerBigMa
 }
 
 const (
-	findImageExpectedModeBool  = "bool"
-	findImageExpectedModeCount = "count"
-	findImageExpectedModeRect  = "rect"
+	findImageExpectedModeBool     = "bool"
+	findImageExpectedModeCount    = "count"
+	findImageExpectedModeLocation = "location"
 )
 
 const (
@@ -244,7 +258,7 @@ func (r *MapTrackerBigMapFindImage) runSingleViewportSearch(
 
 	result := r.matchTemplate(cropped, tpl, param, viewport)
 	saveFindImageDebug(inferRes.MapName, tpl, result)
-	return r.buildResult(arg, param, result, "Big-map FindImage completed")
+	return r.buildResult(arg, param, inferRes.MapName, result, "Big-map FindImage completed")
 }
 
 // runMultiViewportSearch iteratively pans the big map to cover all must-see points,
@@ -345,12 +359,13 @@ func (r *MapTrackerBigMapFindImage) runMultiViewportSearch(
 	}
 
 	saveFindImageDebug(inferRes.MapName, tpl, allMatches)
-	return r.buildResult(arg, param, allMatches, "Big-map multi-viewport FindImage completed")
+	return r.buildResult(arg, param, inferRes.MapName, allMatches, "Big-map multi-viewport FindImage completed")
 }
 
 func (r *MapTrackerBigMapFindImage) buildResult(
 	arg *maa.CustomRecognitionArg,
 	param *MapTrackerBigMapFindImageParam,
+	mapName string,
 	matches []MapTrackerBigMapFindImageMatch,
 	message string,
 ) (*maa.CustomRecognitionResult, bool) {
@@ -370,7 +385,7 @@ func (r *MapTrackerBigMapFindImage) buildResult(
 		return nil, false
 	}
 
-	hit := param.Expected.isSatisfied(matches)
+	hit := param.Expected.isSatisfied(mapName, matches)
 	log.Info().
 		Str("template", param.Template).
 		Int("matches", len(matches)).
@@ -658,7 +673,7 @@ func saveFindImageDebug(mapName string, tpl *minicv.Template, matches []MapTrack
 		return
 	}
 
-	canvas := minicv.ImageConvertRGBA(mapImg)
+	canvas := minicv.ImageCopy(mapImg)
 	tplImg := tpl.Image
 	tplW := tplImg.Rect.Dx()
 	tplH := tplImg.Rect.Dy()

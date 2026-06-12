@@ -366,10 +366,13 @@ void UpdateStateFromRegularWaypoint(const Waypoint& waypoint, NavmeshExpansionSt
 
 navmesh::BaseNavRouteRequest BuildRouteRequest(
     const NaviParam& param,
+    const navmesh::BaseNavPack& pack,
+    const std::string& locator_zone,
     const std::string& navmesh_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    const std::vector<uint32_t>& blocked_triangles = {})
+    const std::vector<uint32_t>& blocked_triangles = {},
+    float goal_floor_y = navmesh::kBaseNavFloorYNone)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
@@ -378,12 +381,40 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     request.snap_radius = param.navmesh_snap_radius;
     request.max_cost = param.navmesh_max_cost;
     request.blocked_triangles = blocked_triangles;
+    // Per-endpoint floor: the start snaps onto the live locator tier's floor; the goal snaps onto its own
+    // declared frame's floor when the caller supplies one (cross-tier targets), otherwise the same start
+    // floor (legacy single-floor behavior). A geometry / base / unknown zone yields the sentinel ->
+    // floor-blind, byte-identical to the pre-floor behavior. Mirrors the python tool's floor_y_for(tier).
+    request.start_floor_y = pack.floorYForZoneName(locator_zone);
+    request.goal_floor_y = goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : request.start_floor_y;
     return request;
 }
 
-navmesh::BaseNavRouteRequest BuildRouteRequest(const NaviParam& param, const NavmeshExpansionState& state, const Waypoint& waypoint)
+struct ProjectedTarget
 {
-    return BuildRouteRequest(param, state.navmesh_zone, state.route_start, { .x = waypoint.x, .y = waypoint.y });
+    navmesh::WorldPoint point;
+    float floor_y = navmesh::kBaseNavFloorYNone;
+};
+
+// Resolve a NAVMESH waypoint's target into the base-pixel routing frame. When the node declares a
+// target_tier (the tier the developer authored the coordinate in), project it through that tier's OWN baked
+// affine — the mirror of NormalizeLivePositionToBase on the start — and carry that tier's floor for the goal
+// snap so the two endpoints land in the same base frame and each snaps onto its own floor. No target_tier
+// (legacy) -> the target is already base-pixel: identity projection, floor-blind, byte-for-byte unchanged.
+// An unknown tier (typo / missing zone) is logged and treated as base-pixel rather than silently mis-routing.
+ProjectedTarget ResolveProjectedTarget(const navmesh::BaseNavPack& pack, const Waypoint& waypoint)
+{
+    const navmesh::WorldPoint raw { .x = waypoint.x, .y = waypoint.y };
+    if (waypoint.target_tier.empty()) {
+        return { raw, navmesh::kBaseNavFloorYNone };
+    }
+    const auto projection = pack.projectToBase(waypoint.target_tier, waypoint.x, waypoint.y);
+    if (!projection) {
+        LogWarn << "NAVMESH target_tier unknown; treating target as base-frame." << VAR(waypoint.target_tier)
+                << VAR(waypoint.x) << VAR(waypoint.y);
+        return { raw, navmesh::kBaseNavFloorYNone };
+    }
+    return { navmesh::WorldPoint { .x = projection->x, .y = projection->y }, pack.floorYForZoneName(waypoint.target_tier) };
 }
 
 void LogGeneratedNavmeshPath(
@@ -407,11 +438,12 @@ void LogGeneratedNavmeshPath(
 bool AppendBlindTargetFallback(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
-    const Waypoint& waypoint,
+    const navmesh::WorldPoint& base_target,
+    float goal_floor_y,
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
-    const navmesh::WorldPoint target { .x = waypoint.x, .y = waypoint.y };
+    const navmesh::WorldPoint target = base_target;
     const navmesh::WorldPoint start = state.route_start;
     const double total = std::hypot(target.x - start.x, target.y - start.y);
     if (total < 1e-6) {
@@ -433,7 +465,8 @@ bool AppendBlindTargetFallback(
             .x = target.x + (start.x - target.x) * t,
             .y = target.y + (start.y - target.y) * t,
         };
-        navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state.navmesh_zone, start, probe);
+        navmesh::BaseNavRouteRequest request =
+            BuildRouteRequest(param, navmesh.pack, state.current_zone, state.navmesh_zone, start, probe, {}, goal_floor_y);
         request.snap_radius = snap_radius;
         const auto route = navmesh.planner.findPath(request);
         if (!route.ok() || route.path.points.empty()) {
@@ -451,7 +484,7 @@ bool AppendBlindTargetFallback(
     }
     if (blind_gap > kBlindTargetMaxExtension) {
         LogWarn << "NAVMESH blind-target fallback rejected: residual gap too large." << VAR(state.navmesh_zone)
-                << VAR(state.current_zone) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(blind_gap)
+                << VAR(state.current_zone) << VAR(target.x) << VAR(target.y) << VAR(blind_gap)
                 << VAR(kBlindTargetMaxExtension);
         return false;
     }
@@ -465,7 +498,7 @@ bool AppendBlindTargetFallback(
     }
     state.route_start = target;
     LogInfo << "NAVMESH blind-target fallback applied." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-            << VAR(waypoint.x) << VAR(waypoint.y) << VAR(blind_gap) << VAR(approach.path.points.back().x)
+            << VAR(target.x) << VAR(target.y) << VAR(blind_gap) << VAR(approach.path.points.back().x)
             << VAR(approach.path.points.back().y);
     return true;
 }
@@ -477,17 +510,19 @@ bool AppendNavmeshWaypoint(
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
-    const navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state, waypoint);
+    const ProjectedTarget target = ResolveProjectedTarget(navmesh.pack, waypoint);
+    const navmesh::BaseNavRouteRequest request = BuildRouteRequest(
+        param, navmesh.pack, state.current_zone, state.navmesh_zone, state.route_start, target.point, {}, target.floor_y);
     const auto route_result = navmesh.planner.findPath(request);
     if (!route_result.ok()) {
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
-                << VAR(state.current_zone) << VAR(waypoint.x) << VAR(waypoint.y)
+                << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y)
                 << VAR(navmesh::ToString(route_result.status));
-        if (AppendBlindTargetFallback(param, navmesh, waypoint, state, out_path)) {
+        if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, state, out_path)) {
             return true;
         }
-        LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(waypoint.x)
-                 << VAR(waypoint.y) << VAR(navmesh::ToString(route_result.status));
+        LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+                 << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
         return false;
     }
 
@@ -551,6 +586,31 @@ navmesh::WorldPoint OffsetPoint(const NaviPosition& position, double heading, do
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
 {
     return ResolveNavmeshFile(configured_path);
+}
+
+void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos)
+{
+    if (pos.zone_id.empty()) {
+        return;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(pos.zone_id, param.map_name);
+    if (navmesh_zone.empty()) {
+        return;
+    }
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return;
+    }
+    const auto projection = navmesh->pack.projectToBase(pos.zone_id, pos.x, pos.y);
+    if (projection && projection->was_tier) {
+        // Tier-template-pixel fix -> navmesh base-pixel via the navmesh's OWN baked affine. zone_id is
+        // kept as the locator naming: zone validation matches against it and InferBaseNavZone already maps
+        // it to the parent geometry zone for routing. Geometry / base-matched / unknown zones never reach
+        // this branch (they project to identity), so this is zero-regression by construction.
+        pos.x = projection->x;
+        pos.y = projection->y;
+    }
 }
 
 std::string InitialExpectedZone(const NaviParam& param)
@@ -629,7 +689,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
         return std::nullopt;
     }
 
-    const auto request = BuildRouteRequest(param, navmesh_zone, start, goal, blocked_triangles);
+    const auto request = BuildRouteRequest(param, navmesh->pack, locator_zone, navmesh_zone, start, goal, blocked_triangles);
     const auto route_result = navmesh->planner.findPath(request);
     if (!route_result.ok()) {
         if (blocked_triangles.empty()) {

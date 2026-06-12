@@ -816,5 +816,19 @@
     "resource/image/SeizeDeliveryJobs/Destinations/MaterialResearchInstitute": "9aa75549915d34ca58b135756b2deddf391a0cb7e7485717f520720fa647e083",
     "resource/image/GiftOperator/Operators/MiFu": "757d28abf2045a26a4336fd50b3d04bbcae150e92f95975b5774f2f7ebd15cf1",
     "resource/image/MapTracker/BigMapIcons/Zipline": "aa4789a971d89ad182e3d7a1da7267773a6bb653d62b055834e2b1acf3110da8",
-    "resource/image/MapTracker/BigMapIcons/Pointer": "050ca2d93062bb44fc6bf73c69e846b9a6568997be8a3aacb2647ed3521d3dcb"
+    "resource/image/MapTracker/BigMapIcons/Pointer": "050ca2d93062bb44fc6bf73c69e846b9a6568997be8a3aacb2647ed3521d3dcb",
+    "resource/image/MapTracker/OpenWorld/ZiplineInteract": "1606db5d65159f118a651d16dac6062c5438802f56ed5db908e1947ab9b7c863",
+    "resource/image/MapTracker/BigMap/RegionOverview": "df452720ed241c77229faa0add8c5c36c1a6bbbdd6fb57d5e1628a748227667f",
+    "resource/image/MapTracker/BigMap/FiltersDialog": "5e619d43834df94a7ea4d7234219173e6a0bf35b051ef9ab0d4fe617376d9a7e",
+    "resource/image/MapTracker/BigMap/FiltersOff": "0e7e978f76021e83bcfe36a6de4ef840616453e5b3fdaffa19828c939d7564d6",
+    "resource/image/MapTracker/BigMap/FilterZiplineOff": "b19c73a4256446d9c27f65931ee19fdaba4e2135131107c3add706667d05c393",
+    "resource/image/MapTracker/BigMap/FiltersOn": "286e1eee67ceb0fafcb6da3bb3d60b5e602fe72c0a808cb27e920c7eed409d86",
+    "resource/image/SeizeDeliveryJobs/TrackTaskButton": "476da5205d64343ce84275dbb8978269172bbb27ca93ad47461424850674705b",
+    "resource/image/SeizeDeliveryJobs/JobViewButton": "ab371759503b48fbfef9635f47a67e888884411e1b115435606ae1dd4afeca8c",
+    "resource/image/SeizeDeliveryJobs/TrackTaskSuccess": "d5a702a9020161fc85558fc097d1c55be8080611408077862900645b0988478a",
+    "resource/image/SeizeDeliveryJobs/BlueTaskLocation": "e72f2e5247318eb714ff8494c15bb46713090b9ac54bf88b2686d5756645af29",
+    "resource/image/SeizeDeliveryJobs/JobListTab": "d956973af531e29ccca51b04998b7eec1f671ffd5a657bdfb69c5e87f50856c1",
+    "resource/image/SeizeDeliveryJobs/SubmitGood": "332e810540704b3df63777d378c58e35cfa667b6b47404f9294302b562cbfc30",
+    "resource/image/SeizeDeliveryJobs/JobListTabActive": "bcbe83d938792ca385bd80257a748f9db908e547eb2a7bcc869c939456613015",
+    "resource/image/SeizeDeliveryJobs/InWulingDepotNode": "0f9c84dd024932d14a587dfcfe165351085a0a85a18449b5d3b2eb2590d08ea5"
 }

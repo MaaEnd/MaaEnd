@@ -135,6 +135,73 @@ func TestTemporaryEdgeCostUsesMaxCostFactorBetweenTemporaryVertices(t *testing.T
 	}
 }
 
+func TestRuntimeZiplineEdgesAffectPath(t *testing.T) {
+	mesh, err := ParseNavMesh(strings.NewReader(`[MapTrackerNavMesh.Meta]
+Version=1
+Encoding=UTF-8
+Name=map_test_lv001
+Description=Test navmesh
+MapRegionName=map_test
+MapLevelName=lv001
+GeoWidth=100.0
+GeoHeight=100.0
+
+[MapTrackerNavMesh.Vertices]
+V1=X0,Y0,T0,E0,F()
+V2=X10,Y0,T0,E0,F()
+V3=X20,Y0,T0,E0,F()
+V4=X30,Y0,T0,E0,F()
+
+[MapTrackerNavMesh.Edges]
+E1=S1,D2,B1,C10,F()
+E2=S2,D3,B1,C10,F()
+E3=S3,D4,B1,C10,F()
+`))
+	if err != nil {
+		t.Fatalf("ParseNavMesh() error = %v", err)
+	}
+	leftID, _ := mesh.AddRuntimeVertex(0, 0, 0, 0, NavMeshVertexFlagZipline)
+	rightID, _ := mesh.AddRuntimeVertex(30, 0, 0, 0, NavMeshVertexFlagZipline)
+	mesh.AddRuntimeEdge(-100, leftID, 1, true, 0.1, 0)
+	mesh.AddRuntimeEdge(-101, rightID, 4, true, 0.1, 0)
+	mesh.AddRuntimeEdge(-102, leftID, rightID, true, 1, NavMeshEdgeFlagZipline)
+
+	pathIDs, err := mesh.FindPathIDs(1, 4)
+	if err != nil {
+		t.Fatalf("FindPathIDs() error = %v", err)
+	}
+	if !containsID(pathIDs, leftID) || !containsID(pathIDs, rightID) {
+		t.Fatalf("pathIDs = %+v, want runtime zipline vertices %d and %d", pathIDs, leftID, rightID)
+	}
+
+	mesh.DisableEdge(-102)
+	pathIDs, err = mesh.FindPathIDs(1, 4)
+	if err != nil {
+		t.Fatalf("FindPathIDs() after DisableEdge error = %v", err)
+	}
+	if containsID(pathIDs, leftID) || containsID(pathIDs, rightID) {
+		t.Fatalf("pathIDs = %+v, disabled zipline edge should not be used", pathIDs)
+	}
+}
+
+func TestDisableRuntimeZiplineVertex(t *testing.T) {
+	mesh, err := ParseNavMesh(strings.NewReader(testNavMeshText))
+	if err != nil {
+		t.Fatalf("ParseNavMesh() error = %v", err)
+	}
+	ziplineID, _ := mesh.AddRuntimeVertex(5, 0, 0, 0, NavMeshVertexFlagZipline)
+	mesh.AddRuntimeEdge(-100, 1, ziplineID, true, 1, 0)
+	mesh.AddRuntimeEdge(-101, ziplineID, 2, true, 1, 0)
+	mesh.DisableVertex(ziplineID)
+	pathIDs, err := mesh.FindPathIDs(1, 2)
+	if err != nil {
+		t.Fatalf("FindPathIDs() error = %v", err)
+	}
+	if containsID(pathIDs, ziplineID) {
+		t.Fatalf("pathIDs = %+v, disabled runtime vertex should not be used", pathIDs)
+	}
+}
+
 func TestParseNavMeshRejectsInvalidData(t *testing.T) {
 	tests := []struct {
 		name string
@@ -179,6 +246,15 @@ func assertNavMeshPath(t *testing.T, actual [][2]float64, expected [][2]float64)
 			t.Fatalf("path = %+v, expected = %+v", actual, expected)
 		}
 	}
+}
+
+func containsID(ids []int, target int) bool {
+	for _, id := range ids {
+		if id == target {
+			return true
+		}
+	}
+	return false
 }
 
 func TestParseRealNavMesh(t *testing.T) {
