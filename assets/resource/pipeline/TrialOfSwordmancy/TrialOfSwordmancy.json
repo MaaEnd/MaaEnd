@@ -14,8 +14,8 @@
         "recognition": "DirectHit",
         "action": "DoNothing",
         "focus": {
-            "Node.Action.Starting": "此功能尚未完成"
-        },
+            "Node.Action.Starting": "$task.TrialOfSwordmancy.focus.not_implemented"
+        }
         "pre_delay": 0,
         "post_delay": 0,
         "next": []
