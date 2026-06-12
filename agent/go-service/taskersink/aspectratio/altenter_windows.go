@@ -62,12 +62,12 @@ func sendAltEnterWin32(controller *maa.Controller) (resolutionReader, error) {
 	if ret, _, _ := win32ProcIsWindow.Call(hwnd); ret == 0 {
 		return nil, fmt.Errorf("invalid HWND: %d", hwnd)
 	}
-	if ret, _, e := win32ProcPostMessageW.Call(hwnd, win32WmSysKeyDown, win32VkReturn, win32WmSysKeyAltEnterDown); ret == 0 {
-		return nil, fmt.Errorf("PostMessage SYSKEYDOWN failed: %w", e)
+	if err := postMessageWin32(hwnd, win32WmSysKeyDown, win32VkReturn, win32WmSysKeyAltEnterDown, "SYSKEYDOWN"); err != nil {
+		return nil, err
 	}
 	time.Sleep(50 * time.Millisecond)
-	if ret, _, e := win32ProcPostMessageW.Call(hwnd, win32WmSysKeyUp, win32VkReturn, win32WmSysKeyAltEnterUp); ret == 0 {
-		return nil, fmt.Errorf("PostMessage SYSKEYUP failed: %w", e)
+	if err := postMessageWin32(hwnd, win32WmSysKeyUp, win32VkReturn, win32WmSysKeyAltEnterUp, "SYSKEYUP"); err != nil {
+		return nil, err
 	}
 
 	log.Debug().Uint64("hwnd", uint64(hwnd)).Msg("Alt+Enter key sequence completed")
@@ -85,6 +85,16 @@ func ensureAltEnterWin32APIs() error {
 		if err := p.Find(); err != nil {
 			return fmt.Errorf("user32 API unavailable: %w", err)
 		}
+	}
+	return nil
+}
+
+func postMessageWin32(hwnd, msg, wparam, lparam uintptr, op string) error {
+	if ret, _, err := win32ProcPostMessageW.Call(hwnd, msg, wparam, lparam); ret == 0 {
+		if err != nil && err != windows.ERROR_SUCCESS {
+			return fmt.Errorf("PostMessage %s failed: %w", op, err)
+		}
+		return fmt.Errorf("PostMessage %s failed with ret=0", op)
 	}
 	return nil
 }
