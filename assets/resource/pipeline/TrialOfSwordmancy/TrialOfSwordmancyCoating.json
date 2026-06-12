@@ -10,7 +10,12 @@
     "TrialOfSwordmancyCoating1": {
         "desc": "刷镀层第1次抽取铭牌",
         "recognition": "OCR",
-        "roi": [1152, 525, 94, 34],
+        "roi": [
+            1152,
+            525,
+            94,
+            34
+        ],
         "expected": [
             "抽取铭牌",
             "抽取銘牌",
@@ -42,7 +47,12 @@
     "TrialOfSwordmancyCoating2": {
         "desc": "刷镀层第2次抽取铭牌",
         "recognition": "OCR",
-        "roi": [1152, 525, 94, 34],
+        "roi": [
+            1152,
+            525,
+            94,
+            34
+        ],
         "expected": [
             "抽取铭牌",
             "抽取銘牌",
@@ -74,7 +84,12 @@
     "TrialOfSwordmancyCoating3": {
         "desc": "刷镀层第3次抽取铭牌",
         "recognition": "OCR",
-        "roi": [1152, 525, 94, 34],
+        "roi": [
+            1152,
+            525,
+            94,
+            34
+        ],
         "expected": [
             "抽取铭牌",
             "抽取銘牌",
@@ -106,7 +121,12 @@
     "TrialOfSwordmancyCoating4": {
         "desc": "刷镀层第4次抽取铭牌",
         "recognition": "OCR",
-        "roi": [1152, 525, 94, 34],
+        "roi": [
+            1152,
+            525,
+            94,
+            34
+        ],
         "expected": [
             "抽取铭牌",
             "抽取銘牌",
@@ -138,7 +158,12 @@
     "TrialOfSwordmancyCoating5": {
         "desc": "刷镀层第5次抽取铭牌",
         "recognition": "OCR",
-        "roi": [1152, 525, 94, 34],
+        "roi": [
+            1152,
+            525,
+            94,
+            34
+        ],
         "expected": [
             "抽取铭牌",
             "抽取銘牌",
@@ -159,12 +184,17 @@
         "any_of": [
             "TrialOfSwordmancyBattlePts10"
         ],
-        "next": []
+        "next": ["TrialOfSwordmancyStartTrial"]
     },
     "TrialOfSwordmancyCoatingGiveUp": {
         "desc": "刷镀层放弃当前抽取",
         "recognition": "OCR",
-        "roi": [154, 593, 114, 87],
+        "roi": [
+            154,
+            593,
+            114,
+            87
+        ],
         "expected": [
             "放弃"
         ],
@@ -176,7 +206,12 @@
     "TrialOfSwordmancyCoatingEnterFreeCalc": {
         "desc": "按 F 进入自由演算",
         "recognition": "OCR",
-        "roi": [868, 445, 119, 35],
+        "roi": [
+            868,
+            445,
+            119,
+            35
+        ],
         "expected": [
             "进入自由演算"
         ],

@@ -1,0 +1,74 @@
+{
+    "TrialOfSwordmancyStartTrial": {
+        "desc": "开始演算",
+        "recognition": "TemplateMatch",
+        "roi": [
+            986,
+            628,
+            17,
+            25
+        ],
+        "template": "TrialOfSwordmancy/TrialStart.png",
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "TrialOfSwordmancyChooseTeam"
+        ]
+    },
+    "TrialOfSwordmancyChooseTeam": {
+        "desc": "开始战斗前确认编队", // TODO: 编队切换
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "TrialOfSwordmancyEnterTrial"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrial": {
+        "desc": "进入演算场景",
+        "recognition": "OCR",
+        "roi": [
+            547,
+            222,
+            191,
+            24
+        ],
+        "expected": "挑战目标",
+        "next": [
+            "TrialOfSwordmancyCloseTrialTarget"
+        ]
+    },
+    "TrialOfSwordmancyCloseTrialTarget": {
+        "desc": "关闭挑战目标界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1042,
+            176,
+            119,
+            119
+        ],
+        "template": "Common/Button/CloseButtonType4.png",
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack]AutoFight",
+            "TrialOfSwordmancyFightSuccess"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccess": {
+        "desc": "战斗胜利",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "TrialOfSwordmancyInTrialMenu"
+        ]
+    }
+}
