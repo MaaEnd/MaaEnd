@@ -1,0 +1,63 @@
+{
+    "TrialOfSwordmancyGotoTrialArenaStart": {
+        "desc": "前往演武入口（子任务入口）",
+        "next": [
+            "TrialOfSwordmancyInSwordVaultDale"
+            //[JumpBack]万能跳转去藏剑谷
+        ]
+    },
+    "TrialOfSwordmancyGotoTrialArenaExit": {
+        "desc": "已到达演武入口，进入下一个子任务",
+        "next": [
+            //接下一步节点入口
+        ]
+    },
+    "TrialOfSwordmancyInSwordVaultDale": {
+        "desc": "确认在藏剑谷内",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "",
+                    "target": []
+                }
+            ]
+        },
+        "next": [
+            "TrialOfSwordmancyGotoTrialArenaGo"
+        ]
+    },
+
+    "TrialOfSwordmancyGotoTrialArenaGo": {
+        "desc": "使用MapTracker导航前往目标地点",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "",
+            "path_trim": true,
+            "fine_approach": "Never",
+            "path": []
+        },
+        "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
+    },
+    "TrialOfSwordmancyGotoTrialArenaCpp": {
+        "desc": "使用MapNavigator导航前往目标地点",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": ""
+                }
+            ]
+        },
+        "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
+    }
+}
