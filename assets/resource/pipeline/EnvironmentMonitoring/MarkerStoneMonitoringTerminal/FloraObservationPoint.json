@@ -207,18 +207,14 @@
     "GoToFloraObservationPointStartPos": {
         "desc": "在植物观察点任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                567.66,
+                1154.92,
+                65.56,
+                55.32
             ]
         },
         "next": [
@@ -241,86 +237,21 @@
     "GoToFloraObservationPointMapTrackerMove": {
         "desc": "前往植物观察点",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
             "path": [
-                [
-                    606.3,
-                    321.4
-                ],
-                [
-                    606.2,
-                    312.6
-                ],
-                [
-                    603.8,
-                    308.8
-                ],
-                [
-                    596.2,
-                    308.9
-                ],
-                [
-                    595,
-                    310
-                ],
-                [
-                    590.9,
-                    309.7
-                ],
-                [
-                    587.6,
-                    307.7
-                ],
-                [
-                    587.4,
-                    303.8
-                ],
-                [
-                    586.3,
-                    302.6
-                ],
-                [
-                    580,
-                    302.6
-                ],
-                [
-                    577.5,
-                    297.6
-                ],
-                [
-                    576.3,
-                    293.8
-                ],
-                [
-                    572.5,
-                    281.4
-                ],
-                [
-                    530,
-                    280.7
-                ],
-                [
-                    525.4,
-                    276.5
-                ],
-                [
-                    526.1,
-                    269
-                ],
-                [
-                    543.3,
-                    268.6
-                ],
-                [
-                    545.8,
-                    251.7
-                ],
-                [
-                    550.7,
-                    251.7
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        93.84,
+                        185.41
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 0
+                }
             ]
         },
         "anchor": {
