@@ -12,36 +12,22 @@
             //接下一步节点入口
         ]
     },
+
     "TrialOfSwordmancyInSwordVaultDale": {
         "desc": "确认在藏剑谷内",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "",
-                    "target": []
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                1829.69,
+                1805.39,
+                20.01,
+                18.34
             ]
         },
-        "next": [
-            "TrialOfSwordmancyGotoTrialArenaGo"
-        ]
-    },
-
-    "TrialOfSwordmancyGotoTrialArenaGo": {
-        "desc": "使用MapTracker导航前往目标地点",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "",
-            "path_trim": true,
-            "fine_approach": "Never",
-            "path": []
-        },
-        "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
+        "action": "DoNothing",
+        "next": ["TrialOfSwordmancyGotoTrialArenaCpp"]
     },
     "TrialOfSwordmancyGotoTrialArenaCpp": {
         "desc": "使用MapNavigator导航前往目标地点",
@@ -54,8 +40,108 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": ""
-                }
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    1834.41,
+                    1816.32
+                ],
+                [
+                    1836.64,
+                    1815.99
+                ],
+                [
+                    1838.54,
+                    1815.66
+                ],
+                [
+                    1840.43,
+                    1814.98
+                ],
+                [
+                    1841,
+                    1813.11
+                ],
+                [
+                    1840.83,
+                    1811.23
+                ],
+                [
+                    1840.52,
+                    1809.28
+                ],
+                [
+                    1840.53,
+                    1807.13
+                ],
+                [
+                    1841.85,
+                    1806.03
+                ],
+                [
+                    1843.56,
+                    1805.87
+                ],
+                [
+                    1845.16,
+                    1805.76
+                ],
+                [
+                    1847.05,
+                    1806.03
+                ],
+                [
+                    1849.15,
+                    1806.05
+                ],
+                [
+                    1850.95,
+                    1806.23
+                ],
+                [
+                    1852.54,
+                    1805.93
+                ],
+                [
+                    1854.63,
+                    1805.61
+                ],
+                [
+                    1856.42,
+                    1805.54
+                ],
+                [
+                    1857.87,
+                    1804.06
+                ],
+                [
+                    1858.56,
+                    1802.2
+                ],
+                [
+                    1859.14,
+                    1800.37
+                ],
+                [
+                    1859.84,
+                    1798.7
+                ],
+                [
+                    1860.54,
+                    1796.97
+                ],
+                [
+                    1861.33,
+                    1795.29
+                ],
+                [
+                    1862.18,
+                    1793.76
+                ],
+                [
+                    1862.98,
+                    1792.27
+                ]
             ]
         },
         "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
