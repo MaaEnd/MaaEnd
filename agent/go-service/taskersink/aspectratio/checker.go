@@ -3,6 +3,7 @@ package aspectratio
 import (
 	"fmt"
 	"math"
+	"runtime"
 	"strings"
 	"time"
 
@@ -26,6 +27,8 @@ const (
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
 type AspectRatioChecker struct{}
+
+type resolutionReader func() (int32, int32, error)
 
 // OnTaskerTask handles tasker task events
 func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
@@ -242,6 +245,15 @@ func isNonADBResolutionOK(width, height int32) (bool, bool, bool) {
 }
 
 func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
+	if runtime.GOOS != "windows" {
+		log.Debug().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Str("goos", runtime.GOOS).
+			Msg("Skip Alt+Enter outside Windows")
+		return width, height, false
+	}
+
 	fullScreen, err := gamesetting.GetVideoFullScreen()
 	if err != nil {
 		log.Warn().
@@ -267,111 +279,77 @@ func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail 
 		Int32("height", height).
 		Msg("Game is fullscreen with invalid resolution, sending Alt+Enter to switch to windowed mode")
 
-	sendAltEnterAndWait(controller)
+	readResolution, err := sendAltEnterWindows(controller)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to send Alt+Enter, skip resolution recheck")
+		return width, height, false
+	}
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
 		Msg("Alt+Enter completed, waiting for fullscreen toggle to settle")
-	time.Sleep(3 * time.Second)
+	time.Sleep(500 * time.Millisecond)
 
-	return recheckResolutionAfterFullscreenToggle(controller, detail, width, height)
+	return recheckResolutionAfterFullscreenToggle(readResolution, detail, width, height)
 }
 
-func recheckResolutionAfterFullscreenToggle(controller *maa.Controller, detail maa.TaskerTaskDetail, oldWidth, oldHeight int32) (int32, int32, bool) {
+func recheckResolutionAfterFullscreenToggle(readResolution resolutionReader, detail maa.TaskerTaskDetail, oldWidth, oldHeight int32) (int32, int32, bool) {
 	width := oldWidth
 	height := oldHeight
-	start := time.Now()
 
-	for attempt := 1; ; attempt++ {
-		controller.PostScreencap().Wait()
-
-		recheckedWidth, recheckedHeight, err := controller.GetResolution()
-		if err != nil {
-			log.Warn().
-				Err(err).
-				Uint64("task_id", detail.TaskID).
-				Str("entry", detail.Entry).
-				Int("attempt", attempt).
-				Msg("Failed to get resolution during Alt+Enter recheck")
-		} else {
-			width = recheckedWidth
-			height = recheckedHeight
-			aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
-			log.Debug().
-				Uint64("task_id", detail.TaskID).
-				Str("entry", detail.Entry).
-				Int("attempt", attempt).
-				Int32("width", width).
-				Int32("height", height).
-				Bool("aspect_ratio_ok", aspectRatioOK).
-				Bool("min_resolution_ok", minResolutionOK).
-				Msg("Rechecked resolution after Alt+Enter")
-
-			if resolutionOK {
-				log.Info().
-					Uint64("task_id", detail.TaskID).
-					Str("entry", detail.Entry).
-					Int32("width", width).
-					Int32("height", height).
-					Int("attempt", attempt).
-					Msg("Resolution check passed after Alt+Enter, continuing task")
-				return width, height, true
-			}
-		}
-
-		elapsed := time.Since(start)
-		if elapsed >= 8*time.Second {
-			log.Warn().
-				Uint64("task_id", detail.TaskID).
-				Str("entry", detail.Entry).
-				Int32("width", width).
-				Int32("height", height).
-				Int("attempt", attempt).
-				Dur("elapsed", elapsed).
-				Msg("Resolution recheck timed out after Alt+Enter")
-			return width, height, false
-		}
-
-		sleepDuration := 500 * time.Millisecond
-		if remaining := 8*time.Second - elapsed; remaining < sleepDuration {
-			sleepDuration = remaining
-		}
-		time.Sleep(sleepDuration)
+	if readResolution == nil {
+		log.Warn().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Resolution reader is unavailable during Alt+Enter recheck")
+		return width, height, false
 	}
+
+	recheckedWidth, recheckedHeight, err := readResolution()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to get resolution during Alt+Enter recheck")
+		return width, height, false
+	}
+
+	width = recheckedWidth
+	height = recheckedHeight
+	aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Int32("width", width).
+		Int32("height", height).
+		Bool("aspect_ratio_ok", aspectRatioOK).
+		Bool("min_resolution_ok", minResolutionOK).
+		Msg("Rechecked resolution after Alt+Enter")
+
+	if resolutionOK {
+		log.Info().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Int32("width", width).
+			Int32("height", height).
+			Msg("Resolution check passed after Alt+Enter, continuing task")
+		return width, height, true
+	}
+
+	return width, height, false
 }
 
-func sendAltEnterAndWait(controller *maa.Controller) {
-	const (
-		vkAlt    = 0x12
-		vkReturn = 0x0D
-	)
+func sendAltEnterWindows(controller *maa.Controller) (resolutionReader, error) {
+	return sendAltEnterWindowsImpl(controller)
+}
 
-	altReleased := false
-	enterReleased := true
-	defer func() {
-		if !enterReleased {
-			controller.PostKeyUp(vkReturn).Wait()
-		}
-		if !altReleased {
-			controller.PostKeyUp(vkAlt).Wait()
-		}
-	}()
-
-	controller.PostKeyDown(vkAlt).Wait()
-	time.Sleep(80 * time.Millisecond)
-
-	controller.PostKeyDown(vkReturn).Wait()
-	enterReleased = false
-	time.Sleep(80 * time.Millisecond)
-
-	controller.PostKeyUp(vkReturn).Wait()
-	enterReleased = true
-	time.Sleep(80 * time.Millisecond)
-
-	controller.PostKeyUp(vkAlt).Wait()
-	altReleased = true
-
-	log.Debug().Msg("Alt+Enter key sequence completed")
+var sendAltEnterWindowsImpl = func(*maa.Controller) (resolutionReader, error) {
+	return nil, fmt.Errorf("Alt+Enter is only supported on Windows")
 }
 
 func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, followUpLines ...string) {
