@@ -13,6 +13,46 @@
         ]
     },
 
+    "TrialOfSwordmancyEnterTrialMenu": {
+        "desc": "点击进入演算",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            840,
+                            448,
+                            30,
+                            30
+                        ],
+                        "template": "TrialOfSwordmancy/TrialTrigger1.png"
+                    },
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            840,
+                            448,
+                            30,
+                            30
+                        ],
+                        "template": "TrialOfSwordmancy/TrialTrigger2.png"
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": 100,
+        "next": [
+            // 空节点，触发 JumpBack
+        ]
+    },
     "TrialOfSwordmancyInSwordVaultDale": {
         "desc": "确认在藏剑谷内",
         "recognition": "Custom",

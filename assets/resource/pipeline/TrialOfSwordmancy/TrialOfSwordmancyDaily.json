@@ -2,48 +2,9 @@
     "TrialOfSwordmancyDailyMain": {
         "desc": "日常选剑演武入口",
         "next": [
-            "TrialOfSwordmancyEnterTrialMenu",
+            "TrialOfSwordmancyInTrialMenu",
+            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
             "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
-        ]
-    },
-    "TrialOfSwordmancyEnterTrialMenu": {
-        "desc": "点击进入演算",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    {
-                        "recognition": "TemplateMatch",
-                        "roi": [
-                            840,
-                            448,
-                            30,
-                            30
-                        ],
-                        "template": "TrialOfSwordmancy/TrialTrigger1.png"
-                    },
-                    {
-                        "recognition": "TemplateMatch",
-                        "roi": [
-                            840,
-                            448,
-                            30,
-                            30
-                        ],
-                        "template": "TrialOfSwordmancy/TrialTrigger2.png"
-                    }
-                ]
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        "post_wait_freezes": 100,
-        "next": [
-            "TrialOfSwordmancyInTrialMenu"
         ]
     },
     "TrialOfSwordmancyInTrialMenu": {
@@ -247,14 +208,20 @@
     // 双倍奖励处理
     "TrialOfSwordmancyDailyDoubleReward": {
         "desc": "开启双倍奖励",
+        "max_hit": 1,
         "recognition": "TemplateMatch",
-        "roi": [857, 602, 64, 71],
+        "roi": [
+            857,
+            602,
+            64,
+            71
+        ],
         "template": "TrialOfSwordmancy/DoubleReward.png",
-        "action": "Click",
-        "max_hit": 1
+        "action": "Click"
     },
     "TrialOfSwordmancyDailyResetDoubleReward": {
         "desc": "开始演算后重置双倍奖励计次",
+        "max_hit": 2, // 此处意为每天最多使用 2 次双倍奖励
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "ClearHitCount",
@@ -263,7 +230,6 @@
                 "TrialOfSwordmancyDailyDoubleReward"
             ]
         },
-        "max_hit": 2, // 此处意为每天最多使用 2 次双倍奖励
         "next": [
             "TrialOfSwordmancyStartTrial"
         ]
