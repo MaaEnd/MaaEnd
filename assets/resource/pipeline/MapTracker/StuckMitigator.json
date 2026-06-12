@@ -239,6 +239,7 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": 500,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm"
         ]
@@ -260,7 +261,10 @@
                 "order_by": "Score"
             }
         },
-        "action": "Click"
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice": {
         "recognition": {
@@ -322,6 +326,7 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": 500,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm"
         ]
@@ -343,7 +348,10 @@
                 "order_by": "Score"
             }
         },
-        "action": "Click"
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog": {
         "recognition": {
@@ -378,6 +386,7 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 500
     }
 }
