@@ -173,6 +173,7 @@
         // group: other_menu
         "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
+        "tasks/TrialAlgorithmics21Points.json",
         "tasks/ReadAllWiki.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",

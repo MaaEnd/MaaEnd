@@ -1,0 +1,150 @@
+{
+    "TrialAlgorithmics21PointsStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialAlgorithmics21PointsStartLoop"
+        ]
+    },
+    "TrialAlgorithmics21PointsStartLoop": {
+        "next": [
+            "TrialAlgorithmics21PointsBattlePtsReach21",
+            "[JumpBack]TrialAlgorithmics21PointsOpen",
+            "[JumpBack]TrialAlgorithmics21PointsDraw",
+            "TrialAlgorithmics21PointsGiveUp"
+        ]
+    },
+    "TrialAlgorithmics21PointsOpen": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ],
+                "expected": [
+                    "进入.*演算"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "next": []
+    },
+    "TrialAlgorithmics21PointsBattlePtsReach21": {
+        "recognition": "And",
+        "all_of": [
+            "TrialAlgorithmics21PointsBattlePts10",
+            "TrialAlgorithmics21PointsBattlePtsOverflow"
+        ]
+    },
+    "TrialAlgorithmics21PointsBattlePts10": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    953,
+                    506,
+                    72,
+                    26
+                ],
+                "lower": [
+                    196,
+                    180,
+                    144
+                ],
+                "upper": [
+                    216,
+                    200,
+                    164
+                ]
+            }
+        },
+        "pre_wait_freezes": 200
+    },
+    "TrialAlgorithmics21PointsBattlePtsOverflow": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    487,
+                    568,
+                    302,
+                    36
+                ],
+                "expected": [
+                    "数据溢出，开启惩罚"
+                ]
+            }
+        },
+        "pre_wait_freezes": 200
+    },
+    "TrialAlgorithmics21PointsDraw": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1081,
+                    510,
+                    166,
+                    59
+                ],
+                "lower": [
+                    16,
+                    58,
+                    53
+                ],
+                "upper": [
+                    107,
+                    210,
+                    199
+                ]
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1089,
+                    507,
+                    154,
+                    57
+                ]
+            }
+        }
+    },
+    "TrialAlgorithmics21PointsGiveUp": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    35,
+                    618,
+                    213,
+                    39
+                ],
+                "expected": [
+                    "放弃"
+                ]
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "TrialAlgorithmics21PointsStart",
+            "TrialAlgorithmics21PointsMaxHit"
+        ]
+    },
+    "TrialAlgorithmics21PointsMaxHit": {
+        "focus": {
+            "Node.Recognition.Starting": "到达最大次数，放弃"
+        }
+    }
+}

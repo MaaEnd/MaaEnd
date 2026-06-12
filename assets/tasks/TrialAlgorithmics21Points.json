@@ -1,0 +1,56 @@
+{
+    "task": [
+        {
+            "name": "TrialAlgorithmics21Points",
+            "label": "$task.TrialAlgorithmics21Points.label",
+            "entry": "TrialAlgorithmics21PointsStart",
+            "description": "$task.TrialAlgorithmics21Points.description",
+            "option": [
+                "TrialAlgorithmics21PointsRepeat"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "TrialAlgorithmics21PointsRepeat": {
+            "type": "switch",
+            "label": "$option.TrialAlgorithmics21PointsRepeat.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "TrialAlgorithmics21PointsRepeatCount"
+                    ]
+                },
+                {
+                    "name": "No"
+                    
+                }
+            ],
+            "default_case": "No"
+        },
+        "TrialAlgorithmics21PointsRepeatCount": {
+            "type": "input",
+            "label": "$option.TrialAlgorithmics21PointsRepeatCount.label",
+            "inputs": [
+                {
+                    "name": "TrialAlgorithmics21PointsRepeatCountValue",
+                    "label": "$option.TrialAlgorithmics21PointsRepeatCount.input.label",
+                    "pipeline_type": "int",
+                    "verify": "^(([1-9])|([1-9][0-9]))$",
+                    "default": "10"
+                }
+            ],
+            "pipeline_override": {
+                "TrialAlgorithmics21PointsStart": {
+                    "max_hit": "{TrialAlgorithmics21PointsRepeatCountValue}"
+                }
+            }
+        }
+    }
+}
