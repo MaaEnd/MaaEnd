@@ -29,31 +29,11 @@
         "desc": "刷镀层第1次检查战力点",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [215, 480, 106, 76],
-                "template": "TrialOfSwordmancy/BattlePts1.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [296, 483, 103, 72],
-                "template": "TrialOfSwordmancy/BattlePts2.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [374, 482, 102, 73],
-                "template": "TrialOfSwordmancy/BattlePts3.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [452, 483, 107, 72],
-                "template": "TrialOfSwordmancy/BattlePts4.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [533, 483, 103, 71],
-                "template": "TrialOfSwordmancy/BattlePts5.png"
-            }
+            "TrialOfSwordmancyCoatingBattlePts1",
+            "TrialOfSwordmancyCoatingBattlePts2",
+            "TrialOfSwordmancyCoatingBattlePts3",
+            "TrialOfSwordmancyCoatingBattlePts4",
+            "TrialOfSwordmancyCoatingBattlePts5"
         ],
         "next": [
             "TrialOfSwordmancyCoating2"
@@ -81,31 +61,11 @@
         "desc": "刷镀层第2次检查战力点",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [611, 482, 100, 74],
-                "template": "TrialOfSwordmancy/BattlePts6.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [689, 483, 100, 72],
-                "template": "TrialOfSwordmancy/BattlePts7.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [767, 481, 102, 75],
-                "template": "TrialOfSwordmancy/BattlePts8.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [847, 482, 105, 73],
-                "template": "TrialOfSwordmancy/BattlePts9.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [926, 480, 105, 76],
-                "template": "TrialOfSwordmancy/BattlePts10.png"
-            }
+            "TrialOfSwordmancyCoatingBattlePts6",
+            "TrialOfSwordmancyCoatingBattlePts7",
+            "TrialOfSwordmancyCoatingBattlePts8",
+            "TrialOfSwordmancyCoatingBattlePts9",
+            "TrialOfSwordmancyCoatingBattlePts10"
         ],
         "next": [
             "TrialOfSwordmancyCoating3"
@@ -133,31 +93,11 @@
         "desc": "刷镀层第3次检查战力点",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [137, 481, 101, 75],
-                "template": "TrialOfSwordmancy/BattlePts0.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [215, 480, 106, 76],
-                "template": "TrialOfSwordmancy/BattlePts1.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [296, 483, 103, 72],
-                "template": "TrialOfSwordmancy/BattlePts2.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [374, 482, 102, 73],
-                "template": "TrialOfSwordmancy/BattlePts3.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [452, 483, 107, 72],
-                "template": "TrialOfSwordmancy/BattlePts4.png"
-            }
+            "TrialOfSwordmancyCoatingBattlePts0",
+            "TrialOfSwordmancyCoatingBattlePts1",
+            "TrialOfSwordmancyCoatingBattlePts2",
+            "TrialOfSwordmancyCoatingBattlePts3",
+            "TrialOfSwordmancyCoatingBattlePts4"
         ],
         "next": [
             "TrialOfSwordmancyCoating4"
@@ -185,31 +125,11 @@
         "desc": "刷镀层第4次检查战力点",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [533, 483, 103, 71],
-                "template": "TrialOfSwordmancy/BattlePts5.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [611, 482, 100, 74],
-                "template": "TrialOfSwordmancy/BattlePts6.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [689, 483, 100, 72],
-                "template": "TrialOfSwordmancy/BattlePts7.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [767, 481, 102, 75],
-                "template": "TrialOfSwordmancy/BattlePts8.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [847, 482, 105, 73],
-                "template": "TrialOfSwordmancy/BattlePts9.png"
-            }
+            "TrialOfSwordmancyCoatingBattlePts5",
+            "TrialOfSwordmancyCoatingBattlePts6",
+            "TrialOfSwordmancyCoatingBattlePts7",
+            "TrialOfSwordmancyCoatingBattlePts8",
+            "TrialOfSwordmancyCoatingBattlePts9"
         ],
         "next": [
             "TrialOfSwordmancyCoating5"
@@ -235,9 +155,10 @@
     },
     "TrialOfSwordmancyCoatingCheck5": {
         "desc": "刷镀层第5次检查战力点",
-        "recognition": "TemplateMatch",
-        "roi": [926, 480, 105, 76],
-        "template": "TrialOfSwordmancy/BattlePts10.png",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyCoatingBattlePts10"
+        ],
         "next": []
     },
     "TrialOfSwordmancyCoatingGiveUp": {
