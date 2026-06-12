@@ -9,7 +9,8 @@
                 "TrialOfSwordmancyMode"
             ],
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "Wlroots"
             ],
             "group": [
                 "other_menu"
