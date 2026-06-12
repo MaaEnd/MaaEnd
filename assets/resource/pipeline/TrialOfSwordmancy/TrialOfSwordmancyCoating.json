@@ -184,7 +184,7 @@
         "any_of": [
             "TrialOfSwordmancyBattlePts10"
         ],
-        "next": ["TrialOfSwordmancyStartTrial"]
+        "next": []
     },
     "TrialOfSwordmancyCoatingGiveUp": {
         "desc": "刷镀层放弃当前抽取",
