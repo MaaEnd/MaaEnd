@@ -8,6 +8,7 @@ export const ROUTE_CONFIG_FIELDS = [
     "MapAssert",
     "MapPath",
     "MapTarget",
+    "MapTargetTier",
     "MapGoal",
     "CameraSwipeDirection",
     "CameraMaxHit",
@@ -39,6 +40,7 @@ const UNREACHABLE_ROUTE_PLACEHOLDER = {
         ],
     ],
     MapTarget: null,
+    MapTargetTier: null,
     MapGoal: null,
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
@@ -100,6 +102,7 @@ function buildNavigationParams({
     MapAssert,
     MapPath,
     MapTarget,
+    MapTargetTier,
     MapGoal,
     NoEnsureInitialMovementState,
     hasMapTarget,
@@ -130,6 +133,7 @@ function buildNavigationParams({
                       {
                           action: "NAVMESH",
                           target: MapTarget,
+                          ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
                       },
                       ...(navigationHeading
                           ? [
@@ -205,6 +209,10 @@ export function createRouteResolver(routeConfig, options = {}) {
                 navigationConfigCount === 1 && hasMapTarget
                     ? override.MapTarget
                     : UNREACHABLE_ROUTE_PLACEHOLDER.MapTarget;
+            const MapTargetTier =
+                navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetTier)
+                    ? override.MapTargetTier
+                    : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetTier;
             const MapGoal =
                 navigationConfigCount === 1 && hasMapGoal ? override.MapGoal : UNREACHABLE_ROUTE_PLACEHOLDER.MapGoal;
             const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
@@ -233,6 +241,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 MapAssert,
                 MapPath,
                 MapTarget,
+                MapTargetTier,
                 MapGoal,
                 CameraSwipeDirection,
                 CameraMaxHit,
@@ -243,6 +252,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                     MapAssert,
                     MapPath,
                     MapTarget,
+                    MapTargetTier,
                     MapGoal,
                     NoEnsureInitialMovementState,
                     hasMapTarget: navigationConfigCount === 1 && hasMapTarget,

@@ -51,9 +51,12 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
         // 寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。
         // 与 MapTarget / MapGoal 三选一，用 tools/MapNavigator/ 的 GUI 工具录制。
     // "MapTarget": [x, y],
-    //     MapNavigateAction 目标点。生成时会在 path 前置 ZONE 声明，再追加该坐标点：
-    //     [{ "action": "ZONE", "zone_id": "Wuling_Base" }, [x, y]]
+    //     MapNavigateAction 的 NAVMESH 目标点。默认按 base 坐标解释：
+    //     [{ "action": "NAVMESH", "target": [x, y] }]
     //     与 MapPath / MapGoal 三选一，适合不依赖交互、过图、机关的普通可达路线。
+    // "MapTargetTier": "ValleyIV_L1_171",
+    //     可选，仅用于 MapTarget 路线。目标点与起点不在同一 tier，且 MapTarget 是在
+    //     tier 底图上直接点出的坐标时填写；生成时会透传为 NAVMESH 的 target_tier。
     // "MapGoal": [x, y],
     //     MapTrackerGoal 目标点。生成时会自动使用 MapTrackerGoal：
     //     { "map_name": "map02_lv001", "target": [x, y] }

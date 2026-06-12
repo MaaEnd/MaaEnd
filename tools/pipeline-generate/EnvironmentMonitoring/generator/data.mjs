@@ -129,6 +129,7 @@ function buildRow(mission, usedIds) {
         MapAssert: route.MapAssert,
         MapPath: route.MapPath,
         MapTarget: route.MapTarget,
+        MapTargetTier: route.MapTargetTier,
         MapGoal: route.MapGoal,
         MapAssertRecognition: route.MapAssertRecognition,
         MapAssertParam: route.MapAssertParam,

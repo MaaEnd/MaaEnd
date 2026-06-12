@@ -8,6 +8,11 @@
         "type": "object",
         "title": "ObservationPointRoute",
         "additionalProperties": false,
+        "dependencies": {
+            "MapTargetTier": [
+                "MapTarget"
+            ]
+        },
         "required": [
             "MissionId",
             "Name",
@@ -40,6 +45,11 @@
                         {
                             "required": [
                                 "MapTarget"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapTargetTier"
                             ]
                         },
                         {
@@ -160,12 +170,21 @@
             },
             "MapTarget": {
                 "type": "array",
-                "description": "MapNavigateAction 目标点 [x, y]。生成器会在 path 前置 { action: \"ZONE\", zone_id: MapName }，再追加该坐标点。与 MapPath / MapGoal 三选一，适合不依赖交互、过图、机关的普通可达路线。",
+                "description": "MapNavigateAction 的 NAVMESH 目标点 [x, y]。未配置 MapTargetTier 时按 base 坐标解释；配置 MapTargetTier 时按对应 tier 坐标解释。与 MapPath / MapGoal 三选一，适合不依赖交互、过图、机关的普通可达路线。",
                 "items": {
                     "type": "number"
                 },
                 "minItems": 2,
                 "maxItems": 2
+            },
+            "MapTargetTier": {
+                "type": "string",
+                "minLength": 1,
+                "description": "可选，仅用于 MapTarget 路线。MapTarget 坐标所在的 MapNavigator target_tier 区域名；当目标点与起点不在同一 tier，且 MapTarget 是在 tier 底图上直接点出的坐标时填写。未配置时 MapTarget 按 base 坐标解释。",
+                "examples": [
+                    "ValleyIV_L1_171",
+                    "Wuling_L4_328"
+                ]
             },
             "MapGoal": {
                 "type": "array",
