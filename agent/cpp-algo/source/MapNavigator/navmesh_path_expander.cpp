@@ -366,6 +366,8 @@ void UpdateStateFromRegularWaypoint(const Waypoint& waypoint, NavmeshExpansionSt
 
 navmesh::BaseNavRouteRequest BuildRouteRequest(
     const NaviParam& param,
+    const navmesh::BaseNavPack& pack,
+    const std::string& locator_zone,
     const std::string& navmesh_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
@@ -378,12 +380,18 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     request.snap_radius = param.navmesh_snap_radius;
     request.max_cost = param.navmesh_max_cost;
     request.blocked_triangles = blocked_triangles;
+    // The locator zone is the tier the agent is on; feed its baked dominant-floor height so snap resolves
+    // onto the right floor of the multi-floor base. A geometry / base / unknown locator yields the sentinel
+    // -> floor-blind, byte-identical to the pre-floor behavior. Mirrors the python tool's floor_y_for(tier).
+    request.floor_y = pack.floorYForZoneName(locator_zone);
     return request;
 }
 
-navmesh::BaseNavRouteRequest BuildRouteRequest(const NaviParam& param, const NavmeshExpansionState& state, const Waypoint& waypoint)
+navmesh::BaseNavRouteRequest BuildRouteRequest(
+    const NaviParam& param, const navmesh::BaseNavPack& pack, const NavmeshExpansionState& state, const Waypoint& waypoint)
 {
-    return BuildRouteRequest(param, state.navmesh_zone, state.route_start, { .x = waypoint.x, .y = waypoint.y });
+    return BuildRouteRequest(
+        param, pack, state.current_zone, state.navmesh_zone, state.route_start, { .x = waypoint.x, .y = waypoint.y });
 }
 
 void LogGeneratedNavmeshPath(
@@ -433,7 +441,7 @@ bool AppendBlindTargetFallback(
             .x = target.x + (start.x - target.x) * t,
             .y = target.y + (start.y - target.y) * t,
         };
-        navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state.navmesh_zone, start, probe);
+        navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, navmesh.pack, state.current_zone, state.navmesh_zone, start, probe);
         request.snap_radius = snap_radius;
         const auto route = navmesh.planner.findPath(request);
         if (!route.ok() || route.path.points.empty()) {
@@ -477,7 +485,7 @@ bool AppendNavmeshWaypoint(
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
-    const navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, state, waypoint);
+    const navmesh::BaseNavRouteRequest request = BuildRouteRequest(param, navmesh.pack, state, waypoint);
     const auto route_result = navmesh.planner.findPath(request);
     if (!route_result.ok()) {
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
@@ -551,6 +559,31 @@ navmesh::WorldPoint OffsetPoint(const NaviPosition& position, double heading, do
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
 {
     return ResolveNavmeshFile(configured_path);
+}
+
+void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos)
+{
+    if (pos.zone_id.empty()) {
+        return;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(pos.zone_id, param.map_name);
+    if (navmesh_zone.empty()) {
+        return;
+    }
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return;
+    }
+    const auto projection = navmesh->pack.projectToBase(pos.zone_id, pos.x, pos.y);
+    if (projection && projection->was_tier) {
+        // Tier-template-pixel fix -> navmesh base-pixel via the navmesh's OWN baked affine. zone_id is
+        // kept as the locator naming: zone validation matches against it and InferBaseNavZone already maps
+        // it to the parent geometry zone for routing. Geometry / base-matched / unknown zones never reach
+        // this branch (they project to identity), so this is zero-regression by construction.
+        pos.x = projection->x;
+        pos.y = projection->y;
+    }
 }
 
 std::string InitialExpectedZone(const NaviParam& param)
@@ -629,7 +662,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
         return std::nullopt;
     }
 
-    const auto request = BuildRouteRequest(param, navmesh_zone, start, goal, blocked_triangles);
+    const auto request = BuildRouteRequest(param, navmesh->pack, locator_zone, navmesh_zone, start, goal, blocked_triangles);
     const auto route_result = navmesh->planner.findPath(request);
     if (!route_result.ok()) {
         if (blocked_triangles.empty()) {

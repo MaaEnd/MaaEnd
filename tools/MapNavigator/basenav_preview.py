@@ -13,9 +13,19 @@ import numpy as np
 
 
 MAGIC = b"BNAV"
-VERSION = 2
+VERSION = 3  # v3 appends a per-zone float `floor_y` to each zone record; v2 had none
+VERSION_MIN = 2  # oldest on-disk version still accepted; v2 zone records lack floor_y -> FLOOR_Y_NONE
 FNV_OFFSET = 14695981039346656037
 FNV_PRIME = 1099511628211
+# Sentinel floor height for tier zones whose dominant walkable floor is unknown (the two
+# "…_Base" overview tiers, and any geometry zone). Anything below FLOOR_Y_VALID_MIN means
+# "no floor", so the floor-aware snap/route/overlay degrade to the legacy floor-blind path.
+FLOOR_Y_NONE = -1.0e30
+FLOOR_Y_VALID_MIN = -1.0e29
+# Height half-band (px == world-Y units) around a tier's baked floor_y. snap/route/overlay
+# PREFER triangles within floor_y±FLOOR_BAND; off-band surfaces are a graceful fallback,
+# never a hard gate — so floor_y only re-ranks, never fails snap to None / a route to empty.
+FLOOR_BAND = 12.0
 BRIDGE_FIXED_COST = 12.0
 BRIDGE_GAP_COST_FACTOR = 3.0
 BRIDGE_HEIGHT_COST_FACTOR = 40.0
@@ -44,8 +54,13 @@ SEGMENT_PARALLEL_EPSILON = 1e-12
 # 的 snap 退化成线性扫描;取 8px 让每个 bin 仅含数十个三角形,snap 提前命中。
 INDEX_BIN_SIZE = 16.0
 
+# BaseNavZone.flags bit0: zone is a tier overlay (zero triangles; its mesh lives in
+# the parent geometry zone addressed by component_count; transform = tier_px→base_px).
+TIER_FLAG = 0x0001
+
 HEADER_STRUCT = struct.Struct("<4sHHIIIIQQQQQ")
-ZONE_STRUCT = struct.Struct("<HHIIIIff4f")
+ZONE_STRUCT = struct.Struct("<HHIIIIff4ff")  # v3: ...transform(4f) + floor_y(f)
+ZONE_STRUCT_V2 = struct.Struct("<HHIIIIff4f")  # v2: legacy zone record without floor_y
 VERTEX_STRUCT = struct.Struct("<fff")
 TRIANGLE_STRUCT = struct.Struct("<IIIiiiIff")
 LINK_STRUCT = struct.Struct("<II")
@@ -81,6 +96,7 @@ class _BaseNavZone:
     height: float
     transform: tuple[float, float, float, float]
     flags: int = 0
+    floor_y: float = FLOOR_Y_NONE
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,9 +156,10 @@ def find_preview_route(
     start: tuple[float, float],
     goal: tuple[float, float],
     snap_radius: float,
+    floor_y: float | None = None,
 ) -> PreviewRoute:
     del display_zone_id
-    route = field.find_route(zone_id, start, goal, snap_radius)
+    route = field.find_route(zone_id, start, goal, snap_radius, floor_y)
     return PreviewRoute(points=route.points, world_points=route.points, cells=[], segment_breaks=route.segment_breaks)
 
 
@@ -258,6 +275,70 @@ class BaseNavField:
     def zone_ids(self) -> list[int]:
         return [zone.zone_id for zone in self.zones]
 
+    def is_tier(self, zone_id: int) -> bool:
+        zone = self.zone_by_id.get(zone_id)
+        return bool(zone is not None and zone.flags & TIER_FLAG)
+
+    def floor_y_for(self, zone_id: int) -> float | None:
+        # The zone's baked dominant-floor height, or None when unset (the "…_Base" overview
+        # tiers and geometry zones). Callers pass this into snap/find_route to scope routing
+        # to the floor the selected tier depicts; None keeps the floor-blind legacy path.
+        zone = self.zone_by_id.get(zone_id)
+        if zone is None or zone.floor_y <= FLOOR_Y_VALID_MIN:
+            return None
+        return zone.floor_y
+
+    def geometry_zone_id(self, zone_id: int) -> int:
+        # tier zones carry zero triangles (their mesh lives in the parent geometry
+        # zone, addressed via component_count). Snap / A* / walkable-preview must run
+        # against that parent; clicks are already in the parent's (base) pixel system.
+        zone = self.zone_by_id.get(zone_id)
+        if zone is not None and zone.flags & TIER_FLAG:
+            return zone.component_count
+        return zone_id
+
+    def tier_to_base(self, zone_id: int, x: float, y: float) -> tuple[float, float]:
+        # tier_px -> base_px via the baked affine (base = s*tier + t). Identity for
+        # non-tier / unknown zones so callers can pass any zone_id unconditionally.
+        zone = self.zone_by_id.get(zone_id)
+        if zone is None or not (zone.flags & TIER_FLAG):
+            return x, y
+        sx, tx, sy, ty = zone.transform
+        return sx * x + tx, sy * y + ty
+
+    def base_to_tier(self, zone_id: int, x: float, y: float) -> tuple[float, float]:
+        # base_px -> tier_px via the inverse affine (tier = (base - t) / s). Identity
+        # for non-tier / unknown / degenerate zones.
+        zone = self.zone_by_id.get(zone_id)
+        if zone is None or not (zone.flags & TIER_FLAG):
+            return x, y
+        sx, tx, sy, ty = zone.transform
+        if sx == 0.0 or sy == 0.0:
+            return x, y
+        return (x - tx) / sx, (y - ty) / sy
+
+    def tier_zone_ids_for(self, parent_zone_id: int) -> list[int]:
+        # Tiers whose parent geometry zone == parent_zone_id, identity ("…_Base")
+        # first so the dropdown defaults to the whole-base view.
+        tiers = [
+            zone for zone in self.zones
+            if zone.flags & TIER_FLAG and zone.component_count == parent_zone_id
+        ]
+        tiers.sort(key=lambda z: (z.transform[1] != 0.0 or z.transform[3] != 0.0, z.name))
+        return [zone.zone_id for zone in tiers]
+
+    def zone_choices_for_base(self, base_name: str) -> list[str]:
+        # Right-hand "zone" dropdown content for the selected base底图: ONLY this
+        # base's tiers (no cross-base mixing). Bases without tiers fall back to the
+        # base itself so the dropdown is never empty and routing still works.
+        base = self.zone_by_name.get(base_name)
+        if base is None:
+            return []
+        tier_ids = self.tier_zone_ids_for(base.zone_id)
+        if tier_ids:
+            return [self.zone_label(zone_id) for zone_id in tier_ids]
+        return [self.zone_label(base.zone_id)]
+
     def zone_label(self, zone_id: int) -> str:
         zone = self.zone_by_id.get(zone_id)
         return f"{zone.zone_id}:{zone.name}" if zone is not None else str(zone_id)
@@ -301,27 +382,72 @@ class BaseNavField:
         zone = self.zone_by_id.get(zone_id)
         if zone is None or zone.width <= 0 or zone.height <= 0:
             return None
-        _scale = 0.5
-        _w = math.ceil(zone.width * _scale)
-        _h = math.ceil(zone.height * _scale)
-        image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(image)
-        start = zone.first_triangle
-        end = start + zone.triangle_count
-        total = end - start
-        _step = max(1, total // 50) if total > 100 else 1
-        for _idx, triangle_index in enumerate(range(start, end)):
-            tv = self.triangles[triangle_index].vertices
-            pts = [
-                (self.vertices[tv[0]].u * _scale, self.vertices[tv[0]].v * _scale),
-                (self.vertices[tv[1]].u * _scale, self.vertices[tv[1]].v * _scale),
-                (self.vertices[tv[2]].u * _scale, self.vertices[tv[2]].v * _scale),
-            ]
-            draw.polygon(pts, fill=(255, 0, 0, 46))
-            if total > 100 and _idx % _step == 0:
-                _report_progress(progress_callback, _idx / total)
-        image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
+        if zone.flags & TIER_FLAG:
+            image = self._tier_overlay_image(zone, Image, ImageDraw)
+        else:
+            _scale = 0.5
+            _w = math.ceil(zone.width * _scale)
+            _h = math.ceil(zone.height * _scale)
+            image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(image)
+            start = zone.first_triangle
+            end = start + zone.triangle_count
+            total = end - start
+            _step = max(1, total // 50) if total > 100 else 1
+            for _idx, triangle_index in enumerate(range(start, end)):
+                tv = self.triangles[triangle_index].vertices
+                pts = [
+                    (self.vertices[tv[0]].u * _scale, self.vertices[tv[0]].v * _scale),
+                    (self.vertices[tv[1]].u * _scale, self.vertices[tv[1]].v * _scale),
+                    (self.vertices[tv[2]].u * _scale, self.vertices[tv[2]].v * _scale),
+                ]
+                draw.polygon(pts, fill=(255, 0, 0, 46))
+                if total > 100 and _idx % _step == 0:
+                    _report_progress(progress_callback, _idx / total)
+            image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
         self.overlay_cache[zone_id] = image
+        return image
+
+    def _tier_overlay_image(self, zone, Image, ImageDraw):
+        # A tier has no triangles of its own; its mesh lives in the PARENT geometry zone
+        # (base pixels). Render the walkable surface onto the tier's OWN template canvas
+        # (tier pixels, sized to this tier zone), mapping each parent triangle inside the
+        # tier footprint base_px -> tier_px via the inverse affine (tier = (base - t)/s).
+        # So a selected tier shows its real template底图 with the可行走面 aligned on top —
+        # the visual oracle for the baked affine — instead of boxing a region in the base.
+        parent = self.zone_by_id.get(zone.component_count)
+        if parent is None or parent.width <= 0 or parent.height <= 0:
+            return None
+        sx, tx, sy, ty = zone.transform
+        if sx == 0.0 or sy == 0.0:
+            return None
+        # footprint in base_px (this tier's extent) — cheap cull of parent triangles
+        fxs = (tx, sx * zone.width + tx)
+        fys = (ty, sy * zone.height + ty)
+        fx0, fx1 = min(fxs), max(fxs)
+        fy0, fy1 = min(fys), max(fys)
+        # Only paint THIS tier's floor. The parent base zone stacks every floor's mesh at
+        # each (u,v); without the band filter the overlay shows other floors / walls bleeding
+        # through the tier底图. Keep triangles within floor_y±FLOOR_BAND (height == world Y),
+        # so the可行走面 rendering matches the floor the tier actually depicts. floor_y unset
+        # (the "…_Base" overview tiers) falls back to painting all triangles, as before.
+        floor_y = zone.floor_y
+        has_floor = floor_y > FLOOR_Y_VALID_MIN
+        image = Image.new("RGBA", (math.ceil(zone.width), math.ceil(zone.height)), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        start = parent.first_triangle
+        end = start + parent.triangle_count
+        for triangle_index in range(start, end):
+            cx, cy = self.triangles[triangle_index].center
+            if cx < fx0 or cx > fx1 or cy < fy0 or cy > fy1:
+                continue
+            if has_floor and abs(self.triangle_height[triangle_index] - floor_y) > FLOOR_BAND:
+                continue
+            points = [
+                ((self.vertices[index].u - tx) / sx, (self.vertices[index].v - ty) / sy)
+                for index in self.triangles[triangle_index].vertices
+            ]
+            draw.polygon(points, fill=(255, 0, 0, 46))
         return image
 
     def walkable_dots_image(
@@ -369,11 +495,16 @@ class BaseNavField:
         start: tuple[float, float],
         goal: tuple[float, float],
         snap_radius: float,
+        floor_y: float | None = None,
     ) -> _BaseNavRoute:
-        start_snap = self.snap(zone_id, start, snap_radius)
+        # floor_y (the active tier's baked dominant-floor height) only steers the endpoint
+        # snap onto the correct floor; once both ends land on that floor's A* component the
+        # corridor stays on it (coplanar-stitch links don't cross heights). A* itself is left
+        # unfiltered so a legitimate on-floor ramp is never gated out — never fail closed.
+        start_snap = self.snap(zone_id, start, snap_radius, floor_y)
         if start_snap is None:
             raise ValueError("起点附近没有可走三角面")
-        goal_snap = self.snap(zone_id, goal, snap_radius)
+        goal_snap = self.snap(zone_id, goal, snap_radius, floor_y)
         if goal_snap is None:
             raise ValueError("终点附近没有可走三角面")
 
@@ -403,7 +534,13 @@ class BaseNavField:
         points, segment_breaks = self._triangle_path_points(triangle_path, start_snap.point, goal_snap.point)
         return _BaseNavRoute(points=points, triangles=triangle_path, cost=cost, segment_breaks=segment_breaks)
 
-    def snap(self, zone_id: int, point: tuple[float, float], radius: float) -> _SnapResult | None:
+    def snap(
+        self,
+        zone_id: int,
+        point: tuple[float, float],
+        radius: float,
+        floor_y: float | None = None,
+    ) -> _SnapResult | None:
         zone = self.zone_by_id.get(zone_id)
         if zone is None or zone.triangle_count <= 0:
             return None
@@ -411,20 +548,47 @@ class BaseNavField:
         candidates = self._candidate_triangles(zone_id, point, query_radius)
         if not candidates and query_radius < self.bin_size:
             candidates = self._candidate_triangles(zone_id, point, self.bin_size)
-        best: _SnapResult | None = None
+        if floor_y is None or floor_y <= FLOOR_Y_VALID_MIN:
+            # Legacy floor-blind path — byte-identical to the pre-floor behavior so a base
+            # view / unbaked zone keeps the 9 golden-hash routing parity exactly.
+            best: _SnapResult | None = None
+            for triangle_index in candidates:
+                triangle_vertices = self._triangle_points(triangle_index)
+                if _point_in_triangle(point, *triangle_vertices):
+                    # 命中即最优(距离 0),提前返回;与 C++ BaseNavPlanner::snap 行为一致,
+                    # 避免在细碎三角形堆叠的 bin 中线性扫遍上万个候选。
+                    return _SnapResult(triangle=triangle_index, point=point, distance=0.0)
+                snapped = _closest_point_on_triangle(point, triangle_vertices)
+                distance = math.hypot(snapped[0] - point[0], snapped[1] - point[1])
+                if distance > query_radius:
+                    continue
+                if best is None or distance < best.distance:
+                    best = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
+            return best
+        # Floor-aware path: a click in a multi-floor base projects onto several STACKED
+        # triangles (other floors / walls overlap this (u,v)). Rank so an in-band surface
+        # (|height-floor_y| <= FLOOR_BAND) always beats an off-band one, then by snap
+        # distance, then by height proximity to floor_y. The band is a PREFERENCE — if
+        # nothing lands in-band we still return the nearest surface (never None), so
+        # floor_y only re-ranks the snap target onto the correct floor, never gates it out.
+        best_key: tuple[int, float, float] | None = None
+        best_floor: _SnapResult | None = None
         for triangle_index in candidates:
             triangle_vertices = self._triangle_points(triangle_index)
             if _point_in_triangle(point, *triangle_vertices):
-                # 命中即最优(距离 0),提前返回;与 C++ BaseNavPlanner::snap 行为一致,
-                # 避免在细碎三角形堆叠的 bin 中线性扫遍上万个候选。
-                return _SnapResult(triangle=triangle_index, point=point, distance=0.0)
-            snapped = _closest_point_on_triangle(point, triangle_vertices)
-            distance = math.hypot(snapped[0] - point[0], snapped[1] - point[1])
-            if distance > query_radius:
-                continue
-            if best is None or distance < best.distance:
-                best = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
-        return best
+                snapped = point
+                distance = 0.0
+            else:
+                snapped = _closest_point_on_triangle(point, triangle_vertices)
+                distance = math.hypot(snapped[0] - point[0], snapped[1] - point[1])
+                if distance > query_radius:
+                    continue
+            delta = abs(self.triangle_height[triangle_index] - floor_y)
+            key = (0 if delta <= FLOOR_BAND else 1, distance, delta)
+            if best_key is None or key < best_key:
+                best_key = key
+                best_floor = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
+        return best_floor
 
     def is_segment_walkable(self, zone_id: int, a: tuple[float, float], b: tuple[float, float]) -> bool:
         # Navmesh raycast: True when the straight segment a->b stays on walkable mesh within zone_id.
@@ -1005,7 +1169,7 @@ def _read_basenav(
     version = header_values[1]
     if magic != MAGIC:
         raise ValueError("invalid BaseNav magic")
-    if version != VERSION:
+    if not (VERSION_MIN <= version <= VERSION):
         raise ValueError("unsupported BaseNav version")
 
     zone_count = int(header_values[3])
@@ -1039,9 +1203,10 @@ def _read_basenav(
     # 区表含变长名字,数量很小,保留 Python 解析。
     zones = []
     cursor = zone_table_offset
+    zone_struct = ZONE_STRUCT if version >= 3 else ZONE_STRUCT_V2
     for _index in range(zone_count):
-        values = ZONE_STRUCT.unpack_from(data, offset=cursor)
-        cursor += ZONE_STRUCT.size
+        values = zone_struct.unpack_from(data, offset=cursor)
+        cursor += zone_struct.size
         name_size = int(values[2])
         name = data[cursor:cursor + name_size].tobytes().decode("utf-8")
         cursor += name_size
@@ -1056,6 +1221,7 @@ def _read_basenav(
                 width=float(values[6]),
                 height=float(values[7]),
                 transform=(float(values[8]), float(values[9]), float(values[10]), float(values[11])),
+                floor_y=float(values[12]) if version >= 3 else FLOOR_Y_NONE,
             )
         )
     if cursor != vertex_offset:

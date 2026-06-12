@@ -30,6 +30,9 @@ struct BaseNavRouteRequest
     double snap_radius = 5.0;
     double max_cost = 0.0;
     std::vector<uint32_t> blocked_triangles;
+    // Dominant-floor height of the floor being navigated (from the locator/tier zone). Lets snap resolve
+    // onto the right floor of a multi-floor base. kBaseNavFloorYNone (default) keeps the floor-blind path.
+    float floor_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
@@ -57,7 +60,12 @@ public:
     explicit BaseNavPlanner(const BaseNavPack& pack);
 
     BaseNavRouteResult findPath(const BaseNavRouteRequest& request) const;
-    std::optional<BaseNavSnapResult> snap(uint16_t zone_id, const WorldPoint& point, double radius) const;
+    // `floor_y` re-ranks the snap onto the correct floor of a multi-floor base: surfaces within
+    // kBaseNavFloorBand of it are preferred, off-band ones are a graceful fallback (never gated to
+    // nullopt). kBaseNavFloorYNone (the default) keeps the legacy floor-blind behavior byte-for-byte.
+    // Mirrors basenav_preview.py BaseNavField.snap.
+    std::optional<BaseNavSnapResult> snap(
+        uint16_t zone_id, const WorldPoint& point, double radius, float floor_y = kBaseNavFloorYNone) const;
 
     // Navmesh raycast: true when the straight segment a->b stays on walkable mesh within `zone_id`.
     // Fails closed on any ambiguity.

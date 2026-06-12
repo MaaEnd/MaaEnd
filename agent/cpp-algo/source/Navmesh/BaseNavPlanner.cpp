@@ -368,13 +368,40 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
         return result;
     }
 
-    const auto start = snap(zone->zone_id, request.start, request.snap_radius);
+    // A tier zone carries no triangles — it is just the affine onto its parent geometry zone. Mirror the
+    // python tool (is_tier -> geometry_zone_id + base = s*tier + t): map the query points through the
+    // tier's OWN baked affine and route on the parent's triangles. Current callers pass the already-inferred
+    // geometry zone, so this branch is inert for them; it is the planner's self-sufficient fallback so a tier
+    // zone_id never has to be resolved through the external MapTracker transforms.
+    WorldPoint start_point = request.start;
+    WorldPoint goal_point = request.goal;
+    // Resolve the floor to snap onto. The request's floor_y (set by runtime callers from the locator/tier
+    // zone) takes precedence; otherwise fall back to the queried zone's own baked floor, captured BEFORE any
+    // tier->parent reassignment so the planner's self-sufficient tier-zone branch stays floor-aware. A
+    // geometry query with no request floor yields the sentinel -> legacy floor-blind snap, byte-for-byte.
+    const float floor_y = request.floor_y > kBaseNavFloorYValidMin ? request.floor_y : zone->floor_y;
+    if (IsTierZone(*zone)) {
+        const BaseNavZone* parent = pack_.findZone(static_cast<uint16_t>(zone->component_count));
+        if (parent == nullptr) {
+            BaseNavRouteResult result;
+            result.status = BaseNavRouteStatus::ZoneNotFound;
+            return result;
+        }
+        const std::array<float, 4>& t = zone->transform;
+        start_point = { static_cast<double>(t[0]) * start_point.x + static_cast<double>(t[1]),
+                        static_cast<double>(t[2]) * start_point.y + static_cast<double>(t[3]) };
+        goal_point = { static_cast<double>(t[0]) * goal_point.x + static_cast<double>(t[1]),
+                       static_cast<double>(t[2]) * goal_point.y + static_cast<double>(t[3]) };
+        zone = parent;
+    }
+
+    const auto start = snap(zone->zone_id, start_point, request.snap_radius, floor_y);
     if (!start) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::StartNotWalkable;
         return result;
     }
-    const auto goal = snap(zone->zone_id, request.goal, request.snap_radius);
+    const auto goal = snap(zone->zone_id, goal_point, request.snap_radius, floor_y);
     if (!goal) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::GoalNotWalkable;
@@ -464,7 +491,7 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
     return result;
 }
 
-std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const WorldPoint& point, double radius) const
+std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const WorldPoint& point, double radius, float floor_y) const
 {
     const BaseNavZone* zone = pack_.findZone(zone_id);
     if (zone == nullptr) {
@@ -477,6 +504,47 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     if (candidates.empty() && query_radius < kIndexBinSize) {
         // 半径不足一格时邻域可能为空,放宽到整格再取候选(命中仍受 radius 距离剔除约束)。
         candidates = candidateTriangles(zone_id, point, kIndexBinSize);
+    }
+
+    if (floor_y > kBaseNavFloorYValidMin) {
+        // Floor-aware path: a click in a multi-floor base projects onto several STACKED triangles
+        // (other floors / walls overlap this (u,v)). Rank so an in-band surface (|height-floor_y| <=
+        // kBaseNavFloorBand) always beats an off-band one, then by snap distance, then by height
+        // proximity to floor_y. The band is a PREFERENCE — if nothing lands in-band we still return the
+        // nearest surface (never nullopt), so floor_y only re-ranks onto the right floor, never gates it
+        // out. Mirrors basenav_preview.py BaseNavField.snap (floor-aware branch). The zone + bbox culls
+        // match the legacy path below so the effective candidate set equals the python tool's.
+        std::optional<std::tuple<int, double, double>> best_key;
+        std::optional<BaseNavSnapResult> best_floor;
+        for (const uint32_t triangle_index : candidates) {
+            if (triangle_zones_[triangle_index] != zone_id) {
+                continue;
+            }
+            const auto points = trianglePoints(triangle_index);
+            const double left = std::min({ points[0].x, points[1].x, points[2].x });
+            const double right = std::max({ points[0].x, points[1].x, points[2].x });
+            const double top = std::min({ points[0].y, points[1].y, points[2].y });
+            const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
+            if (point.x < left - radius || point.x > right + radius || point.y < top - radius || point.y > bottom + radius) {
+                continue;
+            }
+            WorldPoint snapped = point;
+            double distance = 0.0;
+            if (!detail::PointInTriangle(point, points)) {
+                snapped = detail::ClosestPointOnTriangle(point, points);
+                distance = detail::Distance(snapped, point);
+                if (distance > radius) {
+                    continue;
+                }
+            }
+            const double delta = std::abs(triangle_heights_[triangle_index] - static_cast<double>(floor_y));
+            const std::tuple<int, double, double> key { delta <= static_cast<double>(kBaseNavFloorBand) ? 0 : 1, distance, delta };
+            if (!best_key || key < *best_key) {
+                best_key = key;
+                best_floor = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };
+            }
+        }
+        return best_floor;
     }
 
     std::optional<BaseNavSnapResult> best;

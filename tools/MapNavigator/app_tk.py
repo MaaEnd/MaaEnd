@@ -376,7 +376,7 @@ class RouteEditorApp:
             anchor="w",
         )
         self.astar_path_label.pack(side=tk.LEFT, padx=(0, 8))
-        tk.Label(astar_row, text="底图:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        tk.Label(astar_row, text="zone:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
         self.astar_display_zone_combo = ttk.Combobox(
             astar_row,
             values=self.astar_display_zone_ids,
@@ -386,8 +386,8 @@ class RouteEditorApp:
         )
         self.astar_display_zone_combo.pack(side=tk.LEFT, padx=(0, 8))
         self.astar_display_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_astar_display_zone_changed())
-        tk.Label(astar_row, text="zone:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
-        self.astar_zone_combo = ttk.Combobox(astar_row, width=8, textvariable=self.astar_zone_var, state="disabled")
+        tk.Label(astar_row, text="tier:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.astar_zone_combo = ttk.Combobox(astar_row, width=20, textvariable=self.astar_zone_var, state="disabled")
         self.astar_zone_combo.pack(side=tk.LEFT, padx=(0, 8))
         self.astar_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_astar_zone_changed())
         self.btn_clear_astar = tk.Button(astar_row, text="清除预览", command=self.clear_astar_preview, width=10)
@@ -505,9 +505,14 @@ class RouteEditorApp:
             return
 
         if self.astar_mode_var.get():
+            # Copied coords are navmesh waypoints, always in base-px. The route is already
+            # base-px; the start/goal fallback is in the display frame, so map tier-px back.
             points = self.astar_route.points if self.astar_route is not None else []
             if not points:
                 points = [point for point in (self.astar_start, self.astar_goal) if point is not None]
+                tier_id = self._active_display_tier_id()
+                if tier_id is not None:
+                    points = [self.astar_field.tier_to_base(tier_id, point[0], point[1]) for point in points]
             if not points:
                 self._set_status("当前没有可复制的 A* 预览点。", "#f59e0b")
                 return
@@ -829,7 +834,7 @@ class RouteEditorApp:
             self._sync_assert_controls()
             if not normalize_zone_id(self.astar_display_zone_var.get()):
                 self.astar_display_zone_var.set(self._default_astar_display_zone())
-            self._select_astar_zone_for_display()
+            self._refresh_astar_zone_choices()
             self._set_status("A* 模式：左键点起点，再点终点生成预览路线。", "#3b82f6")
         else:
             self._set_status("返回路径编辑模式。", "#10b981")
@@ -844,7 +849,7 @@ class RouteEditorApp:
         if not zone_id:
             return
         self.astar_display_zone_var.set(zone_id)
-        self._select_astar_zone_for_display()
+        self._refresh_astar_zone_choices()
         self._reset_astar_view_state()
         self._refresh_zone_label()
         self.fit_view()
@@ -939,8 +944,6 @@ class RouteEditorApp:
 
     def _on_basenav_core_loaded(self, field, input_file) -> None:
         self.astar_field = field
-        zone_ids = [field.zone_label(zone_id) for zone_id in field.zone_ids()]
-        self.astar_zone_combo["values"] = zone_ids
         self.astar_basenav_path_var.set(input_file.name)
         self.astar_mode_var.set(True)
         self.astar_display_zone_ids = list(BASE_NAV_DISPLAY_ZONE_IDS)
@@ -950,9 +953,8 @@ class RouteEditorApp:
             or self.astar_display_zone_var.get() not in self.astar_display_zone_ids
         ):
             self.astar_display_zone_var.set(self._default_astar_display_zone())
-        if zone_ids:
-            self.astar_zone_var.set(zone_ids[0])
-        self._select_astar_zone_for_display()
+        # 右侧 zone 下拉只列出当前底图(base)自己的 tier,不跨 base 混用。
+        self._refresh_astar_zone_choices()
         self._sync_astar_controls()
         self.clear_astar_preview(redraw=False)
         self.btn_load_basenav.config(state=tk.NORMAL)
@@ -1006,14 +1008,29 @@ class RouteEditorApp:
         if self.astar_field is None or self.astar_start is None or self.astar_goal is None:
             return
         try:
-            zone_id = self._astar_zone_id()
+            zone_id = self._astar_routing_zone_id()
+            # Clicks land in the display frame; when a real tier底图 is shown that frame is
+            # tier-px, but the mesh (snap/A*) lives in base-px on the parent zone. Map the
+            # endpoints tier_px -> base_px so routing is correct; route points come back in
+            # base-px and are re-expressed for drawing via _route_display_points().
+            tier_id = self._active_display_tier_id()
+            start = self.astar_start
+            goal = self.astar_goal
+            if tier_id is not None:
+                start = self.astar_field.tier_to_base(tier_id, start[0], start[1])
+                goal = self.astar_field.tier_to_base(tier_id, goal[0], goal[1])
+            # The selected tier's baked dominant-floor height scopes snap to the right floor
+            # (the parent base mesh stacks every floor at each (u,v)). None for base/overview
+            # selections, which keeps the floor-blind legacy routing untouched.
+            floor_y = self.astar_field.floor_y_for(self._astar_zone_id())
             self.astar_route = find_preview_route(
                 self.astar_field,
                 zone_id,
                 self._display_zone_id(),
-                self.astar_start,
-                self.astar_goal,
+                start,
+                goal,
                 ASTAR_PREVIEW_SNAP_RADIUS,
+                floor_y,
             )
         except Exception as exc:
             self.astar_route = None
@@ -1027,22 +1044,78 @@ class RouteEditorApp:
     def _astar_zone_id(self) -> int:
         return int(self.astar_zone_var.get().split(":", maxsplit=1)[0])
 
-    def _select_astar_zone_for_display(self) -> None:
+    def _astar_routing_zone_id(self) -> int:
+        # tier zones have no triangles; route/snap against the parent geometry zone.
+        zone_id = self._astar_zone_id()
+        if self.astar_field is not None:
+            return self.astar_field.geometry_zone_id(zone_id)
+        return zone_id
+
+    def _active_display_tier_id(self) -> int | None:
+        # zone_id of the tier whose OWN template should back the canvas (tier-px world
+        # frame), or None for the plain base view. The identity "…_Base" tier resolves to
+        # the base image and maps tier_px==base_px, so it is treated as base (None) — only
+        # a real, translated tier swaps the底图 to its template.
+        if not self.astar_mode_var.get() or self.astar_field is None:
+            return None
+        try:
+            zone_id = self._astar_zone_id()
+        except (ValueError, AttributeError):
+            return None
+        if not self.astar_field.is_tier(zone_id):
+            return None
+        zone = self.astar_field.zone_by_id.get(zone_id)
+        if zone is None:
+            return None
+        sx, tx, sy, ty = zone.transform
+        if tx == 0.0 and ty == 0.0 and sx == 1.0 and sy == 1.0:
+            return None
+        return zone_id
+
+    def _render_background_zone(self) -> str:
+        # Zone-id string handed to the renderer for the底图: a real tier shows its OWN
+        # template; otherwise the selected base composite. world == that image's pixels.
+        tier_id = self._active_display_tier_id()
+        if tier_id is not None:
+            zone = self.astar_field.zone_by_id.get(tier_id)
+            if zone is not None and zone.name:
+                return zone.name
+        return self._display_zone_id()
+
+    def _route_display_points(self) -> list[tuple[float, float]]:
+        # A* route points in the CURRENT display frame: tier-px when a real tier is shown
+        # (the route is planned in base-px on the parent mesh), else base-px unchanged.
+        if self.astar_route is None or not self.astar_route.points:
+            return []
+        tier_id = self._active_display_tier_id()
+        if tier_id is None:
+            return list(self.astar_route.points)
+        return [self.astar_field.base_to_tier(tier_id, point[0], point[1]) for point in self.astar_route.points]
+
+    def _refresh_astar_zone_choices(self) -> None:
+        # Repopulate the right-hand zone dropdown with ONLY the selected底图(base)'s
+        # tiers. Keep the current selection if it still belongs; else default to the
+        # first entry (the identity "…_Base" = whole base view).
         if self.astar_field is None:
             return
-        zone_label = self.astar_field.suggested_zone_label(self._display_zone_id())
-        if zone_label:
-            self.astar_zone_var.set(zone_label)
+        choices = self.astar_field.zone_choices_for_base(self._display_zone_id())
+        self.astar_zone_combo["values"] = choices
+        if choices and self.astar_zone_var.get() not in choices:
+            self.astar_zone_var.set(choices[0])
 
     def _select_astar_display_for_zone(self) -> None:
+        # A selected tier's parent (component_count) decides the底图; in practice the
+        # dropdown only offers the current base's tiers so this just keeps them in sync.
         if self.astar_field is None:
             return
-        zone_label = self.astar_zone_var.get()
-        if ":" not in zone_label:
+        try:
+            base_id = self.astar_field.geometry_zone_id(self._astar_zone_id())
+        except (ValueError, AttributeError):
             return
-        zone_name = normalize_zone_id(zone_label.split(":", maxsplit=1)[1])
-        if zone_name in self.astar_display_zone_ids:
-            self.astar_display_zone_var.set(zone_name)
+        base = self.astar_field.zone_by_id.get(base_id)
+        if base is not None and base.name in self.astar_display_zone_ids and self.astar_display_zone_var.get() != base.name:
+            self.astar_display_zone_var.set(base.name)
+            self._refresh_astar_zone_choices()
 
     def _on_assert_zone_changed(self) -> None:
         zone_id = normalize_zone_id(self.assert_zone_var.get())
@@ -1266,7 +1339,7 @@ class RouteEditorApp:
         self.schedule_redraw(fast=False, margin_fraction=self.PAN_MARGIN_FRACTION)
 
     def fit_view(self) -> None:
-        zone_id = self._display_zone_id()
+        zone_id = self._render_background_zone()
         points = [] if self.assert_mode_var.get() or self.astar_mode_var.get() else self.zone_state.current_points(self.points)
 
         box_min_x, box_max_x, box_min_y, box_max_y = 0, 100, 0, 100
@@ -1275,13 +1348,14 @@ class RouteEditorApp:
             box_max_x, box_max_y = map_image.size
 
         assert_target = self._current_assert_target()
+        route_points = self._route_display_points()
         if self.assert_mode_var.get() and assert_target is not None:
             target_x, target_y, target_w, target_h = assert_target
             box_min_x, box_max_x = target_x, target_x + target_w
             box_min_y, box_max_y = target_y, target_y + target_h
-        elif self.astar_mode_var.get() and self.astar_route is not None and self.astar_route.points:
-            xs = [point[0] for point in self.astar_route.points]
-            ys = [point[1] for point in self.astar_route.points]
+        elif self.astar_mode_var.get() and route_points:
+            xs = [point[0] for point in route_points]
+            ys = [point[1] for point in route_points]
             box_min_x, box_max_x = min(xs), max(xs)
             box_min_y, box_max_y = min(ys), max(ys)
         elif self.astar_mode_var.get() and self.astar_field is not None and self.astar_zone_var.get() and map_image is None:
@@ -1319,8 +1393,8 @@ class RouteEditorApp:
 
     def _do_redraw(self, fast: bool, margin_fraction: float = 0.0) -> None:
         self._redraw_pending = False
-        zone_id = self._display_zone_id()
-        if zone_id != self.renderer.last_params[0]:
+        render_zone = self._render_background_zone()
+        if render_zone != self.renderer.last_params[0]:
             self.renderer.reset_view()
         if self.assert_mode_var.get() or self.astar_mode_var.get():
             self.zone_point_global_indices = []
@@ -1329,7 +1403,7 @@ class RouteEditorApp:
             self.zone_point_global_indices = self.zone_state.point_indices(self.points)
             points = [self.points[index] for index in self.zone_point_global_indices]
 
-        self.renderer.request_render(zone_id, fast=fast, margin_fraction=margin_fraction)
+        self.renderer.request_render(render_zone, fast=fast, margin_fraction=margin_fraction)
         self._render_path(points)
         self._render_nodes(points)
         self._render_assert_rect()
@@ -1432,7 +1506,7 @@ class RouteEditorApp:
 
         preview_points = []
         if self.astar_route is not None:
-            preview_points = self.astar_route.points
+            preview_points = self._route_display_points()
         elif self.astar_start is not None:
             preview_points = [self.astar_start]
 
@@ -1762,7 +1836,7 @@ class RouteEditorApp:
         except ValueError:
             index = 0
         self.astar_display_zone_var.set(self.astar_display_zone_ids[(index + delta) % len(self.astar_display_zone_ids)])
-        self._select_astar_zone_for_display()
+        self._refresh_astar_zone_choices()
         self._reset_astar_view_state()
         self._refresh_zone_label()
         self.fit_view()
@@ -2341,6 +2415,11 @@ class RouteEditorApp:
         if target is None:
             messagebox.showwarning("复制失败", "请先在 A* 模式点击目标点")
             return
+
+        # NAVMESH targets are base-px; convert from the display frame when a tier底图 is shown.
+        tier_id = self._active_display_tier_id()
+        if tier_id is not None:
+            target = self.astar_field.tier_to_base(tier_id, target[0], target[1])
 
         payload = {
             "action": "NAVMESH",
