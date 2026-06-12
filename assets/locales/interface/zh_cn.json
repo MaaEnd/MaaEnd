@@ -9,6 +9,7 @@
     "global.region.TestArea": "试验园区",
     "global.region.QingboStockade": "清波寨",
     "global.region.MarkerStone": "首墩",
+    "global.region.SwordVaultDale": "藏剑谷",
     "item.XiraniteGourd": "息壤葫芦",
     "item.XiraniteJadeGourd": "息壤玉葫芦",
     "task.DeliveryJobs.AcceptJobOnly": "已开启仅接取任务模式，停止后续转交流程，请完成送货后再次运行任务",

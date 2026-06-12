@@ -9,6 +9,7 @@
     "global.region.TestArea": "Test Area",
     "global.region.QingboStockade": "Qingbo Stockade",
     "global.region.MarkerStone": "Marker Stone",
+    "global.region.SwordVaultDale": "Sword Vault Dale",
     "item.XiraniteGourd": "Xiranite Gourd",
     "item.XiraniteJadeGourd": "Xiranite Jade Gourd",
     "task.DeliveryJobs.AcceptJobOnly": "Accept-jobs-only mode is enabled. The subsequent transfer flow has been stopped. Please complete the delivery and run the task again.",
