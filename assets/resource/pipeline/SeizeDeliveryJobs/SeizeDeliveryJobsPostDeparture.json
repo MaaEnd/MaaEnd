@@ -97,9 +97,7 @@
         "all_of": [
             "CloseRewardsButton"
         ],
-        "next": [
-            "CloseRewardsButton"
-        ],
+        "action": "Click",
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
         }
