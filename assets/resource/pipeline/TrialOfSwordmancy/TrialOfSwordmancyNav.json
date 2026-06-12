@@ -9,7 +9,7 @@
     "TrialOfSwordmancyGotoTrialArenaExit": {
         "desc": "已到达演武入口，进入下一个子任务",
         "next": [
-            //接下一步节点入口
+            //这是个空节点，触发jumpback
         ]
     },
 

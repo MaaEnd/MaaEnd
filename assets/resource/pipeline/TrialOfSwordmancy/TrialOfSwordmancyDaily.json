@@ -2,7 +2,8 @@
     "TrialOfSwordmancyDailyMain": {
         "desc": "日常选剑演武入口",
         "next": [
-            "TrialOfSwordmancyEnterTrialMenu"
+            "TrialOfSwordmancyEnterTrialMenu",
+            "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
         ]
     },
     "TrialOfSwordmancyEnterTrialMenu": {
@@ -47,6 +48,7 @@
     },
     "TrialOfSwordmancyInTrialMenu": {
         "desc": "确认已在演算菜单界面",
+        "max_hit": 3, // 此处意为 3 次奖励领取机会
         "recognition": "OCR",
         "roi": [
             49,
@@ -55,7 +57,6 @@
             16
         ],
         "expected": "选剑演武",
-        "max_hit": 3, // 此处意为 3 次奖励领取机会
         "next": [
             "TrialOfSwordmancyAggressiveEntry",
             "TrialOfSwordmancyConservativeMainLoop"
@@ -118,7 +119,12 @@
     "TrialOfSwordmancyDailyBattlePtsOverflow": {
         "desc": "检测战力点溢出",
         "recognition": "OCR",
-        "roi": [546, 573, 180, 25],
+        "roi": [
+            546,
+            573,
+            180,
+            25
+        ],
         "expected": [
             "溢出"
         ],
@@ -129,7 +135,12 @@
     "TrialOfSwordmancyDailyGiveUp": {
         "desc": "放弃当前抽取",
         "recognition": "OCR",
-        "roi": [154, 593, 114, 87],
+        "roi": [
+            154,
+            593,
+            114,
+            87
+        ],
         "expected": [
             "放弃"
         ],
