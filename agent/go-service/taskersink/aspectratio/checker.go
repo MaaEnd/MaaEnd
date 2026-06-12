@@ -22,6 +22,11 @@ const (
 	tolerance    = 0.02
 	targetWidth  = 1280
 	targetHeight = 720
+
+	fullscreenToggleSettleDelay    = 3000 * time.Millisecond
+	fullscreenToggleRecheckTimeout = 8000 * time.Millisecond
+	fullscreenToggleRecheckDelay   = 500 * time.Millisecond
+	altEnterKeyStepDelay           = 80 * time.Millisecond
 )
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
@@ -52,28 +57,8 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
-	const maxRetries = 20
-	var width, height int32
-	var err error
-	for i := 0; i < maxRetries; i++ {
-		width, height, err = controller.GetResolution()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get resolution")
-			return
-		}
-		if width > 100 && height > 100 {
-			break
-		}
-		log.Debug().
-			Int32("width", width).
-			Int32("height", height).
-			Int("attempt", i+1).
-			Msg("Resolution too small, window may not be ready yet, retrying...")
-		time.Sleep(time.Second)
-		controller.PostScreencap().Wait()
-	}
-
-	if width <= 100 || height <= 100 {
+	width, height, ok := readResolutionWithRetry(controller)
+	if !ok {
 		log.Error().
 			Int32("width", width).
 			Int32("height", height).
@@ -162,8 +147,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
-	aspectRatioOK := isAspectRatio16x9(int(width), int(height))
-	minResolutionOK := isAtLeastTargetResolution(int(width), int(height))
+	aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
 
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
@@ -181,7 +165,14 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Float64("target_ratio", targetRatio).
 		Msg("Using aspect ratio and minimum resolution check for non-ADB controller")
 
-	if !aspectRatioOK || !minResolutionOK {
+	if !resolutionOK {
+		recheckedWidth, recheckedHeight, recheckedOK := trySwitchFullscreenToWindowedAndRecheck(controller, detail, width, height)
+		if recheckedOK {
+			return
+		}
+		width = recheckedWidth
+		height = recheckedHeight
+		aspectRatioOK, minResolutionOK, _ = isNonADBResolutionOK(width, height)
 		actualRatio := calculateAspectRatio(int(width), int(height))
 		log.Error().
 			Uint64("task_id", detail.TaskID).
@@ -223,6 +214,169 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Bool("min_resolution_ok", minResolutionOK).
 		Str("mode", "aspect_ratio_min_resolution").
 		Msg("resolution check passed")
+}
+
+func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
+	const maxRetries = 20
+	var width, height int32
+	for i := 0; i < maxRetries; i++ {
+		var err error
+		width, height, err = controller.GetResolution()
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get resolution")
+			return width, height, false
+		}
+		if width > 100 && height > 100 {
+			return width, height, true
+		}
+		log.Debug().
+			Int32("width", width).
+			Int32("height", height).
+			Int("attempt", i+1).
+			Msg("Resolution too small, window may not be ready yet, retrying...")
+		time.Sleep(time.Second)
+		controller.PostScreencap().Wait()
+	}
+	return width, height, false
+}
+
+func isNonADBResolutionOK(width, height int32) (bool, bool, bool) {
+	aspectRatioOK := isAspectRatio16x9(int(width), int(height))
+	minResolutionOK := isAtLeastTargetResolution(int(width), int(height))
+	return aspectRatioOK, minResolutionOK, aspectRatioOK && minResolutionOK
+}
+
+func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
+	fullScreen, err := gamesetting.GetVideoFullScreen()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to read fullscreen setting, skip Alt+Enter")
+		return width, height, false
+	}
+	if fullScreen != 1 {
+		log.Debug().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Uint32("video_full_screen", fullScreen).
+			Msg("Game is not fullscreen, skip Alt+Enter")
+		return width, height, false
+	}
+
+	log.Info().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Int32("width", width).
+		Int32("height", height).
+		Msg("Game is fullscreen with invalid resolution, sending Alt+Enter to switch to windowed mode")
+
+	sendAltEnterAndWait(controller)
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Msg("Alt+Enter completed, waiting for fullscreen toggle to settle")
+	time.Sleep(fullscreenToggleSettleDelay)
+
+	return recheckResolutionAfterFullscreenToggle(controller, detail, width, height)
+}
+
+func recheckResolutionAfterFullscreenToggle(controller *maa.Controller, detail maa.TaskerTaskDetail, oldWidth, oldHeight int32) (int32, int32, bool) {
+	width := oldWidth
+	height := oldHeight
+	start := time.Now()
+
+	for attempt := 1; ; attempt++ {
+		controller.PostScreencap().Wait()
+
+		recheckedWidth, recheckedHeight, err := controller.GetResolution()
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Uint64("task_id", detail.TaskID).
+				Str("entry", detail.Entry).
+				Int("attempt", attempt).
+				Msg("Failed to get resolution during Alt+Enter recheck")
+		} else {
+			width = recheckedWidth
+			height = recheckedHeight
+			aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
+			log.Debug().
+				Uint64("task_id", detail.TaskID).
+				Str("entry", detail.Entry).
+				Int("attempt", attempt).
+				Int32("width", width).
+				Int32("height", height).
+				Bool("aspect_ratio_ok", aspectRatioOK).
+				Bool("min_resolution_ok", minResolutionOK).
+				Msg("Rechecked resolution after Alt+Enter")
+
+			if resolutionOK {
+				log.Info().
+					Uint64("task_id", detail.TaskID).
+					Str("entry", detail.Entry).
+					Int32("width", width).
+					Int32("height", height).
+					Int("attempt", attempt).
+					Msg("Resolution check passed after Alt+Enter, continuing task")
+				return width, height, true
+			}
+		}
+
+		elapsed := time.Since(start)
+		if elapsed >= fullscreenToggleRecheckTimeout {
+			log.Warn().
+				Uint64("task_id", detail.TaskID).
+				Str("entry", detail.Entry).
+				Int32("width", width).
+				Int32("height", height).
+				Int("attempt", attempt).
+				Dur("elapsed", elapsed).
+				Msg("Resolution recheck timed out after Alt+Enter")
+			return width, height, false
+		}
+
+		sleepDuration := fullscreenToggleRecheckDelay
+		if remaining := fullscreenToggleRecheckTimeout - elapsed; remaining < sleepDuration {
+			sleepDuration = remaining
+		}
+		time.Sleep(sleepDuration)
+	}
+}
+
+func sendAltEnterAndWait(controller *maa.Controller) {
+	const (
+		vkAlt    = 0x12
+		vkReturn = 0x0D
+	)
+
+	altReleased := false
+	enterReleased := true
+	defer func() {
+		if !enterReleased {
+			controller.PostKeyUp(vkReturn).Wait()
+		}
+		if !altReleased {
+			controller.PostKeyUp(vkAlt).Wait()
+		}
+	}()
+
+	controller.PostKeyDown(vkAlt).Wait()
+	time.Sleep(altEnterKeyStepDelay)
+
+	controller.PostKeyDown(vkReturn).Wait()
+	enterReleased = false
+	time.Sleep(altEnterKeyStepDelay)
+
+	controller.PostKeyUp(vkReturn).Wait()
+	enterReleased = true
+	time.Sleep(altEnterKeyStepDelay)
+
+	controller.PostKeyUp(vkAlt).Wait()
+	altReleased = true
+
+	log.Debug().Msg("Alt+Enter key sequence completed")
 }
 
 func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, followUpLines ...string) {
