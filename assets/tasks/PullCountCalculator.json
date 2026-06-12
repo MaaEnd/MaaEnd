@@ -7,6 +7,7 @@
             "description": "$task.PullCountCalculator.description",
             "controller": [
                 "ADB",
+                "PlayCover",
                 "Win32-Front",
                 "Wlroots"
             ],

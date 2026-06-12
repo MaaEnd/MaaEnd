@@ -7,6 +7,7 @@
             "description": "$task.AutoCollect.description",
             "controller": [
                 "ADB",
+                "PlayCover",
                 "Win32-Front",
                 "Wlroots"
             ],

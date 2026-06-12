@@ -6,7 +6,8 @@
             "entry": "AndroidOpenGame",
             "description": "$task.AndroidOpenGame.description",
             "controller": [
-                "ADB"
+                "ADB",
+                "PlayCover"
             ],
             "group": ["other_menu"]
         }
