@@ -2,8 +2,8 @@
     "TrialOfSwordmancyGotoTrialArenaStart": {
         "desc": "前往演武入口（子任务入口）",
         "next": [
-            "TrialOfSwordmancyInSwordVaultDale"
-            //[JumpBack]万能跳转去藏剑谷
+            "TrialOfSwordmancyInSwordVaultDale",
+            "[JumpBack]SceneEnterWorldWulingSwordVaultDale2"
         ]
     },
     "TrialOfSwordmancyGotoTrialArenaExit": {
