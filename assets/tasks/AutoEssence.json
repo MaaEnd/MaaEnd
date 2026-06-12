@@ -107,6 +107,17 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLSwordVaultDaleMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
                 }
             ]
         },
