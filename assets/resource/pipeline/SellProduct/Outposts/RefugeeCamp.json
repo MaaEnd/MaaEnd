@@ -116,7 +116,7 @@
         "desc": "难民暂居处已打开派驻干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -221,7 +221,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -259,7 +259,7 @@
         "desc": "难民暂居处未找到配置的售卖用干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_delay": 0,
         "action": "StopTask",
@@ -319,7 +319,7 @@
         "desc": "难民暂居处已打开派驻干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -421,7 +421,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -459,7 +459,7 @@
         "desc": "难民暂居处未找到配置的恢复干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductOperatorContactIn"
+            "SellProductInOperatorContact"
         ],
         "pre_delay": 0,
         "action": "StopTask",

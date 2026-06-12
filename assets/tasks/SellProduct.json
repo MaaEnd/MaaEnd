@@ -1073,6 +1073,39 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -2039,6 +2072,44 @@
                                 "Zhuang Fangyi",
                                 "ゾアン・ファンイ",
                                 "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSell": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductRefugeeCampConfirmRestoreOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
                             ]
                         }
                     }
@@ -4263,6 +4334,39 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -5229,6 +5333,44 @@
                                 "Zhuang Fangyi",
                                 "ゾアン・ファンイ",
                                 "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSell": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
+                            }
+                        },
+                        "SellProductInfrastructureOutpostCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostConfirmRestoreOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
                             ]
                         }
                     }
@@ -7277,6 +7419,39 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -8243,6 +8418,44 @@
                                 "Zhuang Fangyi",
                                 "ゾアン・ファンイ",
                                 "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSell": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
+                            }
+                        },
+                        "SellProductReconstructionCommandCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
                             ]
                         }
                     }
@@ -10231,6 +10444,39 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -11197,6 +11443,44 @@
                                 "Zhuang Fangyi",
                                 "ゾアン・ファンイ",
                                 "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSell": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
                             ]
                         }
                     }
@@ -13333,6 +13617,39 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -14299,6 +14616,44 @@
                                 "Zhuang Fangyi",
                                 "ゾアン・ファンイ",
                                 "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSell": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
                             ]
                         }
                     }

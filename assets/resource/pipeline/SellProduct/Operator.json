@@ -1,5 +1,5 @@
 {
-    "SellProductOperatorContactIn": {
+    "SellProductInOperatorContact": {
         "desc": "在据点派驻干员列表界面",
         "recognition": "OCR",
         "roi": [
