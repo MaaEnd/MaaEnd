@@ -1,0 +1,189 @@
+{
+    "WLSwordVaultDaleMoveToTriggerPointAuto": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLSwordVaultDaleWalkAround1"
+        },
+        "next": [
+            "[JumpBack]WLSwordVaultDaleMaybeTeleport",
+            "WLSwordVaultDaleMoveToTriggerPoint"
+        ]
+    },
+    "WLSwordVaultDaleLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv006",
+                            "target": [
+                                386.7,
+                                294.8,
+                                21.4,
+                                20.7
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLSwordVaultDaleWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>藏剑谷</strong></p>"
+        }
+    },
+    "WLSwordVaultDaleMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv006",
+                            "target": [
+                                352.0,
+                                290.4,
+                                12.0,
+                                12.6
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv006",
+                            "target": [
+                                386.7,
+                                294.8,
+                                21.4,
+                                20.7
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingSwordVaultDale3"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "WLSwordVaultDaleMoveToTriggerPoint": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            357.4,
+                            291.4
+                        ],
+                        [
+                            366.3,
+                            297.7
+                        ],
+                        [
+                            398.7,
+                            306.5
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLSwordVaultDaleMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "WLSwordVaultDaleMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            398.7,
+                            306.5
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceAtTriggerState"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "WLSwordVaultDaleWalkAround1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            400.7,
+                            304.5
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLSwordVaultDaleWalkAround2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLSwordVaultDaleWalkAround2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            399.2,
+                            307.8
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLSwordVaultDaleWalkAround1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    }
+}
