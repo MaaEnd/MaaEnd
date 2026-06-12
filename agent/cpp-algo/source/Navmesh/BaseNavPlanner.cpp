@@ -292,7 +292,8 @@ std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
     return best;
 }
 
-bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+bool BaseNavPlanner::segmentHeightWalkable(
+    uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, const std::vector<uint8_t>* blocked) const
 {
     if (pack_.findZone(zone_id) == nullptr) {
         return false;
@@ -308,12 +309,16 @@ bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a
         const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
         if (previous && cached != kInvalidTriangle) {
             if (detail::PointInTriangle(point, trianglePoints(cached))) {
-                continue; // 命中缓存:高度等于 previous,直接进入下一采样点
+                continue; // 命中缓存:高度等于 previous、三角形未变(已判过阻挡),直接进入下一采样点
             }
         }
         const std::optional<double> height = groundHeightNearIndexed(zone_id, point, previous, cached);
         if (!height) {
             return false; // 采样点离开网格,判定捷径不可走
+        }
+        // 直线踩入被封堵三角形即等于直穿障碍本身,拒绝;反之全程绕开封堵集,方为真实可衔接的可达性证明。
+        if (blocked != nullptr && cached < blocked->size() && (*blocked)[cached] != 0) {
+            return false;
         }
         if (previous && std::abs(*height - *previous) > kBridgeMaxHeightDelta) {
             return false; // 地面高度突跳(踩入墙体或跌落台面),为结构性拐角,捷径不可走
@@ -433,9 +438,14 @@ BaseNavRouteResult BaseNavPlanner::findPath(const BaseNavRouteRequest& request) 
     // (kBridgeMaxHeightDelta) rejects — even when the goal is a short, flat walk away. Both endpoints have
     // already snapped onto the mesh here, so when the straight segment between them stays on walkable mesh
     // with continuous ground height it is a sound proof the goal is reachable; accept it as a direct path.
-    // Skipped when triangles are blocked (an obstacle-detour query), where a straight shortcut would walk
-    // back through the very obstacle the detour is trying to bypass.
-    if (request.blocked_triangles.empty() && segmentHeightWalkable(zone->zone_id, start->point, goal->point)) {
+    // For obstacle-detour queries (blocked triangles set) the same proof holds as long as the straight
+    // segment never steps onto a blocked triangle — passing the blocked mask makes segmentHeightWalkable
+    // reject exactly that case. This is the difference between refusing a truly impassable crossing and
+    // refusing two positions that are plainly connectable around the obstacle: the former still fails (the
+    // straight line walks back through the obstacle and trips the mask, or hits a height step), while the
+    // latter is now accepted instead of being lost to a fragmented-mesh A* false Unreachable.
+    const std::vector<uint8_t>* blocked_mask = request.blocked_triangles.empty() ? nullptr : &blocked;
+    if (segmentHeightWalkable(zone->zone_id, start->point, goal->point, blocked_mask)) {
         BaseNavRouteResult result;
         result.status = BaseNavRouteStatus::Success;
         result.triangles.push_back(start->triangle);

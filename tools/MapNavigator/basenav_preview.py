@@ -379,6 +379,26 @@ class BaseNavField:
 
         triangle_path, cost = self._astar(start_snap.triangle, goal_snap.triangle)
         if not triangle_path:
+            # A* 在破碎/重叠网格上会把"目标落在微小不连通分量里"或"恰好隔着一道被 BRIDGE_MAX_HEIGHT_DELTA
+            # 拒绝的高度台阶"误报为不可达 —— 哪怕目标其实只是一小段平地之外。两端都已 snap 到网格上,故当两
+            # 点间的直线全程落在可走网格、地面高度连续时,这就是目标可达的充分证明,按直连路径接受。对齐 C++
+            # BaseNavPlanner::findPath 的直连可达性证明,使预览不再把这些"明明可走"的线路画成不可达。预览只做
+            # 直连查询(无绕障/封堵三角形),故无需 C++ 那个 blocked 掩码分支。
+            if self._segment_height_walkable(zone_id, start_snap.point, goal_snap.point):
+                direct_triangles = [start_snap.triangle]
+                if goal_snap.triangle != start_snap.triangle:
+                    direct_triangles.append(goal_snap.triangle)
+                direct_points = _dedupe_points([start_snap.point, goal_snap.point])
+                direct_cost = math.hypot(
+                    goal_snap.point[0] - start_snap.point[0],
+                    goal_snap.point[1] - start_snap.point[1],
+                )
+                return _BaseNavRoute(
+                    points=direct_points,
+                    triangles=direct_triangles,
+                    cost=direct_cost,
+                    segment_breaks=[],
+                )
             raise ValueError("A* 未找到可达路径")
         points, segment_breaks = self._triangle_path_points(triangle_path, start_snap.point, goal_snap.point)
         return _BaseNavRoute(points=points, triangles=triangle_path, cost=cost, segment_breaks=segment_breaks)

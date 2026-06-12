@@ -99,7 +99,13 @@ private:
     // LOS 拉直的可行性判据,取代抽稀中的 march:沿 a→b 采样,要求每点在网格内、且相邻采样的地面高度
     // 跳变不超过 kBridgeMaxHeightDelta。共面捷径全程平坦判可走(被拉直至中线),绕墙捷径因踩墙跳变判
     // 不可走(直角得以保留)。march 在共面重叠缝处误判不可走、使抽稀拉不直,故改用此高度连续性判据。
-    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    // blocked 非空(绕障查询)时,直线踩入任一被封堵三角形即判不可走——即直线穿回障碍本身;反之直线
+    // 全程绕开封堵集,才作为两端真实可衔接的可达性证明被接受。
+    bool segmentHeightWalkable(
+        uint16_t zone_id,
+        const WorldPoint& a,
+        const WorldPoint& b,
+        const std::vector<uint8_t>* blocked = nullptr) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> sharedEdgePortal(uint32_t lhs, uint32_t rhs) const;
     std::optional<WorldPoint> sharedEdgeMidpoint(uint32_t lhs, uint32_t rhs) const;
