@@ -22,11 +22,11 @@
         },
         "next": [
             "GiftOperatorMoveLocation3",
-            "GiftOperatorMoveLocation3Move",
+            //"GiftOperatorMoveLocation3Move",
             "GiftOperatorMoveLocation2",
-            "GiftOperatorMoveLocation2Move",
+            //"GiftOperatorMoveLocation2Move",
             "GiftOperatorMoveLocation1",
-            "GiftOperatorMoveLocation1Move",
+            //"GiftOperatorMoveLocation1Move",
             "GiftOperatorMoveFail"
         ]
     },
@@ -40,7 +40,7 @@
     },
     "GiftOperatorMoveLocation1": {
         "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
@@ -91,7 +91,7 @@
     },
     "GiftOperatorMoveLocation2": {
         "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
@@ -142,7 +142,7 @@
     },
     "GiftOperatorMoveLocation3": {
         "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
