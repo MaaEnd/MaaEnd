@@ -705,7 +705,7 @@
     "option.AutoUseSpMedicationSelectMode.description": "Choose how to use emergency sanity boosters: by count or use all soon-to-expire ones",
     "task.AutoUseSpMedication.description": "Automatically use emergency sanity boosters (+40 sanity). Supports count-based or use-all-expiring modes.",
     "task.AutoUseSpMedication.label": "💊 Emergency Sanity Booster",
-    "option.UseAllExpireSoonMedication.label": "Use all red-timer (less than 7 days) sanity boosters",
+    "option.UseAllExpireSoonMedication.label": "Use all red-timer (less than 7 days) emergency sanity boosters",
     "option.UseAllExpireSoonMedication.description": "When enabled, uses all emergency sanity boosters with red timer (less than 7 days), up to 15.",
     "option.UseRegularSpMedicationTime.label": "Use emergency sanity booster by count",
     "option.UseRegularSpMedicationTime.description": "Use the specified number of emergency sanity boosters. Prioritizes red timer (less than 7 days), then falls back to green timer (more than 7 days).",

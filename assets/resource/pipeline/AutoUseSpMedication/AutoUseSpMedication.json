@@ -1,6 +1,6 @@
 {
     "AutoUseSpMedicationEntry": {
-        "desc": "自动使用理智药剂任务入口",
+        "desc": "自动使用应急理智加强剂任务入口",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -49,7 +49,7 @@
             "AutoUseSpMedicationUseEmergencySpBooster"
         ],
         "focus": {
-            "Node.Action.Starting": "开始选择药剂"
+            "Node.Action.Starting": "开始选择应急理智加强剂"
         }
     },
     "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster": {
@@ -79,7 +79,7 @@
         }
     },
     "ColorRecognitionGreenEmergencySanityBooster": {
-        "desc": "颜色识别,确认是绿色时限的应急理智药剂",
+        "desc": "颜色识别,确认是绿色时限的应急理智加强剂",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -122,7 +122,7 @@
             "AutoUseSpMedicationUseEmergencySpBooster"
         ],
         "focus": {
-            "Node.Action.Starting": "开始选择即将过期的药剂"
+            "Node.Action.Starting": "开始选择即将过期的应急理智加强剂"
         }
     },
     "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster": {
@@ -151,7 +151,7 @@
         }
     },
     "ColorRecognitionRedEmergencySanityBooster": {
-        "desc": "颜色识别,确认是红色时限的应急理智药剂",
+        "desc": "颜色识别,确认是红色时限的应急理智加强剂",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -195,7 +195,7 @@
         ]
     },
     "AutoUseSpMedicationQuickUse": {
-        "desc": "确认使用理智药",
+        "desc": "确认使用应急理智加强剂",
         "recognition": {
             "type": "And",
             "param": {
@@ -282,11 +282,11 @@
         ]
     },
     "AutoUseSpMedicationFinish": {
-        "desc": "完成使用理智药剂，结束任务",
+        "desc": "完成使用应急理智加强剂，结束任务",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "完成使用理智药剂，结束任务"
+            "Node.Action.Succeeded": "完成使用应急理智加强剂，结束任务"
         }
     },
     "AutoUseSpMedicationQuickUseError": {
@@ -320,11 +320,11 @@
             "AutoUseSpMedicationQuickUseError"
         ],
         "focus": {
-            "Node.Action.Succeeded": "无法使用理智药剂！"
+            "Node.Action.Succeeded": "无法使用应急理智加强剂！"
         }
     },
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-        "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智的任意选项才会跳转到这个节点",
+        "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智加强剂的任意选项才会跳转到这个节点",
         "enabled": true,
         "action": "Custom",
         "custom_action": "FalseAction",

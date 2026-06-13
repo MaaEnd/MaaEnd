@@ -705,7 +705,7 @@
     "option.AutoUseSpMedicationSelectMode.description": "응급 이성 강화제 사용 방법 선택: 횟수 지정 또는 곧 만료될 강화제 일괄 사용",
     "task.AutoUseSpMedication.description": "응급 이성 강화제를 자동으로 사용합니다(+40 이성). 횟수 지정 또는 곧 만료될 강화제 일괄 사용을 지원합니다.",
     "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
-    "option.UseAllExpireSoonMedication.label": "모든 빨간색 타이머(7일 미만) 이성약 사용",
+    "option.UseAllExpireSoonMedication.label": "모든 빨간색 타이머(7일 미만) 응급 이성 강화제 사용",
     "option.UseAllExpireSoonMedication.description": "활성화하면 남은 기간이 7일 미만(빨간색 타이머)인 응급 이성 강화제를 모두 사용합니다(최대 15개).",
     "option.UseRegularSpMedicationTime.label": "횟수 지정하여 응급 이성 강화제 사용",
     "option.UseRegularSpMedicationTime.description": "지정된 횟수만큼 응급 이성 강화제를 사용합니다. 빨간색 타이머(7일 미만)를 먼저 사용하고, 부족하면 녹색 타이머(7일 이상)를 사용합니다.",

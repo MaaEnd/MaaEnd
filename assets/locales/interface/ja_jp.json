@@ -705,7 +705,7 @@
     "option.AutoUseSpMedicationSelectMode.description": "緊急理智強化剤の使用戦略を選択：回数指定または期限切れ間近の一括使用",
     "task.AutoUseSpMedication.description": "緊急理智強化剤を自動で使用します（+40理智）。回数指定または期限切れ間近の一括使用に対応。",
     "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
-    "option.UseAllExpireSoonMedication.label": "すべての赤タイマー（7日未満）の理智薬を使用",
+    "option.UseAllExpireSoonMedication.label": "すべての赤タイマー（7日未満）の緊急理智強化剤を使用",
     "option.UseAllExpireSoonMedication.description": "有効にすると、残り7日未満（赤タイマー）の緊急理智強化剤をすべて使用します（最大15個）。",
     "option.UseRegularSpMedicationTime.label": "回数指定で緊急理智強化剤を使用",
     "option.UseRegularSpMedicationTime.description": "指定回数分の緊急理智強化剤を使用します。赤タイマー（7日未満）を優先し、不足時は緑タイマー（7日以上）を使用します。",
