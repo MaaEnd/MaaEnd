@@ -10,7 +10,7 @@ import {resolve} from "node:path";
 import {dataDir} from "./utils/paths.mjs";
 
 const VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version";
-const DATA_BASE_URL = "https://assets.zmdmap.com/data/entity";
+const DATA_BASE_URL = "https://assets.fz.wiki/output_maaend";
 
 const DATA_FILES = [
     "settlement_trade.json",
@@ -56,7 +56,7 @@ async function fetchAndCache(version) {
     mkdirSync(dataDir, {recursive: true});
 
     for (const file of DATA_FILES) {
-        const url = `${DATA_BASE_URL}/${version}/${file}`;
+        const url = `${DATA_BASE_URL}/${file}?ver=${encodeURIComponent(version)}`;
         console.log(`[fetch-data] 下载 ${url}`);
         const res = await fetch(url);
         if (!res.ok) {

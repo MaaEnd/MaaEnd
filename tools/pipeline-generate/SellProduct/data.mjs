@@ -15,7 +15,6 @@ try {
 
 const require = createRequire(import.meta.url);
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
-const giftOperatorTask = require("../../../assets/tasks/GiftOperator.json");
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -54,16 +53,40 @@ function buildItemLocaleKeyByCNName() {
 // 中文物品名 → locales/interface/zh_cn.json 中 `item.*` 的后缀 key。
 // 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
+const OPERATOR_LOCALE_ORDER = new Map(
+    Object.keys(zhCNLocale)
+        .filter((key) => key.startsWith("operator."))
+        .map((key, index) => [
+            key.slice("operator.".length),
+            index,
+        ]),
+);
 
 function buildOperatorCaseEntries() {
-    const selectOperatorCases = giftOperatorTask.option?.SelectOperator?.cases || [];
-    return selectOperatorCases
-        .filter((entry) => entry.name !== "Any")
-        .map((entry) => ({
-            name: entry.name,
-            label: entry.label,
-            expected: entry.pipeline_override?.GiftOperatorName?.expected || [],
-        }))
+    return Object.values(settlementData.operators || {})
+        .filter((operator) => operator.name?.EN !== "Endministrator" && operator.name?.CN !== "管理员")
+        .sort((a, b) => {
+            const aName = toPascalCase(a.name.EN || a.charId);
+            const bName = toPascalCase(b.name.EN || b.charId);
+            return (
+                (OPERATOR_LOCALE_ORDER.get(aName) ?? Number.MAX_SAFE_INTEGER) -
+                    (OPERATOR_LOCALE_ORDER.get(bName) ?? Number.MAX_SAFE_INTEGER) || aName.localeCompare(bName)
+            );
+        })
+        .map((operator) => {
+            const name = toPascalCase(operator.name.EN || operator.charId);
+            return {
+                name,
+                label: `$operator.${name}`,
+                expected: [
+                    operator.name.CN,
+                    operator.name.TC,
+                    operator.name.EN,
+                    operator.name.JP,
+                    operator.name.KR,
+                ].filter(Boolean),
+            };
+        })
         .filter((entry) => entry.expected.length > 0);
 }
 
