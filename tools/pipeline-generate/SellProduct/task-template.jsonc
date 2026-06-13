@@ -246,7 +246,7 @@
             "type": "select",
             "label": "$task.SellProduct.TargetOperator",
             "description": "$task.SellProduct.TargetOperatorDescription",
-            "default_case": "ChenQianyu",
+            "default_case": "${TargetOperatorDefaultCase}",
             "cases": "${TargetOperatorCases}"
         },
         "${RegionPrefix}${LocationId}RestoreOperator": {

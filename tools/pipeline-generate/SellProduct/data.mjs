@@ -16,10 +16,12 @@ try {
 const require = createRequire(import.meta.url);
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
 
+// 转义文本中的正则元字符，用于把数据源名称安全地放进 OCR expected。
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// 将数据源里的 id 或英文名称转换成稳定的选项/节点后缀。
 function toPascalCase(str) {
     return str
         .split(/[^a-zA-Z0-9]+/)
@@ -28,15 +30,18 @@ function toPascalCase(str) {
         .join("");
 }
 
+// 在保留原始顺序的前提下去掉空值和重复候选。
 function uniqueArray(items) {
     return [...new Set(items.filter(Boolean))];
 }
 
+// 英文地名匹配允许空格和连字符有轻微 OCR 差异。
 function toFlexibleEnglishRegex(text) {
     const escaped = escapeRegex(text.trim());
     return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
+// 建立中文物品名到 interface locale key 的反查表。
 function buildItemLocaleKeyByCNName() {
     const map = new Map();
     for (const [
@@ -61,7 +66,15 @@ const OPERATOR_LOCALE_ORDER = new Map(
             index,
         ]),
 );
+const TARGET_OPERATOR_BONUS_TYPES = new Set([
+    "expProfit",
+    "moneyProfit",
+]);
+const RESTORE_OPERATOR_BONUS_TYPES = new Set([
+    "moneyProduceSpeed",
+]);
 
+// 从 settlement_trade.operators 生成全局干员 case 基表，并保持现有 i18n 顺序。
 function buildOperatorCaseEntries() {
     return Object.values(settlementData.operators || {})
         .filter((operator) => operator.name?.EN !== "Endministrator" && operator.name?.CN !== "管理员")
@@ -91,6 +104,26 @@ function buildOperatorCaseEntries() {
 }
 
 const OPERATOR_CASE_ENTRIES = buildOperatorCaseEntries();
+
+// 按据点特性 bonus 类型收集该据点可用于对应用途的干员名。
+function buildOperatorNameSetByBonusTypes(settlement, bonusTypes) {
+    const names = new Set();
+    for (const feature of settlement.settlementFeatures || []) {
+        const hasMatchingBonus = (feature.bonuses || []).some((bonus) => bonusTypes.has(bonus.type));
+        if (!hasMatchingBonus) continue;
+
+        for (const operator of feature.matchingOperators || []) {
+            if (operator.name?.EN === "Endministrator" || operator.name?.CN === "管理员") continue;
+            names.add(toPascalCase(operator.name?.EN || operator.charId));
+        }
+    }
+    return names;
+}
+
+// 用据点级干员名集合筛选全局干员 case，同时保留全局排序。
+function filterOperatorCaseEntries(operatorNames) {
+    return OPERATOR_CASE_ENTRIES.filter((entry) => operatorNames.has(entry.name));
+}
 
 // TODO(SellProduct): 活动结束后，临时排除以下活动物品，避免继续生成到可售卖列表。
 // 当 settlement_trade.json 数据更新并确认活动物品已移除后，删除该常量与下方过滤判断。
@@ -200,6 +233,7 @@ const DOMAIN_REGION_PREFIX = {
     domain_2: "Wuling",
 };
 
+// 生成据点入口 OCR 候选；有手动覆盖时优先使用覆盖值。
 function buildSettlementTextExpected(settlementId, settlement) {
     const override = SETTLEMENT_OVERRIDE[settlementId]?.TextExpected;
     if (override) {
@@ -283,9 +317,13 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
         const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
             .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
             .map(([key]) => key);
+        const targetOperatorNames = buildOperatorNameSetByBonusTypes(settlement, TARGET_OPERATOR_BONUS_TYPES);
+        const restoreOperatorNames = buildOperatorNameSetByBonusTypes(settlement, RESTORE_OPERATOR_BONUS_TYPES);
         return {
             ...config,
             LocationDesc: settlement.settlementName.CN,
+            TargetOperatorNames: targetOperatorNames,
+            RestoreOperatorNames: restoreOperatorNames,
             items,
         };
     },
@@ -293,6 +331,7 @@ const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
 
 // 同一 location 的 4 个 itemNum 的物品列表完全一致，仅 selectKey/missHandlerKey 后缀编号不同。
 // 先抽出与 itemNum 无关的基础数据（buildItemCaseEntries），再由 buildItemCases 拼上 itemNum 相关的 key。
+// 将据点可售物品转换成四个售卖尝试共用的选项基表。
 function buildItemCaseEntries(itemIds) {
     const entries = [{name: "无", enabled: false}];
     for (const id of itemIds) {
@@ -308,6 +347,7 @@ function buildItemCaseEntries(itemIds) {
     return entries;
 }
 
+// 为指定售卖尝试编号生成物品选择 case，并绑定对应 miss handler。
 function buildItemCases(nodePrefix, itemNum, entries) {
     const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
     const missHandlerKey = `SellProduct${nodePrefix}SellAttempt${itemNum}SetMissHandler`;
@@ -330,11 +370,12 @@ function buildItemCases(nodePrefix, itemNum, entries) {
     });
 }
 
-function buildTargetOperatorCases(nodePrefix) {
+// 生成售卖前切换干员选项，只包含建设效率和调度券收益相关干员。
+function buildTargetOperatorCases(nodePrefix, operatorNames) {
     const currentKey = `SellProduct${nodePrefix}CurrentTargetOperator`;
     const selectKey = `SellProduct${nodePrefix}SelectTargetOperator`;
     const confirmKey = `SellProduct${nodePrefix}ConfirmTargetOperatorSelected`;
-    return OPERATOR_CASE_ENTRIES.map((entry) => ({
+    return filterOperatorCaseEntries(operatorNames).map((entry) => ({
         name: entry.name,
         label: entry.label,
         pipeline_override: {
@@ -351,7 +392,8 @@ function buildTargetOperatorCases(nodePrefix) {
     }));
 }
 
-function buildRestoreOperatorCases(nodePrefix) {
+// 生成售卖后恢复干员选项，只包含调度券生产速度相关干员。
+function buildRestoreOperatorCases(nodePrefix, operatorNames) {
     const currentKey = `SellProduct${nodePrefix}CurrentRestoreOperator`;
     const selectKey = `SellProduct${nodePrefix}SelectRestoreOperator`;
     const confirmKey = `SellProduct${nodePrefix}ConfirmRestoreOperatorSelected`;
@@ -367,7 +409,7 @@ function buildRestoreOperatorCases(nodePrefix) {
                 },
             },
         },
-        ...OPERATOR_CASE_ENTRIES.map((entry) => ({
+        ...filterOperatorCaseEntries(operatorNames).map((entry) => ({
             name: entry.name,
             label: entry.label,
             pipeline_override: {
@@ -419,6 +461,8 @@ const MAX_QUANTITY_BOX_ADB = [
 
 export const settlementFlatRows = LOCATIONS.map((loc) => {
     const entries = buildItemCaseEntries(loc.items);
+    const targetOperatorCases = buildTargetOperatorCases(loc.LocationId, loc.TargetOperatorNames);
+    const restoreOperatorCases = buildRestoreOperatorCases(loc.LocationId, loc.RestoreOperatorNames);
     return {
         RegionPrefix: loc.RegionPrefix,
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
@@ -433,8 +477,9 @@ export const settlementFlatRows = LOCATIONS.map((loc) => {
         ItemCases2: buildItemCases(loc.LocationId, 2, entries),
         ItemCases3: buildItemCases(loc.LocationId, 3, entries),
         ItemCases4: buildItemCases(loc.LocationId, 4, entries),
-        TargetOperatorCases: buildTargetOperatorCases(loc.LocationId),
-        RestoreOperatorCases: buildRestoreOperatorCases(loc.LocationId),
+        TargetOperatorDefaultCase: targetOperatorCases[0]?.name,
+        TargetOperatorCases: targetOperatorCases,
+        RestoreOperatorCases: restoreOperatorCases,
     };
 });
 
