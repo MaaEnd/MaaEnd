@@ -24,14 +24,29 @@
     },
     "TrialOfSwordmancyDailyCheckRewardMode": {
         "desc": "检测是否处于奖励演算模式",
-        "recognition": "TemplateMatch",
-        "roi": [
-            160,
-            531,
-            80,
-            41
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    160,
+                    531,
+                    80,
+                    41
+                ],
+                "template": "TrialOfSwordmancy/RewardMode1.png"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    160,
+                    531,
+                    80,
+                    41
+                ],
+                "template": "TrialOfSwordmancy/RewardMode2.png"
+            }
         ],
-        "template": "TrialOfSwordmancy/RewardMode.png",
         "next": [
             "TrialOfSwordmancyAggressiveEntry",
             "TrialOfSwordmancyConservativeMainLoop"
