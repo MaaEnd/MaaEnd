@@ -69,10 +69,10 @@
         "post_wait_freezes": 100,
         "next": [
             "TrialOfSwordmancyInTrialMenu",
-            "TrialOfSwordmancyRewardExhuasted"
+            "TrialOfSwordmancyRewardExhausted"
         ]
     },
-    "TrialOfSwordmancyRewardExhuasted": {
+    "TrialOfSwordmancyRewardExhausted": {
         "desc": "奖励次数用尽，即将进入自由演算模式",
         "recognition": "And",
         "all_of": [
