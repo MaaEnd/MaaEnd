@@ -712,7 +712,7 @@
                     "patch": {
                         "AutoStockInStapleItemName": {
                             "attach": {
-                                "cartilage_cookie": false
+                                "cartilage_tack": false
                             }
                         }
                     }
