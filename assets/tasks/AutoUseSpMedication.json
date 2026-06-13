@@ -15,72 +15,59 @@
                 "valuables_vault"
             ],
             "option": [
-                "UseRegularSpMedication",
-                "UseAllExpireSoonSpMedication"
+                "AutoUseSpMedicationSelectMode"
             ]
         }
     ],
     "option": {
-        "UseRegularSpMedication": {
-            "type": "switch",
-            "description": "$option.UseRegularSpMedication.description",
-            "label": "$option.UseRegularSpMedication.label",
-            "default_case": "Yes",
+        "AutoUseSpMedicationSelectMode": {
+            "label": "$option.AutoUseSpMedicationSelectMode.label",
+            "description": "$option.AutoUseSpMedicationSelectMode.description",
+            "type": "select",
             "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-                            "enabled": true
-                        }
-                    }
+                    "name": "UseRegularSpMedicationTime",
+                    "label": "$option.UseRegularSpMedicationTime.label",
+                    "description": "$option.UseRegularSpMedicationTime.description",
+                    "option": [
+                        "UseRegularSpMedicationTime"
+                    ]
                 },
                 {
-                    "name": "No",
+                    "name": "UseAllExpireSoonSpMedication",
+                    "label": "$option.UseAllExpireSoonMedication.label",
+                    "description": "$option.UseAllExpireSoonMedication.description",
                     "pipeline_override": {
                         "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
                             "enabled": false
+                        },
+                        "AutoUseSpMedicationLoop": {
+                            "max_hit": 15
                         }
                     }
                 }
             ]
         },
-        "UseAllExpireSoonSpMedication": {
-            "type": "switch",
-            "description": "$option.UseAllExpireSoonMedication.description",
-            "label": "$option.UseAllExpireSoonMedication.label",
-            "default_case": "No",
-            "cases": [
+        "UseRegularSpMedicationTime": {
+            "type": "input",
+            "inputs": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
-                            "enabled": true,
-                            "next": [
-                                "AutoUseSpMedicationIfExpireSoon"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoUseSpMedicationIfExpireSoon": {
-                            //如果用户不选择使用全部即将过期的药剂,在检测到即将过期的药剂时只使用一次,即不进人添加药剂使用次数的节点
-                            "enabled": false
-                        }
-                    }
+                    "name": "UseCount",
+                    "label": "$option.UseRegularSpMedicationTime.inputs.UseCount.label",
+                    "description": "$option.UseRegularSpMedicationTime.inputs.UseCount.description",
+                    "default": "1",
+                    "pipeline_type": "int",
+                    "pattern_msg": "$option.UseRegularSpMedicationTime.inputs.UseCount.pattern_msg",
+                    "verify": "^([1-9]|1[0-5])$"
                 }
-            ]
+            ],
+            "description": "$option.UseRegularSpMedicationTime.description",
+            "label": "$option.UseRegularSpMedicationTime.label",
+            "pipeline_override": {
+                "AutoUseSpMedicationLoop": {
+                    "max_hit": "{UseCount}"
+                }
+            }
         }
     }
 }

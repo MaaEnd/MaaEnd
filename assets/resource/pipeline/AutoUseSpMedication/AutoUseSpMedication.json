@@ -27,18 +27,18 @@
     },
     "AutoUseSpMedicationLoop": {
         "desc": "主任务循环",
+        "max_hit": 1, //由选项覆盖
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster",
             "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster",
-            "AutoUseSpMedicationUseNoEmergencySanityBooster",
-            "AutoUseSpMedicationSkipRegular"
+            "AutoUseSpMedicationUseNoEmergencySanityBooster"
         ]
     },
     "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
         "desc": "选择绿色时限应急理智加强剂",
-        "enabled": false,
+        "enabled": true,
         "recognition": "And",
         "all_of": [
             "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster"
@@ -107,7 +107,7 @@
 
     "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
         "desc": "选择红色时限应急理智加强剂",
-        "enabled": false,
+        "enabled": true,
         "recognition": {
             "type": "And",
             "param": {
@@ -119,7 +119,6 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "next": [
-            "AutoUseSpMedicationIfExpireSoon",
             "AutoUseSpMedicationUseEmergencySpBooster"
         ],
         "focus": {
@@ -177,26 +176,22 @@
             }
         }
     },
-    "AutoUseSpMedicationIfExpireSoon": {
-        "desc": "详情页检测到红色限时,只有在UseAllExpireSoonSpMedication为yes时才会启用",
+    "AutoUseSpMedicationUseEmergencySpBooster": {
+        "desc": "点击详情页的使用按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    989,
-                    203,
-                    28,
-                    26
+                "all_of": [
+                    "WhiteConfirmButtonType1"
                 ],
-                "template": "Valuables/ExpireSoon.png",
-                "threshold": 0.8
+                "box_index": 0
             }
         },
-        "anchor": {
-            "UseAllExpireSoonSpMedication": "AutoUseSpMedicationAdd"
-        },
+        "action": "Click",
+        "post_wait_freezes": 300,
         "next": [
-            "AutoUseSpMedicationUseEmergencySpBooster"
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
         ]
     },
     "AutoUseSpMedicationQuickUse": {
@@ -243,36 +238,67 @@
             }
         },
         "action": "Click",
+        "timeout": 5000,
         "next": [
-            "SceneNoticeRewardsConfirm"
+            "AutoUseSpMedicationRewardsConfirm"
         ]
     },
-    "AutoUseSpMedicationQuickUseError": {
-        "desc": "提示错误并结束任务",
-        "recognition": "DirectHit",
-        "action": "DoNothing",
-        "focus": {
-            "Node.Action.Failed": "快捷使用出错，结束任务"
-        }
-    },
-    "AutoUseSpMedicationUseEmergencySpBooster": {
-        "desc": "点击详情页的使用按钮",
+    "AutoUseSpMedicationRewardsConfirm": {
+        "desc": "点击奖励界面的确认按钮",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "WhiteConfirmButtonType1"
-                ],
-                "box_index": 0
+                    "SceneNoticeRewardsConfirm"
+                ]
             }
         },
-        "action": "Click",
-        "post_wait_freezes": 300,
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
         "next": [
-            "[Anchor]UseAllExpireSoonSpMedication",
-            "AutoUseSpMedicationQuickUse",
-            "AutoUseSpMedicationQuickUseCancel"
+            "AutoUseSpMedicationLoop",
+            "AutoUseSpMedicationFinish"
         ]
+    },
+    "AutoUseSpMedicationFinish": {
+        "desc": "完成使用理智药剂，结束任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "完成使用理智药剂，结束任务"
+        }
+    },
+    "AutoUseSpMedicationQuickUseError": {
+        "desc": "提示错误并结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "快捷使用出错，结束任务"
+        }
     },
     "AutoUseSpMedicationQuickUseCancel": {
         "desc": "退出快捷使用",
@@ -299,62 +325,11 @@
     },
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
         "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智的任意选项才会跳转到这个节点",
-        "enabled": false,
+        "enabled": true,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "focus": {
-            "Node.Action.Succeeded": "没有应急理智加强剂，结束任务"
+            "Node.Recognition.Succeeded": "没有应急理智加强剂，结束任务"
         }
-    },
-    "AutoUseSpMedicationSkipRegular": {
-        "desc": "用户未选择使用应急药剂,放弃任务并回调",
-        "focus": {
-            "Node.Action.Succeeded": "用户选择不使用应急药剂，结束任务"
-        }
-    },
-    "AutoUseSpMedicationAdd": {
-        "desc": "点击添加按钮",
-        "max_hit": 14, // 理智上限为1000，最高使用14+1次总共加600理智
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1072,
-                    415,
-                    37,
-                    37
-                ],
-                "template": [
-                    "Valuables/AddButton.png",
-                    "Valuables/AddButtonHover.png"
-                ],
-                "threshold": [
-                    0.8,
-                    0.9
-                ]
-            }
-        },
-        "action": "Click",
-        "next": [
-            "AutoUseSpMedicationAdd", //loop until add button unavailable
-            "AutoUseSpMedicationCantAdd"
-        ]
-    },
-    "AutoUseSpMedicationCantAdd": {
-        "desc": "无法添加",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1072,
-                    415,
-                    37,
-                    37
-                ],
-                "template": "Valuables/DisabledAddButton.png",
-                "threshold": 0.8
-            }
-        },
-        "next": [
-            "AutoUseSpMedicationQuickUse"
-        ]
     }
 }
