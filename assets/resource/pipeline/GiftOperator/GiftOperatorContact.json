@@ -110,7 +110,8 @@
                     309
                 ],
                 "template": [
-                    "GiftOperator/Gift.png"
+                    "GiftOperator/Gift.png",
+                    "GiftOperator/Gift_2.png"
                 ],
                 "green_mask": true
             }
