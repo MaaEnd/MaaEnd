@@ -22,22 +22,46 @@
             }
         },
         "next": [
-            "AutoUseSpMedicationMain"
+            "AutoUseSpMedicationLoop"
         ]
     },
-    "AutoUseSpMedicationMain": {
-        "desc": "主任务流程",
+    "AutoUseSpMedicationLoop": {
+        "desc": "主任务循环",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon",
-            "AutoUseSpMedicationChooseEmergencySanityBooster",
+            "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster",
+            "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster",
             "AutoUseSpMedicationUseNoEmergencySanityBooster",
             "AutoUseSpMedicationSkipRegular"
         ]
     },
-    "AutoUseSpMedicationChooseEmergencySanityBooster": {
-        "desc": "选择应急理智加强剂",
+    "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
+        "desc": "选择绿色时限应急理智加强剂",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择药剂"
+        }
+    },
+    "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster": {
+        "desc": "识别绿色时限(大于7天)应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "FindGreenDeadlineEmergencySanityBooster",
+            "ColorRecognitionGreenEmergencySanityBooster"
+        ]
+    },
+
+    "FindGreenDeadlineEmergencySanityBooster": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -52,25 +76,43 @@
                 "threshold": 0.84,
                 "order_by": "Vertical"
             }
-        },
-        "action": "Click",
-        "post_wait_freezes": 300,
-        "next": [
-            "AutoUseSpMedicationUseEmergencySpBooster"
-        ],
-        "focus": {
-            "Node.Action.Starting": "开始选择药剂"
         }
     },
-    "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-        "desc": "优先选择红时限应急理智加强剂",
+    "ColorRecognitionGreenEmergencySanityBooster": {
+        "desc": "颜色识别,确认是绿色时限的应急理智药剂",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "FindGreenDeadlineEmergencySanityBooster",
+                "roi_offset": [
+                    0,
+                    0,
+                    -79,
+                    -81
+                ],
+                "method": 40,
+                "lower": [
+                    50,
+                    0,
+                    0
+                ],
+                "upper": [
+                    90,
+                    255,
+                    255
+                ]
+            }
+        }
+    },
+
+    "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
+        "desc": "选择红色时限应急理智加强剂",
         "enabled": false,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "FindEmergencySanityBoosterExpSoon",
-                    "ColorRecognitionEmergencySanityBooster"
+                    "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster"
                 ]
             }
         },
@@ -84,8 +126,15 @@
             "Node.Action.Starting": "开始选择即将过期的药剂"
         }
     },
-    "FindEmergencySanityBoosterExpSoon": {
-        "desc": "识别红时限应急理智加强剂",
+    "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster": {
+        "desc": "识别红色时限(小于7天)应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "FindRedDeadlineEmergencySanityBooster",
+            "ColorRecognitionRedEmergencySanityBooster"
+        ]
+    },
+    "FindRedDeadlineEmergencySanityBooster": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -102,12 +151,12 @@
             }
         }
     },
-    "ColorRecognitionEmergencySanityBooster": {
-        "desc": "颜色识别,确认是过期理智药",
+    "ColorRecognitionRedEmergencySanityBooster": {
+        "desc": "颜色识别,确认是红色时限的应急理智药剂",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "FindEmergencySanityBoosterExpSoon",
+                "roi": "FindRedDeadlineEmergencySanityBooster",
                 "roi_offset": [
                     0,
                     0,
