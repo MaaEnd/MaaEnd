@@ -68,7 +68,20 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
-            "TrialOfSwordmancyInTrialMenu"
+            "TrialOfSwordmancyInTrialMenu",
+            "TrialOfSwordmancyRewardExhuasted"
         ]
+    },
+    "TrialOfSwordmancyRewardExhuasted": {
+        "desc": "奖励次数用尽，即将进入自由演算模式",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [], // 任务结束
+        "focus": {
+            "Node.Action.Succeeded": "今日奖励次数已用尽"
+        }
     }
 }
