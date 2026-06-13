@@ -528,34 +528,34 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "GiftOperatorTrustValue",
+                "roi": "GiftOperatorTrustIcon",
                 "roi_offset": [
-                    27,
-                    -84,
-                    -24,
-                    0
+                    42,
+                    -85,
+                    5,
+                    5
                 ],
                 "method": 40,
                 "lower": [
                     [
-                        0,
+                        29,
                         0,
                         0
                     ],
                     [
-                        29,
+                        0,
                         0,
                         0
                     ]
                 ],
                 "upper": [
                     [
-                        27,
+                        179,
                         255,
                         255
                     ],
                     [
-                        180,
+                        27,
                         255,
                         255
                     ]
