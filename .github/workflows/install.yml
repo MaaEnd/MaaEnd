@@ -22,6 +22,12 @@ on:
       - "tools/**"
 
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to build from (branch, tag, or commit SHA). Leave blank to use default branch.'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   meta:
@@ -29,6 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
       - id: set_tag
         run: |
@@ -93,6 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
           submodules: true
 
       - name: Install Linux dependencies

@@ -33,6 +33,18 @@ pnpm install
 >
 > 如果 `setup_workspace.py` 出错，参考下方[手动配置指南](#手动配置指南)。
 
+**`setup_workspace.py` 常用参数：**
+
+| 参数 | 说明 |
+| ---- | ---- |
+| （无参数） | 首次初始化，已安装的组件自动跳过 |
+| `--update` | 强制更新所有已安装的依赖到最新版本 |
+| `--clean-cache` | 清理下载缓存目录 |
+| `--cpp-algo-pr <N>` | 从指定 PR 的最新成功 CI run 下载 cpp-algo（用于快速测试尚未合并的 PR 改动） |
+| `--cpp-algo-run <ID>` | 从指定 workflow run ID 下载 cpp-algo |
+
+> `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一。不指定时默认从 v2 分支的最新 push 构建下载。
+
 ### 编辑器（推荐）
 
 推荐使用 [Visual Studio Code](https://code.visualstudio.com/)（VS Code）作为本项目的日常开发 IDE。完成上方克隆与初始化后，用 VS Code **打开仓库根目录**（需包含 `.vscode/extensions.json`），并安装工作区**推荐扩展（Workspace Recommendations）**，以便与团队环境一致（例如 Black、Prettier、**Maa Pipeline Support**、Markdownlint、Go、LLDB 等，完整列表见仓库内 `.vscode/extensions.json`）。

@@ -33,6 +33,18 @@ pnpm install
 >
 > If `setup_workspace.py` fails, see the [manual setup guide](#manual-setup-guide) below.
 
+**Common `setup_workspace.py` options:**
+
+| Option | Description |
+| ------ | ----------- |
+| (no args) | First-time setup — skips already-installed components automatically |
+| `--update` | Force update all installed dependencies to the latest version |
+| `--clean-cache` | Clean the download cache directory |
+| `--cpp-algo-pr <N>` | Download cpp-algo from a specific PR's latest successful CI run (useful for quickly testing unmerged PR changes) |
+| `--cpp-algo-run <ID>` | Download cpp-algo from a specific workflow run ID |
+
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive. When neither is specified, the default behavior downloads from the latest successful push build on the v2 branch.
+
 ### Editor (recommended)
 
 We recommend [Visual Studio Code](https://code.visualstudio.com/) (VS Code) for day-to-day development. After the clone and setup commands above, **open the repo root** in VS Code (it must contain `.vscode/extensions.json`) and install the **workspace recommended extensions** so your setup matches the team—Black, Prettier, **Maa Pipeline Support**, Markdownlint, Go, LLDB, and others listed in `.vscode/extensions.json`.
