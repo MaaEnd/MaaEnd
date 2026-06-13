@@ -110,14 +110,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}TargetOperatorListIn"
+            "SellProduct${LocationId}InTargetOperatorList"
         ]
     },
-    "SellProduct${LocationId}TargetOperatorListIn": {
+    "SellProduct${LocationId}InTargetOperatorList": {
         "desc": "${LocationDesc}已打开派驻干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -200,14 +200,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}CloseTargetOperatorContact"
+            "SellProduct${LocationId}CloseTargetOperatorLiaison"
         ]
     },
-    "SellProduct${LocationId}CloseTargetOperatorContact": {
+    "SellProduct${LocationId}CloseTargetOperatorLiaison": {
         "desc": "${LocationDesc}关闭售卖用干员派驻列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact",
+            "SellProductInOperatorLiaison",
             "CloseButtonType1"
         ],
         "box_index": 1,
@@ -247,7 +247,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -278,14 +278,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}TargetOperatorListIn"
+            "SellProduct${LocationId}InTargetOperatorList"
         ]
     },
     "SellProduct${LocationId}TargetOperatorNotFound": {
         "desc": "${LocationDesc}未找到配置的售卖用干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "StopTask",
@@ -338,14 +338,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}RestoreOperatorListIn"
+            "SellProduct${LocationId}InRestoreOperatorList"
         ]
     },
-    "SellProduct${LocationId}RestoreOperatorListIn": {
+    "SellProduct${LocationId}InRestoreOperatorList": {
         "desc": "${LocationDesc}已打开派驻干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -428,14 +428,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}CloseRestoreOperatorContact"
+            "SellProduct${LocationId}CloseRestoreOperatorLiaison"
         ]
     },
-    "SellProduct${LocationId}CloseRestoreOperatorContact": {
+    "SellProduct${LocationId}CloseRestoreOperatorLiaison": {
         "desc": "${LocationDesc}关闭恢复干员派驻列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact",
+            "SellProductInOperatorLiaison",
             "CloseButtonType1"
         ],
         "box_index": 1,
@@ -472,7 +472,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -503,14 +503,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}RestoreOperatorListIn"
+            "SellProduct${LocationId}InRestoreOperatorList"
         ]
     },
     "SellProduct${LocationId}RestoreOperatorNotFound": {
         "desc": "${LocationDesc}未找到配置的恢复干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "StopTask",

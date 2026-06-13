@@ -40,10 +40,10 @@
     "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
         "desc": "天王坪援建点设置售卖前派驻干员锚点",
         "recognition": "DirectHit",
-        "pre_delay": 0,
         "anchor": {
             "SellProductBeforeSellOperator": ""
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -53,10 +53,10 @@
     "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
         "desc": "天王坪援建点设置售卖后恢复干员锚点",
         "recognition": "DirectHit",
-        "pre_delay": 0,
         "anchor": {
             "SellProductAfterSellOperator": ""
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -110,14 +110,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsTargetOperatorListIn"
+            "SellProductSkyKingFlatsInTargetOperatorList"
         ]
     },
-    "SellProductSkyKingFlatsTargetOperatorListIn": {
+    "SellProductSkyKingFlatsInTargetOperatorList": {
         "desc": "天王坪援建点已打开派驻干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -200,14 +200,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsCloseTargetOperatorContact"
+            "SellProductSkyKingFlatsCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductSkyKingFlatsCloseTargetOperatorContact": {
+    "SellProductSkyKingFlatsCloseTargetOperatorLiaison": {
         "desc": "天王坪援建点关闭售卖用干员派驻列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact",
+            "SellProductInOperatorLiaison",
             "CloseButtonType1"
         ],
         "box_index": 1,
@@ -247,7 +247,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -278,14 +278,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsTargetOperatorListIn"
+            "SellProductSkyKingFlatsInTargetOperatorList"
         ]
     },
     "SellProductSkyKingFlatsTargetOperatorNotFound": {
         "desc": "天王坪援建点未找到配置的售卖用干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "StopTask",
@@ -338,14 +338,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsRestoreOperatorListIn"
+            "SellProductSkyKingFlatsInRestoreOperatorList"
         ]
     },
-    "SellProductSkyKingFlatsRestoreOperatorListIn": {
+    "SellProductSkyKingFlatsInRestoreOperatorList": {
         "desc": "天王坪援建点已打开派驻干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_wait_freezes": {
             "time": 100,
@@ -428,14 +428,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsCloseRestoreOperatorContact"
+            "SellProductSkyKingFlatsCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductSkyKingFlatsCloseRestoreOperatorContact": {
+    "SellProductSkyKingFlatsCloseRestoreOperatorLiaison": {
         "desc": "天王坪援建点关闭恢复干员派驻列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact",
+            "SellProductInOperatorLiaison",
             "CloseButtonType1"
         ],
         "box_index": 1,
@@ -472,7 +472,7 @@
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "Swipe",
@@ -503,14 +503,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsRestoreOperatorListIn"
+            "SellProductSkyKingFlatsInRestoreOperatorList"
         ]
     },
     "SellProductSkyKingFlatsRestoreOperatorNotFound": {
         "desc": "天王坪援建点未找到配置的恢复干员，停止任务",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorContact"
+            "SellProductInOperatorLiaison"
         ],
         "pre_delay": 0,
         "action": "StopTask",
