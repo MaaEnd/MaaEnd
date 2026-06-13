@@ -407,53 +407,12 @@
             20.5,
             20.5
         ],
-        "MapPath": [
-            [
-                692.3,
-                922.7
-            ],
-            [
-                679.3,
-                925.9
-            ],
-            [
-                673.5,
-                918.3
-            ],
-            [
-                649.4,
-                916.3
-            ],
-            [
-                649.7,
-                928.2
-            ],
-            [
-                654.1,
-                931.8
-            ],
-            [
-                667.8,
-                907.8
-            ],
-            [
-                665.6,
-                897.7
-            ],
-            [
-                663,
-                891.5
-            ],
-            [
-                628.7,
-                896.4
-            ],
-            [
-                618.8,
-                901.6
-            ]
+        "MapGoal": [
+            618.8,
+            901.6
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 270
     },
     {
         "MissionId": "m1m38",
