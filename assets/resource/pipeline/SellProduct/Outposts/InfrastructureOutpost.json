@@ -73,7 +73,6 @@
         "rate_limit": 0,
         "next": [
             "SellProductInfrastructureOutpostCurrentTargetOperator",
-            "SellProductInfrastructureOutpostCurrentOperatorTradeStockBillBonus",
             "SellProductInfrastructureOutpostOpenTargetOperatorList"
         ]
     },
@@ -87,28 +86,6 @@
             35
         ],
         "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSellLoop"
-        ]
-    },
-    "SellProductInfrastructureOutpostCurrentOperatorTradeStockBillBonus": {
-        "desc": "基建前站当前派驻效果已有交易收益额外获取加成",
-        "recognition": "OCR",
-        "roi": [
-            272,
-            596,
-            440,
-            69
-        ],
-        "expected": [
-            "交易货物每获得[1一]张调度[券卷]有20%几率额外获得[1一]张",
-            "交易貨物每獲得[1一]張調度[券卷]有20%機率額外獲得[1一]張",
-            "交易货物每获得[1一]点据点发展值有20%几率额外获得[1一]点",
-            "交易貨物每獲得[1一]點據點發展值有20%機率額外獲得[1一]點"
-        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
