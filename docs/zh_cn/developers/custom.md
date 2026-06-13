@@ -110,13 +110,16 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### AutoAltClickAction
 
-`AutoAltClickAction` 实现位于 `agent/go-service/common/autoaltclick`，用于在指定位置执行 Alt + 点击操作。先按下 Alt 键，再点击目标位置，最后松开 Alt 键。
+`AutoAltClickAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 点击操作。先按下 Alt 键，再点击目标位置，最后松开 Alt 键。
 
-- 参数：无。目标位置由 Pipeline 节点的 `box` 决定。
+- 参数：
+    - `target_offset?: [int, int, int, int]`：可选。形如 `[dx, dy, dw, dh]`，叠加到 `box` 后再取中心点击，语义与内置 `Click` 动作的 `target_offset` 一致；省略时直接点击 `box` 中心。
+
+默认目标位置由 Pipeline 节点的 `box` 决定。
 
 ### AutoAltLongPressAction
 
-`AutoAltLongPressAction` 实现位于 `agent/go-service/common/autoaltclick`，用于在指定位置执行 Alt + 长按操作。
+`AutoAltLongPressAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 长按操作。
 
 - 参数：
     - `duration: int`：长按持续时间（毫秒），必填。

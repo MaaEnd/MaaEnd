@@ -1,4 +1,4 @@
-package autoaltclick
+package autoalt
 
 import (
 	"encoding/json"
@@ -11,23 +11,9 @@ type autoAltLongPressParam struct {
 	Duration int64 `json:"duration"`
 }
 
-type AutoAltClickAction struct{}
-
-// Compile-time interface check
-var _ maa.CustomActionRunner = &AutoAltClickAction{}
-
-func (a *AutoAltClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	ctx.RunAction("__AutoAltClickAltKeyDownAction",
-		maa.Rect{0, 0, 0, 0}, "", nil)
-	ctx.RunAction("__AutoAltClickMouseClickAction",
-		arg.Box, "", nil)
-	ctx.RunAction("__AutoAltClickAltKeyUpAction",
-		maa.Rect{0, 0, 0, 0}, "", nil)
-	return true
-}
-
 type AutoAltLongPressAction struct{}
 
+// Compile-time interface check
 var _ maa.CustomActionRunner = &AutoAltLongPressAction{}
 
 func (a *AutoAltLongPressAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {

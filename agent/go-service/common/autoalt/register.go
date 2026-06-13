@@ -1,4 +1,4 @@
-package autoaltclick
+package autoalt
 
 import maa "github.com/MaaXYZ/maa-framework-go/v4"
 
