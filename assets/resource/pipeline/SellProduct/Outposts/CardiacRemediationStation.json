@@ -39,7 +39,6 @@
     },
     "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
         "desc": "心脏修缮站设置售卖前派驻干员锚点",
-        "recognition": "DirectHit",
         "anchor": {
             "SellProductBeforeSellOperator": ""
         },
@@ -52,7 +51,6 @@
     },
     "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
         "desc": "心脏修缮站设置售卖后恢复干员锚点",
-        "recognition": "DirectHit",
         "anchor": {
             "SellProductAfterSellOperator": ""
         },
@@ -67,7 +65,6 @@
     // ===== 售卖前派驻干员切换 =====
     "SellProductCardiacRemediationStationBeforeSellOperator": {
         "desc": "心脏修缮站售卖前检查并切换派驻干员",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -184,7 +181,9 @@
         "expected": [
             "派驻",
             "派駐",
-            "(?i)Assign"
+            "Assign",
+            "派遣",
+            "배치"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -298,7 +297,6 @@
     // ===== 售卖后派驻干员恢复 =====
     "SellProductCardiacRemediationStationAfterSellOperator": {
         "desc": "心脏修缮站售卖后恢复派驻干员",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -412,7 +410,9 @@
         "expected": [
             "派驻",
             "派駐",
-            "(?i)Assign"
+            "Assign",
+            "派遣",
+            "배치"
         ],
         "pre_delay": 0,
         "action": "Click",
