@@ -41,6 +41,10 @@
     "TrialOfSwordmancyAggressiveEntry": {
         "desc": "激进模式入口（3次放弃机会）",
         "max_hit": 3, // 此处意为 3 次免费放弃机会
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInTrialMenu"
+        ],
         "next": [
             "TrialOfSwordmancyAggressiveMainLoop"
         ]
@@ -49,7 +53,7 @@
         "desc": "激进模式抽牌循环",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyHasResource"
+            "TrialOfSwordmancyInTrialMenu"
         ],
         "next": [
             "TrialOfSwordmancyDailyBattlePtsOverflow",
@@ -152,18 +156,15 @@
     },
     "TrialOfSwordmancyDailyReEnterTrialMenu": {
         "desc": "放弃后重新进入演算",
-        "recognition": "Or",
-        "any_of": ["TrialOfSwordmancyEnterTrialMenu"],
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        "post_wait_freezes": 100,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
         "next": [
             "TrialOfSwordmancyAggressiveEntry",
-            "TrialOfSwordmancyConservativeMainLoop"
+            "TrialOfSwordmancyConservativeMainLoop",
+            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
+            "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
         ]
     },
     // 保守模式：免费放弃次数耗尽后，6-10 均接单
@@ -171,7 +172,7 @@
         "desc": "保守模式抽牌循环",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyHasResource"
+            "TrialOfSwordmancyInTrialMenu"
         ],
         "next": [
             "TrialOfSwordmancyConservativeShouldDrawCard",
