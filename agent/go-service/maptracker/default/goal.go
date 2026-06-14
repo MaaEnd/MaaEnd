@@ -208,6 +208,7 @@ func (a *MapTrackerGoal) runZiplineGoal(goalCtx *goalContext, inferResult *MapTr
 
 	current := inferResult
 	onZipline := false
+	defer goalCtx.mesh.ClearTemporaryVertex()
 	for replan := 0; replan < ZIPLINE_MAX_REPLAN; replan++ {
 		if goalCtx.ctx.GetTasker().Stopping() {
 			log.Warn().Msg("Task is stopping, exiting zipline goal")
@@ -312,7 +313,6 @@ func (a *MapTrackerGoal) runZiplineGoal(goalCtx *goalContext, inferResult *MapTr
 
 func (a *MapTrackerGoal) findPathFromLocation(goalCtx *goalContext, x, y float64) ([]int, [][2]float64, error) {
 	goalCtx.mesh.ClearTemporaryVertex()
-	defer goalCtx.mesh.ClearTemporaryVertex()
 	startID, _ := goalCtx.mesh.AddTemporaryVertex(x, y, startPointCostFactor, startPointMCD)
 	targetID, _ := goalCtx.mesh.AddTemporaryVertex(goalCtx.target[0], goalCtx.target[1], endPointCostFactor, endPointMCD)
 	pathIDs, err := goalCtx.mesh.FindPathIDs(startID, targetID)
