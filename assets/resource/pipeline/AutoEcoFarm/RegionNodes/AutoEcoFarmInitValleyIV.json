@@ -17,9 +17,9 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmValleyIV",
-            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoValleyIV",
-            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV",
+            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
+            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoValleyIV",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmValleyIV",
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartValleyIV",
@@ -40,92 +40,29 @@
             "SceneEnterWorldValleyIVOriginiumSciencePark2"
         ]
     },
-    //不同地区前往农场的寻路节点，使用Maptracker的节点，改节点名和custom_action_param，具体方法参考对应的文档
-    "_AutoEcoFarmGotoEcoFarmGoValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场Go版",
+    //不同地区前往农场的寻路节点，使用BaseNav语义寻路的节点，只需要填终点坐标，不需要录一整段路径，优先使用这个
+    "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV": {
+        "desc": "[ValleyIV版]前往生态农场BaseNav版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map01_lv005",
-            "path_trim": true,
-            "fine_approach": "Never",
+            "arrival_timeout": 45000,
             "path": [
-                [
-                    523.2,
-                    241.6
-                ],
-                [
-                    520.7,
-                    249.2
-                ],
-                [
-                    523.1,
-                    259.1
-                ],
-                [
-                    526.9,
-                    266.7
-                ],
-                [
-                    528.1,
-                    275.4
-                ],
-                [
-                    525.6,
-                    280.4
-                ],
-                [
-                    521.9,
-                    284.1
-                ],
-                [
-                    524.4,
-                    291.7
-                ],
-                [
-                    533.8,
-                    300.5
-                ],
-                [
-                    539.1,
-                    303.2
-                ],
-                [
-                    542.2,
-                    309.0
-                ],
-                [
-                    545.7,
-                    317.9
-                ],
-                [
-                    546.9,
-                    330.4
-                ],
-                [
-                    555.6,
-                    336.6
-                ],
-                [
-                    561.9,
-                    339.2
-                ],
-                [
-                    568.1,
-                    341.7
-                ],
-                [
-                    570.7,
-                    342.9
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1337.54,
+                        856.11
+                    ],
+                    "zone_id": "ValleyIV_Base"
+                }
             ]
         },
-        "next": [
-            //JumpBack
-        ]
+        "next": []
     },
+    //不同地区前往农场的寻路节点，使用MapNavigator手动路径的节点，改坐标点序列，具体方法参考对应的文档
     "_AutoEcoFarmGotoEcoFarmCppValleyIV": {
         "desc": "[ValleyIV版]前往生态农场cpp版",
         "max_hit": 1,
@@ -350,26 +287,91 @@
             //JumpBack
         ]
     },
-    "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场BaseNav版",
+    //不同地区前往农场的寻路节点，使用Maptracker的节点，改节点名和custom_action_param，具体方法参考对应的文档
+    "_AutoEcoFarmGotoEcoFarmGoValleyIV": {
+        "desc": "[ValleyIV版]前往生态农场Go版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "arrival_timeout": 45000,
+            "map_name": "map01_lv005",
+            "path_trim": true,
+            "fine_approach": "Never",
             "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1337.54,
-                        856.11
-                    ],
-                    "zone_id": "ValleyIV_Base"
-                }
+                [
+                    523.2,
+                    241.6
+                ],
+                [
+                    520.7,
+                    249.2
+                ],
+                [
+                    523.1,
+                    259.1
+                ],
+                [
+                    526.9,
+                    266.7
+                ],
+                [
+                    528.1,
+                    275.4
+                ],
+                [
+                    525.6,
+                    280.4
+                ],
+                [
+                    521.9,
+                    284.1
+                ],
+                [
+                    524.4,
+                    291.7
+                ],
+                [
+                    533.8,
+                    300.5
+                ],
+                [
+                    539.1,
+                    303.2
+                ],
+                [
+                    542.2,
+                    309.0
+                ],
+                [
+                    545.7,
+                    317.9
+                ],
+                [
+                    546.9,
+                    330.4
+                ],
+                [
+                    555.6,
+                    336.6
+                ],
+                [
+                    561.9,
+                    339.2
+                ],
+                [
+                    568.1,
+                    341.7
+                ],
+                [
+                    570.7,
+                    342.9
+                ]
             ]
         },
-        "next": []
+        "next": [
+            //JumpBack
+        ]
     },
     //确认是否离开谷地农场，离开则退出工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域

@@ -17,9 +17,9 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
-            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
-            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavWulin",
+            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
+            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin",
@@ -41,76 +41,29 @@
             "SceneEnterWorldWulingWulingCityCore"
         ]
     },
-    //不同地区前往农场的寻路节点，使用Maptracker的节点，改custom_action_param，具体方法参考对应的文档
-    "_AutoEcoFarmGotoEcoFarmGoWulin": {
-        "desc": "[Wulin版]前往生态农场Go版",
+    //不同地区前往农场的寻路节点，使用BaseNav语义寻路的节点，只需要填终点坐标，不需要录一整段路径，优先使用这个
+    "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
+        "desc": "[Wulin版]前往生态农场BaseNav版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
-            "path_trim": true,
-            "fine_approach": "Never",
+            "arrival_timeout": 45000,
             "path": [
-                [
-                    387.2,
-                    250.0
-                ],
-                [
-                    387.2,
-                    238.3
-                ],
-                [
-                    398.4,
-                    234.5
-                ],
-                [
-                    404.8,
-                    232.0
-                ],
-                [
-                    413.4,
-                    228.3
-                ],
-                [
-                    427.3,
-                    229.5
-                ],
-                [
-                    431.0,
-                    225.8
-                ],
-                [
-                    432.2,
-                    218.1
-                ],
-                [
-                    429.8,
-                    209.4
-                ],
-                [
-                    429.8,
-                    192.0
-                ],
-                [
-                    434.7,
-                    189.5
-                ],
-                [
-                    439.7,
-                    189.4
-                ],
-                [
-                    444.7,
-                    193.2
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724,
+                        190
+                    ],
+                    "zone_id": "Wuling_Base"
+                }
             ]
         },
-        "next": [
-            //JumpBack
-        ]
+        "next": []
     },
+    //不同地区前往农场的寻路节点，使用MapNavigator手动路径的节点，改坐标点序列，具体方法参考对应的文档
     "_AutoEcoFarmGotoEcoFarmCppWulin": {
         "desc": "[Wulin版]前往生态农场cpp版",
         "max_hit": 1,
@@ -255,26 +208,75 @@
             //JumpBack
         ]
     },
-    "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
-        "desc": "[Wulin版]前往生态农场BaseNav版",
+    //不同地区前往农场的寻路节点，使用Maptracker的节点，改custom_action_param，具体方法参考对应的文档
+    "_AutoEcoFarmGotoEcoFarmGoWulin": {
+        "desc": "[Wulin版]前往生态农场Go版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "arrival_timeout": 45000,
+            "map_name": "map02_lv002",
+            "path_trim": true,
+            "fine_approach": "Never",
             "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        724,
-                        190
-                    ],
-                    "zone_id": "Wuling_Base"
-                }
+                [
+                    387.2,
+                    250.0
+                ],
+                [
+                    387.2,
+                    238.3
+                ],
+                [
+                    398.4,
+                    234.5
+                ],
+                [
+                    404.8,
+                    232.0
+                ],
+                [
+                    413.4,
+                    228.3
+                ],
+                [
+                    427.3,
+                    229.5
+                ],
+                [
+                    431.0,
+                    225.8
+                ],
+                [
+                    432.2,
+                    218.1
+                ],
+                [
+                    429.8,
+                    209.4
+                ],
+                [
+                    429.8,
+                    192.0
+                ],
+                [
+                    434.7,
+                    189.5
+                ],
+                [
+                    439.7,
+                    189.4
+                ],
+                [
+                    444.7,
+                    193.2
+                ]
             ]
         },
-        "next": []
+        "next": [
+            //JumpBack
+        ]
     },
     //确认是否离开武陵农场，离开则退出工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域

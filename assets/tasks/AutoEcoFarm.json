@@ -164,16 +164,16 @@
             "type": "select",
             "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.label",
             "description": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description",
-            "default_case": "MapNavigator",
+            "default_case": "BaseNav",
             "cases": [
                 {
-                    "name": "MapTracker",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label",
+                    "name": "BaseNav",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
                     "pipeline_override": {
                         "_AutoEcoFarmGotoEcoFarmStart": {
                             "next": [
                                 "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmGoAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmBaseNavAnchor",
                                 "_AutoEcoFarmGotoEcoFarmExit"
                             ]
                         }
@@ -193,13 +193,13 @@
                     }
                 },
                 {
-                    "name": "BaseNav",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
+                    "name": "MapTracker",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label",
                     "pipeline_override": {
                         "_AutoEcoFarmGotoEcoFarmStart": {
                             "next": [
                                 "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmBaseNavAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmGoAnchor",
                                 "_AutoEcoFarmGotoEcoFarmExit"
                             ]
                         }
