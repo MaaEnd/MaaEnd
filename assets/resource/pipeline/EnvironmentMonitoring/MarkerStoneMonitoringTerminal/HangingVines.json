@@ -241,94 +241,12 @@
     "GoToHangingVinesMapTrackerMove": {
         "desc": "前往垂藤",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    609.8,
-                    330.7
-                ],
-                [
-                    607.5,
-                    320.3
-                ],
-                [
-                    605.1,
-                    308.1
-                ],
-                [
-                    587.9,
-                    308.3
-                ],
-                [
-                    586.9,
-                    302.6
-                ],
-                [
-                    578.8,
-                    301.5
-                ],
-                [
-                    576.7,
-                    295.6
-                ],
-                [
-                    575,
-                    280.7
-                ],
-                [
-                    546.9,
-                    280.8
-                ],
-                [
-                    526.9,
-                    278.1
-                ],
-                [
-                    527.5,
-                    267.6
-                ],
-                [
-                    534.5,
-                    266.6
-                ],
-                [
-                    543.3,
-                    266.5
-                ],
-                [
-                    543.3,
-                    264.2
-                ],
-                [
-                    544.4,
-                    262.9
-                ],
-                [
-                    544.6,
-                    254.2
-                ],
-                [
-                    545.7,
-                    252.9
-                ],
-                [
-                    545.7,
-                    251.6
-                ],
-                [
-                    555.8,
-                    251.7
-                ],
-                [
-                    558.2,
-                    252.8
-                ],
-                [
-                    579.5,
-                    252.8
-                ]
+            "target": [
+                579.2,
+                253.7
             ]
         },
         "anchor": {
@@ -340,8 +258,18 @@
         ]
     },
     "HangingVinesAdjustHeading": {
-        "desc": "垂藤任务无需调整角色朝向",
+        "desc": "垂藤任务中调整角色朝向",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "HEADING",
+                    "angle": 90
+                }
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
