@@ -12,6 +12,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]GearAssemblySwitchAscending",
+            "[JumpBack]GearAssemblyCheckSortType",
             "GearAssemblySetGear",
             "GearAssemblyNonsetGear"
         ]
@@ -49,7 +51,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
             "GearAssemblySelectFirstGear"
         ]
     },
@@ -86,7 +87,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
             "GearAssemblySelectFirstGear"
         ]
     },
@@ -420,5 +420,55 @@
         "focus": {
             "Node.Action.Succeeded": "无法制作，查找下一个装备"
         }
+    },
+    "GearAssemblyCheckSortType": {
+        "desc": "检测排序类型是否正确",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    630,
+                    260,
+                    65
+                ],
+                "expected": [
+                    "装备原件类型"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyChangeSortType"
+        ]
+    },
+    "GearAssemblyChangeSortType": {
+        "desc": "将排序类型切换为品质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    20,
+                    530,
+                    300,
+                    160
+                ],
+                "expected": [
+                    "品质"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0
     }
 }
