@@ -218,7 +218,8 @@
         "all_of": [
             "YellowConfirmButtonType1"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": 1000
     },
     // 双倍奖励处理
     "TrialOfSwordmancyDailyDoubleReward": {
