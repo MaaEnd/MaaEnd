@@ -30,14 +30,10 @@
     },
     "TrialOfSwordmancyEnterTrial": {
         "desc": "进入演算场景",
-        "recognition": "OCR",
-        "roi": [
-            547,
-            222,
-            191,
-            24
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyChallengeBackground"
         ],
-        "expected": "挑战目标",
         "next": [
             "TrialOfSwordmancyCloseTrialTarget"
         ]

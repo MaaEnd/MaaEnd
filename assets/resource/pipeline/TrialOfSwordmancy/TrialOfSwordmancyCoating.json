@@ -9,19 +9,9 @@
     },
     "TrialOfSwordmancyCoating1": {
         "desc": "刷镀层第1次抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1152,
-            525,
-            94,
-            34
-        ],
-        "expected": [
-            "抽取铭牌",
-            "抽取銘牌",
-            "(?i)Draw",
-            "銘牌を引く",
-            "명판 뽑기"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
         "action": "Click",
         "post_delay": 800,
@@ -46,19 +36,9 @@
     },
     "TrialOfSwordmancyCoating2": {
         "desc": "刷镀层第2次抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1152,
-            525,
-            94,
-            34
-        ],
-        "expected": [
-            "抽取铭牌",
-            "抽取銘牌",
-            "(?i)Draw",
-            "銘牌を引く",
-            "명판 뽑기"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
         "action": "Click",
         "post_delay": 800,
@@ -83,19 +63,9 @@
     },
     "TrialOfSwordmancyCoating3": {
         "desc": "刷镀层第3次抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1152,
-            525,
-            94,
-            34
-        ],
-        "expected": [
-            "抽取铭牌",
-            "抽取銘牌",
-            "(?i)Draw",
-            "銘牌を引く",
-            "명판 뽑기"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
         "action": "Click",
         "post_delay": 800,
@@ -120,19 +90,9 @@
     },
     "TrialOfSwordmancyCoating4": {
         "desc": "刷镀层第4次抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1152,
-            525,
-            94,
-            34
-        ],
-        "expected": [
-            "抽取铭牌",
-            "抽取銘牌",
-            "(?i)Draw",
-            "銘牌を引く",
-            "명판 뽑기"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
         "action": "Click",
         "post_delay": 800,
@@ -157,19 +117,9 @@
     },
     "TrialOfSwordmancyCoating5": {
         "desc": "刷镀层第5次抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1152,
-            525,
-            94,
-            34
-        ],
-        "expected": [
-            "抽取铭牌",
-            "抽取銘牌",
-            "(?i)Draw",
-            "銘牌を引く",
-            "명판 뽑기"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
         "action": "Click",
         "post_delay": 800,
@@ -188,15 +138,9 @@
     },
     "TrialOfSwordmancyCoatingGiveUp": {
         "desc": "刷镀层放弃当前抽取",
-        "recognition": "OCR",
-        "roi": [
-            154,
-            593,
-            114,
-            87
-        ],
-        "expected": [
-            "放弃"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
         ],
         "action": "Click",
         "next": [

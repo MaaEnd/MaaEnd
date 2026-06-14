@@ -9,14 +9,10 @@
     },
     "TrialOfSwordmancyInTrialMenu": {
         "desc": "确认已在演算菜单界面",
-        "recognition": "OCR",
-        "roi": [
-            49,
-            21,
-            57,
-            16
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
-        "expected": "选剑演武",
         "next": [
             "TrialOfSwordmancyDailyCheckRewardMode",
             "SceneAnyEnterWorld"
@@ -74,14 +70,10 @@
     },
     "TrialOfSwordmancyAggressiveDrawCard": {
         "desc": "激进模式抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1161,
-            535,
-            77,
-            20
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
-        "expected": "抽取铭牌",
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 800,
@@ -93,15 +85,9 @@
     // 激进模式放弃处理
     "TrialOfSwordmancyDailyBattlePtsOverflow": {
         "desc": "检测战力点溢出",
-        "recognition": "OCR",
-        "roi": [
-            546,
-            573,
-            180,
-            25
-        ],
-        "expected": [
-            "溢出"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyOverflowExclamation"
         ],
         "next": [
             "TrialOfSwordmancyDailyGiveUp"
@@ -109,15 +95,9 @@
     },
     "TrialOfSwordmancyDailyGiveUp": {
         "desc": "放弃当前抽取",
-        "recognition": "OCR",
-        "roi": [
-            154,
-            593,
-            114,
-            87
-        ],
-        "expected": [
-            "放弃"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
         ],
         "action": "Click",
         "next": [
@@ -195,14 +175,10 @@
     },
     "TrialOfSwordmancyConservativeDrawCard": {
         "desc": "保守模式抽取铭牌",
-        "recognition": "OCR",
-        "roi": [
-            1161,
-            535,
-            77,
-            20
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
         ],
-        "expected": "抽取铭牌",
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 800,

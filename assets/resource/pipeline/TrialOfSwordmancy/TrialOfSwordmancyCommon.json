@@ -175,5 +175,50 @@
             "TrialOfSwordmancyBattlePts7",
             "TrialOfSwordmancyBattlePts8"
         ]
+    },
+    "TrialOfSwordmancyDrawCard": {
+        "desc": "识别抽取铭牌按钮（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1081,
+            510,
+            68,
+            60
+        ],
+        "template": "TrialOfSwordmancy/TrialOfSwordmancyDrawCard.png"
+    },
+    "TrialOfSwordmancyGiveUp": {
+        "desc": "识别放弃按钮（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            44,
+            621,
+            38,
+            37
+        ],
+        "template": "TrialOfSwordmancy/TrialOfSwordmancyGiveUp.png"
+    },
+    "TrialOfSwordmancyOverflowExclamation": {
+        "desc": "识别溢出叹号（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            758,
+            571,
+            29,
+            27
+        ],
+        "template": "TrialOfSwordmancy/TrialOfSwordmancyOverflowExclamation.png"
+    },
+    "TrialOfSwordmancyChallengeBackground": {
+        "desc": "识别挑战界面背景（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            375,
+            211,
+            533,
+            59
+        ],
+        "template": "TrialOfSwordmancy/TrialOfSwordmancyChallengeBackground.png",
+        "green_mask": true
     }
 }
