@@ -68,6 +68,12 @@ Example file: [`ClearHitCount.json`](../../../assets/resource/pipeline/Interface
 
 Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
 
+### PostStop
+
+`PostStop` is implemented in `agent/go-service/common/poststop`. It calls `Tasker.PostStop()` to asynchronously stop the current task. Use it when a certain condition in the pipeline warrants terminating the entire task proactively.
+
+- Parameters: none.
+
 ### AttachToExpectedRegexAction
 
 `AttachToExpectedRegexAction` is implemented in `agent/go-service/common/attachregex`. It generically reads keywords from the target node's own `attach`, then writes the merged whitelist regex back into that target OCR node's `expected`.
@@ -193,6 +199,7 @@ When writing Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` 
 | ------------------------------------------------------------------- | ----------------------------- |
 | Run a sequence of subtasks                                          | `SubTask`                     |
 | Clear a node's hit count                                            | `ClearHitCount`               |
+| Proactively stop the current task                                   | `PostStop`                    |
 | Change node parameters at runtime                                   | `PipelineOverride`            |
 | Build a regex whitelist from keywords and write it into an OCR node | `AttachToExpectedRegexAction` |
 | Evaluate OCR numeric expressions                                    | `ExpressionRecognition`       |

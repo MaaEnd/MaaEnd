@@ -64,6 +64,7 @@
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",
+                "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
                 "SeizeDeliveryJobsDepartureAction",

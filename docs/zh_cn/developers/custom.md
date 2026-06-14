@@ -108,6 +108,12 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
+### PostStop
+
+`PostStop` 实现位于 `agent/go-service/common/poststop`，调用 `Tasker.PostStop()` 异步停止当前任务。适合在 Pipeline 中某个条件满足后主动终止整个任务的场景。
+
+- 参数：无。
+
 ### AutoAltClickAction
 
 `AutoAltClickAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 点击操作。先按下 Alt 键，再点击目标位置，最后松开 Alt 键。
@@ -226,6 +232,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 按顺序跑一组子任务            | `SubTask`                     |
 | 清零某节点的命中计数          | `ClearHitCount`               |
 | 强制让 Action 失败            | `FalseAction`                 |
+| 主动停止当前任务              | `PostStop`                    |
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
