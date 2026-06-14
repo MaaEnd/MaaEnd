@@ -19,6 +19,7 @@
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
             "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
+            "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin",
@@ -253,6 +254,27 @@
         "next": [
             //JumpBack
         ]
+    },
+    "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
+        "desc": "[Wulin版]前往生态农场BaseNav版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724,
+                        190
+                    ],
+                    "zone_id": "Wuling_Base"
+                }
+            ]
+        },
+        "next": []
     },
     //确认是否离开武陵农场，离开则退出工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域

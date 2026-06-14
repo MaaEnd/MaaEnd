@@ -814,6 +814,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description": "농장으로 이동할 때 사용할 길 찾기 도구를 선택합니다. 문제가 있으면 다른 쪽을 시험해 보세요.",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label": "MapTracker",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[2].label": "MapNavigator",
+    "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "스마트 내비",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "촬영 모드로 우링 기지 이탈",
     "task.StashBackpack.label": "🎒배낭 보관",
     "task.StashBackpack.option.StashBackpackSubTask.label": "태스크 시작 전 배낭 보관",

@@ -814,6 +814,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description": "Choose which pathfinding tool to use when going to the farm. If one misbehaves, try the other.",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label": "MapTracker",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[2].label": "MapNavigator",
+    "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "Smart Nav",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "Leave Wuling base with photo mode",
     "task.StashBackpack.label": "🎒Stash Backpack",
     "task.StashBackpack.option.StashBackpackSubTask.label": "Stash backpack before task starts",

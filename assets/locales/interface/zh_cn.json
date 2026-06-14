@@ -814,6 +814,7 @@
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description": "选择去农场用的寻路工具，如果出问题了就换另一个试试。",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label": "MapTracker",
     "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[2].label": "MapNavigator",
+    "task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label": "智能寻路",
     "task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label": "开拍照模式离开武陵基地",
     "task.StashBackpack.label": "🎒存放背包",
     "task.StashBackpack.option.StashBackpackSubTask.label": "任务开始前存放背包",

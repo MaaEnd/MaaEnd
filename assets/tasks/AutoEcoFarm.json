@@ -191,6 +191,19 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "BaseNav",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmBaseNavAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
                 }
             ]
         },
