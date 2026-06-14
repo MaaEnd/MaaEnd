@@ -348,7 +348,7 @@ double RouteTurnAngleDeg(const WorldPoint& a, const WorldPoint& b, const WorldPo
 }
 
 // 单点折返判据:入边·出边点积 < 0(夹角 > 90°)。退化边(零长)不计。逐 run 局部居中用它判断
-// “此次平移是否在窗口内新增折返”,与 RouteTurnBackCount 同源,保证两处判据一致。
+// “此次平移是否在窗口内新增折返”。
 bool IsTurnBackAt(const std::vector<WorldPoint>& points, size_t index)
 {
     if (index == 0 || index + 1 >= points.size()) {
@@ -362,18 +362,6 @@ bool IsTurnBackAt(const std::vector<WorldPoint>& points, size_t index)
         return false;
     }
     return ax * bx + ay * by < 0;
-}
-
-// 折返点数(相邻两段方向夹角 > 90°,即点积 < 0):衡量锯齿/回绕程度,居中不得使其增大。
-int RouteTurnBackCount(const std::vector<WorldPoint>& points)
-{
-    int count = 0;
-    for (size_t index = 1; index + 1 < points.size(); ++index) {
-        if (IsTurnBackAt(points, index)) {
-            ++count;
-        }
-    }
-    return count;
 }
 
 // point 到直线 line_a→line_b 的垂距;直线退化时取到 line_a 的距离。
