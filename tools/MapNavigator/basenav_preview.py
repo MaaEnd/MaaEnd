@@ -32,19 +32,44 @@ BRIDGE_HEIGHT_COST_FACTOR = 40.0
 BRIDGE_MAX_HEIGHT_DELTA = 3.0
 SMALL_BRIDGE_COMPONENT_MAX_TRIANGLES = 512
 SMALL_BRIDGE_MAX_GAP = 4.0
+ROUTE_BOUNDARY_DISTANCE_LIMIT = 8.0
+ROUTE_BOUNDARY_PENALTY_FACTOR = 2.0
 ROUTE_MIN_POINT_DISTANCE = 6.0
 ROUTE_SIMPLIFY_EPSILON = 3.0
 ROUTE_MAX_POINT_DISTANCE = 4.0
-ROUTE_CENTER_PROBE_LIMIT = 12.0  # 走廊横截面单侧探测上限(像素),够覆盖常见走廊半宽
-ROUTE_CENTER_MAX_SHIFT = 8.0  # 直段整体横移的上限(像素),低破坏性夹紧
+ROUTE_CENTER_PROBE_LIMIT = 32.0  # 走廊横截面单侧探测上限(像素),覆盖较宽折线桥面的半宽
+ROUTE_CENTER_MAX_SHIFT = 24.0  # 直段整体横移的上限(像素),允许贴边 A* 路线回到桥面中线
 ROUTE_CORNER_ANGLE_DEG = 35.0  # >= 此转角视为结构性拐角(真直角):在此切分直段,且绝不跨拐角居中(保住直角)
 ROUTE_RUN_STRAIGHT_TOL = 1.6  # 直段判据:段内每个内部点偏离首尾弦 <= 此值(像素)才算"直",方可整体平移
 ROUTE_CORNER_MOVE_FACTOR = 1.5  # 重连后拐角相对原位的最大位移 = ROUTE_CENTER_MAX_SHIFT * 此系数
+ROUTE_SHORTCUT_MIN_CLEARANCE = 6.0  # 拉直捷径沿途任一侧至少保留的横向余量(像素)
+ROUTE_SHORTCUT_CLEARANCE_PROBE_LIMIT = 8.0  # 捷径余量探测上限(像素)
+ROUTE_SHORTCUT_CLEARANCE_PROBE_STEP = 1.0  # 捷径余量探测步进(像素)
+ROUTE_SHORTCUT_CLEARANCE_SAMPLE_STEP = 4.0  # 捷径沿线采样步进(像素)
 CENTER_PROBE_STEP = 0.5  # 点包含式墙距的步进(像素):沿法向逐步外推,直到离开网格
 CENTER_VALIDATE_STEP = 0.5  # 点包含式连段校验的采样步进(像素):候选边按此步采样须全部在网格内
 ROUTE_PULL_SAMPLE_STEP = 0.5  # LOS 拉直 oracle 的采样步进(像素):捷径按此步采样查"点在网格上 + 相邻采样地面高度不跳变"
 ROUTE_PULL_MAX_SKIP = 8  # 拉直时越过非单调视线遮挡的最大连续不可达点数(重叠/碎片网格上个别 portal 中点会外凸,挡近不挡远);真拐角整条对臂都被墙挡住、远超此值,绝不会被误跨
 ROUTE_PULL_MAX_REACH = 64.0  # 单条直线捷径的最大长度(像素):拉直的性能上界,把 O(n·L) 的 L 钳住;开阔直路被切成共线小段(加密补回、居中整体平移,最终形状不变)
+ROUTE_DECENTER_HUG_CLEARANCE = 4.0  # 单侧余量 < 此值即视为"贴边"(像素)
+ROUTE_DECENTER_HUG_ASYMMETRY = 2.0  # 且两侧余量差 >= 此值,才有"可向开阔侧让开"的空间(像素)
+ROUTE_DECENTER_WATER_DROP = 1.5  # 紧边外侧地面比脚下低于此值(或直接离开网格)即判为水/坎 —— 贴它才危险(像素)
+ROUTE_RELAX_TURN_CAP = 88.0  # 松弛/平移允许的转角上限(度);仍 <= 原转角者放行(不在已有拐角上倒扣分)
+ROUTE_RELAX_MIDPOINT_WEIGHT = 0.50  # 松弛目标 = 此权重·邻点中点 + (1-此)·余量中心:中点项消尖角、余量项推离窄边。
+ROUTE_RELAX_MAX_TRANSLATE = 12.0  # 单点相对原位的最大位移(像素):钳住松弛,不让它把点拽过头
+ROUTE_RELAX_ITERATIONS = 16  # Gauss-Seidel 松弛迭代次数。cap 使单步居中变温和(只按近墙距推),靠多迭代逐步收敛到中线
+ROUTE_RELAX_BIAS_NEAR_CAP = True  # 余量偏置鲁棒:把 bias 钳在 min(左,右余量) 内。走廊(两侧都近)逐迭代渐进居中;
+ROUTE_RELAX_ACTIVE_SET = True  # 提速(输出逐位不变):只处理"上轮自己或邻居动过"的点。松弛是局部 Gauss-Seidel,稳定点重算必不动,跳过等价
+ROUTE_RELAX_FAST_PROBE = True  # 提速(BIAS_NEAR_CAP 下输出逐位不变):耦合双侧探墙,近墙 m 确定后远侧封顶 3m —— bias 钳在 ±m 内,远侧超 3m 无影响,省大量步进
+ROUTE_WATER_SHIFT_SAFE = 4.0  # 贴水块整体平移力争达到的单侧安全余量(像素)
+ROUTE_WATER_SHIFT_MAX = 14.0  # 贴水块整体平移上限(像素)
+ROUTE_FLOOR_ENABLE = True
+ROUTE_FLOOR_MIN_CLEARANCE = 2.0  # 目标最小离边余量(nav单位):各向同性最近边界 < 此的点(含凸角/pinned)向中轴推离边界
+ROUTE_FLOOR_STEP = 0.6  # 单轮沿中轴最大推进(nav单位):小步多迭代,绝不一次到位 —— 防过冲到对侧反而把 d_min 变差
+ROUTE_FLOOR_MAX_TRANSLATE = 4.0  # 单点相对原位的累计最大位移(nav单位):钳住,不把拐角拽过头
+ROUTE_FLOOR_ITERATIONS = 14  # 中轴梯度上升迭代上限(收敛即停;已达标点设 settled 永久跳过)
+ROUTE_FLOOR_PROBE_DIRS = 8  # 各向探测方向数(8 足够辨最近边界方向,比 16 省一半)
+ROUTE_FLOOR_PROBE_MARGIN = 1.0  # 墙距探测早停余量:只探到 地板+此 即够判达标 —— 省大量步进,提速核心
 SEGMENT_WALK_SNAP_RADIUS = 1.0
 SEGMENT_WALK_EPSILON = 1e-6
 SEGMENT_PARALLEL_EPSILON = 1e-12
@@ -52,7 +77,8 @@ SEGMENT_PARALLEL_EPSILON = 1e-12
 # 落在查询半径内的三角形都会按包围盒插入到对应 bin)。烘焙后网格三角形极细碎
 # (中位包围盒约 1px),96px 的粗 bin 会让单个 bin 堆叠上万个三角形,使纯 Python
 # 的 snap 退化成线性扫描;取 8px 让每个 bin 仅含数十个三角形,snap 提前命中。
-INDEX_BIN_SIZE = 16.0
+INDEX_BIN_SIZE = 4.0  # 空间索引网格边长。
+SNAP_FALLBACK_RADIUS = 16.0  # snap 初查(按调用方半径)无果时的兜底扩搜半径。
 
 # BaseNavZone.flags bit0: zone is a tier overlay (zero triangles; its mesh lives in
 # the parent geometry zone addressed by component_count; transform = tier_px→base_px).
@@ -259,6 +285,7 @@ class BaseNavField:
         self.natural_component: list[int] = []
         self.natural_component_size: list[int] = []
         self.triangle_height: list[float] = []
+        self.triangle_boundary_distance: list[float] = []
         self.overlay_cache: dict[int, object] = {}
         self.dots_cache: dict[int, object] = {}
         self._build_index(progress_callback=progress_callback)
@@ -546,8 +573,8 @@ class BaseNavField:
             return None
         query_radius = max(0.0, radius)
         candidates = self._candidate_triangles(zone_id, point, query_radius)
-        if not candidates and query_radius < self.bin_size:
-            candidates = self._candidate_triangles(zone_id, point, self.bin_size)
+        if not candidates and query_radius < SNAP_FALLBACK_RADIUS:
+            candidates = self._candidate_triangles(zone_id, point, SNAP_FALLBACK_RADIUS)
         if floor_y is None or floor_y <= FLOOR_Y_VALID_MIN:
             # Legacy floor-blind path — byte-identical to the pre-floor behavior so a base
             # view / unbaked zone keeps the 9 golden-hash routing parity exactly.
@@ -760,6 +787,8 @@ class BaseNavField:
         # --- 邻接表(adjacency, CSR)----------------------------------------
         self._build_adjacency_csr(tz)
         _report_progress(progress_callback, 0.58)
+        self.triangle_boundary_distance = self._compute_triangle_boundary_distances()
+        _report_progress(progress_callback, 0.59)
 
     def _build_adjacency_csr(self, tz: np.ndarray) -> None:
         """矢量化复现原 ``_is_traversable_link`` 过滤,产出 CSR 邻接表。
@@ -810,6 +839,45 @@ class BaseNavField:
         flat = array("i")
         flat.frombytes(np.ascontiguousarray(sorted_tgt, dtype=np.int32).tobytes())
         self.adjacency = _CSRAdjacency(flat, offsets.tolist())
+
+    def _triangle_has_boundary_edge(self, triangle_index: int) -> bool:
+        if triangle_index >= len(self.triangles):
+            return False
+        zone_id = self.triangle_zone[triangle_index]
+        if zone_id == 0:
+            return False
+        for neighbor in self.triangles[triangle_index].neighbors:
+            if neighbor < 0 or neighbor >= len(self.triangles) or self.triangle_zone[neighbor] != zone_id:
+                return True
+        return False
+
+    def _compute_triangle_boundary_distances(self) -> list[float]:
+        distances = [math.inf] * len(self.triangles)
+        if self.adjacency is None:
+            return distances
+
+        open_heap: list[tuple[float, int]] = []
+        for triangle_index in range(len(self.triangles)):
+            if self._triangle_has_boundary_edge(triangle_index):
+                distances[triangle_index] = 0.0
+                heapq.heappush(open_heap, (0.0, triangle_index))
+
+        while open_heap:
+            distance, current = heapq.heappop(open_heap)
+            if distance > distances[current]:
+                continue
+            if distance >= ROUTE_BOUNDARY_DISTANCE_LIMIT:
+                continue
+            current_center = self.triangles[current].center
+            for neighbor in self.adjacency[current]:
+                if neighbor < 0 or neighbor >= len(self.triangles) or self.triangle_zone[neighbor] != self.triangle_zone[current]:
+                    continue
+                candidate = distance + _point_distance(current_center, self.triangles[neighbor].center)
+                if candidate >= distances[neighbor] or candidate > ROUTE_BOUNDARY_DISTANCE_LIMIT:
+                    continue
+                distances[neighbor] = candidate
+                heapq.heappush(open_heap, (candidate, neighbor))
+        return distances
 
     def _resolve_residual_bridges(self, res_idx, link_src, link_tgt, accept) -> None:
         """判定"非邻接且分量小"的残量 link 是否桥接(最近边间隙 <= 阈值)。
@@ -908,20 +976,22 @@ class BaseNavField:
         return sum(self.vertices[index].height for index in triangle.vertices) / 3.0
 
     def _candidate_triangles(self, zone_id: int, point: tuple[float, float], radius: float) -> list[int]:
+        # 热点(密网格上每次 point_on_mesh 都走这):去掉了原先的 seen 去重 set —— 细分小三角形基本不跨桶,
+        # 去重几乎全是白付出的 set.add(profile 实测占 ~4s)。偶尔同一三角形被重复返回完全无害:point_on_mesh
+        # 命中即返回、snap/ground_height 按距离/高度取最优,重复值不改结果。输出不变,但省下去重开销。
         px, py = point
-        seen: set[int] = set()
         result = []
-        left = math.floor((px - radius) / self.bin_size)
-        right = math.floor((px + radius) / self.bin_size)
-        top = math.floor((py - radius) / self.bin_size)
-        bottom = math.floor((py + radius) / self.bin_size)
+        bin_size = self.bin_size
+        bins = self.bins
+        triangle_bounds = self.triangle_bounds
+        left = math.floor((px - radius) / bin_size)
+        right = math.floor((px + radius) / bin_size)
+        top = math.floor((py - radius) / bin_size)
+        bottom = math.floor((py + radius) / bin_size)
         for bin_x in range(left, right + 1):
             for bin_y in range(top, bottom + 1):
-                for triangle_index in self.bins.get((zone_id, bin_x, bin_y), []):
-                    if triangle_index in seen:
-                        continue
-                    seen.add(triangle_index)
-                    bounds = self.triangle_bounds[triangle_index]
+                for triangle_index in bins.get((zone_id, bin_x, bin_y), ()):
+                    bounds = triangle_bounds[triangle_index]
                     if bounds[0] - radius <= px <= bounds[2] + radius and bounds[1] - radius <= py <= bounds[3] + radius:
                         result.append(triangle_index)
         return result
@@ -1034,20 +1104,44 @@ class BaseNavField:
         bx, by = self.triangles[rhs].center
         return math.hypot(ax - bx, ay - by)
 
+    def _boundary_aware_transition_cost(self, lhs: int, rhs: int, base_cost: float) -> float:
+        def penalty_ratio(triangle_index: int) -> float:
+            if triangle_index >= len(self.triangle_boundary_distance):
+                return 0.0
+            distance = self.triangle_boundary_distance[triangle_index]
+            if not math.isfinite(distance) or distance >= ROUTE_BOUNDARY_DISTANCE_LIMIT:
+                return 0.0
+            return (ROUTE_BOUNDARY_DISTANCE_LIMIT - distance) / ROUTE_BOUNDARY_DISTANCE_LIMIT
+
+        ratio = (penalty_ratio(lhs) + penalty_ratio(rhs)) * 0.5
+        return base_cost * (1.0 + ratio * ROUTE_BOUNDARY_PENALTY_FACTOR)
+
     def _transition_cost(self, lhs: int, rhs: int) -> float:
+        # 缓存(输出不变):转移代价是静态网格的纯函数。A* 在细分密网格上会反复(跨查询)对同一边求值,
+        # 而每次都要 _shared_edge_midpoint / _closest_edge_bridge_points(9 对边距),缓存后第二次起 O(1)。
+        cache = self.__dict__.setdefault("_transition_cost_cache", {})
+        key = (lhs, rhs)
+        value = cache.get(key)
+        if value is None:
+            value = cache[key] = self._transition_cost_uncached(lhs, rhs)
+        return value
+
+    def _transition_cost_uncached(self, lhs: int, rhs: int) -> float:
         lhs_center = self.triangles[lhs].center
         rhs_center = self.triangles[rhs].center
         midpoint = self._shared_edge_midpoint(lhs, rhs)
         if midpoint is not None:
-            return _point_distance(lhs_center, midpoint) + _point_distance(midpoint, rhs_center)
+            base_cost = _point_distance(lhs_center, midpoint) + _point_distance(midpoint, rhs_center)
+            return self._boundary_aware_transition_cost(lhs, rhs, base_cost)
         bridge_points = self._closest_edge_bridge_points(lhs, rhs)
         height_delta = abs(self.triangle_height[lhs] - self.triangle_height[rhs])
         if height_delta > BRIDGE_MAX_HEIGHT_DELTA:
             return math.inf
         if bridge_points is None:
-            return self._heuristic(lhs, rhs) + BRIDGE_FIXED_COST + height_delta * BRIDGE_HEIGHT_COST_FACTOR
+            base_cost = self._heuristic(lhs, rhs) + BRIDGE_FIXED_COST + height_delta * BRIDGE_HEIGHT_COST_FACTOR
+            return self._boundary_aware_transition_cost(lhs, rhs, base_cost)
         gap = _point_distance(bridge_points[0], bridge_points[1])
-        return (
+        base_cost = (
             _point_distance(lhs_center, bridge_points[0])
             + gap
             + _point_distance(bridge_points[1], rhs_center)
@@ -1055,6 +1149,7 @@ class BaseNavField:
             + gap * BRIDGE_GAP_COST_FACTOR
             + height_delta * BRIDGE_HEIGHT_COST_FACTOR
         )
+        return self._boundary_aware_transition_cost(lhs, rhs, base_cost)
 
     @staticmethod
     def _reconstruct(parent: dict[int, int], start: int, goal: int) -> list[int]:
@@ -1076,43 +1171,63 @@ class BaseNavField:
     ) -> tuple[list[tuple[float, float]], list[int]]:
         if len(triangle_path) <= 1:
             return _dedupe_points([start, goal]), []
-        points = [start]
-        segment_breaks = []
-        for lhs, rhs in zip(triangle_path, triangle_path[1:]):
-            midpoint = self._shared_edge_midpoint(lhs, rhs)
-            if midpoint is not None:
-                points.append(midpoint)
-                continue
-            bridge_points = self._closest_edge_bridge_points(lhs, rhs)
-            if bridge_points is not None:
-                points.append(bridge_points[0])
-                segment_breaks.append(len(points))
-                points.append(bridge_points[1])
-        points.append(goal)
         # The corridor is single-zone (A* never crosses zones), so the first triangle's zone drives
         # the walkability check that keeps simplification from cutting a corner through a wall.
         zone_id = self.triangle_zone[triangle_path[0]] if triangle_path else 0
-        deduped_points, deduped_breaks = _dedupe_points_with_breaks(points, segment_breaks)
-        simplified_points, simplified_breaks = _remove_collinear_with_breaks(deduped_points, deduped_breaks)
-        # LOS 拉直用"运行参考高度"oracle(不是 march):march 只走边邻接,在共面重叠缝处会误拒直捷径、
-        # 留住 portal 中点锯齿;高度 oracle 沿捷径按 ROUTE_PULL_SAMPLE_STEP 采样,要求处处在网格上且地面
-        # 高度不跳变 -> 开阔锯齿被拉直走中线、绕 +9 墙的真拐角因踩墙高度跳变而留住直角。
         height_walkable = lambda segment_a, segment_b: self._segment_height_walkable(zone_id, segment_a, segment_b)
-        pulled_points, pulled_breaks = _thin_route_points_with_breaks(
-            simplified_points, simplified_breaks, is_segment_walkable=height_walkable
-        )
+        on_mesh = lambda point: self._point_on_mesh(zone_id, point)
+        # SSF 漏斗:在三角形走廊内直接求最短折线,替代中点+thin 拉直.
+        # 内部试双向握手、取在网格上且路径更短(更直)的那个;两向均离网格才回退到 thin.
+        funnel_result = _funnel_route_points(self, triangle_path, start, goal, on_mesh)
+        if funnel_result is not None:
+            pulled_points, pulled_breaks = funnel_result
+        else:
+            points = [start]
+            segment_breaks = []
+            for lhs, rhs in zip(triangle_path, triangle_path[1:]):
+                midpoint = self._shared_edge_midpoint(lhs, rhs)
+                if midpoint is not None:
+                    points.append(midpoint)
+                    continue
+                bridge_points = self._closest_edge_bridge_points(lhs, rhs)
+                if bridge_points is not None:
+                    points.append(bridge_points[0])
+                    segment_breaks.append(len(points))
+                    points.append(bridge_points[1])
+            points.append(goal)
+            deduped_points, deduped_breaks = _dedupe_points_with_breaks(points, segment_breaks)
+            simplified_points, simplified_breaks = _remove_collinear_with_breaks(deduped_points, deduped_breaks)
+            # LOS 拉直用"运行参考高度"oracle(不是 march):march 只走边邻接,在共面重叠缝处会误拒直捷径、
+            # 留住 portal 中点锯齿;高度 oracle 沿捷径按 ROUTE_PULL_SAMPLE_STEP 采样,要求处处在网格上且地面
+            # 高度不跳变 -> 开阔锯齿被拉直走中线、绕 +9 墙的真拐角因踩墙高度跳变而留住直角。
+            pulled_points, pulled_breaks = _thin_route_points_with_breaks(
+                simplified_points, simplified_breaks, is_segment_walkable=height_walkable, point_on_mesh=on_mesh
+            )
         # 拉直输出是"拐角到拐角"、中间无内部点;先加密恢复内部采样点,结构保持式居中才有"直段"可整体平移。
         densified_points, densified_breaks = _densify_route_points_with_breaks(pulled_points, pulled_breaks)
         # 居中:在结构性拐角处切分直段,仅把够直的直段整体平移到走廊中线、并在拐角延长线交点处重连 ->
         # 既居中又精确保住真直角(不抹圆、不锯齿)。墙距/校验用点包含式(march 在重叠/碎片网格上会低估
         # 余量、误拒候选,使居中失效)。
-        on_mesh = lambda point: self._point_on_mesh(zone_id, point)
         centered_points, centered_breaks = _center_route_points_with_breaks(
             densified_points, densified_breaks, point_on_mesh=on_mesh
         )
-        # 居中会把拐角搬到直段延长线交点上,可能拉出超过 ROUTE_MAX_POINT_DISTANCE 的长边;末尾再加密一次,
+        # 逐 run 刚性居中只搬得动"够直的长直段";贴着水弯过去的块、孤立尖角仍 0 余量贴水。图像识别坐标离散、
+        # 滞后、有噪,贴水极危险,故再做两段"离水让边"细化:
+        #   ① 守卫式松弛:逐点推向 中点 + 余量中心,消尖角、离窄边(不抹真直角、不新增折返);
+        #   ② 贴水块整体平移:把方向一致的连续贴水点聚成块,带 Hann 渐隐整体让向开阔侧(松弛搬不动整块)。
+        ground_height = lambda point: self._ground_height_near_indexed(zone_id, point, None)
+        relaxed_points, relaxed_breaks = _route_clearance_relax_with_breaks(
+            centered_points, centered_breaks, point_on_mesh=on_mesh, height_walkable=height_walkable
+        )
+        decentered_points, decentered_breaks = _route_water_edge_shift_with_breaks(
+            relaxed_points, relaxed_breaks, point_on_mesh=on_mesh, ground_height=ground_height
+        )
+        # 居中/让边会把拐角搬到直段延长线交点上,可能拉出超过 ROUTE_MAX_POINT_DISTANCE 的长边;末尾再加密一次,
         # 保证最终点距 <= ROUTE_MAX_POINT_DISTANCE(机器人沿密集折线行走)。
-        return _densify_route_points_with_breaks(centered_points, centered_breaks)
+        densified_final, densified_final_breaks = _densify_route_points_with_breaks(decentered_points, decentered_breaks)
+        # 抗噪裕度地板(收尾):funnel 求最短会贴 navmesh 内角,前面几道对 pinned 拐角/凸角仍留贴边点(离边~0);
+        # 上游图像定位有噪,贴可走面边界=出界风险。这里把残留贴边点沿中轴推离边界到地板,确保全程留抗噪余量(仿人走)。
+        return _route_clearance_floor_with_breaks(densified_final, densified_final_breaks, point_on_mesh=on_mesh)
 
     def _shared_edge_portal(self, lhs: int, rhs: int) -> tuple[tuple[float, float], tuple[float, float]] | None:
         lhs_vertices = set(self.triangles[lhs].vertices)
@@ -1441,10 +1556,175 @@ def _remove_collinear_with_breaks(
     return result, sorted(set(mapped_breaks))
 
 
+def _funnel_route_points(
+    field,
+    triangle_path: list[int],
+    start: tuple[float, float],
+    goal: tuple[float, float],
+    on_mesh,
+) -> tuple[list[tuple[float, float]], list[int]] | None:
+    """SSF (Simple Stupid Funnel) 在三角形走廊内求最短路,替代中点+thin 拉直阶段.
+
+    对每个三角形按 CCW 绕序确定有向出边 u→v,分别以 (left=pu,right=pv) 和
+    (left=pv,right=pu) 两种握手各跑一次漏斗,取二者中在网格上且路径总长更短的结果.
+    若两次均有离网格线段则返回 None,由调用方回退到 thin.
+    退化共边(共享顶点数!=2)→ 桥接点作收缩孔(pinch),强制 apex 经过该点.
+    """
+
+    def _ta2(a: tuple, b: tuple, c: tuple) -> float:
+        return (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
+
+    def _eq(a: tuple, b: tuple) -> bool:
+        return abs(a[0] - b[0]) < 1e-7 and abs(a[1] - b[1]) < 1e-7
+
+    def _ccw_vi(t: int) -> list[int]:
+        vi = list(field.triangles[t].vertices)
+        p = [(field.vertices[idx].u, field.vertices[idx].v) for idx in vi]
+        if _ta2(p[0], p[1], p[2]) < 0:
+            vi = [vi[0], vi[2], vi[1]]
+        return vi
+
+    def _ssf(portals: list) -> list:
+        pts = [portals[0][0]]
+        apex = portals[0][0]
+        pl = portals[0][0]
+        pr = portals[0][1]
+        ai = li = ri = 0
+        i = 1
+        while i < len(portals):
+            left, right = portals[i]
+            if _ta2(apex, pr, right) <= 0.0:
+                if _eq(apex, pr) or _ta2(apex, pl, right) > 0.0:
+                    pr = right
+                    ri = i
+                else:
+                    pts.append(pl)
+                    apex = pl
+                    ai = li
+                    pl = pr = apex
+                    li = ri = ai
+                    i = ai + 1
+                    continue
+            if _ta2(apex, pl, left) >= 0.0:
+                if _eq(apex, pl) or _ta2(apex, pr, left) < 0.0:
+                    pl = left
+                    li = i
+                else:
+                    pts.append(pr)
+                    apex = pr
+                    ai = ri
+                    pl = pr = apex
+                    li = ri = ai
+                    i = ai + 1
+                    continue
+            i += 1
+        pts.append(portals[-1][0])
+        return pts
+
+    # Pre-compute CCW vertex lists and bridge pairs (independent of swap).
+    ccw_vi_cache = {}
+    bridge_pairs: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    raw_edges: list[tuple[str, object]] = []  # ("portal", (i0,i1,va)) or ("bridge", (exit,entry)) or ("pinch", m)
+
+    for tri_a, tri_b in zip(triangle_path, triangle_path[1:]):
+        if tri_a not in ccw_vi_cache:
+            ccw_vi_cache[tri_a] = _ccw_vi(tri_a)
+        va = ccw_vi_cache[tri_a]
+        sb = set(field.triangles[tri_b].vertices)
+        shared = [idx for idx in va if idx in sb]
+        if len(shared) == 2:
+            pos = {vi: k for k, vi in enumerate(va)}
+            i0, i1 = shared[0], shared[1]
+            raw_edges.append(("portal", (i0, i1, va, pos)))
+        else:
+            bridge = field._closest_edge_bridge_points(tri_a, tri_b)
+            if bridge is not None:
+                exit_pt, entry_pt = bridge
+                if not _eq(exit_pt, entry_pt):
+                    bridge_pairs.append((exit_pt, entry_pt))
+                raw_edges.append(("bridge", (exit_pt, entry_pt)))
+            else:
+                m = field._shared_edge_midpoint(tri_a, tri_b)
+                raw_edges.append(("pinch", m))
+
+    best: tuple[list, list, float] | None = None
+
+    for swap in (False, True):
+        # Build portal list for this handedness.
+        portals: list[tuple[tuple[float, float], tuple[float, float]]] = [(start, start)]
+        for kind, data in raw_edges:
+            if kind == "portal":
+                i0, i1, va, pos = data
+                u, v = (i0, i1) if (pos[i0] + 1) % 3 == pos[i1] else (i1, i0)
+                pu = (field.vertices[u].u, field.vertices[u].v)
+                pv = (field.vertices[v].u, field.vertices[v].v)
+                portals.append((pu, pv) if not swap else (pv, pu))
+            elif kind == "bridge":
+                exit_pt, _entry_pt = data
+                portals.append((exit_pt, exit_pt))
+            else:  # "pinch"
+                m = data
+                if m is not None:
+                    portals.append((m, m))
+        portals.append((goal, goal))
+
+        # Run SSF, deduplicate.
+        raw_pts = _ssf(portals)
+        clean: list[tuple[float, float]] = [raw_pts[0]]
+        for q in raw_pts[1:]:
+            if not _eq(q, clean[-1]):
+                clean.append(q)
+
+        # Reconstruct segment breaks from bridge pairs.
+        result: list[tuple[float, float]] = []
+        breaks: list[int] = []
+        for pt in clean:
+            result.append(pt)
+            for exit_pt, entry_pt in bridge_pairs:
+                if abs(pt[0] - exit_pt[0]) < 1e-7 and abs(pt[1] - exit_pt[1]) < 1e-7:
+                    breaks.append(len(result))
+                    result.append(entry_pt)
+                    break
+
+        # Validate: non-bridge segments must be on-mesh.
+        bridge_break_set = set(breaks)
+        valid = True
+        for k in range(len(result) - 1):
+            if k + 1 in bridge_break_set:
+                continue
+            a, b = result[k], result[k + 1]
+            seg_len = math.hypot(b[0] - a[0], b[1] - a[1])
+            steps = max(1, int(seg_len / 1.0))
+            for j in range(steps + 1):
+                t = j / steps
+                if not on_mesh((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)):
+                    valid = False
+                    break
+            if not valid:
+                break
+
+        if not valid:
+            continue
+
+        # Pick by total path length (shorter = geometrically straighter = correct handedness).
+        total_len = sum(
+            math.hypot(result[k + 1][0] - result[k][0], result[k + 1][1] - result[k][1])
+            for k in range(len(result) - 1)
+            if k + 1 not in bridge_break_set
+        )
+        if best is None or total_len < best[2]:
+            best = (result, breaks, total_len)
+
+    if best is None:
+        return None
+    return best[0], best[1]
+
+
 def _thin_route_points_with_breaks(
     points: list[tuple[float, float]],
     segment_breaks: list[int],
     is_segment_walkable=None,
+    point_on_mesh=None,
 ) -> tuple[list[tuple[float, float]], list[int]]:
     # LOS 拉直(string-pull):逐 bridge 段把 portal 中点锯齿沿走廊拉直,只在 oracle 判定捷径不可走处
     # (真拐角)留点。取代旧的 RDP+min-distance+march 修复——RDP 是纯几何会留住锯齿,march 又在共面
@@ -1459,7 +1739,7 @@ def _thin_route_points_with_breaks(
     for segment_index, (start, end) in enumerate(zip(segment_starts, segment_ends)):
         if segment_index > 0:
             mapped_breaks.append(len(result))
-        kept_indices = _thin_continuous_segment(points, start, end, is_segment_walkable)
+        kept_indices = _thin_continuous_segment(points, start, end, is_segment_walkable, point_on_mesh)
         result.extend(points[index] for index in kept_indices)
     return result, sorted(set(mapped_breaks))
 
@@ -1503,6 +1783,40 @@ def _max_offset_on_mesh(
     return cap
 
 
+def _relax_clearance_pair(origin, dir_x, dir_y, cap, point_on_mesh, step: float = CENTER_PROBE_STEP):
+    # 同时探 +dir 与 -dir 两侧墙距,等价于两次 _max_offset_on_mesh。但一侧先触墙(=近墙 m)后,把另一侧探测
+    # 上限封顶到 3m:松弛用 BIAS_NEAR_CAP 把 bias=(L-R)/2 钳在 ±m 内,远侧超过 3m 的部分对 bias 毫无影响,
+    # 不必再探。近墙浅时远侧从 64 步降到 ~6 步,松弛探测开销骤降;在 BIAS_NEAR_CAP 下结果(bias)逐位不变。
+    ox, oy = origin
+    left = right = -1.0  # -1 = 该侧仍在探
+    last_left = last_right = 0.0
+    soft_cap = cap
+    distance = step
+    while distance <= soft_cap:
+        if left < 0.0:
+            if point_on_mesh((ox + dir_x * distance, oy + dir_y * distance)):
+                last_left = distance
+            else:
+                left = last_left
+        if right < 0.0:
+            if point_on_mesh((ox - dir_x * distance, oy - dir_y * distance)):
+                last_right = distance
+            else:
+                right = last_right
+        if left >= 0.0 and right >= 0.0:
+            break
+        if left >= 0.0 and right < 0.0 and 3.0 * left < soft_cap:
+            soft_cap = 3.0 * left  # 近墙=left,远侧(right)封顶 3*left
+        elif right >= 0.0 and left < 0.0 and 3.0 * right < soft_cap:
+            soft_cap = 3.0 * right
+        distance += step
+    if left < 0.0:
+        left = cap if last_left >= cap - step * 0.5 else last_left
+    if right < 0.0:
+        right = cap if last_right >= cap - step * 0.5 else last_right
+    return left, right
+
+
 def _segment_on_mesh(
     a: tuple[float, float],
     b: tuple[float, float],
@@ -1535,19 +1849,23 @@ def _route_turn_angle_deg(
     return math.degrees(math.acos(cos_value))
 
 
+def _is_turn_back_at(points: list[tuple[float, float]], index: int) -> bool:
+    # 单点折返判据:入边·出边点积 < 0(夹角 > 90°)。退化边(零长)不计。逐 run 局部居中用它
+    # 判断"此次平移是否在窗口内新增折返",与 _route_turn_back_count 同源,保证两处判据一致。
+    if index <= 0 or index >= len(points) - 1:
+        return False
+    ax = points[index][0] - points[index - 1][0]
+    ay = points[index][1] - points[index - 1][1]
+    bx = points[index + 1][0] - points[index][0]
+    by = points[index + 1][1] - points[index][1]
+    if ax * ax + ay * ay < 1e-9 or bx * bx + by * by < 1e-9:
+        return False
+    return ax * bx + ay * by < 0
+
+
 def _route_turn_back_count(points: list[tuple[float, float]]) -> int:
     # 折返点数(相邻两段方向夹角 > 90°,点积 < 0):衡量"锯齿/绕圈"程度,居中绝不能让它变多。
-    count = 0
-    for index in range(1, len(points) - 1):
-        ax = points[index][0] - points[index - 1][0]
-        ay = points[index][1] - points[index - 1][1]
-        bx = points[index + 1][0] - points[index][0]
-        by = points[index + 1][1] - points[index][1]
-        if ax * ax + ay * ay < 1e-9 or bx * bx + by * by < 1e-9:
-            continue
-        if ax * bx + ay * by < 0:
-            count += 1
-    return count
+    return sum(1 for index in range(1, len(points) - 1) if _is_turn_back_at(points, index))
 
 
 def _perpendicular_distance(
@@ -1562,22 +1880,6 @@ def _perpendicular_distance(
     if length < 1e-9:
         return math.hypot(point[0] - line_a[0], point[1] - line_a[1])
     return abs((point[0] - line_a[0]) * (-dy) + (point[1] - line_a[1]) * dx) / length
-
-
-def _line_intersection(
-    base_a: tuple[float, float],
-    dir_a: tuple[float, float],
-    base_b: tuple[float, float],
-    dir_b: tuple[float, float],
-) -> tuple[float, float] | None:
-    # 两直线 (base_a + t*dir_a) 与 (base_b + s*dir_b) 的交点;近平行时返回 None。
-    cross = dir_a[0] * dir_b[1] - dir_a[1] * dir_b[0]
-    if abs(cross) < 1e-9:
-        return None
-    rx = base_b[0] - base_a[0]
-    ry = base_b[1] - base_a[1]
-    t = (rx * dir_b[1] - ry * dir_b[0]) / cross
-    return (base_a[0] + dir_a[0] * t, base_a[1] + dir_a[1] * t)
 
 
 def _perpendicular_foot(
@@ -1600,13 +1902,15 @@ def _center_continuous_segment(
 ) -> list[tuple[float, float]]:
     # 结构保持式居中(不做平滑,绝不抹圆真直角):
     #   1. 在结构性拐角(转角 >= ROUTE_CORNER_ANGLE_DEG)处把连续段切成若干"直段(run)";段两端固定。
-    #   2. 仅当一个 run 足够"直"(内部点偏离首尾弦 <= ROUTE_RUN_STRAIGHT_TOL)且含内部点时,才把整段沿其
+    #   2. 仅当一个 run 足够"直"(内部点偏离首尾弦 <= ROUTE_RUN_STRAIGHT_TOL)时,才把整段沿其
     #      法向"刚性平移"到走廊中线(平移量 = 段内逐点居中量的中位数,夹紧并按可行性缩放)。刚性平移保持
     #      直段仍直 -> 不会产生逐点独立居中那种高频锯齿(那是把折返数翻三倍、被用户否决的根因)。
-    #   3. 拐角移到相邻两条已平移直段延长线的交点 -> 转角角度被精确保留 -> 真直角不被抹掉;只有整条
-    #      路线的端点(S/G)真正固定。
-    #   4. 碎片/窄走廊里的弯曲 run 不满足"直"判据 -> 原样不动(no-op)。
-    #   5. 安全闸:整段仅在"全程仍在网格内 且 折返数不超过原值"时才接受,否则整段回退原路线 -> 最坏 no-op。
+    #   3. 每条直 run 作为独立事务"局部提交":平移自身内部点、把自身拐角投影到平移后的直线;仅当其局部
+    #      窗口仍全程在网格内、且不新增折返时才提交。单条失败只丢弃自己 —— 取代旧的"整段全有或全无"闸:
+    #      旧闸在碎片化路线(结构性拐角多 -> run 多且互相牵连)上几乎总是整段回退 = 居中彻底失效,正是
+    #      路线在窄走廊/水边贴边不被纠正的根因。
+    #   4. 碎片/窄走廊里的弯曲 run 不满足"直"判据 -> 原样不动(no-op);贴住固定端点(整段首尾 = S/G 或
+    #      桥接点)的 run 也不平移 —— 平移它必在固定端拽出一道绕行钩。
     original = list(points[start:end])
     point_count = len(original)
     if point_count < 3 or point_on_mesh is None:
@@ -1640,62 +1944,65 @@ def _center_continuous_segment(
         run["has_line"] = True
         run["direction"] = (unit_x, unit_y)
         run["normal"] = (normal_x, normal_y)
-        if run_end - run_start >= 2:  # 含可居中的内部点
-            offsets = []
-            for j in range(run_start + 1, run_end):
-                clearance_plus = _max_offset_on_mesh(original[j], normal_x, normal_y, probe_limit, point_on_mesh)
-                clearance_minus = _max_offset_on_mesh(original[j], -normal_x, -normal_y, probe_limit, point_on_mesh)
-                offsets.append((clearance_plus - clearance_minus) * 0.5)
-            offsets.sort()
-            target_shift = max(-max_shift, min(max_shift, offsets[len(offsets) // 2]))
-            chosen_shift = 0.0
-            for scale in (1.0, 0.75, 0.5, 0.25):  # 平移量逐步收缩到全程可行为止
-                if all(
-                    point_on_mesh(
-                        (original[j][0] + normal_x * target_shift * scale, original[j][1] + normal_y * target_shift * scale)
-                    )
-                    for j in range(run_start + 1, run_end)
-                ):
-                    chosen_shift = target_shift * scale
-                    break
-            run["shift"] = chosen_shift
-            anchor = original[run_start + 1]  # 直线锚在 run 主体上,而非可能贴角的拐点
-        else:
-            anchor = original[run_start]  # 长度为 1 的 run:直线即该单段本身(shift=0)
+        samples = list(original[run_start + 1 : run_end])
+        if not samples:
+            # 单段短桥也要居中:结构性拐角切分后常只剩一条边,仅看端点会把 A* 贴边线原样保留。
+            samples = [(original[run_start][0] + dx * t, original[run_start][1] + dy * t) for t in (0.25, 0.5, 0.75)]
+        offsets = []
+        for sample in samples:
+            clearance_plus = _max_offset_on_mesh(sample, normal_x, normal_y, probe_limit, point_on_mesh)
+            clearance_minus = _max_offset_on_mesh(sample, -normal_x, -normal_y, probe_limit, point_on_mesh)
+            offsets.append((clearance_plus - clearance_minus) * 0.5)
+        offsets.sort()
+        target_shift = max(-max_shift, min(max_shift, offsets[len(offsets) // 2]))
+        chosen_shift = 0.0
+        for scale in (1.0, 0.75, 0.5, 0.25):  # 平移量逐步收缩到全程可行为止
+            if all(
+                point_on_mesh((sample[0] + normal_x * target_shift * scale, sample[1] + normal_y * target_shift * scale))
+                for sample in samples
+            ):
+                chosen_shift = target_shift * scale
+                break
+        run["shift"] = chosen_shift
+        anchor = samples[len(samples) // 2]  # 直线锚在 run 主体上,而非可能贴角的拐点
         run["base"] = (anchor[0] + normal_x * run["shift"], anchor[1] + normal_y * run["shift"])
         runs.append(run)
-    # 3. 重连内部拐角:移到相邻两条已平移直线的交点(转角角度被精确保留)。
+    # 3. 逐 run 局部提交。每条直 run 作为独立事务:平移自身内部点、把自身两个拐角投影到平移后的直线上,
+    #    仅当其局部窗口 [run_start-1 .. run_end+1] 仍全程在网格内、且不新增折返时才提交;任一 run 失败只
+    #    丢弃它自己,不连累其余。贴住固定端点(整段首尾)的 run 不平移 —— 平移它必在固定端拽出绕行钩。
     result = list(original)
     corner_move_limit = max_shift * ROUTE_CORNER_MOVE_FACTOR
-    for corner_index in range(1, len(corners) - 1):
-        ci = corners[corner_index]
-        left = runs[corner_index - 1]
-        right = runs[corner_index]
-        candidate = None
-        if left["has_line"] and right["has_line"]:
-            candidate = _line_intersection(left["base"], left["direction"], right["base"], right["direction"])
-        elif left["has_line"]:
-            candidate = _perpendicular_foot(original[ci], left["base"], left["direction"])
-        elif right["has_line"]:
-            candidate = _perpendicular_foot(original[ci], right["base"], right["direction"])
-        if (
-            candidate is not None
-            and point_on_mesh(candidate)
-            and math.hypot(candidate[0] - original[ci][0], candidate[1] - original[ci][1]) <= corner_move_limit
-        ):
-            result[ci] = candidate
-    # 4. 内部点:按所在 run 的平移量做刚性平移。
     for run in runs:
         if not run["has_line"] or run["shift"] == 0.0:
             continue
+        run_start, run_end = run["start"], run["end"]
+        if run_start == 0 or run_end == point_count - 1:
+            continue  # 贴住固定端点的 run:平移只会在 S/G/桥处拉出绕行钩
         normal_x, normal_y = run["normal"]
         shift = run["shift"]
-        for j in range(run["start"] + 1, run["end"]):
-            result[j] = (original[j][0] + normal_x * shift, original[j][1] + normal_y * shift)
-    # 5. 安全闸:全程在网格内 且 不比原路线更锯齿,否则整段回退。
-    stays_on_mesh = all(_segment_on_mesh(result[k], result[k + 1], point_on_mesh) for k in range(point_count - 1))
-    if not stays_on_mesh or _route_turn_back_count(result) > _route_turn_back_count(original):
-        return original
+        trial = list(result)
+        for j in range(run_start + 1, run_end):
+            trial[j] = (original[j][0] + normal_x * shift, original[j][1] + normal_y * shift)
+        for ci in (run_start, run_end):  # 把本 run 自己的拐角投影到平移后的直线(全局端点除外)
+            if ci == 0 or ci == point_count - 1:
+                continue
+            foot = _perpendicular_foot(original[ci], run["base"], run["direction"])
+            if (
+                point_on_mesh(foot)
+                and math.hypot(foot[0] - original[ci][0], foot[1] - original[ci][1]) <= corner_move_limit
+            ):
+                trial[ci] = foot
+        low = max(0, run_start - 1)
+        high = min(point_count - 1, run_end + 1)
+        if not all(_segment_on_mesh(trial[k], trial[k + 1], point_on_mesh) for k in range(low, high)):
+            continue
+        if any(
+            _is_turn_back_at(trial, i) and not _is_turn_back_at(result, i)
+            for i in range(low, high + 1)
+            if 0 < i < point_count - 1
+        ):
+            continue
+        result = trial
     return result
 
 
@@ -1720,6 +2027,309 @@ def _center_route_points_with_breaks(
             )
         )
     return result, sorted(set(mapped_breaks))
+
+
+def _route_edge_open_direction(points, index, point_on_mesh, ground_height):
+    # 判断 points[index] 是否"贴着水边",若是则回传可让开的方向。返回 None 表示不贴水边;
+    # 否则返回 (开阔侧单位法向 x, y, 开阔侧余量, 紧边余量)。
+    #   贴边:某一侧余量 < ROUTE_DECENTER_HUG_CLEARANCE 且两侧差 >= ROUTE_DECENTER_HUG_ASYMMETRY;
+    #   水边:紧边(余量小的一侧)外侧地面离开网格、或骤降 > ROUTE_DECENTER_WATER_DROP(墙边不算,贴墙不危险)。
+    n = len(points)
+    if index <= 0 or index >= n - 1:
+        return None
+    a = points[index - 1]
+    c = points[index + 1]
+    dx, dy = c[0] - a[0], c[1] - a[1]
+    length = math.hypot(dx, dy)
+    if length < 1e-6:
+        return None
+    nx, ny = -dy / length, dx / length
+    left = _max_offset_on_mesh(points[index], nx, ny, ROUTE_CENTER_PROBE_LIMIT, point_on_mesh)
+    right = _max_offset_on_mesh(points[index], -nx, -ny, ROUTE_CENTER_PROBE_LIMIT, point_on_mesh)
+    if not (min(left, right) < ROUTE_DECENTER_HUG_CLEARANCE and abs(left - right) >= ROUTE_DECENTER_HUG_ASYMMETRY):
+        return None
+    if left < right:
+        tight_nx, tight_ny, tight = nx, ny, left
+    else:
+        tight_nx, tight_ny, tight = -nx, -ny, right
+    here, _ = ground_height(points[index])
+    beyond, _ = ground_height((points[index][0] + tight_nx * (tight + 2.0), points[index][1] + tight_ny * (tight + 2.0)))
+    is_water = beyond is None or (here is not None and beyond < here - ROUTE_DECENTER_WATER_DROP)
+    if not is_water:
+        return None
+    if left > right:
+        return (nx, ny, left, right)
+    return (-nx, -ny, right, left)
+
+
+def _route_clearance_relax_with_breaks(points, segment_breaks, point_on_mesh=None, height_walkable=None):
+    # 居中细化一:守卫式 Gauss-Seidel 松弛。逐 run 刚性居中只动"够直的长直段",留下弯曲块、孤立尖角仍贴边。
+    # 这里对每个内部、非冻结、非真拐角(墙角)的点,把它推向 中点(消尖) 与 余量中心(离窄边) 的加权目标,
+    # 总位移钳在 ROUTE_RELAX_MAX_TRANSLATE 内,且仅当候选点+两侧连段仍在网格上、且本点及左右邻的转角都不
+    # 超过 max(CAP, 原转角) 时才提交 —— 既不抹掉真直角,也绝不新增折返。冻结整段首尾与桥接点附近(±2)。
+    n = len(points)
+    if n <= 3 or point_on_mesh is None or height_walkable is None:
+        return points, segment_breaks
+    weight_clear = 1.0 - ROUTE_RELAX_MIDPOINT_WEIGHT
+    original = [tuple(point) for point in points]
+    result = [list(point) for point in points]
+    # 真拐角(墙角):弦 i-1 -> i+1 高度不可走 = 直连会穿墙,该点必须留在原拐角处,不参与松弛。
+    pinned = {i for i in range(1, n - 1) if not height_walkable(original[i - 1], original[i + 1])}
+    frozen = {0, 1, n - 2, n - 1}
+    for break_index in segment_breaks:
+        for delta in (-2, -1, 0, 1, 2):
+            frozen.add(break_index + delta)
+    origin_turn = [
+        _route_turn_angle_deg(original[i - 1], original[i], original[i + 1]) if 0 < i < n - 1 else 0.0 for i in range(n)
+    ]
+
+    def turn_at(arr, i):
+        return _route_turn_angle_deg(arr[i - 1], arr[i], arr[i + 1]) if 0 < i < n - 1 else 0.0
+
+    # active-set(ROUTE_RELAX_ACTIVE_SET):dirty=待评估点;一点只在"自己或左右邻上次动过"时才需重算 —— 局部松弛
+    # 里稳定点重算的目标必与现状相同、必不动,跳过严格等价。关闭则 dirty=None,退化为原"每轮全扫描"逐位一致。
+    dirty = {i for i in range(1, n - 1) if i not in frozen and i not in pinned} if ROUTE_RELAX_ACTIVE_SET else None
+    for _ in range(ROUTE_RELAX_ITERATIONS):
+        if dirty is not None and not dirty:
+            break  # 收敛:无待评估点
+        next_dirty = set() if dirty is not None else None
+        for i in range(1, n - 1):
+            if dirty is not None and i not in dirty:
+                continue
+            if i in frozen or i in pinned:
+                continue
+            a, c = result[i - 1], result[i + 1]
+            dx, dy = c[0] - a[0], c[1] - a[1]
+            length = math.hypot(dx, dy)
+            if length < 1e-6:
+                continue
+            nx, ny = -dy / length, dx / length
+            if ROUTE_RELAX_FAST_PROBE and ROUTE_RELAX_BIAS_NEAR_CAP:
+                clearance_left, clearance_right = _relax_clearance_pair(
+                    tuple(result[i]), nx, ny, ROUTE_CENTER_PROBE_LIMIT, point_on_mesh
+                )
+            else:
+                clearance_left = _max_offset_on_mesh(tuple(result[i]), nx, ny, ROUTE_CENTER_PROBE_LIMIT, point_on_mesh)
+                clearance_right = _max_offset_on_mesh(tuple(result[i]), -nx, -ny, ROUTE_CENTER_PROBE_LIMIT, point_on_mesh)
+            mid_x, mid_y = (a[0] + c[0]) * 0.5, (a[1] + c[1]) * 0.5
+            bias = (clearance_left - clearance_right) * 0.5
+            if ROUTE_RELAX_BIAS_NEAR_CAP:
+                # 钳在最近墙距内:一侧射线穿开口逃逸(cl 爆大)时,bias 不跟着逃逸跑,只按近侧墙距轻推。
+                near_wall = min(clearance_left, clearance_right)
+                if bias > near_wall:
+                    bias = near_wall
+                elif bias < -near_wall:
+                    bias = -near_wall
+            clear_x, clear_y = result[i][0] + nx * bias, result[i][1] + ny * bias
+            target_x = ROUTE_RELAX_MIDPOINT_WEIGHT * mid_x + weight_clear * clear_x
+            target_y = ROUTE_RELAX_MIDPOINT_WEIGHT * mid_y + weight_clear * clear_y
+            move_x, move_y = target_x - original[i][0], target_y - original[i][1]
+            move_length = math.hypot(move_x, move_y)
+            if move_length > ROUTE_RELAX_MAX_TRANSLATE:
+                target_x = original[i][0] + move_x / move_length * ROUTE_RELAX_MAX_TRANSLATE
+                target_y = original[i][1] + move_y / move_length * ROUTE_RELAX_MAX_TRANSLATE
+            candidate = (target_x, target_y)
+            if not point_on_mesh(candidate):
+                continue
+            if not (_segment_on_mesh(tuple(a), candidate, point_on_mesh) and _segment_on_mesh(candidate, tuple(c), point_on_mesh)):
+                continue
+            # 转角守卫:原先每个候选都 trial=整表拷贝(O(N)/候选 → 每道 pass O(N²),长路线上爆炸)。
+            # 改为就地换入候选点算转角、被拒再换回 —— O(1),turn_at 看到的就是 result[i]=候选,输出逐位不变。
+            saved = result[i]
+            result[i] = [target_x, target_y]
+            if not all(turn_at(result, k) <= max(ROUTE_RELAX_TURN_CAP, origin_turn[k]) + 1e-6 for k in (i - 1, i, i + 1)):
+                result[i] = saved
+                continue
+            if dirty is not None:
+                # 邻域输入变了需重评:i+1 本轮就重评(在升序扫描前方,加入当前 dirty 等同原地处理);
+                # i-1/i/i+1 下轮重评。i-1 已扫过本轮、i 本轮只评一次,故二者只入 next_dirty。
+                if i + 1 <= n - 2:
+                    dirty.add(i + 1)
+                for j in (i - 1, i, i + 1):
+                    if 1 <= j <= n - 2:
+                        next_dirty.add(j)
+        if dirty is not None:
+            dirty = next_dirty
+    return [tuple(point) for point in result], segment_breaks
+
+
+def _route_water_edge_shift_with_breaks(points, segment_breaks, point_on_mesh=None, ground_height=None):
+    # 居中细化二:贴水块整体平移。松弛是逐点的,搬不动"整条贴着水弯过去"的块(搬一个点就在邻点处拐出折返)。
+    # 这里把方向一致的连续贴水点聚成块,沿块的中位让开方向整体平移 —— 核心点满权、两端 M 个点按 Hann 斜坡渐隐
+    # (把边界曲率摊开,不在某条边上一次性堆出折返)。在 (M, 平移量) 上搜索,按"触及窗口内剩余贴水点数"打分取
+    # 最优,只在严格更优、且不离网格/不新增折返时提交。块的延展不跨桥接点(block_edge)。
+    n = len(points)
+    if n <= 3 or point_on_mesh is None or ground_height is None:
+        return points, segment_breaks
+    result = [list(point) for point in points]
+    break_set = set(segment_breaks)
+
+    def open_dir(route, i):
+        return _route_edge_open_direction(route, i, point_on_mesh, ground_height)
+
+    def is_block_edge(j):
+        return j in break_set or (j + 1) in break_set
+
+    info = [open_dir(result, i) for i in range(n)]
+    i = 1
+    while i < n - 1:
+        if info[i] is None:
+            i += 1
+            continue
+        start = i
+        while (
+            i + 1 < n - 1
+            and info[i + 1] is not None
+            and not is_block_edge(i)
+            and (info[i + 1][0] * info[start][0] + info[i + 1][1] * info[start][1]) > -0.5
+        ):
+            i += 1
+        end = i
+        i += 1
+        sum_x = sum(info[j][0] for j in range(start, end + 1))
+        sum_y = sum(info[j][1] for j in range(start, end + 1))
+        dir_length = math.hypot(sum_x, sum_y)
+        if dir_length < 1e-6:
+            continue
+        unit_x, unit_y = sum_x / dir_length, sum_y / dir_length
+        need = max(0.0, ROUTE_WATER_SHIFT_SAFE - min(info[j][3] for j in range(start, end + 1)))
+        room = min(info[j][2] for j in range(start, end + 1))
+        shift = min(need, max(0.0, room - ROUTE_WATER_SHIFT_SAFE), ROUTE_WATER_SHIFT_MAX)
+        if shift < 0.5:
+            continue
+        window = range(max(1, start - 6), min(n - 1, end + 7))
+        before = sum(1 for j in window if open_dir(result, j) is not None)
+        best = None
+        for margin in (2, 3, 4, 5, 6):
+            low = max(1, start - margin)
+            high = min(n - 2, end + margin)
+            while low > 1 and is_block_edge(low - 1):
+                low += 1
+            while high < n - 2 and is_block_edge(high):
+                high -= 1
+
+            def taper_weight(j, low_bound=low, high_bound=high):
+                if start <= j <= end:
+                    return 1.0
+                if j < start:
+                    return max(0.0, (j - (start - margin)) / margin)
+                return max(0.0, ((end + margin) - j) / margin)
+
+            for scale in (shift, shift * 0.85, shift * 0.7, shift * 0.55):
+                trial = [list(point) for point in result]
+                for j in range(low, high + 1):
+                    weight = taper_weight(j)
+                    trial[j] = [result[j][0] + unit_x * scale * weight, result[j][1] + unit_y * scale * weight]
+                window_range = range(low - 1, high + 2)
+                on_mesh_ok = all(point_on_mesh(tuple(trial[j])) for j in range(low, high + 1)) and all(
+                    _segment_on_mesh(tuple(trial[k]), tuple(trial[k + 1]), point_on_mesh) for k in range(low - 1, high + 1)
+                )
+                if on_mesh_ok:
+                    on_mesh_ok = not any(
+                        0 < k < n - 1
+                        and _route_turn_angle_deg(trial[k - 1], trial[k], trial[k + 1]) > 90.0
+                        and _route_turn_angle_deg(result[k - 1], result[k], result[k + 1]) <= 90.0
+                        for k in window_range
+                    )
+                if not on_mesh_ok:
+                    continue
+                after = sum(1 for j in window if open_dir(trial, j) is not None)
+                candidate_score = (after, margin, -scale)
+                if best is None or candidate_score < best[0]:
+                    best = (candidate_score, trial, after)
+            if best is not None and best[2] == 0:
+                break
+        if best is not None and best[2] < before:
+            result = best[1]
+    return [tuple(point) for point in result], segment_breaks
+
+
+def _route_clearance_floor_with_breaks(points, segment_breaks, point_on_mesh=None):
+    # 居中细化三:抗噪裕度地板(收尾)。funnel 求最短会贴 navmesh 内角,前面几道对 pinned 拐角/凸角仍留贴边点
+    # (各向同性最近边界 ~0)。这里对"最近边界 < 地板"的内部点(含 pinned 拐角)沿中轴梯度(各向探测的开阔向量)
+    # 推离边界到地板;凸角的最近边界在斜对角,故必须各向探测、垂直 L/R 看不到。提速:① 单次探测同时算出最近边界
+    # 距 d_min 与开阔向量;② 探测早停在 地板+裕度(够判达标);③ 已达标点设 settled 永久跳过;④ 收敛即停。
+    # 守卫:候选+两侧连段在网格、推后 d_min 确有增益、不新增 > max(CAP, 原转角) 折返。冻结整段首尾与桥接±2。
+    n = len(points)
+    if n <= 3 or point_on_mesh is None or not ROUTE_FLOOR_ENABLE or ROUTE_FLOOR_MIN_CLEARANCE <= 0.0:
+        return points, segment_breaks
+    floor = ROUTE_FLOOR_MIN_CLEARANCE
+    probe_cap = floor + ROUTE_FLOOR_PROBE_MARGIN  # 早停:探到 地板+裕度 即够判达标
+    probe_dirs = [
+        (math.cos(2.0 * math.pi * k / ROUTE_FLOOR_PROBE_DIRS), math.sin(2.0 * math.pi * k / ROUTE_FLOOR_PROBE_DIRS))
+        for k in range(ROUTE_FLOOR_PROBE_DIRS)
+    ]
+    original = [tuple(point) for point in points]
+    result = [list(point) for point in points]
+    frozen = {0, 1, n - 2, n - 1}
+    for break_index in segment_breaks:
+        for delta in (-2, -1, 0, 1, 2):
+            frozen.add(break_index + delta)
+    origin_turn = [
+        _route_turn_angle_deg(original[i - 1], original[i], original[i + 1]) if 0 < i < n - 1 else 0.0 for i in range(n)
+    ]
+    settled = [False] * n
+
+    def probe(p):  # 单次扫 K 向:返回 (最近边界距 d_min, 开阔向量 ox, oy)
+        d_min = probe_cap
+        open_x = open_y = 0.0
+        for dx, dy in probe_dirs:
+            offset = _max_offset_on_mesh(p, dx, dy, probe_cap, point_on_mesh)
+            open_x += dx * offset
+            open_y += dy * offset
+            if offset < d_min:
+                d_min = offset
+        return d_min, open_x, open_y
+
+    def min_clearance(p):
+        return min(_max_offset_on_mesh(p, dx, dy, probe_cap, point_on_mesh) for dx, dy in probe_dirs)
+
+    def turn_at(arr, i):
+        return _route_turn_angle_deg(arr[i - 1], arr[i], arr[i + 1]) if 0 < i < n - 1 else 0.0
+
+    for _ in range(ROUTE_FLOOR_ITERATIONS):
+        moved = False
+        for i in range(1, n - 1):
+            if i in frozen or settled[i]:
+                continue
+            here = (result[i][0], result[i][1])
+            d_min, open_x, open_y = probe(here)
+            if d_min >= floor:
+                settled[i] = True  # 最近边界已达地板,后续轮次跳过
+                continue
+            open_length = math.hypot(open_x, open_y)
+            if open_length < 1e-6:
+                settled[i] = True  # 对称窄颈:开阔向量相消,半宽已到极限,推不动
+                continue
+            unit_x, unit_y = open_x / open_length, open_y / open_length
+            step = min(floor - d_min, ROUTE_FLOOR_STEP)  # 小步:绝不一次推到地板,防过冲到对侧反而变差
+            cand_x, cand_y = here[0] + unit_x * step, here[1] + unit_y * step
+            move_x, move_y = cand_x - original[i][0], cand_y - original[i][1]
+            move_length = math.hypot(move_x, move_y)
+            if move_length > ROUTE_FLOOR_MAX_TRANSLATE:
+                cand_x = original[i][0] + move_x / move_length * ROUTE_FLOOR_MAX_TRANSLATE
+                cand_y = original[i][1] + move_y / move_length * ROUTE_FLOOR_MAX_TRANSLATE
+            candidate = (cand_x, cand_y)
+            if not point_on_mesh(candidate):
+                continue
+            a, c = result[i - 1], result[i + 1]
+            if not (
+                _segment_on_mesh((a[0], a[1]), candidate, point_on_mesh)
+                and _segment_on_mesh(candidate, (c[0], c[1]), point_on_mesh)
+            ):
+                continue
+            if min_clearance(candidate) <= d_min + 1e-6:
+                continue  # 推后必须确有余量增益(防过冲到更差,稳定关键)
+            # 转角守卫:就地换入候选、被拒再换回(O(1),不做整表拷贝 —— 否则每道 pass O(N²),长路线爆炸)。
+            saved = result[i]
+            result[i] = [cand_x, cand_y]
+            if not all(turn_at(result, k) <= max(ROUTE_RELAX_TURN_CAP, origin_turn[k]) + 1e-6 for k in (i - 1, i, i + 1)):
+                result[i] = saved
+                continue
+            moved = True
+        if not moved:
+            break  # 收敛即停
+    return [tuple(point) for point in result], segment_breaks
 
 
 def _densify_continuous_segment(
@@ -1751,11 +2361,44 @@ def _densify_continuous_segment(
     return result
 
 
+def _segment_shortcut_has_clearance(
+    a: tuple[float, float],
+    b: tuple[float, float],
+    point_on_mesh,
+) -> bool:
+    # 捷径横向余量校验:沿 a→b 等距采样,每个采样点须在网格内,且左右法向各保留 >= ROUTE_SHORTCUT_MIN_CLEARANCE
+    # 的余量。高度连续的 height_walkable 只保证捷径中线落在网格上,无法阻止贴着 L 形拐角内侧水边切过去的
+    # "贴边切线"——而拉直会删掉拐角顶点,事后居中只能整体平移、无从复原 L 形,故必须在拉直时拦下。
+    dx = b[0] - a[0]
+    dy = b[1] - a[1]
+    length = math.hypot(dx, dy)
+    if length < 1e-6 or point_on_mesh is None:
+        return True
+    normal_x = -dy / length
+    normal_y = dx / length
+    sample_count = max(1, int(math.ceil(length / ROUTE_SHORTCUT_CLEARANCE_SAMPLE_STEP)))
+    for index in range(1, sample_count + 1):
+        t = index / (sample_count + 1)
+        sample = (a[0] + dx * t, a[1] + dy * t)
+        if not point_on_mesh(sample):
+            return False
+        left = _max_offset_on_mesh(
+            sample, normal_x, normal_y, ROUTE_SHORTCUT_CLEARANCE_PROBE_LIMIT, point_on_mesh, ROUTE_SHORTCUT_CLEARANCE_PROBE_STEP
+        )
+        right = _max_offset_on_mesh(
+            sample, -normal_x, -normal_y, ROUTE_SHORTCUT_CLEARANCE_PROBE_LIMIT, point_on_mesh, ROUTE_SHORTCUT_CLEARANCE_PROBE_STEP
+        )
+        if min(left, right) < ROUTE_SHORTCUT_MIN_CLEARANCE:
+            return False
+    return True
+
+
 def _thin_continuous_segment(
     points: list[tuple[float, float]],
     start: int,
     end: int,
     is_segment_walkable=None,
+    point_on_mesh=None,
 ) -> list[int]:
     # 贪心 LOS 拉直(最远可达版):从锚点出发找"最远可直达点"并跳过去,只在真拐角处落点。
     # oracle 走"运行参考高度"——开阔共面锯齿(假拐角)的捷径保持贴地 → 可走 → 拉直走中线;绕 +9 墙的
@@ -1775,7 +2418,11 @@ def _thin_continuous_segment(
             # 开阔直路因此被切成共线小段,加密会补回内部点、居中把它们当一条直段整体平移,形状不变。
             if _point_distance(points[anchor], points[probe]) > ROUTE_PULL_MAX_REACH:
                 break
-            if is_segment_walkable(points[anchor], points[probe]):
+            # 中线可走还不够:侧向余量不足的捷径(贴 L 形拐角内侧水边切线)必须拒绝,保留原拐角。
+            has_clearance = point_on_mesh is None or _segment_shortcut_has_clearance(
+                points[anchor], points[probe], point_on_mesh
+            )
+            if is_segment_walkable(points[anchor], points[probe]) and has_clearance:
                 farthest = probe
                 misses = 0
             else:

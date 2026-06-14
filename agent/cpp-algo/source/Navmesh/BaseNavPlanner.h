@@ -87,6 +87,7 @@ private:
     std::vector<uint32_t> adjacency_offsets_;
     std::vector<uint32_t> adjacency_links_;
     std::vector<double> triangle_heights_;
+    std::vector<double> triangle_boundary_distances_;
     std::vector<uint32_t> natural_component_ids_;
     std::vector<uint32_t> natural_component_sizes_;
     // 空间分箱索引:(zone_id, bin_x, bin_y) → 该格覆盖的三角形下标。使 snap/pointOnMesh 从全区线性
@@ -96,10 +97,13 @@ private:
     void buildIndex();
     void buildNaturalComponents();
     void buildSpatialIndex();
+    void computeTriangleBoundaryDistances();
     // 返回 point±radius 覆盖的格内全部三角形(可能跨格重复,不影响结果)。
     std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
     void computeTriangleHeights();
     double triangleAverageHeight(uint32_t triangle_index) const;
+    bool triangleHasBoundaryEdge(uint32_t triangle_index) const;
+    double boundaryAwareTransitionCost(uint32_t lhs, uint32_t rhs, double base_cost) const;
     bool isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const;
     bool isTraversableLink(uint32_t lhs, uint32_t rhs) const;
     // point 处的地面高度:取包含 point 的候选三角形中高度与 reference 最接近者(高度连续性,跨重叠缝
@@ -127,6 +131,13 @@ private:
     std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
     double transitionCost(uint32_t lhs, uint32_t rhs) const;
     std::vector<uint32_t> reconstructPath(const std::vector<int32_t>& parents, uint32_t start, uint32_t goal) const;
+    // SSF 漏斗路径:在三角形走廊内求最短折线;试双向握手取更短的在网格上的结果.
+    // 返回 {points, segment_breaks};若两向均离网格返回 nullopt.
+    std::optional<std::pair<std::vector<WorldPoint>, std::vector<size_t>>> funnelRoutePoints(
+        const std::vector<uint32_t>& triangles,
+        const WorldPoint& start,
+        const WorldPoint& goal,
+        uint16_t zone_id) const;
     std::vector<WorldPoint> buildWaypoints(
         const std::vector<uint32_t>& triangles,
         const WorldPoint& start,

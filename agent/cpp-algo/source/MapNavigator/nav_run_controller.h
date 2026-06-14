@@ -48,6 +48,7 @@ struct NavRunTickResult
     navmesh::WorldPoint lookahead_point {};
     double cross_track = std::numeric_limits<double>::infinity();
     double remaining_to_anchor = std::numeric_limits<double>::infinity();
+    double upcoming_turn_deg = 0.0;
     NavRunReplanReason replanned_with = NavRunReplanReason::None;
     // Upcoming continuous-RUN session waypoints the corridor has carried the agent past this
     // tick. The state machine consumes these so the serial waypoint index keeps pace with

@@ -105,6 +105,23 @@ struct LocalizationLossState
     }
 };
 
+// Previous-tick heading, used to estimate the agent's own turn rate for the steering damping term. Only the
+// physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
+// so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
+struct SteeringRateState
+{
+    double prev_heading_deg = 0.0;
+    bool has_prev = false;
+    std::chrono::steady_clock::time_point at {};
+
+    void Reset()
+    {
+        prev_heading_deg = 0.0;
+        has_prev = false;
+        at = {};
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -112,6 +129,7 @@ struct NavigationRuntimeState
     SemanticState semantic;
     DynamicRecoveryState recovery;
     LocalizationLossState localization_loss;
+    SteeringRateState steering_rate;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
 
@@ -119,6 +137,7 @@ struct NavigationRuntimeState
     {
         route.ResetTracking();
         recovery.Reset();
+        steering_rate.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
     }
@@ -129,6 +148,7 @@ struct NavigationRuntimeState
         semantic.ResetTransient();
         recovery.Reset();
         localization_loss.Reset();
+        steering_rate.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.navigate_started_at = now;

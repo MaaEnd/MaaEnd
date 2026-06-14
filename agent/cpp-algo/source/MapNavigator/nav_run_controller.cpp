@@ -61,7 +61,12 @@ std::optional<CorridorProjection>
         const double py = a.y + t * dy;
         const double cross = std::hypot(position.x - px, position.y - py);
         if (!best || cross < best->cross_track) {
-            best = CorridorProjection { .edge_idx = edge, .t = t, .point = { .x = px, .y = py }, .cross_track = cross };
+            best = CorridorProjection {
+                .edge_idx = edge,
+                .t = t,
+                .point = { .x = px, .y = py },
+                .cross_track = cross,
+            };
         }
     }
     return best;
@@ -193,17 +198,38 @@ navmesh::WorldPoint
     return path.points.back();
 }
 
-double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, size_t cursor)
+double UpcomingCorridorTurnDeg(
+    const navmesh::WorldPath& path,
+    const CorridorProjection& projection,
+    double lookahead_distance)
 {
-    if (path.points.size() < 3 || cursor + 2 >= path.points.size()) {
+    if (path.points.size() < 2 || projection.edge_idx + 1 >= path.points.size() || lookahead_distance <= 0.0) {
         return 0.0;
     }
-    const navmesh::WorldPoint& a = path.points[cursor];
-    const navmesh::WorldPoint& b = path.points[cursor + 1];
-    const navmesh::WorldPoint& c = path.points[cursor + 2];
-    const double h1 = NaviMath::CalcTargetRotation(a.x, a.y, b.x, b.y);
-    const double h2 = NaviMath::CalcTargetRotation(b.x, b.y, c.x, c.y);
-    return std::abs(NaviMath::NormalizeAngle(h2 - h1));
+
+    const size_t num_edges = path.points.size() - 1;
+    navmesh::WorldPoint segment_start = projection.point;
+    std::optional<double> base_heading;
+    double max_turn = 0.0;
+    double remaining = lookahead_distance;
+
+    for (size_t edge = projection.edge_idx; edge < num_edges && remaining > 0.0; ++edge) {
+        const navmesh::WorldPoint& segment_end = path.points[edge + 1];
+        const double dx = segment_end.x - segment_start.x;
+        const double dy = segment_end.y - segment_start.y;
+        const double length = std::hypot(dx, dy);
+        if (length > std::numeric_limits<double>::epsilon()) {
+            const double heading = NaviMath::CalcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
+            if (!base_heading) {
+                base_heading = heading;
+            }
+            max_turn = std::max(max_turn, std::abs(NaviMath::NormalizeAngle(heading - *base_heading)));
+            remaining -= length;
+        }
+        segment_start = segment_end;
+    }
+
+    return max_turn;
 }
 
 int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point to)
@@ -326,7 +352,12 @@ NavRunTickResult NavRunController::tick(
 
     const bool hard_off = projection->cross_track > kNavRunCrossTrackFailM;
     const bool soft_off = projection->cross_track > kNavRunCrossTrackWarnM;
-    const NavRunReplanReason time_trigger = detectReplanTrigger(route, now);
+    NavRunReplanReason time_trigger = detectReplanTrigger(route, now);
+    if (time_trigger == NavRunReplanReason::ProgressRegression
+        && projection->cross_track < kNavRunProgressReplanMinCrossTrackM) {
+        time_trigger = NavRunReplanReason::None;
+        last_progress_seen_ = now;
+    }
 
     const bool needs_replan = hard_off || soft_off || time_trigger != NavRunReplanReason::None;
     if (needs_replan) {
@@ -365,7 +396,7 @@ NavRunTickResult NavRunController::tick(
         last_remaining_to_anchor_ = remaining;
     }
 
-    const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, plan_.cursor);
+    const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
     const double lookahead_distance = chooseLookaheadDistance(route, sprint_active, upcoming_turn);
     const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance);
     const double corridor_heading = NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
@@ -375,6 +406,7 @@ NavRunTickResult NavRunController::tick(
     result.lookahead_point = lookahead;
     result.cross_track = projection->cross_track;
     result.remaining_to_anchor = remaining;
+    result.upcoming_turn_deg = upcoming_turn;
     const double character_arc = CorridorArcLengthTo(plan_.path, plan_.corridor_arc_prefix, *projection);
     result.passed_run_waypoints =
         CountCorridorPassedRunWaypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);

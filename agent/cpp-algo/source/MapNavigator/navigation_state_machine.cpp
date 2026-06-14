@@ -868,8 +868,22 @@ bool NavigationStateMachine::TickNavigate()
     const double effective_route_heading =
         nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
 
+    double heading_rate_deg = 0.0;
+    if (runtime_state_.steering_rate.has_prev) {
+        const int64_t rate_gap_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
+        if (rate_gap_ms >= 0 && rate_gap_ms <= kSteeringRateMaxGapMs) {
+            heading_rate_deg =
+                NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
+        }
+    }
+    runtime_state_.steering_rate.prev_heading_deg = current_heading;
+    runtime_state_.steering_rate.has_prev = true;
+    runtime_state_.steering_rate.at = now;
+
     const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
-    const SteeringCommand steering = SteeringController::Update(heading_error, motion_controller_->IsMovingForward());
+    const SteeringCommand steering = SteeringController::Update(
+        heading_error, heading_rate_deg, motion_controller_->IsMovingForward());
 
     motion_controller_->SetForwardState(true);
 
@@ -881,12 +895,20 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading)
-             << VAR(effective_route_heading) << VAR(nav_run_result.has_corridor_heading)
-             << VAR(nav_run_result.cross_track) << VAR(heading_error) << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg)
-             << VAR(route.waypoint_distance) << VAR(route.on_route);
+    LogDebug << "TickNavigate steering decision." << VAR(current_heading)
+             << VAR(route.route_heading) << VAR(effective_route_heading)
+             << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track)
+             << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg)
+             << VAR(heading_error) << VAR(steering.yaw_delta_deg)
+             << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
 
-    const bool turn_calm = !steering.issued || std::abs(steering.yaw_delta_deg) < 30.0;
+    // Balanced sprint gate: burst only when the agent already points down the corridor (heading aligned)
+    // and no sharp turn is imminent within the scan window. No clearance term — it reads near zero on
+    // bridges and locked sprint out entirely; alignment + upcoming-turn keep it from charging a corner.
+    const bool heading_aligned_for_sprint = std::abs(heading_error) < kAutoSprintMaxHeadingErrorDeg;
+    const bool corridor_turn_calm =
+        !nav_run_result.has_corridor_heading || nav_run_result.upcoming_turn_deg < kAutoSprintMaxUpcomingTurnDeg;
+    const bool turn_calm = heading_aligned_for_sprint && corridor_turn_calm;
     const bool target_requires_strict_arrival = waypoint.RequiresStrictArrival();
     const double sprint_remaining =
         nav_run_result.has_corridor_heading && std::isfinite(nav_run_result.remaining_to_anchor)
@@ -902,6 +924,9 @@ bool NavigationStateMachine::TickNavigate()
         && (runtime_state_.flow.last_auto_sprint_time.time_since_epoch().count() == 0
             || std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.last_auto_sprint_time).count()
                    >= kAutoSprintCooldownMs);
+    LogDebug << "TickNavigate sprint gate." << VAR(allow_sprint) << VAR(heading_aligned_for_sprint)
+             << VAR(corridor_turn_calm) << VAR(startup_grace_elapsed)
+             << VAR(has_strict_arrival_braking_room) << VAR(sprint_remaining) << VAR(param_.sprint_threshold);
     if (allow_sprint) {
         if (motion_controller_->TriggerSprint()) {
             runtime_state_.flow.last_auto_sprint_time = now;

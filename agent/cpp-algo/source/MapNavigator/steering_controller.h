@@ -12,7 +12,7 @@ struct SteeringCommand
 class SteeringController
 {
 public:
-    static SteeringCommand Update(double heading_error, bool moving_forward);
+    static SteeringCommand Update(double heading_error, double heading_rate_deg, bool moving_forward);
 };
 
 } // namespace mapnavigator

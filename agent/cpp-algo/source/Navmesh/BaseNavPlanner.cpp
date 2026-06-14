@@ -26,6 +26,8 @@ constexpr double kBridgeMaxHeightDelta = 3.0;
 constexpr uint32_t kSmallBridgeComponentMaxTriangles = 512;
 constexpr double kSmallBridgeMaxGap = 4.0;
 constexpr double kRoutePullSampleStep = 0.5;       // 拉直判据沿捷径采样的步长(像素),与 Python ROUTE_PULL_SAMPLE_STEP 对齐
+constexpr double kRouteBoundaryDistanceLimit = 8.0;
+constexpr double kRouteBoundaryPenaltyFactor = 2.0;
 
 struct QueueNode
 {
@@ -65,7 +67,9 @@ struct DisjointSet
 };
 
 constexpr uint32_t kInvalidTriangle = std::numeric_limits<uint32_t>::max();
-constexpr double kIndexBinSize = 8.0;              // 空间分箱的格边长(px),与 Python basenav_lib INDEX_BIN_SIZE 对齐
+constexpr double kIndexBinSize = 4.0;              // 空间分箱的格边长(px),与 Python basenav_lib INDEX_BIN_SIZE 对齐。
+// tier 细分后三角形极小,8px 每桶堆 ~200 个 → 每次 pointOnMesh 候选遍历是后处理热点;4px 每桶 ~12 个,查询 ~4x 快
+// (空间索引仅加速查询、不改判定结果)。建索引略增但 C++ 编译版快,可忽略。
 
 uint64_t PackBinKey(uint16_t zone_id, int32_t bin_x, int32_t bin_y)
 {
@@ -104,6 +108,67 @@ bool SegmentIntersectParams(
     return true;
 }
 
+// SSF 漏斗辅助函数 -----------------------------------------------------------
+
+static double FunnelTriArea2(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c)
+{
+    return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+}
+
+static bool WptEqual(const WorldPoint& a, const WorldPoint& b)
+{
+    return std::abs(a.x - b.x) < 1e-7 && std::abs(a.y - b.y) < 1e-7;
+}
+
+// Mononen Simple Stupid Funnel.
+static std::vector<WorldPoint> SsfFunnel(const std::vector<std::pair<WorldPoint, WorldPoint>>& portals)
+{
+    std::vector<WorldPoint> pts;
+    if (portals.empty()) {
+        return pts;
+    }
+    pts.push_back(portals[0].first);
+    WorldPoint apex = portals[0].first;
+    WorldPoint pl = portals[0].first;
+    WorldPoint pr = portals[0].second;
+    size_t ai = 0, li = 0, ri = 0;
+    size_t i = 1;
+    while (i < portals.size()) {
+        const auto& [left, right] = portals[i];
+        if (FunnelTriArea2(apex, pr, right) <= 0.0) {
+            if (WptEqual(apex, pr) || FunnelTriArea2(apex, pl, right) > 0.0) {
+                pr = right;
+                ri = i;
+            } else {
+                pts.push_back(pl);
+                apex = pl;
+                ai = li;
+                pl = pr = apex;
+                li = ri = ai;
+                i = ai + 1;
+                continue;
+            }
+        }
+        if (FunnelTriArea2(apex, pl, left) >= 0.0) {
+            if (WptEqual(apex, pl) || FunnelTriArea2(apex, pr, left) < 0.0) {
+                pl = left;
+                li = i;
+            } else {
+                pts.push_back(pr);
+                apex = pr;
+                ai = ri;
+                pl = pr = apex;
+                li = ri = ai;
+                i = ai + 1;
+                continue;
+            }
+        }
+        ++i;
+    }
+    pts.push_back(portals.back().first);
+    return pts;
+}
+
 }
 
 BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
@@ -111,8 +176,10 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     , triangle_zones_(pack.triangles().size(), 0)
     , adjacency_offsets_(pack.triangles().size() + 1, 0)
     , triangle_heights_(pack.triangles().size(), 0.0)
+    , triangle_boundary_distances_(pack.triangles().size(), std::numeric_limits<double>::infinity())
 {
     buildIndex();
+    computeTriangleBoundaryDistances();
     buildSpatialIndex();
     computeTriangleHeights();
 }
@@ -204,6 +271,66 @@ void BaseNavPlanner::buildSpatialIndex()
     }
 }
 
+bool BaseNavPlanner::triangleHasBoundaryEdge(uint32_t triangle_index) const
+{
+    if (triangle_index >= pack_.triangles().size() || triangle_index >= triangle_zones_.size()) {
+        return false;
+    }
+    const uint16_t zone_id = triangle_zones_[triangle_index];
+    if (zone_id == 0) {
+        return false;
+    }
+    const BaseNavTriangle& triangle = pack_.triangles()[triangle_index];
+    for (int32_t neighbor : triangle.neighbors) {
+        if (neighbor < 0 || static_cast<uint32_t>(neighbor) >= triangle_zones_.size()
+            || triangle_zones_[static_cast<uint32_t>(neighbor)] != zone_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void BaseNavPlanner::computeTriangleBoundaryDistances()
+{
+    const auto& triangles = pack_.triangles();
+    std::priority_queue<QueueNode> open;
+    triangle_boundary_distances_.assign(triangles.size(), std::numeric_limits<double>::infinity());
+
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        if (triangleHasBoundaryEdge(triangle_index)) {
+            triangle_boundary_distances_[triangle_index] = 0.0;
+            open.push({ .triangle = triangle_index, .priority = 0.0 });
+        }
+    }
+
+    while (!open.empty()) {
+        const QueueNode node = open.top();
+        open.pop();
+        const uint32_t current = node.triangle;
+        if (current >= triangles.size() || node.priority > triangle_boundary_distances_[current]) {
+            continue;
+        }
+        if (node.priority >= kRouteBoundaryDistanceLimit) {
+            continue;
+        }
+
+        const WorldPoint current_center = detail::TriangleCenter(triangles[current]);
+        for (uint32_t adjacency_index = adjacency_offsets_[current]; adjacency_index < adjacency_offsets_[current + 1]; ++adjacency_index) {
+            const uint32_t next = adjacency_links_[adjacency_index];
+            if (next >= triangles.size() || triangle_zones_[next] != triangle_zones_[current]) {
+                continue;
+            }
+            const double step = detail::Distance(current_center, detail::TriangleCenter(triangles[next]));
+            const double candidate = node.priority + step;
+            if (candidate >= triangle_boundary_distances_[next] || candidate > kRouteBoundaryDistanceLimit) {
+                continue;
+            }
+            triangle_boundary_distances_[next] = candidate;
+            open.push({ .triangle = next, .priority = candidate });
+        }
+    }
+}
+
 std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const
 {
     std::vector<uint32_t> result;
@@ -256,6 +383,22 @@ void BaseNavPlanner::computeTriangleHeights()
 double BaseNavPlanner::triangleAverageHeight(uint32_t triangle_index) const
 {
     return triangle_heights_[triangle_index];
+}
+
+double BaseNavPlanner::boundaryAwareTransitionCost(uint32_t lhs, uint32_t rhs, double base_cost) const
+{
+    const auto penalty_ratio = [this](uint32_t triangle_index) {
+        if (triangle_index >= triangle_boundary_distances_.size()) {
+            return 0.0;
+        }
+        const double distance = triangle_boundary_distances_[triangle_index];
+        if (!std::isfinite(distance) || distance >= kRouteBoundaryDistanceLimit) {
+            return 0.0;
+        }
+        return (kRouteBoundaryDistanceLimit - distance) / kRouteBoundaryDistanceLimit;
+    };
+    const double ratio = (penalty_ratio(lhs) + penalty_ratio(rhs)) * 0.5;
+    return base_cost * (1.0 + ratio * kRouteBoundaryPenaltyFactor);
 }
 
 std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
@@ -710,6 +853,186 @@ std::optional<WorldPoint> BaseNavPlanner::sharedEdgeMidpoint(uint32_t lhs, uint3
     };
 }
 
+std::optional<std::pair<std::vector<WorldPoint>, std::vector<size_t>>> BaseNavPlanner::funnelRoutePoints(
+    const std::vector<uint32_t>& triangles,
+    const WorldPoint& start,
+    const WorldPoint& goal,
+    uint16_t zone_id) const
+{
+    if (triangles.size() <= 1) {
+        return std::nullopt;
+    }
+    const auto& pack_triangles = pack_.triangles();
+    const auto& pack_vertices = pack_.vertices();
+
+    // 预处理每条走廊边:正规 2 共享顶点 → portal;退化 → bridge/pinch.
+    struct PortalEdge {
+        enum class Kind { Portal, Bridge, Pinch } kind;
+        uint32_t u_idx = 0, v_idx = 0;   // Portal: CCW 有向出边 u→v; left=pu, right=pv
+        WorldPoint exit_pt{}, entry_pt{}; // Bridge: 出口/入口
+        WorldPoint pinch_pt{};            // Pinch:  收缩孔
+    };
+
+    std::vector<PortalEdge> edges;
+    edges.reserve(triangles.size() - 1);
+    std::vector<std::pair<WorldPoint, WorldPoint>> bridge_pairs; // (exit, entry) for break reconstruction
+
+    for (size_t idx = 1; idx < triangles.size(); ++idx) {
+        const uint32_t tri_a = triangles[idx - 1];
+        const uint32_t tri_b = triangles[idx];
+        const BaseNavTriangle& ta = pack_triangles[tri_a];
+
+        // CCW 绕序:面积负数则 v1/v2 互换
+        std::array<uint32_t, 3> va = ta.vertices;
+        {
+            const WorldPoint p0 { pack_vertices[va[0]].u, pack_vertices[va[0]].v };
+            const WorldPoint p1 { pack_vertices[va[1]].u, pack_vertices[va[1]].v };
+            const WorldPoint p2 { pack_vertices[va[2]].u, pack_vertices[va[2]].v };
+            if (FunnelTriArea2(p0, p1, p2) < 0.0) {
+                std::swap(va[1], va[2]);
+            }
+        }
+
+        // 与 tri_b 的共享顶点
+        const BaseNavTriangle& tb = pack_triangles[tri_b];
+        std::array<uint32_t, 2> shared {};
+        int shared_count = 0;
+        for (uint32_t vi : va) {
+            for (uint32_t vj : tb.vertices) {
+                if (vi == vj && shared_count < 2) {
+                    shared[shared_count++] = vi;
+                }
+            }
+        }
+
+        if (shared_count == 2) {
+            // 找 CCW 有向出边 u→v: (pos[u]+1)%3 == pos[v]
+            int pos0 = 0, pos1 = 0;
+            for (int k = 0; k < 3; ++k) {
+                if (va[k] == shared[0]) pos0 = k;
+                if (va[k] == shared[1]) pos1 = k;
+            }
+            PortalEdge e;
+            e.kind = PortalEdge::Kind::Portal;
+            if ((pos0 + 1) % 3 == pos1) {
+                e.u_idx = shared[0]; e.v_idx = shared[1];
+            } else {
+                e.u_idx = shared[1]; e.v_idx = shared[0];
+            }
+            edges.push_back(e);
+        } else {
+            const auto bridge = closestEdgeBridgePoints(tri_a, tri_b);
+            if (bridge) {
+                PortalEdge e;
+                e.kind = PortalEdge::Kind::Bridge;
+                e.exit_pt = (*bridge)[0];
+                e.entry_pt = (*bridge)[1];
+                edges.push_back(e);
+                if (!WptEqual(e.exit_pt, e.entry_pt)) {
+                    bridge_pairs.push_back({ e.exit_pt, e.entry_pt });
+                }
+            } else {
+                if (const auto m = sharedEdgeMidpoint(tri_a, tri_b)) {
+                    PortalEdge e;
+                    e.kind = PortalEdge::Kind::Pinch;
+                    e.pinch_pt = *m;
+                    edges.push_back(e);
+                }
+                // m==nullopt: 完全退化，跳过(与 Python 对齐:不追加 portal)
+            }
+        }
+    }
+
+    // 试双向握手;取在网格上且路径总长更短的(正确握手 = 走廊内最短 = 路径最短)
+    using FunnelResult = std::pair<std::vector<WorldPoint>, std::vector<size_t>>;
+    std::optional<FunnelResult> best;
+    double best_len = std::numeric_limits<double>::max();
+
+    for (int swap = 0; swap <= 1; ++swap) {
+        // 构造 portal 列表
+        std::vector<std::pair<WorldPoint, WorldPoint>> portals;
+        portals.reserve(edges.size() + 2);
+        portals.push_back({ start, start });
+
+        for (const auto& e : edges) {
+            if (e.kind == PortalEdge::Kind::Portal) {
+                const WorldPoint pu { pack_vertices[e.u_idx].u, pack_vertices[e.u_idx].v };
+                const WorldPoint pv { pack_vertices[e.v_idx].u, pack_vertices[e.v_idx].v };
+                portals.push_back(swap == 0 ? std::make_pair(pu, pv) : std::make_pair(pv, pu));
+            } else if (e.kind == PortalEdge::Kind::Bridge) {
+                portals.push_back({ e.exit_pt, e.exit_pt });
+            } else {
+                portals.push_back({ e.pinch_pt, e.pinch_pt });
+            }
+        }
+        portals.push_back({ goal, goal });
+
+        // 运行 SSF
+        auto raw_pts = SsfFunnel(portals);
+
+        // 去重相邻重复点
+        std::vector<WorldPoint> clean;
+        clean.reserve(raw_pts.size());
+        clean.push_back(raw_pts[0]);
+        for (size_t k = 1; k < raw_pts.size(); ++k) {
+            if (!WptEqual(raw_pts[k], clean.back())) {
+                clean.push_back(raw_pts[k]);
+            }
+        }
+
+        // 重建 bridge 分段断点
+        std::vector<WorldPoint> route_pts;
+        std::vector<size_t> route_brk;
+        route_pts.reserve(clean.size() + bridge_pairs.size());
+        for (const auto& pt : clean) {
+            route_pts.push_back(pt);
+            for (const auto& [ex, en] : bridge_pairs) {
+                if (WptEqual(pt, ex)) {
+                    route_brk.push_back(route_pts.size());
+                    route_pts.push_back(en);
+                    break;
+                }
+            }
+        }
+
+        // 在网格验证:非 bridge 段按步长 1.0 采样
+        const auto is_break = [&](size_t k) {
+            return std::find(route_brk.begin(), route_brk.end(), k) != route_brk.end();
+        };
+        bool valid = true;
+        for (size_t k = 0; k + 1 < route_pts.size() && valid; ++k) {
+            if (is_break(k + 1)) continue;
+            const WorldPoint& a = route_pts[k];
+            const WorldPoint& b = route_pts[k + 1];
+            const double seg_len = detail::Distance(a, b);
+            const int steps = std::max(1, static_cast<int>(seg_len / 1.0));
+            for (int j = 0; j <= steps && valid; ++j) {
+                const double t = static_cast<double>(j) / steps;
+                const WorldPoint pt { a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t };
+                if (!pointOnMesh(zone_id, pt)) {
+                    valid = false;
+                }
+            }
+        }
+        if (!valid) continue;
+
+        // 计算路径总长度(不含 bridge 跳段;更短 = 更直 = 正确握手方向)
+        double total_len = 0.0;
+        for (size_t k = 0; k + 1 < route_pts.size(); ++k) {
+            if (!is_break(k + 1)) {
+                total_len += detail::Distance(route_pts[k], route_pts[k + 1]);
+            }
+        }
+
+        if (total_len < best_len) {
+            best_len = total_len;
+            best = FunnelResult { std::move(route_pts), std::move(route_brk) };
+        }
+    }
+
+    return best;
+}
+
 std::optional<std::array<WorldPoint, 2>> BaseNavPlanner::overlappingEdgePortal(uint32_t lhs, uint32_t rhs) const
 {
     const auto lhs_points = trianglePoints(lhs);
@@ -770,7 +1093,8 @@ double BaseNavPlanner::transitionCost(uint32_t lhs, uint32_t rhs) const
     const WorldPoint lhs_center = detail::TriangleCenter(triangles[lhs]);
     const WorldPoint rhs_center = detail::TriangleCenter(triangles[rhs]);
     if (const auto midpoint = sharedEdgeMidpoint(lhs, rhs); midpoint) {
-        return detail::Distance(lhs_center, *midpoint) + detail::Distance(*midpoint, rhs_center);
+        const double base_cost = detail::Distance(lhs_center, *midpoint) + detail::Distance(*midpoint, rhs_center);
+        return boundaryAwareTransitionCost(lhs, rhs, base_cost);
     }
     const auto bridge_points = closestEdgeBridgePoints(lhs, rhs);
     const double height_delta = std::abs(triangleAverageHeight(lhs) - triangleAverageHeight(rhs));
@@ -778,11 +1102,14 @@ double BaseNavPlanner::transitionCost(uint32_t lhs, uint32_t rhs) const
         return std::numeric_limits<double>::infinity();
     }
     if (!bridge_points) {
-        return detail::TriangleHeuristic(triangles[lhs], triangles[rhs]) + kBridgeFixedCost + height_delta * kBridgeHeightCostFactor;
+        const double base_cost =
+            detail::TriangleHeuristic(triangles[lhs], triangles[rhs]) + kBridgeFixedCost + height_delta * kBridgeHeightCostFactor;
+        return boundaryAwareTransitionCost(lhs, rhs, base_cost);
     }
     const double gap = detail::Distance((*bridge_points)[0], (*bridge_points)[1]);
-    return detail::Distance(lhs_center, (*bridge_points)[0]) + gap + detail::Distance((*bridge_points)[1], rhs_center) + kBridgeFixedCost
-           + gap * kBridgeGapCostFactor + height_delta * kBridgeHeightCostFactor;
+    const double base_cost = detail::Distance(lhs_center, (*bridge_points)[0]) + gap + detail::Distance((*bridge_points)[1], rhs_center)
+                             + kBridgeFixedCost + gap * kBridgeGapCostFactor + height_delta * kBridgeHeightCostFactor;
+    return boundaryAwareTransitionCost(lhs, rhs, base_cost);
 }
 
 std::vector<uint32_t> BaseNavPlanner::reconstructPath(const std::vector<int32_t>& parents, uint32_t start, uint32_t goal) const
@@ -807,6 +1134,28 @@ std::vector<WorldPoint> BaseNavPlanner::buildWaypoints(
     const WorldPoint& goal,
     std::vector<size_t>& segment_breaks) const
 {
+    // 走廊单 zone,取首个三角形的 zone。
+    const uint16_t zone_id = triangles.empty() ? 0 : triangle_zones_[triangles.front()];
+
+    // SSF 漏斗:直接在三角形走廊内求最短折线,替代中点+thin 拉直.
+    // 内部试双向握手、取在网格上且路径更短(更直)的那个;两向均离网格才回退到 thin.
+    if (auto funnel = funnelRoutePoints(triangles, start, goal, zone_id); funnel) {
+        const detail::SegmentWalkableFn validator = [this, zone_id](const WorldPoint& a, const WorldPoint& b) {
+            return segmentHeightWalkable(zone_id, a, b);
+        };
+        const detail::PointOnMeshFn on_mesh = [this, zone_id](const WorldPoint& p) {
+            return pointOnMesh(zone_id, p);
+        };
+        const detail::GroundHeightFn ground = [this, zone_id](const WorldPoint& p) {
+            uint32_t triangle = 0;
+            return groundHeightNearIndexed(zone_id, p, std::nullopt, triangle);
+        };
+        auto route = detail::PostProcessRoutePoints(funnel->first, funnel->second, validator, on_mesh, ground);
+        segment_breaks = std::move(route.segment_breaks);
+        return std::move(route.points);
+    }
+
+    // 回退:传统中点路径 + PostProcessRoutePoints(含 thin 拉直)
     std::vector<WorldPoint> points;
     std::vector<size_t> raw_segment_breaks;
     segment_breaks.clear();
@@ -828,8 +1177,7 @@ std::vector<WorldPoint> BaseNavPlanner::buildWaypoints(
     points.push_back(goal);
 
     // LOS 拉直的可行性判据:按地面高度连续性判定捷径(改用高度连续性,因逐三角行进在共面重叠缝处误判
-    // 不可走、使路线贴墙)。走廊单 zone,取首个三角形的 zone。
-    const uint16_t zone_id = triangles.empty() ? 0 : triangle_zones_[triangles.front()];
+    // 不可走、使路线贴墙)。
     const detail::SegmentWalkableFn validator = [this, zone_id](const WorldPoint& a, const WorldPoint& b) {
         return segmentHeightWalkable(zone_id, a, b);
     };
@@ -837,7 +1185,12 @@ std::vector<WorldPoint> BaseNavPlanner::buildWaypoints(
     const detail::PointOnMeshFn on_mesh = [this, zone_id](const WorldPoint& p) {
         return pointOnMesh(zone_id, p);
     };
-    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks, validator, on_mesh);
+    // 地面高度 oracle:离水让边据此分辨"危险水/坎边"(紧边外侧地面骤降或离开网格)与"无害墙边"。
+    const detail::GroundHeightFn ground = [this, zone_id](const WorldPoint& p) {
+        uint32_t triangle = 0;
+        return groundHeightNearIndexed(zone_id, p, std::nullopt, triangle);
+    };
+    auto route = detail::PostProcessRoutePoints(points, raw_segment_breaks, validator, on_mesh, ground);
     segment_breaks = std::move(route.segment_breaks);
     return std::move(route.points);
 }

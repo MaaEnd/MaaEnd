@@ -155,7 +155,7 @@ SteeringTransportProfile DesktopInputBackend::steering_transport_profile() const
         .supports_concurrent_move_and_look = true,
         .min_send_interval_ms = 0,
         .min_emit_delta_deg = 1.0,
-        .max_batch_delta_deg = 18.0,
+        .max_batch_delta_deg = 30.0,
         .action_quiet_period_ms = 0,
     };
 }

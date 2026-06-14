@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <vector>
 
 #include "NavmeshTypes.h"
@@ -22,13 +23,19 @@ using SegmentWalkableFn = std::function<bool(const WorldPoint& a, const WorldPoi
 // the marching SegmentWalkableFn, which underestimates clearance on overlapping/fragmented meshes.
 using PointOnMeshFn = std::function<bool(const WorldPoint& point)>;
 
+// Ground height at a point (nullopt = off mesh). The water-edge decentering pass uses it to tell a
+// dangerous water/cliff edge (ground drops away just past the tight side) from a harmless wall edge.
+using GroundHeightFn = std::function<std::optional<double>(const WorldPoint& point)>;
+
 // Thinning keeps a point only at structural corners; centering then shifts straight runs onto the
-// corridor centreline. Keep this mirrored with tools/MapNavigator/basenav_preview.py. Either
-// callback may be empty to skip the corresponding pass.
+// corridor centreline; two decentering passes (clearance relax + water-edge block shift) then peel
+// the route off water/cliff edges. Keep this mirrored with tools/MapNavigator/basenav_preview.py.
+// Any callback may be empty to skip the corresponding pass.
 RoutePointsWithBreaks PostProcessRoutePoints(
     const std::vector<WorldPoint>& points,
     const std::vector<size_t>& segment_breaks,
     const SegmentWalkableFn& is_segment_walkable = {},
-    const PointOnMeshFn& point_on_mesh = {});
+    const PointOnMeshFn& point_on_mesh = {},
+    const GroundHeightFn& ground_height = {});
 
 }
