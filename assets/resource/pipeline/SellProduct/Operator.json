@@ -1,6 +1,6 @@
 {
     "SellProductInOperatorLiaison": {
-        "desc": "在据点派驻干员列表界面",
+        "desc": "在据点联络干员列表界面",
         "recognition": "OCR",
         "roi": [
             45,
@@ -20,7 +20,7 @@
         "rate_limit": 0
     },
     "SellProductOpenOperatorLiaisonButton": {
-        "desc": "打开据点派驻干员列表按钮",
+        "desc": "打开据点联络干员列表按钮",
         "recognition": "TemplateMatch",
         "roi": [
             223,

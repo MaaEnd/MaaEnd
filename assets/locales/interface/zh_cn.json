@@ -564,7 +564,7 @@
     "task.SellProduct.aid_quota_confirm_tapped": "已确认超出调度券上限的交易提示，继续执行",
     "task.SellProduct.option.SellBeyondAidQuota.label": "是否售卖超出兑换上限的物品",
     "task.SellProduct.option.SellBeyondAidQuota.description": "开启后，若出现「援助物品超出据点可兑换调度券上限」的确认弹窗，将自动点击确认并继续售卖；关闭则终止任务并提示你手动处理。",
-    "task.SellProduct.OperatorSwitch": "派驻干员切换",
+    "task.SellProduct.OperatorSwitch": "联络干员切换",
     "task.SellProduct.OperatorSwitchDescription": "开启后，售卖前会在该据点切换到指定干员；若当前干员已是所选售卖用干员则直接售卖。",
     "task.SellProduct.TargetOperator": "售卖用干员",
     "task.SellProduct.TargetOperatorDescription": "用于售卖产品前派驻的干员，建议选择拥有交易收益额外获取类派驻效果的干员。",

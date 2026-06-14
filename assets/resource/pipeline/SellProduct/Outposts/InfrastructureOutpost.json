@@ -38,11 +38,11 @@
         ]
     },
     "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
-        "desc": "基建前站设置售卖前派驻干员锚点",
+        "desc": "基建前站设置售卖前联络干员锚点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductBeforeSellOperator": ""
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -51,10 +51,10 @@
     },
     "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
         "desc": "基建前站设置售卖后恢复干员锚点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductAfterSellOperator": "SellProductAfterSellOperator"
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -62,9 +62,9 @@
             "SellProductSellLoop"
         ]
     },
-    // ===== 售卖前派驻干员切换 =====
+    // ===== 售卖前联络干员切换 =====
     "SellProductInfrastructureOutpostBeforeSellOperator": {
-        "desc": "基建前站售卖前检查并切换派驻干员",
+        "desc": "基建前站售卖前检查并切换联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -74,7 +74,7 @@
         ]
     },
     "SellProductInfrastructureOutpostCurrentTargetOperator": {
-        "desc": "基建前站当前派驻干员已是售卖用干员",
+        "desc": "基建前站当前联络干员已是售卖用干员",
         "recognition": "OCR",
         "roi": [
             268,
@@ -91,7 +91,7 @@
         ]
     },
     "SellProductInfrastructureOutpostOpenTargetOperatorList": {
-        "desc": "基建前站打开派驻干员列表以切换售卖用干员",
+        "desc": "基建前站打开联络干员列表以切换售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
@@ -106,7 +106,7 @@
         ]
     },
     "SellProductInfrastructureOutpostInTargetOperatorList": {
-        "desc": "基建前站已打开派驻干员列表，选择售卖用干员",
+        "desc": "基建前站已打开联络干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -237,7 +237,7 @@
         ]
     },
     "SellProductInfrastructureOutpostSwipeTargetOperatorList": {
-        "desc": "基建前站在派驻干员列表中向下滑动查找售卖用干员",
+        "desc": "基建前站在联络干员列表中向下滑动查找售卖用干员",
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
@@ -289,9 +289,9 @@
             "Node.Recognition.Succeeded": "未在派驻列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
         }
     },
-    // ===== 售卖后派驻干员恢复 =====
+    // ===== 售卖后联络干员恢复 =====
     "SellProductInfrastructureOutpostAfterSellOperator": {
-        "desc": "基建前站售卖后恢复派驻干员",
+        "desc": "基建前站售卖后恢复联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -301,7 +301,7 @@
         ]
     },
     "SellProductInfrastructureOutpostCurrentRestoreOperator": {
-        "desc": "基建前站当前派驻干员已是恢复目标",
+        "desc": "基建前站当前联络干员已是恢复目标",
         "recognition": "OCR",
         "roi": [
             268,
@@ -315,7 +315,7 @@
         "rate_limit": 0
     },
     "SellProductInfrastructureOutpostOpenRestoreOperatorList": {
-        "desc": "基建前站打开派驻干员列表以恢复干员",
+        "desc": "基建前站打开联络干员列表以恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
@@ -330,7 +330,7 @@
         ]
     },
     "SellProductInfrastructureOutpostInRestoreOperatorList": {
-        "desc": "基建前站已打开派驻干员列表，选择恢复干员",
+        "desc": "基建前站已打开联络干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -458,7 +458,7 @@
         "rate_limit": 0
     },
     "SellProductInfrastructureOutpostSwipeRestoreOperatorList": {
-        "desc": "基建前站在派驻干员列表中向下滑动查找恢复干员",
+        "desc": "基建前站在联络干员列表中向下滑动查找恢复干员",
         "max_hit": 8,
         "recognition": "And",
         "all_of": [

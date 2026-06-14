@@ -209,7 +209,7 @@
                 }
             ]
         },
-        // ===== 派驻干员切换 =====
+        // ===== 联络干员切换 =====
         "${RegionPrefix}${LocationId}Operator": {
             "type": "switch",
             "label": "$task.SellProduct.OperatorSwitch",
