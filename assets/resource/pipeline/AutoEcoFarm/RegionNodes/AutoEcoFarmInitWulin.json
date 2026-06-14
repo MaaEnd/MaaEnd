@@ -54,10 +54,9 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        724,
-                        190
-                    ],
-                    "zone_id": "Wuling_Base"
+                        725.74,
+                        193.06
+                    ]
                 }
             ]
         },
