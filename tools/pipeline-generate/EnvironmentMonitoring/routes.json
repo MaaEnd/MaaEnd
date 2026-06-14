@@ -167,84 +167,19 @@
         "Name": "古树",
         "Id": "AncientTree",
         "EnterMap": "SceneEnterWorldWulingJingyuValley7",
-        "MapName": "map02_lv001",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            280,
-            580,
-            15,
-            15
+            745.98,
+            1519.62,
+            54.24,
+            42.21
         ],
-        "MapPath": [
-            [
-                288,
-                587
-            ],
-            [
-                296,
-                577
-            ],
-            [
-                301,
-                572
-            ],
-            [
-                303,
-                565
-            ],
-            [
-                303,
-                552
-            ],
-            [
-                306,
-                545
-            ],
-            [
-                315,
-                542
-            ],
-            [
-                329,
-                540
-            ],
-            [
-                339,
-                541
-            ],
-            [
-                345,
-                536
-            ],
-            [
-                356,
-                534
-            ],
-            [
-                368,
-                531
-            ],
-            [
-                374,
-                539
-            ],
-            [
-                369,
-                547
-            ],
-            [
-                368,
-                556
-            ],
-            [
-                363,
-                564
-            ],
-            [
-                355,
-                570
-            ]
+        "MapTarget": [
+            829.41,
+            1520.94
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 245
     },
     {
         "MissionId": "m1m31",
