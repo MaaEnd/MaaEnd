@@ -27,6 +27,7 @@
                     "name": "WulingCity",
                     "label": "$task.SeizeDeliveryJobsCommissionSource.cases.WulingCity.label",
                     "option": [
+                        "SeizeDeliveryJobsRewardWulingCity",
                         "SeizeDeliveryJobsPostProcessing",
                         "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity"
                     ]
@@ -35,95 +36,51 @@
                     "name": "TestArea",
                     "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
                     "option": [
+                        "SeizeDeliveryJobsRewardTestArea",
                         "SeizeDeliveryJobsPostProcessing",
                         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
-                    ],
+                    ]
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRewardWulingCity": {
+            "type": "select",
+            "default_case": "Sixteen3",
+            "label": "$task.SeizeDeliveryJobsRewardWulingCity.label",
+            "cases": [
+                {
+                    "name": "Sixteen3",
+                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3.label"
+                },
+                {
+                    "name": "Sixteen3OrEleven9",
+                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3OrEleven9.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsFindTarget": {
-                            "all_of": [
-                                {
-                                    "sub_name": "WulingToken",
-                                    "recognition": "TemplateMatch",
-                                    "roi": [
-                                        840,
-                                        190,
-                                        50,
-                                        430
-                                    ],
-                                    "template": [
-                                        "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
-                                    ]
-                                },
-                                {
-                                    "sub_name": "RewardOcr",
-                                    "recognition": "OCR",
-                                    "roi": "WulingToken",
-                                    "roi_offset": [
-                                        0,
-                                        30,
-                                        0,
-                                        -20
-                                    ],
-                                    "expected": [
-                                        "10.6"
-                                    ],
-                                    "only_rec": true
-                                },
-                                {
-                                    "sub_name": "OriginOcr",
-                                    "recognition": "OCR",
-                                    "roi": "RewardOcr",
-                                    "roi_offset": [
-                                        -229,
-                                        -38,
-                                        50,
-                                        14
-                                    ],
-                                    "expected": [
-                                        "试验园区",
-                                        "實驗園區",
-                                        "(?i)Test\\s*Area",
-                                        "実験区域",
-                                        "실험 구역"
-                                    ]
-                                },
-                                {
-                                    "sub_name": "AcceptOcr",
-                                    "recognition": "OCR",
-                                    "roi": "RewardOcr",
-                                    "roi_offset": [
-                                        226,
-                                        -4,
-                                        70,
-                                        12
-                                    ],
-                                    "expected": [
-                                        "接取运送委托",
-                                        "接取運送委託",
-                                        "(?i)Accept\\s*Delivery\\s*Job",
-                                        "配達依頼を受ける",
-                                        "輸送依頼を受注",
-                                        "輸送依頼を受ける"
-                                    ]
-                                },
-                                {
-                                    "sub_name": "ViewLocationOcr",
-                                    "recognition": "OCR",
-                                    "roi": "RewardOcr",
-                                    "roi_offset": [
-                                        -215,
-                                        -8,
-                                        34,
-                                        10
-                                    ],
-                                    "expected": [
-                                        "查看位置",
-                                        "查看地點",
-                                        "(?i)View\\s*Location",
-                                        "位置を確認",
-                                        "위치 확인"
-                                    ]
-                                }
+                            "any_of": [
+                                "__SeizeDeliveryJobsFindTarget16_3",
+                                "__SeizeDeliveryJobsFindTarget11_9"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityOrFound"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRewardTestArea": {
+            "type": "select",
+            "default_case": "Ten6",
+            "label": "$task.SeizeDeliveryJobsRewardTestArea.label",
+            "cases": [
+                {
+                    "name": "Ten6",
+                    "label": "$task.SeizeDeliveryJobsRewardTestArea.cases.Ten6.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "any_of": [
+                                "__SeizeDeliveryJobsFindTarget10_6"
                             ],
                             "focus": {
                                 "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
