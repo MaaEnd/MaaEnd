@@ -86,6 +86,7 @@
         "action": "Click",
         "post_delay": 800,
         "next": [
+            "[JumpBack]TrialOfSwordmancyConfirmDrawCard",
             "[JumpBack]TrialOfSwordmancyDailyDoubleReward",
             "TrialOfSwordmancyAggressiveMainLoop"
         ]
@@ -207,8 +208,17 @@
         "action": "Click",
         "post_delay": 800,
         "next": [
+            "[JumpBack]TrialOfSwordmancyConfirmDrawCard",
             "TrialOfSwordmancyConservativeMainLoop"
         ]
+    },
+    "TrialOfSwordmancyConfirmDrawCard": {
+        "desc": "首次抽牌到第三抽时，会提醒抽取后无法更改翻倍选项，点击确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click"
     },
     // 双倍奖励处理
     "TrialOfSwordmancyDailyDoubleReward": {
