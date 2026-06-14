@@ -339,7 +339,7 @@ function buildRestoreOperatorCases(nodePrefix) {
             pipeline_override: {
                 [`SellProduct${nodePrefix}SetAfterSellOperatorAnchor`]: {
                     anchor: {
-                        SellProductAfterSellOperator: "",
+                        SellProductAfterSellOperator: "SellProductAfterSellOperator",
                     },
                 },
             },

@@ -52,7 +52,7 @@
     "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
         "desc": "${LocationDesc}设置售卖后恢复干员锚点",
         "anchor": {
-            "SellProductAfterSellOperator": ""
+            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
         },
         "pre_delay": 0,
         "post_delay": 0,

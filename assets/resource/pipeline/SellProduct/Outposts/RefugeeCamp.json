@@ -53,7 +53,7 @@
         "desc": "难民暂居处设置售卖后恢复干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductAfterSellOperator": ""
+            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,

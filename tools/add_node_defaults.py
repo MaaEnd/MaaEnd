@@ -8,6 +8,7 @@ from pathlib import Path
 DEFAULT_PATTERNS = [
     "assets/resource/pipeline/Common/*.json",
     "assets/resource/pipeline/EnvironmentMonitoring/Locations.json",
+    "assets/resource/pipeline/SellProduct/SellCore.json",
 ]
 FIELD_NAMES = (
     "rate_limit",

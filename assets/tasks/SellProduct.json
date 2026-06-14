@@ -1120,7 +1120,7 @@
                     "pipeline_override": {
                         "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductAfterSellOperator": ""
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
                             }
                         }
                     }
@@ -4380,7 +4380,7 @@
                     "pipeline_override": {
                         "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductAfterSellOperator": ""
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
                             }
                         }
                     }
@@ -7464,7 +7464,7 @@
                     "pipeline_override": {
                         "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductAfterSellOperator": ""
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
                             }
                         }
                     }
@@ -10488,7 +10488,7 @@
                     "pipeline_override": {
                         "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductAfterSellOperator": ""
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
                             }
                         }
                     }
@@ -13660,7 +13660,7 @@
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
                             "anchor": {
-                                "SellProductAfterSellOperator": ""
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
                             }
                         }
                     }

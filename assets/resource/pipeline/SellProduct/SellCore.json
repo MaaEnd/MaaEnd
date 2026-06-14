@@ -432,5 +432,11 @@
         "next": [
             "[Anchor]SellProductAfterSellOperator"
         ]
+    },
+    "SellProductAfterSellOperator": {
+        "desc": "未配置售卖后恢复干员，结束售卖流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
