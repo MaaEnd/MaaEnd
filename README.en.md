@@ -1,6 +1,14 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="LOGO" src="https://maaend.com/MaaEnd-Tiny-512.png" width="256" height="256" />
+  <img alt="Don't discuss MAA on Skland" src="https://end.maafw.com/NoSkland-Tiny.webp" width="280" />
+</p>
+
+<p align="center"><strong>Don't discuss MAA on Skland!</strong></p>
+
+---
+
+<p align="center">
+  <img alt="LOGO" src="https://end.maafw.com/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
 <div align="center">
@@ -81,7 +89,7 @@ With your support, MaaEnd continues to grow and improve. ❤️
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)  
+- 💬 **User QQ Group**: [1103911816](https://qm.qq.com/q/YLkMv83h0Q)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)
