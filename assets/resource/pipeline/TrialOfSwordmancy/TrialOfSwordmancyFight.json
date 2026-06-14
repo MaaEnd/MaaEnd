@@ -12,17 +12,41 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
-            "TrialOfSwordmancyChooseTeam"
+            "TrialOfSwordmancyPrepareTeam"
         ]
     },
-    "TrialOfSwordmancyChooseTeam": {
+    "TrialOfSwordmancyPrepareTeam": {
+        // 同 ProtocolSpaceEnterSpacePrepareSuccess
+        "desc": "准备编队界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "next": [
+            "TrialOfSwordmancyConfirmTeam"
+        ]
+    },
+    "TrialOfSwordmancyConfirmTeam": {
         "desc": "开始战斗前确认编队", // TODO: 编队切换
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2"
         ],
+        "pre_wait_freezes": 400,
         "action": "Click",
-        "post_wait_freezes": 100,
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "TrialOfSwordmancyEnterTrial"
